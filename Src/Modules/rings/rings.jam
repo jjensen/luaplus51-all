@@ -1,0 +1,19 @@
+SubDir LUAPLUS Src Modules rings ;
+
+IncludeModule copyfile ;
+
+{
+
+local SRCS =
+	src/rings.c
+;
+
+CopyFile rings : $(LUA_LDIR)/stable.lua : $(SUBDIR)/src/stable.lua ;
+
+if $(MSVCNT) {
+	C.DefFile rings : src/rings.def ;
+}
+
+LuaPlusAddModule rings : $(SRCS) ;
+
+}

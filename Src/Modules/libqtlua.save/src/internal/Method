@@ -1,0 +1,4 @@
+
+#include "qtluamethod.hh"
+#include "qtluamethod.hxx"
+

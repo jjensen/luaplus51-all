@@ -1,0 +1,35 @@
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual Studio 2005
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestSuite", "TestSuite.vcproj", "{9DE1A95B-B617-4338-8AEC-F2C3E1A57D67}"
+	ProjectSection(ProjectDependencies) = postProject
+		{1658EB2F-8E9F-4D28-85AC-633F0F4C82D4} = {1658EB2F-8E9F-4D28-85AC-633F0F4C82D4}
+		{64A4FEFE-0461-4E95-8CC1-91EF5F57DBC6} = {64A4FEFE-0461-4E95-8CC1-91EF5F57DBC6}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LuaPlus", "..\..\Src\LuaPlus\LuaPlus.vs2005.vcproj", "{1658EB2F-8E9F-4D28-85AC-633F0F4C82D4}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTest++.vsnet2005", "..\UnitTest++\UnitTest++.vsnet2005.vcproj", "{64A4FEFE-0461-4E95-8CC1-91EF5F57DBC6}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9DE1A95B-B617-4338-8AEC-F2C3E1A57D67}.Debug|Win32.ActiveCfg = Debug|Win32
+		{9DE1A95B-B617-4338-8AEC-F2C3E1A57D67}.Debug|Win32.Build.0 = Debug|Win32
+		{9DE1A95B-B617-4338-8AEC-F2C3E1A57D67}.Release|Win32.ActiveCfg = Release|Win32
+		{9DE1A95B-B617-4338-8AEC-F2C3E1A57D67}.Release|Win32.Build.0 = Release|Win32
+		{1658EB2F-8E9F-4D28-85AC-633F0F4C82D4}.Debug|Win32.ActiveCfg = Debug|Win32
+		{1658EB2F-8E9F-4D28-85AC-633F0F4C82D4}.Debug|Win32.Build.0 = Debug|Win32
+		{1658EB2F-8E9F-4D28-85AC-633F0F4C82D4}.Release|Win32.ActiveCfg = Release|Win32
+		{1658EB2F-8E9F-4D28-85AC-633F0F4C82D4}.Release|Win32.Build.0 = Release|Win32
+		{64A4FEFE-0461-4E95-8CC1-91EF5F57DBC6}.Debug|Win32.ActiveCfg = Debug|Win32
+		{64A4FEFE-0461-4E95-8CC1-91EF5F57DBC6}.Debug|Win32.Build.0 = Debug|Win32
+		{64A4FEFE-0461-4E95-8CC1-91EF5F57DBC6}.Release|Win32.ActiveCfg = Release|Win32
+		{64A4FEFE-0461-4E95-8CC1-91EF5F57DBC6}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

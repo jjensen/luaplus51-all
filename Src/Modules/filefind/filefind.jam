@@ -1,0 +1,20 @@
+SubDir LUAPLUS Src Modules filefind ;
+
+{
+
+local SRCS =
+		src/buffer.c
+		src/buffer.h
+		src/filefind.c
+		src/fileglob.c
+		src/fileglob.h
+;
+
+if $(NT)
+{
+	C.DefFile filefind : src/filefind.def ;
+}
+
+LuaPlusAddModule filefind : $(SRCS) ;
+
+}

@@ -1,0 +1,56 @@
+
+ @list
+
+  @group The lua stack-based C API is not exposed, only C++
+   objects like @ref QtLua::State and @ref QtLua::Value are manipulated from C++ code.
+  @end group
+
+  @group Lua values can be accessed from C++ with almost the same
+   straightforward syntax as in lua through C++ operator overloading.
+  @end group
+
+  @group C++ objects can be exposed to lua as userdata values by inheriting
+   from the @ref QtLua::UserData class. All lua meta operations can be redefined
+   by overriding virtual functions, including iteration over userdata objects from lua. The @ref
+   QtLua::Ref smart pointer class enables @ref QtLua::UserData based objects reference tracking and can make
+   these objects subject to lua garbage collection.
+  @end group
+
+  @group The @ref QtLua::Iterator wrapper class enables use of usual C++ iterators
+   to traverse lua tables and userdata values. Lua iterators
+   can also be used to traverse Qt containers and C++ @ref QtLua::UserData based objects from lua.
+  @end group
+
+  @group Qt @xref{QObject wrapping} enables creation and manipulation of QObjects and
+   loading of @tt .ui user interface files from lua, this allows writing some part
+   of the user interface in lua.
+   @ref QObject properties, enumerations, slots and children objects can be
+   accessed from lua. Qt Signals can be connected directly to lua functions.
+  @end group
+
+  @group The @ref QtLua::Plugin class allows easy writing of Qt plugins which may contains
+   @ref QtLua::Function objects invocable from lua.
+  @end group
+
+  @group Qt @ref QtLua::ItemModel {Model/View base classes} are provided to easily develop
+   hierarchical data structures accessible from both lua script and Qt view widgets.
+  @end group
+
+  @group Qt template containers can be exposed to lua script with just a proxy
+	 template classes instantiation.
+  @end group
+
+  @group The library comes with the Qt @ref QtLua::Console widget: a
+   console widget with history and lua table completion capabilities.
+  @end group
+
+  @group The @xref{The qtlua interpreter tool}{qtlua} tool can be used to execute and test
+   Qt based lua scripts or play with Qt objects from lua in an interactive manner through
+   a Qt console widget interface.
+  @end group
+
+ @end list
+
+ The library has been successfully tested with lua versions from 5.0 to 5.1
+ and with Qt versions from 4.2 to 4.5.
+

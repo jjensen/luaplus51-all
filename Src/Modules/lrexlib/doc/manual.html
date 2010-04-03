@@ -1,0 +1,1242 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.5: http://docutils.sourceforge.net/" />
+<title>Lrexlib 2.4 Reference Manual</title>
+<link rel="stylesheet" href="lrexlib.css" type="text/css" />
+</head>
+<body>
+<div class="document" id="lrexlib-2-4-reference-manual">
+<h1 class="title">Lrexlib 2.4 Reference Manual</h1>
+
+<div class="contents topic">
+<p class="topic-title first"><a id="table-of-contents" name="table-of-contents">Table of Contents</a></p>
+<ul class="simple">
+<li><a class="reference" href="#introduction" id="id1" name="id1">Introduction</a></li>
+<li><a class="reference" href="#notes" id="id2" name="id2">Notes</a></li>
+<li><a class="reference" href="#functions-and-methods-common-to-all-bindings" id="id3" name="id3">Functions and methods common to all bindings</a><ul>
+<li><a class="reference" href="#match" id="id4" name="id4">match</a></li>
+<li><a class="reference" href="#find" id="id5" name="id5">find</a></li>
+<li><a class="reference" href="#gmatch" id="id6" name="id6">gmatch</a></li>
+<li><a class="reference" href="#gsub" id="id7" name="id7">gsub</a></li>
+<li><a class="reference" href="#split" id="id8" name="id8">split</a></li>
+<li><a class="reference" href="#flags" id="id9" name="id9">flags</a></li>
+<li><a class="reference" href="#new" id="id10" name="id10">new</a></li>
+<li><a class="reference" href="#tfind" id="id11" name="id11">tfind</a></li>
+<li><a class="reference" href="#exec" id="id12" name="id12">exec</a></li>
+</ul>
+</li>
+<li><a class="reference" href="#pcre-only-functions-and-methods" id="id13" name="id13">PCRE-only functions and methods</a><ul>
+<li><a class="reference" href="#dfa-exec" id="id14" name="id14">dfa_exec</a></li>
+<li><a class="reference" href="#maketables" id="id15" name="id15">maketables</a></li>
+<li><a class="reference" href="#config" id="id16" name="id16">config</a></li>
+<li><a class="reference" href="#rex-pcre-version" id="id17" name="id17">rex_pcre.version</a></li>
+</ul>
+</li>
+<li><a class="reference" href="#oniguruma-only-functions-and-methods" id="id18" name="id18">Oniguruma-only functions and methods</a><ul>
+<li><a class="reference" href="#setdefaultsyntax" id="id19" name="id19">setdefaultsyntax</a></li>
+<li><a class="reference" href="#rex-onig-version" id="id20" name="id20">rex_onig.version</a></li>
+</ul>
+</li>
+<li><a class="reference" href="#other-functions" id="id21" name="id21">Other functions</a><ul>
+<li><a class="reference" href="#plainfind" id="id22" name="id22">plainfind</a></li>
+</ul>
+</li>
+<li><a class="reference" href="#incompatibilities-with-the-previous-versions" id="id23" name="id23">Incompatibilities with the Previous Versions</a></li>
+</ul>
+</div>
+<hr class="docutils" />
+<div class="section">
+<h2><a class="toc-backref" href="#id1" id="introduction" name="introduction">Introduction</a></h2>
+<p><strong>Lrexlib</strong> provides bindings of three regular expression library APIs
+(<a class="reference" href="http://www.opengroup.org/onlinepubs/009695399/basedefs/xbd_chap09.html">POSIX</a>, <a class="reference" href="http://www.pcre.org/pcre.txt">PCRE</a> and <a class="reference" href="http://www.geocities.jp/kosako3/oniguruma/doc/RE.txt">Oniguruma</a>) to <a class="reference" href="http://www.lua.org">Lua</a> 5.1.</p>
+<p><strong>Lrexlib</strong> builds into shared libraries called by default <em>rex_posix.so</em>,
+<em>rex_pcre.so</em> and <em>rex_onig.so</em>, which can be used with <em>require</em>.</p>
+<p><strong>Lrexlib</strong> is copyright Reuben Thomas 2000-2008 and copyright Shmuel Zeigerman
+2004-2008, and is released under the MIT license.</p>
+</div>
+<hr class="docutils" />
+<div class="section">
+<h2><a class="toc-backref" href="#id2" id="notes" name="notes">Notes</a></h2>
+<ol class="arabic">
+<li><p class="first">Most functions and methods in Lrexlib have mandatory and optional arguments.
+There are no dependencies between arguments in Lrexlib's functions and
+methods. Any optional argument can be supplied as <tt class="docutils literal"><span class="pre">nil</span></tt> (or omitted if it
+is a trailing argument), the library will then use the default value for that
+argument.</p>
+</li>
+<li><p class="first">This document uses the following syntax for optional arguments: they are
+bracketed separately, and commas are left outside brackets, e.g.:</p>
+<pre class="literal-block">
+MyFunc (arg1, arg2, [arg3], [arg4])
+</pre>
+</li>
+<li><p class="first">Throughout this document (unless it causes ambiguity), the identifier <em>rex</em>
+is used in place of either <em>rex_posix</em>, <em>rex_pcre</em> or <em>rex_onig</em>, that are
+the default namespaces for the corresponding libraries.</p>
+</li>
+<li><p class="first">All functions that take a regular expression pattern as an argument will
+generate an error if that pattern is found invalid by the used
+<a class="reference" href="http://www.opengroup.org/onlinepubs/009695399/basedefs/xbd_chap09.html">POSIX</a> / <a class="reference" href="http://www.pcre.org/pcre.txt">PCRE</a> / <a class="reference" href="http://www.geocities.jp/kosako3/oniguruma/doc/RE.txt">Oniguruma</a> library.</p>
+</li>
+<li><p class="first">All functions that take a string-type regex argument accept a compiled regex
+too. In this case, the <a class="reference" href="#cf">cf</a>, <a class="reference" href="#locale">locale</a> and <a class="reference" href="#syntax">syntax</a> arguments are ignored (should
+be either supplied as nils or omitted).</p>
+</li>
+</ol>
+<ol class="arabic" id="cf" start="6">
+<li><p class="first">The default value for <em>compilation flags</em> (<em>cf</em>) that Lrexlib uses when
+the parameter is not supplied or <tt class="docutils literal"><span class="pre">nil</span></tt> is:</p>
+<blockquote>
+<ul class="simple">
+<li>REG_EXTENDED for POSIX regex library</li>
+<li>0 for PCRE</li>
+<li>ONIG_OPTION_NONE for Oniguruma</li>
+</ul>
+</blockquote>
+<p><strong>PCRE</strong>, <strong>Oniguruma</strong>: <em>cf</em> may also be supplied as a string, whose
+characters stand for compilation flags. Combinations of the following
+characters (case sensitive) are supported:</p>
+<blockquote>
+<table border="1" class="docutils">
+<colgroup>
+<col width="24%" />
+<col width="29%" />
+<col width="48%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head"><p class="first last"><strong>Character</strong></p>
+</th>
+<th class="head"><p class="first last"><strong>PCRE flag</strong></p>
+</th>
+<th class="head"><p class="first last"><strong>Oniguruma flag</strong></p>
+</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td><p class="first last"><strong>i</strong></p>
+</td>
+<td><p class="first last">PCRE_CASELESS</p>
+</td>
+<td><p class="first last">ONIG_OPTION_IGNORECASE</p>
+</td>
+</tr>
+<tr><td><p class="first last"><strong>m</strong></p>
+</td>
+<td><p class="first last">PCRE_MULTILINE</p>
+</td>
+<td><p class="first last">ONIG_OPTION_NEGATE_SINGLELINE</p>
+</td>
+</tr>
+<tr><td><p class="first last"><strong>s</strong></p>
+</td>
+<td><p class="first last">PCRE_DOTALL</p>
+</td>
+<td><p class="first last">ONIG_OPTION_MULTILINE</p>
+</td>
+</tr>
+<tr><td><p class="first last"><strong>x</strong></p>
+</td>
+<td><p class="first last">PCRE_EXTENDED</p>
+</td>
+<td><p class="first last">ONIG_OPTION_EXTEND</p>
+</td>
+</tr>
+<tr><td><p class="first last"><strong>U</strong></p>
+</td>
+<td><p class="first last">PCRE_UNGREEDY</p>
+</td>
+<td><p class="first last">n/a</p>
+</td>
+</tr>
+<tr><td><p class="first last"><strong>X</strong></p>
+</td>
+<td><p class="first last">PCRE_EXTRA</p>
+</td>
+<td><p class="first last">n/a</p>
+</td>
+</tr>
+</tbody>
+</table>
+</blockquote>
+</li>
+</ol>
+<ol class="arabic" id="ef" start="7">
+<li><p class="first">The default value for <em>execution flags</em> (<em>ef</em>) that Lrexlib uses when
+the parameter is not supplied or <tt class="docutils literal"><span class="pre">nil</span></tt>, is:</p>
+<blockquote>
+<ul class="simple">
+<li>0 for standard POSIX regex library</li>
+<li>REG_STARTEND for those POSIX regex libraries that support it,
+e.g. Spencer's.</li>
+<li>0 for PCRE</li>
+<li>0 for Oniguruma</li>
+</ul>
+</blockquote>
+</li>
+</ol>
+<ol class="arabic" id="locale" start="8">
+<li><p class="first"><strong>PCRE:</strong> parameter <em>locale</em> (<em>lo</em>) can be either a string (e.g.,
+&quot;French_France.1252&quot;), or a userdata obtained from a call to <a class="reference" href="#maketables">maketables</a>.
+The default value, used when the parameter is not supplied or <tt class="docutils literal"><span class="pre">nil</span></tt>,
+is the built-in PCRE set of character tables.</p>
+<p><strong>Oniguruma:</strong> this parameter (which actually should be named &quot;encoding&quot;
+rather than &quot;locale&quot;) must be one of the predefined strings that are formed
+from the ONIG_ENCODING_xxx identifiers defined in oniguruma.h, by means of
+omitting the ONIG_ENCODING_ part. For example, ONIG_ENCODING_UTF8 becomes
+<tt class="docutils literal"><span class="pre">&quot;UTF8&quot;</span></tt> on the Lua side. The default value, used when the parameter is not
+supplied or <tt class="docutils literal"><span class="pre">nil</span></tt>, is <tt class="docutils literal"><span class="pre">&quot;ASCII&quot;</span></tt>.</p>
+<p>If the caller-supplied value of this parameter is not one of the predefined
+&quot;encoding&quot; string set, an error is raised.</p>
+</li>
+</ol>
+<ol class="arabic" id="syntax" start="9">
+<li><p class="first"><strong>Oniguruma:</strong> parameter <em>syntax</em> (<em>syn</em>) must be one of the predefined
+strings that are formed from the ONIG_SYNTAX_xxx identifiers defined in
+oniguruma.h, by means of omitting the ONIG_SYNTAX_ part. For example,
+ONIG_SYNTAX_JAVA becomes <tt class="docutils literal"><span class="pre">&quot;JAVA&quot;</span></tt> on the Lua side. The default value, used
+when the parameter is not supplied or <tt class="docutils literal"><span class="pre">nil</span></tt>, is either <tt class="docutils literal"><span class="pre">&quot;RUBY&quot;</span></tt> (at the
+start-up), or the value set by the last <a class="reference" href="#setdefaultsyntax">setdefaultsyntax</a> call.</p>
+<p>If the caller-supplied value of <cite>syntax</cite> parameter is not one of the
+predefined &quot;syntax&quot; string set, an error is raised.</p>
+</li>
+</ol>
+</div>
+<hr class="docutils" />
+<div class="section">
+<h2><a class="toc-backref" href="#id3" id="functions-and-methods-common-to-all-bindings" name="functions-and-methods-common-to-all-bindings">Functions and methods common to all bindings</a></h2>
+<div class="section">
+<h3><a class="toc-backref" href="#id4" id="match" name="match">match</a></h3>
+<p><tt class="funcdef docutils literal"><span class="pre">rex.match</span> <span class="pre">(subj,</span> <span class="pre">patt,</span> <span class="pre">[init],</span> <span class="pre">[cf],</span> <span class="pre">[ef],</span> <span class="pre">[lo],</span> <span class="pre">[syn])</span></tt></p>
+<p>or</p>
+<p><tt class="funcdef docutils literal"><span class="pre">r:match</span> <span class="pre">(subj,</span> <span class="pre">[init],</span> <span class="pre">[ef])</span></tt></p>
+<p>The function searches for the first match of the regexp <em>patt</em> in the string
+<em>subj</em>, starting from offset <em>init</em>, subject to flags <em>cf</em> and <em>ef</em>.</p>
+<blockquote>
+<table border="1" class="docutils">
+<colgroup>
+<col width="15%" />
+<col width="51%" />
+<col width="13%" />
+<col width="21%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+<th class="head">Type</th>
+<th class="head">Default Value</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>r</td>
+<td>regex object produced by <a class="reference" href="#new">new</a></td>
+<td>userdata</td>
+<td>n/a</td>
+</tr>
+<tr><td>subj</td>
+<td>subject</td>
+<td>string</td>
+<td>n/a</td>
+</tr>
+<tr><td>patt</td>
+<td>regular expression pattern</td>
+<td>string
+or
+userdata</td>
+<td>n/a</td>
+</tr>
+<tr><td>[init]</td>
+<td>start offset in the subject
+(can be negative)</td>
+<td>number</td>
+<td>1</td>
+</tr>
+<tr><td>[cf]</td>
+<td>compilation flags (bitwise OR)</td>
+<td>number</td>
+<td><a class="reference" href="#cf">cf</a></td>
+</tr>
+<tr><td>[ef]</td>
+<td>execution flags (bitwise OR)</td>
+<td>number</td>
+<td><a class="reference" href="#ef">ef</a></td>
+</tr>
+<tr><td>[lo]</td>
+<td>[PCRE, Oniguruma] locale</td>
+<td>string
+or
+userdata</td>
+<td><a class="reference" href="#locale">locale</a></td>
+</tr>
+<tr><td>[syn]</td>
+<td>[Oniguruma] syntax</td>
+<td>string</td>
+<td><a class="reference" href="#syntax">syntax</a></td>
+</tr>
+</tbody>
+</table>
+</blockquote>
+<dl class="docutils">
+<dt><strong>Returns on success:</strong></dt>
+<dd><ol class="first last arabic simple">
+<li>All substring matches (&quot;captures&quot;), in the order they appear in the
+pattern. <tt class="docutils literal"><span class="pre">false</span></tt> is returned for sub-patterns that did not participate in
+the match. If the pattern specified no captures then the whole matched
+substring is returned.</li>
+</ol>
+</dd>
+<dt><strong>Returns on failure:</strong></dt>
+<dd><ol class="first last arabic simple">
+<li><tt class="docutils literal"><span class="pre">nil</span></tt></li>
+</ol>
+</dd>
+</dl>
+</div>
+<hr class="docutils" />
+<div class="section">
+<h3><a class="toc-backref" href="#id5" id="find" name="find">find</a></h3>
+<p><tt class="funcdef docutils literal"><span class="pre">rex.find</span> <span class="pre">(subj,</span> <span class="pre">patt,</span> <span class="pre">[init],</span> <span class="pre">[cf],</span> <span class="pre">[ef],</span> <span class="pre">[lo],</span> <span class="pre">[syn])</span></tt></p>
+<p>or</p>
+<p><tt class="funcdef docutils literal"><span class="pre">r:find</span> <span class="pre">(subj,</span> <span class="pre">[init],</span> <span class="pre">[ef])</span></tt></p>
+<p>The function searches for the first match of the regexp <em>patt</em> in the string
+<em>subj</em>, starting from offset <em>init</em>, subject to flags <em>cf</em> and <em>ef</em>.</p>
+<blockquote>
+<table border="1" class="docutils">
+<colgroup>
+<col width="15%" />
+<col width="51%" />
+<col width="13%" />
+<col width="21%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+<th class="head">Type</th>
+<th class="head">Default Value</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>r</td>
+<td>regex object produced by <a class="reference" href="#new">new</a></td>
+<td>userdata</td>
+<td>n/a</td>
+</tr>
+<tr><td>subj</td>
+<td>subject</td>
+<td>string</td>
+<td>n/a</td>
+</tr>
+<tr><td>patt</td>
+<td>regular expression pattern</td>
+<td>string
+or
+userdata</td>
+<td>n/a</td>
+</tr>
+<tr><td>[init]</td>
+<td>start offset in the subject
+(can be negative)</td>
+<td>number</td>
+<td>1</td>
+</tr>
+<tr><td>[cf]</td>
+<td>compilation flags (bitwise OR)</td>
+<td>number</td>
+<td><a class="reference" href="#cf">cf</a></td>
+</tr>
+<tr><td>[ef]</td>
+<td>execution flags (bitwise OR)</td>
+<td>number</td>
+<td><a class="reference" href="#ef">ef</a></td>
+</tr>
+<tr><td>[lo]</td>
+<td>[PCRE, Oniguruma] locale</td>
+<td>string
+or
+userdata</td>
+<td><a class="reference" href="#locale">locale</a></td>
+</tr>
+<tr><td>[syn]</td>
+<td>[Oniguruma] syntax</td>
+<td>string</td>
+<td><a class="reference" href="#syntax">syntax</a></td>
+</tr>
+</tbody>
+</table>
+</blockquote>
+<dl class="docutils">
+<dt><strong>Returns on success:</strong></dt>
+<dd><ol class="first last arabic simple">
+<li>The start point of the match (a number).</li>
+<li>The end point of the match (a number).</li>
+<li>All substring matches (&quot;captures&quot;), in the order they appear in the
+pattern. <tt class="docutils literal"><span class="pre">false</span></tt> is returned for sub-patterns that did not participate in
+the match.</li>
+</ol>
+</dd>
+<dt><strong>Returns on failure:</strong></dt>
+<dd><ol class="first last arabic simple">
+<li><tt class="docutils literal"><span class="pre">nil</span></tt></li>
+</ol>
+</dd>
+</dl>
+</div>
+<hr class="docutils" />
+<div class="section">
+<h3><a class="toc-backref" href="#id6" id="gmatch" name="gmatch">gmatch</a></h3>
+<p><tt class="funcdef docutils literal"><span class="pre">rex.gmatch</span> <span class="pre">(subj,</span> <span class="pre">patt,</span> <span class="pre">[cf],</span> <span class="pre">[ef],</span> <span class="pre">[lo],</span> <span class="pre">[syn])</span></tt></p>
+<p>The function is intended for use in the <em>generic for</em> Lua construct.
+It returns an iterator for repeated matching of the pattern <em>patt</em> in
+the string <em>subj</em>, subject to flags <em>cf</em> and <em>ef</em>.</p>
+<blockquote>
+<table border="1" class="docutils">
+<colgroup>
+<col width="15%" />
+<col width="51%" />
+<col width="13%" />
+<col width="21%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+<th class="head">Type</th>
+<th class="head">Default Value</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>subj</td>
+<td>subject</td>
+<td>string</td>
+<td>n/a</td>
+</tr>
+<tr><td>patt</td>
+<td>regular expression pattern</td>
+<td>string
+or
+userdata</td>
+<td>n/a</td>
+</tr>
+<tr><td>[cf]</td>
+<td>compilation flags (bitwise OR)</td>
+<td>number</td>
+<td><a class="reference" href="#cf">cf</a></td>
+</tr>
+<tr><td>[ef]</td>
+<td>execution flags (bitwise OR)</td>
+<td>number</td>
+<td><a class="reference" href="#ef">ef</a></td>
+</tr>
+<tr><td>[lo]</td>
+<td>[PCRE, Oniguruma] locale</td>
+<td>string
+or
+userdata</td>
+<td><a class="reference" href="#locale">locale</a></td>
+</tr>
+<tr><td>[syn]</td>
+<td>[Oniguruma] syntax</td>
+<td>string</td>
+<td><a class="reference" href="#syntax">syntax</a></td>
+</tr>
+</tbody>
+</table>
+</blockquote>
+<p>The iterator function is called by Lua. On every iteration (that is, on every
+match), it returns all captures in the order they appear in the pattern (or the
+entire match if the pattern specified no captures). The iteration will continue
+till the subject fails to match.</p>
+</div>
+<hr class="docutils" />
+<div class="section">
+<h3><a class="toc-backref" href="#id7" id="gsub" name="gsub">gsub</a></h3>
+<p><tt class="funcdef docutils literal"><span class="pre">rex.gsub</span> <span class="pre">(subj,</span> <span class="pre">patt,</span> <span class="pre">repl,</span> <span class="pre">[n],</span> <span class="pre">[cf],</span> <span class="pre">[ef],</span> <span class="pre">[lo],</span> <span class="pre">[syn])</span></tt></p>
+<p>This function searches for all matches of the pattern <em>patt</em> in the string
+<em>subj</em> and replaces them according to the parameters <em>repl</em> and <em>n</em> (see details
+below).</p>
+<blockquote>
+<table border="1" class="docutils">
+<colgroup>
+<col width="11%" />
+<col width="43%" />
+<col width="30%" />
+<col width="16%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+<th class="head">Type</th>
+<th class="head">Default Value</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>subj</td>
+<td>subject</td>
+<td>string</td>
+<td>n/a</td>
+</tr>
+<tr><td>patt</td>
+<td>regular expression pattern</td>
+<td>string or userdata</td>
+<td>n/a</td>
+</tr>
+<tr><td>repl</td>
+<td>substitution source</td>
+<td>string, function or table</td>
+<td>n/a</td>
+</tr>
+<tr><td>[n]</td>
+<td>maximum number of matches to search
+for, or control function, or nil</td>
+<td>number or function</td>
+<td><tt class="docutils literal"><span class="pre">nil</span></tt></td>
+</tr>
+<tr><td>[cf]</td>
+<td>compilation flags (bitwise OR)</td>
+<td>number</td>
+<td><a class="reference" href="#cf">cf</a></td>
+</tr>
+<tr><td>[ef]</td>
+<td>execution flags (bitwise OR)</td>
+<td>number</td>
+<td><a class="reference" href="#ef">ef</a></td>
+</tr>
+<tr><td>[lo]</td>
+<td>[PCRE, Oniguruma] locale</td>
+<td>string or userdata</td>
+<td><a class="reference" href="#locale">locale</a></td>
+</tr>
+<tr><td>[syn]</td>
+<td>[Oniguruma] syntax</td>
+<td>string</td>
+<td><a class="reference" href="#syntax">syntax</a></td>
+</tr>
+</tbody>
+</table>
+</blockquote>
+<dl class="docutils">
+<dt><strong>Returns:</strong></dt>
+<dd><ol class="first last arabic simple">
+<li>The subject string with the substitutions made.</li>
+<li>Number of matches found.</li>
+<li>Number of substitutions made.</li>
+</ol>
+</dd>
+<dt><strong>Details:</strong></dt>
+<dd><p class="first">The parameter <em>repl</em> can be either a string, a function or a table.
+On each match made, it is converted into a value <em>repl_out</em> that may be used
+for the replacement.</p>
+<p><em>repl_out</em> is generated differently depending on the type of <em>repl</em>:</p>
+<ol class="arabic simple">
+<li>If <em>repl</em> is a <em>string</em> then it is treated as a template for substitution,
+where the %X occurences in <em>repl</em> are handled in a special way, depending
+on the value of the character X:</li>
+</ol>
+<blockquote>
+<ul class="simple">
+<li>if X represents a digit, then each %X occurence is substituted by the
+value of the X-th submatch (capture), with the following cases handled
+specially:<ul>
+<li>each %0 is substituted by the entire match</li>
+<li>if the pattern contains no captures, then each %1 is substituted by the
+entire match</li>
+<li>any other %X where X is greater than the number of captures in the
+pattern will generate an error (&quot;invalid capture index&quot;)</li>
+<li>if the pattern does contain a capture with number X but that capture
+didn't participate in the match, then %X is substituted by an empty
+string</li>
+</ul>
+</li>
+<li>if X is any non-digit character then %X is substituted by X</li>
+</ul>
+<p>All parts of <em>repl</em> other than %X are copied to <em>repl_out</em> verbatim.</p>
+</blockquote>
+<ol class="arabic simple" start="2">
+<li>If <em>repl</em> is a <em>function</em> then it is called on each match with the
+submatches passed as parameters (if there are no submatches then the entire
+match is passed as the only parameter). <em>repl_out</em> is the return value of
+the <em>repl</em> call, and is interpreted as follows:</li>
+</ol>
+<blockquote>
+<ul class="simple">
+<li>if it is a string or a number (coerced to a string), then the replacement
+value is that string;</li>
+<li>if it is a <tt class="docutils literal"><span class="pre">nil</span></tt> or a <tt class="docutils literal"><span class="pre">false</span></tt>, then no replacement is to be done;</li>
+</ul>
+</blockquote>
+<ol class="arabic simple" start="3">
+<li>If <em>repl</em> is a table then <em>repl_out</em> is <em>repl</em> [m1], where m1 is the first
+submatch (or the entire match if there are no submatches), following the
+same rules as for the return value of <em>repl</em> call, described in the above
+paragraph.</li>
+</ol>
+<p>Note: Under some circumstances, the value of <em>repl_out</em> may be ignored; see
+<a class="reference" href="#below">below</a>.</p>
+<p>gsub behaves differently depending on the type of <em>n</em>:</p>
+<ol class="last arabic simple">
+<li>If <em>n</em> is a <em>number</em> then it is treated as the maximum number of matches
+to search for (an omitted or <tt class="docutils literal"><span class="pre">nil</span></tt> value means an unlimited number of
+matches). On each match, the replacement value is the <em>repl_out</em> string
+(see above).</li>
+</ol>
+</dd>
+</dl>
+<blockquote id="below">
+<ol class="arabic" start="2">
+<li><p class="first">If <em>n</em> is a function, then it is called on each match, after <em>repl_out</em> is
+produced (so if <em>repl</em> is a function, it will be called prior to the <em>n</em>
+call).</p>
+<p><em>n</em> receives 3 arguments and returns 2 values. Its arguments are:</p>
+<blockquote>
+<ol class="arabic simple">
+<li>The start offset of the match (a number)</li>
+<li>The end offset of the match (a number)</li>
+<li><em>repl_out</em></li>
+</ol>
+</blockquote>
+<p>The type of its first return controls the replacement produced by gsub for
+the current match:</p>
+<blockquote>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">true</span></tt> -- replace/don't replace, according to <em>repl_out</em>;</li>
+<li><tt class="docutils literal"><span class="pre">nil</span></tt>/<tt class="docutils literal"><span class="pre">false</span></tt> -- don't replace;</li>
+<li>a string (or a number coerced to a string) -- replace by that string;</li>
+</ul>
+</blockquote>
+<p>The type of its second return controls gsub behavior after the current
+match is handled:</p>
+<blockquote>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">nil</span></tt>/<tt class="docutils literal"><span class="pre">false</span></tt> -- no changes: <em>n</em> will be called on the next match;</li>
+<li><tt class="docutils literal"><span class="pre">true</span></tt> -- search for an unlimited number of matches; <em>n</em> will not be
+called again;</li>
+<li>a number -- maximum number of matches to search for, beginning from the
+next match; <em>n</em> will not be called again;</li>
+</ul>
+</blockquote>
+</li>
+</ol>
+</blockquote>
+</div>
+<hr class="docutils" />
+<div class="section">
+<h3><a class="toc-backref" href="#id8" id="split" name="split">split</a></h3>
+<p><tt class="funcdef docutils literal"><span class="pre">rex.split</span> <span class="pre">(subj,</span> <span class="pre">sep,</span> <span class="pre">[cf],</span> <span class="pre">[ef],</span> <span class="pre">[lo],</span> <span class="pre">[syn])</span></tt></p>
+<p>The function is intended for use in the <em>generic for</em> Lua construct.
+It is used for splitting a subject string <em>subj</em> into parts (<em>sections</em>).
+The <em>sep</em> parameter is a regular expression pattern representing
+<strong>separators</strong> between the sections.</p>
+<p>The function returns an iterator for repeated matching of the pattern <em>sep</em> in
+the string <em>subj</em>, subject to flags <em>cf</em> and <em>ef</em>.</p>
+<blockquote>
+<table border="1" class="docutils">
+<colgroup>
+<col width="15%" />
+<col width="51%" />
+<col width="13%" />
+<col width="21%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+<th class="head">Type</th>
+<th class="head">Default Value</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>subj</td>
+<td>subject</td>
+<td>string</td>
+<td>n/a</td>
+</tr>
+<tr><td>sep</td>
+<td>separator (regular expression
+pattern)</td>
+<td>string
+or
+userdata</td>
+<td>n/a</td>
+</tr>
+<tr><td>[cf]</td>
+<td>compilation flags (bitwise OR)</td>
+<td>number</td>
+<td><a class="reference" href="#cf">cf</a></td>
+</tr>
+<tr><td>[ef]</td>
+<td>execution flags (bitwise OR)</td>
+<td>number</td>
+<td><a class="reference" href="#ef">ef</a></td>
+</tr>
+<tr><td>[lo]</td>
+<td>[PCRE, Oniguruma] locale</td>
+<td>string
+or
+userdata</td>
+<td><a class="reference" href="#locale">locale</a></td>
+</tr>
+<tr><td>[syn]</td>
+<td>[Oniguruma] syntax</td>
+<td>string</td>
+<td><a class="reference" href="#syntax">syntax</a></td>
+</tr>
+</tbody>
+</table>
+</blockquote>
+<p><strong>On every iteration pass, the iterator returns:</strong></p>
+<blockquote>
+<ol class="arabic simple">
+<li>A subject section (can be an empty string), followed by</li>
+<li>All captures in the order they appear in the <em>sep</em> pattern (or the entire
+match if the <em>sep</em> pattern specified no captures). If there is no match
+(this can occur only in the last iteration), then nothing is returned after
+the subject section.</li>
+</ol>
+</blockquote>
+<p>The iteration will continue till the end of the subject. Unlike <a class="reference" href="#gmatch">gmatch</a>, there
+will always be at least one iteration pass, even if there are no matches in the
+subject.</p>
+</div>
+<hr class="docutils" />
+<div class="section">
+<h3><a class="toc-backref" href="#id9" id="flags" name="flags">flags</a></h3>
+<p><tt class="funcdef docutils literal"><span class="pre">rex.flags</span> <span class="pre">([tb])</span></tt></p>
+<p>This function returns a table containing the numeric values of the constants
+defined by the used regex library, with the keys being the (string) names of the
+constants. If the table argument <em>tb</em> is supplied then it is used as the output
+table, otherwise a new table is created.</p>
+<p>The constants contained in the returned table can then be used in most functions
+and methods where <em>compilation flags</em> or <em>execution flags</em> can be specified.
+They can also be used for comparing with return codes of some functions and
+methods for determining the reason of failure. For details, see the <a class="reference" href="http://www.opengroup.org/onlinepubs/009695399/basedefs/xbd_chap09.html">POSIX</a>,
+<a class="reference" href="http://www.pcre.org/pcre.txt">PCRE</a> and <a class="reference" href="http://www.geocities.jp/kosako3/oniguruma/doc/RE.txt">Oniguruma</a> documentation.</p>
+<blockquote>
+<table border="1" class="docutils">
+<colgroup>
+<col width="15%" />
+<col width="52%" />
+<col width="13%" />
+<col width="21%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+<th class="head">Type</th>
+<th class="head">Default Value</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>[tb]</td>
+<td>a table for placing results into</td>
+<td>table</td>
+<td><tt class="docutils literal"><span class="pre">nil</span></tt></td>
+</tr>
+</tbody>
+</table>
+</blockquote>
+<dl class="docutils">
+<dt><strong>Returns:</strong></dt>
+<dd><ol class="first last arabic simple">
+<li>A table filled with the results.</li>
+</ol>
+</dd>
+</dl>
+<p><strong>Notes:</strong>
+The keys in the <cite>tb</cite> table are formed from the names of the corresponding
+constants in the used library. They are formed as follows:</p>
+<ul class="simple">
+<li><strong>POSIX:</strong> prefix REG_ is omitted, e.g. REG_ICASE becomes <tt class="docutils literal"><span class="pre">&quot;ICASE&quot;</span></tt>.</li>
+<li><strong>PCRE:</strong> prefix PCRE_ is omitted, e.g. PCRE_CASELESS becomes
+<tt class="docutils literal"><span class="pre">&quot;CASELESS&quot;</span></tt>.</li>
+<li><strong>Oniguruma:</strong> names of constants are converted to strings with no alteration,
+but for ONIG_OPTION_xxx constants, alias strings are created additionally,
+e.g., the value of ONIG_OPTION_IGNORECASE constant becomes accessible via
+either of two keys: <tt class="docutils literal"><span class="pre">&quot;ONIG_OPTION_IGNORECASE&quot;</span></tt> and <tt class="docutils literal"><span class="pre">&quot;IGNORECASE&quot;</span></tt>.</li>
+</ul>
+</div>
+<hr class="docutils" />
+<div class="section">
+<h3><a class="toc-backref" href="#id10" id="new" name="new">new</a></h3>
+<p><tt class="funcdef docutils literal"><span class="pre">rex.new</span> <span class="pre">(patt,</span> <span class="pre">[cf],</span> <span class="pre">[lo],</span> <span class="pre">[syn])</span></tt></p>
+<p>The functions compiles regular expression <em>patt</em> into a regular expression
+object whose internal representation is corresponding to the library used.
+The returned result then can be used by the methods, e.g. <a class="reference" href="#tfind">tfind</a>, <a class="reference" href="#exec">exec</a>,
+etc. Regular expression objects are automatically garbage collected.</p>
+<blockquote>
+<table border="1" class="docutils">
+<colgroup>
+<col width="15%" />
+<col width="51%" />
+<col width="13%" />
+<col width="21%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+<th class="head">Type</th>
+<th class="head">Default Value</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>patt</td>
+<td>regular expression pattern</td>
+<td>string</td>
+<td>n/a</td>
+</tr>
+<tr><td>[cf]</td>
+<td>compilation flags (bitwise OR)</td>
+<td>number</td>
+<td><a class="reference" href="#cf">cf</a></td>
+</tr>
+<tr><td>[lo]</td>
+<td>[PCRE, Oniguruma] locale</td>
+<td>string
+or
+userdata</td>
+<td><a class="reference" href="#locale">locale</a></td>
+</tr>
+<tr><td>[syn]</td>
+<td>[Oniguruma] syntax</td>
+<td>string</td>
+<td><a class="reference" href="#syntax">syntax</a></td>
+</tr>
+</tbody>
+</table>
+</blockquote>
+<dl class="docutils">
+<dt><strong>Returns:</strong></dt>
+<dd><ol class="first last arabic simple">
+<li>Compiled regular expression (a userdata).</li>
+</ol>
+</dd>
+</dl>
+</div>
+<hr class="docutils" />
+<div class="section">
+<h3><a class="toc-backref" href="#id11" id="tfind" name="tfind">tfind</a></h3>
+<p><tt class="funcdef docutils literal"><span class="pre">r:tfind</span> <span class="pre">(subj,</span> <span class="pre">[init],</span> <span class="pre">[ef])</span></tt></p>
+<p>The method searches for the first match of the compiled regexp <em>r</em> in the
+string <em>subj</em>, starting from offset <em>init</em>, subject to execution flags <em>ef</em>.</p>
+<blockquote>
+<table border="1" class="docutils">
+<colgroup>
+<col width="14%" />
+<col width="54%" />
+<col width="12%" />
+<col width="20%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+<th class="head">Type</th>
+<th class="head">Default Value</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>r</td>
+<td>regex object produced by <a class="reference" href="#new">new</a></td>
+<td>userdata</td>
+<td>n/a</td>
+</tr>
+<tr><td>subj</td>
+<td>subject</td>
+<td>string</td>
+<td>n/a</td>
+</tr>
+<tr><td>[init]</td>
+<td>start offset in the subject
+(can be negative)</td>
+<td>number</td>
+<td>1</td>
+</tr>
+<tr><td>[ef]</td>
+<td>execution flags (bitwise OR)</td>
+<td>number</td>
+<td><a class="reference" href="#ef">ef</a></td>
+</tr>
+</tbody>
+</table>
+</blockquote>
+<dl class="docutils">
+<dt><strong>Returns on success:</strong></dt>
+<dd><ol class="first last arabic simple">
+<li>The start point of the match (a number).</li>
+<li>The end point of the match (a number).</li>
+<li>Substring matches (&quot;captures&quot; in Lua terminology) are returned as a third
+result, in a table. This table contains <tt class="docutils literal"><span class="pre">false</span></tt> in the positions where the
+corresponding sub-pattern did not participate in the match.<ol class="arabic">
+<li><strong>PCRE</strong>, <strong>Oniguruma</strong>: if <em>named subpatterns</em> are used then the table
+also contains substring matches keyed by their correspondent subpattern
+names (strings).</li>
+</ol>
+</li>
+</ol>
+</dd>
+<dt><strong>Returns on failure:</strong></dt>
+<dd><ol class="first last arabic simple">
+<li><tt class="docutils literal"><span class="pre">nil</span></tt></li>
+</ol>
+</dd>
+<dt><strong>Notes:</strong></dt>
+<dd><ol class="first last arabic simple">
+<li>If <em>named subpatterns</em> (see <a class="reference" href="http://www.pcre.org/pcre.txt">PCRE</a> and <a class="reference" href="http://www.geocities.jp/kosako3/oniguruma/doc/RE.txt">Oniguruma</a> docs) are used then the
+returned table also contains substring matches keyed by their correspondent
+subpattern names (strings).</li>
+</ol>
+</dd>
+</dl>
+</div>
+<hr class="docutils" />
+<div class="section">
+<h3><a class="toc-backref" href="#id12" id="exec" name="exec">exec</a></h3>
+<p><tt class="funcdef docutils literal"><span class="pre">r:exec</span> <span class="pre">(subj,</span> <span class="pre">[init],</span> <span class="pre">[ef])</span></tt></p>
+<p>The method searches for the first match of the compiled regexp <em>r</em> in the
+string <em>subj</em>, starting from offset <em>init</em>, subject to execution flags <em>ef</em>.</p>
+<blockquote>
+<table border="1" class="docutils">
+<colgroup>
+<col width="14%" />
+<col width="54%" />
+<col width="12%" />
+<col width="20%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+<th class="head">Type</th>
+<th class="head">Default Value</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>r</td>
+<td>regex object produced by <a class="reference" href="#new">new</a></td>
+<td>userdata</td>
+<td>n/a</td>
+</tr>
+<tr><td>subj</td>
+<td>subject</td>
+<td>string</td>
+<td>n/a</td>
+</tr>
+<tr><td>[init]</td>
+<td>start offset in the subject
+(can be negative)</td>
+<td>number</td>
+<td>1</td>
+</tr>
+<tr><td>[ef]</td>
+<td>execution flags (bitwise OR)</td>
+<td>number</td>
+<td><a class="reference" href="#ef">ef</a></td>
+</tr>
+</tbody>
+</table>
+</blockquote>
+<dl class="docutils">
+<dt><strong>Returns on success:</strong></dt>
+<dd><ol class="first last arabic simple">
+<li>The start point of the first match (a number).</li>
+<li>The end point of the first match (a number).</li>
+<li>The offsets of substring matches (&quot;captures&quot; in Lua terminology) are
+returned as a third result, in a table. This table contains <tt class="docutils literal"><span class="pre">false</span></tt> in the
+positions where the corresponding sub-pattern did not participate in the
+match.<ol class="arabic">
+<li><strong>PCRE</strong>, <strong>Oniguruma</strong>: if <em>named subpatterns</em> are used then the table
+also contains substring matches keyed by their correspondent subpattern
+names (strings).</li>
+</ol>
+</li>
+</ol>
+</dd>
+<dt><strong>Returns on failure:</strong></dt>
+<dd><ol class="first last arabic simple">
+<li><tt class="docutils literal"><span class="pre">nil</span></tt></li>
+</ol>
+</dd>
+<dt><strong>Example:</strong></dt>
+<dd>If the whole match is at offsets 10,20 and substring matches are at offsets
+12,14 and 16,19 then the function returns the following: 10, 20,
+{ 12,14,16,19 }.</dd>
+</dl>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section">
+<h2><a class="toc-backref" href="#id13" id="pcre-only-functions-and-methods" name="pcre-only-functions-and-methods">PCRE-only functions and methods</a></h2>
+<div class="section">
+<h3><a class="toc-backref" href="#id14" id="dfa-exec" name="dfa-exec">dfa_exec</a></h3>
+<p>[PCRE 6.0 and later. See <em>pcre_dfa_exec</em> in the <a class="reference" href="http://www.pcre.org/pcre.txt">PCRE</a> docs.]</p>
+<p><tt class="funcdef docutils literal"><span class="pre">r:dfa_exec</span> <span class="pre">(subj,</span> <span class="pre">[init],</span> <span class="pre">[ef],</span> <span class="pre">[ovecsize],</span> <span class="pre">[wscount])</span></tt></p>
+<p>The method matches a compiled regular expression <em>r</em> against a given subject
+string <em>subj</em>, using a DFA matching algorithm.</p>
+<blockquote>
+<table border="1" class="docutils">
+<colgroup>
+<col width="15%" />
+<col width="54%" />
+<col width="12%" />
+<col width="19%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+<th class="head">Type</th>
+<th class="head">Default Value</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>r</td>
+<td>regex object produced by <a class="reference" href="#new">new</a></td>
+<td>userdata</td>
+<td>n/a</td>
+</tr>
+<tr><td>subj</td>
+<td>subject</td>
+<td>string</td>
+<td>n/a</td>
+</tr>
+<tr><td>[init]</td>
+<td>start offset in the subject
+(can be negative)</td>
+<td>number</td>
+<td>1</td>
+</tr>
+<tr><td>[ef]</td>
+<td>execution flags (bitwise OR)</td>
+<td>number</td>
+<td><a class="reference" href="#ef">ef</a></td>
+</tr>
+<tr><td>[ovecsize]</td>
+<td>size of the array for result offsets</td>
+<td>number</td>
+<td>100</td>
+</tr>
+<tr><td>[wscount]</td>
+<td>number of elements in the working
+space array</td>
+<td>number</td>
+<td>50</td>
+</tr>
+</tbody>
+</table>
+</blockquote>
+<dl class="docutils">
+<dt><strong>Returns on success (either full or partial match):</strong></dt>
+<dd><ol class="first last arabic simple">
+<li>The start point of the matches found (a number).</li>
+<li>A table containing the end points of the matches found, the longer matches
+first.</li>
+<li>The return value of the underlying <em>pcre_dfa_exec</em> call (a number).</li>
+</ol>
+</dd>
+<dt><strong>Returns on failure (no match):</strong></dt>
+<dd><ol class="first last arabic simple">
+<li><tt class="docutils literal"><span class="pre">nil</span></tt></li>
+</ol>
+</dd>
+<dt><strong>Example:</strong></dt>
+<dd>If there are 3 matches found starting at offset 10 and ending at offsets 15, 20
+and 25 then the function returns the following: 10, { 25,20,15 }, 3.</dd>
+</dl>
+</div>
+<hr class="docutils" />
+<div class="section">
+<h3><a class="toc-backref" href="#id15" id="maketables" name="maketables">maketables</a></h3>
+<p>[See <em>pcre_maketables</em> in the <a class="reference" href="http://www.pcre.org/pcre.txt">PCRE</a> docs.]</p>
+<p><tt class="funcdef docutils literal"><span class="pre">rex_pcre.maketables</span> <span class="pre">()</span></tt></p>
+<p>Creates a set of character tables corresponding to the current locale and
+returns it as a userdata. The returned value can be passed to any Lrexlib
+function accepting the <em>locale</em> parameter.</p>
+</div>
+<hr class="docutils" />
+<div class="section">
+<h3><a class="toc-backref" href="#id16" id="config" name="config">config</a></h3>
+<p>[PCRE 4.0 and later. See <em>pcre_config</em> in the <a class="reference" href="http://www.pcre.org/pcre.txt">PCRE</a> docs.]</p>
+<p><tt class="funcdef docutils literal"><span class="pre">rex_pcre.config</span> <span class="pre">([tb])</span></tt></p>
+<p>This function returns a table containing the values of the configuration
+parameters used at PCRE library build-time. Those parameters (numbers) are
+keyed by their names (strings). If the table argument <em>tb</em> is supplied then it
+is used as the output table, else a new table is created.</p>
+<blockquote>
+<table border="1" class="docutils">
+<colgroup>
+<col width="15%" />
+<col width="52%" />
+<col width="13%" />
+<col width="21%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+<th class="head">Type</th>
+<th class="head">Default Value</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>[tb]</td>
+<td>a table for placing results into</td>
+<td>table</td>
+<td><tt class="docutils literal"><span class="pre">nil</span></tt></td>
+</tr>
+</tbody>
+</table>
+</blockquote>
+<dl class="docutils">
+<dt><strong>Returns:</strong></dt>
+<dd><ol class="first last arabic simple">
+<li>A table filled with the results.</li>
+</ol>
+</dd>
+</dl>
+<hr class="docutils" />
+</div>
+<div class="section">
+<h3><a class="toc-backref" href="#id17" id="rex-pcre-version" name="rex-pcre-version"><span id="version"></span>rex_pcre.version</a></h3>
+<p>[See <em>pcre_version</em> in the <a class="reference" href="http://www.pcre.org/pcre.txt">PCRE</a> docs.]</p>
+<p><tt class="funcdef docutils literal"><span class="pre">rex_pcre.version</span> <span class="pre">()</span></tt></p>
+<p>This function returns a string containing the version of the used PCRE library
+and its release date.</p>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section">
+<h2><a class="toc-backref" href="#id18" id="oniguruma-only-functions-and-methods" name="oniguruma-only-functions-and-methods">Oniguruma-only functions and methods</a></h2>
+<div class="section">
+<h3><a class="toc-backref" href="#id19" id="setdefaultsyntax" name="setdefaultsyntax">setdefaultsyntax</a></h3>
+<p><tt class="funcdef docutils literal"><span class="pre">rex_onig.setdefaultsyntax</span> <span class="pre">(syntax)</span></tt></p>
+<p>This function sets the default syntax for the Oniguruma library, according to
+value of the string <a class="reference" href="#syntax">syntax</a>. The specified syntax will be further used for
+interpreting string regex patterns by all relevant functions, unless <cite>syntax</cite>
+argument is passed to those functions explicitly.</p>
+<p><strong>Returns:</strong> nothing</p>
+<p><strong>Examples:</strong></p>
+<blockquote>
+<ol class="arabic simple">
+<li><tt class="docutils literal"><span class="pre">rex_onig.setdefaultsyntax</span> <span class="pre">(&quot;ASIS&quot;)</span> <span class="pre">--</span> <span class="pre">use</span> <span class="pre">plain</span> <span class="pre">text</span> <span class="pre">syntax</span> <span class="pre">as</span> <span class="pre">the</span> <span class="pre">default</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">rex_onig.setdefaultsyntax</span> <span class="pre">(&quot;PERL&quot;)</span> <span class="pre">--</span> <span class="pre">use</span> <span class="pre">PERL</span> <span class="pre">regex</span> <span class="pre">syntax</span> <span class="pre">as</span> <span class="pre">the</span> <span class="pre">default</span></tt></li>
+</ol>
+</blockquote>
+</div>
+<hr class="docutils" />
+<div class="section">
+<h3><a class="toc-backref" href="#id20" id="rex-onig-version" name="rex-onig-version">rex_onig.version</a></h3>
+<p>[See <em>onig_version</em> in the Oniguruma docs.]</p>
+<p><tt class="funcdef docutils literal"><span class="pre">rex_onig.version</span> <span class="pre">()</span></tt></p>
+<p>This function returns a string containing the version of the used Oniguruma
+library.</p>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section">
+<h2><a class="toc-backref" href="#id21" id="other-functions" name="other-functions">Other functions</a></h2>
+<div class="section">
+<h3><a class="toc-backref" href="#id22" id="plainfind" name="plainfind">plainfind</a></h3>
+<p><tt class="funcdef docutils literal"><span class="pre">rex.plainfind</span> <span class="pre">(subj,</span> <span class="pre">patt,</span> <span class="pre">[init],</span> <span class="pre">[ci])</span></tt></p>
+<p>The function searches for the first match of the string <em>patt</em> in the subject
+<em>subj</em>, starting from offset <em>init</em>.</p>
+<blockquote>
+<ul class="simple">
+<li>The string <em>patt</em> is not regular expression, all its characters stand for
+themselves.</li>
+<li>Both strings <em>subj</em> and <em>patt</em> can have embedded zeros.</li>
+<li>The flag <em>ci</em> specifies case-insensitive search (current locale is used).</li>
+<li>This function uses no regex library.</li>
+</ul>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="47%" />
+<col width="14%" />
+<col width="23%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+<th class="head">Type</th>
+<th class="head">Default Value</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>subj</td>
+<td>subject</td>
+<td>string</td>
+<td>n/a</td>
+</tr>
+<tr><td>patt</td>
+<td>text to find</td>
+<td>string</td>
+<td>n/a</td>
+</tr>
+<tr><td>[init]</td>
+<td>start offset in the subject
+(can be negative)</td>
+<td>number</td>
+<td>1</td>
+</tr>
+<tr><td>[ci]</td>
+<td>case insensitive search</td>
+<td>boolean</td>
+<td><tt class="docutils literal"><span class="pre">false</span></tt></td>
+</tr>
+</tbody>
+</table>
+</blockquote>
+<dl class="docutils">
+<dt><strong>Returns on success:</strong></dt>
+<dd><ol class="first last arabic simple">
+<li>The start point of the match (a number).</li>
+<li>The end point of the match (a number).</li>
+</ol>
+</dd>
+<dt><strong>Returns on failure:</strong></dt>
+<dd><ol class="first last arabic simple">
+<li><tt class="docutils literal"><span class="pre">nil</span></tt></li>
+</ol>
+</dd>
+</dl>
+</div>
+</div>
+<hr class="docutils" />
+<div class="section">
+<h2><a class="toc-backref" href="#id23" id="incompatibilities-with-the-previous-versions" name="incompatibilities-with-the-previous-versions">Incompatibilities with the Previous Versions</a></h2>
+<p><strong>Incompatibilities between the versions 2.0 and 1.19:</strong></p>
+<blockquote>
+<ol class="arabic simple">
+<li>Lua 5.1 is required</li>
+<li>Functions <tt class="docutils literal"><span class="pre">newPCRE</span></tt> and <tt class="docutils literal"><span class="pre">newPOSIX</span></tt> renamed to <a class="reference" href="#new">new</a></li>
+<li>Functions <tt class="docutils literal"><span class="pre">flagsPCRE</span></tt> and <tt class="docutils literal"><span class="pre">flagsPOSIX</span></tt> renamed to <a class="reference" href="#flags">flags</a></li>
+<li>Function <tt class="docutils literal"><span class="pre">versionPCRE</span></tt> renamed to <a class="reference" href="#version">version</a></li>
+<li>Method <tt class="docutils literal"><span class="pre">match</span></tt> renamed to <a class="reference" href="#tfind">tfind</a></li>
+<li>Method <tt class="docutils literal"><span class="pre">gmatch</span></tt> removed (similar functionality is provided by function
+<a class="reference" href="#gmatch">gmatch</a>)</li>
+<li>Methods <a class="reference" href="#tfind">tfind</a> and <a class="reference" href="#exec">exec</a>: 2 values are returned on failure</li>
+<li>(PCRE) <a class="reference" href="#exec">exec</a>: the returned table may additionally contain <em>named
+subpatterns</em></li>
+</ol>
+</blockquote>
+<p><strong>Incompatibilities between the versions 2.1 and 2.0:</strong></p>
+<blockquote>
+<ol class="arabic simple">
+<li><a class="reference" href="#match">match</a>, <a class="reference" href="#find">find</a>, <a class="reference" href="#tfind">tfind</a>, <a class="reference" href="#exec">exec</a>, <a class="reference" href="#dfa-exec">dfa_exec</a>: only one value (a <tt class="docutils literal"><span class="pre">nil</span></tt>) is
+returned when the subject does not match the pattern. Any other failure
+generates an error.</li>
+</ol>
+</blockquote>
+<p><strong>Incompatibilities between the versions 2.2 and 2.1:</strong></p>
+<blockquote>
+<ol class="arabic simple">
+<li><a class="reference" href="#gsub">gsub</a>: a special &quot;break&quot; return of <em>repl</em> function is deprecated.</li>
+<li>(PCRE) <a class="reference" href="#gsub">gsub</a>, <a class="reference" href="#gmatch">gmatch</a>: after finding an empty match at the current
+position, the functions try to find a non-empty match anchored to the same
+position.</li>
+</ol>
+</blockquote>
+</div>
+</div>
+<div class="footer">
+<hr class="footer" />
+Generated on: 2008-08-04 14:57 UTC.
+
+</div>
+</body>
+</html>

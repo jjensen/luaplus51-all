@@ -1,0 +1,21 @@
+if $(OS) = NT
+{
+
+SubDir LUAPLUS Src Modules pipe ;
+
+IncludeModule copyfile ;
+
+{
+
+local SRCS =
+		pipe.cpp
+		pipe.lua
+;
+
+CopyFile pipe : $(LUA_LDIR)/pipe.lua : $(SUBDIR)/pipe.lua ;
+
+LuaPlusAddModule pipe : $(SRCS) ;
+
+}
+
+}

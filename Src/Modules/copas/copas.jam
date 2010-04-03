@@ -1,0 +1,19 @@
+SubDir LUAPLUS Src Modules copas ;
+
+IncludeModule copyfile ;
+
+{
+
+local SRCS =
+		src/copas/copas.lua
+;
+
+LuaPlusAddSimpleModule copas : $(SRCS) ;
+
+local filename ;
+for filename in $(SRCS)
+{
+	CopyFile copas : $(LUA_LDIR)/$(filename:BS) : $(SUBDIR)/$(filename) ;
+}
+
+}

@@ -1,0 +1,38 @@
+SubDir LUAPLUS Src Modules cgilua ;
+
+IncludeModule copyfile ;
+
+{
+
+local CGILUA_LUAS =
+		src/cgilua/authentication.lua
+		src/cgilua/cookies.lua
+		src/cgilua/dispatcher.lua
+		src/cgilua/loader.lua
+		src/cgilua/lp.lua
+		src/cgilua/mime.lua
+		src/cgilua/post.lua
+		src/cgilua/readuntil.lua
+		src/cgilua/serialize.lua
+		src/cgilua/session.lua
+		src/cgilua/urlcode.lua
+;
+
+local ROOT_LUAS =
+		src/cgilua/cgilua.lua
+;
+
+LuaPlusAddSimpleModule cgilua : $(CGILUA_LUAS) $(ROOT_LUAS) ;
+
+local filename ;
+for filename in $(CGILUA_LUAS)
+{
+	CopyFile cgilua : $(LUA_LDIR)/cgilua/$(filename:BS) : $(SUBDIR)/$(filename) ;
+}
+
+for filename in $(ROOT_LUAS)
+{
+	CopyFile cgilua : $(LUA_LDIR)/$(filename:BS) : $(SUBDIR)/$(filename) ;
+}
+
+}

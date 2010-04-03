@@ -1,0 +1,27 @@
+$import{"section_list"}
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en"><head>
+	<meta http-equiv="content-type" content="text/html; charset=iso-8859-1"><title>Lablua - Home</title>
+	 
+	<link rel="stylesheet" href="$template_vpath/styles/stylesheet1.css" media="screen">
+	<style type="text/css" media="screen">@import url("$template_vpath/styles/stylesheet2.css");</style>
+	<link rel="stylesheet" href="$template_vpath/styles/print.css" media="print"></head><body>
+<div id="container">
+	<div id="header" title="sitename">
+		<h1>Lablua</h1>
+	</div> 
+	<div id="mainnav">
+		<ul>
+		        <li><a href="$home_url">Home</a></li>
+			$section_list{ include_tags = { "menu-%" } }[[<li><a href = "$uri">$title</a></li>]]
+		</ul>
+	</div>
+
+	$view
+
+	<div id="footer">
+		Copyright © Lua.org 2006 <a href="http://www.keplerproject.org/xavante"><img src="$template_vpath/images/xavante.png"/></a>
+	</div>
+</div>
+</body></html>

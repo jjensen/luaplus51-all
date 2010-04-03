@@ -1,0 +1,6 @@
+SubDir LUAPLUS Src Modules xmlize ;
+
+IncludeModule copyfile ;
+
+LuaPlusAddSimpleModule xmlize : xmlize.lua ;
+CopyFile xmlize : $(LUA_LDIR)/xmlize.lua : $(SUBDIR)/xmlize.lua ;

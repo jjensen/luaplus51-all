@@ -1,0 +1,24 @@
+SubDir LUAPLUS Src Modules lualogging ;
+
+IncludeModule copyfile ;
+
+{
+
+local SRCS =
+		logging/console.lua
+		logging/email.lua
+		logging/file.lua
+		logging/logging.lua
+		logging/socket.lua
+		logging/sql.lua
+;
+
+LuaPlusAddSimpleModule lualogging : src/$(SRCS) ;
+
+local filename ;
+for filename in $(SRCS)
+{
+	CopyFile lualogging : $(LUA_LDIR)/$(filename) : $(SUBDIR)/src/$(filename) ;
+}
+
+}

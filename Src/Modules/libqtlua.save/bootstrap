@@ -1,0 +1,41 @@
+#! /bin/sh
+
+set -e
+
+if test -f bootstrap.cfg; then
+  source bootstrap.cfg
+fi
+
+for i in $keep
+do
+  cp $i $i.bak
+done
+
+#autoheader
+
+# On some environments (Darwin Ports), libtoolize is glibtoolize.
+# I suppose their autoreconf is adjusted accordingly, but I use
+# my custom Autoconf...
+for lt in "$LIBTOOLIZE" libtoolize glibtoolize
+do
+  if ($lt --version) >/dev/null 2>&1; then
+    export LIBTOOLIZE="$lt"
+    break
+  fi
+done
+
+autoreconf -f -v -i
+
+for i in $keep
+do
+  mv $i.bak $i
+done
+
+# If the pseudo-standard name "_build" is used, then how about trying
+# to continue the re-build?
+if test -f _build/config.status; then
+  cd _build
+  ./config.status --recheck
+  ./config.status
+  make
+fi

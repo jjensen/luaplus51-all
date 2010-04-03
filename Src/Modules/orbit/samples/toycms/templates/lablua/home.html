@@ -1,0 +1,15 @@
+$import{ "index_view" }
+
+<div id="menu">
+		<h3>Related Links</h3>
+		<ul>
+		  $show_posts{ include_tags = { "links" } }[[<li><a href = "$uri">$title</a></li>]]
+		</ul>
+</div>
+	<div id="contents">
+		<div class="blogentry">
+
+		  $show_posts{ include_tags = { "home" }, count = 1, template = "simple_post.html" }
+		  
+		</div>
+	</div>

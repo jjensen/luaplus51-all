@@ -1,0 +1,61 @@
+2008-02-03  Anthony Green  <green@redhat.com>
+
+	* include/Makefile.am (includesdir): Fix header install with
+	DESTDIR.
+	* include/Makefile.in: Rebuilt.
+
+2008-02-03  Timothy Wall  <twall@users.sf.net>
+
+	* src/x86/ffi.c (FFI_INIT_TRAMPOLINE_STDCALL): Calculate jump return
+          offset based on code pointer, not data pointer.
+
+2008-02-01  Anthony Green  <green@redhat.com>
+
+	* include/Makefile.am: Fix header installs.
+	* Makefile.am: Ditto.
+	* include/Makefile.in: Rebuilt.
+	* Makefile.in: Ditto.
+
+2008-02-01  Anthony Green  <green@redhat.com>
+
+	* src/x86/ffi.c (FFI_INIT_TRAMPOLINE_STDCALL,
+	FFI_INIT_TRAMPOLINE): Revert my broken changes to twall's last
+	patch.
+
+2008-01-31  Anthony Green  <green@redhat.com>
+
+	* Makefile.am (EXTRA_DIST): Add missing files.
+	* testsuite/Makefile.am: Ditto.
+	* Makefile.in, testsuite/Makefile.in: Rebuilt.
+
+2008-01-31  Timothy Wall <twall@users.sf.net>
+
+	* testsuite/libffi.call/closure_stdcall.c: Add test for stdcall
+	closures.
+	* src/x86/ffitarget.h: Increase size of trampoline for stdcall
+	closures.
+	* src/x86/win32.S: Add assembly for stdcall closure.
+	* src/x86/ffi.c: Initialize stdcall closure trampoline.
+
+2008-01-30  H.J. Lu <hongjiu.lu@intel.com>
+
+	PR libffi/34612
+	* src/x86/sysv.S (ffi_closure_SYSV): Pop 4 byte from stack when
+	returning struct.
+
+	* testsuite/libffi.call/call.exp: Add "-O2 -fomit-frame-pointer"
+	tests.
+
+2008-01-30  Anthony Green  <green@redhat.com>
+
+	* Makefile.am, include/Makefile.am: Move headers to
+	libffi_la_SOURCES for new automake.
+	* Makefile.in, include/Makefile.in: Rebuilt.
+	
+	* testsuite/lib/wrapper.exp: Copied from gcc tree to allow for 
+	execution outside of gcc tree.
+	* testsuite/lib/target-libpath.exp: Ditto.
+
+	* testsuite/lib/libffi-dg.exp: Many changes to allow for execution
+	outside of gcc tree.
+

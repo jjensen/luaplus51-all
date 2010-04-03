@@ -1,0 +1,47 @@
+SubDir LUAPLUS ;
+
+C.Defines * : LUA_WIDESTRING=1 LUA_WIDESTRING_FILE=1 ;
+
+Workspace LuaPlus :
+		lua
+		luac
+		LuaPlusStatic
+;
+
+SubIncludeRelative Src LuaPlus SharedLib : LuaPlusSharedLib ;
+SubIncludeRelative Src LuaPlus StaticLib : LuaPlusStaticLib ;
+SubIncludeRelative Tools Lua Lua ;
+SubIncludeRelative Tools Lua LuaC ;
+
+if $(OS) = NT
+{
+	SubInclude LUAPLUS Src ManagedLuaPlus : ManagedLuaPlus ;
+#	SubInclude LUAPLUS Src ManagedLuaPlus : LuaPlusClrPure ;
+	SubInclude LUAPLUS Src Lua51Proxy : Lua51Proxy ;
+	SubInclude LUAPLUS Tools LuaPlusDebuggerAddin ;
+
+	SubInclude LUAPLUS Tools RemoteLuaDebugger : RemoteLuaDebugger ;
+
+	Workspace LuaPlus :
+#			LuaPlusClrPure
+			LuaPlusDebuggerAddin
+			LuaPlusDebuggerControls
+			ManagedLuaPlus
+			RemoteLuaDebugger
+	;
+}
+
+local dir ;
+for dir in [ Glob $(LUAPLUS)/Src/Modules : * : 0 ]
+{
+	local module = [ Match (.+)/ : $(dir) ] ;
+	local file = [ Glob $(LUAPLUS)/Src/Modules/$(module) : $(module).jam : 0 ] ;
+	if $(file) {
+		SubInclude LUAPLUS Src Modules $(module) : $(file) ;
+	} else {
+		file = [ Glob $(LUAPLUS)/Src/Modules/$(module) : Jamfile.jam : 0 ] ;
+		if $(file) {
+			SubInclude LUAPLUS Src Modules $(module) ;
+		}
+	}
+}

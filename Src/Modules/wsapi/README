@@ -1,0 +1,56 @@
+WSAPI (http://keplerproject.github.com/wsapi)
+
+Overview
+
+WSAPI is an API that abstracts the web server from Lua web applications.
+By coding against WSAPI your application can run on any of the supported
+servers and interfaces (currently CGI, FastCGI and Xavante, on Windows
+and UNIX-based systems).
+
+WSAPI provides a set of helper libraries that help with request processing and
+output buffering. You can also write applications that act as filters that
+provide some kind of service to other applications, such as authentication,
+file uploads, request isolation, or multiplexing.
+
+WSAPI's main influence is Ruby's Rack framework, but it was also influenced
+by Python's WSGI (PEP 333). It's not a direct clone of either of them, though, and
+tries to follow standard Lua idioms.
+
+WSAPI is free software and uses the same license as Lua 5.1
+
+Status
+Current version is 1.2. It was developed for Lua 5.1.
+
+Download
+WSAPI can be downloaded from its LuaForge page. You can also get WSAPI using LuaRocks:
+luarocks install wsapi
+
+Latest Sources and Bug Tracker
+WSAPI CVS and bug tracker are available at its Github page.
+
+History
+
+WSAPI 1.2 [27/Oct/2009]
+    * Adds time-based collection of Lua states to FCGI and Xavante launchers
+    * Adds "wsapi" laucher script, to start a Xavante WSAPI server
+    * Fixed "undefined media type" error
+    * Added is_empty utility function to check if a string is nil or ''
+    * Fixed bug with empty bodies in wsapi.xavante, and added full http status codes to responses 
+    * Changing order of evaluating PATH_TRANSLATED and SCRIPT_FILENAME, to make non-wrapped launchers work in OSX Apache
+    * Reload support for load_isolated_launcher
+WSAPI 1.1 [04/Feb/2009]
+    * Adds options table to wsapi.request.new, *delay_post* option delays POST processing until req:parsepostdata() is called
+    * Moves call to lfs.setmode from wsapi.common to wsapi.cgi
+    * Adds wsapi.util.make_rewindable(wsapi_env) method - wraps wsapi_env in a new environment that lets you process the POST data more than once.
+    * Correctly handles PATH_TRANSLATED and SCRIPT_FILENAME in case the web server gets creative
+    * Statically links the FastCGI version on Windows
+WSAPI 1.0 [18/May/2008]
+    * First public version.
+    * Includes CGI, FastCGI and Xavante WSAPI connectors.
+
+Credits
+
+WSAPI was designed and developed by Fabio Mascarenhas and Andre Carregal,
+and is maintained by Fabio Mascarenhas.
+
+For more information please check the HTML documentation at /doc/us

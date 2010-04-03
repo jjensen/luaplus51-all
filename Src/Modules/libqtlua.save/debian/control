@@ -1,0 +1,12 @@
+Source: libqtlua
+Section: libs
+Priority: optional
+Maintainer: Alexandre Becoulet <alexandre.becoulet@free.fr>
+Build-Depends: debhelper (>= 5), autotools-dev, libqt4-dev, liblua5.1-0-dev
+
+Package: libqtlua
+Architecture: any
+Depends: liblua5.1-0, libqt4-core, libqt4-gui
+Description: Embed Lua scripting language in Qt 4 applications
+ This library enable use of lua scripting language to handle C++/Qt
+ objects. It can be used to build fully scriptable Qt applications.

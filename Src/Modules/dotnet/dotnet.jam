@@ -1,0 +1,22 @@
+if $(OS) = NT
+{
+
+SubDir LUAPLUS Src Modules dotnet ;
+
+{
+
+local SRCS =
+		dotnet.cpp
+		luastdcall.cpp
+		luastdcall.h
+;
+
+IncludeModule c/dotnet ;
+C.UseDotNet luanet ;
+
+C.LinkPrebuiltLibraries luanet : mscoree ;
+LuaPlusAddModule luanet : $(SRCS) ;
+
+}
+
+}

@@ -1,0 +1,2 @@
+EXPORTS
+luaopen_sqlite3_core

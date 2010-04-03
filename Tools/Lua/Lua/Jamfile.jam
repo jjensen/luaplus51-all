@@ -1,0 +1,63 @@
+SubDir LUAPLUS Tools Lua Lua ;
+
+{
+
+local NETWORK_SRCS =
+		../../../Src/LuaRemoteDebuggingServer/LuaNetworkHelpers.cpp
+		../../../Src/LuaRemoteDebuggingServer/LuaNetworkHelpers.h
+		../../../Src/LuaRemoteDebuggingServer/LuaNetworkServer.cpp
+		../../../Src/LuaRemoteDebuggingServer/LuaNetworkServer.h
+		../../../Src/LuaRemoteDebuggingServer/LuaRemoteDebuggingServer.cpp
+		../../../Src/LuaRemoteDebuggingServer/LuaRemoteDebuggingServer.h
+;
+
+local SRCS =
+		Lua.cpp
+;
+
+if $(NT)
+{
+	SRCS += $(NETWORK_SRCS) ;
+}
+
+rule LuaApplication TARGET : OPTIONS
+{
+	ActiveTarget $(TARGET) ;
+
+	SubInclude LUAPLUS Src LuaPlus SharedLib : LuaPlusSharedLib ;
+
+	if $(NT)
+	{
+		C.Defines : REMOTE_DEBUGGER ;
+	}
+	if $(MSVCNT)
+	{
+		C.LinkFlags : /DELAYLOAD:LuaPlus_1100.debug.dll : debug ;
+		C.LinkFlags : /DELAYLOAD:LuaPlus_1100.dll : release ;
+		C.LinkPrebuiltLibraries : DelayImp ;
+	}
+	C.IncludeDirectories : $(LUAPLUS)/Src ; # [ FSubDirPath LUAPLUS Src ] ;
+	C.LinkLibraries : LuaPlusShared ;
+	if $(OS) = LINUX
+	{
+		C.LinkFlags : -Wl,-E -lreadline ;
+	}
+	LuaPlusFixUpTarget $(TARGET) ;	
+	C.Application : $(SRCS) : $(OPTIONS) ;
+}
+
+NoWorkspace luaplus ;
+LuaApplication luaplus ;
+NoWorkspace "lua" ;
+LuaApplication "lua" ;
+
+if $(NT)
+{
+	C.Defines "luaw" : USE_WINMAIN ;
+	LuaApplication "luaw" : windows ;
+	NoWorkspace "luaw" ;
+}
+
+on "lua" LUA_EXE = $(LINK_TARGET) ;
+
+}

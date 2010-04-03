@@ -1,0 +1,317 @@
+<html><head>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html;charset=iso-8859-1">
+<title>LunaticPython - CncMoin</title><meta name="KEYWORDS" content="Lunatic, Python">
+<link rel="stylesheet" type="text/css" href="moinmoin.css">
+<link rel="Start" href="/FrontPage">
+<link rel="Alternate" title="Wiki Markup" href="/LunaticPython?action=raw">
+<link rel="Alternate" media="print" title="Print View" href="/LunaticPython?action=print">
+<link rel="Appendix" title="lunatic-python-0.1.tar.bz2" target="_blank" href="https://moin.conectiva.com.br/LunaticPython?action=AttachFile&do=get&target=lunatic-python-0.1.tar.bz2">
+<link rel="Search" href="/FindPage">
+<link rel="Index" href="/TitleIndex">
+<link rel="Glossary" href="/WordIndex">
+<link rel="Help" href="/HelpOnFormatting">
+</head>
+<body onload="window.defaultStatus='CncMoin'" lang="en" dir="ltr"><a name="top"></a>
+<table width="100%"><tr><td>
+<a href="https://moin.conectiva.com.br/FrontPage"><img src="cnc00000.png" border="0" alt="CncMoin"></a>
+</td><td width="99%" valign="middle" class="headline">&nbsp;
+<a title="Click here to do a full-text search for this title" href="https://moin.conectiva.com.br/LunaticPython?action=fullsearch&value=LunaticPython&literal=1&case=1&context=40">LunaticPython</a>
+</td>
+<td valign="bottom" align="left" nowrap>
+<font face="Verdana" size="1"><a href="https://moin.conectiva.com.br/UserPreferences">UserPreferences</a><br>&nbsp;</font>
+</td></tr></table>
+
+<a href="https://moin.conectiva.com.br/HelpContents" target="_blank" title="HelpContents"><img src="moin-hel.gif" alt="HelpContents" width="12" height="11" border="0" hspace="2" align="right"></a>
+<a href="https://moin.conectiva.com.br/FindPage?value=LunaticPython" title="FindPage"><img src="moin-sea.gif" alt="FindPage" width="12" height="12" border="0" hspace="2" align="right"></a>
+<a href="https://moin.conectiva.com.br/LunaticPython?action=diff" title="Diffs"><img src="moin-dif.gif" alt="Diffs" width="15" height="11" border="0" hspace="2" align="right"></a>
+<a href="https://moin.conectiva.com.br/LunaticPython?action=info" title="Info"><img src="moin-inf.gif" alt="Info" width="12" height="11" border="0" hspace="2" align="right"></a>
+<a href="https://moin.conectiva.com.br/LunaticPython?action=edit" title="Edit"><img src="moin-edi.gif" alt="Edit" width="12" height="12" border="0" hspace="2" align="right"></a>
+<a href="https://moin.conectiva.com.br/LunaticPython?action=subscribe" title="Subscribe"><img src="moin-ema.gif" alt="Subscribe" width="14" height="10" border="0" hspace="2" vspace="1" align="right"></a>
+<a href="https://moin.conectiva.com.br/LunaticPython?action=format&mimetype=text/xml" title="XML"><img src="moin-xml.gif" alt="XML" width="20" height="13" border="0" hspace="2" align="right"></a>
+<a href="https://moin.conectiva.com.br/LunaticPython?action=print" title="Print"><img src="moin-pri.gif" alt="Print" width="16" height="14" border="0" hspace="2" align="right"></a>
+<a href="" title="View"><img src="moin-sho.gif" alt="View" width="12" height="13" border="0" hspace="2" align="right"></a>
+
+<table class="navibar" cellpadding=0 cellspacing=3 border=0><tr><td class="navibar" valign=top align=center bgcolor="#E8E8E8"><font class="navibar" face="Arial,Helvetica" size="-1">&nbsp;<b>CncMoin</b>&nbsp;</font></td>
+<td class="navibar" valign=top align=center bgcolor="#E8E8E8"><font class="navibar" face="Arial,Helvetica" size="-1">&nbsp;<a class="navibar" href="https://moin.conectiva.com.br/FrontPage">FrontPage</a>&nbsp;</font></td>
+<td class="navibar" valign=top align=center bgcolor="#E8E8E8"><font class="navibar" face="Arial,Helvetica" size="-1">&nbsp;<a class="navibar" href="https://moin.conectiva.com.br/RecentChanges">RecentChanges</a>&nbsp;</font></td>
+<td class="navibar" valign=top align=center bgcolor="#E8E8E8"><font class="navibar" face="Arial,Helvetica" size="-1">&nbsp;<a class="navibar" href="https://moin.conectiva.com.br/SiteNavigation">SiteNavigation</a>&nbsp;</font></td>
+<td class="navibar" valign=top align=center bgcolor="#E8E8E8"><font class="navibar" face="Arial,Helvetica" size="-1">&nbsp;<a target="_blank" class="navibar" href="https://moin.conectiva.com.br/HelpContents">HelpContents</a>&nbsp;</font></td>
+<td class="navibar" valign=top align=center bgcolor="#E8E8E8"><font class="navibar" face="Arial,Helvetica" size="-1">&nbsp;<a target="_blank" class="navibar" href="https://moin.conectiva.com.br/ComoTerConta">ComoTerConta</a>&nbsp;</font></td>
+</tr></table>
+<hr><p><a name="head-f5cbdf6bfb51439be085b5c6b7460a7c91eabc3c"></a><H2>&nbsp;1. Contents</H2>
+<ol><li><a href="#head-f5cbdf6bfb51439be085b5c6b7460a7c91eabc3c">Contents</a></li><li><a href="#head-2473e96bc614a911821242119918a241a41836d6">Introduction</a></li><li><a href="#head-d77989c1e3c0e0ace735631597dc367ffdfa6f32">Why?</a></li><li><a href="#head-eb01bf04c9a0e8a71c45816513df424f1c7ffedb">Examples</a></li><ol><li><a href="#head-3074fb621ccc9df9fda1a617bf7a84fb979bb13b">Lua inside Python</a></li><li><a href="#head-1b98aa349174ad65cd649d00e76d79842eeef4e7">Python inside Lua</a></li></ol><li><a href="#head-9e9cf3221a30246219863f1d2366e36cb580debc">Documentation</a></li><ol><li><a href="#head-5b1e898fc07d61e53c63f3002ef704c95490010b">Theory</a></li><li><a href="#head-faa6175f843dfcd9f6a7574964a201a9e523eee6">Attribute vs. Subscript object access</a></li><li><a href="#head-3074fb621ccc9df9fda1a617bf7a84fb979bb13b-2">Lua inside Python</a></li><ol><li><a href="#head-862e56e4d572e63a98f1bf279a8283091eda57b7">lua.execute(statement)</a></li><li><a href="#head-4bbf900d1a0dd116d2908f7f187aaf2759be91a1">lua.eval(expression)</a></li><li><a href="#head-848b393f287a6b933e6a64b21e433e21b94fb7da">lua.globals()</a></li><li><a href="#head-ced0ac198acb3461d8183f959197f5be48396e15">lua.require(name)</a></li></ol><li><a href="#head-1b98aa349174ad65cd649d00e76d79842eeef4e7-2">Python inside Lua</a></li><ol><li><a href="#head-7d07ef8a89b651392c4626de24b1a559daa769f9">python.execute(statement)</a></li><li><a href="#head-fd03b4f9dc51560322c321ae5c256dd9148ad64b">python.eval(expression)</a></li><li><a href="#head-3624a271719444bf56ed9ee72e935876fe317901">python.globals()</a></li><li><a href="#head-3ecb68de280c147a229e8671f5b72d5a5fae150d">python.locals()</a></li><li><a href="#head-7a2cb2ea99d5cdee91ce8c0c66421dbfedd22679">python.builtins()</a></li><li><a href="#head-fa1f3b2defd9c67fb70277352801371caeec1987">python.import(name)</a></li><li><a href="#head-4db2cf98f34a6c65d8ba6d88f976d457670514d1">python.asattr(pyobj)</a></li><li><a href="#head-f40e451b5f76a089f213aadae072446057579e81">python.asindx(pyobj)</a></li><li><a href="#head-e998533934800bcc02bf465aa08b95cd6cd3032a">python.asfunc(pyobj)</a></li></ol></ol><li><a href="#head-3229609e15436ec51bcf00818a69a84dbc58a0c2">License</a></li><li><a href="#head-a479c9c34e878d07b4d67a73a48f432ad7dc53c8">Download</a></li><li><a href="#head-5fda23d62015b99fb2a9f86b38bcdf2bdf7609c8">Author</a></li></ol> <p><a name="head-2473e96bc614a911821242119918a241a41836d6"></a><H2>&nbsp;2. Introduction</H2>
+<b>Lunatic Python</b> is a two-way bridge between <a class="external" href="http://www.python.org/"><img src="moin-www.gif" width="11" border="0" alt="[WWW]" title="[WWW]" hspace="4" height="11">Python</a> and <a class="external" href="http://www.lua.org/"><img src="moin-www.gif" width="11" border="0" alt="[WWW]" title="[WWW]" hspace="4" height="11">Lua</a>, allowing these languages to intercommunicate. Being two-way means that it allows Lua inside Python, Python inside Lua, Lua inside Python inside Lua, Python inside Lua inside Python, and so on. <p><a name="head-d77989c1e3c0e0ace735631597dc367ffdfa6f32"></a><H2>&nbsp;3. Why?</H2>
+Right now this is an experiment. Let me know if you find some real usage for it. <p><a name="head-eb01bf04c9a0e8a71c45816513df424f1c7ffedb"></a><H2>&nbsp;4. Examples</H2>
+<p><a name="head-3074fb621ccc9df9fda1a617bf7a84fb979bb13b"></a><H3>&nbsp;4.1. Lua inside Python</H3>
+<p>A basic example. <pre class="code">
+&gt;&gt;&gt; import lua
+&gt;&gt;&gt; lg = lua.globals()
+&gt;&gt;&gt; lg.string
+&lt;Lua table at 0x81c6a10&gt;
+&gt;&gt;&gt; lg.string.lower
+&lt;Lua function at 0x81c6b30&gt;
+&gt;&gt;&gt; lg.string.lower("Hello world!")
+'hello world!'
+</pre><p>Now, let's put a local object into Lua space. <pre class="code">
+&gt;&gt;&gt; d = {}
+&gt;&gt;&gt; lg.d = d
+&gt;&gt;&gt; lua.execute("d['key'] = 'value'")
+&gt;&gt;&gt; d
+{'key': 'value'}
+</pre><p>Can we get the reference back from Lua space? <pre class="code">
+&gt;&gt;&gt; d2 = lua.eval("d")
+&gt;&gt;&gt; d is d2
+True
+</pre><p>Good! Is the python interface available inside the Lua interpreter? <pre class="code">
+&gt;&gt;&gt; lua.eval("python")
+&lt;Lua table at 0x81c7540&gt;
+</pre><p>Yes, it looks so. Let's nest some evaluations and see a local reference passing through. <pre class="code">
+&gt;&gt;&gt; class MyClass: pass
+... 
+&gt;&gt;&gt; obj = MyClass()
+&gt;&gt;&gt; obj
+&lt;__main__.MyClass instance at 0x403ccb4c&gt;
+&gt;&gt;&gt; lua.eval(r"python.eval('lua.eval(\"python.eval(\'obj\')\")')")
+&lt;__main__.MyClass instance at 0x403ccb4c&gt;
+</pre><p>Are you still following me? <img src="smile000.gif" width="15" hspace="6" alt=":)" border="0" height="15"> Good. Then you've probably noticed that the Python interpreter state inside the Lua interpreter state is the same as the outside Python we're running. Let's see that in a more comfortable way. <pre class="code">
+&gt;&gt;&gt; lua.execute("pg = python.globals()")
+&gt;&gt;&gt; lua.eval("pg.obj")
+&lt;__main__.MyClass instance at 0x403ccb4c&gt;
+</pre><p>Things get more interesting when we start to really mix Lua and Python code. <pre class="code">
+&gt;&gt;&gt; table = lua.eval("table")
+&gt;&gt;&gt; def show(key, value):
+...   print "key is %s and value is %s" % (`key`, `value`)
+... 
+&gt;&gt;&gt; t = lua.eval("{a=1, b=2, c=3}")
+&gt;&gt;&gt; table.foreach(t, show)
+key is 'a' and value is 1
+key is 'c' and value is 3
+key is 'b' and value is 2
+&gt;&gt;&gt; 
+</pre><p>Of course, in this case the same could be achieved easily with Python. <pre class="code">
+&gt;&gt;&gt; def show(key, value):
+...   print "key is %s and value is %s" % (`key`, `value`)
+... 
+&gt;&gt;&gt; t = lua.eval("{a=1, b=2, c=3}")
+&gt;&gt;&gt; for k in t:
+...   show(k, t[k])
+... 
+key is 'a' and value is 1
+key is 'c' and value is 3
+key is 'b' and value is 2
+</pre><p><a name="head-1b98aa349174ad65cd649d00e76d79842eeef4e7"></a><H3>&nbsp;4.2. Python inside Lua</H3>
+<p>Now, let's have a look from another perspective. The basic idea is exactly the same. <pre class="code">
+&gt; require("python")
+&gt; python.execute("import string")
+&gt; pg = python.globals()
+&gt; =pg.string
+&lt;module 'string' from '/usr/lib/python2.3/string.pyc'&gt;
+&gt; =pg.string.lower("Hello world!")
+hello world!
+</pre><p>As Lua is mainly an embedding language, getting access to the <em>batteries included</em> in Python may be interesting. <pre class="code">
+&gt; re = python.import("re")
+&gt; pattern = re.compile("^Hel(lo) world!")
+&gt; match = pattern.match("Hello world!")
+&gt; =match.group(1)
+lo
+</pre><p>Just like in the Python example, let's put a local object in Python space. <pre class="code">
+&gt; d = {}
+&gt; pg.d = d
+&gt; python.execute("d['key'] = 'value'")
+&gt; table.foreach(d, print)
+key     value
+</pre><p>Again, let's grab back the reference from Python space. <pre class="code">
+&gt; d2 = python.eval("d")
+&gt; print(d == d2)
+true
+</pre><p>Is the Lua interface available to Python? <pre class="code">
+&gt; =python.eval("lua")
+&lt;module 'lua' (built-in)&gt;
+</pre><p>Good. So let's do the nested trick in Lua as well. <pre class="code">
+&gt; t = {}
+&gt; =t
+table: 0x80fbdb8
+&gt; =python.eval("lua.eval('python.eval(\"lua.eval(\\'t\\')\")')")
+table: 0x80fbdb8
+&gt; 
+</pre><p>It means that the Lua interpreter state inside the Python interpreter is the same as the outside Lua interpreter state. Let's show that in a more obvious way. <pre class="code">
+&gt; python.execute("lg = lua.globals()")
+&gt; =python.eval("lg.t")
+table: 0x80fbdb8
+</pre><p>Now for the mixing example. <pre class="code">
+&gt; function notthree(num)
+&gt;&gt;   return (num ~= 3)
+&gt;&gt; end
+&gt; l = python.eval("[1, 2, 3, 4, 5]")
+&gt; filter = python.eval("filter")
+&gt; =filter(notthree, l)
+[1, 2, 4, 5]
+</pre><p><a name="head-9e9cf3221a30246219863f1d2366e36cb580debc"></a><H2>&nbsp;5. Documentation</H2>
+<p><a name="head-5b1e898fc07d61e53c63f3002ef704c95490010b"></a><H3>&nbsp;5.1. Theory</H3>
+The bridging mechanism consists of creating the missing interpreter state inside the host interpreter. That is, when you run the bridging system inside Python, a Lua interpreter is created; when you run the system inside Lua, a Python interpreter is created. <p>Once both interpreter states are available, these interpreters are provided with the necessary tools to interact freely with each other. The given tools offer not only the ability of executing statements inside the alien interpreter, but also to acquire individual objects and interact with them inside the native state. This magic is done by two special object types, which act bridging native object access to the alien interpreter state. <p>Almost every object which is passed between Python and Lua is encapsulated in the language specific bridging object type. The only types which are not encapsulated are strings and numbers, which are converted to the native equivalent objects. <p>Besides that, the Lua side also has special treatment for encapsulated Python functions and methods. The most obvious way to implement calling of Python objects inside the Lua interpreter is to implement a <tt class="wiki">__call</tt> function in the bridging object metatable. Unfortunately this mechanism is not supported in certain situations, since some places test if the object type is a function, which is not the case of the bridging object. To overwhelm these problems, Python functions and methods are automatically converted to native Lua function closures, becoming accessible in every Lua context. Callable object instances which are not functions nor methods, on the other hand, will still use the metatable mechanism. Luckily, they may also be converted in a native function closure using the <em>asfunc()</em> function, if necessary. <p><a name="head-faa6175f843dfcd9f6a7574964a201a9e523eee6"></a><H3>&nbsp;5.2. Attribute vs. Subscript object access</H3>
+Accessing an attribute or using the subscript operator in Lua give access to the same information. This behavior is reflected in the Python special object that encapsulates Lua objects, allowing Lua tables to be accessed in a more comfortable way, and also giving access to objects which use protected Python keywords (such as the <em>print</em> function). For example: <pre class="code">
+&gt;&gt;&gt; string = lua.eval("string")
+&gt;&gt;&gt; string.lower
+&lt;Lua function at 0x81c6bf8&gt;
+&gt;&gt;&gt; string["lower"]
+&lt;Lua function at 0x81c6bf8&gt;
+</pre><p>Using Python from the Lua side requires a little bit more attention, since Python has a more strict syntax than Lua. The later makes no distinction between attribute and subscript access, so we need some way to know what kind of access is desired at a given moment. This control is provided using two functions: <em>asindx()</em> and <em>asattr()</em>.  These functions receive a single Python object as parameter, and return the same object with the given access discipline. Notice that dictionaries and lists use the index discipline by default, while other objects use the attribute discipline. For example: <pre class="code">
+&gt; dict = python.eval("{}")
+&gt; =dict.keys
+nil
+&gt; dict.keys = 10
+&gt; print(dict["keys"])
+10
+&gt; =dict
+{'keys': 10}
+&gt; =dict.keys = 10
+n.asattr(dict)
+&gt; =dict.keys
+function: 0x80fa9b8
+&gt; =dict.keys()
+['keys']
+</pre><p><a name="head-3074fb621ccc9df9fda1a617bf7a84fb979bb13b-2"></a><H3>&nbsp;5.3. Lua inside Python</H3>
+When executing Python as the host language, the Lua functionality is accessed by importing the <em>lua</em> module. When Lua is the host language, the <em>lua</em> module will already be available in the global Python scope. <p>Below is a description of the functions available in the <em>lua</em> module. <p><a name="head-862e56e4d572e63a98f1bf279a8283091eda57b7"></a><H4>&nbsp;5.3.1. lua.execute(statement)</H4>
+This function will execute the given statement inside the Lua interpreter state. <p>Examples: <pre class="code">
+&gt;&gt;&gt; lua.execute("foo = 'bar'")
+</pre><p><a name="head-4bbf900d1a0dd116d2908f7f187aaf2759be91a1"></a><H4>&nbsp;5.3.2. lua.eval(expression)</H4>
+This function will evaluate the given expression inside the Lua interpreter state, and return the result. It may be used to acquire any object from the Lua interpreter state. <p>Examples: <pre class="code">
+&gt;&gt;&gt; lua.eval("'foo'..2")
+'foo2'
+&gt;&gt;&gt; lua.eval('string')
+&lt;Lua table at 0x81c6ae8&gt;
+&gt;&gt;&gt; string = lua.eval('string')
+&gt;&gt;&gt; string.lower("Hello world!")
+'hello world!'
+</pre><p><a name="head-848b393f287a6b933e6a64b21e433e21b94fb7da"></a><H4>&nbsp;5.3.3. lua.globals()</H4>
+Return the Lua global scope from the interpreter state. <p>Examples: <pre class="code">
+&gt;&gt;&gt; lg = lua.globals()
+&gt;&gt;&gt; lg.string.lower("Hello world!")
+'hello world!'
+&gt;&gt;&gt; lg["string"].lower("Hello world!")
+'hello world!'
+&gt;&gt;&gt; lg["print"]
+&lt;Lua function at 0x8154350&gt;
+&gt;&gt;&gt; lg["print"]("Hello world!")
+Hello world!
+</pre><p><a name="head-ced0ac198acb3461d8183f959197f5be48396e15"></a><H4>&nbsp;5.3.4. lua.require(name)</H4>
+Executes the <em>require()</em> Lua function, importing the given module. <p>Examples: <pre class="code">
+&gt;&gt;&gt; lua.require("testmod")
+True
+&gt;&gt;&gt; lua.execute("func()")
+I'm func in testmod!
+</pre><p><a name="head-1b98aa349174ad65cd649d00e76d79842eeef4e7-2"></a><H3>&nbsp;5.4. Python inside Lua</H3>
+Unlike Python, Lua has no default path to its modules. Thus, the default path of the real Lua module of <b>Lunatic Python</b> is together with the Python module, and a <em>python.lua</em> stub is provided. This stub must be placed in a path accessible by the Lua <em>require()</em> mechanism, and once imported it will locate the real module and load it. <p>Unfortunately, there's a minor inconvenience for our purposes regarding the Lua system which imports external shared objects. The hardcoded behavior of the <em>loadlib()</em> function is to load shared objects without exporting their symbols. This is usually not a problem in the Lua world, but we're going a little beyond their usual requirements here. We're loading the Python interpreter as a shared object, and the Python interpreter may load its own external modules which are compiled as shared objects as well, and these will want to link back to the symbols in the Python interpreter. Luckily, fixing this problem is easier than explaining the problem. It's just a matter of replacing the flag <em>RTLD_NOW</em> in the <em>loadlib.c</em> file of the Lua distribution by the or'ed version <em>RTLD_NOW|RTLD_GLOBAL</em>. This will avoid <em>"undefined symbol"</em> errors which could eventually happen. <p>Below is a description of the functions available in the <em>python</em> module. <p><a name="head-7d07ef8a89b651392c4626de24b1a559daa769f9"></a><H4>&nbsp;5.4.1. python.execute(statement)</H4>
+This function will execute the given statement inside the Python interpreter state. <p>Examples: <pre class="code">
+&gt; python.execute("foo = 'bar'")
+</pre><p><a name="head-fd03b4f9dc51560322c321ae5c256dd9148ad64b"></a><H4>&nbsp;5.4.2. python.eval(expression)</H4>
+This function will evaluate the given expression inside the Python interpreter state, and return the result. It may be used to acquire any object from the Python interpreter state. <p>Examples: <pre class="code">
+&gt; python.execute("import string")
+&gt; =python.eval("string")
+&lt;module 'string' from '/usr/lib/python2.3/string.pyc'&gt;
+&gt; string = python.eval("string")
+&gt; =string.lower("Hello world!")
+hello world!
+</pre><p><a name="head-3624a271719444bf56ed9ee72e935876fe317901"></a><H4>&nbsp;5.4.3. python.globals()</H4>
+Return the Python global scope dictionary from the interpreter state. <p>Examples: <pre class="code">
+&gt; python.execute("import string")
+&gt; pg = python.globals()
+&gt; =pg.string.lower("Hello world!")
+hello world!
+&gt; =pg["string"].lower("Hello world!")
+hello world!
+</pre><p><a name="head-3ecb68de280c147a229e8671f5b72d5a5fae150d"></a><H4>&nbsp;5.4.4. python.locals()</H4>
+Return the Python local scope dictionary from the interpreter state. <p>Examples: <pre class="code">
+&gt; function luafunc()
+&gt;&gt;   print(python.globals().var)
+&gt;&gt;   print(python.locals().var)
+&gt;&gt; end
+&gt; python.execute("def func():\n var = 'value'\n lua.execute('luafunc()')")
+&gt; python.execute("func()")
+nil
+value
+</pre><p><a name="head-7a2cb2ea99d5cdee91ce8c0c66421dbfedd22679"></a><H4>&nbsp;5.4.5. python.builtins()</H4>
+Return the Python builtins module dictionary from the interpreter state. <p>Examples: <pre class="code">
+&gt; pb = python.builtins()
+&gt; =pb.len("Hello world!")
+12
+</pre><p><a name="head-fa1f3b2defd9c67fb70277352801371caeec1987"></a><H4>&nbsp;5.4.6. python.import(name)</H4>
+Imports and returns the given Python module. <p>Examples: <pre class="code">
+&gt; os = python.import("os")
+&gt; =os.getcwd()
+/home/niemeyer/src/lunatic-python
+</pre><p><a name="head-4db2cf98f34a6c65d8ba6d88f976d457670514d1"></a><H4>&nbsp;5.4.7. python.asattr(pyobj)</H4>
+Return a copy of the given Python object with an attribute access discipline. <p>Examples: <pre class="code">
+&gt; dict = python.eval("{}")
+&gt; =dict.keys
+nil
+&gt; dict.keys = 10
+&gt; print(dict["keys"])
+10
+&gt; =dict
+{'keys': 10}
+&gt; =dict.keys = 10
+n.asattr(dict)
+&gt; =dict.keys
+function: 0x80fa9b8
+&gt; =dict.keys()
+['keys']
+</pre><p><a name="head-f40e451b5f76a089f213aadae072446057579e81"></a><H4>&nbsp;5.4.8. python.asindx(pyobj)</H4>
+Return a copy of the given Python object with an index access discipline. <p>Examples: <pre class="code">
+&gt; buffer = python.eval("buffer('foobar')")
+&gt; =buffer[0]
+stdin:1: unknown attribute in python object
+stack traceback:
+        [C]: ?
+        stdin:1: in main chunk
+        [C]: ?
+&gt; buffer = python.asindx(buffer)
+&gt; =buffer[0]
+f
+</pre><p><a name="head-e998533934800bcc02bf465aa08b95cd6cd3032a"></a><H4>&nbsp;5.4.9. python.asfunc(pyobj)</H4>
+Return a copy of the given Python object enclosed in a Lua function closure. This is useful to use Python callable instances in places that require a Lua function. Python methods and functions are automatically converted to Lua functions, and don't require to be explicitly converted. <p>Examples: <pre class="code">
+&gt; python.execute("class Join:\n def __call__(self, *args):\n  return '-'.join(args)")
+&gt; join = python.eval("Join()")
+&gt; =join
+&lt;__main__.Join instance at 0x403a864c&gt;
+&gt; =join('foo', 'bar')
+foo-bar
+&gt; =table.foreach({foo='bar'}, join)
+stdin:1: bad argument #2 to `foreach' (function expected, got userdata)
+stack traceback:
+        [C]: in function `foreach'
+        stdin:1: in main chunk
+        [C]: ?
+&gt; =table.foreach({foo='bar'}, python.asfunc(join))
+foo-bar
+</pre><p><a name="head-3229609e15436ec51bcf00818a69a84dbc58a0c2"></a><H2>&nbsp;6. License</H2>
+<b>Lunatic Python</b> is available under the LGPL license. <p><a name="head-a479c9c34e878d07b4d67a73a48f432ad7dc53c8"></a><H2>&nbsp;7. Download</H2>
+Available files: <ul><li> <a href="https://moin.conectiva.com.br/LunaticPython?action=AttachFile&amp;do=get&amp;target=lunatic-python-0.1.tar.bz2">lunatic-python-0.1.tar.bz2</a> </li></ul><p><a name="head-5fda23d62015b99fb2a9f86b38bcdf2bdf7609c8"></a><H2>&nbsp;8. Author</H2>
+<a href="https://moin.conectiva.com.br/GustavoNiemeyer">GustavoNiemeyer</a> &lt;<a href="mailto:niemeyer@conectiva.com">niemeyer@conectiva.com</a>&gt; <a name="bottom"></a>
+<br><br>
+<a href="http://www.python.org/"><img align="right" vspace="10" hspace="3"
+src="PythonPo.gif" width="55" height="22" border="0"
+alt="PythonPowered"></a>
+<table lang="en" dir="ltr" border="0" cellspacing="0" cellpadding="0" class="footer" width="100%">
+<form method="POST" action="">
+<tr><td>
+<input type="hidden" name="action" value="inlinesearch">
+<input type="hidden" name="context" value="40">
+
+Immutable page&nbsp;&nbsp; [current page size <b>13053</b> bytes]&nbsp;&nbsp; (last edited 2003-12-13 06:23:00 by <span title="200.103.138.65"><a href="https://moin.conectiva.com.br/GustavoNiemeyer">GustavoNiemeyer</a></span>)<br><a href="https://moin.conectiva.com.br/FindPage?value=LunaticPython">FindPage</a>
+ by browsing, title search <input style="font-family:Verdana; font-size:9pt;" type="text" name="text_title" value="" size="15" maxlength="50"><input type="image" src="moin-sea.gif" name="button_title"  alt="[?]" hspace="3" width="12" height="12" border="0">, text search <input style="font-family:Verdana; font-size:9pt;" type="text" name="text_full" value="" size="15" maxlength="50"><input type="image" src="moin-sea.gif" name="button_full"  alt="[?]" hspace="3" width="12" height="12" border="0"> or an index<br>
+Or try one of these actions: 
+<a href="https://moin.conectiva.com.br/LunaticPython?action=AttachFile">AttachFile</a>, 
+<a href="https://moin.conectiva.com.br/LunaticPython?action=DeletePage">DeletePage</a>, 
+<a href="https://moin.conectiva.com.br/LunaticPython?action=LikePages">LikePages</a>, 
+<a href="https://moin.conectiva.com.br/LunaticPython?action=LocalSiteMap">LocalSiteMap</a>, 
+<a href="https://moin.conectiva.com.br/LunaticPython?action=SpellCheck">SpellCheck</a><br>
+
+</td></tr>
+</form>
+</table>
+
+<!-- MoinMoin 1.173 on distro2.conectiva.com.br served this page in 0.690 secs -->
+</body></html>
+
+<!-- This document saved from https://moin.conectiva.com.br/LunaticPython -->

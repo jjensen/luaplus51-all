@@ -1,0 +1,9 @@
+if $(OS) = NT
+{
+
+SubDir LUAPLUS Src Modules clipboard ;
+
+C.LinkPrebuiltLibraries clipboard : user32 ;
+LuaPlusAddModule clipboard : clipboard.cpp ;
+
+}

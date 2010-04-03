@@ -1,0 +1,15 @@
+$import{ "index_view" }
+
+	<div id="menu">
+		<h3>Projects</h3>
+		<ul>
+		  $show_posts{ template = "section_list.html" }[[<li><a href = "$uri">$title</a></li>]]
+		</ul>
+ 	</div>
+	<div id="contents">
+		<div class="blogentry">
+
+		  $body
+	  
+		</div>
+	</div>

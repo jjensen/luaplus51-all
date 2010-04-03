@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+$import{"index_view"}
+<feed xmlns="http://www.w3.org/2005/Atom">
+   <title>Orbit Blog</title>
+   <id>tag:orbit-blog</id>
+   <link rel="alternate" type="text/html" href="$home_url" />
+   <link rel="self" type="application/atom+xml" href="$home_url_xml" />
+  $show_posts{ include_tags = {"blog-%"}, count = 10 }[=[
+<entry>
+   <title>$title</title>
+   <link rel="alternate" type="text/html" href="$uri" />
+   <id>tag:orbit-blog,$id</id>
+   
+   <published>$year-$month_padded-$day_padded{}T$hour_padded:$minute_padded:00Z</published>
+   <updated>$year-$month_padded-$day_padded{}T$hour_padded:$minute_padded:00Z</updated>
+      
+   <content type="html" xml:lang="en">
+   <![CDATA[$markdown_body]]>
+
+   </content>
+</entry>
+  ]=]
+
+</feed>

@@ -1,0 +1,10 @@
+
+ The QtLua library aims to make Qt4 applications scriptable
+ using the @url{Lua} http://www.lua.org/ scripting language. It is an
+ alternative to the QtScript module.
+
+ QtLua does not generate or use generated binding code for Qt. Instead it
+ provides useful C++ wrapper classes to make C++ and lua objects accessible
+ from both lua and C++. It takes advantages of the Qt meta object
+ system to expose @ref QObject members to lua scripts.
+

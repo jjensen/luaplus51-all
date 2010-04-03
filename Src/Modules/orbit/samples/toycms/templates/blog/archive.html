@@ -1,0 +1,10 @@
+$import{"index_view"}
+
+  $show_posts{ archive = true, include_tags = {"blog-%"}, count = 7 }[[
+<div class = "blogentry">
+    $if_new_date[=[<h2>$date_string</h2>]=]
+    <h3>$title</h3>
+    $markdown_body
+    <p class = "posted">Published at $hour_padded:$minute_padded | <a href ="$uri#comments">Comments ($n_comments)</a></p>
+</div>
+  ]]

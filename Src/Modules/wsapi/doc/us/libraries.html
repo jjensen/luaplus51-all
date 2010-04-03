@@ -1,0 +1,126 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<title>WSAPI</title>
+    <link rel="stylesheet" href="http://www.keplerproject.org/doc.css" type="text/css"/>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+</head>
+
+<body>
+
+<div id="container">
+
+<div id="product">
+
+	<div id="product_logo">
+        <a href="http://wsapi.luaforge.net">
+		<img alt="WSAPI" src="wsapi.png"/>
+	    </a>
+    </div>
+	<div id="product_name"><big><strong>WSAPI</strong></big></div>
+	<div id="product_description">Lua Web Server API</div>
+</div> <!-- id="product" -->
+
+<div id="main">
+	
+<div id="navigation">
+<h1>WSAPI</h1>
+	<ul>
+
+		<li><a href="index.html">Home</a></li>
+
+		<li><a href="manual.html">Manual</a></li>
+
+		<li><strong>Libraries</strong></li>
+
+		<li><a href="license.html">License</a></li>
+
+	</ul>
+</div> <!-- id="navigation" -->
+
+<div id="content">
+
+
+<h2>Overview</h2>
+
+<p>WSAPI includes a set of helper libraries to make writing applications and web frameworks easier.
+To use these libraries just <code>require</code> them in your application or framework.</p>
+
+<h2>Request</h2>
+
+<p><strong>wsapi.request.new(*wsapi_env<em>, [</em>options*])</strong> - creates a new request object wrapping *wsapi_env<em>; *options</em> is an (optional) table of extra options
+for the request, the only option currently supported is *delay_post*, if set
+this won't process the POST data on creation of the request</p>
+
+<p><strong>req:parse<em>post</em>data()</strong> - processed the POST data in case the processing
+was delayed by passing *delay_post = true* on creation of the request</p>
+
+<p><strong>req.GET</strong> - table with GET parameters of request</p>
+
+<p><strong>req.POST</strong> - table with POST parameters of request</p>
+
+<p><strong>req.method</strong> - request method (usually "GET" or "POST") </p>
+
+<p><strong>req.path_info</strong> - PATH_INFO metavariable</p>
+
+<p><strong>req.script_name</strong> - SCRIPT_NAME metavariable</p>
+
+<p><strong>req.query_string</strong> - unparsed query string</p>
+
+<p><strong>req.params</strong> - union of <strong>req.GET</strong> and <strong>req.POST</strong>, built on demand</p>
+
+<p><strong>req.cookies[<em>name</em>]</strong> - gets value of a cookie from browser</p>
+
+<h2>Response</h2>
+
+<p><strong>wsapi.response.new([<em>status</em>, <em>headers</em>, <em>body</em>])</strong> - creates a new response
+object, optionally setting an initial status code, header table and body contents</p>
+
+<p><strong>res.status</strong> - status code to be returned to server</p>
+
+<p><strong>res.headers</strong> - table with headers to be returned to server</p>
+
+<p><strong>res[<em>name</em>]</strong> - same as <strong>res.headers[<em>name</em>]</strong>, unless <em>name</em> is a field in res</p>
+
+<p><strong>res[<em>name</em>] = <em>value</em></strong> - same as <strong>res.headers[<em>name</em>] = <em>value</em></strong>, unless <em>name</em> is
+a field in res</p>
+
+<p><strong>res:write(<em>s</em>)</strong> - adds <em>s</em> to the body if it is a string, if it is a table
+concatenate the contents of the table and add to the body</p>
+
+<p><strong>res:set_cookie(<em>name</em>, <em>value</em>)</strong> - sets the value of a cookie</p>
+
+<p><strong>res:delete_cookie(<em>name</em>)</strong> - erases a cookie from browser</p>
+
+<p><strong>res:finish()</strong> - finishes response, returning status, headers and an iterator for the body</p>
+
+<h2>Util</h2>
+
+<p><strong>wsapi.util.url_encode(<em>s</em>)</strong> - encodes <em>s</em> according to RFC2396</p>
+
+<p><strong>wsapi.util.url_decode(<em>s</em>)</strong> - decodes <em>s</em> according to RFC2396</p>
+
+<p><strong>wsapi.util.is_empty(<em>s</em>)</strong> - returns <code>true</code> is <em>s</em> is <code>nil</code> or the empty string</p>
+
+<p><strong>wsapi.util.make_rewindable(<em>wsapi_env</em>)</strong> - wraps <em>wsapi_env</em> in a new
+environment that lets you process the POST data more than once. This new
+environment's input object has a <em>rewind</em> method that you can call to allow you to read
+the POST data again.</p>
+
+
+
+</div> <!-- id="content" -->
+
+</div> <!-- id="main" -->
+
+<div id="about">
+	<p><a href="http://validator.w3.org/check?uri=referer">Valid XHTML 1.0!</a></p>
+</div> <!-- id="about" -->
+
+</div> <!-- id="container" -->
+
+</body>
+</html>
+

@@ -1,0 +1,7 @@
+Add console history access/load/save function, use properties ?
+Add QThread/lua thread support
+Improve color support/Completion candidate list style
+correctly handle printing to console while readline
+add QFile/QDir wrapper
+handle properies enums
+remove unused const_ptr 2nd arg of Ref template

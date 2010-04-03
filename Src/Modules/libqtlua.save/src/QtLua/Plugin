@@ -1,0 +1,4 @@
+
+#include "qtluaplugin.hh"
+#include "qtluaplugin.hxx"
+

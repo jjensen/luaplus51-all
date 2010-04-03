@@ -1,0 +1,349 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 42;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		428641FD0A07E57100BB42A4 /* stdafx.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 428641FA0A07E57100BB42A4 /* stdafx.cpp */; };
+		428641FE0A07E57100BB42A4 /* stdafx.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 428641FB0A07E57100BB42A4 /* stdafx.h */; };
+		428641FF0A07E57100BB42A4 /* TestSuite.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 428641FC0A07E57100BB42A4 /* TestSuite.cpp */; };
+		4286432C0A07F48E00BB42A4 /* libUnitTest++.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4286432B0A07F48E00BB42A4 /* libUnitTest++.a */; };
+		4286432E0A07F4A700BB42A4 /* libLuaPlusLib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4286432D0A07F4A700BB42A4 /* libLuaPlusLib.a */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXBuildStyle section */
+		014CEA460018CE2711CA2923 /* Debug */ = {
+			isa = PBXBuildStyle;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		014CEA470018CE2711CA2923 /* Release */ = {
+			isa = PBXBuildStyle;
+			buildSettings = {
+			};
+			name = Release;
+		};
+/* End PBXBuildStyle section */
+
+/* Begin PBXContainerItemProxy section */
+		428642190A07E70900BB42A4 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 428642150A07E70900BB42A4 /* UnitTest++.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D2AAC046055464E500DB518D;
+			remoteInfo = "UnitTest++";
+		};
+		4286421B0A07E71500BB42A4 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 428642150A07E70900BB42A4 /* UnitTest++.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = D2AAC045055464E500DB518D;
+			remoteInfo = "UnitTest++";
+		};
+		428642210A07E73100BB42A4 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4286421D0A07E73100BB42A4 /* LuaPlusLib.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D2AAC046055464E500DB518D;
+			remoteInfo = LuaPlusLib;
+		};
+		428642230A07E73B00BB42A4 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4286421D0A07E73100BB42A4 /* LuaPlusLib.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = D2AAC045055464E500DB518D;
+			remoteInfo = LuaPlusLib;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		8DD76F690486A84900D96B5E /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 8;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+				428641FE0A07E57100BB42A4 /* stdafx.h in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		428641FA0A07E57100BB42A4 /* stdafx.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = stdafx.cpp; sourceTree = "<group>"; };
+		428641FB0A07E57100BB42A4 /* stdafx.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = stdafx.h; sourceTree = "<group>"; };
+		428641FC0A07E57100BB42A4 /* TestSuite.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = TestSuite.cpp; sourceTree = "<group>"; };
+		428642150A07E70900BB42A4 /* UnitTest++.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "UnitTest++.xcodeproj"; path = "../UnitTest++/UnitTest++.xcodeproj"; sourceTree = SOURCE_ROOT; };
+		4286421D0A07E73100BB42A4 /* LuaPlusLib.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = LuaPlusLib.xcodeproj; path = ../../Src/LuaPlus/LuaPlusLib.xcodeproj; sourceTree = SOURCE_ROOT; };
+		4286432B0A07F48E00BB42A4 /* libUnitTest++.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libUnitTest++.a"; path = "../UnitTest++/build/Debug/libUnitTest++.a"; sourceTree = SOURCE_ROOT; };
+		4286432D0A07F4A700BB42A4 /* libLuaPlusLib.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libLuaPlusLib.a; path = ../../Src/LuaPlus/build/Debug/libLuaPlusLib.a; sourceTree = SOURCE_ROOT; };
+		8DD76F6C0486A84900D96B5E /* TestSuite */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = TestSuite; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		8DD76F660486A84900D96B5E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4286432C0A07F48E00BB42A4 /* libUnitTest++.a in Frameworks */,
+				4286432E0A07F4A700BB42A4 /* libLuaPlusLib.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		08FB7794FE84155DC02AAC07 /* TestSuite */ = {
+			isa = PBXGroup;
+			children = (
+				4286432B0A07F48E00BB42A4 /* libUnitTest++.a */,
+				4286432D0A07F4A700BB42A4 /* libLuaPlusLib.a */,
+				4286421D0A07E73100BB42A4 /* LuaPlusLib.xcodeproj */,
+				428642150A07E70900BB42A4 /* UnitTest++.xcodeproj */,
+				08FB7795FE84155DC02AAC07 /* Source */,
+				C6859E8C029090F304C91782 /* Documentation */,
+				1AB674ADFE9D54B511CA2CBB /* Products */,
+			);
+			name = TestSuite;
+			sourceTree = "<group>";
+		};
+		08FB7795FE84155DC02AAC07 /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				428641FA0A07E57100BB42A4 /* stdafx.cpp */,
+				428641FB0A07E57100BB42A4 /* stdafx.h */,
+				428641FC0A07E57100BB42A4 /* TestSuite.cpp */,
+			);
+			name = Source;
+			sourceTree = "<group>";
+		};
+		1AB674ADFE9D54B511CA2CBB /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				8DD76F6C0486A84900D96B5E /* TestSuite */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		428642160A07E70900BB42A4 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				4286421A0A07E70900BB42A4 /* libUnitTest++.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		4286421E0A07E73100BB42A4 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				428642220A07E73100BB42A4 /* libLuaPlusLib.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		C6859E8C029090F304C91782 /* Documentation */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Documentation;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		8DD76F620486A84900D96B5E /* TestSuite */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1DEB923108733DC60010E9CD /* Build configuration list for PBXNativeTarget "TestSuite" */;
+			buildPhases = (
+				8DD76F640486A84900D96B5E /* Sources */,
+				8DD76F660486A84900D96B5E /* Frameworks */,
+				8DD76F690486A84900D96B5E /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			buildSettings = {
+			};
+			dependencies = (
+				4286421C0A07E71500BB42A4 /* PBXTargetDependency */,
+				428642240A07E73B00BB42A4 /* PBXTargetDependency */,
+			);
+			name = TestSuite;
+			productInstallPath = "$(HOME)/bin";
+			productName = TestSuite;
+			productReference = 8DD76F6C0486A84900D96B5E /* TestSuite */;
+			productType = "com.apple.product-type.tool";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		08FB7793FE84155DC02AAC07 /* Project object */ = {
+			isa = PBXProject;
+			buildConfigurationList = 1DEB923508733DC60010E9CD /* Build configuration list for PBXProject "TestSuite" */;
+			buildSettings = {
+			};
+			buildStyles = (
+				014CEA460018CE2711CA2923 /* Debug */,
+				014CEA470018CE2711CA2923 /* Release */,
+			);
+			hasScannedForEncodings = 1;
+			mainGroup = 08FB7794FE84155DC02AAC07 /* TestSuite */;
+			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 4286421E0A07E73100BB42A4 /* Products */;
+					ProjectRef = 4286421D0A07E73100BB42A4 /* LuaPlusLib.xcodeproj */;
+				},
+				{
+					ProductGroup = 428642160A07E70900BB42A4 /* Products */;
+					ProjectRef = 428642150A07E70900BB42A4 /* UnitTest++.xcodeproj */;
+				},
+			);
+			targets = (
+				8DD76F620486A84900D96B5E /* TestSuite */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		4286421A0A07E70900BB42A4 /* libUnitTest++.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = "libUnitTest++.a";
+			remoteRef = 428642190A07E70900BB42A4 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		428642220A07E73100BB42A4 /* libLuaPlusLib.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libLuaPlusLib.a;
+			remoteRef = 428642210A07E73100BB42A4 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
+
+/* Begin PBXSourcesBuildPhase section */
+		8DD76F640486A84900D96B5E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				428641FD0A07E57100BB42A4 /* stdafx.cpp in Sources */,
+				428641FF0A07E57100BB42A4 /* TestSuite.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		4286421C0A07E71500BB42A4 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "UnitTest++";
+			targetProxy = 4286421B0A07E71500BB42A4 /* PBXContainerItemProxy */;
+		};
+		428642240A07E73B00BB42A4 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = LuaPlusLib;
+			targetProxy = 428642230A07E73B00BB42A4 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		1DEB923208733DC60010E9CD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				INSTALL_PATH = "$(HOME)/bin";
+				LIBRARY_SEARCH_PATHS = (
+					../../Src/LuaPlus/,
+					"../UnitTest++/src",
+					"$(SRCROOT)/../UnitTest++/build/Debug",
+					"$(SRCROOT)/../../Src/LuaPlus/build/Debug",
+				);
+				MACH_O_TYPE = mh_execute;
+				PRODUCT_NAME = TestSuite;
+				ZERO_LINK = YES;
+			};
+			name = Debug;
+		};
+		1DEB923308733DC60010E9CD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = (
+					ppc,
+					i386,
+				);
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_MODEL_TUNING = G5;
+				INSTALL_PATH = "$(HOME)/bin";
+				LIBRARY_SEARCH_PATHS = (
+					../../Src/LuaPlus/,
+					"../UnitTest++/src",
+					"$(SRCROOT)/../UnitTest++/build/Debug",
+					"$(SRCROOT)/../../Src/LuaPlus/build/Debug",
+				);
+				MACH_O_TYPE = mh_execute;
+				PRODUCT_NAME = TestSuite;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
+		1DEB923608733DC60010E9CD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					../../Src/,
+					"../UnitTest++/src",
+				);
+				PREBINDING = NO;
+				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
+			};
+			name = Debug;
+		};
+		1DEB923708733DC60010E9CD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					../../Src/,
+					"../UnitTest++/src",
+				);
+				PREBINDING = NO;
+				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		1DEB923108733DC60010E9CD /* Build configuration list for PBXNativeTarget "TestSuite" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1DEB923208733DC60010E9CD /* Debug */,
+				1DEB923308733DC60010E9CD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1DEB923508733DC60010E9CD /* Build configuration list for PBXProject "TestSuite" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1DEB923608733DC60010E9CD /* Debug */,
+				1DEB923708733DC60010E9CD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 08FB7793FE84155DC02AAC07 /* Project object */;
+}

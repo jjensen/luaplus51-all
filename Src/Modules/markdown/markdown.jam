@@ -1,0 +1,6 @@
+SubDir LUAPLUS Src Modules markdown ;
+
+IncludeModule copyfile ;
+
+LuaPlusAddSimpleModule markdown : markdown.lua markdown-tests.lua ;
+CopyFile markdown : $(LUA_LDIR)/markdown.lua : $(SUBDIR)/markdown.lua ;

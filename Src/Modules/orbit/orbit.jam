@@ -1,0 +1,31 @@
+SubDir LUAPLUS Src Modules orbit ;
+
+IncludeModule copyfile ;
+
+{
+
+local ROOT_LUAS =
+		src/orbit.lua
+;
+
+local ORBIT_LUAS =
+		src/orbit/model.lua
+		src/orbit/cache.lua
+		src/orbit/pages.lua
+		src/orbit/ophandler.lua
+;
+
+LuaPlusAddSimpleModule orbit : $(ROOT_LUAS) $(ORBIT_LUAS) ;
+
+local filename ;
+for filename in $(ROOT_LUAS)
+{
+	CopyFile orbit : $(LUA_LDIR)/$(filename:BS) : $(SUBDIR)/$(filename) ;
+}
+
+for filename in $(ORBIT_LUAS)
+{
+	CopyFile orbit : $(LUA_LDIR)/orbit/$(filename:BS) : $(SUBDIR)/$(filename) ;
+}
+
+}

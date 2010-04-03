@@ -1,0 +1,22 @@
+SubDir LUAPLUS Src Modules lsqlite3 ;
+
+{
+
+local SRCS =
+		../sqlite3/sqlite/sqlite3.c
+		../sqlite3/sqlite/sqlite3.h
+		../sqlite3/sqlite/sqlite3ext.h
+		lsqlite3.c
+;
+
+if $(MSVCNT) {
+	C.DefFile lsqlite3 : lsqlite3.def ;
+}
+
+C.Defines lsqlite3 : SQLITE_ENABLE_FTS3 ;
+
+C.IncludeDirectories lsqlite3 : ../sqlite3/sqlite ;
+
+LuaPlusAddModule lsqlite3 : $(SRCS) ;
+
+}

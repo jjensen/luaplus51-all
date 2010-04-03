@@ -1,0 +1,56 @@
+
+<IfModule mod_cgi.c>
+  <IfModule !mod_fcgid.c>
+    AddHandler cgi-script .lua
+  </IfModule>
+</IfModule>
+
+<IfModule mod_fcgid.c>
+  AddHandler fcgid-script .lua
+  FCGIWrapper "/usr/bin/env wsapi.fcgi" .lua
+</IfModule>
+
+<FilesMatch "\.(lua|db|sql|mysql|cgi|fcgi)$">
+  Deny from all
+  Allow from none
+</FilesMatch>
+
+<FilesMatch "(toycms|index)\.lua">
+  Allow from all
+  Deny from none
+  <IfModule mod_xsendfile.c>
+    XSendFile on
+  </IfModule>
+</FilesMatch>
+
+<IfModule mod_rewrite.c>
+RewriteEngine on
+
+RewriteCond %{REQUEST_FILENAME} ^(.*)/(toycms|index)\.lua$
+RewriteCond %1/page_cache/index.html -f
+RewriteRule ^(toycms|index)\.lua/?$ page_cache/index.html [L]
+
+RewriteCond %{REQUEST_FILENAME} ^(.*)/(toycms|index)\.lua$
+RewriteCond %1/page_cache/post-$2.html -f
+RewriteRule ^(toycms|index)\.lua/post/(.+)$ page_cache/post-$2.html [L]
+
+RewriteCond %{REQUEST_FILENAME} ^(.*)/(toycms|index)\.lua$
+RewriteCond %1/page_cache/archive-$2-$3.html -f
+RewriteRule ^(toycms|index)\.lua/archive/([^/]+)/([^/]+)$ page_cache/archive-$2-$3.html [L]
+
+RewriteCond %{REQUEST_FILENAME} ^(.*)/(toycms|index)\.lua$
+RewriteCond %1/page_cache/section-$2.html -f
+RewriteRule ^(toycms|index)\.lua/section/(.+)$ page_cache/section-$2.html [L]
+
+RewriteCond %{REQUEST_FILENAME} ^(.*)/(toycms|index)\.lua$
+RewriteCond %1/page_cache/index.xml -f
+RewriteRule ^(toycms|index)\.lua/xml$ page_cache/index.xml [L]
+
+RewriteCond %{REQUEST_FILENAME} ^(.*)/(toycms|index)\.lua$
+RewriteCond %1/page_cache/post-$2.xml -f
+RewriteRule ^(toycms|index)\.lua/post/([^/]+)/xml$ page_cache/post-$2.xml [L]
+
+RewriteCond %{REQUEST_FILENAME} ^(.*)/(toycms|index)\.lua$
+RewriteCond %1/page_cache/section-$2.xml -f
+RewriteRule ^(toycms|index)\.lua/section/([^/]+)$ page_cache/section-$2.xml [L]
+</IfModule>

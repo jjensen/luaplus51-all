@@ -1,0 +1,16 @@
+SubDir LUAPLUS Src Modules vdrive ;
+
+SubInclude LUAPLUS Src Modules vdrive Misc : Misc ;
+
+C.IncludeDirectories vdrive : ../zlib ;
+C.LinkLibraries vdrive : Misc ;
+
+if $(NT)
+{
+	C.LinkPrebuiltLibraries vdrive : user32 ;
+	if $(COMPILER) = mingw {
+		C.LinkPrebuiltLibraries vdrive : stdc++ ;
+	}
+}
+
+LuaPlusAddModule vdrive : vdrive.cpp ;

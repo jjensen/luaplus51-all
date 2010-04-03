@@ -1,0 +1,32 @@
+<div class = "blogentry">
+  <h2>$title</h2>
+  <h3>$date_string</h3>
+  $markdown_body
+    <p class = "posted">Published at $hour_padded:$minute_padded | <a href ="$uri#comments">Comments ($n_comments)</a></p>
+  <a name="comments"></a>
+  $if_comments[[
+  <h2>Comments</h2>
+  $comments[=[
+    $markdown_body
+  <p class="posted" >Written by $author_link at $time_string</p>
+  <p></p>
+  ]=]
+  ]]
+  $if_comment_open[[
+  <form method="post" action="$add_comment_uri">
+  <p>
+  Name:<br>
+  <input type="text" name="author" value = "$author"><br><br>
+  Email:<br>
+  <input type="text" name="email" value = "$email"><br><br>
+  Site:<br>
+  <input type="text" name="url" value = "$url"><br><br>
+  Comments:<br>
+  $if_error_comment[=[<span style="color: red">You must write something!</span>]=]
+  <textarea name = "comment" rows = "10" cols = "60"></textarea><br>
+  <em>*italics*</em> <strong>**bold**</strong> [<a href="/url">link</a>](http://url)<br/><br/>
+  <input class="button" value="Send" type="submit">
+  </p>
+  </form>
+  ]]
+</div>

@@ -1,0 +1,20 @@
+$import{"index_view"}
+
+  $show_posts{ include_tags = {"blog-%"}, count = 7 }[[
+    <h2 class="date-header">$date_string</h2>
+    <div class="entry">
+    <h3 class="entry-header"><a href="$uri">$title</a></h3>
+    <div class="entry-content">
+        <div class="entry-body">
+	  $markdown_body
+        </div>
+    </div>
+    <div class="entry-footer">
+    <span class="post-footers">
+        Posted by <a href="$home_url{}post/1">Fabio Mascarenhas</a> at $hour_padded:$minute_padded
+    </span> 
+    <span class="separator">|</span> <a class="permalink" href="$uri">Permalink</a>
+    | <a href="$uri#comments">Comments ($n_comments)</a>
+    </div>
+    </div>
+  ]]

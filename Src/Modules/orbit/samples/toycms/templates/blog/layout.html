@@ -1,0 +1,56 @@
+$import{"archive"}
+$import{"index_view"}
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+  <head>
+    <title>Orbit Blog</title>
+    <meta http-equiv = "Content-Type" content = "text/html; charset=utf-8">
+    <link rel = "stylesheet" type = "text/css" href="$template_vpath/style.css">
+    <script src="$js_vpath/prototype.js" type="text/javascript"></script>
+    <script src="$js_vpath/scriptaculous.js" type="text/javascript"></script>  </head>
+  <body>
+    <div id = "container">
+      <div id = "header"></div>
+      <div id = "mainnav">
+	<ul>
+	  <li><a href="$home_url">Home</a></li>
+	  $show_posts{ include_tags = {"pages"} }[[
+	    <li><a href="$uri">$title</a></li>
+	  ]]
+	</ul>
+      </div>
+      <div id = "menu">
+	<h3>About this Blog</h3>
+	<ul><li>This is an example of a blog built using Orbit. You
+can browse posts and add comments, but to add new posts you have
+to go directly to the database. This will be fixed in the future.</li></ul>
+        <h3>Recent Posts</h3>
+        <ul>
+        $show_posts{ include_tags = {"blog-%"}, count = 7 }[[
+	    <li><a href="$uri">$title</a></li>
+        ]]
+	</ul>
+	<h3>Links</h3>
+	<ul>
+	$show_posts{ include_tags = {"blogroll"} }[[
+	    <li><a href="$uri">$title</a></li>
+	]]
+	</ul>
+	<h3>Archives</h3>
+	<ul>
+	$month_list{ include_tags = {"blog-%"} }[[
+	    <li><a href="$uri">$month_name $year</a></li>
+	]]
+	</ul>
+	<h3><a href="$home_url_xml">Atom Feed</a></h3>
+      </div>
+      <div id = "contents">
+	$view
+      </div>
+      <div id = "footer">
+	Copyright 2007 Fabio Mascarenhas
+      </div>
+    </div>
+  </body>
+</html>

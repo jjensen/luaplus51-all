@@ -1,0 +1,10 @@
+if $(OS) = NT
+{
+
+SubDir LUAPLUS Src Modules windows ;
+
+UseModule c/mfc ;
+C.UseMFC windows : link ;
+LuaPlusAddModule windows : KeystrokeEngine.cpp WindowEngine.cpp windows.cpp ;
+
+}

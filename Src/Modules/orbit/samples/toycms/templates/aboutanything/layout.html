@@ -1,0 +1,90 @@
+$import{"archive"}
+$import{"index_view"}
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <link rel="stylesheet" href="$template_vpath/base_styles.css" type="text/css" />
+   <link rel="stylesheet" href="$template_vpath/theme_styles.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="$home_url_xml" />
+   <title>
+    Orbit Blog
+    </title>
+</head>
+<body class="main-index layout-two-column-right">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="$home_url" accesskey="1">Orbit Blog</a></h1>
+               <h2 id="banner-description"><i>The ease of PHP without the cruft...</i></h2>
+            </div>
+         </div>
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+$view
+                    </div>
+                </div>
+
+                <div id="beta">
+    <div id="beta-inner" class="pkg">
+        <div class="module-archives module">
+            <h2 class="module-header">Recent Posts</h2>
+            <div class="module-content">
+                <ul class="module-list">
+        $show_posts{ include_tags = {"blog-%"}, count = 7 }[[
+	    <li class="module-list-item"><a href="$uri">$title</a></li>
+        ]]
+                </ul>
+            </div>
+        </div>
+	<div class="module-archives module">
+		<h2 class="module-header">Links</h2>
+		<div class="module-content">
+			<ul class="module-list">
+	$show_posts{ include_tags = {"blogroll"} }[[
+	    <li class="module-list-item"><a href="$uri">$title</a></li>
+	]]
+			</ul>
+		</div>
+	</div>
+        <div class="module-archives module">
+            <h2 class="module-header">Monthly Archives</h2>
+            <div class="module-content">
+                <ul class="module-list">
+	$month_list{ include_tags = {"blog-%"} }[[
+	    <li class="module-list-item"><a href="$uri">$month_name $year</a></li>
+	]]
+                </ul>
+            </div>
+        </div>
+        <div class="module-syndicate module">
+            <div class="module-content">
+                <a href="$home_url_xml">Subscribe to this blog's feed</a><br />
+                (<a href="http://www.sixapart.com/about/feeds">What is this?</a>)
+            </div>
+        </div>
+        <div class="module-powered module">
+            <div class="module-content">
+	      <a href="http://kepler-tmp.dreamhosters.com/en/Orbit"><img src="$template_vpath/images/orbit.png"/></a>
+            </div>
+        </div>
+
+    </div>
+</div>
+            </div>
+        </div>
+        </div>
+    </div>
+<script src="http://www.google-analytics.com/urchin.js" type="text/javascript">
+</script>
+<script type="text/javascript">
+_uacct = "UA-2017802-1";
+urchinTracker();
+</script>
+</body>
+</html>

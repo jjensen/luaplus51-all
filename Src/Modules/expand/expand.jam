@@ -1,0 +1,7 @@
+SubDir LUAPLUS Src Modules expand ;
+
+IncludeModule copyfile ;
+
+LuaPlusAddSimpleModule expand : expand.lua ;
+
+CopyFile expand : $(LUA_LDIR)/expand.lua : $(SUBDIR)/expand.lua ;

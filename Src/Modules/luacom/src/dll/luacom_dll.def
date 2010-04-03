@@ -1,0 +1,8 @@
+EXPORTS
+	luacom_openlib
+	luacom_open
+	luacom_close
+	luacom_IDispatch2LuaCOM
+	luacom_detectAutomation
+	DllGetClassObject PRIVATE
+

@@ -1,0 +1,146 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<title>WSAPI</title>
+    <link rel="stylesheet" href="http://www.keplerproject.org/doc.css" type="text/css"/>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+</head>
+
+<body>
+
+<div id="container">
+
+<div id="product">
+
+	<div id="product_logo">
+        <a href="http://wsapi.luaforge.net">
+		<img alt="WSAPI" src="wsapi.png"/>
+	    </a>
+    </div>
+	<div id="product_name"><big><strong>WSAPI</strong></big></div>
+	<div id="product_description">Lua Web Server API</div>
+</div> <!-- id="product" -->
+
+<div id="main">
+	
+<div id="navigation">
+<h1>WSAPI</h1>
+	<ul>
+
+		<li><strong>Home</strong></li>
+
+		<li><a href="manual.html">Manual</a></li>
+
+		<li><a href="libraries.html">Libraries</a></li>
+
+		<li><a href="license.html">License</a></li>
+
+	</ul>
+</div> <!-- id="navigation" -->
+
+<div id="content">
+
+
+<h2>Overview</h2>
+
+<p><em>WSAPI</em> is an API that abstracts the web server from Lua web applications. By coding
+against WSAPI your application can run on any of the supported servers and
+interfaces (currently CGI, FastCGI and Xavante, on Windows and UNIX-based systems).</p>
+
+<p>WSAPI provides a set of helper libraries that help with request processing
+and output buffering. You can also write applications that act as filters that
+provide some kind of service to other applications, such as authentication,
+file uploads, request isolation, or multiplexing.</p>
+
+<p>WSAPI's main influence is Ruby's <a href="http://rack.rubyforge.org/">Rack</a> framework, but it was
+also influenced by Python's <a href="http://wsgi.org/wsgi">WSGI</a> (PEP 333). It's not a direct
+clone of either of them, though, and tries to follow standard Lua idioms.</p>
+
+<p>WSAPI is free software and uses the same license as Lua 5.1</p>
+
+<h2>Status</h2>
+
+<p>Current version is 1.2. It was developed for Lua 5.1.</p>
+
+<h2>Download</h2>
+
+<p>You can get WSAPI using <a href="http://luarocks.org">LuaRocks</a>:</p>
+
+
+<pre class="example">
+luarocks install wsapi-xavante
+</pre>
+
+
+<p>You can also get an installer script that installs Lua+LuaRocks+WSAPI 
+<a href="http://cloud.github.com/downloads/keplerproject/wsapi-install-1.2.0.tar.gz">here</a>. See
+the <a href="manual.html">manual</a> for installation instructions.</p>
+
+<h2>Latest Sources and Bug Tracker</h2>
+
+<p>WSAPI sources and bug tracker are available at its <a href="http://github.com/keplerproject/wsapi/">Github</a> page.</p>
+
+<h2>History</h2>
+
+<p><strong>WSAPI 1.2</strong> [27/Oct/2009]</p>
+
+<ul>
+    <li>Adds time-based collection of Lua states to FCGI and Xavante launchers</li>
+    <li>Adds "wsapi" laucher script, to start a Xavante WSAPI server</li>
+    <li>Fixed "undefined media type" error</li>
+    <li>Added is_empty utility function to check if a string is nil or ''</li>
+    <li>Fixed bug with empty bodies in wsapi.xavante, and added full http status codes to responses </li>
+    <li>Changing order of evaluating PATH_TRANSLATED and SCRIPT_FILENAME, to make non-wrapped launchers work in OSX Apache</li>
+    <li>Reload support for load_isolated_launcher</li>
+</ul>
+
+<p><strong>WSAPI 1.1</strong> [04/Feb/2009]</p>
+
+<ul>
+    <li>Adds <em>options</em> table to <strong>wsapi.request.new</strong>, *delay_post* option delays
+    POST processing until <strong>req:parse<em>post</em>data()</strong> is called</li>
+    <li>Moves call to <strong>lfs.setmode</strong> from wsapi.common to wsapi.cgi</li>
+    <li>Adds <strong>wsapi.util.make_rewindable(<em>wsapi_env</em>)</strong> method - wraps <em>wsapi_env</em> in a new
+    environment that lets you process the POST data more than once.</li>
+    <li>Correctly handles PATH_TRANSLATED and SCRIPT_FILENAME in case the web server gets creative</li>
+    <li>Statically links the FastCGI version on Windows</li>
+</ul>
+
+<p><a href="http://wsapi.luaforge.net/1.0/"><strong>WSAPI 1.0</strong></a> [18/May/2008]</p>
+
+<ul>
+    <li>First public version.</li>
+    <li>Includes CGI, FastCGI and Xavante WSAPI connectors.</li>
+</ul>
+
+<h2>Credits</h2>
+
+<p>WSAPI was designed and developed by Fabio Mascarenhas and
+Andr&eacute; Carregal, and is maintained by Fabio Mascarenhas.</p>
+
+<h2>Contact Us</h2>
+
+<p>For more information please <a href="mailto:info-NO-SPAM-THANKS@keplerproject.org">contact us</a>.
+Comments are welcome!</p>
+
+<p>You can also reach us and other developers and users on the Kepler Project 
+<a href="http://luaforge.net/mail/?group_id=104">mailing list</a>. </p>
+
+
+
+
+</div> <!-- id="content" -->
+
+</div> <!-- id="main" -->
+
+<div id="about">
+	<p><a href="http://validator.w3.org/check?uri=referer">Valid XHTML 1.0!</a></p>
+</div> <!-- id="about" -->
+
+</div> <!-- id="container" -->
+
+</body>
+</html>
+

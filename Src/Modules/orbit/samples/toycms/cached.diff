@@ -1,0 +1,178 @@
+--- toycms.lua	2008-01-09 17:33:16.000000000 -0200
++++ /var/www/toycms/toycms.lua	2008-01-10 19:12:34.000000000 -0200
+@@ -1,3 +1,5 @@
++#!/usr/bin/env launcher
++
+ require"orbit"
+ require"markdown"
+ require"cosmo"
+@@ -180,17 +182,113 @@
+ 
+ require"toycms_plugins"
+ 
++local function readfile(filename)
++  local file = io.open(filename, "rb")
++  if file then
++    local contents = file:read("*a")
++    file:close()
++    return contents
++  else return nil end
++end
++
++local function page_file(path_info)
++  path_info = string.sub(path_info, 2, #path_info)
++  path_info = string.gsub(path_info, "/", "-")
++  if path_info == "" then path_info = "index" end
++  return 'page-cache/' .. path_info .. '.html'
++end
++
++local function parse_headers(s)
++  local headers = {}
++  for header in string.gmatch(s, "[^\r\n]+") do
++    local name, value = string.match(header, "^([^:]+):%s+(.+)$")
++    if headers[name] then
++      if type(headers[name]) == "table" then
++        table.insert(headers[name], value)
++      else
++        headers[name] = { headers[name], value }
++      end
++    else
++      headers[name] = value
++    end
++  end
++  return headers
++end
++
++local function parse_response(contents)
++  local b, e = string.find(contents, "\r\n\r\n")
++  local headers = string.sub(contents, 1, b + 1)
++  local body = string.sub(contents, e + 1, #contents)
++  return parse_headers(headers), body
++end
++
++local function get_page(path_info)
++  local filename = page_file(path_info)
++  local contents = readfile(filename)
++  if contents then
++--    return parse_response(contents)
++      return contents
++  else
++    return nil
++  end
++end
++
++local function writefile(filename, contents)
++  local file = io.open(filename, "wb")
++  if file then
++    file:write(contents)
++    file:close()
++  end
++end
++
++local function joinheaders(headers)
++  local hs = {}
++  for k, v in pairs(headers) do
++    if type(v) == "table" then
++      for _, tv in ipairs(v) do
++        table.insert(hs, string.format("%s: %s", k, v))
++      end
++    else
++      table.insert(hs, string.format("%s: %s", k, v))
++    end
++  end
++  return table.concat(hs, "\r\n")
++end
++
++local function write_page(headers, body, path_info)
++  local filename = page_file(path_info)
++--  local contents = joinheaders(headers) .. "\r\n\r\n" .. body
++--  writefile(filename, contents)
++  writefile(filename, body)
++end
++
++local function cached(f)
++  return f
++--[[  return function (app, ...)
++--    local cached_headers, cached_page = get_page(app.path_info)
++    local cached_page = get_page(app.path_info)
++    if cached_page then
++--      app.headers, app.response = cached_headers, cached_page
++        app.response = cached_page
++    else
++      f(app, ...)
++      write_page(app.headers, app.response, app.path_info)
++    end
++  end]]
++end
++
+ toycms:add_controllers{
+   home_page = { "/", "/index",
+-    get = function (app)
++    get = cached(function (app)
+       local template = app:load_template("home.html")
+       if template then
+         app:render("index", { template = template,
+ 		     env = app:new_template_env() })
++          
+       else
+         app.not_found.get(app)
+       end
+-    end
++    end)
+   },
+   home_xml = { "/xml",
+     get = function (app)
+@@ -204,7 +302,7 @@
+     end
+   },
+   section = { "/section/(%d+)",
+-    get = function (app, section_id)
++    get = cached(function (app, section_id)
+       local section = app.models.section:find(tonumber(section_id))
+       if not section then return app.not_found.get(app) end
+       local template = app:load_template("section_" .. 
+@@ -216,7 +314,7 @@
+       else
+ 	app.not_found.get(app)
+       end
+-    end
++    end)
+   },
+   section_xml = { "/section/(%d+)/xml",
+     get = function (app, section_id)
+@@ -236,7 +334,7 @@
+     end
+   },
+   post = { "/post/(%d+)",
+-    get = function (app, post_id)
++    get = cached(function (app, post_id)
+       local post = app.models.post:find(tonumber(post_id))
+       if not post then return app.not_found.get(app) end
+       local section = app.models.section:find(post.section_id)
+@@ -251,7 +349,7 @@
+       else
+ 	app.not_found.get(app)
+       end
+-    end
++    end)
+   },
+   post_xml = { "/post/(%d+)/xml",
+     get = function (app, post_id)
+@@ -273,7 +371,7 @@
+     end
+   },
+   archive = { "/archive/(%d+)/(%d+)",
+-    get = function (app, year, month)
++    get = cached(function (app, year, month)
+       local template = app:load_template("archive.html")
+       if template then
+ 	app.input.month = tonumber(month)
+@@ -287,7 +385,7 @@
+       else
+         app.not_found.get(app)
+       end
+-    end
++    end)
+   },
+   add_comment = { "/post/(%d+)/addcomment",
+     post = function (app, post_id)

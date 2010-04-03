@@ -1,0 +1,84 @@
+SubDir LUAPLUS Src Modules luasql ;
+
+if $(NT)
+{
+
+IncludeModule copyfile ;
+
+{
+
+###############################################################################
+###############################################################################
+ActiveTarget luasql.ado ;
+
+LuaPlusAddSimpleModule : src/ado/ado.lua ;
+CopyFile : $(LUA_LDIR)/luasql/ado.lua : $(SUBDIR)/src/ado/ado.lua ;
+
+###############################################################################
+###############################################################################
+IncludeModule c/mysql ;
+
+if $(MYSQL_FOUND) {
+
+	ActiveTarget luasql.mysql ;
+
+	local SRCS =
+			src/ls_mysql.c
+			src/luasql.c
+			src/luasql.h
+	;
+
+	C.DefFile : src/mysql.def ;
+
+	C.UseMySQL ;
+
+	C.OutputName : mysql ;
+	LuaPlusAddModule : $(SRCS) : luasql ;
+
+}
+
+###############################################################################
+###############################################################################
+SubDir LUAPLUS Src Modules luasql : luasql.odbc ;
+
+local SRCS =
+		src/ls_odbc.c
+		src/luasql.c
+		src/luasql.h
+;
+
+C.DefFile luasql.odbc : src/odbc.def ;
+
+if $(MSVCNT)
+{
+	C.LinkPrebuiltLibraries luasql.odbc : odbc32 ;
+}
+
+C.OutputName luasql.odbc : odbc ;
+LuaPlusAddModule luasql.odbc : $(SRCS) : luasql ;
+
+###############################################################################
+###############################################################################
+SubDir LUAPLUS Src Modules luasql : luasql.sqlite3 ;
+
+local SRCS =
+		src/ls_sqlite3.c
+		src/luasql.c
+		src/luasql.h
+		../sqlite3/sqlite/sqlite3.c
+		../sqlite3/sqlite/sqlite3.h
+		../sqlite3/sqlite/sqlite3ext.h
+;
+
+C.DefFile luasql.sqlite3 : src/sqlite3.def ;
+
+C.Defines sqlite3 : SQLITE_ENABLE_FTS3 ;
+
+C.IncludeDirectories luasql.sqlite3 : ../sqlite3/sqlite ;
+
+C.OutputName luasql.sqlite3 : sqlite3 ;
+LuaPlusAddModule luasql.sqlite3 : $(SRCS) : luasql ;
+
+}
+
+}

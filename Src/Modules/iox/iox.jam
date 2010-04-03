@@ -1,0 +1,16 @@
+if $(OS) = NT
+{
+
+SubDir LUAPLUS Src Modules iox ;
+
+{
+
+local SRCS =
+		iox.cpp
+;
+
+LuaPlusAddModule iox : $(SRCS) ;
+
+}
+
+}

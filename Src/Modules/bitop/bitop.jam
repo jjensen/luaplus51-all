@@ -1,0 +1,8 @@
+SubDir LUAPLUS Src Modules bitop ;
+
+if $(MSVCNT) {
+	C.DefFile bitop : bitop.def ;
+}
+
+C.OutputName bitop : bit ;
+LuaPlusAddModule bitop : bit.c ;

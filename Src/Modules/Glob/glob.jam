@@ -1,0 +1,3 @@
+SubDir LUAPLUS Src Modules glob ;
+
+LuaPlusAddModule glob : FileGlobBase.cpp FileGlobBase.h Glob.cpp ;

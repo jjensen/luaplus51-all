@@ -1,0 +1,71 @@
+<h3 class="entry-header">$title</h3>
+
+<div class="entry">
+    <div class="entry-content">
+        <div class="entry-body">
+	  $markdown_body
+        </div>
+    </div>
+    <div class="entry-footer">
+    <span class="post-footers">
+        Posted by <a href="$home_url{}post/1">Fabio Mascarenhas</a> on $month_name $day, $year at $hour_padded:$minute_padded
+    </span> 
+    <span class="separator">|</span> <a class="permalink" href="$uri">Permalink</a>$if_comment_open[[
+    | <a href="$uri#comments">Comments ($n_comments)</a>]]
+    </div>
+</div>
+
+  $if_comments[[
+<div id="comments" class="comments">
+    <div class="comments-content">
+        <h3 class="comments-header">$n_comments Comments</h3>
+
+      $comments[=[
+        <div class="comment">
+	<div class="inner">
+	<div class="comment-header">
+            $author_link said:
+        </div>
+        <div class="comment-content">
+	  $markdown_body
+        </div>
+        <div class="comment-footer">
+            $month_name $day, $year $hour_padded:$minute_padded</a>
+        </div>
+	</div>
+	</div>
+     ]=]
+    </div>
+ </div>]]       
+  $if_comment_open[[
+<div class="comments-open">
+    <h2 class="comments-open-header">Post a comment</h2>
+    <div class="comments-open-content">
+        <form method="post" action="$add_comment_uri">
+            <div id="comments-open-data">
+                <div id="comment-form-name">
+                    <label for="comment-author">Name</label>
+                    <input id="comment-author" name="author" size="30" value="$author" />
+                </div>
+                <div id="comment-form-email">
+                    <label for="comment-email">Email Address</label>
+                    <input id="comment-email" name="email" size="30" value="$email" />
+                </div>
+                <div id="comment-form-url">
+                    <label for="comment-url">URL</label>
+                    <input id="comment-url" name="url" size="30" value="$url" />
+                </div>
+            </div>
+            <div id="comments-open-text">
+                <label for="comment-text">Comments <em>*italics*</em> <strong>**bold**</strong> [<a href="/url">link</a>](http://url)
+	        $if_error_comment[=[<span style="color: red"><em> --- You must write something! ---</em></span>]=]</label>
+                <textarea id="comment-text" name="comment" rows="15" cols="50"></textarea>
+            </div>
+            <div>&nbsp;</div>            
+            <div id="comments-open-footer">
+                <input type="submit" id="comment-post" value="Post Comment" />
+            </div>
+</form>
+    </div>
+</div>
+]]

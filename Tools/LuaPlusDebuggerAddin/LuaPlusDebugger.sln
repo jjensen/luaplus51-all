@@ -1,0 +1,29 @@
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual Studio 2005
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LuaPlusDebuggerAddin", "LuaPlusDebuggerAddin\LuaPlusDebuggerAddin.vcproj", "{F1A20386-1D85-4912-90A9-E70355833F1C}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LuaPlusDebuggerControls", "LuaPlusDebuggerControls\LuaPlusDebuggerControls.vcproj", "{6A67FDF2-AF48-4BAA-87C9-8CB726FF765C}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LuaPlusDebuggerControlsPS", "LuaPlusDebuggerControls\LuaPlusDebuggerControlsPS.vcproj", "{2308DBD4-0784-49BC-AB7C-1A53B5FC5186}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F1A20386-1D85-4912-90A9-E70355833F1C}.Debug|Win32.ActiveCfg = Debug|Win32
+		{F1A20386-1D85-4912-90A9-E70355833F1C}.Debug|Win32.Build.0 = Debug|Win32
+		{F1A20386-1D85-4912-90A9-E70355833F1C}.Release|Win32.ActiveCfg = Release|Win32
+		{F1A20386-1D85-4912-90A9-E70355833F1C}.Release|Win32.Build.0 = Release|Win32
+		{6A67FDF2-AF48-4BAA-87C9-8CB726FF765C}.Debug|Win32.ActiveCfg = Debug|Win32
+		{6A67FDF2-AF48-4BAA-87C9-8CB726FF765C}.Debug|Win32.Build.0 = Debug|Win32
+		{6A67FDF2-AF48-4BAA-87C9-8CB726FF765C}.Release|Win32.ActiveCfg = Release|Win32
+		{6A67FDF2-AF48-4BAA-87C9-8CB726FF765C}.Release|Win32.Build.0 = Release|Win32
+		{2308DBD4-0784-49BC-AB7C-1A53B5FC5186}.Debug|Win32.ActiveCfg = Debug|Win32
+		{2308DBD4-0784-49BC-AB7C-1A53B5FC5186}.Release|Win32.ActiveCfg = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

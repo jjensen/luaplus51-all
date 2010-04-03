@@ -1,0 +1,6 @@
+SubDir LUAPLUS Src Modules python-marshal ;
+
+IncludeModule copyfile ;
+
+LuaPlusAddSimpleModule python-marshal : marshal.lua ;
+CopyFile python-marshal : $(LUA_LDIR)/python/marshal.lua : $(SUBDIR)/marshal.lua ;
