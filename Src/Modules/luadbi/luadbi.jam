@@ -26,8 +26,8 @@ if $(MYSQL_FOUND) {
 	;
 
 	C.UseMySQL ;
-	
-	Depends : luadbi ;
+
+	Depends dbdmysql : luadbi ;
 
 	LuaPlusAddModule : $(SRCS) ;
 
@@ -50,7 +50,7 @@ if $(MYSQL_FOUND) {
 			DBI.lua
 	;
 
-	Depends : luadbi ;
+	Depends dbdsqlite3 : luadbi ;
 	C.Defines : SQLITE_ENABLE_FTS3 ;
 	C.IncludeDirectories : ../sqlite3/sqlite ;
 
