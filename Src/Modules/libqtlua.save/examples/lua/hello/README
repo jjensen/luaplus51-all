@@ -1,2 +1,0 @@
-use the qtlua interpreter:
-$ qtlua hello.lua
