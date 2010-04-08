@@ -4,16 +4,16 @@
 // Any changes made to this file will be lost when the file is regenerated.
 // ---------------------------------------------------------------------------
 
+
+#include "wx/wxprec.h"
+
 #ifdef __BORLANDC__
     #pragma hdrstop
 #endif
 
-#include "wx/wxprec.h"
-
 #ifndef WX_PRECOMP
      #include "wx/wx.h"
 #endif
-
 
 #include "wxlua/include/wxlstate.h"
 #include "wxlua/include/wxlua_bind.h"
@@ -36,6 +36,12 @@ static wxLuaArgType s_wxluatypeArray_wxLua_wxLuaState_delete[] = { &wxluatype_wx
 static wxLuaBindCFunc s_wxluafunc_wxLua_wxLuaState_delete[1] = {{ wxlua_userdata_delete, WXLUAMETHOD_METHOD|WXLUAMETHOD_DELETE, 1, 1, s_wxluatypeArray_wxLua_wxLuaState_delete }};
 
 
+
+void wxLua_wxLuaState_delete_function(void** p)
+{
+    wxLuaState* o = (wxLuaState*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxLuaState_methods[] = {
@@ -117,7 +123,7 @@ static int LUACALL wxLua_wxLuaObject_constructor(lua_State *L)
     // call constructor
     returns = new wxLuaObject(wxlState, 1);
     // add to tracked memory list
-    wxluaO_addgcobject(L, returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxLuaObject);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxLuaObject);
     // return the number of parameters
@@ -126,6 +132,12 @@ static int LUACALL wxLua_wxLuaObject_constructor(lua_State *L)
 
 
 
+
+void wxLua_wxLuaObject_delete_function(void** p)
+{
+    wxLuaObject* o = (wxLuaObject*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxLuaObject_methods[] = {
@@ -183,7 +195,6 @@ wxLuaBindNumber* wxLuaGetDefineList_wxlua(size_t &count)
         { "LUA_TTHREAD", LUA_TTHREAD },
         { "LUA_TUSERDATA", LUA_TUSERDATA },
         { "WXLUAMETHOD_CFUNCTION", WXLUAMETHOD_CFUNCTION },
-        { "WXLUAMETHOD_CHECKED_OVERLOAD", WXLUAMETHOD_CHECKED_OVERLOAD },
         { "WXLUAMETHOD_CONSTRUCTOR", WXLUAMETHOD_CONSTRUCTOR },
         { "WXLUAMETHOD_DELETE", WXLUAMETHOD_DELETE },
         { "WXLUAMETHOD_GETPROP", WXLUAMETHOD_GETPROP },
@@ -288,18 +299,19 @@ static int LUACALL wxLua_function_GetBindings(lua_State *L)
     lua_newtable(L); // the table that we return
 
     int idx = 1;
-    wxLuaBindingList::compatibility_iterator node;
-    for (node = wxLuaBinding::GetBindingList()->GetFirst(); node; node = node->GetNext(), idx++)
+    
+    wxLuaBindingArray& wxlbArray = wxLuaBinding::GetBindingArray();
+    size_t n, count = wxlbArray.GetCount();
+    
+    for (n = 0; n < count; n++, idx++)
     {
-        wxLuaBinding* binding = node->GetData();
-
         // Push function to access the binding info
         const void **ptr = (const void **)lua_newuserdata(L, sizeof(void *));
-        *ptr = binding;
+        *ptr = wxlbArray[n];
             lua_newtable(L);
             lua_pushstring(L, "__index");
-            lua_pushlightuserdata(L, binding); // push tag to recognize table call
-            lua_pushcclosure(L, wxluabind_wxLuaBinding__index, 1);      // push func with tag as upvalue
+            lua_pushlightuserdata(L, wxlbArray[n]);                // push tag to recognize table call
+            lua_pushcclosure(L, wxluabind_wxLuaBinding__index, 1); // push func with tag as upvalue
             lua_rawset(L, -3);
 
             //lua_pushstring(L, "__metatable");
@@ -616,6 +628,40 @@ int LUACALL wxluabind_wxLuaBindClass__index(lua_State* L)
                     lua_rawseti(L, -2, i + 1);
                 }
 
+                return 1;
+            }
+
+            return 0;
+        }
+        else if (strcmp(idx_str, "baseclass_wxluatypes") == 0)
+        {
+            if (wxlClass->baseclass_wxluatypes)
+            {
+                lua_newtable(L);
+                size_t i = 0;
+                while (wxlClass->baseclass_wxluatypes[i])
+                {
+                    lua_pushnumber(L, *wxlClass->baseclass_wxluatypes[i]);
+                    lua_rawseti(L, -2, i + 1);
+                    ++i;
+                }
+                return 1;
+            }
+
+            return 0;
+        }
+        else if (strcmp(idx_str, "baseclass_vtable_offsets") == 0)
+        {
+            if (wxlClass->baseclass_wxluatypes) // check this for NULL not baseclass_vtable_offsets
+            {
+                lua_newtable(L);
+                size_t i = 0;
+                while (wxlClass->baseclass_wxluatypes[i]) // see above
+                {
+                    lua_pushnumber(L, wxlClass->baseclass_vtable_offsets[i]);
+                    lua_rawseti(L, -2, i + 1);
+                    ++i;
+                }
                 return 1;
             }
 
@@ -1214,8 +1260,10 @@ static wxLuaBindClass* wxluabaseclassbinds_wxLuaState[] = { NULL };
 
 extern wxLuaBindMethod wxLuaObject_methods[];
 extern int wxLuaObject_methodCount;
+extern void wxLua_wxLuaObject_delete_function(void** p);
 extern wxLuaBindMethod wxLuaState_methods[];
 extern int wxLuaState_methodCount;
+extern void wxLua_wxLuaState_delete_function(void** p);
 
 
 
@@ -1224,8 +1272,8 @@ wxLuaBindClass* wxLuaGetClassList_wxlua(size_t &count)
 {
     static wxLuaBindClass classList[] =
     {
-        { wxluaclassname_wxLuaObject, wxLuaObject_methods, wxLuaObject_methodCount, CLASSINFO(wxLuaObject), &wxluatype_wxLuaObject, wxluabaseclassnames_wxLuaObject, wxluabaseclassbinds_wxLuaObject, g_wxluanumberArray_None, 0, }, 
-        { wxluaclassname_wxLuaState, wxLuaState_methods, wxLuaState_methodCount, CLASSINFO(wxLuaState), &wxluatype_wxLuaState, wxluabaseclassnames_wxLuaState, wxluabaseclassbinds_wxLuaState, g_wxluanumberArray_None, 0, }, 
+        { wxluaclassname_wxLuaObject, wxLuaObject_methods, wxLuaObject_methodCount, CLASSINFO(wxLuaObject), &wxluatype_wxLuaObject, wxluabaseclassnames_wxLuaObject, wxluabaseclassbinds_wxLuaObject, NULL, NULL, NULL, 0, &wxLua_wxLuaObject_delete_function, }, 
+        { wxluaclassname_wxLuaState, wxLuaState_methods, wxLuaState_methodCount, CLASSINFO(wxLuaState), &wxluatype_wxLuaState, wxluabaseclassnames_wxLuaState, wxluabaseclassbinds_wxLuaState, NULL, NULL, NULL, 0, &wxLua_wxLuaState_delete_function, }, 
 
         { 0, 0, 0, 0, 0, 0, 0 }, 
     };
@@ -1250,6 +1298,7 @@ wxLuaBinding_wxlua::wxLuaBinding_wxlua() : wxLuaBinding()
     m_eventArray    = wxLuaGetEventList_wxlua(m_eventCount);
     m_objectArray   = wxLuaGetObjectList_wxlua(m_objectCount);
     m_functionArray = wxLuaGetFunctionList_wxlua(m_functionCount);
+    InitBinding();
 }
 
 bool wxLuaBinding_wxlua::RegisterBinding(const wxLuaState& wxlState)
@@ -1268,13 +1317,14 @@ bool wxLuaBinding_wxlua::RegisterBinding(const wxLuaState& wxlState)
 
 // ---------------------------------------------------------------------------
 
-bool wxLuaBinding_wxlua_init()
+wxLuaBinding* wxLuaBinding_wxlua_init()
 {
     static wxLuaBinding_wxlua m_binding;
-    if (wxLuaBinding::GetBindingList()->Find(&m_binding)) return false;
 
-    wxLuaBinding::GetBindingList()->Append(&m_binding);
-    return true;
+    if (wxLuaBinding::GetBindingArray().Index(&m_binding) == wxNOT_FOUND)
+        wxLuaBinding::GetBindingArray().Add(&m_binding);
+
+    return &m_binding;
 }
 
 

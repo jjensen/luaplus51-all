@@ -2,7 +2,7 @@
 // Purpose:     Implements the client end of wxLua debugging session
 // Author:      J. Winwood, John Labenski, Ray Gilbert
 // Created:     May 2002
-// RCS-ID:      $Id: wxldtarg.cpp,v 1.47 2008/03/26 05:23:48 jrl1 Exp $
+// RCS-ID:      $Id: wxldtarg.cpp,v 1.49 2009/11/15 17:56:04 jrl1 Exp $
 // Copyright:   (c) 2002 Lomtick Software. All rights reserved.
 // Licence:     wxWidgets licence
 /////////////////////////////////////////////////////////////////////////////
@@ -453,7 +453,7 @@ bool wxLuaDebugTarget::EnumerateStack()
     wxLuaDebugData debugData(true);
 
     EnterLuaCriticalSection();
-    debugData.EnumerateStack(m_wxlState);
+    debugData.EnumerateStack(m_wxlState.GetLuaState());
     LeaveLuaCriticalSection();
 
     return NotifyStackEnumeration(debugData);
@@ -464,7 +464,7 @@ bool wxLuaDebugTarget::EnumerateStackEntry(int stackRef)
     wxLuaDebugData debugData(true);
 
     EnterLuaCriticalSection();
-    debugData.EnumerateStackEntry(m_wxlState, stackRef, m_references);
+    debugData.EnumerateStackEntry(m_wxlState.GetLuaState(), stackRef, m_references);
     LeaveLuaCriticalSection();
 
     return NotifyStackEntryEnumeration(stackRef, debugData);
@@ -475,7 +475,7 @@ bool wxLuaDebugTarget::EnumerateTable(int tableRef, int nIndex, long nItemNode)
     wxLuaDebugData debugData(true);
 
     EnterLuaCriticalSection();
-    debugData.EnumerateTable(m_wxlState, tableRef, nIndex, m_references);
+    debugData.EnumerateTable(m_wxlState.GetLuaState(), tableRef, nIndex, m_references);
     LeaveLuaCriticalSection();
 
     return NotifyTableEnumeration(nItemNode, debugData);
@@ -557,7 +557,7 @@ bool wxLuaDebugTarget::EvaluateExpr(int exprRef, const wxString &strExpr) // FIX
                           }
                       }
 
-                      lua_pop(L, 1);  // removes `value';
+                      lua_pop(L, 1);  // removes 'value';
                   }
                   lua_settop(L, nOldTop); // the table of globals.
              }
@@ -569,9 +569,9 @@ bool wxLuaDebugTarget::EvaluateExpr(int exprRef, const wxString &strExpr) // FIX
 
             int wxl_type = 0;
             wxString value;
-            wxLuaDebugData::GetTypeValue(m_wxlState, -1, &wxl_type, value);
+            wxLuaDebugData::GetTypeValue(L, -1, &wxl_type, value);
 
-            strResult = wxluaT_typename(L, wxl_type) + wxT(" : ") + value;
+            strResult.Printf(wxT("%s : %s"), wxluaT_typename(L, wxl_type).c_str(), value.c_str());
 
             lua_pop(L, 1);
         }

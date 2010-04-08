@@ -4,16 +4,16 @@
 // Any changes made to this file will be lost when the file is regenerated.
 // ---------------------------------------------------------------------------
 
+
+#include "wx/wxprec.h"
+
 #ifdef __BORLANDC__
     #pragma hdrstop
 #endif
 
-#include "wx/wxprec.h"
-
 #ifndef WX_PRECOMP
      #include "wx/wx.h"
 #endif
-
 
 #include "wxlua/include/wxlstate.h"
 #include "wxbind/include/wxxml_bind.h"
@@ -307,7 +307,7 @@ static int LUACALL wxLua_wxXmlNode_RemoveChild(lua_State *L)
     bool returns = (self->RemoveChild(child));
 
     if (returns && !wxluaO_isgcobject(L, child))
-        wxluaO_addgcobject(L, (void*)child, new wxLua_wxObject_wxXmlNode(child));
+        wxluaO_addgcobject(L, child, wxluatype_wxXmlNode);
 
     // push the result flag
     lua_pushboolean(L, returns);
@@ -456,7 +456,7 @@ static int LUACALL wxLua_wxXmlNode_constructor2(lua_State *L)
     wxXmlNode *returns = new wxXmlNode(parent, type, name, content, props, next);
     // add to tracked memory list
     if (parent == NULL)
-        wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxXmlNode((wxXmlNode *)returns));
+        wxluaO_addgcobject(L, returns, wxluatype_wxXmlNode);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxXmlNode);
 
@@ -481,7 +481,7 @@ static int LUACALL wxLua_wxXmlNode_constructor1(lua_State *L)
     // call constructor
     wxXmlNode* returns = new wxXmlNode(type, name, content);
     // add to tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxXmlNode((wxXmlNode*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxXmlNode);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxXmlNode);
 
@@ -496,7 +496,7 @@ static int LUACALL wxLua_wxXmlNode_constructor(lua_State *L)
     // call constructor
     wxXmlNode* returns = new wxXmlNode();
     // add to tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxXmlNode((wxXmlNode*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxXmlNode);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxXmlNode);
 
@@ -533,6 +533,12 @@ static wxLuaBindCFunc s_wxluafunc_wxLua_wxXmlNode_constructor_overload[] =
 static int s_wxluafunc_wxLua_wxXmlNode_constructor_overload_count = sizeof(s_wxluafunc_wxLua_wxXmlNode_constructor_overload)/sizeof(wxLuaBindCFunc);
 
 #endif // (wxLUA_USE_wxXML && wxUSE_XML)
+
+void wxLua_wxXmlNode_delete_function(void** p)
+{
+    wxXmlNode* o = (wxXmlNode*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxXmlNode_methods[] = {
@@ -701,7 +707,7 @@ static int LUACALL wxLua_wxXmlProperty_constructor1(lua_State *L)
     // call constructor
     wxXmlProperty* returns = new wxXmlProperty(name, value, next);
     // add to tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxXmlProperty((wxXmlProperty*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxXmlProperty);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxXmlProperty);
 
@@ -716,7 +722,7 @@ static int LUACALL wxLua_wxXmlProperty_constructor(lua_State *L)
     // call constructor
     wxXmlProperty* returns = new wxXmlProperty();
     // add to tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxXmlProperty((wxXmlProperty*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxXmlProperty);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxXmlProperty);
 
@@ -736,6 +742,12 @@ static wxLuaBindCFunc s_wxluafunc_wxLua_wxXmlProperty_constructor_overload[] =
 static int s_wxluafunc_wxLua_wxXmlProperty_constructor_overload_count = sizeof(s_wxluafunc_wxLua_wxXmlProperty_constructor_overload)/sizeof(wxLuaBindCFunc);
 
 #endif // (wxLUA_USE_wxXML && wxUSE_XML)
+
+void wxLua_wxXmlProperty_delete_function(void** p)
+{
+    wxXmlProperty* o = (wxXmlProperty*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxXmlProperty_methods[] = {
@@ -938,7 +950,7 @@ static int LUACALL wxLua_wxXmlDocument_constructor1(lua_State *L)
     // call constructor
     wxXmlDocument* returns = new wxXmlDocument(filename, encoding);
     // add to tracked memory list
-    wxluaO_addgcobject(L, returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxXmlDocument);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxXmlDocument);
 
@@ -953,7 +965,7 @@ static int LUACALL wxLua_wxXmlDocument_constructor(lua_State *L)
     // call constructor
     wxXmlDocument* returns = new wxXmlDocument();
     // add to tracked memory list
-    wxluaO_addgcobject(L, returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxXmlDocument);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxXmlDocument);
 
@@ -973,6 +985,12 @@ static wxLuaBindCFunc s_wxluafunc_wxLua_wxXmlDocument_constructor_overload[] =
 static int s_wxluafunc_wxLua_wxXmlDocument_constructor_overload_count = sizeof(s_wxluafunc_wxLua_wxXmlDocument_constructor_overload)/sizeof(wxLuaBindCFunc);
 
 #endif // (wxLUA_USE_wxXML && wxUSE_XML)
+
+void wxLua_wxXmlDocument_delete_function(void** p)
+{
+    wxXmlDocument* o = (wxXmlDocument*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxXmlDocument_methods[] = {
@@ -1123,10 +1141,13 @@ static wxLuaBindClass* wxluabaseclassbinds_wxXmlDocument[] = { NULL };
 #if wxLUA_USE_wxXML && wxUSE_XML
     extern wxLuaBindMethod wxXmlDocument_methods[];
     extern int wxXmlDocument_methodCount;
+    extern void wxLua_wxXmlDocument_delete_function(void** p);
     extern wxLuaBindMethod wxXmlNode_methods[];
     extern int wxXmlNode_methodCount;
+    extern void wxLua_wxXmlNode_delete_function(void** p);
     extern wxLuaBindMethod wxXmlProperty_methods[];
     extern int wxXmlProperty_methodCount;
+    extern void wxLua_wxXmlProperty_delete_function(void** p);
 #endif // wxLUA_USE_wxXML && wxUSE_XML
 
 
@@ -1137,9 +1158,9 @@ wxLuaBindClass* wxLuaGetClassList_wxxml(size_t &count)
     static wxLuaBindClass classList[] =
     {
 #if wxLUA_USE_wxXML && wxUSE_XML
-        { wxluaclassname_wxXmlDocument, wxXmlDocument_methods, wxXmlDocument_methodCount, CLASSINFO(wxXmlDocument), &wxluatype_wxXmlDocument, wxluabaseclassnames_wxXmlDocument, wxluabaseclassbinds_wxXmlDocument, g_wxluanumberArray_None, 0, }, 
-        { wxluaclassname_wxXmlNode, wxXmlNode_methods, wxXmlNode_methodCount, NULL, &wxluatype_wxXmlNode, NULL, NULL, g_wxluanumberArray_None, 0, }, 
-        { wxluaclassname_wxXmlProperty, wxXmlProperty_methods, wxXmlProperty_methodCount, NULL, &wxluatype_wxXmlProperty, NULL, NULL, g_wxluanumberArray_None, 0, }, 
+        { wxluaclassname_wxXmlDocument, wxXmlDocument_methods, wxXmlDocument_methodCount, CLASSINFO(wxXmlDocument), &wxluatype_wxXmlDocument, wxluabaseclassnames_wxXmlDocument, wxluabaseclassbinds_wxXmlDocument, NULL, NULL, NULL, 0, &wxLua_wxXmlDocument_delete_function, }, 
+        { wxluaclassname_wxXmlNode, wxXmlNode_methods, wxXmlNode_methodCount, NULL, &wxluatype_wxXmlNode, NULL, NULL, NULL, NULL, NULL, 0, &wxLua_wxXmlNode_delete_function, }, 
+        { wxluaclassname_wxXmlProperty, wxXmlProperty_methods, wxXmlProperty_methodCount, NULL, &wxluatype_wxXmlProperty, NULL, NULL, NULL, NULL, NULL, 0, &wxLua_wxXmlProperty_delete_function, }, 
 #endif // wxLUA_USE_wxXML && wxUSE_XML
 
 
@@ -1166,25 +1187,21 @@ wxLuaBinding_wxxml::wxLuaBinding_wxxml() : wxLuaBinding()
     m_eventArray    = wxLuaGetEventList_wxxml(m_eventCount);
     m_objectArray   = wxLuaGetObjectList_wxxml(m_objectCount);
     m_functionArray = wxLuaGetFunctionList_wxxml(m_functionCount);
+    InitBinding();
 }
 
 
 
 // ---------------------------------------------------------------------------
 
-bool wxLuaBinding_wxxml_init()
+wxLuaBinding* wxLuaBinding_wxxml_init()
 {
     static wxLuaBinding_wxxml m_binding;
-    if (wxLuaBinding::GetBindingList()->Find(&m_binding)) return false;
 
-    wxLuaBinding::GetBindingList()->Append(&m_binding);
-    return true;
+    if (wxLuaBinding::GetBindingArray().Index(&m_binding) == wxNOT_FOUND)
+        wxLuaBinding::GetBindingArray().Add(&m_binding);
+
+    return &m_binding;
 }
-
-
-#if wxLUA_USE_wxXML && wxUSE_XML
-wxLUA_IMPLEMENT_ENCAPSULATION(wxXmlNode, wxXmlNode)
-wxLUA_IMPLEMENT_ENCAPSULATION(wxXmlProperty, wxXmlProperty)
-#endif // wxLUA_USE_wxXML && wxUSE_XML
 
 

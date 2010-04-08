@@ -71,13 +71,14 @@ as Lua.
 
 <h2><a name="status"></a>Status</h2>
 
-<p>Current version is 2.1.0 and works with Lua 5.1.</p>
+<p>Current version is 2.2.0 and works with Lua 5.1.</p>
 
 <h2><a name="download"></a>Download</h2>
 
 <p>
 Xavante can be downloaded from its
-<a href="http://luaforge.net/projects/xavante/files">LuaForge</a> page.
+<a href="http://github.com/keplerproject/xavante">Github</a> page, at
+  the Downloads tab.
 </p>
 
 <p>You can also install Xavante using <a href="http://www.luarocks.org">LuaRocks</a>:</p>
@@ -100,8 +101,8 @@ luarocks install wsapi-xavante
     <dt><strong>Xavante Core</strong></dt>
     <dd>
         <ul>
-          <li><a href="http://www.lua.org">Lua 5.1.x</a></li>
-          <li><a href="http://www.keplerproject.org/copas">Copas 1.1</a></li>
+          <li><a href="http://www.lua.org">Lua 5.1.4</a></li>
+          <li><a href="http://www.keplerproject.org/copas">Copas 1.1.6</a></li>
           <li><a href="http://www.cs.princeton.edu/~diego/professional/luasocket">LuaSocket 2.0</a></li>
         </ul>
     </dd>
@@ -109,7 +110,7 @@ luarocks install wsapi-xavante
     <dt><strong>File Handler</strong> (optional)</dt>
     <dd>
         <ul>
-          <li><a href="http://www.keplerproject.org/luafilesystem">LuaFileSystem 1.4</a></li>
+          <li><a href="http://www.keplerproject.org/luafilesystem">LuaFileSystem 1.5.0</a></li>
         </ul>
     </dd>
 </dl>
@@ -121,7 +122,12 @@ and Lua itself. The other components are written in Lua and are as portable as L
 
 <h2><a name="history"></a>History</h2>
 <dl>
-    <dt><strong>Xavante 2.1.0</strong> [20/Oct/2009]</dt>
+    <dt><strong>Xavante 2.2.0</strong> [18/Mar/2010]</dt>
+	<dd><ul>
+	  <li>Changed xavante.cgiluahandler to works with WSAPI 1.2/1.3 without needing kepler_init</li>
+	</ul></dd>
+
+  <dt><strong>Xavante 2.1.0</strong> [20/Oct/2009]</dt>
 	<dd><ul>
     	        <li>Adds "reload" option to xavante.cgiluahandler, to force new state for every request </li>
 		<li>Fixes a bug in File Handler that was allowing the use of ".." to access forbiden directories (bug report by Matthew Wild).</li>

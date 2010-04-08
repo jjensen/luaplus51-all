@@ -6,27 +6,30 @@ print(uuid.version)
 print""
 
 u=uuid.new()
+U="uuid generation"
+U=U..string.rep(" ",#u-#U)
+print(U,"type","time","","os.time")
 print(u,"default",uuid.time(u))
-
 u=uuid.new("default")
 print(u,"default",uuid.time(u))
-
-r=uuid.new("random")
-print(r,"random",uuid.time(r))
-
-t=uuid.new("time")
-print(t,"time",uuid.time(t))
-
+u=uuid.new("random")
+print(u,"random",uuid.time(u))
+u=uuid.new("time")
+print(u,"time",uuid.time(u),os.time())
 os.execute"sleep 2"
-
-t=uuid.new("time")
-print(t,"time",uuid.time(t))
+u=uuid.new("time")
+print(u,"time",uuid.time(u),os.time())
 print""
 
-function test(x,ok)
- print(x,uuid.isvalid(x),ok)
+function test(x,expect)
+ local isvalid=uuid.isvalid(x)
+ print(x,isvalid,expect,isvalid==expect and "pass" or "FAIL")
 end
 
+U="uuid validation"
+U=U..string.rep(" ",#u-#U)
+print(U,"isvalid","expect")
+-- from tst_uuid.c
 test("84949cc5-4701-4a84-895b-354c584a981b", true)
 test("84949CC5-4701-4A84-895B-354C584A981B", true)
 test("84949cc5-4701-4a84-895b-354c584a981bc", false)

@@ -1,4 +1,4 @@
-/* Copyright (c) 2007 Thomas Lavergne
+/* Copyright (c) 2007-2008 Thomas Lavergne
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -386,7 +386,7 @@ static const luaL_reg mix_lib[] = {
 	{NULL,         NULL          }
 };
 
-LUAMODULE_API int luaopen_mixlua(lua_State *L) {
+int luaopen_mixlua(lua_State *L) {
 	luaL_register(L, "mix", mix_lib);
 	return 1;
 }

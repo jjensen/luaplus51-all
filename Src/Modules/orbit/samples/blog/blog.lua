@@ -2,6 +2,7 @@
 
 require "orbit"
 require "orbit.cache"
+require "orbit.model"
 require "markdown"
 
 --
@@ -20,7 +21,8 @@ require "blog_config"
 require("luasql." .. database.driver)
 local env = luasql[database.driver]()
 mapper.conn = env:connect(unpack(database.conn_data))
-mapper.driver = database.driver
+mapper.driver = orbit.model.drivers[database.driver]
+mapper.schema = blog_schema
 
 -- Initializes page cache
 local cache = orbit.cache.new(blog, cache_path)

@@ -5,10 +5,23 @@ require "orbit.pages"
 require "cosmo"
 require "luasql.sqlite3"
 
+local schema = require "orbit.schema"
+
 local todo = orbit.new()
 
 todo.mapper.logging = true
 todo.mapper.conn = luasql.sqlite3():connect(todo.real_path .. "/todo.db")
+
+todo.mapper.schema = schema.loadstring([[
+  todo_list = entity {
+    fields = {
+       id = key(),
+       title = text(),
+       done = boolean(),
+       created_at = timestamp()
+    }
+  }
+]], "@todo_schema.lua")
 
 todo.list = todo:model("todo_list")
 

@@ -82,12 +82,12 @@
     void wxLuaSocketDebugMsg(const wxString& title, const wxString& msg)
     {
 #ifdef __WXMSW__ // no console in MSW
-        wxLuaCharBuffer buf(title+ wxString::Format(wxT(" PID %ld TIME %s "), (long)wxGetProcessId(), wxT(__TIME__)) + msg + wxT("\n"));
+        wxLuaCharBuffer buf(wxString::Format(wxT("%s PID %ld TIME %s %s\n"), title.c_str(), (long)wxGetProcessId(), wxT(__TIME__), msg.c_str()));
         FILE* h = fopen("wxLua_socketdebug.log", "a");
         fprintf(h, buf.GetData());
         fclose(h);
 #else  // !__WXMSW__
-        wxSafeShowMessage(title, wxString::Format(wxT("PID %ld TIME %s\n\t"), (long)wxGetProcessId(), wxT(__TIME__)) + msg);
+        wxSafeShowMessage(title, wxString::Format(wxT("PID %ld TIME %s\n\t%s"), (long)wxGetProcessId(), wxT(__TIME__), msg.c_str()));
 #endif // __WXMSW__
     }
 

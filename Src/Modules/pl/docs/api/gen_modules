@@ -1,3 +1,0 @@
-lua /lua/lua/luadoc_start.lua -p /lang/lua/projects/pl-0.8/lua/pl -nofiles
-
-

@@ -56,15 +56,15 @@ extern "C"
                     (subrel) <= wxLUA_SUBRELEASE_NUMBER))
 
 //-----------------------------------------------------------------------------
-// This is an internal use binding generator version whos number is
+// This is an internal use binding generator version whose number is
 //   incremented every time something changes that requires a regeneration
 //   of the bindings. The check is written into the generated bindings to
 //   give a compile time error.
 // If this number is incremented the variable by the same name must be updated
-//   in genwxbind.lua must be updated as well.
+//   in genwxbind.lua as well.
 //-----------------------------------------------------------------------------
 
-#define WXLUA_BINDING_VERSION 27
+#define WXLUA_BINDING_VERSION 30
 
 // ----------------------------------------------------------------------------
 // If you're using stdcall in Lua, then override this with
@@ -76,10 +76,10 @@ extern "C"
 #endif
 
 // ----------------------------------------------------------------------------
-// WXDLLIMPEXP macros
+// WXDLLIMPEXP macros for DLL export, import, or neither for static libs.
+//   see wxWidgets include/wx/dlimpexp.h
 // ----------------------------------------------------------------------------
 
-// These are our DLL macros (see the contrib libs like wxPlot)
 #ifdef WXMAKINGDLL_WXLUA
     #define WXDLLIMPEXP_WXLUA WXEXPORT
     #define WXDLLIMPEXP_DATA_WXLUA(type) WXEXPORT type
@@ -90,6 +90,14 @@ extern "C"
     #define WXDLLIMPEXP_WXLUA
     #define WXDLLIMPEXP_DATA_WXLUA(type) type
 #endif
+
+// ----------------------------------------------------------------------------
+// Blank dummy defines that may be used in the bindings to not import or export 
+// a class or data in a DLL.
+// ----------------------------------------------------------------------------
+
+#define WXLUA_NO_DLLIMPEXP           // use if you don't want to export class
+#define WXLUA_NO_DLLIMPEXP_DATA(x) x // use if you don't want to export data
 
 // ----------------------------------------------------------------------------
 // Useful macros to make coding easier
@@ -117,19 +125,6 @@ extern "C"
 #define lua_Debug_to_wxString(ld) \
     wxString::Format(wxT("%p event=%d name='%s' namewhat='%s' what='%s' source='%s' currentline=%d nups=%d linedefined=%d lastlinedefined=%d short_src='%s' i_ci=%d"), \
     &ld, ld.event, lua2wx(ld.name).c_str(), lua2wx(ld.namewhat).c_str(), lua2wx(ld.what).c_str(), lua2wx(ld.source).c_str(), ld.currentline, ld.nups, ld.linedefined, ld.lastlinedefined, lua2wx(ld.short_src).c_str(), ld.i_ci)
-
-// ----------------------------------------------------------------------------
-// Convert from wxWidgets wxT('') to wxT(""), a string. Copied from wx/filefn.h
-
-// platform independent versions
-#if defined(__UNIX__) && !defined(__OS2__)
-  // CYGWIN also uses UNIX settings
-  #define wxLua_FILE_SEP_PATH     wxT("/")
-#elif defined(__MAC__)
-  #define wxLua_FILE_SEP_PATH     wxT(":")
-#else   // Windows and OS/2
-  #define wxLua_FILE_SEP_PATH     wxT("\\")
-#endif  // Unix/Windows
 
 // ----------------------------------------------------------------------------
 // wxWidgets compatibility defines

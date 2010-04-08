@@ -33,22 +33,27 @@ public:
                  long style = wxDEFAULT_FRAME_STYLE,
                  const wxString& name = wxT("wxLuaConsole"));
 
-    // Display a message in the console
-    void DisplayText(const wxString& msg);
+    // Display a message in the console with optional attribute to display it with.
+    void AppendText(const wxString& msg);
+    void AppendTextWithAttr(const wxString& msg, const wxTextAttr& attr);
     // Display the stack in a wxListBox, but only if there are any items in it
     void DisplayStack(const wxLuaState& wxlState);
-    // An error has occurred, when this window is closed call wxExit to close
-    //   the app.
-    void SetExitOnError(bool is_error) { m_exit_on_error = m_exit_on_error || is_error; }
+    // Perhaps an error has occurred, when this window is closed wxExit 
+    //   will be called to close the app.
+    void SetExitWhenClosed(bool do_exit) { m_exit_when_closed = m_exit_when_closed || do_exit; }
 
 protected:
     void OnCloseWindow(wxCloseEvent& event);
+    void OnMenu(wxCommandEvent& event);
 
     wxLuaConsoleWrapper *m_wrapper;
     wxSplitterWindow    *m_splitter;
     wxTextCtrl          *m_textCtrl;
     wxListBox           *m_debugListBox;
-    bool                 m_exit_on_error;
+    bool                 m_exit_when_closed;
+
+    wxString             m_saveFilename;
+    wxString             m_savePath;
 
 private:
     DECLARE_EVENT_TABLE()

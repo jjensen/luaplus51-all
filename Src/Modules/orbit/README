@@ -1,4 +1,4 @@
-Orbit 2.1.0
+Orbit 2.2.0
 http://keplerproject.github.com/orbit
 
 Orbit is an MVC web framework for Lua. The design is inspired by lightweight
@@ -10,6 +10,14 @@ Xavante, CGI and Fastcgi. It includes a launcher that makes it easy to launch
 a Xavante instance for development.
 
 History
+
+* Version 2.2.0 (31/Mar/2010)
+  Reparse response to resume the dispatcher
+  better parser for orbit.model conditions, fixes parsing bugs
+  orbit launcher has parameters to control logging and port
+  op.cgi/op.fcgi launchers have the same parameters as wsapi.cgi/wsapi.fcgi
+  Optional Sinatra-like (http://www.sinatrarb.com/) route parser, using LPEG
+  Pluggable route parsers (route patterns can be strings or objects that answer to :match)
 
 * Version 2.1.0 (29/Oct/2009)
   better decoupling of orbit and orbit.model

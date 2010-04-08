@@ -84,9 +84,6 @@ static int lz_assert(lua_State *L, int result, const z_stream* stream, const cha
  */
 static int lz_filter_impl(lua_State *L, int (*filter)(z_streamp, int), int (*end)(z_streamp), char* name) {
     int flush = Z_NO_FLUSH;
-	z_stream* stream;
-    luaL_Buffer buff;
-    int result;
 
     if ( filter == deflate ) {
         const char *const opts[] = { "none", "sync", "full", "finish", NULL };
@@ -100,7 +97,7 @@ static int lz_filter_impl(lua_State *L, int (*filter)(z_streamp, int), int (*end
         }
     }
 
-    stream  = (z_stream*)lua_touserdata(L, lua_upvalueindex(1));
+    z_stream* stream  = (z_stream*)lua_touserdata(L, lua_upvalueindex(1));
 
     if ( stream == NULL ) {
         if ( lua_isstring(L, 1) ) {
@@ -112,6 +109,7 @@ static int lz_filter_impl(lua_State *L, int (*filter)(z_streamp, int), int (*end
         return 2; // Ignore duplicate calls to "close".
     }
 
+    luaL_Buffer buff;
     luaL_buffinit(L, &buff);
 
     if ( lua_gettop(L) > 1 ) lua_pushvalue(L, 1);
@@ -132,6 +130,7 @@ static int lz_filter_impl(lua_State *L, int (*filter)(z_streamp, int), int (*end
         return 2;
     }
 
+    int result;
     do {
         stream->next_out  = (unsigned char*)luaL_prepbuffer(&buff);
         stream->avail_out = LUAL_BUFFERSIZE;
@@ -269,7 +268,7 @@ static int lz_inflate_delete(lua_State *L) {
 }
 
 //////////////////////////////////////////////////////////////////////
-int luaopen_zlib(lua_State *L) {
+LUALIB_API int luaopen_zlib(lua_State *L) {
     lz_create_deflate_mt(L);
     lz_create_inflate_mt(L);
 

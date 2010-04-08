@@ -37,7 +37,7 @@ public:
     lua_State* L, 
     DISPPARAMS& rDispParams,
     FUNCDESC *pfuncdesc,
-    tLuaObjList& params,
+    tLuaObjList params,
     int invkind
     );
 
@@ -47,7 +47,7 @@ public:
 
   void pushTableVarNumber(lua_State *L, VARTYPE vt, double val);
 
-  int pushOutValues(lua_State* L, const DISPPARAMS& dispparams);
+  int pushOutValues(lua_State* L, const DISPPARAMS& dispparams, const FUNCDESC* pfuncdesc);
 
   bool setRetval(
     lua_State* L,
@@ -72,7 +72,7 @@ protected:
                     long* indices,
                     VARTYPE vt);
 
-  void inc_indices(long *indices,
+  bool inc_indices(long *indices,
                    SAFEARRAYBOUND *bounds,
                    unsigned long dimensions);
 
@@ -113,7 +113,7 @@ protected:
     bool from_stack = false
     );
 
-  void string2safearray(const char* str, long len, VARIANTARG& varg);
+  void string2safearray(const char* str, size_t len, VARIANTARG& varg);
   void safearray2string(lua_State* L, VARIANTARG & varg);
 
   ITypeInfo * m_typeinfo;

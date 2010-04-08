@@ -24,7 +24,7 @@ tStringBuffer::~tStringBuffer()
 
 void tStringBuffer::copyToBuffer(char * source)
 {
-  long new_size = strlen(source) + 1;
+  size_t new_size = strlen(source) + 1;
 
   if(new_size > size)
   {
@@ -36,6 +36,20 @@ void tStringBuffer::copyToBuffer(char * source)
   }
 
   strncpy(buffer, source, new_size);
+}
+
+void tStringBuffer::copyToBuffer(char *source, size_t length)
+{
+  if(length > size)
+  {
+    if(buffer != NULL)
+      delete[] buffer;
+
+    size = length;
+    buffer = new char[size];
+  }
+
+  memcpy(buffer, source, length);
 }
 
 const char * tStringBuffer::getBuffer()

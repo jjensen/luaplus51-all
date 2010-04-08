@@ -10,7 +10,7 @@ The WSAPI rock copies samples, docs and support files to it's path inside your
 local Rocks repository.
 
 There is an all-in-one installer script that installs Lua, LuaRocks, and `wsapi-xavante` in
-a single step. Download the [tarball](http://cloud.github.com/downloads/keplerproject/wsapi-install-1.2.0.tar.gz),
+a single step. Download the [tarball](http://github.com/downloads/keplerproject/wsapi/wsapi-install-1.3.0.tar.gz),
 unpack it, then run the provided `wsapi-install` script in its path. Run `wsapi-install --help` for
 installation options.
 
@@ -196,7 +196,8 @@ The other helper is *wsapi.response*, which offers a simpler interface (along wi
 buffering) for output instead of the inversion of control of the iterator. It also
 lets you easily send cookies back to the browser.
 
-Finally there is *wsapi.util*, which provides URI encoding/decoding functions.
+Finally there is *wsapi.util*, which provides URI encoding/decoding and other utility
+functions.
 
 ## WSAPI frameworks
 

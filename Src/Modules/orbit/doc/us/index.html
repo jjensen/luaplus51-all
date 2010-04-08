@@ -78,6 +78,15 @@ a Xavante instance for development.</p>
 <h2>History</h2>
 
 <ul>
+    <li><p>Version 2.2.0 (31/Mar/2010)</p>
+    <ul>
+        <li>Reparse response to resume the dispatcher</li>
+        <li>better parser for orbit.model conditions, fixes parsing bugs</li>
+        <li><code>orbit</code> launcher has parameters to control logging and port</li>
+        <li><code>op.cgi</code>/<code>op.fcgi</code> launchers have the same parameters as <code>wsapi.cgi</code>/<code>wsapi.fcgi</code></li>
+        <li>Optional <a href="http://www.sinatrarb.com/">Sinatra</a>-like route parser, using LPEG</li>
+        <li>Pluggable route parsers (route patterns can be strings or objects that answer to :match)</li>
+    </ul></li>
     <li><p>Version 2.1.0 (29/Oct/2009)</p>
     <ul>
         <li>better decoupling of orbit and orbit.model</li>
@@ -111,6 +120,17 @@ a Xavante instance for development.</p>
     <li><p>Version 2.0 (06/Jun/2008): Complete rewrite of Orbit</p></li>
     <li><p>Version 1.0: Initial release, obsolete</p></li>
 </ul>
+
+<h2>Download and Installation</h2>
+
+<p>The easiest way to download and install Orbit is via <a href="http://luarocks.org">LuaRocks</a>. You 
+can install Orbit with a simple <code>luarocks install orbit</code>. Go to the path where LuaRocks
+put Orbit to see the sample apps and this documentation. LuaRocks will automatically fetch
+and install any dependencies you don't already have.</p>
+
+<p>Do not be alarmed by the size of the Orbit package (~1MB), Orbit itself is a approximately 1%
+of that; most of the package are samples, and a single one is responsible for 50% of the total
+size because it embeds the Sproutcore JavaScript framework.</p>
 
 <h2>Hello World</h2>
 
@@ -190,6 +210,11 @@ a Xavante instance for development.</p>
 </pre>
 
 
+<p>Save this to <code>hello.lua</code>, install <code>wsapi-xavante</code> with LuaRocks, and now you can run this application in two ways:
+the first is to run <code>wsapi</code> in the same directory that you saved the file and point your browser to <code>http://localhost:8080/hello.lua</code>,
+or run <code>orbit hello.lua</code> in the same directory that you saved the file and point your browser to <code>http://localhost:8080/</code>. Now try
+appending <code>index</code>, <code>say/foo</code>, and <code>say/foo?message=bar</code> to the URL.</p>
+
 <p>The example uses Orbit's built-in html generation, but you are free to use any method of generating HTML. 
 One of Orbit's sample applications uses the <a href="http://cosmo.luaforge.net">Cosmo</a> template library, for instance.</p>
 
@@ -218,13 +243,6 @@ for free. For example, with the blog example we can add a new post like this:</p
 <p>You can also update or delete any of the model items right from your console, just fetch 
 them from the database, change what you want and call <code>save()</code> 
 (or <code>delete()</code> if you want to remove it).</p>
-
-<h2>Download and Installation</h2>
-
-<p>The easiest way to download and install Orbit is via <a href="http://luarocks.org">LuaRocks</a>. You 
-can install Orbit with a simple <code>luarocks install orbit</code>. Go to the path where LuaRocks
-put Orbit to see the sample apps and this documentation. LuaRocks will automatically fetch
-and install any dependencies you don't already have.</p>
 
 <h2>Credits</h2>
 

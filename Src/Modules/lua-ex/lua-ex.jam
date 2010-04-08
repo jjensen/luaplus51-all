@@ -1,5 +1,3 @@
-SubDir LUAPLUS Src Modules lua-ex ;
-
 {
 
 local SRCS ;
@@ -17,12 +15,12 @@ if $(NT)
 			w32api/spawn.c
 			w32api/spawn.h
 	;
-	
+
 	CopyFile lua-ex : $(LUA_LDIR)/windows/reg.lua : $(SUBDIR)/w32api/reg.lua ;
 
 	C.IncludeDirectories lua-ex : w32api ;
 	C.LinkPrebuiltLibraries lua-ex : advapi32 ;
-	
+
 }
 else
 {
@@ -45,7 +43,6 @@ SRCS +=
 
 CopyFile lua-ex : $(LUA_LDIR)/ex.lua : $(SUBDIR)/ex.lua ;
 
-C.OutputName lua-ex : ex ;
-LuaPlusAddModule lua-ex : $(SRCS) ;
+Lua.CModule lua-ex : ex ex_core : $(SRCS) ;
 
 }

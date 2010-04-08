@@ -122,7 +122,7 @@ bool wxLuaPrintout::HasPage(int pageNum)
 // wxLua_wxPrintout_OnBeginDocument 1 (this is the wxLua binding function for wxPrintout::OnBeginDocument)
 // wxLuaPrintout::OnBeginDocument 1 call base 1
 // wxLuaPrintout::OnBeginDocument 3 call base 1
-// wxPrintout::OnBeginDocument (this is the call to the wxWidgets function in it's library)
+// wxPrintout::OnBeginDocument (this is the call to the wxWidgets function in its library)
 // wxLuaPrintout::OnBeginDocument 4 call base 1
 // wxLuaPrintout::OnBeginDocument 2 call base 0
 // wxLuaPrintout::OnBeginDocument 4 call base 0
@@ -330,7 +330,7 @@ wxBitmap wxLuaArtProvider::CreateBitmap(const wxArtID& id, const wxArtClient& cl
         // allocate a new object using the copy constructor
         wxSize* s = new wxSize(size);
         // add the new object to the tracked memory list
-        m_wxlState.AddGCObject((void*)s, new wxLua_wxObject_wxSize((wxSize*)s));
+        m_wxlState.AddGCObject((void*)s, wxluatype_wxSize); 
         m_wxlState.wxluaT_PushUserDataType(s, wxluatype_wxSize, true);
 
         if (m_wxlState.LuaPCall(4, 1) == 0)

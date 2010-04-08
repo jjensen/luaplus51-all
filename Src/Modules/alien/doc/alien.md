@@ -4,11 +4,21 @@ Alien - Pure Lua extensions
 Status
 ------
 
-This is Alien version 0.4.1.
+This is Alien version 0.5.0.
 
 Changelog
 ---------
 
+* 0.5.0
+  * new functions alien.memcpy and alien.memset
+  * new type "p" for alien.struct.pack and unpack, to pack pointers
+  * new alien.struct.offset function to get the offset of a given record
+  * buf:tostring now has optional "offset" argument
+  * buf:topointer now has optional "offset" argument
+  * added unsigned numbers: uint, ulong, ushort, and "ref uint"
+  * basic support for declarative strucutures
+  * unified treatment of funcitons and callbacks in the source
+  * fixed segfault when collecting 0-arg functions
 * 0.4.1
   * fixes bug where Alien was always using cdecl abi for Windows (except in callbacks)
   * fixes build on PPC OSX.
@@ -50,9 +60,7 @@ Installing Alien
 ----------------
 
 The best way to install Alien is through
-[LuaRocks](http://luarocks.org). Just add [this
-repository](http://www.lua.inf.puc-rio.br/~mascarenhas/rocks) to your
-LuaRocks configuration, then do `luarocks install alien`. You may need
+[LuaRocks](http://luarocks.org). Just do `luarocks install alien`. You may need
 root permissions to do this, depending on your LuaRocks configuration.
 
 Go to the Alien rock directory to see local copies of this
@@ -98,9 +106,9 @@ exported function with *libref.funcname*. For example:
 
 To use a function you first have to tell Alien the function prototype,
 using *func:types(ret_type, arg_types...)*, where the types are one of
-the following strings: "void", "int", "double", "char", "string",
-"pointer", "ref int", "ref double", "ref char", "callback", "short",
-"byte", "long", and "float". Most correspond directly to C types;
+the following strings: "void", "int", "uint", "double", "char", "string",
+"pointer", "ref int", "ref uint", "ref double", "ref char", "callback", "short", "ushort",
+"byte", "long", "ulong", and "float". Most correspond directly to C types;
 *byte* is a signed char, *string* is *const char\**, *pointer* is *void\**,
 *callback* is a generic function pointer, and *ref char*, *ref int*
 and *ref double* are by reference versions of the C types. Continuing
@@ -243,6 +251,37 @@ The following example shows an use of arrays:
 
 This prints numbers one to six on the console.
 
+Structs
+-------
+
+Alien also has basic support for declarative structs that is also implemented as a layer of sugar
+on the basic buffers. The `alien.defstruct(description)` function creates a struct type with the
+given description, which is a list of pairs with the name and type of each field, where the type is any
+basic alien type (no structs inside structs yet). For example:
+
+    rect = alien.defstruct{
+      { "left", "long" },
+      { "top", "long" },
+      { "right", "long" },
+      { "bottom", "long" }
+    }
+
+This creates a new struct type with four fields of type "long", and stores it in `rect`. To create an
+instance of this structure (backed by a buffer) call `rect:new()`. You can then set the fields of the
+struct just like you do on a Lua table, like `r.left = 3`. To get the underlying buffer (to pass it
+to a C function, for example) you have to call the instance, `r()`. Continuing the example:
+
+    r = rect:new()
+    r.left = 2
+    doubleleft = alien.rectdll.double_left
+    doubleleft:types("void", "pointer")
+    doubleleft(r()))
+    assert(r.left == 4)
+
+You can also pass a buffer or other userdata to the `new` method of your struct type, and in this case this will
+be the backing store of the struct instance you are creating. This is useful for unpacking a foreign struct that
+a C function returned.
+
 Pointer Unpacking
 -----------------
 
@@ -258,7 +297,7 @@ dereference a pointer and convert the value to a Lua type:
   it assumes the userdata is an array with this number of elements.
 * `alien.toshort`, `alien.tolong`, `alien.tofloat`, and
   `alien.todouble` are like `alien.toint`, but works with
-  with the respective typecasts.
+  with the respective typecasts. Unsigned versions are also available.
 
 The numeric alien.to*type* functions take an optional second argument that
 tells how many items to unpack from the userdata. For example, if ptr is
@@ -359,8 +398,8 @@ example, using *qsort*:
 The *qsort* function sorts an array in-place, so we have to use a
 buffer.
 
-Callbacks are callable from Lua just like any other Alien function, although
-you can't change their types.
+Callbacks are callable from Lua just like any other Alien function, and you can freely
+change their types with their "types" method.
 
 Magic Numbers
 -------------
@@ -461,7 +500,7 @@ License
 
 Alien's uses the MIT license, reproduced below:
 
-Copyright (c) 2008 Fabio Mascarenhas
+Copyright (c) 2008-2009 Fabio Mascarenhas
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

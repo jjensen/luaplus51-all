@@ -1,9 +1,4 @@
-if $(OS) = NT
-{
-
-SubDir LUAPLUS Src Modules dotnet ;
-
-{
+if $(OS) = NT {
 
 local SRCS =
 		dotnet.cpp
@@ -15,8 +10,6 @@ IncludeModule c/dotnet ;
 C.UseDotNet luanet ;
 
 C.LinkPrebuiltLibraries luanet : mscoree ;
-LuaPlusAddModule luanet : $(SRCS) ;
-
-}
+Lua.CModule luanet : : $(SRCS) ;
 
 }

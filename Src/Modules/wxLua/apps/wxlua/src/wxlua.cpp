@@ -3,7 +3,7 @@
 // Author:      Francis Irving
 // Created:     16/01/2002
 // Modifications: J. Winwood. Bug fixes to original wxLua code.
-// RCS-ID:      $Id: wxlua.cpp,v 1.57 2009/06/01 22:28:29 jrl1 Exp $
+// RCS-ID:      $Id: wxlua.cpp,v 1.58 2009/09/27 05:35:20 jrl1 Exp $
 // Copyright:   (c) 2002 Creature Labs. All rights reserved.
 // Copyright:   (c) 2001-2002 Lomtick Software. All rights reserved.
 // Licence:     wxWidgets licence
@@ -384,7 +384,7 @@ void wxLuaStandaloneApp::DisplayMessage(const wxString &msg, bool is_error,
             wxPrintf(wxT("%s\n"), msg.c_str());
 
         if (m_luaConsoleWrapper.Ok())
-            m_luaConsoleWrapper.GetConsole()->DisplayText(msg);
+            m_luaConsoleWrapper.GetConsole()->AppendText(msg);
 
         if (m_print_msgdlg)
             wxMessageBox(msg, wxT("wxLua Print"));
@@ -396,8 +396,10 @@ void wxLuaStandaloneApp::DisplayMessage(const wxString &msg, bool is_error,
 
         if (m_luaConsoleWrapper.Ok())
         {
-            m_luaConsoleWrapper.GetConsole()->DisplayText(msg);
-            m_luaConsoleWrapper.GetConsole()->SetExitOnError(is_error);
+            wxTextAttr attr(*wxRED);
+            attr.SetFlags(wxTEXT_ATTR_TEXT_COLOUR);
+            m_luaConsoleWrapper.GetConsole()->AppendTextWithAttr(msg, attr);
+            m_luaConsoleWrapper.GetConsole()->SetExitWhenClosed(is_error);
             if (wxlState.Ok())
                 m_luaConsoleWrapper.GetConsole()->DisplayStack(wxlState);
         }

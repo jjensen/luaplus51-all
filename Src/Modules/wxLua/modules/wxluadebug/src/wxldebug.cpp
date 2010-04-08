@@ -138,6 +138,7 @@ int wxLuaDebugData::SortFunction(wxLuaDebugItem *elem1, wxLuaDebugItem *elem2 )
 
     long l1 = 0, l2 = 0;
 
+    // Don't sort numbers by their string representation, but by their value
     if ((elem1->m_itemKeyType == WXLUA_TNUMBER) &&
         (elem2->m_itemKeyType == WXLUA_TNUMBER) &&
         elem1->m_itemKey.BeforeFirst(wxT(' ')).ToLong(&l1) &&
@@ -168,13 +169,11 @@ int wxLuaDebugData::SortFunction(wxLuaDebugItem *elem1, wxLuaDebugItem *elem2 )
     return ret;
 }
 
-int wxLuaDebugData::EnumerateStack(const wxLuaState& wxlState_)
+int wxLuaDebugData::EnumerateStack(lua_State* L)
 {
-    wxCHECK_MSG(wxlState_.Ok(), 0, wxT("Invalid wxLuaState"));
+    wxCHECK_MSG(L, 0, wxT("Invalid lua_State"));
     wxCHECK_MSG(M_DEBUGREFDATA != NULL, 0, wxT("Invalid ref data"));
 
-    wxLuaState wxlState(wxlState_); // unconst the state
-    lua_State* L = wxlState.GetLuaState();
     lua_Debug luaDebug = INIT_LUA_DEBUG;
     int       stack_frame = 0;
     int       count = 0;
@@ -183,7 +182,7 @@ int wxLuaDebugData::EnumerateStack(const wxLuaState& wxlState_)
     {
         if (lua_getinfo(L, "Sln", &luaDebug))
         {
-            //wxPrintf(wxString(lua_Debug_to_wxString(luaDebug) + wxT("\n")).c_str());
+            //wxPrintf(wxT("%s\n"), lua_Debug_to_wxString(luaDebug).c_str());
 
             // skip stack frames that do not have line number, always add first
             int  currentLine = luaDebug.currentline;
@@ -196,11 +195,11 @@ int wxLuaDebugData::EnumerateStack(const wxLuaState& wxlState_)
                     currentLine = 0;
 
                 if (luaDebug.name != NULL)
-                    name = wxString::Format(_("function %s line %d"), lua2wx(luaDebug.name).c_str(), currentLine);
+                    name.Printf(_("function %s line %d"), lua2wx(luaDebug.name).c_str(), currentLine);
                 else
-                    name = wxString::Format(_("line %d"), currentLine);
+                    name.Printf(_("line %d"), currentLine);
 
-                Add(new wxLuaDebugItem(name, WXLUA_TNONE, wxT(""), WXLUA_TNONE, source, LUA_NOREF, stack_frame, WXLUA_DEBUGITEM_LOCALS));
+                Add(new wxLuaDebugItem(name, WXLUA_TNONE, wxEmptyString, WXLUA_TNONE, source, LUA_NOREF, stack_frame, WXLUA_DEBUGITEM_LOCALS));
                 ++count;
             }
         }
@@ -211,13 +210,11 @@ int wxLuaDebugData::EnumerateStack(const wxLuaState& wxlState_)
     return count;
 }
 
-int wxLuaDebugData::EnumerateStackEntry(const wxLuaState& wxlState_, int stack_frame, wxArrayInt& references)
+int wxLuaDebugData::EnumerateStackEntry(lua_State* L, int stack_frame, wxArrayInt& references)
 {
-    wxCHECK_MSG(wxlState_.Ok(), 0, wxT("Invalid wxLuaState"));
+    wxCHECK_MSG(L, 0, wxT("Invalid lua_State"));
     wxCHECK_MSG(M_DEBUGREFDATA != NULL, 0, wxT("Invalid ref data"));
 
-    wxLuaState wxlState(wxlState_); // unconst the state
-    lua_State* L = wxlState.GetLuaState();
     lua_Debug luaDebug = INIT_LUA_DEBUG;
     int count = 0;
 
@@ -225,30 +222,37 @@ int wxLuaDebugData::EnumerateStackEntry(const wxLuaState& wxlState_, int stack_f
     {
         int stack_idx  = 1;
         wxString name(lua2wx(lua_getlocal(L, &luaDebug, stack_idx)));
+
         while (!name.IsEmpty())
         {
-            //wxPrintf(wxString(lua_Debug_to_wxString(luaDebug) + wxT(" lua_getlocal :") + name + wxT("\n")).c_str());
+            //wxPrintf(wxT("%s lua_getlocal :%s\n"), lua_Debug_to_wxString(luaDebug).c_str(), name.c_str());
 
             int wxl_valuetype = WXLUA_TNONE;
             wxString value;
             wxString source(lua2wx(luaDebug.source));
 
-            GetTypeValue(wxlState, -1, &wxl_valuetype, value);
+            int lua_value_type = GetTypeValue(L, -1, &wxl_valuetype, value);
 
-            // FIXME! local tables get the right values for GetTypeValue(...)
-            // but when you run wxluaR_ref() to store them they disappear
-            // so that the next time wxluaR_ref() is run it reuses the same
-            // index as your local table.
-            // When using the stack dialog the next wxluaR_ref() is the
-            // global table which is very confusing.
+            int val_flag_type = 0;
+            int val_ref = LUA_NOREF;
 
-            int flag_type = 0;
-            int nRef = LUA_NOREF; //RefTable(L, -1, &flag_type, references);
+            if (lua_value_type == LUA_TTABLE)
+            {
+                val_ref = RefTable(L, -1, &val_flag_type, WXLUA_DEBUGITEM_VALUE_REF, references);
+            }
+            else if (lua_value_type == LUA_TUSERDATA)
+            {
+                if (lua_getmetatable(L, -1)) // doesn't push anything if nil
+                {
+                    val_ref = RefTable(L, -1, &val_flag_type, WXLUA_DEBUGITEM_VALUE_REF, references);
+                    lua_pop(L, 1);
+                }
+            }
+
+            Add(new wxLuaDebugItem(name, WXLUA_TNONE, value, wxl_valuetype, source, val_ref, 0, val_flag_type));
+            ++count;
 
             lua_pop(L, 1); // remove variable value
-
-            Add(new wxLuaDebugItem(name, WXLUA_TNONE, value, wxl_valuetype, source, nRef, 0, flag_type));
-            ++count;
 
             name = lua2wx(lua_getlocal(L, &luaDebug, ++stack_idx));
         }
@@ -274,13 +278,11 @@ wxString wxLuaBindClassString(wxLuaBindClass* wxlClass)
                             wxlClass->wxluamethods_n, wxlClass->enums_n);
 }
 
-int wxLuaDebugData::EnumerateTable(const wxLuaState& wxlState_, int tableRef, int nIndex, wxArrayInt& references)
+int wxLuaDebugData::EnumerateTable(lua_State* L, int tableRef, int nIndex, wxArrayInt& references)
 {
-    wxCHECK_MSG(wxlState_.Ok(), 0, wxT("Invalid wxLuaState"));
+    wxCHECK_MSG(L, 0, wxT("Invalid lua_State"));
     wxCHECK_MSG(M_DEBUGREFDATA != NULL, 0, wxT("Invalid ref data"));
 
-    wxLuaState wxlState(wxlState_); // unconst the state
-    lua_State* L = wxlState.GetLuaState();
     int count = 0;
 
     int wxl_keytype   = WXLUA_TNONE;
@@ -288,27 +290,38 @@ int wxLuaDebugData::EnumerateTable(const wxLuaState& wxlState_, int tableRef, in
     wxString value;
     wxString name;
 
-    if ((tableRef == -1) || (tableRef == LUA_GLOBALSINDEX))
+    if (tableRef == LUA_GLOBALSINDEX)
     {
         lua_pushvalue(L, LUA_GLOBALSINDEX);
-        GetTypeValue(wxlState, -1, &wxl_valuetype, value);
+        GetTypeValue(L, -1, &wxl_valuetype, value);
 
         int flag_type = 0;
         int val_ref = RefTable(L, -1, &flag_type, WXLUA_DEBUGITEM_VALUE_REF, references);
         lua_pop(L, 1); // pop globals table
 
-        Add(new wxLuaDebugItem(wxT("Globals"), WXLUA_TNONE, value, WXLUA_TTABLE, wxT(""), val_ref, 0, flag_type));
+        Add(new wxLuaDebugItem(wxT("Globals"), WXLUA_TNONE, value, WXLUA_TTABLE, wxEmptyString, val_ref, 0, flag_type));
+    }
+    else if (tableRef == LUA_ENVIRONINDEX)
+    {
+        lua_pushvalue(L, LUA_ENVIRONINDEX);
+        GetTypeValue(L, -1, &wxl_valuetype, value);
+
+        int flag_type = 0;
+        int val_ref = RefTable(L, -1, &flag_type, WXLUA_DEBUGITEM_VALUE_REF, references);
+        lua_pop(L, 1); // pop environment table
+
+        Add(new wxLuaDebugItem(wxT("Environment"), WXLUA_TNONE, value, WXLUA_TTABLE, wxEmptyString, val_ref, 0, flag_type));
     }
     else if (tableRef == LUA_REGISTRYINDEX)
     {
         lua_pushvalue(L, LUA_REGISTRYINDEX);
-        GetTypeValue(wxlState, -1, &wxl_valuetype, value);
+        GetTypeValue(L, -1, &wxl_valuetype, value);
 
         int flag_type = 0;
         int val_ref = RefTable(L, -1, &flag_type, WXLUA_DEBUGITEM_VALUE_REF, references);
         lua_pop(L, 1); // pop registry table
 
-        Add(new wxLuaDebugItem(wxT("Registry"), WXLUA_TNONE, value, WXLUA_TTABLE, wxT(""), val_ref, 0, flag_type));
+        Add(new wxLuaDebugItem(wxT("Registry"), WXLUA_TNONE, value, WXLUA_TTABLE, wxEmptyString, val_ref, 0, flag_type));
     }
     else
     {
@@ -329,20 +342,20 @@ int wxLuaDebugData::EnumerateTable(const wxLuaState& wxlState_, int tableRef, in
             lua_rawget(L, LUA_REGISTRYINDEX);
             lua_pushvalue(L, -2); // push value (table we're iterating)
             lua_rawget(L, -2);
-            lightuserdata_reg_key = lua_touserdata(L, -1);
+            lightuserdata_reg_key = lua_touserdata(L, -1); // returns NULL for nil
             lua_pop(L, 2); // pop wxlua_lreg_regtable_key table and (nil or lightuserdata)
 
-            // Check if the table/userdata has a metatable
+            // Check if this table/userdata has a metatable
             if (lua_getmetatable(L, -1)) // if no metatable then nothing is pushed
             {
                 // get the type and value
-                GetTypeValue(wxlState, -1, &wxl_valuetype, value);
+                GetTypeValue(L, -1, &wxl_valuetype, value);
 
                 int flag_type = 0;
                 int val_ref = RefTable(L, -1, &flag_type, WXLUA_DEBUGITEM_VALUE_REF, references);
 
                 // leading space so it's first when sorted
-                Add(new wxLuaDebugItem(wxT(" __metatable"), WXLUA_TTABLE, value, wxl_valuetype, wxT(""), val_ref, nIndex, flag_type));
+                Add(new wxLuaDebugItem(wxT(" __metatable"), WXLUA_TTABLE, value, wxl_valuetype, wxEmptyString, val_ref, nIndex, flag_type));
                 ++count;
 
                 lua_pop(L, 1); // pop metatable
@@ -357,16 +370,16 @@ int wxLuaDebugData::EnumerateTable(const wxLuaState& wxlState_, int tableRef, in
                 // value at -1, key at -2, table at -3
 
                 // get the key type and value
-                int lua_key_type = GetTypeValue(wxlState, -2, &wxl_keytype, name);
+                int lua_key_type = GetTypeValue(L, -2, &wxl_keytype, name);
                 // get the value type and value
-                int lua_value_type = GetTypeValue(wxlState, -1, &wxl_valuetype, value);
+                int lua_value_type = GetTypeValue(L, -1, &wxl_valuetype, value);
 
-                // Handle wxLua LUA_REGISTRYINDEX tables to give more information
+                // Handle items within the wxLua LUA_REGISTRYINDEX tables to give more information
                 if (lightuserdata_reg_key != NULL)
                 {
                     if (lightuserdata_reg_key == &wxlua_lreg_types_key)
                     {
-                        value += wxT(" (") + wxluaT_typename(L, (int)lua_tonumber(L, -2)) + wxT(")");
+                        value += wxString::Format(wxT(" (%s)"), wxluaT_typename(L, (int)lua_tonumber(L, -2)).c_str());
                     }
                     else if (lightuserdata_reg_key == &wxlua_lreg_classes_key)
                     {
@@ -376,7 +389,7 @@ int wxLuaDebugData::EnumerateTable(const wxLuaState& wxlState_, int tableRef, in
                     else if (lightuserdata_reg_key == &wxlua_lreg_wxluabindings_key)
                     {
                         wxLuaBinding* binding = (wxLuaBinding*)lua_touserdata(L, -2);
-                        name = wxT("wxLuaBinding(")+name+wxT(") -> ")+binding->GetBindingName();
+                        name = wxString::Format(wxT("wxLuaBinding(%s) -> %s"), name.c_str(), binding->GetBindingName().c_str());
                         value += wxT(" = ") + binding->GetLuaNamespace();
                     }
                     else if (lightuserdata_reg_key == &wxlua_lreg_evtcallbacks_key)
@@ -402,11 +415,28 @@ int wxLuaDebugData::EnumerateTable(const wxLuaState& wxlState_, int tableRef, in
                     {
                         wxWindow* win = (wxWindow*)lua_touserdata(L, -2);
                         name += wxT(" ") + wxString(win->GetClassInfo()->GetClassName());
-                    }
+                    }                    
                     else if (lightuserdata_reg_key == &wxlua_lreg_gcobjects_key)
                     {
-                        wxObject* obj = (wxObject*)lua_touserdata(L, -1);
-                        name = wxString(obj->GetClassInfo()->GetClassName()) + wxT("(") + name + wxT(")");
+                        int wxl_type_ = (int)lua_tonumber(L, -1);
+                        name.Printf(wxT("%s(%s)"), wxluaT_typename(L, wxl_type_).c_str(), name.c_str());
+                    }
+                    else if (lightuserdata_reg_key == &wxlua_lreg_weakobjects_key)
+                    {
+                        wxString names_weak;
+                    
+                        // iterate the table of userdata
+                        lua_pushnil(L);
+                        while (lua_next(L, -2) != 0)
+                        {
+                            // value = -1, key = -2, table = -3
+                            int wxl_type_weak = (int)lua_tonumber(L, -2);
+                            if (!names_weak.IsEmpty()) names_weak += wxT(", ");
+                            names_weak += wxString::Format(wxT("%s(%d)"), wxluaT_typename(L, wxl_type_weak).c_str(), wxl_type_weak);
+                            lua_pop(L, 1); // pop value, lua_next will pop key at end
+                        }
+                    
+                        name.Printf(wxT("%s (%s)"), names_weak.c_str(), name.c_str());
                     }
                 }
 
@@ -415,9 +445,19 @@ int wxLuaDebugData::EnumerateTable(const wxLuaState& wxlState_, int tableRef, in
                 {
                     void* key = lua_touserdata(L, -2);
 
-                    if (key == &wxlua_metatable_type_key)
+                    if (key == &wxlua_lreg_wxeventtype_key)
                     {
-                        value += wxT(" (") + wxluaT_typename(L, (int)lua_tonumber(L, -1)) + wxT(")");
+                        wxEventType eventType = (wxEventType)lua_tonumber(L, -1);
+                        const wxLuaBindEvent* wxlEvent = wxLuaBinding::FindBindEvent(eventType);
+
+                        if (wxlEvent != NULL)
+                        {
+                            value = wxString::Format(wxT("%d = %s : %s"), eventType, lua2wx(wxlEvent->name).c_str(), wxluaT_typename(L, *wxlEvent->wxluatype).c_str());
+                        }
+                    }
+                    else if (key == &wxlua_metatable_type_key)
+                    {
+                        value += wxString::Format(wxT(" (%s)"), wxluaT_typename(L, (int)lua_tonumber(L, -1)).c_str());
                     }
                     else if (key == &wxlua_metatable_wxluabindclass_key)
                     {
@@ -438,7 +478,9 @@ int wxLuaDebugData::EnumerateTable(const wxLuaState& wxlState_, int tableRef, in
 
                 // don't ref anything in this table since it's already refed
                 if ((lua_key_type == LUA_TTABLE) && (lightuserdata_reg_key != &wxlua_lreg_debug_refs_key))
+                {
                     key_ref = RefTable(L, -2, &key_flag_type, WXLUA_DEBUGITEM_KEY_REF, references);
+                }
                 else if (lua_key_type == LUA_TUSERDATA)
                 {
                     if (lua_getmetatable(L, -2)) // doesn't push anything if nil
@@ -451,7 +493,7 @@ int wxLuaDebugData::EnumerateTable(const wxLuaState& wxlState_, int tableRef, in
                 // only add the key if we refed it so it can be viewed in the stack dialog
                 if (key_flag_type != 0)
                 {
-                    Add(new wxLuaDebugItem(name, wxl_keytype, value, wxl_valuetype, wxT(""), key_ref, nIndex, key_flag_type));
+                    Add(new wxLuaDebugItem(name, wxl_keytype, value, wxl_valuetype, wxEmptyString, key_ref, nIndex, key_flag_type));
                     ++count;
                 }
 
@@ -463,7 +505,9 @@ int wxLuaDebugData::EnumerateTable(const wxLuaState& wxlState_, int tableRef, in
 
                 // don't ref anything in this table since it's already refed
                 if ((lua_value_type == LUA_TTABLE) && (lightuserdata_reg_key != &wxlua_lreg_debug_refs_key))
+                {
                     val_ref = RefTable(L, -1, &val_flag_type, WXLUA_DEBUGITEM_VALUE_REF, references);
+                }
                 else if (lua_value_type == LUA_TUSERDATA)
                 {
                     if (lua_getmetatable(L, -1)) // doesn't push anything if nil
@@ -473,9 +517,10 @@ int wxLuaDebugData::EnumerateTable(const wxLuaState& wxlState_, int tableRef, in
                     }
                 }
 
+                // Add the value, but not if the value doesn't expand and the key was already added
                 if ((key_flag_type == 0) || ((key_flag_type != 0) && (val_flag_type != 0)))
                 {
-                    Add(new wxLuaDebugItem(name, wxl_keytype, value, wxl_valuetype, wxT(""), val_ref, nIndex, val_flag_type));
+                    Add(new wxLuaDebugItem(name, wxl_keytype, value, wxl_valuetype, wxEmptyString, val_ref, nIndex, val_flag_type));
                     ++count;
                 }
 
@@ -495,13 +540,15 @@ int wxLuaDebugData::RefTable(lua_State* L, int stack_idx, int* flag_type, int ex
     wxCHECK_MSG(L, LUA_NOREF, wxT("Invalid lua_State"));
 
     int lua_ref = LUA_NOREF;
-    //if (lua_istable(L, stack_idx))
+
+    if (lua_istable(L, stack_idx))
     {
-        //nRef = wxluaR_isrefed(L, stack_idx, &wxlua_lreg_debug_refs_key); // don't duplicate refs
+        if (flag_type) *flag_type |= (WXLUA_DEBUGITEM_IS_REFED | extra_flag);
+
+        lua_ref = wxluaR_isrefed(L, stack_idx, &wxlua_lreg_debug_refs_key); // don't duplicate refs
 
         if (lua_ref == LUA_NOREF)
         {
-            if (flag_type) *flag_type |= (WXLUA_DEBUGITEM_IS_REFED | extra_flag);
             lua_ref = wxluaR_ref(L, stack_idx, &wxlua_lreg_debug_refs_key);
             references.Add(lua_ref);
         }
@@ -510,15 +557,12 @@ int wxLuaDebugData::RefTable(lua_State* L, int stack_idx, int* flag_type, int ex
     return lua_ref;
 }
 
-int wxLuaDebugData::GetTypeValue(const wxLuaState& wxlState, int stack_idx, int* wxl_type_, wxString& value)
+int wxLuaDebugData::GetTypeValue(lua_State *L, int stack_idx, int* wxl_type_, wxString& value)
 {
-    wxCHECK_MSG(wxlState.Ok(), 0, wxT("Invalid wxLuaState"));
+    wxCHECK_MSG(L, 0, wxT("Invalid lua_State"));
 
-    lua_State* L  = wxlState.GetLuaState();
     int l_type    = lua_type(L, stack_idx);
     int wxl_type  = wxlua_luatowxluatype(l_type);
-
-    if (wxl_type_) *wxl_type_ = wxl_type;
 
     switch (l_type)
     {
@@ -539,7 +583,7 @@ int wxLuaDebugData::GetTypeValue(const wxLuaState& wxlState, int stack_idx, int*
         }
         case LUA_TLIGHTUSERDATA:
         {
-            value = GetUserDataInfo(wxlState, stack_idx, false);
+            value = GetUserDataInfo(L, stack_idx, false);
             break;
         }
         case LUA_TNUMBER:
@@ -547,9 +591,9 @@ int wxLuaDebugData::GetTypeValue(const wxLuaState& wxlState, int stack_idx, int*
             double num = lua_tonumber(L, stack_idx);
 
             if ((long)num == num)
-                value = wxString::Format(wxT("%ld (0x%lx)"), (long)num, (unsigned long)num);
+                value.Printf(wxT("%ld (0x%lx)"), (long)num, (unsigned long)num);
             else
-                value = wxString::Format(wxT("%g"), num);
+                value.Printf(wxT("%g"), num);
 
             break;
         }
@@ -560,7 +604,7 @@ int wxLuaDebugData::GetTypeValue(const wxLuaState& wxlState, int stack_idx, int*
         }
         case LUA_TTABLE:
         {
-            value = GetTableInfo(wxlState, stack_idx);
+            value = GetTableInfo(L, stack_idx);
             break;
         }
         case LUA_TFUNCTION:
@@ -574,7 +618,7 @@ int wxLuaDebugData::GetTypeValue(const wxLuaState& wxlState, int stack_idx, int*
         }
         case LUA_TUSERDATA:
         {
-            value = GetUserDataInfo(wxlState, stack_idx, true);
+            value = GetUserDataInfo(L, stack_idx, true);
             break;
         }
         case LUA_TTHREAD:
@@ -589,33 +633,27 @@ int wxLuaDebugData::GetTypeValue(const wxLuaState& wxlState, int stack_idx, int*
         }
     }
 
+    if (wxl_type_) *wxl_type_ = wxl_type;
+
     return l_type;
 }
 
-wxString wxLuaDebugData::GetTableInfo(const wxLuaState& wxlState, int stack_idx)
+wxString wxLuaDebugData::GetTableInfo(lua_State *L, int stack_idx)
 {
-    wxCHECK_MSG(wxlState.Ok(), wxEmptyString, wxT("Invalid wxLuaState"));
-    lua_State* L = wxlState.GetLuaState();
+    wxCHECK_MSG(L, wxEmptyString, wxT("Invalid lua_State"));
 
-    int         wxl_type = wxluaT_type(L, stack_idx);
     int         nItems   = luaL_getn(L, stack_idx);
     const void *pItem    = lua_topointer(L, stack_idx);
 
-    wxString s(wxString::Format(wxT("%p"), pItem));
-
     if (nItems > 0)
-        s += wxString::Format(wxT(" (approx %d items)"), nItems);
+        return wxString::Format(wxT("%p (%d array items)"), pItem, nItems);
 
-    if (wxlua_iswxuserdatatype(wxl_type))
-        s += wxString::Format(wxT(" (wxltype %d)"), wxl_type);
-
-    return s;
+    return wxString::Format(wxT("%p"), pItem);
 }
 
-wxString wxLuaDebugData::GetUserDataInfo(const wxLuaState& wxlState, int stack_idx, bool full_userdata)
+wxString wxLuaDebugData::GetUserDataInfo(lua_State *L, int stack_idx, bool full_userdata)
 {
-    wxCHECK_MSG(wxlState.Ok(), wxEmptyString, wxT("Invalid wxLuaState"));
-    lua_State* L = wxlState.GetLuaState();
+    wxCHECK_MSG(L, wxEmptyString, wxT("Invalid lua_State"));
 
     void* udata = lua_touserdata(L, stack_idx);
 
@@ -645,7 +683,7 @@ wxString wxLuaDebugData::GetUserDataInfo(const wxLuaState& wxlState, int stack_i
             (udata == &wxlua_metatable_wxluabindclass_key))
         {
             const char* ss = *(const char**)udata;
-            s += wxT(" (") + lua2wx(ss) + wxT(")");
+            s += wxString::Format(wxT(" (%s)"), lua2wx(ss).c_str());
         }
     }
     else // is full userdata
@@ -715,7 +753,7 @@ wxString wxLuaCheckStack::DumpStack(const wxString& msg)
     {
         int wxl_type = 0;
         wxString value;
-        int l_type = wxLuaDebugData::GetTypeValue(wxlState, i, &wxl_type, value);
+        int l_type = wxLuaDebugData::GetTypeValue(L, i, &wxl_type, value);
 
         str.Printf(wxT("  idx %d: l_type = %d, wxl_type = %d : '%s'='%s'\n"),
                 i, l_type, wxl_type, wxluaT_typename(L, wxl_type).c_str(), value.c_str());
@@ -826,8 +864,8 @@ wxString wxLuaCheckStack::DumpTable(int stack_idx, const wxString& tablename, co
         int keyType = 0, valueType = 0;
         wxString key, value;
 
-        wxLuaDebugData::GetTypeValue(wxlState, -2, &keyType,   key);
-        wxLuaDebugData::GetTypeValue(wxlState, -1, &valueType, value);
+        wxLuaDebugData::GetTypeValue(L, -2, &keyType,   key);
+        wxLuaDebugData::GetTypeValue(L, -1, &valueType, value);
 
         wxString info = wxString::Format(wxT("%s%-32s\t%-16s\t%-20s\t%-16s\n"),
                 indentStr.c_str(), key.c_str(), wxluaT_typename(L, keyType).c_str(), value.c_str(), wxluaT_typename(L, valueType).c_str());

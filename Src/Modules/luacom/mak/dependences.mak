@@ -1,7 +1,7 @@
-!IF $(LUA_VERSION) == 5
+#OLD: !IF $(LUA_VERSION) == 5
 LUACOM_LUA = $(SRC_LIB_DIR)\luacom5.loh
 $(LUACOM_LUA): $(SRC_LIB_DIR)\luacom5.lua
-!ENDIF
+#OLD: !ENDIF
 
 $(OBJ_DIR)/LuaAux.obj : $(SRC_LIB_DIR)/LuaAux.cpp $(SRC_LIB_DIR)/LuaAux.h $(SRC_LIB_DIR)/LuaCompat.h
 

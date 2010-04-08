@@ -11,8 +11,8 @@
 # You must supply the Lua version being used, at least as an environment
 # variable. Currently only 4 and 5 are acceptable options
 # ---------------------------------------------------------------------------
-LUA_VERSION = 4
-LUACOM_VERSION=1.3
+LUA_SUFFIX=5.1        # suffix for binaries (e.g. 5.1 => lua5.1.exe)
+LUACOM_VERSION=1.4
 
 # ---------------------------------------------------------------------------
 # Use the following lines to set your installation directories
@@ -20,7 +20,7 @@ LUACOM_VERSION=1.3
 INC_DIR = .\include
 LIB_DIR = .\lib
 OBJ_ROOTDIR = .\obj
-OBJ_DIR = $(OBJ_ROOTDIR)\lua$(LUA_VERSION)
+OBJ_DIR = $(OBJ_ROOTDIR)\lua$(LUA_SUFFIX)
 BIN_DIR = .\bin
 DLL_DIR = .\dll
 SRC_LIB_DIR = .\src\library
@@ -34,12 +34,12 @@ SRC_DLL_DIR = .\src\dll
 # WARNING: The version of Lua in these # directories MUST MATCH the one
 # specified in LUA_VERSION
 # ---------------------------------------------------------------------------
-LUA_INC = d:\clean\lua-4.0.1\include
-LUA_LIB = d:\clean\lua-4.0.1\static
-LUA_LIBDLL = d:\clean\lua-4.0.1\dll
-LUA = d:\clean\lua-4.0.1\static\lua.exe
-LUAC = d:\clean\lua-4.0.1\static\luac.exe
-BIN2C = d:\clean\lua-4.0.1\static\bin2c.exe
+LUA_INC = ..\lua5.1\include
+LUA_LIB = ..\lua5.1\lib\static
+LUA_LIBDLL = ..\lua5.1\lib
+LUA = ..\lua5.1\bin\lua$(LUA_SUFFIX).exe
+LUAC = ..\lua5.1\bin\luac$(LUA_SUFFIX).exe
+BIN2C = ..\lua5.1\bin\bin2c$(LUA_SUFFIX).exe
 
 # ---------------------------------------------------------------------------
 # Use the following lines to ste the IUP, CD, and IM include and library
@@ -57,23 +57,23 @@ TOLUA_LIB = y:\trab\tolua-5.0\lib
 # Comment the following line if your Lua is not compiled with compat-5.1
 # Ignored if you are compiling for Lua 4
 # ---------------------------------------------------------------------------
-COMPAT = -DCOMPAT-5.1
+COMPAT = -DCOMPAT51
 
 # ---------------------------------------------------------------------------
 # Compiler options
 # ---------------------------------------------------------------------------
-CC = CL
+CC = cl
 
 INCS = -I$(LUA_INC) -I$(INC_DIR) -I$(SRC_LIB_DIR)
 
-CFLAGS = $(INCS) -DWIN32 -DLUA$(LUA_VERSION)
+CFLAGS = $(INCS) -DWIN32 -D_CRT_SECURE_NO_DEPRECATE -nologo
 
 # If you want debugging information, define DEBUG in your environment
 
 !IFDEF DEBUG
-CFLAGS =$(CFLAGS) /MLd /Z7 /Od /Yd
+CFLAGS =$(CFLAGS) -MDd -Zi -Od -DLUA_USE_APICHECK
 !ELSE
-CFLAGS =$(CFLAGS) /ML /Zd /O2 -DNDEBUG
+CFLAGS =$(CFLAGS) -MD -Zi -O2 -DNDEBUG
 !ENDIF
 
 # If you want IUP compiled in, define IUP
@@ -85,7 +85,7 @@ IUP_LIBS = iup.lib comctl32.lib iupcontrols.lib iupgl.lib cd.lib cdiup.lib iuplu
 IUP_LIBS =
 !ENDIF
 
-CPPFLAGS = /GX /GR $(CFLAGS)
+CPPFLAGS = /EHsc $(CFLAGS)
 
 .SUFFIXES:
 .SUFFIXES: .c .cpp .obj
@@ -93,30 +93,32 @@ CPPFLAGS = /GX /GR $(CFLAGS)
 # ---------------------------------------------------------------------------
 # Linker options
 # ---------------------------------------------------------------------------
-DEFAULT_LIBS = libc.lib kernel32.lib user32.lib gdi32.lib shell32.lib advapi32.lib ole32.lib winspool.lib uuid.lib oleaut32.lib shlwapi.lib  
+DEFAULT_LIBS = kernel32.lib user32.lib gdi32.lib shell32.lib advapi32.lib ole32.lib winspool.lib uuid.lib oleaut32.lib shlwapi.lib htmlhelp.lib
+#				/NODEFAULTLIB:"libcd.lib" /NODEFAULTLIB:"msvcrt.lib" \
+#				/NODEFAULTLIB:"msvcrtd.lib" /NODEFAULTLIB:"libcmt.lib" \
+#				/NODEFAULTLIB:"libcmtd.lib" \
 
-LFLAGS = /nologo /subsystem:console /incremental:no /machine:I386 \
-				/NODEFAULTLIB:"libcd.lib" /NODEFAULTLIB:"msvcrt.lib" \
-				/NODEFAULTLIB:"msvcrtd.lib" /NODEFAULTLIB:"libcmt.lib" \
-				/NODEFAULTLIB:"libcmtd.lib" $(DEFAULT_LIBS) 
+
+LFLAGS = /nologo /subsystem:console /incremental:no /machine:I386 /debug \
+				$(DEFAULT_LIBS) 
 
 !IFDEF DEBUG
 LINK_USE_DEBUG = /DEBUG /PDB:NONE
 !ENDIF
 
 # Here we assume lua libs are have as a suffix the version number, like lua-5.0.lib
-LUA_LIBS = $(LUA_LIB)/lua-$(LUA_VERSION).0.lib $(LUA_LIB)/lualib-$(LUA_VERSION).0.lib 
-LUA_LIBSDLL = $(LUA_LIBDLL)/lua-$(LUA_VERSION).0.lib $(LUA_LIBDLL)/lualib-$(LUA_VERSION).0.lib 
+LUA_LIBS = $(LUA_LIB)/lua$(LUA_SUFFIX).lib
+LUA_LIBSDLL = $(LUA_LIBDLL)/lua$(LUA_SUFFIX).lib 
 
 # ---------------------------------------------------------------------------
 # Target options
 # ---------------------------------------------------------------------------
-LC_LIB = $(LIB_DIR)\luacom-lua$(LUA_VERSION)-$(LUACOM_VERSION).lib
-LC_DLL = $(BIN_DIR)\luacom-lua$(LUA_VERSION)-$(LUACOM_VERSION).dll
-LC_IMPLIB = $(LIB_DIR)\luacomdll-lua$(LUA_VERSION)-$(LUACOM_VERSION).lib
+LC_LIB = $(LIB_DIR)\luacom-lua$(LUA_SUFFIX)-$(LUACOM_VERSION).lib
+LC_DLL = $(BIN_DIR)\luacom.dll
+LC_IMPLIB = $(LIB_DIR)\luacomdll-lua$(LUA_SUFFIX)-$(LUACOM_VERSION).lib
 
-LC_CONSOLE_LIB = $(BIN_DIR)\luacom-lua$(LUA_VERSION)-$(LUACOM_VERSION).exe
-LC_CONSOLE_DLL = $(BIN_DIR)\luacomdll-lua$(LUA_VERSION)-$(LUACOM_VERSION).exe
+LC_CONSOLE_LIB = $(BIN_DIR)\luacom-lua$(LUA_SUFFIX)-$(LUACOM_VERSION).exe
+LC_CONSOLE_DLL = $(BIN_DIR)\luacomdll-lua$(LUA_SUFFIX)-$(LUACOM_VERSION).exe
 
 all: lc_lib lc_dll lc_bin_lib lc_bin_dll
 lc_lib: $(LIB_DIR) $(OBJ_DIR) $(LC_LIB)
@@ -136,18 +138,25 @@ $(BIN_DIR)::
 	if not exist $(BIN_DIR) \
 	   mkdir $(BIN_DIR)
 
+install:
+	if not exist "$(LUA_LIBDIR)" mkdir -p "$(LUA_LIBDIR)"
+	copy $(BINDIR)\luacom.dll "$(LUA_LIBDIR)"
+
 clean-obj:
-	del $(OBJ_DIR)\*.obj 
-	rmdir $(OBJ_DIR)
+	if exist $(OBJ_DIR)\*.obj del $(OBJ_DIR)\*.obj 
+	if exist $(OBJ_DIR) rmdir $(OBJ_DIR)
 
 clean:
-	rmdir /S /Q $(OBJ_ROOTDIR)
-	del $(LIB_DIR)\*.lib
-	del $(BIN_DIR)\*.exp
-	rmdir $(LIB_DIR)
-	del $(BIN_DIR)\*.exe
-	del $(BIN_DIR)\*.dll
-	rmdir $(BIN_DIR)
+	if exist $(OBJ_ROOTDIR) rmdir /S /Q $(OBJ_ROOTDIR)
+	if exist $(LIB_DIR)\*.lib del $(LIB_DIR)\*.lib
+	if exist $(LIB_DIR)\*.exp del $(LIB_DIR)\*.exp
+	if exist $(LIB_DIR) rmdir $(LIB_DIR)
+	if exist $(BIN_DIR)\*.exe del $(BIN_DIR)\*.exe
+	if exist $(BIN_DIR)\*.dll del $(BIN_DIR)\*.dll
+	if exist $(BIN_DIR)\*.manifest del $(BIN_DIR)\*.manifest
+	if exist $(BIN_DIR)\*.pdb del $(BIN_DIR)\*.pdb
+	if exist $(BIN_DIR)\luacom.lua del $(BIN_DIR)\luacom.lua
+	if exist $(BIN_DIR) rmdir $(BIN_DIR)
 
 DEF = $(SRC_DLL_DIR)/luacom_dll.def
 
@@ -176,8 +185,8 @@ BIN_OBJS = $(OBJ_DIR)/luacom_console.obj
 DLL_OBJS = $(OBJ_DIR)/luacom_dll.obj
 
 {$(SRC_LIB_DIR)}.cpp{$(OBJ_DIR)}.obj:
-	$(CC) /c /DLUACOM_DLL=\"luacom-lua$(LUA_VERSION)-$(LUACOM_VERSION).dll\" $(CPPFLAGS) $(COMPAT) /Fo$@ $<
-	
+	$(CC) /c /DLUACOM_DLL=\"luacom.dll\" $(CPPFLAGS) $(COMPAT) /Fo$@ $<
+
 {$(SRC_LIB_DIR)}.c{$(OBJ_DIR)}.obj:
 	$(CC) /c /Za $(CFLAGS) $(COMPAT) /Fo$@ $<
 
@@ -190,14 +199,14 @@ DLL_OBJS = $(OBJ_DIR)/luacom_dll.obj
 include ./mak/dependences.mak
 
 $(BIN_DIR)/luacom.lua: $(SRC_LIB_DIR)/t_luacom.lua
-	$(LUA) -e"str=io.read('*a');str=string.gsub(str,'LUACOM_DLL','luacom-lua$(LUA_VERSION)-$(LUACOM_VERSION).dll');io.write(str);" < $(SRC_LIB_DIR)/t_luacom.lua > $@
+	$(LUA) -e"str=io.read('*a');str=string.gsub(str,'LUACOM_DLL','luacom.dll');io.write(str);" < $(SRC_LIB_DIR)/t_luacom.lua > $@
 
 $(LC_LIB): $(LIB_OBJS)
 	lib /NOLOGO /OUT:$@ $(LIB_OBJS)
 
 $(LC_CONSOLE_LIB): $(BIN_OBJS) $(LC_LIB)
 	link /out:$@ $(BIN_OBJS) $(LC_LIB) $(LFLAGS) $(LUA_LIBS)
-	
+
 $(LC_CONSOLE_DLL): $(BIN_OBJS) $(LC_DLL)
 	link /out:$@ $(BIN_OBJS) $(LC_IMPLIB) $(LFLAGS) $(LUA_LIBSDLL)
 

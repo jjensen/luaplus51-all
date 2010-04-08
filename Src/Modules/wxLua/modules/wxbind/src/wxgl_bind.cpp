@@ -4,16 +4,16 @@
 // Any changes made to this file will be lost when the file is regenerated.
 // ---------------------------------------------------------------------------
 
+
+#include "wx/wxprec.h"
+
 #ifdef __BORLANDC__
     #pragma hdrstop
 #endif
 
-#include "wx/wxprec.h"
-
 #ifndef WX_PRECOMP
      #include "wx/wx.h"
 #endif
-
 
 #include "wxlua/include/wxlstate.h"
 #include "wxbind/include/wxgl_bind.h"
@@ -302,6 +302,12 @@ static int s_wxluafunc_wxLua_wxGLCanvas_constructor_overload_count = sizeof(s_wx
 
 #endif // ((((wxLUA_USE_wxGLCanvas && wxUSE_GLCANVAS) && (wxLUA_USE_wxPalette && wxUSE_PALETTE)) && ((!defined(__WXMAC__)) && (wxLUA_USE_wxGLCanvas && wxUSE_GLCANVAS))) && (wxLUA_USE_wxPointSizeRect))||(((wxLUA_USE_wxGLCanvas && wxUSE_GLCANVAS) && (wxLUA_USE_wxPalette && wxUSE_PALETTE)) && (wxLUA_USE_wxPointSizeRect))
 
+void wxLua_wxGLCanvas_delete_function(void** p)
+{
+    wxGLCanvas* o = (wxGLCanvas*)(*p);
+    delete o;
+}
+
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxGLCanvas_methods[] = {
     { "GetContext", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxGLCanvas_GetContext, 1, NULL },
@@ -454,8 +460,6 @@ static int LUACALL wxLua_wxGLContext_constructor2(lua_State *L)
     bool isRGB = wxlua_getbooleantype(L, 1);
     // call constructor
     wxGLContext* returns = new wxGLContext(isRGB, win, *palette, other);
-    // add to tracked window list, it will check validity
-    wxluaW_addtrackedwindow(L, returns);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxGLContext);
 
@@ -478,8 +482,6 @@ static int LUACALL wxLua_wxGLContext_constructor1(lua_State *L)
     bool isRGB = wxlua_getbooleantype(L, 1);
     // call constructor
     wxGLContext* returns = new wxGLContext(isRGB, win, *palette);
-    // add to tracked window list, it will check validity
-    wxluaW_addtrackedwindow(L, returns);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxGLContext);
 
@@ -503,8 +505,6 @@ static int LUACALL wxLua_wxGLContext_constructor(lua_State *L)
     wxGLCanvas * win = (wxGLCanvas *)wxluaT_getuserdatatype(L, 1, wxluatype_wxGLCanvas);
     // call constructor
     wxGLContext* returns = new wxGLContext(win, other);
-    // add to tracked window list, it will check validity
-    wxluaW_addtrackedwindow(L, returns);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxGLContext);
 
@@ -556,6 +556,12 @@ static wxLuaBindCFunc s_wxluafunc_wxLua_wxGLContext_constructor_overload[] =
 static int s_wxluafunc_wxLua_wxGLContext_constructor_overload_count = sizeof(s_wxluafunc_wxLua_wxGLContext_constructor_overload)/sizeof(wxLuaBindCFunc);
 
 #endif // (((wxLUA_USE_wxGLCanvas && wxUSE_GLCANVAS) && ((wxLUA_USE_wxGLCanvas && wxUSE_GLCANVAS) && (!wxCHECK_VERSION(2,8,0)))) && (wxLUA_USE_wxPalette && wxUSE_PALETTE))||(((!defined(__WXMAC__)) && ((wxLUA_USE_wxGLCanvas && wxUSE_GLCANVAS) && (wxCHECK_VERSION(2,8,0)))) && (wxLUA_USE_wxGLCanvas && wxUSE_GLCANVAS))
+
+void wxLua_wxGLContext_delete_function(void** p)
+{
+    wxGLContext* o = (wxGLContext*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxGLContext_methods[] = {
@@ -713,8 +719,10 @@ static wxLuaBindClass* wxluabaseclassbinds_wxGLContext[] = { NULL };
 #if wxLUA_USE_wxGLCanvas && wxUSE_GLCANVAS
     extern wxLuaBindMethod wxGLCanvas_methods[];
     extern int wxGLCanvas_methodCount;
+    extern void wxLua_wxGLCanvas_delete_function(void** p);
     extern wxLuaBindMethod wxGLContext_methods[];
     extern int wxGLContext_methodCount;
+    extern void wxLua_wxGLContext_delete_function(void** p);
 #endif // wxLUA_USE_wxGLCanvas && wxUSE_GLCANVAS
 
 
@@ -725,8 +733,8 @@ wxLuaBindClass* wxLuaGetClassList_wxgl(size_t &count)
     static wxLuaBindClass classList[] =
     {
 #if wxLUA_USE_wxGLCanvas && wxUSE_GLCANVAS
-        { wxluaclassname_wxGLCanvas, wxGLCanvas_methods, wxGLCanvas_methodCount, CLASSINFO(wxGLCanvas), &wxluatype_wxGLCanvas, wxluabaseclassnames_wxGLCanvas, wxluabaseclassbinds_wxGLCanvas, g_wxluanumberArray_None, 0, }, 
-        { wxluaclassname_wxGLContext, wxGLContext_methods, wxGLContext_methodCount, CLASSINFO(wxGLContext), &wxluatype_wxGLContext, wxluabaseclassnames_wxGLContext, wxluabaseclassbinds_wxGLContext, g_wxluanumberArray_None, 0, }, 
+        { wxluaclassname_wxGLCanvas, wxGLCanvas_methods, wxGLCanvas_methodCount, CLASSINFO(wxGLCanvas), &wxluatype_wxGLCanvas, wxluabaseclassnames_wxGLCanvas, wxluabaseclassbinds_wxGLCanvas, NULL, NULL, NULL, 0, &wxLua_wxGLCanvas_delete_function, }, 
+        { wxluaclassname_wxGLContext, wxGLContext_methods, wxGLContext_methodCount, CLASSINFO(wxGLContext), &wxluatype_wxGLContext, wxluabaseclassnames_wxGLContext, wxluabaseclassbinds_wxGLContext, NULL, NULL, NULL, 0, &wxLua_wxGLContext_delete_function, }, 
 #endif // wxLUA_USE_wxGLCanvas && wxUSE_GLCANVAS
 
 
@@ -753,19 +761,21 @@ wxLuaBinding_wxgl::wxLuaBinding_wxgl() : wxLuaBinding()
     m_eventArray    = wxLuaGetEventList_wxgl(m_eventCount);
     m_objectArray   = wxLuaGetObjectList_wxgl(m_objectCount);
     m_functionArray = wxLuaGetFunctionList_wxgl(m_functionCount);
+    InitBinding();
 }
 
 
 
 // ---------------------------------------------------------------------------
 
-bool wxLuaBinding_wxgl_init()
+wxLuaBinding* wxLuaBinding_wxgl_init()
 {
     static wxLuaBinding_wxgl m_binding;
-    if (wxLuaBinding::GetBindingList()->Find(&m_binding)) return false;
 
-    wxLuaBinding::GetBindingList()->Append(&m_binding);
-    return true;
+    if (wxLuaBinding::GetBindingArray().Index(&m_binding) == wxNOT_FOUND)
+        wxLuaBinding::GetBindingArray().Add(&m_binding);
+
+    return &m_binding;
 }
 
 

@@ -4,16 +4,16 @@
 // Any changes made to this file will be lost when the file is regenerated.
 // ---------------------------------------------------------------------------
 
+
+#include "wx/wxprec.h"
+
 #ifdef __BORLANDC__
     #pragma hdrstop
 #endif
 
-#include "wx/wxprec.h"
-
 #ifndef WX_PRECOMP
      #include "wx/wx.h"
 #endif
-
 
 #include "wxlua/include/wxlstate.h"
 #include "wxbind/include/wxnet_bind.h"
@@ -629,6 +629,12 @@ static int LUACALL wxLua_wxSocketBase_WriteMsg(lua_State *L)
 
 
 
+void wxLua_wxSocketBase_delete_function(void** p)
+{
+    wxSocketBase* o = (wxSocketBase*)(*p);
+    delete o;
+}
+
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxSocketBase_methods[] = {
     { "Close", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxSocketBase_Close, 1, NULL },
@@ -741,7 +747,7 @@ static int LUACALL wxLua_wxSocketClient_constructor(lua_State *L)
     // call constructor
     wxSocketClient* returns = new wxSocketClient(flags);
     // add to tracked memory list
-    wxluaO_addgcobject(L, returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxSocketClient);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxSocketClient);
 
@@ -750,6 +756,12 @@ static int LUACALL wxLua_wxSocketClient_constructor(lua_State *L)
 
 
 
+
+void wxLua_wxSocketClient_delete_function(void** p)
+{
+    wxSocketClient* o = (wxSocketClient*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxSocketClient_methods[] = {
@@ -856,7 +868,7 @@ static int LUACALL wxLua_wxSocketServer_constructor(lua_State *L)
     // call constructor
     wxSocketServer* returns = new wxSocketServer(*address, flags);
     // add to tracked memory list
-    wxluaO_addgcobject(L, returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxSocketServer);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxSocketServer);
 
@@ -865,6 +877,12 @@ static int LUACALL wxLua_wxSocketServer_constructor(lua_State *L)
 
 
 
+
+void wxLua_wxSocketServer_delete_function(void** p)
+{
+    wxSocketServer* o = (wxSocketServer*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxSocketServer_methods[] = {
@@ -954,7 +972,7 @@ static int LUACALL wxLua_wxSocketEvent_constructor(lua_State *L)
     // call constructor
     wxSocketEvent* returns = new wxSocketEvent(id);
     // add to tracked memory list
-    wxluaO_addgcobject(L, returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxSocketEvent);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxSocketEvent);
 
@@ -963,6 +981,12 @@ static int LUACALL wxLua_wxSocketEvent_constructor(lua_State *L)
 
 
 
+
+void wxLua_wxSocketEvent_delete_function(void** p)
+{
+    wxSocketEvent* o = (wxSocketEvent*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxSocketEvent_methods[] = {
@@ -1004,6 +1028,12 @@ static int LUACALL wxLua_wxSockAddress_Clear(lua_State *L)
 
 
 
+
+void wxLua_wxSockAddress_delete_function(void** p)
+{
+    wxSockAddress* o = (wxSockAddress*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxSockAddress_methods[] = {
@@ -1201,6 +1231,12 @@ static int s_wxluafunc_wxLua_wxIPaddress_Service_overload_count = sizeof(s_wxlua
 
 #endif // (wxLUA_USE_wxSocket && wxUSE_SOCKETS)
 
+void wxLua_wxIPaddress_delete_function(void** p)
+{
+    wxIPaddress* o = (wxIPaddress*)(*p);
+    delete o;
+}
+
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxIPaddress_methods[] = {
     { "AnyAddress", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxIPaddress_AnyAddress, 1, NULL },
@@ -1267,7 +1303,7 @@ static int LUACALL wxLua_wxIPV4address_constructor1(lua_State *L)
     // call constructor
     wxIPV4address* returns = new wxIPV4address(*other);
     // add to tracked memory list
-    wxluaO_addgcobject(L, returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxIPV4address);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxIPV4address);
 
@@ -1282,7 +1318,7 @@ static int LUACALL wxLua_wxIPV4address_constructor(lua_State *L)
     // call constructor
     wxIPV4address* returns = new wxIPV4address();
     // add to tracked memory list
-    wxluaO_addgcobject(L, returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxIPV4address);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxIPV4address);
 
@@ -1302,6 +1338,12 @@ static wxLuaBindCFunc s_wxluafunc_wxLua_wxIPV4address_constructor_overload[] =
 static int s_wxluafunc_wxLua_wxIPV4address_constructor_overload_count = sizeof(s_wxluafunc_wxLua_wxIPV4address_constructor_overload)/sizeof(wxLuaBindCFunc);
 
 #endif // (wxLUA_USE_wxSocket && wxUSE_SOCKETS)
+
+void wxLua_wxIPV4address_delete_function(void** p)
+{
+    wxIPV4address* o = (wxIPV4address*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxIPV4address_methods[] = {
@@ -1452,6 +1494,12 @@ static wxLuaBindCFunc s_wxluafunc_wxLua_wxProtocol_delete[1] = {{ wxlua_userdata
 
 
 
+void wxLua_wxProtocol_delete_function(void** p)
+{
+    wxProtocol* o = (wxProtocol*)(*p);
+    delete o;
+}
+
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxProtocol_methods[] = {
     { "Abort", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxProtocol_Abort, 1, NULL },
@@ -1546,7 +1594,7 @@ static int LUACALL wxLua_wxHTTP_constructor(lua_State *L)
     // call constructor
     wxHTTP* returns = new wxHTTP();
     // add to tracked memory list
-    wxluaO_addgcobject(L, returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxHTTP);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxHTTP);
 
@@ -1555,6 +1603,12 @@ static int LUACALL wxLua_wxHTTP_constructor(lua_State *L)
 
 
 
+
+void wxLua_wxHTTP_delete_function(void** p)
+{
+    wxHTTP* o = (wxHTTP*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxHTTP_methods[] = {
@@ -1929,7 +1983,7 @@ static int LUACALL wxLua_wxFTP_constructor(lua_State *L)
     // call constructor
     wxFTP* returns = new wxFTP();
     // add to tracked memory list
-    wxluaO_addgcobject(L, returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxFTP);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxFTP);
 
@@ -1938,6 +1992,12 @@ static int LUACALL wxLua_wxFTP_constructor(lua_State *L)
 
 
 
+
+void wxLua_wxFTP_delete_function(void** p)
+{
+    wxFTP* o = (wxFTP*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxFTP_methods[] = {
@@ -2425,7 +2485,7 @@ static int LUACALL wxLua_wxURI_constructor2(lua_State *L)
     // call constructor
     wxURI* returns = new wxURI(*uri);
     // add to tracked memory list
-    wxluaO_addgcobject(L, returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxURI);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxURI);
 
@@ -2443,7 +2503,7 @@ static int LUACALL wxLua_wxURI_constructor1(lua_State *L)
     // call constructor
     wxURI* returns = new wxURI(uri);
     // add to tracked memory list
-    wxluaO_addgcobject(L, returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxURI);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxURI);
 
@@ -2458,7 +2518,7 @@ static int LUACALL wxLua_wxURI_constructor(lua_State *L)
     // call constructor
     wxURI* returns = new wxURI();
     // add to tracked memory list
-    wxluaO_addgcobject(L, returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxURI);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxURI);
 
@@ -2479,6 +2539,12 @@ static wxLuaBindCFunc s_wxluafunc_wxLua_wxURI_constructor_overload[] =
 static int s_wxluafunc_wxLua_wxURI_constructor_overload_count = sizeof(s_wxluafunc_wxLua_wxURI_constructor_overload)/sizeof(wxLuaBindCFunc);
 
 #endif // (wxLUA_USE_wxSocket && wxUSE_SOCKETS)
+
+void wxLua_wxURI_delete_function(void** p)
+{
+    wxURI* o = (wxURI*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxURI_methods[] = {
@@ -2650,7 +2716,7 @@ static int LUACALL wxLua_wxURL_constructor1(lua_State *L)
     // call constructor
     wxURL* returns = new wxURL(*url);
     // add to tracked memory list
-    wxluaO_addgcobject(L, returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxURL);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxURL);
 
@@ -2670,7 +2736,7 @@ static int LUACALL wxLua_wxURL_constructor(lua_State *L)
     // call constructor
     wxURL* returns = new wxURL(sUrl);
     // add to tracked memory list
-    wxluaO_addgcobject(L, returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxURL);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxURL);
 
@@ -2693,6 +2759,12 @@ static wxLuaBindCFunc s_wxluafunc_wxLua_wxURL_constructor_overload[] =
 static int s_wxluafunc_wxLua_wxURL_constructor_overload_count = sizeof(s_wxluafunc_wxLua_wxURL_constructor_overload)/sizeof(wxLuaBindCFunc);
 
 #endif // (((wxLUA_USE_wxSocket && wxUSE_SOCKETS) && (wxUSE_URL)) && (wxLUA_USE_wxSocket && wxUSE_SOCKETS))||((wxLUA_USE_wxSocket && wxUSE_SOCKETS) && (wxUSE_URL))
+
+void wxLua_wxURL_delete_function(void** p)
+{
+    wxURL* o = (wxURL*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxURL_methods[] = {
@@ -2937,6 +3009,7 @@ static wxLuaBindClass* wxluabaseclassbinds_wxURL[] = { NULL };
 #if (wxLUA_USE_wxSocket && wxUSE_SOCKETS) && (wxUSE_PROTOCOL)
     extern wxLuaBindMethod wxProtocol_methods[];
     extern int wxProtocol_methodCount;
+    extern void wxLua_wxProtocol_delete_function(void** p);
 #endif // (wxLUA_USE_wxSocket && wxUSE_SOCKETS) && (wxUSE_PROTOCOL)
 
 #if (wxLUA_USE_wxSocket && wxUSE_SOCKETS) && (wxUSE_PROTOCOL_FTP)
@@ -2944,35 +3017,46 @@ static wxLuaBindClass* wxluabaseclassbinds_wxURL[] = { NULL };
     extern int wxFTP_methodCount;
     extern wxLuaBindNumber wxFTP_enums[];
     extern int wxFTP_enumCount;
+    extern void wxLua_wxFTP_delete_function(void** p);
 #endif // (wxLUA_USE_wxSocket && wxUSE_SOCKETS) && (wxUSE_PROTOCOL_FTP)
 
 #if (wxLUA_USE_wxSocket && wxUSE_SOCKETS) && (wxUSE_PROTOCOL_HTTP)
     extern wxLuaBindMethod wxHTTP_methods[];
     extern int wxHTTP_methodCount;
+    extern void wxLua_wxHTTP_delete_function(void** p);
 #endif // (wxLUA_USE_wxSocket && wxUSE_SOCKETS) && (wxUSE_PROTOCOL_HTTP)
 
 #if (wxLUA_USE_wxSocket && wxUSE_SOCKETS) && (wxUSE_URL)
     extern wxLuaBindMethod wxURL_methods[];
     extern int wxURL_methodCount;
+    extern void wxLua_wxURL_delete_function(void** p);
 #endif // (wxLUA_USE_wxSocket && wxUSE_SOCKETS) && (wxUSE_URL)
 
 #if wxLUA_USE_wxSocket && wxUSE_SOCKETS
     extern wxLuaBindMethod wxIPV4address_methods[];
     extern int wxIPV4address_methodCount;
+    extern void wxLua_wxIPV4address_delete_function(void** p);
     extern wxLuaBindMethod wxIPaddress_methods[];
     extern int wxIPaddress_methodCount;
+    extern void wxLua_wxIPaddress_delete_function(void** p);
     extern wxLuaBindMethod wxSockAddress_methods[];
     extern int wxSockAddress_methodCount;
+    extern void wxLua_wxSockAddress_delete_function(void** p);
     extern wxLuaBindMethod wxSocketBase_methods[];
     extern int wxSocketBase_methodCount;
+    extern void wxLua_wxSocketBase_delete_function(void** p);
     extern wxLuaBindMethod wxSocketClient_methods[];
     extern int wxSocketClient_methodCount;
+    extern void wxLua_wxSocketClient_delete_function(void** p);
     extern wxLuaBindMethod wxSocketEvent_methods[];
     extern int wxSocketEvent_methodCount;
+    extern void wxLua_wxSocketEvent_delete_function(void** p);
     extern wxLuaBindMethod wxSocketServer_methods[];
     extern int wxSocketServer_methodCount;
+    extern void wxLua_wxSocketServer_delete_function(void** p);
     extern wxLuaBindMethod wxURI_methods[];
     extern int wxURI_methodCount;
+    extern void wxLua_wxURI_delete_function(void** p);
 #endif // wxLUA_USE_wxSocket && wxUSE_SOCKETS
 
 
@@ -2983,33 +3067,33 @@ wxLuaBindClass* wxLuaGetClassList_wxnet(size_t &count)
     static wxLuaBindClass classList[] =
     {
 #if (wxLUA_USE_wxSocket && wxUSE_SOCKETS) && (wxUSE_PROTOCOL_FTP)
-        { wxluaclassname_wxFTP, wxFTP_methods, wxFTP_methodCount, CLASSINFO(wxFTP), &wxluatype_wxFTP, wxluabaseclassnames_wxFTP, wxluabaseclassbinds_wxFTP, wxFTP_enums, wxFTP_enumCount, }, 
+        { wxluaclassname_wxFTP, wxFTP_methods, wxFTP_methodCount, CLASSINFO(wxFTP), &wxluatype_wxFTP, wxluabaseclassnames_wxFTP, wxluabaseclassbinds_wxFTP, NULL, NULL, wxFTP_enums, wxFTP_enumCount, &wxLua_wxFTP_delete_function, }, 
 #endif // (wxLUA_USE_wxSocket && wxUSE_SOCKETS) && (wxUSE_PROTOCOL_FTP)
 
 #if (wxLUA_USE_wxSocket && wxUSE_SOCKETS) && (wxUSE_PROTOCOL_HTTP)
-        { wxluaclassname_wxHTTP, wxHTTP_methods, wxHTTP_methodCount, CLASSINFO(wxHTTP), &wxluatype_wxHTTP, wxluabaseclassnames_wxHTTP, wxluabaseclassbinds_wxHTTP, g_wxluanumberArray_None, 0, }, 
+        { wxluaclassname_wxHTTP, wxHTTP_methods, wxHTTP_methodCount, CLASSINFO(wxHTTP), &wxluatype_wxHTTP, wxluabaseclassnames_wxHTTP, wxluabaseclassbinds_wxHTTP, NULL, NULL, NULL, 0, &wxLua_wxHTTP_delete_function, }, 
 #endif // (wxLUA_USE_wxSocket && wxUSE_SOCKETS) && (wxUSE_PROTOCOL_HTTP)
 
 #if wxLUA_USE_wxSocket && wxUSE_SOCKETS
-        { wxluaclassname_wxIPV4address, wxIPV4address_methods, wxIPV4address_methodCount, CLASSINFO(wxIPV4address), &wxluatype_wxIPV4address, wxluabaseclassnames_wxIPV4address, wxluabaseclassbinds_wxIPV4address, g_wxluanumberArray_None, 0, }, 
-        { wxluaclassname_wxIPaddress, wxIPaddress_methods, wxIPaddress_methodCount, CLASSINFO(wxIPaddress), &wxluatype_wxIPaddress, wxluabaseclassnames_wxIPaddress, wxluabaseclassbinds_wxIPaddress, g_wxluanumberArray_None, 0, }, 
+        { wxluaclassname_wxIPV4address, wxIPV4address_methods, wxIPV4address_methodCount, CLASSINFO(wxIPV4address), &wxluatype_wxIPV4address, wxluabaseclassnames_wxIPV4address, wxluabaseclassbinds_wxIPV4address, NULL, NULL, NULL, 0, &wxLua_wxIPV4address_delete_function, }, 
+        { wxluaclassname_wxIPaddress, wxIPaddress_methods, wxIPaddress_methodCount, CLASSINFO(wxIPaddress), &wxluatype_wxIPaddress, wxluabaseclassnames_wxIPaddress, wxluabaseclassbinds_wxIPaddress, NULL, NULL, NULL, 0, &wxLua_wxIPaddress_delete_function, }, 
 #endif // wxLUA_USE_wxSocket && wxUSE_SOCKETS
 
 #if (wxLUA_USE_wxSocket && wxUSE_SOCKETS) && (wxUSE_PROTOCOL)
-        { wxluaclassname_wxProtocol, wxProtocol_methods, wxProtocol_methodCount, CLASSINFO(wxProtocol), &wxluatype_wxProtocol, wxluabaseclassnames_wxProtocol, wxluabaseclassbinds_wxProtocol, g_wxluanumberArray_None, 0, }, 
+        { wxluaclassname_wxProtocol, wxProtocol_methods, wxProtocol_methodCount, CLASSINFO(wxProtocol), &wxluatype_wxProtocol, wxluabaseclassnames_wxProtocol, wxluabaseclassbinds_wxProtocol, NULL, NULL, NULL, 0, &wxLua_wxProtocol_delete_function, }, 
 #endif // (wxLUA_USE_wxSocket && wxUSE_SOCKETS) && (wxUSE_PROTOCOL)
 
 #if wxLUA_USE_wxSocket && wxUSE_SOCKETS
-        { wxluaclassname_wxSockAddress, wxSockAddress_methods, wxSockAddress_methodCount, CLASSINFO(wxSockAddress), &wxluatype_wxSockAddress, wxluabaseclassnames_wxSockAddress, wxluabaseclassbinds_wxSockAddress, g_wxluanumberArray_None, 0, }, 
-        { wxluaclassname_wxSocketBase, wxSocketBase_methods, wxSocketBase_methodCount, CLASSINFO(wxSocketBase), &wxluatype_wxSocketBase, wxluabaseclassnames_wxSocketBase, wxluabaseclassbinds_wxSocketBase, g_wxluanumberArray_None, 0, }, 
-        { wxluaclassname_wxSocketClient, wxSocketClient_methods, wxSocketClient_methodCount, CLASSINFO(wxSocketClient), &wxluatype_wxSocketClient, wxluabaseclassnames_wxSocketClient, wxluabaseclassbinds_wxSocketClient, g_wxluanumberArray_None, 0, }, 
-        { wxluaclassname_wxSocketEvent, wxSocketEvent_methods, wxSocketEvent_methodCount, CLASSINFO(wxSocketEvent), &wxluatype_wxSocketEvent, wxluabaseclassnames_wxSocketEvent, wxluabaseclassbinds_wxSocketEvent, g_wxluanumberArray_None, 0, }, 
-        { wxluaclassname_wxSocketServer, wxSocketServer_methods, wxSocketServer_methodCount, CLASSINFO(wxSocketServer), &wxluatype_wxSocketServer, wxluabaseclassnames_wxSocketServer, wxluabaseclassbinds_wxSocketServer, g_wxluanumberArray_None, 0, }, 
-        { wxluaclassname_wxURI, wxURI_methods, wxURI_methodCount, CLASSINFO(wxURI), &wxluatype_wxURI, wxluabaseclassnames_wxURI, wxluabaseclassbinds_wxURI, g_wxluanumberArray_None, 0, }, 
+        { wxluaclassname_wxSockAddress, wxSockAddress_methods, wxSockAddress_methodCount, CLASSINFO(wxSockAddress), &wxluatype_wxSockAddress, wxluabaseclassnames_wxSockAddress, wxluabaseclassbinds_wxSockAddress, NULL, NULL, NULL, 0, &wxLua_wxSockAddress_delete_function, }, 
+        { wxluaclassname_wxSocketBase, wxSocketBase_methods, wxSocketBase_methodCount, CLASSINFO(wxSocketBase), &wxluatype_wxSocketBase, wxluabaseclassnames_wxSocketBase, wxluabaseclassbinds_wxSocketBase, NULL, NULL, NULL, 0, &wxLua_wxSocketBase_delete_function, }, 
+        { wxluaclassname_wxSocketClient, wxSocketClient_methods, wxSocketClient_methodCount, CLASSINFO(wxSocketClient), &wxluatype_wxSocketClient, wxluabaseclassnames_wxSocketClient, wxluabaseclassbinds_wxSocketClient, NULL, NULL, NULL, 0, &wxLua_wxSocketClient_delete_function, }, 
+        { wxluaclassname_wxSocketEvent, wxSocketEvent_methods, wxSocketEvent_methodCount, CLASSINFO(wxSocketEvent), &wxluatype_wxSocketEvent, wxluabaseclassnames_wxSocketEvent, wxluabaseclassbinds_wxSocketEvent, NULL, NULL, NULL, 0, &wxLua_wxSocketEvent_delete_function, }, 
+        { wxluaclassname_wxSocketServer, wxSocketServer_methods, wxSocketServer_methodCount, CLASSINFO(wxSocketServer), &wxluatype_wxSocketServer, wxluabaseclassnames_wxSocketServer, wxluabaseclassbinds_wxSocketServer, NULL, NULL, NULL, 0, &wxLua_wxSocketServer_delete_function, }, 
+        { wxluaclassname_wxURI, wxURI_methods, wxURI_methodCount, CLASSINFO(wxURI), &wxluatype_wxURI, wxluabaseclassnames_wxURI, wxluabaseclassbinds_wxURI, NULL, NULL, NULL, 0, &wxLua_wxURI_delete_function, }, 
 #endif // wxLUA_USE_wxSocket && wxUSE_SOCKETS
 
 #if (wxLUA_USE_wxSocket && wxUSE_SOCKETS) && (wxUSE_URL)
-        { wxluaclassname_wxURL, wxURL_methods, wxURL_methodCount, CLASSINFO(wxURL), &wxluatype_wxURL, wxluabaseclassnames_wxURL, wxluabaseclassbinds_wxURL, g_wxluanumberArray_None, 0, }, 
+        { wxluaclassname_wxURL, wxURL_methods, wxURL_methodCount, CLASSINFO(wxURL), &wxluatype_wxURL, wxluabaseclassnames_wxURL, wxluabaseclassbinds_wxURL, NULL, NULL, NULL, 0, &wxLua_wxURL_delete_function, }, 
 #endif // (wxLUA_USE_wxSocket && wxUSE_SOCKETS) && (wxUSE_URL)
 
 
@@ -3036,19 +3120,21 @@ wxLuaBinding_wxnet::wxLuaBinding_wxnet() : wxLuaBinding()
     m_eventArray    = wxLuaGetEventList_wxnet(m_eventCount);
     m_objectArray   = wxLuaGetObjectList_wxnet(m_objectCount);
     m_functionArray = wxLuaGetFunctionList_wxnet(m_functionCount);
+    InitBinding();
 }
 
 
 
 // ---------------------------------------------------------------------------
 
-bool wxLuaBinding_wxnet_init()
+wxLuaBinding* wxLuaBinding_wxnet_init()
 {
     static wxLuaBinding_wxnet m_binding;
-    if (wxLuaBinding::GetBindingList()->Find(&m_binding)) return false;
 
-    wxLuaBinding::GetBindingList()->Append(&m_binding);
-    return true;
+    if (wxLuaBinding::GetBindingArray().Index(&m_binding) == wxNOT_FOUND)
+        wxLuaBinding::GetBindingArray().Add(&m_binding);
+
+    return &m_binding;
 }
 
 

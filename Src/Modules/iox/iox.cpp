@@ -690,7 +690,7 @@ static int LS_Sleep(LuaState* state)
 	return 0;
 }
 
-	
+
 static int LS_FindFirstFile(LuaState* state)
 {
 	LuaStack args(state);
@@ -1016,7 +1016,7 @@ static int LS_Time_t_ToFileTime(LuaState* state)
 	LONGLONG ll = Int32x32To64(theTime, 10000000) + 116444736000000000;
 	localFILETIME.dwLowDateTime = (DWORD) ll;
 	localFILETIME.dwHighDateTime = (DWORD)(ll >>32);
-	
+
 	SYSTEMTIME localSystemTime;
 	FILETIME theFILETIME;
 	LocalFileTimeToFileTime(&localFILETIME, &theFILETIME);
@@ -1111,7 +1111,7 @@ static int LS_FreeLibrary(LuaState* state)
 
 
 
-extern "C" LUAMODULE_API int luaopen_iox(lua_State* L)
+extern "C" int luaopen_iox(lua_State* L)
 {
 	LuaState* state = LuaState::CastState(L);
 	LuaObject ioxObj = state->GetGlobals().CreateTable("iox");
@@ -1168,7 +1168,7 @@ extern "C" LUAMODULE_API int luaopen_iox(lua_State* L)
 	ioxObj.Register("PathUnExpandEnvStrings", LS_PathUnExpandEnvStrings);
 	ioxObj.Register("PathUnmakeSystemFolder", LS_PathUnmakeSystemFolder);
 	ioxObj.Register("PathUnquoteSpaces", LS_PathUnquoteSpaces);
-	
+
 	ioxObj.Register("PathMakeAbsolute", LS_PathMakeAbsolute);
 	ioxObj.Register("PathMakeBackSlash", LS_PathMakeBackSlash);
 	ioxObj.Register("PathMakeForwardSlash", LS_PathMakeForwardSlash);

@@ -30,9 +30,12 @@
 			#define LUAPLUS_CLASS __declspec(dllexport)
 			#define LUAPLUS_API	__declspec(dllexport)
 		#else
-			#define LUA_API __declspec(dllimport)
-			#define LUAPLUS_CLASS __declspec(dllimport)
-			#define LUAPLUS_API	__declspec(dllimport)
+//			#define LUA_API __declspec(dllimport)
+//			#define LUAPLUS_CLASS __declspec(dllimport)
+//			#define LUAPLUS_API	__declspec(dllimport)
+			#define LUA_API
+			#define LUAPLUS_CLASS
+			#define LUAPLUS_API
 		#endif
 
 		#ifdef LUAMODULE_BUILDDLL
@@ -112,8 +115,6 @@
 #define LUA_EXTERN_C_END
 #endif
 #endif /* NAMESPACE_LUA_BEGIN */
-
-#define LUALIB_API LUA_API
 
 #endif /* LUALINK_H */
 

@@ -31,17 +31,41 @@ if $(OS) = NT
 	;
 }
 
-local dir ;
-for dir in [ Glob $(LUAPLUS)/Src/Modules : * : 0 ]
 {
-	local module = [ Match (.+)/ : $(dir) ] ;
-	local file = [ Glob $(LUAPLUS)/Src/Modules/$(module) : $(module).jam : 0 ] ;
-	if $(file) {
-		SubInclude LUAPLUS Src Modules $(module) : $(file) ;
-	} else {
-		file = [ Glob $(LUAPLUS)/Src/Modules/$(module) : Jamfile.jam : 0 ] ;
-		if $(file) {
-			SubInclude LUAPLUS Src Modules $(module) ;
+	local modules ;
+	local modulefiles ;
+	local dir ;
+	for dir in [ Glob $(LUAPLUS)/Src/Modules : * : 0 ] {
+		local module = [ Match (.+)/ : $(dir) ] ;
+		if $(module) {
+			local file = [ Glob $(LUAPLUS)/Src/Modules/$(module) : $(module).jam : 0 ] ;
+			if $(file) {
+				modules += $(module:L) ;
+				modulefiles += $(module)=$(module).jam ;
+			} else {
+				file = [ Glob $(LUAPLUS)/Src/Modules/$(module) : Jamfile.jam : 0 ] ;
+				if $(file) {
+					modules += $(module:L) ;
+					modulefiles += $(module)=Jamfile.jam ;
+				}
+			}
 		}
 	}
+
+	local file ;
+	for file in [ Glob $(LUAPLUS)/Src/modules.jambuild : *.jam : 0 ] {
+		local module = [ Match (.+)\.jam : $(file) ] ;
+		if ! ( $(module) in $(modules) ) {
+			modules += $(module:L) ;
+			modulefiles += $(module)=../../modules.jambuild/$(module).jam ;
+		}
+	}
+
+	local moduleinfo ;
+	for moduleinfo in $(modulefiles) {
+		local parts = [ Split $(moduleinfo) : \= ] ;
+		SubInclude LUAPLUS Src Modules $(parts[1]) : $(parts[2]) ;
+	}
 }
+
+

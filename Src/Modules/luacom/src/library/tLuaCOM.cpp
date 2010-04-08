@@ -8,8 +8,8 @@
  */
 
 // RCS Info
-static char *rcsid = "$Id: tLuaCOM.cpp,v 1.39 2005/01/06 18:41:55 fqueiroz Exp $";
-static char *rcsname = "$Name:  $";
+static char *rcsid = "$Id: tLuaCOM.cpp,v 1.4 2008/05/16 15:15:49 mascarenhas Exp $";
+static char *rcsname = "$Name: HEAD $";
 
 #include "tLuaCOM.h"
 #include "tLuaDispatch.h"
@@ -312,7 +312,7 @@ int tLuaCOM::call(lua_State* L,
                   DISPID dispid,
                   int invkind,
                   FUNCDESC *pfuncdesc,
-                  tLuaObjList& params)
+                  tLuaObjList params)
 { 
   tUtil::log_verbose("tLuaCOM.call", "about to call DISPID 0x%.8x", dispid);
 
@@ -366,7 +366,7 @@ int tLuaCOM::call(lua_State* L,
 
        // pushes out values
        if(invkind & INVOKE_FUNC)
-         num_retvals += typehandler->pushOutValues(L, dispparams);
+         num_retvals += typehandler->pushOutValues(L, dispparams, pfuncdesc);
      }
      catch(class tLuaCOMException& e)
      {
@@ -423,7 +423,7 @@ DWORD tLuaCOM::addConnection(tLuaCOM *server)
 
   if(FAILED(hr))
   {
-    return NULL;
+    return 0;
   }
 
   {
@@ -439,7 +439,7 @@ DWORD tLuaCOM::addConnection(tLuaCOM *server)
 
   if(FAILED(hr))
   {
-    return NULL;
+    return 0;
   }
 
   DWORD connection_point_cookie;
@@ -454,7 +454,7 @@ DWORD tLuaCOM::addConnection(tLuaCOM *server)
     connection_point->Release();
     connection_point = NULL;
 
-    return NULL;
+    return 0;
   }
 
   if(conn_point!=NULL)
@@ -594,7 +594,7 @@ bool tLuaCOM::isMember(const char * name)
 }
 
 
-void tLuaCOM::getHelpInfo(char **ppHelpFile, unsigned long *pHelpContext)
+void tLuaCOM::getHelpInfo(char **ppHelpFile, DWORD *pHelpContext)
 {
   if(!hasTypeInfo())
   {
@@ -620,7 +620,7 @@ void tLuaCOM::getHelpInfo(char **ppHelpFile, unsigned long *pHelpContext)
   if(*pHelpContext == 0)
   {
     unsigned int dumb_index = 0;
-    unsigned long typelib_help_context = 0;
+    DWORD typelib_help_context = 0;
     BSTR helpfile_typelib;
 
     hr = ptinfo->GetContainingTypeLib(&typelib, &dumb_index);

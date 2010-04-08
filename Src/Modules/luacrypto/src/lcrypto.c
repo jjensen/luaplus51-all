@@ -48,16 +48,16 @@ static int evp_fnew(lua_State *L)
   EVP_MD_CTX *c = NULL;
   const char *s = luaL_checkstring(L, 1);
   const EVP_MD *type = EVP_get_digestbyname(s);
-
+  
   if (type == NULL) {
     luaL_argerror(L, 1, "invalid digest type");
     return 0;
   }
-
+  
   c = evp_pnew(L);
   EVP_MD_CTX_init(c);
   EVP_DigestInit_ex(c, type, NULL);
-
+  
   return 1;
 }
 
@@ -84,14 +84,14 @@ static int evp_update(lua_State *L)
 {
   EVP_MD_CTX *c = evp_pget(L, 1);
   const char *s = luaL_checkstring(L, 2);
-
+  
   EVP_DigestUpdate(c, s, lua_strlen(L, 2));
-
+  
   lua_settop(L, 1);
   return 1;
 }
 
-static int evp_digest(lua_State *L)
+static int evp_digest(lua_State *L) 
 {
   EVP_MD_CTX *c = evp_pget(L, 1);
   EVP_MD_CTX *d = NULL;
@@ -99,18 +99,18 @@ static int evp_digest(lua_State *L)
   size_t written = 0;
   unsigned int i;
   char *hex;
-
+  
   if (lua_isstring(L, 2))
-  {
+  {  
     const char *s = luaL_checkstring(L, 2);
     EVP_DigestUpdate(c, s, lua_strlen(L, 2));
   }
-
+  
   d = EVP_MD_CTX_create();
   EVP_MD_CTX_copy_ex(d, c);
   EVP_DigestFinal_ex(d, digest, &written);
   EVP_MD_CTX_destroy(d);
-
+  
   if (lua_toboolean(L, 3))
     lua_pushlstring(L, (char *)digest, written);
   else
@@ -121,7 +121,7 @@ static int evp_digest(lua_State *L)
     lua_pushlstring(L, hex, written*2);
     free(hex);
   }
-
+  
   return 1;
 }
 
@@ -151,17 +151,17 @@ static int evp_fdigest(lua_State *L)
   size_t written = 0;
   unsigned int i;
   char *hex;
-
+  
   if (type == NULL) {
     luaL_argerror(L, 1, "invalid digest type");
     return 0;
   }
-
+  
   c = EVP_MD_CTX_create();
   EVP_DigestInit_ex(c, type, NULL);
   EVP_DigestUpdate(c, s, lua_strlen(L, 2));
   EVP_DigestFinal_ex(c, digest, &written);
-
+  
   if (lua_toboolean(L, 3))
     lua_pushlstring(L, (char *)digest, written);
   else
@@ -172,7 +172,7 @@ static int evp_fdigest(lua_State *L)
     lua_pushlstring(L, hex, written*2);
     free(hex);
   }
-
+  
   return 1;
 }
 
@@ -398,10 +398,10 @@ static int rand_cleanup(lua_State *L)
 LUACRYPTO_API int luacrypto_createmeta (lua_State *L, const char *name, const luaL_reg *methods) {
   if (!luaL_newmetatable (L, name))
     return 0;
-
+  
   /* define methods */
   luaL_openlib (L, NULL, methods, 0);
-
+  
   /* define metamethods */
   lua_pushliteral (L, "__index");
   lua_pushvalue (L, -2);
@@ -502,7 +502,7 @@ LUACRYPTO_API int luaopen_crypto(lua_State *L)
     {NULL, NULL},
   };
   OpenSSL_add_all_digests();
-
+  
   create_metatables (L);
   luaL_openlib (L, LUACRYPTO_CORENAME, core, 0);
   luacrypto_set_info (L);

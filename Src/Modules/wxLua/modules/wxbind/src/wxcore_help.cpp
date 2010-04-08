@@ -4,16 +4,16 @@
 // Any changes made to this file will be lost when the file is regenerated.
 // ---------------------------------------------------------------------------
 
+
+#include "wx/wxprec.h"
+
 #ifdef __BORLANDC__
     #pragma hdrstop
 #endif
 
-#include "wx/wxprec.h"
-
 #ifndef WX_PRECOMP
      #include "wx/wx.h"
 #endif
-
 
 #include "wxlua/include/wxlstate.h"
 #include "wxbind/include/wxcore_bind.h"
@@ -86,7 +86,7 @@ static int LUACALL wxLua_wxContextHelp_constructor(lua_State *L)
     // call constructor
     wxContextHelp* returns = new wxContextHelp(win, beginHelp);
     // add to tracked memory list
-    wxluaO_addgcobject(L, returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxContextHelp);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxContextHelp);
 
@@ -95,6 +95,12 @@ static int LUACALL wxLua_wxContextHelp_constructor(lua_State *L)
 
 
 
+
+void wxLua_wxContextHelp_delete_function(void** p)
+{
+    wxContextHelp* o = (wxContextHelp*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxContextHelp_methods[] = {
@@ -151,6 +157,12 @@ static int LUACALL wxLua_wxContextHelpButton_constructor(lua_State *L)
 #endif // ((wxLUA_USE_wxHelpController && wxUSE_HELP) && (wxLUA_USE_wxBitmapButton && wxUSE_BMPBUTTON)) && (wxLUA_USE_wxPointSizeRect)
 
 
+
+void wxLua_wxContextHelpButton_delete_function(void** p)
+{
+    wxContextHelpButton* o = (wxContextHelpButton*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxContextHelpButton_methods[] = {
@@ -250,7 +262,7 @@ static int LUACALL wxLua_wxHelpProvider_Set(lua_State *L)
     if (wxluaO_isgcobject(L, helpProvider)) wxluaO_undeletegcobject(L, helpProvider);
     // call Set
     wxHelpProvider* returns = (wxHelpProvider*)wxHelpProvider::Set(helpProvider);
-    if (!wxluaO_isgcobject(L, returns)) wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxHelpProvider(returns));
+    if (!wxluaO_isgcobject(L, returns)) wxluaO_addgcobject(L, returns, wxluatype_wxHelpProvider);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxHelpProvider);
 
@@ -307,6 +319,12 @@ static wxLuaBindCFunc s_wxluafunc_wxLua_wxHelpProvider_delete[1] = {{ wxlua_user
 
 
 
+void wxLua_wxHelpProvider_delete_function(void** p)
+{
+    wxHelpProvider* o = (wxHelpProvider*)(*p);
+    delete o;
+}
+
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxHelpProvider_methods[] = {
     { "AddHelp", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxHelpProvider_AddHelp, 1, NULL },
@@ -349,7 +367,7 @@ static int LUACALL wxLua_wxSimpleHelpProvider_constructor(lua_State *L)
     // call constructor
     wxSimpleHelpProvider* returns = new wxSimpleHelpProvider();
     // add to tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxSimpleHelpProvider((wxSimpleHelpProvider*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxSimpleHelpProvider);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxSimpleHelpProvider);
 
@@ -358,6 +376,12 @@ static int LUACALL wxLua_wxSimpleHelpProvider_constructor(lua_State *L)
 
 
 
+
+void wxLua_wxSimpleHelpProvider_delete_function(void** p)
+{
+    wxSimpleHelpProvider* o = (wxSimpleHelpProvider*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxSimpleHelpProvider_methods[] = {
@@ -428,7 +452,7 @@ static int LUACALL wxLua_wxHelpControllerHelpProvider_constructor(lua_State *L)
     // call constructor
     wxHelpControllerHelpProvider* returns = new wxHelpControllerHelpProvider(hc);
     // add to tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxHelpControllerHelpProvider((wxHelpControllerHelpProvider*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxHelpControllerHelpProvider);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxHelpControllerHelpProvider);
 
@@ -437,6 +461,12 @@ static int LUACALL wxLua_wxHelpControllerHelpProvider_constructor(lua_State *L)
 
 
 
+
+void wxLua_wxHelpControllerHelpProvider_delete_function(void** p)
+{
+    wxHelpControllerHelpProvider* o = (wxHelpControllerHelpProvider*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxHelpControllerHelpProvider_methods[] = {
@@ -776,6 +806,12 @@ static int s_wxluafunc_wxLua_wxHelpControllerBase_DisplaySection_overload_count 
 
 #endif // (wxLUA_USE_wxHelpController && wxUSE_HELP)
 
+void wxLua_wxHelpControllerBase_delete_function(void** p)
+{
+    wxHelpControllerBase* o = (wxHelpControllerBase*)(*p);
+    delete o;
+}
+
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxHelpControllerBase_methods[] = {
     { "DisplayBlock", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxHelpControllerBase_DisplayBlock, 1, NULL },
@@ -841,7 +877,7 @@ static int LUACALL wxLua_wxHelpController_constructor(lua_State *L)
     // call constructor
     wxHelpController* returns = new wxHelpController();
     // add to tracked memory list
-    wxluaO_addgcobject(L, returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxHelpController);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxHelpController);
 
@@ -850,6 +886,12 @@ static int LUACALL wxLua_wxHelpController_constructor(lua_State *L)
 
 
 
+
+void wxLua_wxHelpController_delete_function(void** p)
+{
+    wxHelpController* o = (wxHelpController*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxHelpController_methods[] = {
@@ -883,7 +925,7 @@ static int LUACALL wxLua_wxWinHelpController_constructor(lua_State *L)
     // call constructor
     wxWinHelpController* returns = new wxWinHelpController();
     // add to tracked memory list
-    wxluaO_addgcobject(L, returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxWinHelpController);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxWinHelpController);
 
@@ -892,6 +934,12 @@ static int LUACALL wxLua_wxWinHelpController_constructor(lua_State *L)
 
 
 
+
+void wxLua_wxWinHelpController_delete_function(void** p)
+{
+    wxWinHelpController* o = (wxWinHelpController*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxWinHelpController_methods[] = {
@@ -932,7 +980,7 @@ static int LUACALL wxLua_wxBestHelpController_constructor(lua_State *L)
     // call constructor
     wxBestHelpController* returns = new wxBestHelpController(parentWindow, style);
     // add to tracked memory list
-    wxluaO_addgcobject(L, returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxBestHelpController);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxBestHelpController);
 
@@ -941,6 +989,12 @@ static int LUACALL wxLua_wxBestHelpController_constructor(lua_State *L)
 
 
 
+
+void wxLua_wxBestHelpController_delete_function(void** p)
+{
+    wxBestHelpController* o = (wxBestHelpController*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxBestHelpController_methods[] = {
@@ -974,7 +1028,7 @@ static int LUACALL wxLua_wxExtHelpController_constructor(lua_State *L)
     // call constructor
     wxExtHelpController* returns = new wxExtHelpController();
     // add to tracked memory list
-    wxluaO_addgcobject(L, returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxExtHelpController);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxExtHelpController);
 
@@ -983,6 +1037,12 @@ static int LUACALL wxLua_wxExtHelpController_constructor(lua_State *L)
 
 
 
+
+void wxLua_wxExtHelpController_delete_function(void** p)
+{
+    wxExtHelpController* o = (wxExtHelpController*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxExtHelpController_methods[] = {

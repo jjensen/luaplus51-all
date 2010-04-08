@@ -4,16 +4,16 @@
 // Any changes made to this file will be lost when the file is regenerated.
 // ---------------------------------------------------------------------------
 
+
+#include "wx/wxprec.h"
+
 #ifdef __BORLANDC__
     #pragma hdrstop
 #endif
 
-#include "wx/wxprec.h"
-
 #ifndef WX_PRECOMP
      #include "wx/wx.h"
 #endif
-
 
 #include "wxlua/include/wxlstate.h"
 #include "wxbind/include/wxbase_bind.h"
@@ -1026,7 +1026,7 @@ static int LUACALL wxLua_function_wxFileModificationTime(lua_State *L)
     // allocate a new object using the copy constructor
     wxDateTime* returns = new wxDateTime(wxFileModificationTime(filename));
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxDateTime((wxDateTime*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxDateTime);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxDateTime);
 
@@ -1159,7 +1159,7 @@ static int LUACALL wxLua_function_wxGetFreeMemory(lua_State *L)
     // allocate a new object using the copy constructor
     wxLongLong* returns = new wxLongLong(wxGetFreeMemory());
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxLongLong((wxLongLong*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxLongLong);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxLongLong);
 
@@ -1226,7 +1226,7 @@ static int LUACALL wxLua_function_wxGetLocalTimeMillis(lua_State *L)
     // allocate a new object using the copy constructor
     wxLongLong* returns = new wxLongLong(wxGetLocalTimeMillis());
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxLongLong((wxLongLong*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxLongLong);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxLongLong);
 
@@ -2270,8 +2270,6 @@ static const char* wxluabaseclassnames_wxLogBuffer[] = { wxluaclassname_wxLog, N
 static wxLuaBindClass* wxluabaseclassbinds_wxLogBuffer[] = { NULL };
 static const char* wxluabaseclassnames_wxLogChain[] = { wxluaclassname_wxLog, NULL };
 static wxLuaBindClass* wxluabaseclassbinds_wxLogChain[] = { NULL };
-static const char* wxluabaseclassnames_wxLogNull[] = { wxluaclassname_wxLog, NULL };
-static wxLuaBindClass* wxluabaseclassbinds_wxLogNull[] = { NULL };
 static const char* wxluabaseclassnames_wxLogPassThrough[] = { wxluaclassname_wxLogChain, NULL };
 static wxLuaBindClass* wxluabaseclassbinds_wxLogPassThrough[] = { NULL };
 static const char* wxluabaseclassnames_wxMemoryConfig[] = { wxluaclassname_wxFileConfig, NULL };
@@ -2297,106 +2295,141 @@ static wxLuaBindClass* wxluabaseclassbinds_wxSystemOptions[] = { NULL };
 #if (wxUSE_STREAMS) && (wxUSE_FILESYSTEM)
     extern wxLuaBindMethod wxArchiveFSHandler_methods[];
     extern int wxArchiveFSHandler_methodCount;
+    extern void wxLua_wxArchiveFSHandler_delete_function(void** p);
     extern wxLuaBindMethod wxFSFile_methods[];
     extern int wxFSFile_methodCount;
+    extern void wxLua_wxFSFile_delete_function(void** p);
     extern wxLuaBindMethod wxFileSystem_methods[];
     extern int wxFileSystem_methodCount;
+    extern void wxLua_wxFileSystem_delete_function(void** p);
     extern wxLuaBindMethod wxFileSystemHandler_methods[];
     extern int wxFileSystemHandler_methodCount;
+    extern void wxLua_wxFileSystemHandler_delete_function(void** p);
     extern wxLuaBindMethod wxFilterFSHandler_methods[];
     extern int wxFilterFSHandler_methodCount;
+    extern void wxLua_wxFilterFSHandler_delete_function(void** p);
     extern wxLuaBindMethod wxLocalFSHandler_methods[];
     extern int wxLocalFSHandler_methodCount;
+    extern void wxLua_wxLocalFSHandler_delete_function(void** p);
 #endif // (wxUSE_STREAMS) && (wxUSE_FILESYSTEM)
 
 #if (wxUSE_STREAMS) && (wxUSE_FILESYSTEM) && (wxUSE_FS_INET && wxUSE_SOCKETS)
     extern wxLuaBindMethod wxInternetFSHandler_methods[];
     extern int wxInternetFSHandler_methodCount;
+    extern void wxLua_wxInternetFSHandler_delete_function(void** p);
 #endif // (wxUSE_STREAMS) && (wxUSE_FILESYSTEM) && (wxUSE_FS_INET && wxUSE_SOCKETS)
 
 extern wxLuaBindMethod wxClientData_methods[];
 extern int wxClientData_methodCount;
+extern void wxLua_wxClientData_delete_function(void** p);
 extern wxLuaBindMethod wxClientDataContainer_methods[];
 extern int wxClientDataContainer_methodCount;
+extern void wxLua_wxClientDataContainer_delete_function(void** p);
 extern wxLuaBindMethod wxDynamicLibrary_methods[];
 extern int wxDynamicLibrary_methodCount;
+extern void wxLua_wxDynamicLibrary_delete_function(void** p);
 extern wxLuaBindMethod wxDynamicLibraryDetails_methods[];
 extern int wxDynamicLibraryDetails_methodCount;
+extern void wxLua_wxDynamicLibraryDetails_delete_function(void** p);
 extern wxLuaBindMethod wxDynamicLibraryDetailsArray_methods[];
 extern int wxDynamicLibraryDetailsArray_methodCount;
+extern void wxLua_wxDynamicLibraryDetailsArray_delete_function(void** p);
 extern wxLuaBindMethod wxFileType_methods[];
 extern int wxFileType_methodCount;
+extern void wxLua_wxFileType_delete_function(void** p);
 extern wxLuaBindMethod wxFileType_MessageParameters_methods[];
 extern int wxFileType_MessageParameters_methodCount;
+extern void wxLua_wxFileType_MessageParameters_delete_function(void** p);
 extern wxLuaBindMethod wxFileTypeInfo_methods[];
 extern int wxFileTypeInfo_methodCount;
+extern void wxLua_wxFileTypeInfo_delete_function(void** p);
 extern wxLuaBindMethod wxIconLocation_methods[];
 extern int wxIconLocation_methodCount;
+extern void wxLua_wxIconLocation_delete_function(void** p);
 extern wxLuaBindMethod wxMimeTypesManager_methods[];
 extern int wxMimeTypesManager_methodCount;
+extern void wxLua_wxMimeTypesManager_delete_function(void** p);
 extern wxLuaBindMethod wxPathList_methods[];
 extern int wxPathList_methodCount;
+extern void wxLua_wxPathList_delete_function(void** p);
 extern wxLuaBindMethod wxPlatformInfo_methods[];
 extern int wxPlatformInfo_methodCount;
+extern void wxLua_wxPlatformInfo_delete_function(void** p);
 extern wxLuaBindMethod wxString_methods[];
 extern int wxString_methodCount;
+extern void wxLua_wxString_delete_function(void** p);
 extern wxLuaBindMethod wxStringClientData_methods[];
 extern int wxStringClientData_methodCount;
+extern void wxLua_wxStringClientData_delete_function(void** p);
 extern wxLuaBindMethod wxStringTokenizer_methods[];
 extern int wxStringTokenizer_methodCount;
+extern void wxLua_wxStringTokenizer_delete_function(void** p);
 
 #if wxCHECK_VERSION(2,8,0) && wxLUA_USE_wxStandardPaths
     extern wxLuaBindMethod wxStandardPaths_methods[];
     extern int wxStandardPaths_methodCount;
     extern wxLuaBindNumber wxStandardPaths_enums[];
     extern int wxStandardPaths_enumCount;
+    extern void wxLua_wxStandardPaths_delete_function(void** p);
 #endif // wxCHECK_VERSION(2,8,0) && wxLUA_USE_wxStandardPaths
 
 #if wxLUA_USE_wxArrayInt
     extern wxLuaBindMethod wxArrayInt_methods[];
     extern int wxArrayInt_methodCount;
+    extern void wxLua_wxArrayInt_delete_function(void** p);
 #endif // wxLUA_USE_wxArrayInt
 
 #if wxLUA_USE_wxArrayString
     extern wxLuaBindMethod wxArrayString_methods[];
     extern int wxArrayString_methodCount;
+    extern void wxLua_wxArrayString_delete_function(void** p);
     extern wxLuaBindMethod wxSortedArrayString_methods[];
     extern int wxSortedArrayString_methodCount;
+    extern void wxLua_wxSortedArrayString_delete_function(void** p);
 #endif // wxLUA_USE_wxArrayString
 
 #if wxLUA_USE_wxClassInfo
     extern wxLuaBindMethod wxClassInfo_methods[];
     extern int wxClassInfo_methodCount;
+    extern void wxLua_wxClassInfo_delete_function(void** p);
 #endif // wxLUA_USE_wxClassInfo
 
 #if wxLUA_USE_wxConfig && wxUSE_CONFIG
     extern wxLuaBindMethod wxConfig_methods[];
     extern int wxConfig_methodCount;
+    extern void wxLua_wxConfig_delete_function(void** p);
     extern wxLuaBindMethod wxConfigBase_methods[];
     extern int wxConfigBase_methodCount;
     extern wxLuaBindNumber wxConfigBase_enums[];
     extern int wxConfigBase_enumCount;
+    extern void wxLua_wxConfigBase_delete_function(void** p);
     extern wxLuaBindMethod wxConfigPathChanger_methods[];
     extern int wxConfigPathChanger_methodCount;
+    extern void wxLua_wxConfigPathChanger_delete_function(void** p);
     extern wxLuaBindMethod wxFileConfig_methods[];
     extern int wxFileConfig_methodCount;
+    extern void wxLua_wxFileConfig_delete_function(void** p);
     extern wxLuaBindMethod wxMemoryConfig_methods[];
     extern int wxMemoryConfig_methodCount;
+    extern void wxLua_wxMemoryConfig_delete_function(void** p);
 #endif // wxLUA_USE_wxConfig && wxUSE_CONFIG
 
 #if wxLUA_USE_wxCriticalSection && wxUSE_THREADS
     extern wxLuaBindMethod wxCriticalSection_methods[];
     extern int wxCriticalSection_methodCount;
+    extern void wxLua_wxCriticalSection_delete_function(void** p);
 #endif // wxLUA_USE_wxCriticalSection && wxUSE_THREADS
 
 #if wxLUA_USE_wxCriticalSectionLocker
     extern wxLuaBindMethod wxCriticalSectionLocker_methods[];
     extern int wxCriticalSectionLocker_methodCount;
+    extern void wxLua_wxCriticalSectionLocker_delete_function(void** p);
 #endif // wxLUA_USE_wxCriticalSectionLocker
 
 #if wxLUA_USE_wxDateSpan && wxUSE_DATETIME
     extern wxLuaBindMethod wxDateSpan_methods[];
     extern int wxDateSpan_methodCount;
+    extern void wxLua_wxDateSpan_delete_function(void** p);
 #endif // wxLUA_USE_wxDateSpan && wxUSE_DATETIME
 
 #if wxLUA_USE_wxDateTime && wxUSE_DATETIME
@@ -2404,20 +2437,25 @@ extern int wxStringTokenizer_methodCount;
     extern int wxDateTime_methodCount;
     extern wxLuaBindNumber wxDateTime_enums[];
     extern int wxDateTime_enumCount;
+    extern void wxLua_wxDateTime_delete_function(void** p);
     extern wxLuaBindMethod wxDateTimeArray_methods[];
     extern int wxDateTimeArray_methodCount;
+    extern void wxLua_wxDateTimeArray_delete_function(void** p);
 #endif // wxLUA_USE_wxDateTime && wxUSE_DATETIME
 
 #if wxLUA_USE_wxDateTimeHolidayAuthority && wxUSE_DATETIME
     extern wxLuaBindMethod wxDateTimeHolidayAuthority_methods[];
     extern int wxDateTimeHolidayAuthority_methodCount;
+    extern void wxLua_wxDateTimeHolidayAuthority_delete_function(void** p);
     extern wxLuaBindMethod wxDateTimeWorkDays_methods[];
     extern int wxDateTimeWorkDays_methodCount;
+    extern void wxLua_wxDateTimeWorkDays_delete_function(void** p);
 #endif // wxLUA_USE_wxDateTimeHolidayAuthority && wxUSE_DATETIME
 
 #if wxLUA_USE_wxDir
     extern wxLuaBindMethod wxDir_methods[];
     extern int wxDir_methodCount;
+    extern void wxLua_wxDir_delete_function(void** p);
 #endif // wxLUA_USE_wxDir
 
 #if wxLUA_USE_wxFile && wxUSE_FILE
@@ -2425,98 +2463,127 @@ extern int wxStringTokenizer_methodCount;
     extern int wxFile_methodCount;
     extern wxLuaBindNumber wxFile_enums[];
     extern int wxFile_enumCount;
+    extern void wxLua_wxFile_delete_function(void** p);
     extern wxLuaBindMethod wxTempFile_methods[];
     extern int wxTempFile_methodCount;
+    extern void wxLua_wxTempFile_delete_function(void** p);
 #endif // wxLUA_USE_wxFile && wxUSE_FILE
 
 #if wxLUA_USE_wxFileName
     extern wxLuaBindMethod wxFileName_methods[];
     extern int wxFileName_methodCount;
+    extern void wxLua_wxFileName_delete_function(void** p);
 #endif // wxLUA_USE_wxFileName
 
 #if wxLUA_USE_wxList && !wxUSE_STL
     extern wxLuaBindMethod wxList_methods[];
     extern int wxList_methodCount;
+    extern void wxLua_wxList_delete_function(void** p);
     extern wxLuaBindMethod wxNode_methods[];
     extern int wxNode_methodCount;
+    extern void wxLua_wxNode_delete_function(void** p);
 #endif // wxLUA_USE_wxList && !wxUSE_STL
 
 #if wxLUA_USE_wxLog && wxUSE_LOG
     extern wxLuaBindMethod wxLog_methods[];
     extern int wxLog_methodCount;
+    extern void wxLua_wxLog_delete_function(void** p);
     extern wxLuaBindMethod wxLogBuffer_methods[];
     extern int wxLogBuffer_methodCount;
+    extern void wxLua_wxLogBuffer_delete_function(void** p);
     extern wxLuaBindMethod wxLogChain_methods[];
     extern int wxLogChain_methodCount;
+    extern void wxLua_wxLogChain_delete_function(void** p);
     extern wxLuaBindMethod wxLogNull_methods[];
     extern int wxLogNull_methodCount;
+    extern void wxLua_wxLogNull_delete_function(void** p);
     extern wxLuaBindMethod wxLogPassThrough_methods[];
     extern int wxLogPassThrough_methodCount;
+    extern void wxLua_wxLogPassThrough_delete_function(void** p);
 #endif // wxLUA_USE_wxLog && wxUSE_LOG
 
 #if wxLUA_USE_wxObject
     extern wxLuaBindMethod wxObject_methods[];
     extern int wxObject_methodCount;
+    extern void wxLua_wxObject_delete_function(void** p);
     extern wxLuaBindMethod wxObjectRefData_methods[];
     extern int wxObjectRefData_methodCount;
+    extern void wxLua_wxObjectRefData_delete_function(void** p);
 #endif // wxLUA_USE_wxObject
 
 #if wxLUA_USE_wxRegEx && wxUSE_REGEX
     extern wxLuaBindMethod wxRegEx_methods[];
     extern int wxRegEx_methodCount;
+    extern void wxLua_wxRegEx_delete_function(void** p);
 #endif // wxLUA_USE_wxRegEx && wxUSE_REGEX
 
 #if wxLUA_USE_wxStopWatch && wxUSE_STOPWATCH
     extern wxLuaBindMethod wxStopWatch_methods[];
     extern int wxStopWatch_methodCount;
+    extern void wxLua_wxStopWatch_delete_function(void** p);
 #endif // wxLUA_USE_wxStopWatch && wxUSE_STOPWATCH
 
 #if wxLUA_USE_wxSystemOptions
     extern wxLuaBindMethod wxSystemOptions_methods[];
     extern int wxSystemOptions_methodCount;
+    extern void wxLua_wxSystemOptions_delete_function(void** p);
 #endif // wxLUA_USE_wxSystemOptions
 
 #if wxLUA_USE_wxTimeSpan && wxUSE_DATETIME
     extern wxLuaBindMethod wxTimeSpan_methods[];
     extern int wxTimeSpan_methodCount;
+    extern void wxLua_wxTimeSpan_delete_function(void** p);
 #endif // wxLUA_USE_wxTimeSpan && wxUSE_DATETIME
 
 #if wxUSE_INTL
     extern wxLuaBindMethod wxLanguageInfo_methods[];
     extern int wxLanguageInfo_methodCount;
+    extern void wxLua_wxLanguageInfo_delete_function(void** p);
     extern wxLuaBindMethod wxLocale_methods[];
     extern int wxLocale_methodCount;
+    extern void wxLua_wxLocale_delete_function(void** p);
 #endif // wxUSE_INTL
 
 #if wxUSE_LONGLONG
     extern wxLuaBindMethod wxLongLong_methods[];
     extern int wxLongLong_methodCount;
+    extern void wxLua_wxLongLong_delete_function(void** p);
     extern wxLuaBindMethod wxULongLong_methods[];
     extern int wxULongLong_methodCount;
+    extern void wxLua_wxULongLong_delete_function(void** p);
 #endif // wxUSE_LONGLONG
 
 #if wxUSE_SNGLINST_CHECKER
     extern wxLuaBindMethod wxSingleInstanceChecker_methods[];
     extern int wxSingleInstanceChecker_methodCount;
+    extern void wxLua_wxSingleInstanceChecker_delete_function(void** p);
 #endif // wxUSE_SNGLINST_CHECKER
 
 #if wxUSE_STREAMS
     extern wxLuaBindMethod wxDataInputStream_methods[];
     extern int wxDataInputStream_methodCount;
+    extern void wxLua_wxDataInputStream_delete_function(void** p);
     extern wxLuaBindMethod wxDataOutputStream_methods[];
     extern int wxDataOutputStream_methodCount;
+    extern void wxLua_wxDataOutputStream_delete_function(void** p);
     extern wxLuaBindMethod wxFileInputStream_methods[];
     extern int wxFileInputStream_methodCount;
+    extern void wxLua_wxFileInputStream_delete_function(void** p);
     extern wxLuaBindMethod wxFileOutputStream_methods[];
     extern int wxFileOutputStream_methodCount;
+    extern void wxLua_wxFileOutputStream_delete_function(void** p);
     extern wxLuaBindMethod wxInputStream_methods[];
     extern int wxInputStream_methodCount;
+    extern void wxLua_wxInputStream_delete_function(void** p);
     extern wxLuaBindMethod wxMemoryInputStream_methods[];
     extern int wxMemoryInputStream_methodCount;
+    extern void wxLua_wxMemoryInputStream_delete_function(void** p);
     extern wxLuaBindMethod wxOutputStream_methods[];
     extern int wxOutputStream_methodCount;
+    extern void wxLua_wxOutputStream_delete_function(void** p);
     extern wxLuaBindMethod wxStreamBase_methods[];
     extern int wxStreamBase_methodCount;
+    extern void wxLua_wxStreamBase_delete_function(void** p);
 #endif // wxUSE_STREAMS
 
 
@@ -2527,208 +2594,208 @@ wxLuaBindClass* wxLuaGetClassList_wxbase(size_t &count)
     static wxLuaBindClass classList[] =
     {
 #if (wxUSE_STREAMS) && (wxUSE_FILESYSTEM)
-        { wxluaclassname_wxArchiveFSHandler, wxArchiveFSHandler_methods, wxArchiveFSHandler_methodCount, CLASSINFO(wxArchiveFSHandler), &wxluatype_wxArchiveFSHandler, wxluabaseclassnames_wxArchiveFSHandler, wxluabaseclassbinds_wxArchiveFSHandler, g_wxluanumberArray_None, 0, }, 
+        { wxluaclassname_wxArchiveFSHandler, wxArchiveFSHandler_methods, wxArchiveFSHandler_methodCount, CLASSINFO(wxArchiveFSHandler), &wxluatype_wxArchiveFSHandler, wxluabaseclassnames_wxArchiveFSHandler, wxluabaseclassbinds_wxArchiveFSHandler, NULL, NULL, NULL, 0, &wxLua_wxArchiveFSHandler_delete_function, }, 
 #endif // (wxUSE_STREAMS) && (wxUSE_FILESYSTEM)
 
 #if wxLUA_USE_wxArrayInt
-        { wxluaclassname_wxArrayInt, wxArrayInt_methods, wxArrayInt_methodCount, NULL, &wxluatype_wxArrayInt, NULL, NULL, g_wxluanumberArray_None, 0, }, 
+        { wxluaclassname_wxArrayInt, wxArrayInt_methods, wxArrayInt_methodCount, NULL, &wxluatype_wxArrayInt, NULL, NULL, NULL, NULL, NULL, 0, &wxLua_wxArrayInt_delete_function, }, 
 #endif // wxLUA_USE_wxArrayInt
 
 #if wxLUA_USE_wxArrayString
-        { wxluaclassname_wxArrayString, wxArrayString_methods, wxArrayString_methodCount, NULL, &wxluatype_wxArrayString, NULL, NULL, g_wxluanumberArray_None, 0, }, 
+        { wxluaclassname_wxArrayString, wxArrayString_methods, wxArrayString_methodCount, NULL, &wxluatype_wxArrayString, NULL, NULL, NULL, NULL, NULL, 0, &wxLua_wxArrayString_delete_function, }, 
 #endif // wxLUA_USE_wxArrayString
 
 #if wxLUA_USE_wxClassInfo
-        { wxluaclassname_wxClassInfo, wxClassInfo_methods, wxClassInfo_methodCount, NULL, &wxluatype_wxClassInfo, NULL, NULL, g_wxluanumberArray_None, 0, }, 
+        { wxluaclassname_wxClassInfo, wxClassInfo_methods, wxClassInfo_methodCount, NULL, &wxluatype_wxClassInfo, NULL, NULL, NULL, NULL, NULL, 0, &wxLua_wxClassInfo_delete_function, }, 
 #endif // wxLUA_USE_wxClassInfo
 
-        { wxluaclassname_wxClientData, wxClientData_methods, wxClientData_methodCount, NULL, &wxluatype_wxClientData, NULL, NULL, g_wxluanumberArray_None, 0, }, 
-        { wxluaclassname_wxClientDataContainer, wxClientDataContainer_methods, wxClientDataContainer_methodCount, NULL, &wxluatype_wxClientDataContainer, NULL, NULL, g_wxluanumberArray_None, 0, }, 
+        { wxluaclassname_wxClientData, wxClientData_methods, wxClientData_methodCount, NULL, &wxluatype_wxClientData, NULL, NULL, NULL, NULL, NULL, 0, &wxLua_wxClientData_delete_function, }, 
+        { wxluaclassname_wxClientDataContainer, wxClientDataContainer_methods, wxClientDataContainer_methodCount, NULL, &wxluatype_wxClientDataContainer, NULL, NULL, NULL, NULL, NULL, 0, &wxLua_wxClientDataContainer_delete_function, }, 
 
 #if wxLUA_USE_wxConfig && wxUSE_CONFIG
-        { wxluaclassname_wxConfig, wxConfig_methods, wxConfig_methodCount, NULL, &wxluatype_wxConfig, wxluabaseclassnames_wxConfig, wxluabaseclassbinds_wxConfig, g_wxluanumberArray_None, 0, }, 
-        { wxluaclassname_wxConfigBase, wxConfigBase_methods, wxConfigBase_methodCount, NULL, &wxluatype_wxConfigBase, NULL, NULL, wxConfigBase_enums, wxConfigBase_enumCount, }, 
-        { wxluaclassname_wxConfigPathChanger, wxConfigPathChanger_methods, wxConfigPathChanger_methodCount, NULL, &wxluatype_wxConfigPathChanger, NULL, NULL, g_wxluanumberArray_None, 0, }, 
+        { wxluaclassname_wxConfig, wxConfig_methods, wxConfig_methodCount, NULL, &wxluatype_wxConfig, wxluabaseclassnames_wxConfig, wxluabaseclassbinds_wxConfig, NULL, NULL, NULL, 0, &wxLua_wxConfig_delete_function, }, 
+        { wxluaclassname_wxConfigBase, wxConfigBase_methods, wxConfigBase_methodCount, NULL, &wxluatype_wxConfigBase, NULL, NULL, NULL, NULL, wxConfigBase_enums, wxConfigBase_enumCount, &wxLua_wxConfigBase_delete_function, }, 
+        { wxluaclassname_wxConfigPathChanger, wxConfigPathChanger_methods, wxConfigPathChanger_methodCount, NULL, &wxluatype_wxConfigPathChanger, NULL, NULL, NULL, NULL, NULL, 0, &wxLua_wxConfigPathChanger_delete_function, }, 
 #endif // wxLUA_USE_wxConfig && wxUSE_CONFIG
 
 #if wxLUA_USE_wxCriticalSection && wxUSE_THREADS
-        { wxluaclassname_wxCriticalSection, wxCriticalSection_methods, wxCriticalSection_methodCount, NULL, &wxluatype_wxCriticalSection, NULL, NULL, g_wxluanumberArray_None, 0, }, 
+        { wxluaclassname_wxCriticalSection, wxCriticalSection_methods, wxCriticalSection_methodCount, NULL, &wxluatype_wxCriticalSection, NULL, NULL, NULL, NULL, NULL, 0, &wxLua_wxCriticalSection_delete_function, }, 
 #endif // wxLUA_USE_wxCriticalSection && wxUSE_THREADS
 
 #if wxLUA_USE_wxCriticalSectionLocker
-        { wxluaclassname_wxCriticalSectionLocker, wxCriticalSectionLocker_methods, wxCriticalSectionLocker_methodCount, NULL, &wxluatype_wxCriticalSectionLocker, NULL, NULL, g_wxluanumberArray_None, 0, }, 
+        { wxluaclassname_wxCriticalSectionLocker, wxCriticalSectionLocker_methods, wxCriticalSectionLocker_methodCount, NULL, &wxluatype_wxCriticalSectionLocker, NULL, NULL, NULL, NULL, NULL, 0, &wxLua_wxCriticalSectionLocker_delete_function, }, 
 #endif // wxLUA_USE_wxCriticalSectionLocker
 
 #if wxUSE_STREAMS
-        { wxluaclassname_wxDataInputStream, wxDataInputStream_methods, wxDataInputStream_methodCount, NULL, &wxluatype_wxDataInputStream, NULL, NULL, g_wxluanumberArray_None, 0, }, 
-        { wxluaclassname_wxDataOutputStream, wxDataOutputStream_methods, wxDataOutputStream_methodCount, NULL, &wxluatype_wxDataOutputStream, NULL, NULL, g_wxluanumberArray_None, 0, }, 
+        { wxluaclassname_wxDataInputStream, wxDataInputStream_methods, wxDataInputStream_methodCount, NULL, &wxluatype_wxDataInputStream, NULL, NULL, NULL, NULL, NULL, 0, &wxLua_wxDataInputStream_delete_function, }, 
+        { wxluaclassname_wxDataOutputStream, wxDataOutputStream_methods, wxDataOutputStream_methodCount, NULL, &wxluatype_wxDataOutputStream, NULL, NULL, NULL, NULL, NULL, 0, &wxLua_wxDataOutputStream_delete_function, }, 
 #endif // wxUSE_STREAMS
 
 #if wxLUA_USE_wxDateSpan && wxUSE_DATETIME
-        { wxluaclassname_wxDateSpan, wxDateSpan_methods, wxDateSpan_methodCount, NULL, &wxluatype_wxDateSpan, NULL, NULL, g_wxluanumberArray_None, 0, }, 
+        { wxluaclassname_wxDateSpan, wxDateSpan_methods, wxDateSpan_methodCount, NULL, &wxluatype_wxDateSpan, NULL, NULL, NULL, NULL, NULL, 0, &wxLua_wxDateSpan_delete_function, }, 
 #endif // wxLUA_USE_wxDateSpan && wxUSE_DATETIME
 
 #if wxLUA_USE_wxDateTime && wxUSE_DATETIME
-        { wxluaclassname_wxDateTime, wxDateTime_methods, wxDateTime_methodCount, NULL, &wxluatype_wxDateTime, NULL, NULL, wxDateTime_enums, wxDateTime_enumCount, }, 
-        { wxluaclassname_wxDateTimeArray, wxDateTimeArray_methods, wxDateTimeArray_methodCount, NULL, &wxluatype_wxDateTimeArray, NULL, NULL, g_wxluanumberArray_None, 0, }, 
+        { wxluaclassname_wxDateTime, wxDateTime_methods, wxDateTime_methodCount, NULL, &wxluatype_wxDateTime, NULL, NULL, NULL, NULL, wxDateTime_enums, wxDateTime_enumCount, &wxLua_wxDateTime_delete_function, }, 
+        { wxluaclassname_wxDateTimeArray, wxDateTimeArray_methods, wxDateTimeArray_methodCount, NULL, &wxluatype_wxDateTimeArray, NULL, NULL, NULL, NULL, NULL, 0, &wxLua_wxDateTimeArray_delete_function, }, 
 #endif // wxLUA_USE_wxDateTime && wxUSE_DATETIME
 
 #if wxLUA_USE_wxDateTimeHolidayAuthority && wxUSE_DATETIME
-        { wxluaclassname_wxDateTimeHolidayAuthority, wxDateTimeHolidayAuthority_methods, wxDateTimeHolidayAuthority_methodCount, NULL, &wxluatype_wxDateTimeHolidayAuthority, NULL, NULL, g_wxluanumberArray_None, 0, }, 
-        { wxluaclassname_wxDateTimeWorkDays, wxDateTimeWorkDays_methods, wxDateTimeWorkDays_methodCount, NULL, &wxluatype_wxDateTimeWorkDays, wxluabaseclassnames_wxDateTimeWorkDays, wxluabaseclassbinds_wxDateTimeWorkDays, g_wxluanumberArray_None, 0, }, 
+        { wxluaclassname_wxDateTimeHolidayAuthority, wxDateTimeHolidayAuthority_methods, wxDateTimeHolidayAuthority_methodCount, NULL, &wxluatype_wxDateTimeHolidayAuthority, NULL, NULL, NULL, NULL, NULL, 0, &wxLua_wxDateTimeHolidayAuthority_delete_function, }, 
+        { wxluaclassname_wxDateTimeWorkDays, wxDateTimeWorkDays_methods, wxDateTimeWorkDays_methodCount, NULL, &wxluatype_wxDateTimeWorkDays, wxluabaseclassnames_wxDateTimeWorkDays, wxluabaseclassbinds_wxDateTimeWorkDays, NULL, NULL, NULL, 0, &wxLua_wxDateTimeWorkDays_delete_function, }, 
 #endif // wxLUA_USE_wxDateTimeHolidayAuthority && wxUSE_DATETIME
 
 #if wxLUA_USE_wxDir
-        { wxluaclassname_wxDir, wxDir_methods, wxDir_methodCount, NULL, &wxluatype_wxDir, NULL, NULL, g_wxluanumberArray_None, 0, }, 
+        { wxluaclassname_wxDir, wxDir_methods, wxDir_methodCount, NULL, &wxluatype_wxDir, NULL, NULL, NULL, NULL, NULL, 0, &wxLua_wxDir_delete_function, }, 
 #endif // wxLUA_USE_wxDir
 
-        { wxluaclassname_wxDynamicLibrary, wxDynamicLibrary_methods, wxDynamicLibrary_methodCount, NULL, &wxluatype_wxDynamicLibrary, NULL, NULL, g_wxluanumberArray_None, 0, }, 
-        { wxluaclassname_wxDynamicLibraryDetails, wxDynamicLibraryDetails_methods, wxDynamicLibraryDetails_methodCount, NULL, &wxluatype_wxDynamicLibraryDetails, NULL, NULL, g_wxluanumberArray_None, 0, }, 
-        { wxluaclassname_wxDynamicLibraryDetailsArray, wxDynamicLibraryDetailsArray_methods, wxDynamicLibraryDetailsArray_methodCount, NULL, &wxluatype_wxDynamicLibraryDetailsArray, NULL, NULL, g_wxluanumberArray_None, 0, }, 
+        { wxluaclassname_wxDynamicLibrary, wxDynamicLibrary_methods, wxDynamicLibrary_methodCount, NULL, &wxluatype_wxDynamicLibrary, NULL, NULL, NULL, NULL, NULL, 0, &wxLua_wxDynamicLibrary_delete_function, }, 
+        { wxluaclassname_wxDynamicLibraryDetails, wxDynamicLibraryDetails_methods, wxDynamicLibraryDetails_methodCount, NULL, &wxluatype_wxDynamicLibraryDetails, NULL, NULL, NULL, NULL, NULL, 0, &wxLua_wxDynamicLibraryDetails_delete_function, }, 
+        { wxluaclassname_wxDynamicLibraryDetailsArray, wxDynamicLibraryDetailsArray_methods, wxDynamicLibraryDetailsArray_methodCount, NULL, &wxluatype_wxDynamicLibraryDetailsArray, NULL, NULL, NULL, NULL, NULL, 0, &wxLua_wxDynamicLibraryDetailsArray_delete_function, }, 
 
 #if (wxUSE_STREAMS) && (wxUSE_FILESYSTEM)
-        { wxluaclassname_wxFSFile, wxFSFile_methods, wxFSFile_methodCount, CLASSINFO(wxFSFile), &wxluatype_wxFSFile, wxluabaseclassnames_wxFSFile, wxluabaseclassbinds_wxFSFile, g_wxluanumberArray_None, 0, }, 
+        { wxluaclassname_wxFSFile, wxFSFile_methods, wxFSFile_methodCount, CLASSINFO(wxFSFile), &wxluatype_wxFSFile, wxluabaseclassnames_wxFSFile, wxluabaseclassbinds_wxFSFile, NULL, NULL, NULL, 0, &wxLua_wxFSFile_delete_function, }, 
 #endif // (wxUSE_STREAMS) && (wxUSE_FILESYSTEM)
 
 #if wxLUA_USE_wxFile && wxUSE_FILE
-        { wxluaclassname_wxFile, wxFile_methods, wxFile_methodCount, NULL, &wxluatype_wxFile, NULL, NULL, wxFile_enums, wxFile_enumCount, }, 
+        { wxluaclassname_wxFile, wxFile_methods, wxFile_methodCount, NULL, &wxluatype_wxFile, NULL, NULL, NULL, NULL, wxFile_enums, wxFile_enumCount, &wxLua_wxFile_delete_function, }, 
 #endif // wxLUA_USE_wxFile && wxUSE_FILE
 
 #if wxLUA_USE_wxConfig && wxUSE_CONFIG
-        { wxluaclassname_wxFileConfig, wxFileConfig_methods, wxFileConfig_methodCount, NULL, &wxluatype_wxFileConfig, wxluabaseclassnames_wxFileConfig, wxluabaseclassbinds_wxFileConfig, g_wxluanumberArray_None, 0, }, 
+        { wxluaclassname_wxFileConfig, wxFileConfig_methods, wxFileConfig_methodCount, NULL, &wxluatype_wxFileConfig, wxluabaseclassnames_wxFileConfig, wxluabaseclassbinds_wxFileConfig, NULL, NULL, NULL, 0, &wxLua_wxFileConfig_delete_function, }, 
 #endif // wxLUA_USE_wxConfig && wxUSE_CONFIG
 
 #if wxUSE_STREAMS
-        { wxluaclassname_wxFileInputStream, wxFileInputStream_methods, wxFileInputStream_methodCount, NULL, &wxluatype_wxFileInputStream, wxluabaseclassnames_wxFileInputStream, wxluabaseclassbinds_wxFileInputStream, g_wxluanumberArray_None, 0, }, 
+        { wxluaclassname_wxFileInputStream, wxFileInputStream_methods, wxFileInputStream_methodCount, NULL, &wxluatype_wxFileInputStream, wxluabaseclassnames_wxFileInputStream, wxluabaseclassbinds_wxFileInputStream, NULL, NULL, NULL, 0, &wxLua_wxFileInputStream_delete_function, }, 
 #endif // wxUSE_STREAMS
 
 #if wxLUA_USE_wxFileName
-        { wxluaclassname_wxFileName, wxFileName_methods, wxFileName_methodCount, NULL, &wxluatype_wxFileName, NULL, NULL, g_wxluanumberArray_None, 0, }, 
+        { wxluaclassname_wxFileName, wxFileName_methods, wxFileName_methodCount, NULL, &wxluatype_wxFileName, NULL, NULL, NULL, NULL, NULL, 0, &wxLua_wxFileName_delete_function, }, 
 #endif // wxLUA_USE_wxFileName
 
 #if wxUSE_STREAMS
-        { wxluaclassname_wxFileOutputStream, wxFileOutputStream_methods, wxFileOutputStream_methodCount, NULL, &wxluatype_wxFileOutputStream, wxluabaseclassnames_wxFileOutputStream, wxluabaseclassbinds_wxFileOutputStream, g_wxluanumberArray_None, 0, }, 
+        { wxluaclassname_wxFileOutputStream, wxFileOutputStream_methods, wxFileOutputStream_methodCount, NULL, &wxluatype_wxFileOutputStream, wxluabaseclassnames_wxFileOutputStream, wxluabaseclassbinds_wxFileOutputStream, NULL, NULL, NULL, 0, &wxLua_wxFileOutputStream_delete_function, }, 
 #endif // wxUSE_STREAMS
 
 #if (wxUSE_STREAMS) && (wxUSE_FILESYSTEM)
-        { wxluaclassname_wxFileSystem, wxFileSystem_methods, wxFileSystem_methodCount, CLASSINFO(wxFileSystem), &wxluatype_wxFileSystem, wxluabaseclassnames_wxFileSystem, wxluabaseclassbinds_wxFileSystem, g_wxluanumberArray_None, 0, }, 
-        { wxluaclassname_wxFileSystemHandler, wxFileSystemHandler_methods, wxFileSystemHandler_methodCount, CLASSINFO(wxFileSystemHandler), &wxluatype_wxFileSystemHandler, wxluabaseclassnames_wxFileSystemHandler, wxluabaseclassbinds_wxFileSystemHandler, g_wxluanumberArray_None, 0, }, 
+        { wxluaclassname_wxFileSystem, wxFileSystem_methods, wxFileSystem_methodCount, CLASSINFO(wxFileSystem), &wxluatype_wxFileSystem, wxluabaseclassnames_wxFileSystem, wxluabaseclassbinds_wxFileSystem, NULL, NULL, NULL, 0, &wxLua_wxFileSystem_delete_function, }, 
+        { wxluaclassname_wxFileSystemHandler, wxFileSystemHandler_methods, wxFileSystemHandler_methodCount, CLASSINFO(wxFileSystemHandler), &wxluatype_wxFileSystemHandler, wxluabaseclassnames_wxFileSystemHandler, wxluabaseclassbinds_wxFileSystemHandler, NULL, NULL, NULL, 0, &wxLua_wxFileSystemHandler_delete_function, }, 
 #endif // (wxUSE_STREAMS) && (wxUSE_FILESYSTEM)
 
-        { wxluaclassname_wxFileType, wxFileType_methods, wxFileType_methodCount, NULL, &wxluatype_wxFileType, NULL, NULL, g_wxluanumberArray_None, 0, }, 
-        { wxluaclassname_wxFileTypeInfo, wxFileTypeInfo_methods, wxFileTypeInfo_methodCount, NULL, &wxluatype_wxFileTypeInfo, NULL, NULL, g_wxluanumberArray_None, 0, }, 
-        { wxluaclassname_wxFileType_MessageParameters, wxFileType_MessageParameters_methods, wxFileType_MessageParameters_methodCount, NULL, &wxluatype_wxFileType_MessageParameters, NULL, NULL, g_wxluanumberArray_None, 0, }, 
+        { wxluaclassname_wxFileType, wxFileType_methods, wxFileType_methodCount, NULL, &wxluatype_wxFileType, NULL, NULL, NULL, NULL, NULL, 0, &wxLua_wxFileType_delete_function, }, 
+        { wxluaclassname_wxFileTypeInfo, wxFileTypeInfo_methods, wxFileTypeInfo_methodCount, NULL, &wxluatype_wxFileTypeInfo, NULL, NULL, NULL, NULL, NULL, 0, &wxLua_wxFileTypeInfo_delete_function, }, 
+        { wxluaclassname_wxFileType_MessageParameters, wxFileType_MessageParameters_methods, wxFileType_MessageParameters_methodCount, NULL, &wxluatype_wxFileType_MessageParameters, NULL, NULL, NULL, NULL, NULL, 0, &wxLua_wxFileType_MessageParameters_delete_function, }, 
 
 #if (wxUSE_STREAMS) && (wxUSE_FILESYSTEM)
-        { wxluaclassname_wxFilterFSHandler, wxFilterFSHandler_methods, wxFilterFSHandler_methodCount, CLASSINFO(wxFilterFSHandler), &wxluatype_wxFilterFSHandler, wxluabaseclassnames_wxFilterFSHandler, wxluabaseclassbinds_wxFilterFSHandler, g_wxluanumberArray_None, 0, }, 
+        { wxluaclassname_wxFilterFSHandler, wxFilterFSHandler_methods, wxFilterFSHandler_methodCount, CLASSINFO(wxFilterFSHandler), &wxluatype_wxFilterFSHandler, wxluabaseclassnames_wxFilterFSHandler, wxluabaseclassbinds_wxFilterFSHandler, NULL, NULL, NULL, 0, &wxLua_wxFilterFSHandler_delete_function, }, 
 #endif // (wxUSE_STREAMS) && (wxUSE_FILESYSTEM)
 
-        { wxluaclassname_wxIconLocation, wxIconLocation_methods, wxIconLocation_methodCount, NULL, &wxluatype_wxIconLocation, NULL, NULL, g_wxluanumberArray_None, 0, }, 
+        { wxluaclassname_wxIconLocation, wxIconLocation_methods, wxIconLocation_methodCount, NULL, &wxluatype_wxIconLocation, NULL, NULL, NULL, NULL, NULL, 0, &wxLua_wxIconLocation_delete_function, }, 
 
 #if wxUSE_STREAMS
-        { wxluaclassname_wxInputStream, wxInputStream_methods, wxInputStream_methodCount, NULL, &wxluatype_wxInputStream, wxluabaseclassnames_wxInputStream, wxluabaseclassbinds_wxInputStream, g_wxluanumberArray_None, 0, }, 
+        { wxluaclassname_wxInputStream, wxInputStream_methods, wxInputStream_methodCount, NULL, &wxluatype_wxInputStream, wxluabaseclassnames_wxInputStream, wxluabaseclassbinds_wxInputStream, NULL, NULL, NULL, 0, &wxLua_wxInputStream_delete_function, }, 
 #endif // wxUSE_STREAMS
 
 #if (wxUSE_STREAMS) && (wxUSE_FILESYSTEM) && (wxUSE_FS_INET && wxUSE_SOCKETS)
-        { wxluaclassname_wxInternetFSHandler, wxInternetFSHandler_methods, wxInternetFSHandler_methodCount, CLASSINFO(wxInternetFSHandler), &wxluatype_wxInternetFSHandler, wxluabaseclassnames_wxInternetFSHandler, wxluabaseclassbinds_wxInternetFSHandler, g_wxluanumberArray_None, 0, }, 
+        { wxluaclassname_wxInternetFSHandler, wxInternetFSHandler_methods, wxInternetFSHandler_methodCount, CLASSINFO(wxInternetFSHandler), &wxluatype_wxInternetFSHandler, wxluabaseclassnames_wxInternetFSHandler, wxluabaseclassbinds_wxInternetFSHandler, NULL, NULL, NULL, 0, &wxLua_wxInternetFSHandler_delete_function, }, 
 #endif // (wxUSE_STREAMS) && (wxUSE_FILESYSTEM) && (wxUSE_FS_INET && wxUSE_SOCKETS)
 
 #if wxUSE_INTL
-        { wxluaclassname_wxLanguageInfo, wxLanguageInfo_methods, wxLanguageInfo_methodCount, NULL, &wxluatype_wxLanguageInfo, NULL, NULL, g_wxluanumberArray_None, 0, }, 
+        { wxluaclassname_wxLanguageInfo, wxLanguageInfo_methods, wxLanguageInfo_methodCount, NULL, &wxluatype_wxLanguageInfo, NULL, NULL, NULL, NULL, NULL, 0, &wxLua_wxLanguageInfo_delete_function, }, 
 #endif // wxUSE_INTL
 
 #if wxLUA_USE_wxList && !wxUSE_STL
-        { wxluaclassname_wxList, wxList_methods, wxList_methodCount, CLASSINFO(wxList), &wxluatype_wxList, wxluabaseclassnames_wxList, wxluabaseclassbinds_wxList, g_wxluanumberArray_None, 0, }, 
+        { wxluaclassname_wxList, wxList_methods, wxList_methodCount, CLASSINFO(wxList), &wxluatype_wxList, wxluabaseclassnames_wxList, wxluabaseclassbinds_wxList, NULL, NULL, NULL, 0, &wxLua_wxList_delete_function, }, 
 #endif // wxLUA_USE_wxList && !wxUSE_STL
 
 #if (wxUSE_STREAMS) && (wxUSE_FILESYSTEM)
-        { wxluaclassname_wxLocalFSHandler, wxLocalFSHandler_methods, wxLocalFSHandler_methodCount, CLASSINFO(wxLocalFSHandler), &wxluatype_wxLocalFSHandler, wxluabaseclassnames_wxLocalFSHandler, wxluabaseclassbinds_wxLocalFSHandler, g_wxluanumberArray_None, 0, }, 
+        { wxluaclassname_wxLocalFSHandler, wxLocalFSHandler_methods, wxLocalFSHandler_methodCount, CLASSINFO(wxLocalFSHandler), &wxluatype_wxLocalFSHandler, wxluabaseclassnames_wxLocalFSHandler, wxluabaseclassbinds_wxLocalFSHandler, NULL, NULL, NULL, 0, &wxLua_wxLocalFSHandler_delete_function, }, 
 #endif // (wxUSE_STREAMS) && (wxUSE_FILESYSTEM)
 
 #if wxUSE_INTL
-        { wxluaclassname_wxLocale, wxLocale_methods, wxLocale_methodCount, NULL, &wxluatype_wxLocale, NULL, NULL, g_wxluanumberArray_None, 0, }, 
+        { wxluaclassname_wxLocale, wxLocale_methods, wxLocale_methodCount, NULL, &wxluatype_wxLocale, NULL, NULL, NULL, NULL, NULL, 0, &wxLua_wxLocale_delete_function, }, 
 #endif // wxUSE_INTL
 
 #if wxLUA_USE_wxLog && wxUSE_LOG
-        { wxluaclassname_wxLog, wxLog_methods, wxLog_methodCount, NULL, &wxluatype_wxLog, NULL, NULL, g_wxluanumberArray_None, 0, }, 
-        { wxluaclassname_wxLogBuffer, wxLogBuffer_methods, wxLogBuffer_methodCount, NULL, &wxluatype_wxLogBuffer, wxluabaseclassnames_wxLogBuffer, wxluabaseclassbinds_wxLogBuffer, g_wxluanumberArray_None, 0, }, 
-        { wxluaclassname_wxLogChain, wxLogChain_methods, wxLogChain_methodCount, NULL, &wxluatype_wxLogChain, wxluabaseclassnames_wxLogChain, wxluabaseclassbinds_wxLogChain, g_wxluanumberArray_None, 0, }, 
-        { wxluaclassname_wxLogNull, wxLogNull_methods, wxLogNull_methodCount, NULL, &wxluatype_wxLogNull, wxluabaseclassnames_wxLogNull, wxluabaseclassbinds_wxLogNull, g_wxluanumberArray_None, 0, }, 
-        { wxluaclassname_wxLogPassThrough, wxLogPassThrough_methods, wxLogPassThrough_methodCount, NULL, &wxluatype_wxLogPassThrough, wxluabaseclassnames_wxLogPassThrough, wxluabaseclassbinds_wxLogPassThrough, g_wxluanumberArray_None, 0, }, 
+        { wxluaclassname_wxLog, wxLog_methods, wxLog_methodCount, NULL, &wxluatype_wxLog, NULL, NULL, NULL, NULL, NULL, 0, &wxLua_wxLog_delete_function, }, 
+        { wxluaclassname_wxLogBuffer, wxLogBuffer_methods, wxLogBuffer_methodCount, NULL, &wxluatype_wxLogBuffer, wxluabaseclassnames_wxLogBuffer, wxluabaseclassbinds_wxLogBuffer, NULL, NULL, NULL, 0, &wxLua_wxLogBuffer_delete_function, }, 
+        { wxluaclassname_wxLogChain, wxLogChain_methods, wxLogChain_methodCount, NULL, &wxluatype_wxLogChain, wxluabaseclassnames_wxLogChain, wxluabaseclassbinds_wxLogChain, NULL, NULL, NULL, 0, &wxLua_wxLogChain_delete_function, }, 
+        { wxluaclassname_wxLogNull, wxLogNull_methods, wxLogNull_methodCount, NULL, &wxluatype_wxLogNull, NULL, NULL, NULL, NULL, NULL, 0, &wxLua_wxLogNull_delete_function, }, 
+        { wxluaclassname_wxLogPassThrough, wxLogPassThrough_methods, wxLogPassThrough_methodCount, NULL, &wxluatype_wxLogPassThrough, wxluabaseclassnames_wxLogPassThrough, wxluabaseclassbinds_wxLogPassThrough, NULL, NULL, NULL, 0, &wxLua_wxLogPassThrough_delete_function, }, 
 #endif // wxLUA_USE_wxLog && wxUSE_LOG
 
 #if wxUSE_LONGLONG
-        { wxluaclassname_wxLongLong, wxLongLong_methods, wxLongLong_methodCount, NULL, &wxluatype_wxLongLong, NULL, NULL, g_wxluanumberArray_None, 0, }, 
+        { wxluaclassname_wxLongLong, wxLongLong_methods, wxLongLong_methodCount, NULL, &wxluatype_wxLongLong, NULL, NULL, NULL, NULL, NULL, 0, &wxLua_wxLongLong_delete_function, }, 
 #endif // wxUSE_LONGLONG
 
 #if wxLUA_USE_wxConfig && wxUSE_CONFIG
-        { wxluaclassname_wxMemoryConfig, wxMemoryConfig_methods, wxMemoryConfig_methodCount, NULL, &wxluatype_wxMemoryConfig, wxluabaseclassnames_wxMemoryConfig, wxluabaseclassbinds_wxMemoryConfig, g_wxluanumberArray_None, 0, }, 
+        { wxluaclassname_wxMemoryConfig, wxMemoryConfig_methods, wxMemoryConfig_methodCount, NULL, &wxluatype_wxMemoryConfig, wxluabaseclassnames_wxMemoryConfig, wxluabaseclassbinds_wxMemoryConfig, NULL, NULL, NULL, 0, &wxLua_wxMemoryConfig_delete_function, }, 
 #endif // wxLUA_USE_wxConfig && wxUSE_CONFIG
 
 #if wxUSE_STREAMS
-        { wxluaclassname_wxMemoryInputStream, wxMemoryInputStream_methods, wxMemoryInputStream_methodCount, NULL, &wxluatype_wxMemoryInputStream, wxluabaseclassnames_wxMemoryInputStream, wxluabaseclassbinds_wxMemoryInputStream, g_wxluanumberArray_None, 0, }, 
+        { wxluaclassname_wxMemoryInputStream, wxMemoryInputStream_methods, wxMemoryInputStream_methodCount, NULL, &wxluatype_wxMemoryInputStream, wxluabaseclassnames_wxMemoryInputStream, wxluabaseclassbinds_wxMemoryInputStream, NULL, NULL, NULL, 0, &wxLua_wxMemoryInputStream_delete_function, }, 
 #endif // wxUSE_STREAMS
 
-        { wxluaclassname_wxMimeTypesManager, wxMimeTypesManager_methods, wxMimeTypesManager_methodCount, NULL, &wxluatype_wxMimeTypesManager, NULL, NULL, g_wxluanumberArray_None, 0, }, 
+        { wxluaclassname_wxMimeTypesManager, wxMimeTypesManager_methods, wxMimeTypesManager_methodCount, NULL, &wxluatype_wxMimeTypesManager, NULL, NULL, NULL, NULL, NULL, 0, &wxLua_wxMimeTypesManager_delete_function, }, 
 
 #if wxLUA_USE_wxList && !wxUSE_STL
-        { wxluaclassname_wxNode, wxNode_methods, wxNode_methodCount, NULL, &wxluatype_wxNode, NULL, NULL, g_wxluanumberArray_None, 0, }, 
+        { wxluaclassname_wxNode, wxNode_methods, wxNode_methodCount, NULL, &wxluatype_wxNode, NULL, NULL, NULL, NULL, NULL, 0, &wxLua_wxNode_delete_function, }, 
 #endif // wxLUA_USE_wxList && !wxUSE_STL
 
 #if wxLUA_USE_wxObject
-        { wxluaclassname_wxObject, wxObject_methods, wxObject_methodCount, CLASSINFO(wxObject), &wxluatype_wxObject, NULL, NULL, g_wxluanumberArray_None, 0, }, 
-        { wxluaclassname_wxObjectRefData, wxObjectRefData_methods, wxObjectRefData_methodCount, NULL, &wxluatype_wxObjectRefData, NULL, NULL, g_wxluanumberArray_None, 0, }, 
+        { wxluaclassname_wxObject, wxObject_methods, wxObject_methodCount, CLASSINFO(wxObject), &wxluatype_wxObject, NULL, NULL, NULL, NULL, NULL, 0, &wxLua_wxObject_delete_function, }, 
+        { wxluaclassname_wxObjectRefData, wxObjectRefData_methods, wxObjectRefData_methodCount, NULL, &wxluatype_wxObjectRefData, NULL, NULL, NULL, NULL, NULL, 0, &wxLua_wxObjectRefData_delete_function, }, 
 #endif // wxLUA_USE_wxObject
 
 #if wxUSE_STREAMS
-        { wxluaclassname_wxOutputStream, wxOutputStream_methods, wxOutputStream_methodCount, NULL, &wxluatype_wxOutputStream, wxluabaseclassnames_wxOutputStream, wxluabaseclassbinds_wxOutputStream, g_wxluanumberArray_None, 0, }, 
+        { wxluaclassname_wxOutputStream, wxOutputStream_methods, wxOutputStream_methodCount, NULL, &wxluatype_wxOutputStream, wxluabaseclassnames_wxOutputStream, wxluabaseclassbinds_wxOutputStream, NULL, NULL, NULL, 0, &wxLua_wxOutputStream_delete_function, }, 
 #endif // wxUSE_STREAMS
 
-        { wxluaclassname_wxPathList, wxPathList_methods, wxPathList_methodCount, NULL, &wxluatype_wxPathList, wxluabaseclassnames_wxPathList, wxluabaseclassbinds_wxPathList, g_wxluanumberArray_None, 0, }, 
-        { wxluaclassname_wxPlatformInfo, wxPlatformInfo_methods, wxPlatformInfo_methodCount, NULL, &wxluatype_wxPlatformInfo, NULL, NULL, g_wxluanumberArray_None, 0, }, 
+        { wxluaclassname_wxPathList, wxPathList_methods, wxPathList_methodCount, NULL, &wxluatype_wxPathList, wxluabaseclassnames_wxPathList, wxluabaseclassbinds_wxPathList, NULL, NULL, NULL, 0, &wxLua_wxPathList_delete_function, }, 
+        { wxluaclassname_wxPlatformInfo, wxPlatformInfo_methods, wxPlatformInfo_methodCount, NULL, &wxluatype_wxPlatformInfo, NULL, NULL, NULL, NULL, NULL, 0, &wxLua_wxPlatformInfo_delete_function, }, 
 
 #if wxLUA_USE_wxRegEx && wxUSE_REGEX
-        { wxluaclassname_wxRegEx, wxRegEx_methods, wxRegEx_methodCount, NULL, &wxluatype_wxRegEx, NULL, NULL, g_wxluanumberArray_None, 0, }, 
+        { wxluaclassname_wxRegEx, wxRegEx_methods, wxRegEx_methodCount, NULL, &wxluatype_wxRegEx, NULL, NULL, NULL, NULL, NULL, 0, &wxLua_wxRegEx_delete_function, }, 
 #endif // wxLUA_USE_wxRegEx && wxUSE_REGEX
 
 #if wxUSE_SNGLINST_CHECKER
-        { wxluaclassname_wxSingleInstanceChecker, wxSingleInstanceChecker_methods, wxSingleInstanceChecker_methodCount, NULL, &wxluatype_wxSingleInstanceChecker, NULL, NULL, g_wxluanumberArray_None, 0, }, 
+        { wxluaclassname_wxSingleInstanceChecker, wxSingleInstanceChecker_methods, wxSingleInstanceChecker_methodCount, NULL, &wxluatype_wxSingleInstanceChecker, NULL, NULL, NULL, NULL, NULL, 0, &wxLua_wxSingleInstanceChecker_delete_function, }, 
 #endif // wxUSE_SNGLINST_CHECKER
 
 #if wxLUA_USE_wxArrayString
-        { wxluaclassname_wxSortedArrayString, wxSortedArrayString_methods, wxSortedArrayString_methodCount, NULL, &wxluatype_wxSortedArrayString, wxluabaseclassnames_wxSortedArrayString, wxluabaseclassbinds_wxSortedArrayString, g_wxluanumberArray_None, 0, }, 
+        { wxluaclassname_wxSortedArrayString, wxSortedArrayString_methods, wxSortedArrayString_methodCount, NULL, &wxluatype_wxSortedArrayString, wxluabaseclassnames_wxSortedArrayString, wxluabaseclassbinds_wxSortedArrayString, NULL, NULL, NULL, 0, &wxLua_wxSortedArrayString_delete_function, }, 
 #endif // wxLUA_USE_wxArrayString
 
 #if wxCHECK_VERSION(2,8,0) && wxLUA_USE_wxStandardPaths
-        { wxluaclassname_wxStandardPaths, wxStandardPaths_methods, wxStandardPaths_methodCount, NULL, &wxluatype_wxStandardPaths, NULL, NULL, wxStandardPaths_enums, wxStandardPaths_enumCount, }, 
+        { wxluaclassname_wxStandardPaths, wxStandardPaths_methods, wxStandardPaths_methodCount, NULL, &wxluatype_wxStandardPaths, NULL, NULL, NULL, NULL, wxStandardPaths_enums, wxStandardPaths_enumCount, &wxLua_wxStandardPaths_delete_function, }, 
 #endif // wxCHECK_VERSION(2,8,0) && wxLUA_USE_wxStandardPaths
 
 #if wxLUA_USE_wxStopWatch && wxUSE_STOPWATCH
-        { wxluaclassname_wxStopWatch, wxStopWatch_methods, wxStopWatch_methodCount, NULL, &wxluatype_wxStopWatch, NULL, NULL, g_wxluanumberArray_None, 0, }, 
+        { wxluaclassname_wxStopWatch, wxStopWatch_methods, wxStopWatch_methodCount, NULL, &wxluatype_wxStopWatch, NULL, NULL, NULL, NULL, NULL, 0, &wxLua_wxStopWatch_delete_function, }, 
 #endif // wxLUA_USE_wxStopWatch && wxUSE_STOPWATCH
 
 #if wxUSE_STREAMS
-        { wxluaclassname_wxStreamBase, wxStreamBase_methods, wxStreamBase_methodCount, NULL, &wxluatype_wxStreamBase, NULL, NULL, g_wxluanumberArray_None, 0, }, 
+        { wxluaclassname_wxStreamBase, wxStreamBase_methods, wxStreamBase_methodCount, NULL, &wxluatype_wxStreamBase, NULL, NULL, NULL, NULL, NULL, 0, &wxLua_wxStreamBase_delete_function, }, 
 #endif // wxUSE_STREAMS
 
-        { wxluaclassname_wxString, wxString_methods, wxString_methodCount, NULL, &wxluatype_wxString, NULL, NULL, g_wxluanumberArray_None, 0, }, 
-        { wxluaclassname_wxStringClientData, wxStringClientData_methods, wxStringClientData_methodCount, NULL, &wxluatype_wxStringClientData, wxluabaseclassnames_wxStringClientData, wxluabaseclassbinds_wxStringClientData, g_wxluanumberArray_None, 0, }, 
-        { wxluaclassname_wxStringTokenizer, wxStringTokenizer_methods, wxStringTokenizer_methodCount, NULL, &wxluatype_wxStringTokenizer, wxluabaseclassnames_wxStringTokenizer, wxluabaseclassbinds_wxStringTokenizer, g_wxluanumberArray_None, 0, }, 
+        { wxluaclassname_wxString, wxString_methods, wxString_methodCount, NULL, &wxluatype_wxString, NULL, NULL, NULL, NULL, NULL, 0, &wxLua_wxString_delete_function, }, 
+        { wxluaclassname_wxStringClientData, wxStringClientData_methods, wxStringClientData_methodCount, NULL, &wxluatype_wxStringClientData, wxluabaseclassnames_wxStringClientData, wxluabaseclassbinds_wxStringClientData, NULL, NULL, NULL, 0, &wxLua_wxStringClientData_delete_function, }, 
+        { wxluaclassname_wxStringTokenizer, wxStringTokenizer_methods, wxStringTokenizer_methodCount, CLASSINFO(wxStringTokenizer), &wxluatype_wxStringTokenizer, wxluabaseclassnames_wxStringTokenizer, wxluabaseclassbinds_wxStringTokenizer, NULL, NULL, NULL, 0, &wxLua_wxStringTokenizer_delete_function, }, 
 
 #if wxLUA_USE_wxSystemOptions
-        { wxluaclassname_wxSystemOptions, wxSystemOptions_methods, wxSystemOptions_methodCount, NULL, &wxluatype_wxSystemOptions, wxluabaseclassnames_wxSystemOptions, wxluabaseclassbinds_wxSystemOptions, g_wxluanumberArray_None, 0, }, 
+        { wxluaclassname_wxSystemOptions, wxSystemOptions_methods, wxSystemOptions_methodCount, CLASSINFO(wxSystemOptions), &wxluatype_wxSystemOptions, wxluabaseclassnames_wxSystemOptions, wxluabaseclassbinds_wxSystemOptions, NULL, NULL, NULL, 0, &wxLua_wxSystemOptions_delete_function, }, 
 #endif // wxLUA_USE_wxSystemOptions
 
 #if wxLUA_USE_wxFile && wxUSE_FILE
-        { wxluaclassname_wxTempFile, wxTempFile_methods, wxTempFile_methodCount, NULL, &wxluatype_wxTempFile, NULL, NULL, g_wxluanumberArray_None, 0, }, 
+        { wxluaclassname_wxTempFile, wxTempFile_methods, wxTempFile_methodCount, NULL, &wxluatype_wxTempFile, NULL, NULL, NULL, NULL, NULL, 0, &wxLua_wxTempFile_delete_function, }, 
 #endif // wxLUA_USE_wxFile && wxUSE_FILE
 
 #if wxLUA_USE_wxTimeSpan && wxUSE_DATETIME
-        { wxluaclassname_wxTimeSpan, wxTimeSpan_methods, wxTimeSpan_methodCount, NULL, &wxluatype_wxTimeSpan, NULL, NULL, g_wxluanumberArray_None, 0, }, 
+        { wxluaclassname_wxTimeSpan, wxTimeSpan_methods, wxTimeSpan_methodCount, NULL, &wxluatype_wxTimeSpan, NULL, NULL, NULL, NULL, NULL, 0, &wxLua_wxTimeSpan_delete_function, }, 
 #endif // wxLUA_USE_wxTimeSpan && wxUSE_DATETIME
 
 #if wxUSE_LONGLONG
-        { wxluaclassname_wxULongLong, wxULongLong_methods, wxULongLong_methodCount, NULL, &wxluatype_wxULongLong, NULL, NULL, g_wxluanumberArray_None, 0, }, 
+        { wxluaclassname_wxULongLong, wxULongLong_methods, wxULongLong_methodCount, NULL, &wxluatype_wxULongLong, NULL, NULL, NULL, NULL, NULL, 0, &wxLua_wxULongLong_delete_function, }, 
 #endif // wxUSE_LONGLONG
 
 
@@ -2755,6 +2822,7 @@ wxLuaBinding_wxbase::wxLuaBinding_wxbase() : wxLuaBinding()
     m_eventArray    = wxLuaGetEventList_wxbase(m_eventCount);
     m_objectArray   = wxLuaGetObjectList_wxbase(m_objectCount);
     m_functionArray = wxLuaGetFunctionList_wxbase(m_functionCount);
+    InitBinding();
 }
 
 bool wxLuaBinding_wxbase::RegisterBinding(const wxLuaState& wxlState)
@@ -2779,138 +2847,14 @@ bool wxLuaBinding_wxbase::RegisterBinding(const wxLuaState& wxlState)
 
 // ---------------------------------------------------------------------------
 
-bool wxLuaBinding_wxbase_init()
+wxLuaBinding* wxLuaBinding_wxbase_init()
 {
     static wxLuaBinding_wxbase m_binding;
-    if (wxLuaBinding::GetBindingList()->Find(&m_binding)) return false;
 
-    wxLuaBinding::GetBindingList()->Append(&m_binding);
-    return true;
+    if (wxLuaBinding::GetBindingArray().Index(&m_binding) == wxNOT_FOUND)
+        wxLuaBinding::GetBindingArray().Add(&m_binding);
+
+    return &m_binding;
 }
-
-wxLUA_IMPLEMENT_ENCAPSULATION(wxDynamicLibrary, wxDynamicLibrary)
-wxLUA_IMPLEMENT_ENCAPSULATION(wxDynamicLibraryDetails, wxDynamicLibraryDetails)
-wxLUA_IMPLEMENT_ENCAPSULATION(wxDynamicLibraryDetailsArray, wxDynamicLibraryDetailsArray)
-wxLUA_IMPLEMENT_ENCAPSULATION(wxFileType, wxFileType)
-wxLUA_IMPLEMENT_ENCAPSULATION(wxFileType::MessageParameters, wxFileType_MessageParameters)
-wxLUA_IMPLEMENT_ENCAPSULATION(wxFileTypeInfo, wxFileTypeInfo)
-wxLUA_IMPLEMENT_ENCAPSULATION(wxIconLocation, wxIconLocation)
-wxLUA_IMPLEMENT_ENCAPSULATION(wxMimeTypesManager, wxMimeTypesManager)
-wxLUA_IMPLEMENT_ENCAPSULATION(wxPathList, wxPathList)
-wxLUA_IMPLEMENT_ENCAPSULATION(wxString, wxString)
-
-#if wxLUA_USE_wxArrayInt
-wxLUA_IMPLEMENT_ENCAPSULATION(wxArrayInt, wxArrayInt)
-#endif // wxLUA_USE_wxArrayInt
-
-
-#if wxLUA_USE_wxArrayString
-wxLUA_IMPLEMENT_ENCAPSULATION(wxArrayString, wxArrayString)
-wxLUA_IMPLEMENT_ENCAPSULATION(wxSortedArrayString, wxSortedArrayString)
-#endif // wxLUA_USE_wxArrayString
-
-
-#if wxLUA_USE_wxConfig && wxUSE_CONFIG
-wxLUA_IMPLEMENT_ENCAPSULATION(wxConfig, wxConfig)
-wxLUA_IMPLEMENT_ENCAPSULATION(wxConfigBase, wxConfigBase)
-wxLUA_IMPLEMENT_ENCAPSULATION(wxConfigPathChanger, wxConfigPathChanger)
-wxLUA_IMPLEMENT_ENCAPSULATION(wxFileConfig, wxFileConfig)
-wxLUA_IMPLEMENT_ENCAPSULATION(wxMemoryConfig, wxMemoryConfig)
-#endif // wxLUA_USE_wxConfig && wxUSE_CONFIG
-
-
-#if wxLUA_USE_wxCriticalSection && wxUSE_THREADS
-wxLUA_IMPLEMENT_ENCAPSULATION(wxCriticalSection, wxCriticalSection)
-#endif // wxLUA_USE_wxCriticalSection && wxUSE_THREADS
-
-
-#if wxLUA_USE_wxCriticalSectionLocker
-wxLUA_IMPLEMENT_ENCAPSULATION(wxCriticalSectionLocker, wxCriticalSectionLocker)
-#endif // wxLUA_USE_wxCriticalSectionLocker
-
-
-#if wxLUA_USE_wxDateSpan && wxUSE_DATETIME
-wxLUA_IMPLEMENT_ENCAPSULATION(wxDateSpan, wxDateSpan)
-#endif // wxLUA_USE_wxDateSpan && wxUSE_DATETIME
-
-
-#if wxLUA_USE_wxDateTime && wxUSE_DATETIME
-wxLUA_IMPLEMENT_ENCAPSULATION(wxDateTime, wxDateTime)
-wxLUA_IMPLEMENT_ENCAPSULATION(wxDateTimeArray, wxDateTimeArray)
-#endif // wxLUA_USE_wxDateTime && wxUSE_DATETIME
-
-
-#if wxLUA_USE_wxDateTimeHolidayAuthority && wxUSE_DATETIME
-wxLUA_IMPLEMENT_ENCAPSULATION(wxDateTimeHolidayAuthority, wxDateTimeHolidayAuthority)
-wxLUA_IMPLEMENT_ENCAPSULATION(wxDateTimeWorkDays, wxDateTimeWorkDays)
-#endif // wxLUA_USE_wxDateTimeHolidayAuthority && wxUSE_DATETIME
-
-
-#if wxLUA_USE_wxDir
-wxLUA_IMPLEMENT_ENCAPSULATION(wxDir, wxDir)
-#endif // wxLUA_USE_wxDir
-
-
-#if wxLUA_USE_wxFile && wxUSE_FILE
-wxLUA_IMPLEMENT_ENCAPSULATION(wxFile, wxFile)
-wxLUA_IMPLEMENT_ENCAPSULATION(wxTempFile, wxTempFile)
-#endif // wxLUA_USE_wxFile && wxUSE_FILE
-
-
-#if wxLUA_USE_wxFileName
-wxLUA_IMPLEMENT_ENCAPSULATION(wxFileName, wxFileName)
-#endif // wxLUA_USE_wxFileName
-
-
-#if wxLUA_USE_wxLog && wxUSE_LOG
-wxLUA_IMPLEMENT_ENCAPSULATION(wxLog, wxLog)
-wxLUA_IMPLEMENT_ENCAPSULATION(wxLogBuffer, wxLogBuffer)
-wxLUA_IMPLEMENT_ENCAPSULATION(wxLogChain, wxLogChain)
-wxLUA_IMPLEMENT_ENCAPSULATION(wxLogNull, wxLogNull)
-wxLUA_IMPLEMENT_ENCAPSULATION(wxLogPassThrough, wxLogPassThrough)
-#endif // wxLUA_USE_wxLog && wxUSE_LOG
-
-
-#if wxLUA_USE_wxRegEx && wxUSE_REGEX
-wxLUA_IMPLEMENT_ENCAPSULATION(wxRegEx, wxRegEx)
-#endif // wxLUA_USE_wxRegEx && wxUSE_REGEX
-
-
-#if wxLUA_USE_wxStopWatch && wxUSE_STOPWATCH
-wxLUA_IMPLEMENT_ENCAPSULATION(wxStopWatch, wxStopWatch)
-#endif // wxLUA_USE_wxStopWatch && wxUSE_STOPWATCH
-
-
-#if wxLUA_USE_wxTimeSpan && wxUSE_DATETIME
-wxLUA_IMPLEMENT_ENCAPSULATION(wxTimeSpan, wxTimeSpan)
-#endif // wxLUA_USE_wxTimeSpan && wxUSE_DATETIME
-
-
-#if wxUSE_INTL
-wxLUA_IMPLEMENT_ENCAPSULATION(wxLanguageInfo, wxLanguageInfo)
-wxLUA_IMPLEMENT_ENCAPSULATION(wxLocale, wxLocale)
-#endif // wxUSE_INTL
-
-
-#if wxUSE_LONGLONG
-wxLUA_IMPLEMENT_ENCAPSULATION(wxLongLong, wxLongLong)
-wxLUA_IMPLEMENT_ENCAPSULATION(wxULongLong, wxULongLong)
-#endif // wxUSE_LONGLONG
-
-
-#if wxUSE_SNGLINST_CHECKER
-wxLUA_IMPLEMENT_ENCAPSULATION(wxSingleInstanceChecker, wxSingleInstanceChecker)
-#endif // wxUSE_SNGLINST_CHECKER
-
-
-#if wxUSE_STREAMS
-wxLUA_IMPLEMENT_ENCAPSULATION(wxDataInputStream, wxDataInputStream)
-wxLUA_IMPLEMENT_ENCAPSULATION(wxDataOutputStream, wxDataOutputStream)
-wxLUA_IMPLEMENT_ENCAPSULATION(wxFileInputStream, wxFileInputStream)
-wxLUA_IMPLEMENT_ENCAPSULATION(wxFileOutputStream, wxFileOutputStream)
-wxLUA_IMPLEMENT_ENCAPSULATION(wxInputStream, wxInputStream)
-wxLUA_IMPLEMENT_ENCAPSULATION(wxMemoryInputStream, wxMemoryInputStream)
-wxLUA_IMPLEMENT_ENCAPSULATION(wxOutputStream, wxOutputStream)
-#endif // wxUSE_STREAMS
 
 

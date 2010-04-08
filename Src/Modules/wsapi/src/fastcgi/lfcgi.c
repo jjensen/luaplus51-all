@@ -29,7 +29,6 @@
 
 #include "lfcgi.h"
 
-
 /*
 ** by default, gcc does not get `tmpname'
 */
@@ -239,7 +238,7 @@ static FILE *getiofile (lua_State *L, const char *name) {
 
 static int g_iofile (lua_State *L, const char *name, const char *mode) {
   if (!lua_isnoneornil(L, 1)) {
-    const char *filename = lua_tostring(L, 1);
+    const char *filename = luaL_checkstring(L, 1);
     lua_pushstring(L, name);
     if (filename) {
       FILE **pf = newfile(L);
@@ -522,7 +521,7 @@ static int lfcgi_accept (lua_State *L) {
 }
 
 static int lfcgi_getenv (lua_State *L) {
-	const char* envVar = lua_tostring(L, 1);
+	const char* envVar = luaL_checkstring(L, 1);
 	char* val = getenv(envVar);
 
 	if(val != NULL) {

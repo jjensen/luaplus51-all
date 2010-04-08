@@ -14,11 +14,12 @@ class tStringBuffer
 public:
 	const char * getBuffer(void);
 	void copyToBuffer(char *source);
+	void copyToBuffer(char *source, size_t length);
 	tStringBuffer();
 	virtual ~tStringBuffer();
 
 protected:
-	long size;
+	size_t size;
 	char * buffer;
 };
 

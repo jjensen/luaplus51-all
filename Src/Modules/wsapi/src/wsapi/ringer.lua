@@ -113,13 +113,19 @@ function new(app_name, bootstrap, is_file)
   local data = { created_at = os.time() }
   setmetatable(data, { __index = _G })
   local state = rings.new(data)
-  data.state = state
   assert(state:dostring(init, app_name, bootstrap, is_file))
   local error = function (msg)
 		   data.status, data.headers, data.env = nil
 		   error(msg)
 		end
   return function (wsapi_env)
+	   if state and wsapi_env == "close" then
+	     state:close()
+	     state = nil
+	   end
+	   if not state then
+	     return nil
+	   end
 	   if rawget(data, "status") then 
 	      error("this state is already in use")
 	   end
@@ -166,6 +172,10 @@ function new(app_name, bootstrap, is_file)
 			   end
 			 end
 			 data.status, data.headers, data.env = nil
+			 if data.cleanup then
+			   state:close()
+			   state = nil
+			 end
 			 if not ok then error(flag) end
 		       end
 	   end

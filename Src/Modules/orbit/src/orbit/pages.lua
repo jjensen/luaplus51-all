@@ -3,15 +3,7 @@ local orbit = require "orbit"
 local model = require "orbit.model"
 local cosmo = require "cosmo"
 
-local io, string = io, string
-local setmetatable, loadstring, setfenv = setmetatable, loadstring, setfenv
-local type, error, tostring = type, error, tostring
-local print, pcall, xpcall, traceback = print, pcall, xpcall, debug.traceback
-local select, unpack = select, unpack
-
-local _G = _G
-
-module("orbit.pages", orbit.new)
+local _M = orbit.new()
 
 local template_cache = {}
 
@@ -26,7 +18,7 @@ local function splitpath(filename)
   return path, file
 end
 
-function load(filename, contents)
+function _M.load(filename, contents)
   filename = filename or contents
   local template = template_cache[filename]
   if not template then
@@ -49,7 +41,7 @@ local function env_index(env, key)
   local val = _G[key]
   if not val and type(key) == "string" then
     local template = 
-      load(env.web.real_path .. "/" .. key .. ".op")
+      _M.load(env.req.app_path .. "/" .. key .. ".op")
     if not template then return nil end
     return function (arg)
 	     arg = arg or {}
@@ -65,11 +57,12 @@ local function abort(res)
   error{ abort, res or "abort" }
 end
 
-local function make_env(web, initial)
+local function make_env(req, res, initial)
   local env = setmetatable(initial or {}, { __index = env_index })
   env._G = env
   env.app = _G
-  env.web = web
+  env.req = req
+  env.res = res
   env.finish = abort
   function env.lua(arg)
     local f, err = loadstring(arg[1])
@@ -84,29 +77,22 @@ local function make_env(web, initial)
       abort(res[2])
     end
   end
-  env["if"] = function (arg)
-		if type(arg[1]) == "function" then arg[1] = arg[1](select(2, unpack(arg))) end
-		if arg[1] then
-		  cosmo.yield{ it = arg[1], _template = 1 }
-		else
-		  cosmo.yield{ _template = 2 }
-		end
-	      end
+  env["if"] = cosmo.cif
   function env.redirect(target)
     if type(target) == "table" then target = target[1] end
-    web:redirect(target)
+    res:redirect(target)
     abort()
-  end
-  function env.fill(arg)
-    cosmo.yield(arg[1])
   end
   function env.link(arg)
     local url = arg[1]
     arg[1] = nil
-    return web:link(url, arg)
+    return req:link(url, arg)
   end
   function env.static_link(arg)
-    return web:static_link(arg[1])
+    return req:static_link(arg[1])
+  end
+  function env.absolute_link(arg)
+    return req:absolute_link(arg[1])
   end
   function env.include(name, subt_env)
     local filename
@@ -115,11 +101,11 @@ local function make_env(web, initial)
       subt_env = name[2]
     end
     if name:sub(1, 1) == "/" then
-      filename = web.doc_root .. name
+      filename = req.doc_root .. name
     else
-      filename = web.real_path .. "/" .. name
+      filename = req.app_path .. "/" .. name
     end
-    local template = load(filename)
+    local template = _M.load(filename)
     if not template then return "" end
     if subt_env then
       if type(subt_env) ~= "table" then subt_env = { it = subt_env } end
@@ -143,9 +129,9 @@ local function make_env(web, initial)
   return env
 end
 
-function fill(web, template, env)
+function _M.fill(req, res, template, env)
   if template then
-    local ok, res = xpcall(function () return template(make_env(web, env)) end,
+    local ok, res = xpcall(function () return template(make_env(req, res, env)) end,
 			   function (msg) 
 			     if type(msg) == "table" and msg[1] == abort then 
 			       return msg
@@ -163,20 +149,21 @@ function fill(web, template, env)
   end
 end
 
-function handle_get(web)
-  local filename = web.path_translated
-  web.real_path = splitpath(filename)
-  local res = fill(web, load(filename))
-  if res then
-    return res
-  else
-     web.status = 404
-     return [[<html>
-	      <head><title>Not Found</title></head>
-	      <body><p>Not found!</p></body></html>]]
-  end
-end
+_M.handler = _M:wrap(function (req, res)
+		       local write = res.write
+		       res.write = nil
+		       local filename = req.env.PATH_TRANSLATED
+		       local response = fill(req, res, _M.load(filename))
+		       if response then
+			 write(res, response)
+			 return res:finish()
+		       else
+			 return _M.not_found(req.env)
+		       end
+		     end)
 
-handle_post = handle_get
+for _, method in ipairs{ "get", "post", "put", "delete" } do
+  _M["dispatch_" .. method](_M, method, "/*", _M.handler)
+end
 
 return _M

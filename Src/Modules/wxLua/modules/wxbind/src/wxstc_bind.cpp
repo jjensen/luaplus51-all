@@ -4,16 +4,16 @@
 // Any changes made to this file will be lost when the file is regenerated.
 // ---------------------------------------------------------------------------
 
+
+#include "wx/wxprec.h"
+
 #ifdef __BORLANDC__
     #pragma hdrstop
 #endif
 
-#include "wx/wxprec.h"
-
 #ifndef WX_PRECOMP
      #include "wx/wx.h"
 #endif
-
 
 #include "wxlua/include/wxlstate.h"
 #include "wxbind/include/wxstc_bind.h"
@@ -1550,7 +1550,7 @@ static int LUACALL wxLua_wxStyledTextCtrl_GetCaretForeground(lua_State *L)
     // allocate a new object using the copy constructor
     wxColour* returns = new wxColour(self->GetCaretForeground());
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (wxColour*)returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxColour);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxColour);
 
@@ -1572,7 +1572,7 @@ static int LUACALL wxLua_wxStyledTextCtrl_GetCaretLineBack(lua_State *L)
     // allocate a new object using the copy constructor
     wxColour* returns = new wxColour(self->GetCaretLineBack());
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (wxColour*)returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxColour);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxColour);
 
@@ -1594,7 +1594,7 @@ static int LUACALL wxLua_wxStyledTextCtrl_GetCaretLineBackground(lua_State *L)
     // allocate a new object using the copy constructor
     wxColour* returns = new wxColour(self->GetCaretLineBackground());
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (wxColour*)returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxColour);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxColour);
 
@@ -1833,7 +1833,7 @@ static int LUACALL wxLua_wxStyledTextCtrl_GetEdgeColour(lua_State *L)
     // allocate a new object using the copy constructor
     wxColour* returns = new wxColour(self->GetEdgeColour());
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (wxColour*)returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxColour);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxColour);
 
@@ -3337,7 +3337,7 @@ static int LUACALL wxLua_wxStyledTextCtrl_IndicatorGetForeground(lua_State *L)
     // allocate a new object using the copy constructor
     wxColour* returns = new wxColour(self->IndicatorGetForeground(indic));
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (wxColour*)returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxColour);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxColour);
 
@@ -4303,7 +4303,7 @@ static int LUACALL wxLua_wxStyledTextCtrl_PointFromPosition(lua_State *L)
     // allocate a new object using the copy constructor
     wxPoint* returns = new wxPoint(self->PointFromPosition(pos));
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxPoint((wxPoint*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxPoint);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxPoint);
 
@@ -7391,6 +7391,12 @@ static int LUACALL wxLua_wxStyledTextCtrl_constructor(lua_State *L)
 
 
 
+void wxLua_wxStyledTextCtrl_delete_function(void** p)
+{
+    wxStyledTextCtrl* o = (wxStyledTextCtrl*)(*p);
+    delete o;
+}
+
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxStyledTextCtrl_methods[] = {
     { "AddRefDocument", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxStyledTextCtrl_AddRefDocument, 1, NULL },
@@ -8677,7 +8683,7 @@ static int LUACALL wxLua_wxStyledTextEvent_constructor(lua_State *L)
     // call constructor
     wxStyledTextEvent* returns = new wxStyledTextEvent(commandType, id);
     // add to tracked memory list
-    wxluaO_addgcobject(L, returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxStyledTextEvent);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxStyledTextEvent);
 
@@ -8685,6 +8691,12 @@ static int LUACALL wxLua_wxStyledTextEvent_constructor(lua_State *L)
 }
 
 
+
+void wxLua_wxStyledTextEvent_delete_function(void** p)
+{
+    wxStyledTextEvent* o = (wxStyledTextEvent*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxStyledTextEvent_methods[] = {
@@ -10244,8 +10256,10 @@ static wxLuaBindClass* wxluabaseclassbinds_wxStyledTextEvent[] = { NULL };
 
 extern wxLuaBindMethod wxStyledTextCtrl_methods[];
 extern int wxStyledTextCtrl_methodCount;
+extern void wxLua_wxStyledTextCtrl_delete_function(void** p);
 extern wxLuaBindMethod wxStyledTextEvent_methods[];
 extern int wxStyledTextEvent_methodCount;
+extern void wxLua_wxStyledTextEvent_delete_function(void** p);
 
 
 
@@ -10254,8 +10268,8 @@ wxLuaBindClass* wxLuaGetClassList_wxstc(size_t &count)
 {
     static wxLuaBindClass classList[] =
     {
-        { wxluaclassname_wxStyledTextCtrl, wxStyledTextCtrl_methods, wxStyledTextCtrl_methodCount, CLASSINFO(wxStyledTextCtrl), &wxluatype_wxStyledTextCtrl, wxluabaseclassnames_wxStyledTextCtrl, wxluabaseclassbinds_wxStyledTextCtrl, g_wxluanumberArray_None, 0, }, 
-        { wxluaclassname_wxStyledTextEvent, wxStyledTextEvent_methods, wxStyledTextEvent_methodCount, CLASSINFO(wxStyledTextEvent), &wxluatype_wxStyledTextEvent, wxluabaseclassnames_wxStyledTextEvent, wxluabaseclassbinds_wxStyledTextEvent, g_wxluanumberArray_None, 0, }, 
+        { wxluaclassname_wxStyledTextCtrl, wxStyledTextCtrl_methods, wxStyledTextCtrl_methodCount, CLASSINFO(wxStyledTextCtrl), &wxluatype_wxStyledTextCtrl, wxluabaseclassnames_wxStyledTextCtrl, wxluabaseclassbinds_wxStyledTextCtrl, NULL, NULL, NULL, 0, &wxLua_wxStyledTextCtrl_delete_function, }, 
+        { wxluaclassname_wxStyledTextEvent, wxStyledTextEvent_methods, wxStyledTextEvent_methodCount, CLASSINFO(wxStyledTextEvent), &wxluatype_wxStyledTextEvent, wxluabaseclassnames_wxStyledTextEvent, wxluabaseclassbinds_wxStyledTextEvent, NULL, NULL, NULL, 0, &wxLua_wxStyledTextEvent_delete_function, }, 
 
         { 0, 0, 0, 0, 0, 0, 0 }, 
     };
@@ -10280,19 +10294,21 @@ wxLuaBinding_wxstc::wxLuaBinding_wxstc() : wxLuaBinding()
     m_eventArray    = wxLuaGetEventList_wxstc(m_eventCount);
     m_objectArray   = wxLuaGetObjectList_wxstc(m_objectCount);
     m_functionArray = wxLuaGetFunctionList_wxstc(m_functionCount);
+    InitBinding();
 }
 
 
 
 // ---------------------------------------------------------------------------
 
-bool wxLuaBinding_wxstc_init()
+wxLuaBinding* wxLuaBinding_wxstc_init()
 {
     static wxLuaBinding_wxstc m_binding;
-    if (wxLuaBinding::GetBindingList()->Find(&m_binding)) return false;
 
-    wxLuaBinding::GetBindingList()->Append(&m_binding);
-    return true;
+    if (wxLuaBinding::GetBindingArray().Index(&m_binding) == wxNOT_FOUND)
+        wxLuaBinding::GetBindingArray().Add(&m_binding);
+
+    return &m_binding;
 }
 
 

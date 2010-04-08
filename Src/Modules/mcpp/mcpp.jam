@@ -1,12 +1,10 @@
 if $(NT)
 {
 
-SubDir LUAPLUS Src Modules mcpp ;
-
 {
 
 local SRCS =
-		mcpp.cpp
+		mcpp.c
 		mcpp/src/configed.H
 		mcpp/src/directive.c
 		mcpp/src/eval.c
@@ -25,7 +23,7 @@ local SRCS =
 
 C.Defines mcpp : MCPP_LIB ;
 
-LuaPlusAddModule mcpp : $(SRCS) ;
+Lua.CModule mcpp : : $(SRCS) ;
 
 }
 

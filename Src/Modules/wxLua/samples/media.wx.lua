@@ -52,7 +52,7 @@ function UpdateButtons()
     local pause_ok = false
     local stop_ok  = false
 
-    if loadedMedia then
+    if loadedMedia then 
         -- Note: state may be -1 after first loading a file
         local state = mediaCtrl:GetState()
 

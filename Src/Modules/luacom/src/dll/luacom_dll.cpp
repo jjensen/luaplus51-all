@@ -4,7 +4,7 @@ extern "C" {
   #include "lua.h"
   #include "lualib.h"
   #include "lauxlib.h"
-  #include "../Library/LuaCompat.h"
+  #include "LuaCompat.h"
 #ifdef IUP
   #include "iup.h"
   #ifndef NO_CPICONTROLS
@@ -36,10 +36,21 @@ extern "C" {
 #include "tUtil.h"
 #include "tCOMUtil.h"
 
-extern "C" LUAMODULE_API int luaopen_luacom(lua_State* L) {
+extern "C" int luacom_openlib(lua_State* L) {
 	luacom_open(L);
 	return 0;
 }
+#if defined(LUA_VERSION_NUM) && LUA_VERSION_NUM >= 501
+extern "C" int luaopen_luacom(lua_State* L) {
+	return luacom_openlib(L);
+}
+#endif
+
+
+#if defined(LUA_VERSION_NUM) && LUA_VERSION_NUM >= 501
+#define lua_dofile luaL_dofile
+#endif
+
 
 static lua_State* factoryCache; // Maps CLSIDs to factories
 
@@ -106,20 +117,17 @@ static lua_State* luacom_DoRegistryFile(const char* luaclsid) {
 	strcat(key,"\\ScriptFile");
 
 	if(tCOMUtil::GetRegKeyValue(key,&fileName)) {
-#if defined(LUA4)
-		L_inproc = lua_open(0);
-		lua_baselibopen(L_inproc);
-		lua_mathlibopen(L_inproc);
-		lua_iolibopen(L_inproc);
-		lua_strlibopen(L_inproc);
-#else
 		L_inproc = lua_open();
+		#if defined(LUA_VERSION_NUM) && LUA_VERSION_NUM >= 501
+ 		luaL_openlibs(L_inproc);
+ 		#else
 		luaopen_base(L_inproc);
 		luaopen_math(L_inproc);
 		luaopen_io(L_inproc);
 		luaopen_string(L_inproc);
 		luaopen_table(L_inproc);
-//		luaopen_loadlib(L_inproc);
+		luaopen_loadlib(L_inproc); // luaopen_package(L_inproc);
+ 		#endif
 		#ifdef IUP
 			/* iuplua initialization */
 			iuplua_open(L_inproc);
@@ -137,7 +145,7 @@ static lua_State* luacom_DoRegistryFile(const char* luaclsid) {
 			#endif
 			iupluaim_open(L_inproc);
 		#endif
-#endif	
+
 		luacom_open(L_inproc);
 		lua_getregistry(L_inproc);
 		lua_pushstring(L_inproc,"inproc");
@@ -145,7 +153,7 @@ static lua_State* luacom_DoRegistryFile(const char* luaclsid) {
 		lua_settable(L_inproc,-3);
 		lua_pop(L_inproc,1);
 
-		if(!luaL_dofile(L_inproc,fileName)) {
+		if(!lua_dofile(L_inproc,fileName)) {
 			lua_pushstring(L_inproc,"StartAutomation");
 			lua_gettable(L_inproc,-2);
 			if(luaCompat_call(L_inproc, 0, 0, NULL)) {
@@ -180,7 +188,7 @@ static tLuaCOMClassFactory* luacom_GetInprocFactory(REFCLSID rclsid) {
 			}
 		}
 		return pFactory;
- 	} catch(class tLuaCOMException& e) {
+ 	} catch(class tLuaCOMException&) {
       return NULL;
 	}
 }
@@ -205,9 +213,9 @@ BOOL APIENTRY DllMain( HANDLE hModule,
 	g_hInstance = (HINSTANCE)hModule;
 	if(ul_reason_for_call == DLL_PROCESS_ATTACH) {
 		OleInitialize(NULL);
-//		factoryCache_Init();
+		factoryCache_Init();
 	} else if(ul_reason_for_call == DLL_PROCESS_DETACH) {
-//		factoryCache_Release();
+		factoryCache_Release();
 		OleUninitialize();
 	}
     return TRUE;

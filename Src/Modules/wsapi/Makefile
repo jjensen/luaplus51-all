@@ -35,8 +35,9 @@ clean:
 	rm src/fastcgi/lfcgi.o src/fastcgi/lfcgi.so
 
 snapshot:
-	cvs export -r HEAD -d wsapi-1.0-snapshot wsapi
-	tar czf wsapi-1.0-snapshot.tar.gz wsapi-1.0-snapshot
-	rm -rf wsapi-1.0-snapshot
-	scp wsapi-1.0-snapshot.tar.gz mascarenhas@139.82.100.4:public_html/
+	git archive --format=tar --prefix=wsapi-$(VERSION)/ HEAD | gzip > wsapi-$(VERSION).tar.gz
 
+rockspecs:
+	for pkg in wsapi wsapi-fcgi wsapi-xavante ; do cp rockspec/$$pkg-$(VERSION_OLD)-1.rockspec rockspec/$$pkg-$(VERSION_NEW)-1.rockspec ; done
+	for pkg in wsapi wsapi-fcgi wsapi-xavante; do sed -e "s/$(VERSION_OLD)/$(VERSION_NEW)/g" -i "" rockspec/$$pkg-$(VERSION_NEW)-1.rockspec ; done
+	for pkg in wsapi wsapi-fcgi wsapi-xavante; do git add rockspec/$$pkg-$(VERSION_NEW)-1.rockspec ; done

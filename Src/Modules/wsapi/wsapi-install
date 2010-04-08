@@ -47,10 +47,10 @@ PACKAGE=WSAPI
 PACKAGE_OPT=wsapi
 PACKAGE_ROCK=wsapi-xavante
 INSTALLER_VERSION=0.6
-PACKAGE_VERSION=1.2
+PACKAGE_VERSION=1.3.4
 LUAROCKS_REPO=http://luarocks.org/repositories/rocks
-LUAROCKS_URL=http://www.luarocks.org/releases/luarocks-2.0.1.tar.gz
-LUAROCKS_VERSION=2.0.1
+LUAROCKS_URL=http://www.luarocks.org/releases/luarocks-2.0.2.tar.gz
+LUAROCKS_VERSION=2.0.2
 
 # Help
 
@@ -76,6 +76,7 @@ Installs Lua $LUA_VERSION, LuaRocks $LUAROCKS_VERSION and $PACKAGE $PACKAGE_VERS
                             Used by Lua when Readline is enabled.
                             Default is $NCURSES_DIR
 --without-readline          Disable Readline support when building Lua.
+--from=URL                  Install from LuaRocks repository URL
 --with-$PACKAGE_OPT=VERSION
      Installs the provided $PACKAGE version instead
      of $PACKAGE $PACKAGE_VERSION
@@ -121,6 +122,9 @@ do
    --with-readline=*)
       READLINE_DIR="$value"
       USE_READLINE=yes
+      ;;
+   --from=*)
+      LUAROCKS_REPO="$value"
       ;;
    --with-ncurses=*)
       NCURSES_DIR="$value"

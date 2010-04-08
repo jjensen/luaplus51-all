@@ -288,13 +288,18 @@ static int p4_map_translate(lua_State* L) {
 	P4MapMaker* m = p4_checkmap(L, 1);
 
 	int argc = lua_gettop(L);
+	int optboolean;
+
     if( argc < 2 || argc > 3 )
 		luaL_error(L, "Invalid arguments to P4::Map#translate. "
 			"Pass the string you wish to translate, and an optional "
 			"boolean to indicate whether translation should be in "
 			"the forward direction." );
 
-	m->Translate(2, luaL_optboolean(L, 3, 1));
+	optboolean = 1;
+	if (lua_type(L, 3) == LUA_TBOOLEAN) 
+		optboolean = lua_toboolean(L, 3);
+	m->Translate(2, optboolean);
 	return 1;
 }
 

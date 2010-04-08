@@ -1,4 +1,6 @@
 
+local schema = require "orbit.schema"
+
 -- Puts all the definitions below in blog's namespace
 module("blog", package.seeall)
 
@@ -27,6 +29,37 @@ database = {
   driver = "sqlite3",
   conn_data = { blog.real_path .. "/blog.db" }
 }
+
+blog_schema = schema.loadstring([[
+  table_prefix = "blog_"
+  post = entity {
+    fields = {
+      id = key(),
+      title = text(),
+      body = long_text(),
+      n_comments = integer(),
+      published_at = timestamp()
+    }
+  }
+  comment = entity {
+    fields = {
+      id = key(),
+      post_id = integer(),
+      author = text(),
+      email = text(),
+      url = text(),
+      body = long_text(),
+      created_at = timestamp()
+    }
+  }
+  page = entity {
+    fields = {
+      id = key(),
+      title = text(),
+      body = long_text(),
+    }
+  }
+]], "@blog_schema.lua")
 
 recent_count = 7
 

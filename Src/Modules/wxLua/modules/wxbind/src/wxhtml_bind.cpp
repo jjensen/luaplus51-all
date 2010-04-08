@@ -4,16 +4,16 @@
 // Any changes made to this file will be lost when the file is regenerated.
 // ---------------------------------------------------------------------------
 
+
+#include "wx/wxprec.h"
+
 #ifdef __BORLANDC__
     #pragma hdrstop
 #endif
 
-#include "wx/wxprec.h"
-
 #ifndef WX_PRECOMP
      #include "wx/wx.h"
 #endif
-
 
 #include "wxlua/include/wxlstate.h"
 #include "wxbind/include/wxhtml_bind.h"
@@ -442,7 +442,7 @@ static int LUACALL wxLua_wxHtmlCell_constructor(lua_State *L)
     // call constructor
     wxHtmlCell* returns = new wxHtmlCell();
     // add to tracked memory list
-    wxluaO_addgcobject(L, returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxHtmlCell);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxHtmlCell);
 
@@ -451,6 +451,12 @@ static int LUACALL wxLua_wxHtmlCell_constructor(lua_State *L)
 
 
 
+
+void wxLua_wxHtmlCell_delete_function(void** p)
+{
+    wxHtmlCell* o = (wxHtmlCell*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxHtmlCell_methods[] = {
@@ -509,8 +515,6 @@ static int LUACALL wxLua_wxHtmlWidgetCell_constructor(lua_State *L)
     wxWindow * wnd = (wxWindow *)wxluaT_getuserdatatype(L, 1, wxluatype_wxWindow);
     // call constructor
     wxHtmlWidgetCell* returns = new wxHtmlWidgetCell(wnd, w);
-    // add to tracked window list, it will check validity
-    wxluaW_addtrackedwindow(L, returns);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxHtmlWidgetCell);
 
@@ -519,6 +523,12 @@ static int LUACALL wxLua_wxHtmlWidgetCell_constructor(lua_State *L)
 
 
 
+
+void wxLua_wxHtmlWidgetCell_delete_function(void** p)
+{
+    wxHtmlWidgetCell* o = (wxHtmlWidgetCell*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxHtmlWidgetCell_methods[] = {
@@ -586,7 +596,7 @@ static int LUACALL wxLua_wxHtmlContainerCell_GetBackgroundColour(lua_State *L)
     // allocate a new object using the copy constructor
     wxColour* returns = new wxColour(self->GetBackgroundColour());
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (wxColour*)returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxColour);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxColour);
 
@@ -823,8 +833,6 @@ static int LUACALL wxLua_wxHtmlContainerCell_constructor(lua_State *L)
     wxHtmlContainerCell * parent = (wxHtmlContainerCell *)wxluaT_getuserdatatype(L, 1, wxluatype_wxHtmlContainerCell);
     // call constructor
     wxHtmlContainerCell* returns = new wxHtmlContainerCell(parent);
-    // add to tracked window list, it will check validity
-    wxluaW_addtrackedwindow(L, returns);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxHtmlContainerCell);
 
@@ -844,6 +852,12 @@ static wxLuaBindCFunc s_wxluafunc_wxLua_wxHtmlContainerCell_SetWidthFloat_overlo
 static int s_wxluafunc_wxLua_wxHtmlContainerCell_SetWidthFloat_overload_count = sizeof(s_wxluafunc_wxLua_wxHtmlContainerCell_SetWidthFloat_overload)/sizeof(wxLuaBindCFunc);
 
 #endif // (wxLUA_USE_wxHTML && wxUSE_HTML)
+
+void wxLua_wxHtmlContainerCell_delete_function(void** p)
+{
+    wxHtmlContainerCell* o = (wxHtmlContainerCell*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxHtmlContainerCell_methods[] = {
@@ -906,8 +920,6 @@ static int LUACALL wxLua_wxHtmlColourCell_constructor(lua_State *L)
     const wxColour * clr = (const wxColour *)wxluaT_getuserdatatype(L, 1, wxluatype_wxColour);
     // call constructor
     wxHtmlColourCell* returns = new wxHtmlColourCell(*clr, flags);
-    // add to tracked window list, it will check validity
-    wxluaW_addtrackedwindow(L, returns);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxHtmlColourCell);
 
@@ -917,6 +929,12 @@ static int LUACALL wxLua_wxHtmlColourCell_constructor(lua_State *L)
 #endif // (wxLUA_USE_wxColourPenBrush) && ((wxLUA_USE_wxHTML && wxUSE_HTML) && (wxCHECK_VERSION(2,8,0)))
 
 
+
+void wxLua_wxHtmlColourCell_delete_function(void** p)
+{
+    wxHtmlColourCell* o = (wxHtmlColourCell*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxHtmlColourCell_methods[] = {
@@ -951,8 +969,6 @@ static int LUACALL wxLua_wxHtmlFontCell_constructor(lua_State *L)
     wxFont * font = (wxFont *)wxluaT_getuserdatatype(L, 1, wxluatype_wxFont);
     // call constructor
     wxHtmlFontCell* returns = new wxHtmlFontCell(font);
-    // add to tracked window list, it will check validity
-    wxluaW_addtrackedwindow(L, returns);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxHtmlFontCell);
 
@@ -962,6 +978,12 @@ static int LUACALL wxLua_wxHtmlFontCell_constructor(lua_State *L)
 #endif // (wxLUA_USE_wxFont) && ((wxLUA_USE_wxHTML && wxUSE_HTML) && (wxCHECK_VERSION(2,8,0)))
 
 
+
+void wxLua_wxHtmlFontCell_delete_function(void** p)
+{
+    wxHtmlFontCell* o = (wxHtmlFontCell*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxHtmlFontCell_methods[] = {
@@ -1032,7 +1054,7 @@ static int LUACALL wxLua_wxHtmlCellEvent_GetMouseEvent(lua_State *L)
     // allocate a new object using the copy constructor
     wxMouseEvent* returns = new wxMouseEvent(self->GetMouseEvent());
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (wxMouseEvent*)returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxMouseEvent);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxMouseEvent);
 
@@ -1053,7 +1075,7 @@ static int LUACALL wxLua_wxHtmlCellEvent_GetPoint(lua_State *L)
     // allocate a new object using the copy constructor
     wxPoint* returns = new wxPoint(self->GetPoint());
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxPoint((wxPoint*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxPoint);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxPoint);
 
@@ -1102,7 +1124,7 @@ static int LUACALL wxLua_wxHtmlCellEvent_constructor1(lua_State *L)
     // call constructor
     wxHtmlCellEvent* returns = new wxHtmlCellEvent(commandType, id, cell, *pt, *ev);
     // add to tracked memory list
-    wxluaO_addgcobject(L, returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxHtmlCellEvent);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxHtmlCellEvent);
 
@@ -1119,7 +1141,7 @@ static int LUACALL wxLua_wxHtmlCellEvent_constructor(lua_State *L)
     // call constructor
     wxHtmlCellEvent* returns = new wxHtmlCellEvent();
     // add to tracked memory list
-    wxluaO_addgcobject(L, returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxHtmlCellEvent);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxHtmlCellEvent);
 
@@ -1142,6 +1164,12 @@ static wxLuaBindCFunc s_wxluafunc_wxLua_wxHtmlCellEvent_constructor_overload[] =
 static int s_wxluafunc_wxLua_wxHtmlCellEvent_constructor_overload_count = sizeof(s_wxluafunc_wxLua_wxHtmlCellEvent_constructor_overload)/sizeof(wxLuaBindCFunc);
 
 #endif // ((((wxLUA_USE_wxHTML && wxUSE_HTML) && (wxCHECK_VERSION(2,8,0))) && (wxLUA_USE_wxHTML && wxUSE_HTML)) && (wxLUA_USE_wxPointSizeRect))||((wxLUA_USE_wxHTML && wxUSE_HTML) && (wxCHECK_VERSION(2,8,0)))
+
+void wxLua_wxHtmlCellEvent_delete_function(void** p)
+{
+    wxHtmlCellEvent* o = (wxHtmlCellEvent*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxHtmlCellEvent_methods[] = {
@@ -1261,7 +1289,7 @@ static int LUACALL wxLua_wxHtmlLinkInfo_constructor(lua_State *L)
     // call constructor
     wxHtmlLinkInfo* returns = new wxHtmlLinkInfo(href, target);
     // add to tracked memory list
-    wxluaO_addgcobject(L, returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxHtmlLinkInfo);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxHtmlLinkInfo);
 
@@ -1270,6 +1298,12 @@ static int LUACALL wxLua_wxHtmlLinkInfo_constructor(lua_State *L)
 
 
 
+
+void wxLua_wxHtmlLinkInfo_delete_function(void** p)
+{
+    wxHtmlLinkInfo* o = (wxHtmlLinkInfo*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxHtmlLinkInfo_methods[] = {
@@ -1480,6 +1514,12 @@ static int LUACALL wxLua_wxHtmlTag_HasParam(lua_State *L)
 
 
 
+
+void wxLua_wxHtmlTag_delete_function(void** p)
+{
+    wxHtmlTag* o = (wxHtmlTag*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxHtmlTag_methods[] = {
@@ -2026,6 +2066,12 @@ static int LUACALL wxLua_wxHtmlWindow_constructor(lua_State *L)
 
 
 
+void wxLua_wxHtmlWindow_delete_function(void** p)
+{
+    wxHtmlWindow* o = (wxHtmlWindow*)(*p);
+    delete o;
+}
+
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxHtmlWindow_methods[] = {
     { "AppendToPage", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxHtmlWindow_AppendToPage, 1, NULL },
@@ -2136,6 +2182,12 @@ static int LUACALL wxLua_wxLuaHtmlWindow_constructor(lua_State *L)
 
 
 
+void wxLua_wxLuaHtmlWindow_delete_function(void** p)
+{
+    wxLuaHtmlWindow* o = (wxLuaHtmlWindow*)(*p);
+    delete o;
+}
+
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxLuaHtmlWindow_methods[] = {
 #if (wxLUA_USE_wxPointSizeRect) && ((wxLUA_USE_wxHTML && wxUSE_HTML) && (wxLUA_USE_wxLuaHtmlWindow))
@@ -2232,6 +2284,12 @@ static wxLuaBindCFunc s_wxluafunc_wxLua_wxLuaHtmlWinTagEvent_delete[1] = {{ wxlu
 
 
 
+
+void wxLua_wxLuaHtmlWinTagEvent_delete_function(void** p)
+{
+    wxLuaHtmlWinTagEvent* o = (wxLuaHtmlWinTagEvent*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxLuaHtmlWinTagEvent_methods[] = {
@@ -2336,6 +2394,12 @@ static int s_wxluafunc_wxLua_wxHtmlParser_DoParsing_overload_count = sizeof(s_wx
 
 #endif // (wxLUA_USE_wxHTML && wxUSE_HTML)
 
+void wxLua_wxHtmlParser_delete_function(void** p)
+{
+    wxHtmlParser* o = (wxHtmlParser*)(*p);
+    delete o;
+}
+
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxHtmlParser_methods[] = {
 #if (wxLUA_USE_wxHTML && wxUSE_HTML)
@@ -2410,7 +2474,7 @@ static int LUACALL wxLua_wxHtmlWinParser_GetActualColor(lua_State *L)
     // allocate a new object using the copy constructor
     wxColour* returns = new wxColour(self->GetActualColor());
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (wxColour*)returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxColour);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxColour);
 
@@ -2629,7 +2693,7 @@ static int LUACALL wxLua_wxHtmlWinParser_GetLinkColor(lua_State *L)
     // allocate a new object using the copy constructor
     wxColour* returns = new wxColour(self->GetLinkColor());
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (wxColour*)returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxColour);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxColour);
 
@@ -2970,8 +3034,6 @@ static int LUACALL wxLua_wxHtmlWinParser_constructor(lua_State *L)
     wxHtmlWindow * wnd = (wxHtmlWindow *)wxluaT_getuserdatatype(L, 1, wxluatype_wxHtmlWindow);
     // call constructor
     wxHtmlWinParser* returns = new wxHtmlWinParser(wnd);
-    // add to tracked window list, it will check validity
-    wxluaW_addtrackedwindow(L, returns);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxHtmlWinParser);
 
@@ -2980,6 +3042,12 @@ static int LUACALL wxLua_wxHtmlWinParser_constructor(lua_State *L)
 
 
 
+
+void wxLua_wxHtmlWinParser_delete_function(void** p)
+{
+    wxHtmlWinParser* o = (wxHtmlWinParser*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxHtmlWinParser_methods[] = {
@@ -3079,7 +3147,7 @@ static int LUACALL wxLua_wxHtmlWindowInterface_GetHTMLBackgroundColour(lua_State
     // allocate a new object using the copy constructor
     wxColour* returns = new wxColour(self->GetHTMLBackgroundColour());
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (wxColour*)returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxColour);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxColour);
 
@@ -3103,7 +3171,7 @@ static int LUACALL wxLua_wxHtmlWindowInterface_GetHTMLCursor(lua_State *L)
     // allocate a new object using the copy constructor
     wxCursor* returns = new wxCursor(self->GetHTMLCursor(type));
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (wxCursor*)returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxCursor);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxCursor);
 
@@ -3146,7 +3214,7 @@ static int LUACALL wxLua_wxHtmlWindowInterface_HTMLCoordsToWindow(lua_State *L)
     // allocate a new object using the copy constructor
     wxPoint* returns = new wxPoint(self->HTMLCoordsToWindow(cell, *pos));
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxPoint((wxPoint*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxPoint);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxPoint);
 
@@ -3246,6 +3314,12 @@ static int LUACALL wxLua_wxHtmlWindowInterface_SetHTMLWindowTitle(lua_State *L)
 
 
 
+
+void wxLua_wxHtmlWindowInterface_delete_function(void** p)
+{
+    wxHtmlWindowInterface* o = (wxHtmlWindowInterface*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxHtmlWindowInterface_methods[] = {
@@ -3514,7 +3588,7 @@ static int LUACALL wxLua_wxSimpleHtmlListBox_GetStrings(lua_State *L)
     // allocate a new object using the copy constructor
     wxArrayString* returns = new wxArrayString(self->GetStrings());
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxArrayString((wxArrayString*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxArrayString);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxArrayString);
 
@@ -3642,6 +3716,12 @@ static wxLuaBindCFunc s_wxluafunc_wxLua_wxSimpleHtmlListBox_constructor_overload
 static int s_wxluafunc_wxLua_wxSimpleHtmlListBox_constructor_overload_count = sizeof(s_wxluafunc_wxLua_wxSimpleHtmlListBox_constructor_overload)/sizeof(wxLuaBindCFunc);
 
 #endif // ((((wxLUA_USE_wxValidator && wxUSE_VALIDATORS) && ((wxLUA_USE_wxHTML && wxUSE_HTML) && (wxCHECK_VERSION(2,8,0)))) && (wxLUA_USE_wxArrayString)) && (wxLUA_USE_wxPointSizeRect))||((wxLUA_USE_wxHTML && wxUSE_HTML) && (wxCHECK_VERSION(2,8,0)))
+
+void wxLua_wxSimpleHtmlListBox_delete_function(void** p)
+{
+    wxSimpleHtmlListBox* o = (wxSimpleHtmlListBox*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxSimpleHtmlListBox_methods[] = {
@@ -3840,7 +3920,7 @@ static int LUACALL wxLua_wxHtmlDCRenderer_constructor(lua_State *L)
     // call constructor
     wxHtmlDCRenderer* returns = new wxHtmlDCRenderer();
     // add to tracked memory list
-    wxluaO_addgcobject(L, returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxHtmlDCRenderer);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxHtmlDCRenderer);
 
@@ -3866,6 +3946,12 @@ static wxLuaBindCFunc s_wxluafunc_wxLua_wxHtmlDCRenderer_Render_overload[] =
 static int s_wxluafunc_wxLua_wxHtmlDCRenderer_Render_overload_count = sizeof(s_wxluafunc_wxLua_wxHtmlDCRenderer_Render_overload)/sizeof(wxLuaBindCFunc);
 
 #endif // ((wxLUA_USE_wxArrayInt) && ((wxCHECK_VERSION(2,8,0)) && (wxLUA_USE_wxHTML && wxUSE_HTML)))||((!wxCHECK_VERSION(2,8,0)) && (wxLUA_USE_wxHTML && wxUSE_HTML))
+
+void wxLua_wxHtmlDCRenderer_delete_function(void** p)
+{
+    wxHtmlDCRenderer* o = (wxHtmlDCRenderer*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxHtmlDCRenderer_methods[] = {
@@ -4107,7 +4193,7 @@ static int LUACALL wxLua_wxHtmlEasyPrinting_constructor(lua_State *L)
     // call constructor
     wxHtmlEasyPrinting* returns = new wxHtmlEasyPrinting(name, parent_frame);
     // add to tracked memory list
-    wxluaO_addgcobject(L, returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxHtmlEasyPrinting);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxHtmlEasyPrinting);
 
@@ -4117,6 +4203,12 @@ static int LUACALL wxLua_wxHtmlEasyPrinting_constructor(lua_State *L)
 #endif // (wxLUA_USE_wxFrame) && (wxLUA_USE_wxHTML && wxUSE_HTML)
 
 
+
+void wxLua_wxHtmlEasyPrinting_delete_function(void** p)
+{
+    wxHtmlEasyPrinting* o = (wxHtmlEasyPrinting*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxHtmlEasyPrinting_methods[] = {
@@ -4279,7 +4371,7 @@ static int LUACALL wxLua_wxHtmlPrintout_constructor(lua_State *L)
     // call constructor
     wxHtmlPrintout* returns = new wxHtmlPrintout(title);
     // add to tracked memory list
-    wxluaO_addgcobject(L, returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxHtmlPrintout);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxHtmlPrintout);
 
@@ -4288,6 +4380,12 @@ static int LUACALL wxLua_wxHtmlPrintout_constructor(lua_State *L)
 
 
 
+
+void wxLua_wxHtmlPrintout_delete_function(void** p)
+{
+    wxHtmlPrintout* o = (wxHtmlPrintout*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxHtmlPrintout_methods[] = {
@@ -4396,7 +4494,7 @@ static int LUACALL wxLua_wxHtmlHelpData_constructor(lua_State *L)
     // call constructor
     wxHtmlHelpData* returns = new wxHtmlHelpData();
     // add to tracked memory list
-    wxluaO_addgcobject(L, returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxHtmlHelpData);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxHtmlHelpData);
 
@@ -4405,6 +4503,12 @@ static int LUACALL wxLua_wxHtmlHelpData_constructor(lua_State *L)
 
 
 
+
+void wxLua_wxHtmlHelpData_delete_function(void** p)
+{
+    wxHtmlHelpData* o = (wxHtmlHelpData*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxHtmlHelpData_methods[] = {
@@ -4636,7 +4740,7 @@ static int LUACALL wxLua_wxHtmlHelpController_constructor(lua_State *L)
     // call constructor
     wxHtmlHelpController* returns = new wxHtmlHelpController(style);
     // add to tracked memory list
-    wxluaO_addgcobject(L, returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxHtmlHelpController);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxHtmlHelpController);
 
@@ -4670,6 +4774,12 @@ static wxLuaBindCFunc s_wxluafunc_wxLua_wxHtmlHelpController_Display_overload[] 
 static int s_wxluafunc_wxLua_wxHtmlHelpController_Display_overload_count = sizeof(s_wxluafunc_wxLua_wxHtmlHelpController_Display_overload)/sizeof(wxLuaBindCFunc);
 
 #endif // ((wxLUA_USE_wxHTML && wxUSE_HTML) && (wxLUA_USE_wxHtmlHelpController && wxUSE_WXHTML_HELP))
+
+void wxLua_wxHtmlHelpController_delete_function(void** p)
+{
+    wxHtmlHelpController* o = (wxHtmlHelpController*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxHtmlHelpController_methods[] = {
@@ -4871,6 +4981,7 @@ static const char* wxluaclassname_wxHtmlWindowInterface = "wxHtmlWindowInterface
 static const char* wxluaclassname_wxLuaHtmlWinTagEvent = "wxLuaHtmlWinTagEvent";
 static const char* wxluaclassname_wxLuaHtmlWindow = "wxLuaHtmlWindow";
 static const char* wxluaclassname_wxObject = "wxObject";
+static const char* wxluaclassname_wxPanel = "wxPanel";
 static const char* wxluaclassname_wxPrintout = "wxPrintout";
 static const char* wxluaclassname_wxScrolledWindow = "wxScrolledWindow";
 static const char* wxluaclassname_wxSimpleHtmlListBox = "wxSimpleHtmlListBox";
@@ -4909,8 +5020,8 @@ static const char* wxluabaseclassnames_wxLuaHtmlWinTagEvent[] = { wxluaclassname
 static wxLuaBindClass* wxluabaseclassbinds_wxLuaHtmlWinTagEvent[] = { NULL };
 static const char* wxluabaseclassnames_wxLuaHtmlWindow[] = { wxluaclassname_wxHtmlWindow, NULL };
 static wxLuaBindClass* wxluabaseclassbinds_wxLuaHtmlWindow[] = { NULL };
-static const char* wxluabaseclassnames_wxSimpleHtmlListBox[] = { wxluaclassname_wxHtmlWindowInterface, NULL };
-static wxLuaBindClass* wxluabaseclassbinds_wxSimpleHtmlListBox[] = { NULL };
+static const char* wxluabaseclassnames_wxSimpleHtmlListBox[] = { wxluaclassname_wxPanel, wxluaclassname_wxHtmlWindowInterface, NULL };
+static wxLuaBindClass* wxluabaseclassbinds_wxSimpleHtmlListBox[] = { NULL, NULL };
 // ---------------------------------------------------------------------------
 // Lua Tag Method Values and Tables for each Class
 // ---------------------------------------------------------------------------
@@ -4918,55 +5029,77 @@ static wxLuaBindClass* wxluabaseclassbinds_wxSimpleHtmlListBox[] = { NULL };
 #if (wxLUA_USE_wxHTML && wxUSE_HTML) && (wxCHECK_VERSION(2,8,0))
     extern wxLuaBindMethod wxHtmlCellEvent_methods[];
     extern int wxHtmlCellEvent_methodCount;
+    extern void wxLua_wxHtmlCellEvent_delete_function(void** p);
     extern wxLuaBindMethod wxHtmlColourCell_methods[];
     extern int wxHtmlColourCell_methodCount;
+    extern void wxLua_wxHtmlColourCell_delete_function(void** p);
     extern wxLuaBindMethod wxHtmlFontCell_methods[];
     extern int wxHtmlFontCell_methodCount;
+    extern void wxLua_wxHtmlFontCell_delete_function(void** p);
     extern wxLuaBindMethod wxHtmlWindowInterface_methods[];
     extern int wxHtmlWindowInterface_methodCount;
     extern wxLuaBindNumber wxHtmlWindowInterface_enums[];
     extern int wxHtmlWindowInterface_enumCount;
+    extern void wxLua_wxHtmlWindowInterface_delete_function(void** p);
     extern wxLuaBindMethod wxSimpleHtmlListBox_methods[];
     extern int wxSimpleHtmlListBox_methodCount;
+    static wxLuaArgType wxluabaseclass_wxluatypes_wxSimpleHtmlListBox[] = { &wxluatype_wxHtmlWindowInterface, NULL };
+    static int wxluabaseclass_vtable_offsets_wxSimpleHtmlListBox[] = { ((long int)(wxHtmlWindowInterface*)(wxSimpleHtmlListBox*)&wxluatype_TNONE) - ((long int)(wxSimpleHtmlListBox*)&wxluatype_TNONE) };
+    extern void wxLua_wxSimpleHtmlListBox_delete_function(void** p);
 #endif // (wxLUA_USE_wxHTML && wxUSE_HTML) && (wxCHECK_VERSION(2,8,0))
 
 #if (wxLUA_USE_wxHTML && wxUSE_HTML) && (wxLUA_USE_wxHtmlHelpController && wxUSE_WXHTML_HELP)
     extern wxLuaBindMethod wxHtmlHelpController_methods[];
     extern int wxHtmlHelpController_methodCount;
+    extern void wxLua_wxHtmlHelpController_delete_function(void** p);
     extern wxLuaBindMethod wxHtmlHelpData_methods[];
     extern int wxHtmlHelpData_methodCount;
+    extern void wxLua_wxHtmlHelpData_delete_function(void** p);
 #endif // (wxLUA_USE_wxHTML && wxUSE_HTML) && (wxLUA_USE_wxHtmlHelpController && wxUSE_WXHTML_HELP)
 
 #if (wxLUA_USE_wxHTML && wxUSE_HTML) && (wxLUA_USE_wxLuaHtmlWindow)
     extern wxLuaBindMethod wxLuaHtmlWinTagEvent_methods[];
     extern int wxLuaHtmlWinTagEvent_methodCount;
+    extern void wxLua_wxLuaHtmlWinTagEvent_delete_function(void** p);
     extern wxLuaBindMethod wxLuaHtmlWindow_methods[];
     extern int wxLuaHtmlWindow_methodCount;
+    extern void wxLua_wxLuaHtmlWindow_delete_function(void** p);
 #endif // (wxLUA_USE_wxHTML && wxUSE_HTML) && (wxLUA_USE_wxLuaHtmlWindow)
 
 #if wxLUA_USE_wxHTML && wxUSE_HTML
     extern wxLuaBindMethod wxHtmlCell_methods[];
     extern int wxHtmlCell_methodCount;
+    extern void wxLua_wxHtmlCell_delete_function(void** p);
     extern wxLuaBindMethod wxHtmlContainerCell_methods[];
     extern int wxHtmlContainerCell_methodCount;
+    extern void wxLua_wxHtmlContainerCell_delete_function(void** p);
     extern wxLuaBindMethod wxHtmlDCRenderer_methods[];
     extern int wxHtmlDCRenderer_methodCount;
+    extern void wxLua_wxHtmlDCRenderer_delete_function(void** p);
     extern wxLuaBindMethod wxHtmlEasyPrinting_methods[];
     extern int wxHtmlEasyPrinting_methodCount;
+    extern void wxLua_wxHtmlEasyPrinting_delete_function(void** p);
     extern wxLuaBindMethod wxHtmlLinkInfo_methods[];
     extern int wxHtmlLinkInfo_methodCount;
+    extern void wxLua_wxHtmlLinkInfo_delete_function(void** p);
     extern wxLuaBindMethod wxHtmlParser_methods[];
     extern int wxHtmlParser_methodCount;
+    extern void wxLua_wxHtmlParser_delete_function(void** p);
     extern wxLuaBindMethod wxHtmlPrintout_methods[];
     extern int wxHtmlPrintout_methodCount;
+    extern void wxLua_wxHtmlPrintout_delete_function(void** p);
     extern wxLuaBindMethod wxHtmlTag_methods[];
     extern int wxHtmlTag_methodCount;
+    extern void wxLua_wxHtmlTag_delete_function(void** p);
     extern wxLuaBindMethod wxHtmlWidgetCell_methods[];
     extern int wxHtmlWidgetCell_methodCount;
+    extern void wxLua_wxHtmlWidgetCell_delete_function(void** p);
     extern wxLuaBindMethod wxHtmlWinParser_methods[];
     extern int wxHtmlWinParser_methodCount;
+    extern void wxLua_wxHtmlWinParser_delete_function(void** p);
     extern wxLuaBindMethod wxHtmlWindow_methods[];
     extern int wxHtmlWindow_methodCount;
+    extern void wxLua_wxHtmlWindow_delete_function(void** p);
 #endif // wxLUA_USE_wxHTML && wxUSE_HTML
 
 
@@ -4977,50 +5110,50 @@ wxLuaBindClass* wxLuaGetClassList_wxhtml(size_t &count)
     static wxLuaBindClass classList[] =
     {
 #if wxLUA_USE_wxHTML && wxUSE_HTML
-        { wxluaclassname_wxHtmlCell, wxHtmlCell_methods, wxHtmlCell_methodCount, CLASSINFO(wxHtmlCell), &wxluatype_wxHtmlCell, wxluabaseclassnames_wxHtmlCell, wxluabaseclassbinds_wxHtmlCell, g_wxluanumberArray_None, 0, }, 
+        { wxluaclassname_wxHtmlCell, wxHtmlCell_methods, wxHtmlCell_methodCount, CLASSINFO(wxHtmlCell), &wxluatype_wxHtmlCell, wxluabaseclassnames_wxHtmlCell, wxluabaseclassbinds_wxHtmlCell, NULL, NULL, NULL, 0, &wxLua_wxHtmlCell_delete_function, }, 
 #endif // wxLUA_USE_wxHTML && wxUSE_HTML
 
 #if (wxLUA_USE_wxHTML && wxUSE_HTML) && (wxCHECK_VERSION(2,8,0))
-        { wxluaclassname_wxHtmlCellEvent, wxHtmlCellEvent_methods, wxHtmlCellEvent_methodCount, CLASSINFO(wxHtmlCellEvent), &wxluatype_wxHtmlCellEvent, wxluabaseclassnames_wxHtmlCellEvent, wxluabaseclassbinds_wxHtmlCellEvent, g_wxluanumberArray_None, 0, }, 
-        { wxluaclassname_wxHtmlColourCell, wxHtmlColourCell_methods, wxHtmlColourCell_methodCount, CLASSINFO(wxHtmlColourCell), &wxluatype_wxHtmlColourCell, wxluabaseclassnames_wxHtmlColourCell, wxluabaseclassbinds_wxHtmlColourCell, g_wxluanumberArray_None, 0, }, 
+        { wxluaclassname_wxHtmlCellEvent, wxHtmlCellEvent_methods, wxHtmlCellEvent_methodCount, CLASSINFO(wxHtmlCellEvent), &wxluatype_wxHtmlCellEvent, wxluabaseclassnames_wxHtmlCellEvent, wxluabaseclassbinds_wxHtmlCellEvent, NULL, NULL, NULL, 0, &wxLua_wxHtmlCellEvent_delete_function, }, 
+        { wxluaclassname_wxHtmlColourCell, wxHtmlColourCell_methods, wxHtmlColourCell_methodCount, CLASSINFO(wxHtmlColourCell), &wxluatype_wxHtmlColourCell, wxluabaseclassnames_wxHtmlColourCell, wxluabaseclassbinds_wxHtmlColourCell, NULL, NULL, NULL, 0, &wxLua_wxHtmlColourCell_delete_function, }, 
 #endif // (wxLUA_USE_wxHTML && wxUSE_HTML) && (wxCHECK_VERSION(2,8,0))
 
 #if wxLUA_USE_wxHTML && wxUSE_HTML
-        { wxluaclassname_wxHtmlContainerCell, wxHtmlContainerCell_methods, wxHtmlContainerCell_methodCount, CLASSINFO(wxHtmlContainerCell), &wxluatype_wxHtmlContainerCell, wxluabaseclassnames_wxHtmlContainerCell, wxluabaseclassbinds_wxHtmlContainerCell, g_wxluanumberArray_None, 0, }, 
-        { wxluaclassname_wxHtmlDCRenderer, wxHtmlDCRenderer_methods, wxHtmlDCRenderer_methodCount, NULL, &wxluatype_wxHtmlDCRenderer, wxluabaseclassnames_wxHtmlDCRenderer, wxluabaseclassbinds_wxHtmlDCRenderer, g_wxluanumberArray_None, 0, }, 
-        { wxluaclassname_wxHtmlEasyPrinting, wxHtmlEasyPrinting_methods, wxHtmlEasyPrinting_methodCount, NULL, &wxluatype_wxHtmlEasyPrinting, wxluabaseclassnames_wxHtmlEasyPrinting, wxluabaseclassbinds_wxHtmlEasyPrinting, g_wxluanumberArray_None, 0, }, 
+        { wxluaclassname_wxHtmlContainerCell, wxHtmlContainerCell_methods, wxHtmlContainerCell_methodCount, CLASSINFO(wxHtmlContainerCell), &wxluatype_wxHtmlContainerCell, wxluabaseclassnames_wxHtmlContainerCell, wxluabaseclassbinds_wxHtmlContainerCell, NULL, NULL, NULL, 0, &wxLua_wxHtmlContainerCell_delete_function, }, 
+        { wxluaclassname_wxHtmlDCRenderer, wxHtmlDCRenderer_methods, wxHtmlDCRenderer_methodCount, CLASSINFO(wxHtmlDCRenderer), &wxluatype_wxHtmlDCRenderer, wxluabaseclassnames_wxHtmlDCRenderer, wxluabaseclassbinds_wxHtmlDCRenderer, NULL, NULL, NULL, 0, &wxLua_wxHtmlDCRenderer_delete_function, }, 
+        { wxluaclassname_wxHtmlEasyPrinting, wxHtmlEasyPrinting_methods, wxHtmlEasyPrinting_methodCount, CLASSINFO(wxHtmlEasyPrinting), &wxluatype_wxHtmlEasyPrinting, wxluabaseclassnames_wxHtmlEasyPrinting, wxluabaseclassbinds_wxHtmlEasyPrinting, NULL, NULL, NULL, 0, &wxLua_wxHtmlEasyPrinting_delete_function, }, 
 #endif // wxLUA_USE_wxHTML && wxUSE_HTML
 
 #if (wxLUA_USE_wxHTML && wxUSE_HTML) && (wxCHECK_VERSION(2,8,0))
-        { wxluaclassname_wxHtmlFontCell, wxHtmlFontCell_methods, wxHtmlFontCell_methodCount, CLASSINFO(wxHtmlFontCell), &wxluatype_wxHtmlFontCell, wxluabaseclassnames_wxHtmlFontCell, wxluabaseclassbinds_wxHtmlFontCell, g_wxluanumberArray_None, 0, }, 
+        { wxluaclassname_wxHtmlFontCell, wxHtmlFontCell_methods, wxHtmlFontCell_methodCount, CLASSINFO(wxHtmlFontCell), &wxluatype_wxHtmlFontCell, wxluabaseclassnames_wxHtmlFontCell, wxluabaseclassbinds_wxHtmlFontCell, NULL, NULL, NULL, 0, &wxLua_wxHtmlFontCell_delete_function, }, 
 #endif // (wxLUA_USE_wxHTML && wxUSE_HTML) && (wxCHECK_VERSION(2,8,0))
 
 #if (wxLUA_USE_wxHTML && wxUSE_HTML) && (wxLUA_USE_wxHtmlHelpController && wxUSE_WXHTML_HELP)
-        { wxluaclassname_wxHtmlHelpController, wxHtmlHelpController_methods, wxHtmlHelpController_methodCount, CLASSINFO(wxHtmlHelpController), &wxluatype_wxHtmlHelpController, wxluabaseclassnames_wxHtmlHelpController, wxluabaseclassbinds_wxHtmlHelpController, g_wxluanumberArray_None, 0, }, 
-        { wxluaclassname_wxHtmlHelpData, wxHtmlHelpData_methods, wxHtmlHelpData_methodCount, CLASSINFO(wxHtmlHelpData), &wxluatype_wxHtmlHelpData, wxluabaseclassnames_wxHtmlHelpData, wxluabaseclassbinds_wxHtmlHelpData, g_wxluanumberArray_None, 0, }, 
+        { wxluaclassname_wxHtmlHelpController, wxHtmlHelpController_methods, wxHtmlHelpController_methodCount, CLASSINFO(wxHtmlHelpController), &wxluatype_wxHtmlHelpController, wxluabaseclassnames_wxHtmlHelpController, wxluabaseclassbinds_wxHtmlHelpController, NULL, NULL, NULL, 0, &wxLua_wxHtmlHelpController_delete_function, }, 
+        { wxluaclassname_wxHtmlHelpData, wxHtmlHelpData_methods, wxHtmlHelpData_methodCount, CLASSINFO(wxHtmlHelpData), &wxluatype_wxHtmlHelpData, wxluabaseclassnames_wxHtmlHelpData, wxluabaseclassbinds_wxHtmlHelpData, NULL, NULL, NULL, 0, &wxLua_wxHtmlHelpData_delete_function, }, 
 #endif // (wxLUA_USE_wxHTML && wxUSE_HTML) && (wxLUA_USE_wxHtmlHelpController && wxUSE_WXHTML_HELP)
 
 #if wxLUA_USE_wxHTML && wxUSE_HTML
-        { wxluaclassname_wxHtmlLinkInfo, wxHtmlLinkInfo_methods, wxHtmlLinkInfo_methodCount, NULL, &wxluatype_wxHtmlLinkInfo, NULL, NULL, g_wxluanumberArray_None, 0, }, 
-        { wxluaclassname_wxHtmlParser, wxHtmlParser_methods, wxHtmlParser_methodCount, CLASSINFO(wxHtmlParser), &wxluatype_wxHtmlParser, wxluabaseclassnames_wxHtmlParser, wxluabaseclassbinds_wxHtmlParser, g_wxluanumberArray_None, 0, }, 
-        { wxluaclassname_wxHtmlPrintout, wxHtmlPrintout_methods, wxHtmlPrintout_methodCount, NULL, &wxluatype_wxHtmlPrintout, wxluabaseclassnames_wxHtmlPrintout, wxluabaseclassbinds_wxHtmlPrintout, g_wxluanumberArray_None, 0, }, 
-        { wxluaclassname_wxHtmlTag, wxHtmlTag_methods, wxHtmlTag_methodCount, CLASSINFO(wxHtmlTag), &wxluatype_wxHtmlTag, wxluabaseclassnames_wxHtmlTag, wxluabaseclassbinds_wxHtmlTag, g_wxluanumberArray_None, 0, }, 
-        { wxluaclassname_wxHtmlWidgetCell, wxHtmlWidgetCell_methods, wxHtmlWidgetCell_methodCount, CLASSINFO(wxHtmlWidgetCell), &wxluatype_wxHtmlWidgetCell, wxluabaseclassnames_wxHtmlWidgetCell, wxluabaseclassbinds_wxHtmlWidgetCell, g_wxluanumberArray_None, 0, }, 
-        { wxluaclassname_wxHtmlWinParser, wxHtmlWinParser_methods, wxHtmlWinParser_methodCount, CLASSINFO(wxHtmlWinParser), &wxluatype_wxHtmlWinParser, wxluabaseclassnames_wxHtmlWinParser, wxluabaseclassbinds_wxHtmlWinParser, g_wxluanumberArray_None, 0, }, 
-        { wxluaclassname_wxHtmlWindow, wxHtmlWindow_methods, wxHtmlWindow_methodCount, CLASSINFO(wxHtmlWindow), &wxluatype_wxHtmlWindow, wxluabaseclassnames_wxHtmlWindow, wxluabaseclassbinds_wxHtmlWindow, g_wxluanumberArray_None, 0, }, 
+        { wxluaclassname_wxHtmlLinkInfo, wxHtmlLinkInfo_methods, wxHtmlLinkInfo_methodCount, NULL, &wxluatype_wxHtmlLinkInfo, NULL, NULL, NULL, NULL, NULL, 0, &wxLua_wxHtmlLinkInfo_delete_function, }, 
+        { wxluaclassname_wxHtmlParser, wxHtmlParser_methods, wxHtmlParser_methodCount, CLASSINFO(wxHtmlParser), &wxluatype_wxHtmlParser, wxluabaseclassnames_wxHtmlParser, wxluabaseclassbinds_wxHtmlParser, NULL, NULL, NULL, 0, &wxLua_wxHtmlParser_delete_function, }, 
+        { wxluaclassname_wxHtmlPrintout, wxHtmlPrintout_methods, wxHtmlPrintout_methodCount, CLASSINFO(wxHtmlPrintout), &wxluatype_wxHtmlPrintout, wxluabaseclassnames_wxHtmlPrintout, wxluabaseclassbinds_wxHtmlPrintout, NULL, NULL, NULL, 0, &wxLua_wxHtmlPrintout_delete_function, }, 
+        { wxluaclassname_wxHtmlTag, wxHtmlTag_methods, wxHtmlTag_methodCount, CLASSINFO(wxHtmlTag), &wxluatype_wxHtmlTag, wxluabaseclassnames_wxHtmlTag, wxluabaseclassbinds_wxHtmlTag, NULL, NULL, NULL, 0, &wxLua_wxHtmlTag_delete_function, }, 
+        { wxluaclassname_wxHtmlWidgetCell, wxHtmlWidgetCell_methods, wxHtmlWidgetCell_methodCount, CLASSINFO(wxHtmlWidgetCell), &wxluatype_wxHtmlWidgetCell, wxluabaseclassnames_wxHtmlWidgetCell, wxluabaseclassbinds_wxHtmlWidgetCell, NULL, NULL, NULL, 0, &wxLua_wxHtmlWidgetCell_delete_function, }, 
+        { wxluaclassname_wxHtmlWinParser, wxHtmlWinParser_methods, wxHtmlWinParser_methodCount, CLASSINFO(wxHtmlWinParser), &wxluatype_wxHtmlWinParser, wxluabaseclassnames_wxHtmlWinParser, wxluabaseclassbinds_wxHtmlWinParser, NULL, NULL, NULL, 0, &wxLua_wxHtmlWinParser_delete_function, }, 
+        { wxluaclassname_wxHtmlWindow, wxHtmlWindow_methods, wxHtmlWindow_methodCount, CLASSINFO(wxHtmlWindow), &wxluatype_wxHtmlWindow, wxluabaseclassnames_wxHtmlWindow, wxluabaseclassbinds_wxHtmlWindow, NULL, NULL, NULL, 0, &wxLua_wxHtmlWindow_delete_function, }, 
 #endif // wxLUA_USE_wxHTML && wxUSE_HTML
 
 #if (wxLUA_USE_wxHTML && wxUSE_HTML) && (wxCHECK_VERSION(2,8,0))
-        { wxluaclassname_wxHtmlWindowInterface, wxHtmlWindowInterface_methods, wxHtmlWindowInterface_methodCount, NULL, &wxluatype_wxHtmlWindowInterface, NULL, NULL, wxHtmlWindowInterface_enums, wxHtmlWindowInterface_enumCount, }, 
+        { wxluaclassname_wxHtmlWindowInterface, wxHtmlWindowInterface_methods, wxHtmlWindowInterface_methodCount, NULL, &wxluatype_wxHtmlWindowInterface, NULL, NULL, NULL, NULL, wxHtmlWindowInterface_enums, wxHtmlWindowInterface_enumCount, &wxLua_wxHtmlWindowInterface_delete_function, }, 
 #endif // (wxLUA_USE_wxHTML && wxUSE_HTML) && (wxCHECK_VERSION(2,8,0))
 
 #if (wxLUA_USE_wxHTML && wxUSE_HTML) && (wxLUA_USE_wxLuaHtmlWindow)
-        { wxluaclassname_wxLuaHtmlWinTagEvent, wxLuaHtmlWinTagEvent_methods, wxLuaHtmlWinTagEvent_methodCount, CLASSINFO(wxLuaHtmlWinTagEvent), &wxluatype_wxLuaHtmlWinTagEvent, wxluabaseclassnames_wxLuaHtmlWinTagEvent, wxluabaseclassbinds_wxLuaHtmlWinTagEvent, g_wxluanumberArray_None, 0, }, 
-        { wxluaclassname_wxLuaHtmlWindow, wxLuaHtmlWindow_methods, wxLuaHtmlWindow_methodCount, CLASSINFO(wxLuaHtmlWindow), &wxluatype_wxLuaHtmlWindow, wxluabaseclassnames_wxLuaHtmlWindow, wxluabaseclassbinds_wxLuaHtmlWindow, g_wxluanumberArray_None, 0, }, 
+        { wxluaclassname_wxLuaHtmlWinTagEvent, wxLuaHtmlWinTagEvent_methods, wxLuaHtmlWinTagEvent_methodCount, CLASSINFO(wxLuaHtmlWinTagEvent), &wxluatype_wxLuaHtmlWinTagEvent, wxluabaseclassnames_wxLuaHtmlWinTagEvent, wxluabaseclassbinds_wxLuaHtmlWinTagEvent, NULL, NULL, NULL, 0, &wxLua_wxLuaHtmlWinTagEvent_delete_function, }, 
+        { wxluaclassname_wxLuaHtmlWindow, wxLuaHtmlWindow_methods, wxLuaHtmlWindow_methodCount, CLASSINFO(wxLuaHtmlWindow), &wxluatype_wxLuaHtmlWindow, wxluabaseclassnames_wxLuaHtmlWindow, wxluabaseclassbinds_wxLuaHtmlWindow, NULL, NULL, NULL, 0, &wxLua_wxLuaHtmlWindow_delete_function, }, 
 #endif // (wxLUA_USE_wxHTML && wxUSE_HTML) && (wxLUA_USE_wxLuaHtmlWindow)
 
 #if (wxLUA_USE_wxHTML && wxUSE_HTML) && (wxCHECK_VERSION(2,8,0))
-        { wxluaclassname_wxSimpleHtmlListBox, wxSimpleHtmlListBox_methods, wxSimpleHtmlListBox_methodCount, CLASSINFO(wxSimpleHtmlListBox), &wxluatype_wxSimpleHtmlListBox, wxluabaseclassnames_wxSimpleHtmlListBox, wxluabaseclassbinds_wxSimpleHtmlListBox, g_wxluanumberArray_None, 0, }, 
+        { wxluaclassname_wxSimpleHtmlListBox, wxSimpleHtmlListBox_methods, wxSimpleHtmlListBox_methodCount, CLASSINFO(wxSimpleHtmlListBox), &wxluatype_wxSimpleHtmlListBox, wxluabaseclassnames_wxSimpleHtmlListBox, wxluabaseclassbinds_wxSimpleHtmlListBox, wxluabaseclass_wxluatypes_wxSimpleHtmlListBox, wxluabaseclass_vtable_offsets_wxSimpleHtmlListBox, NULL, 0, &wxLua_wxSimpleHtmlListBox_delete_function, }, 
 #endif // (wxLUA_USE_wxHTML && wxUSE_HTML) && (wxCHECK_VERSION(2,8,0))
 
 
@@ -5047,19 +5180,21 @@ wxLuaBinding_wxhtml::wxLuaBinding_wxhtml() : wxLuaBinding()
     m_eventArray    = wxLuaGetEventList_wxhtml(m_eventCount);
     m_objectArray   = wxLuaGetObjectList_wxhtml(m_objectCount);
     m_functionArray = wxLuaGetFunctionList_wxhtml(m_functionCount);
+    InitBinding();
 }
 
 
 
 // ---------------------------------------------------------------------------
 
-bool wxLuaBinding_wxhtml_init()
+wxLuaBinding* wxLuaBinding_wxhtml_init()
 {
     static wxLuaBinding_wxhtml m_binding;
-    if (wxLuaBinding::GetBindingList()->Find(&m_binding)) return false;
 
-    wxLuaBinding::GetBindingList()->Append(&m_binding);
-    return true;
+    if (wxLuaBinding::GetBindingArray().Index(&m_binding) == wxNOT_FOUND)
+        wxLuaBinding::GetBindingArray().Add(&m_binding);
+
+    return &m_binding;
 }
 
 

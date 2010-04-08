@@ -7,7 +7,7 @@
 
     Licence: wxWidgets Licence
 
-    RCS-ID: $Id: canlua.h,v 1.9 2007/08/14 13:42:13 jrl1 Exp $
+    RCS-ID: $Id: canlua.h,v 1.10 2009/11/17 06:11:03 jrl1 Exp $
 */
 
 #ifndef __LUACAN_H__
@@ -29,138 +29,138 @@ class wxlCan;
 
 //! base canvas object
 /*!
-	this and derived objects or placed on the canvas in the m_rootobject or as a child of another canvasobject.
-	This way nested structures can be made.
+    this and derived objects or placed on the canvas in the m_rootobject or as a child of another canvasobject.
+    This way nested structures can be made.
 */
 class wxlCanObj: public wxEvtHandler
 {
 
 public:
 
-	//! constructor
-	/*!
-		This object can have child objects added, and acts as a grouping object.
-		All derived object can have childs too.
-	*/
-	wxlCanObj( double x = 0, double y = 0 );
+    //! constructor
+    /*!
+        This object can have child objects added, and acts as a grouping object.
+        All derived object can have childs too.
+    */
+    wxlCanObj( double x = 0, double y = 0 );
 
     virtual ~wxlCanObj();
 
-	//! sets the position of the object relative to its parent object.
-	void SetPos( double x, double y ) { m_x = x; m_y = y; SetPending( true ); }
+    //! sets the position of the object relative to its parent object.
+    void SetPos( double x, double y ) { m_x = x; m_y = y; SetPending( true ); }
 
-	//! get x positions
+    //! get x positions
     double GetX() { return m_x; }
-	//! get y positions
+    //! get y positions
     double GetY() { return m_y; }
 
-	//! set default pen to use for drawing
-	void SetPen( const wxPen& pen ) { m_pen = pen; }
-	//! set default brush to use for drawing
-	void SetBrush( const wxBrush& brush ) { m_brush = brush; }
+    //! set default pen to use for drawing
+    void SetPen( const wxPen& pen ) { m_pen = pen; }
+    //! set default brush to use for drawing
+    void SetBrush( const wxBrush& brush ) { m_brush = brush; }
 
-	//! called when there is a pending objects in the canvas
-	/*!
-		when this specific object was set pending, it can update its state.
-	*/
-	void Update( double absx, double absy );
+    //! called when there is a pending objects in the canvas
+    /*!
+        when this specific object was set pending, it can update its state.
+    */
+    void Update( double absx, double absy );
 
-	//! draw the object at an absolute position.
-	void Draw( wxDC& dc, double absx, double absy );
+    //! draw the object at an absolute position.
+    void Draw( wxDC& dc, double absx, double absy );
 
-	//! hit test all child objects in this object at an absolute position.
-	wxlCanObj* WhichIsHit( double x, double y );
+    //! hit test all child objects in this object at an absolute position.
+    wxlCanObj* WhichIsHit( double x, double y );
 
-	//! hit test the object at an absolute position.
-	bool IsHit( double x, double y, double absx = 0, double absy = 0);
+    //! hit test the object at an absolute position.
+    bool IsHit( double x, double y, double absx = 0, double absy = 0);
 
-	//! the object is part of this canvas
-	void SetCanvas( wxlCan* canvas ) { m_canvas = canvas; }
+    //! the object is part of this canvas
+    void SetCanvas( wxlCan* canvas ) { m_canvas = canvas; }
 
-	//! add a child object
-	void AddObject( wxlCanObj *canobj );
+    //! add a child object
+    void AddObject( wxlCanObj *canobj );
 
-	//! get child object at index
+    //! get child object at index
     wxlCanObj* GetItem( size_t index );
 
-	//! something changed in this object, it needs an update and re-draw
+    //! something changed in this object, it needs an update and re-draw
     void SetPending( bool pending = true );
 
-	//! child objects
-	wxlCanObjList m_objects;
+    //! child objects
+    wxlCanObjList m_objects;
 
 protected:
 
     virtual void DoUpdate( double WXUNUSED(absx), double WXUNUSED(absy) )
-	{
-		m_pending = false;
-	}
+    {
+        m_pending = false;
+    }
 
     virtual void DoDraw( wxDC& WXUNUSED(dc), double WXUNUSED(absx), double WXUNUSED(absy) ) {}
 
     virtual bool DoIsHit( double WXUNUSED(x), double WXUNUSED(y), double WXUNUSED(absx), double WXUNUSED(absy) ) { return false; }
 
-	wxBrush m_brush;
-	wxPen   m_pen;
+    wxBrush m_brush;
+    wxPen   m_pen;
 
-	wxlCan* m_canvas;
+    wxlCan* m_canvas;
 
-	double m_x, m_y;
+    double m_x, m_y;
 
-	bool m_pending;
+    bool m_pending;
 
 };
 
 //! rectangle canvas object
 /*!
-	to be placed on the canvas in the m_rootobject or as a child of another canvasobject
+    to be placed on the canvas in the m_rootobject or as a child of another canvasobject
 */
 class wxlCanObjRect: public wxlCanObj
 {
 
 public:
 
-	wxlCanObjRect( double x, double y, double w, double h );
+    wxlCanObjRect( double x, double y, double w, double h );
 
-	void DoDraw( wxDC& dc, double absx, double absy );
+    void DoDraw( wxDC& dc, double absx, double absy );
 
     bool DoIsHit( double x, double y, double absx, double absy );
 
 protected:
 
-	double m_w, m_h;
+    double m_w, m_h;
 };
 
 //! circle canvas object
 /*!
-	to be placed on the canvas in the m_rootobject or as a child of another canvasobject
+    to be placed on the canvas in the m_rootobject or as a child of another canvasobject
 */
 class wxlCanObjCircle: public wxlCanObj
 {
 
 public:
 
-	wxlCanObjCircle( double x, double y, double r );
+    wxlCanObjCircle( double x, double y, double r );
 
-	void DoDraw( wxDC& dc, double absx, double absy );
+    void DoDraw( wxDC& dc, double absx, double absy );
 
     bool DoIsHit( double x, double y, double absx, double absy );
 
 protected:
 
-	double m_r;
+    double m_r;
 };
 
 //! lua script canvas object
 /*!
-	to be placed on the canvas in the m_rootobject or as a child of another canvasobject.
-	The object name, is used to call a lua function fron DoDraw() called
+    to be placed on the canvas in the m_rootobject or as a child of another canvasobject.
+    The object name, is used to call a lua function fron DoDraw() called
 
-	  NameDraw( wxDC& dc, double absx, double absy ) to draw the object
+      NameDraw( wxDC& dc, double absx, double absy ) to draw the object
 
-	And in DoIsHit()
+    And in DoIsHit()
 
-	  NameHit(  double x, double y ) to hit test the object
+      NameHit(  double x, double y ) to hit test the object
 
 */
 class wxlCanObjScript: public wxlCanObj
@@ -168,38 +168,38 @@ class wxlCanObjScript: public wxlCanObj
 
 public:
 
-	wxlCanObjScript( double x, double y, const wxString& name );
+    wxlCanObjScript( double x, double y, const wxString& name );
 
-	void DoDraw( wxDC& dc, double absx, double absy );
+    void DoDraw( wxDC& dc, double absx, double absy );
 
     bool DoIsHit( double x, double y, double absx, double absy );
 
 protected:
 
-	wxString m_objectname;
+    wxString m_objectname;
 };
 
 //! lua script canvas object
 /*!
-	to be placed on the canvas in the m_rootobject or as a child of another canvasobject.
-	The lua script in m_script will contain a function to generate the drawing for the object.
-	It should do that by adding child objects to this object itself.
-	The hit is no more then a hit on those childs, which is default functionality.
+    to be placed on the canvas in the m_rootobject or as a child of another canvasobject.
+    The lua script in m_script will contain a function to generate the drawing for the object.
+    It should do that by adding child objects to this object itself.
+    The hit is no more then a hit on those childs, which is default functionality.
 */
 class wxlCanObjAddScript: public wxlCanObj
 {
 
 public:
 
-	wxlCanObjAddScript( double x, double y, const wxString& script );
+    wxlCanObjAddScript( double x, double y, const wxString& script );
 
-	void SetScript( const wxString& script );
+    void SetScript( const wxString& script );
 
 protected:
 
     virtual void DoUpdate( double absx, double absy );
 
-	wxString m_script;
+    wxString m_script;
 };
 
 //! Simple canvas using a whole view for all of the scrolled window
@@ -238,14 +238,14 @@ public:
     //!set if the Yaxis goes up or down
     virtual void SetYaxis(bool up);
 
-	void SetBackgroundBrush( const wxBrush& brush );
+    void SetBackgroundBrush( const wxBrush& brush );
 
     void SetPending( bool pending = true );
 
-	void Render( wxDC& dc );
+    void Render( wxDC& dc );
 
     //! Give the virtual size to be displayed.
-	/*!
+    /*!
         To display all of a drawing, set this here to the boundingbox of the root object
         of the canvas.
 
@@ -290,7 +290,7 @@ public:
     //! convert y from virtual to device coordinates
     inline int WorldToDeviceY(double y) const { return (int) floor(m_scaley * y + m_transy + 0.5); }
 
-	void AddObject( wxlCanObj *canobj );
+    void AddObject( wxlCanObj *canobj );
 
     wxlLuaCanCmd* GetCmdh() { return m_cmdh; }
 
@@ -302,7 +302,7 @@ public:
 
 protected:
 
-	void OnMouseEvent(wxMouseEvent& event);
+    void OnMouseEvent(wxMouseEvent& event);
 
     //! redraw  pending objects to the buffer
     void OnIdle(wxIdleEvent &event);
@@ -313,9 +313,9 @@ protected:
     //! repaint damaged araes, taking into acount non updated araes in wxlCanvasView.
     void OnPaint( wxPaintEvent &event );
 
-	void OnScroll(wxScrollWinEvent& event);
+    void OnScroll(wxScrollWinEvent& event);
 
-	void OnEraseBackground(wxEraseEvent& WXUNUSED(event) );
+    void OnEraseBackground(wxEraseEvent& WXUNUSED(event) );
 
 private:
 
@@ -323,9 +323,9 @@ private:
 
     wxLuaState* m_luastate;
 
-	wxBitmap m_buffer;
+    wxBitmap m_buffer;
 
-	bool m_pendingObjects;
+    bool m_pendingObjects;
 
     //! virtual coordinates box its miminum X
     double m_virt_minX;
@@ -354,7 +354,7 @@ private:
     //! up or down
     bool m_yaxis;
 
-	wxBrush m_backbrush;
+    wxBrush m_backbrush;
 
     wxlCanObj m_rootobject;
 

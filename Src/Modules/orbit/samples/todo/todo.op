@@ -2,8 +2,20 @@
 
 $lua{[[
   require "luasql.sqlite3"
+  local schema = require "orbit.schema"
   app.conn = app.conn or recycle(function () return luasql.sqlite3():connect(web.real_path .. "/todo.db") end, 20)
   mapper.conn = app.conn
+  mapper.schema = schema.loadstring([[
+    todo_list = entity {
+      fields = {
+         id = key(),
+         title = text(),
+         done = boolean(),
+         created_at = timestamp()
+      }
+    }
+  ]], "@todo_schema.lua")
+
   todo_list = model("todo_list")
   if web.method == "post" then
     if web.input.id then

@@ -1,6 +1,4 @@
-SubDir LUAPLUS Src Modules vdrive ;
-
-SubInclude LUAPLUS Src Modules vdrive Misc : Misc ;
+SubIncludeRelative Misc : Misc ;
 
 C.IncludeDirectories vdrive : ../zlib ;
 C.LinkLibraries vdrive : Misc ;
@@ -13,4 +11,4 @@ if $(NT)
 	}
 }
 
-LuaPlusAddModule vdrive : vdrive.cpp ;
+Lua.CModule vdrive : : vdrive.cpp ;

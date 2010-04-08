@@ -9,15 +9,16 @@
  */
 
 // RCS Info
-static char *rcsid = "$Id: luacom.cpp,v 1.61 2005/01/06 18:41:49 fqueiroz Exp $";
-static char *rcsname = "$Name:  $";
-static char *g_version = "1.2b";
+static char *rcsid = "$Id: luacom.cpp,v 1.5 2008/05/16 15:26:43 mascarenhas Exp $";
+static char *rcsname = "$Name: HEAD $";
+static char *g_version = "1.4";
 
 #include <string.h>
 #include <stdlib.h>
 
 #include <ole2.h>
 #include <ocidl.h>
+#include <htmlhelp.h> // HtmlHelp
 
 #include <assert.h>
 #include <stdio.h>
@@ -49,6 +50,7 @@ extern "C"
 #include "tLuaCOMEnumerator.h"
 #include "tLuaTLB.h"
 
+#include <wchar.h> // for MINGW/Wine
 
 // some string constants
 
@@ -145,7 +147,7 @@ void luacom_error(lua_State* L, const char* message)
   luacom_err(L, message, false);
 }
 
-static void LUAMODULE_APIerror(lua_State* L, const char* message)
+static void luacom_APIerror(lua_State* L, const char* message)
 {
   luacom_err(L, message, true);
 }
@@ -173,7 +175,7 @@ static void LUAMODULE_APIerror(lua_State* L, const char* message)
 static int luacom_ShowHelp(lua_State *L)
 {
   char *pHelpFile = NULL; 
-  unsigned long context = 0;
+  DWORD context = 0;
 
   tLuaCOM* luacom = (tLuaCOM *) LuaBeans::check_tag(L, 1);
 
@@ -181,10 +183,21 @@ static int luacom_ShowHelp(lua_State *L)
 
   if(pHelpFile != NULL)
   {
-    if(context != 0)
-      WinHelp(NULL, pHelpFile, HELP_CONTEXT, context);
+    size_t len = strlen(pHelpFile);
+    if (len >= 4 && _stricmp(pHelpFile + len - 4, ".chm") == 0)
+    {
+      if(context != 0)
+        HtmlHelp(NULL, pHelpFile, HH_HELP_CONTEXT, context);
+      else
+        HtmlHelp(NULL, pHelpFile, HH_DISPLAY_TOC, 0);
+    }
     else
-      WinHelp(NULL, pHelpFile, HELP_FINDER, 0);
+    {
+      if(context != 0)
+        WinHelp(NULL, pHelpFile, HELP_CONTEXT, context);
+      else
+        WinHelp(NULL, pHelpFile, HELP_FINDER, 0);
+    }
   }
 
   return 0;
@@ -254,7 +267,7 @@ static int luacom_Connect(lua_State *L)
     COM_RELEASE(server_disp);
     COM_RELEASE(pTypeinfo);
 
-    LUAMODULE_APIerror(L, e.getMessage());
+    luacom_APIerror(L, e.getMessage());
 
     return 0;
   }
@@ -297,9 +310,9 @@ static tLuaCOM *luacom_ImplInterfaceFromTypelibHelper(lua_State *L)
   lua_pushvalue(L, 1);
   const int ref = lua_ref(L, 1);
 
-  const char* typelib_name = luaL_checklstring(L, 2, NULL);
-  const char* pcInterface = luaL_checklstring(L, 3, NULL);
-  const char* coclassname = luaL_optlstring(L, 4, NULL, NULL);
+  const char* typelib_name = luaL_check_lstr(L, 2, NULL);
+  const char* pcInterface = luaL_check_lstr(L, 3, NULL);
+  const char* coclassname = luaL_opt_lstr(L, 4, NULL, NULL);
 
   tLuaCOM* lcom           = NULL;
   ITypeLib* typelib       = NULL;
@@ -335,7 +348,7 @@ static tLuaCOM *luacom_ImplInterfaceFromTypelibHelper(lua_State *L)
   {
     COM_RELEASE(typelib);
 
-    LUAMODULE_APIerror(L, e.getMessage());
+    luacom_APIerror(L, e.getMessage());
 
     return 0;
   }
@@ -379,8 +392,8 @@ static tLuaCOM *luacom_ImplInterfaceHelper(lua_State *L)
   lua_pushvalue(L, 1);
   const int ref = lua_ref(L, 1);
 
-  const char* pcProgID = luaL_checklstring(L, 2, NULL);
-  const char* pcInterface = luaL_checklstring(L, 3, NULL);
+  const char* pcProgID = luaL_check_lstr(L, 2, NULL);
+  const char* pcInterface = luaL_check_lstr(L, 3, NULL);
 
   tLuaCOM* lcom = NULL;
   ITypeLib* typelib = NULL;
@@ -413,7 +426,7 @@ static tLuaCOM *luacom_ImplInterfaceHelper(lua_State *L)
   {
     COM_RELEASE(typelib);
 
-    LUAMODULE_APIerror(L, e.getMessage());
+    luacom_APIerror(L, e.getMessage());
 
     return 0;
   }
@@ -440,7 +453,7 @@ static int luacom_ImplInterface(lua_State *L)
 
 static int luacom_CLSIDfromProgID(lua_State *L)
 {
-  const char* str = luaL_checklstring(L, 1, NULL);
+  const char* str = luaL_check_lstr(L, 1, NULL);
   wchar_t* clsid_str  = NULL;
   wchar_t* progId     = NULL;
   CLSID clsid         = IID_NULL;
@@ -467,7 +480,7 @@ static int luacom_CLSIDfromProgID(lua_State *L)
     SAFEFREE(progId);
     SAFEFREE(id_str);
 
-    LUAMODULE_APIerror(L, e.getMessage());
+    luacom_APIerror(L, e.getMessage());
 
     return 0;
   }
@@ -487,7 +500,7 @@ static int luacom_CLSIDfromProgID(lua_State *L)
 
 static int luacom_ProgIDfromCLSID(lua_State *L)
 {
-  const char* str = luaL_checklstring(L, 1, NULL);
+  const char* str = luaL_check_lstr(L, 1, NULL);
   wchar_t* clsid_str = NULL;
   LPOLESTR progId = NULL;
   CLSID clsid = IID_NULL;
@@ -513,7 +526,7 @@ static int luacom_ProgIDfromCLSID(lua_State *L)
     SAFEFREE(progId);
     SAFEFREE(clsid_str);
 
-    LUAMODULE_APIerror(L, e.getMessage());
+    luacom_APIerror(L, e.getMessage());
 
     return 0;
   }
@@ -540,9 +553,9 @@ static int luacom_CreateObject(lua_State *L)
   IPersistStreamInit* psi = NULL;
   DWORD context           = CLSCTX_SERVER;
 
-  const char *progId = luaL_checklstring(L, 1, NULL);
+  const char *progId = luaL_check_lstr(L, 1, NULL);
   const char *creation_mode = lua_tostring(L, 2);
-  const bool untyped = lua_toboolean(L, 3);
+  const bool untyped = lua_toboolean(L, 3) != 0;
 
   if(creation_mode != NULL)
   {
@@ -579,7 +592,7 @@ static int luacom_CreateObject(lua_State *L)
     COM_RELEASE(psi);
     COM_RELEASE(pdisp);
 
-    LUAMODULE_APIerror(L, e.getMessage());
+    luacom_APIerror(L, e.getMessage());
 
     return 0;
   }
@@ -607,7 +620,7 @@ static int luacom_GetObject(lua_State *L)
   IUnknown* punk    = NULL;
   CLSID clsid       = IID_NULL;
 
-  const char *progId = luaL_checklstring(L, 1, NULL);
+  const char *progId = luaL_check_lstr(L, 1, NULL);
 
   tLuaCOM* lcom = NULL;
   IBindCtx* pbc = NULL;
@@ -652,7 +665,7 @@ static int luacom_GetObject(lua_State *L)
     COM_RELEASE(pbc);
     COM_RELEASE(pmk);
 
-    LUAMODULE_APIerror(L, e.getMessage());
+    luacom_APIerror(L, e.getMessage());
 
     return 0;
   }
@@ -680,9 +693,9 @@ static int luacom_addConnection(lua_State *L)
 
   DWORD cookie = client->addConnection(server);
 
-  if(cookie == NULL)
+  if(cookie == 0)
   {
-    LUAMODULE_APIerror(L, "Could not establish connection");
+    luacom_APIerror(L, "Could not establish connection");
     return 0;
   }
 
@@ -709,7 +722,7 @@ static int luacom_releaseConnection(lua_State *L)
     }
     catch(class tLuaCOMException& e)
     {
-      LUAMODULE_APIerror(L, e.getMessage());
+      luacom_APIerror(L, e.getMessage());
 
       return 0;
     }
@@ -720,7 +733,7 @@ static int luacom_releaseConnection(lua_State *L)
     }
     catch(class tLuaCOMException& e)
     {
-      LUAMODULE_APIerror(L, e.getMessage());
+      luacom_APIerror(L, e.getMessage());
 
       return 0;
     }
@@ -740,7 +753,7 @@ static int luacom_isMember(lua_State *L)
 {
   // objeto luacom
   tLuaCOM* lcom = (tLuaCOM*) LuaBeans::check_tag(L, 1);
-  const char* member_name = luaL_checklstring(L, 2, NULL);
+  const char* member_name = luaL_check_lstr(L, 2, NULL);
 
   luaCompat_pushBool(L, lcom->isMember(member_name));
 
@@ -776,7 +789,7 @@ static int luacom_NewObjectOrControl(lua_State *L, int type)
   lua_pushvalue(L, 1);
   const int ref = lua_ref(L, 1);
 
-  const char* pcProgID = luaL_checklstring(L, 2, NULL);
+  const char* pcProgID = luaL_check_lstr(L, 2, NULL);
 
   try
   {
@@ -787,7 +800,7 @@ static int luacom_NewObjectOrControl(lua_State *L, int type)
     CHK_COM_CODE(hr);
 
     typelib = tCOMUtil::LoadTypeLibFromCLSID(clsid);
-    CHK_LCOM_ERR((long)typelib, "Could not load type library.");
+    CHK_LCOM_ERR(typelib, "Could not load type library.");
     
 
     // gets coclass typeinfo
@@ -845,7 +858,7 @@ static int luacom_NewObjectOrControl(lua_State *L, int type)
     COM_RELEASE(coclassinfo);
     COM_RELEASE(typelib);
 
-    LUAMODULE_APIerror(L, e.getMessage());
+    luacom_APIerror(L, e.getMessage());
 
     return 0;
   }
@@ -898,7 +911,7 @@ static int luacom_NewControl(lua_State *L) {
 static int luacom_ExposeObject(lua_State *L)
 {
   tLuaCOMClassFactory* luacom_cf = NULL;
-  DWORD cookie = -1;
+  DWORD cookie = (DWORD)-1;
 
   // check parameters
   tLuaCOM* luacom = (tLuaCOM *) LuaBeans::check_tag(L, 1);
@@ -939,7 +952,7 @@ static int luacom_ExposeObject(lua_State *L)
     // releases pointers
     COM_RELEASE(luacom_cf);
 
-    LUAMODULE_APIerror(L, e.getMessage());
+    luacom_APIerror(L, e.getMessage());
 
     return 0;
   }
@@ -970,7 +983,7 @@ static int luacom_ExposeObject(lua_State *L)
 static int luacom_RevokeObject(lua_State *L)
 {
   // check parameters
-  const int cookie = (int) luaL_checknumber(L, 1);
+  const int cookie = (int) luaL_check_number(L, 1);
 
   // revokes class object
   try
@@ -980,7 +993,7 @@ static int luacom_RevokeObject(lua_State *L)
   }
   catch(class tLuaCOMException& e)
   {
-    LUAMODULE_APIerror(L, e.getMessage());
+    luacom_APIerror(L, e.getMessage());
 
     return 0;
   }
@@ -1024,7 +1037,7 @@ static int luacom_RegisterObject(lua_State *L)
 
     lua_pushstring(L, "Control");
 	lua_gettable(L, 1);
-	bool control = luaCompat_toCBool(L, -1);
+	bool control = luaCompat_toCBool(L, -1) != 0;
 
     // gets the registration information from the registration table
     lua_pushstring(L, "VersionIndependentProgID");
@@ -1260,7 +1273,7 @@ static int luacom_RegisterObject(lua_State *L)
     COM_RELEASE(coclassinfo);
     COM_RELEASE(typelib);
 
-    LUAMODULE_APIerror(L, e.getMessage());
+    luacom_APIerror(L, e.getMessage());
 
     return 0;
   }
@@ -1409,7 +1422,7 @@ static int luacom_UnRegisterObject(lua_State *L)
     COM_RELEASE(coclassinfo);
     COM_RELEASE(typelib);
 
-    LUAMODULE_APIerror(L, e.getMessage());
+    luacom_APIerror(L, e.getMessage());
 
     return 0;
   }
@@ -1501,7 +1514,7 @@ static int luacom_DumpTypeInfo(lua_State *L)
     }
     catch(class tLuaCOMException& e)
     {
-      LUAMODULE_APIerror(L, e.getMessage());
+      luacom_APIerror(L, e.getMessage());
 
       return 0;
     }
@@ -1515,7 +1528,7 @@ static int luacom_DumpTypeInfo(lua_State *L)
 // Starts logging
 static int luacom_StartLog(lua_State* L)
 {
-  const char *filename = luaL_checklstring(L, 1, NULL);
+  const char *filename = luaL_check_lstr(L, 1, NULL);
 
   bool result = tUtil::OpenLogFile(filename);
 
@@ -1554,7 +1567,7 @@ static int luacom_GetEnumerator(lua_State *L)
   }
   catch(class tLuaCOMException& e)
   {
-    LUAMODULE_APIerror(L, e.getMessage());
+    luacom_APIerror(L, e.getMessage());
 
     return 0;
   }
@@ -1571,7 +1584,7 @@ static int luacom_GetEnumerator(lua_State *L)
 
 static int luacom_LoadTypeLibrary(lua_State *L)
 {
-  const char* typelib_name = luaL_checklstring(L, -1, NULL);
+  const char* typelib_name = luaL_check_lstr(L, -1, NULL);
 
   ITypeLib* typelib = NULL;
 
@@ -1598,7 +1611,7 @@ static int luacom_LoadTypeLibrary(lua_State *L)
   {
     COM_RELEASE(typelib);
 
-    LUAMODULE_APIerror(L, e.getMessage());
+    luacom_APIerror(L, e.getMessage());
 
     return 0;
   }
@@ -1620,7 +1633,7 @@ int luacom_CreateLuaCOM(lua_State* L)
   // checks whether to object on the stack is of this type
   if(!luaCompat_isOfType(L, MODULENAME, LCOM_IUNKNOWN_TYPENAME))
   {
-    LUAMODULE_APIerror(L, "IUnknown typed object expected.");
+    luacom_APIerror(L, "IUnknown typed object expected.");
     return 0;
   }
 
@@ -1642,7 +1655,7 @@ int luacom_CreateLuaCOM(lua_State* L)
   {
     COM_RELEASE(pdisp);
 
-    LUAMODULE_APIerror(L, e.getMessage());
+    luacom_APIerror(L, e.getMessage());
    
     return 0;
   }
@@ -1660,7 +1673,7 @@ int luacom_StartMessageLoop(lua_State *L)
 	if(lua_gettop(L) > 0) {
 		const char *err;
 		if(luaCompat_call(L, lua_gettop(L)-1, 0, &err)) {
-          LUAMODULE_APIerror(L, err);
+          luacom_APIerror(L, err);
 		  return 0;
 		}
 	}
@@ -1671,7 +1684,7 @@ int luacom_StartMessageLoop(lua_State *L)
 		if(lua_gettop(L) > 0) {
 			const char *err;
 			if(luaCompat_call(L, lua_gettop(L)-1, 0, &err)) {
-              LUAMODULE_APIerror(L, err);
+              luacom_APIerror(L, err);
 			  return 0;
 			}
 		}
@@ -1761,7 +1774,7 @@ int luacom_ImportIUnknown(lua_State* L)
 
   if(!punk)
   {
-    LUAMODULE_APIerror(L, "Pointer expected.");
+    luacom_APIerror(L, "Pointer expected.");
     return 0;
   }
 
@@ -2006,7 +2019,7 @@ try
     CHECK(lcom, INTERNAL_ERROR);
 
       // sets the parameter list excluding the 'self' param
-    tLuaObjList& params = tLuaObjList(first_param, num_params);
+    tLuaObjList params = tLuaObjList(first_param, num_params);
 
     num_return_values = lcom->call(L, dispid, invkind, pfuncdesc, params);
 
@@ -2375,7 +2388,7 @@ static bool luacom_runningInprocess(lua_State* L) {
 	lua_getregistry(L);
 	lua_pushstring(L,"inproc");
 	lua_gettable(L,-2);
-	bool inproc = lua_toboolean(L,-1);
+	bool inproc = lua_toboolean(L,-1) != 0;
 	lua_pop(L,2);
 	return inproc;
 }
@@ -2492,7 +2505,7 @@ static struct luaL_reg functions_tb []=
  *  pilha de Lua
  */
 
-LUAMODULE_API int luacom_IDispatch2LuaCOM(lua_State *L, void *pdisp_arg)
+LUACOM_API int luacom_IDispatch2LuaCOM(lua_State *L, void *pdisp_arg)
 {
   if(pdisp_arg == NULL)
   {
@@ -2522,7 +2535,7 @@ LUAMODULE_API int luacom_IDispatch2LuaCOM(lua_State *L, void *pdisp_arg)
  *  Inicializacao da biblioteca
  */
 
-LUAMODULE_API void luacom_open(lua_State *L)
+LUACOM_API void luacom_open(lua_State *L)
 {
   if(L == NULL)
     return;
@@ -2615,7 +2628,7 @@ LUAMODULE_API void luacom_open(lua_State *L)
  *  Fechamento da biblioteca
  */
 
-LUAMODULE_API void luacom_close(lua_State *L)
+LUACOM_API void luacom_close(lua_State *L)
 {
 }
 
@@ -2624,7 +2637,7 @@ LUAMODULE_API void luacom_close(lua_State *L)
  * Helper for implementing automation servers with LuaCOM
  */
 
-LUAMODULE_API int luacom_detectAutomation(lua_State *L, int argc, char *argv[])
+LUACOM_API int luacom_detectAutomation(lua_State *L, int argc, char *argv[])
 {
   int automation_result = LUACOM_NOAUTOMATION;
   int lua_result = 0;

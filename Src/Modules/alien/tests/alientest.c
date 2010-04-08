@@ -41,6 +41,11 @@ EXPORT(void) my_qsort(void *base, size_t num, size_t width, int(*compare)(const 
 	qsort(base, num, width, compare);
 }
 
+EXPORT(int) my_compare(char *a, char *b)
+{
+        return *a - *b;
+}
+
 EXPORT(int *) _testfunc_ai8(int a[8])
 {
 	return a;
@@ -57,6 +62,11 @@ EXPORT(int) _testfunc_i_bhilfd(signed char b, short h, int i, long l, float f, d
 	b, h, i, l, f, d);*/
 
 	return (int)(b + h + i + l + f + d);
+}
+
+EXPORT(unsigned long) _testfunc_L_HIL(unsigned short h, unsigned int i, unsigned long l)
+{
+  return (unsigned long)(h + i + l);
 }
 
 EXPORT(float) _testfunc_f_bhilfd(signed char b, short h, int i, long l, float f, double d)
@@ -301,7 +311,14 @@ EXPORT(S8I) ret_8i_func(S8I inp)
 	return inp;
 }
 
-EXPORT(int) GetRectangle(int flag, RECT *prect)
+typedef struct {
+	long left;
+	long top;
+	long right;
+	long bottom;
+} RECT1;
+
+EXPORT(int) GetRectangle1(int flag, RECT1 *prect)
 {
 	if (flag == 0)
 		return 0;
@@ -310,6 +327,39 @@ EXPORT(int) GetRectangle(int flag, RECT *prect)
 	prect->right = (int)flag + 2;
 	prect->bottom = (int)flag + 3;
 	return 1;
+}
+
+typedef struct {
+	short left;
+	long top;
+	short right;
+	long bottom;
+} RECT2;
+
+EXPORT(int) GetRectangle2(int flag, RECT2 *prect)
+{
+	if (flag == 0)
+		return 0;
+	prect->left = (int)flag;
+	prect->top = (int)flag + 1;
+	prect->right = (int)flag + 2;
+	prect->bottom = (int)flag + 3;
+	return 1;
+}
+
+
+EXPORT(int) GetRectangle3(RECT2 *prect)
+{
+	prect->left *= 2;
+	prect->top *= 2;
+	prect->right *= 2;
+	prect->bottom *= 2;
+	return 1;
+}
+
+EXPORT(int) GetRectangle4(RECT2 prect)
+{
+        return prect.left + prect.top + prect.right + prect.bottom;
 }
 
 EXPORT(void) TwoOutArgs(int a, int *pi, int b, int *pj)

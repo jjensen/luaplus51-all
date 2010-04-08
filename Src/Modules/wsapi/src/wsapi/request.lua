@@ -133,24 +133,88 @@ local function parse_post_data(wsapi_env, tab, overwrite)
   return tab
 end
 
+methods = {}
+
+function methods.__index(tab, name)
+  local func
+  if methods[name] then
+    func = methods[name]
+  else
+    local route_name = name:match("link_([%w_]+)")
+    if route_name then
+      func = function (self, query, ...)
+	       return tab:route_link(route_name, query, ...)
+	     end
+    end
+  end
+  tab[name] = func
+  return func
+end
+
+function methods:qs_encode(query)
+  local parts = {}
+  for k, v in pairs(query or {}) do
+    parts[#parts+1] = k .. "=" .. wsapi.util.url_encode(v)
+  end
+  if #parts > 0 then
+    return "?" .. table.concat(parts, "&")
+  else
+    return ""
+  end
+end
+
+function methods:route_link(route, query, ...)
+  local builder = self.mk_app["link_" .. route]
+  if builder then
+    local uri = builder(self.mk_app, self.env, ...)
+    return uri .. self:qs_encode(query)
+  else
+    error("there is no route named " .. route)
+  end
+end
+
+function methods:link(url, query)
+  local prefix = (self.mk_app and self.mk_app.prefix) or self.script_name
+  local uri = prefix .. url
+  return prefix .. url .. self:qs_encode(query)
+end
+
+function methods:absolute_link(url, query)
+  return url .. self:qs_encode(query)
+end
+
+function methods:static_link(url)
+  local prefix = (self.mk_app and self.mk_app.prefix) or self.script_name
+  local is_script = prefix:match("(%.%w+)$")
+  if not is_script then return self:link(url) end
+  local vpath = prefix:match("(.*)/") or ""
+  return vpath .. url
+end
+
+function methods:empty(s)
+  return not s or string.match(s, "^%s*$")
+end
+
+function methods:empty_param(param)
+  return self:empty(self.params[param])
+end
+
 function new(wsapi_env, options)
   options = options or {}
   local req = { GET = {}, POST = {}, method = wsapi_env.REQUEST_METHOD,
     path_info = wsapi_env.PATH_INFO, query_string = wsapi_env.QUERY_STRING,
-    script_name = wsapi_env.SCRIPT_NAME }
+    script_name = wsapi_env.SCRIPT_NAME, env = wsapi_env, mk_app = options.mk_app,
+    doc_root = wsapi_env.DOCUMENT_ROOT, app_path = wsapi_env.APP_PATH }
   parse_qs(wsapi_env.QUERY_STRING, req.GET, options.overwrite)
   if options.delay_post then
-    req.parse_post_data = function (self)
+    req.parse_post = function (self)
 		       parse_post_data(wsapi_env, self.POST, options.overwrite)
-		       self.parse_post_data = function ()
-						error("POST data already processed")
-					      end
+		       self.parse_post = function () return nil, "postdata already parsed" end
+		       return self.POST
 		     end
   else
     parse_post_data(wsapi_env, req.POST, options.overwrite)
-    req.parse_post_data = function () 
-			    error("POST data already processed")
-			  end
+    req.parse_post = function () return nil, "postdata already parsed" end
   end
   req.params = {}
   setmetatable(req.params, { __index = function (tab, name)
@@ -172,5 +236,5 @@ function new(wsapi_env, options)
 					  rawset(tab, name, cookie)
 					  return cookie
 					end } )
-  return req
+  return setmetatable(req, methods)
 end

@@ -19,36 +19,16 @@ source = {
 }
 
 build = {
-   platforms = {
-     unix = {
-        type = "module",
-	modules = {
-	  ["wsapi.common"] = "src/wsapi/common.lua",
-	  ["wsapi.request"] = "src/wsapi/request.lua",
-	  ["wsapi.response"] = "src/wsapi/response.lua",
-	  ["wsapi.util"] = "src/wsapi/util.lua",
-	  ["wsapi.cgi"] = "src/wsapi/cgi.lua",
-	  ["wsapi.sapi"] = "src/wsapi/sapi.lua",
-	  ["wsapi.ringer"] = "src/wsapi/ringer.lua",
-	},
-	copy_directories = { "samples", "doc", "tests" },
-	install = { bin = { "src/launcher/wsapi.cgi" } }
-     },
-     win32 = {
-        type = "make",
-       	build_pass = true,
-        build_target = "cgi",
-        build_variables = {
-         LUA_INCLUDE = "$(LUA_INCDIR)",
-	 LUA_LIB = "$(LUA_LIBDIR)\\lua5.1.lib"
-        },
-   	install_target = "install-rocks",
-   	install_variables = {
-     	  PREFIX  = "$(PREFIX)",
-     	  LUA_BIN = "/usr/bin/env lua",
-     	  LUA_DIR = "$(LUADIR)",
-     	  BIN_DIR = "$(BINDIR)"
-   	},
-     }
-   }
+  type = "builtin",
+  modules = {
+    ["wsapi.common"] = "src/wsapi/common.lua",
+    ["wsapi.request"] = "src/wsapi/request.lua",
+    ["wsapi.response"] = "src/wsapi/response.lua",
+    ["wsapi.util"] = "src/wsapi/util.lua",
+    ["wsapi.cgi"] = "src/wsapi/cgi.lua",
+    ["wsapi.sapi"] = "src/wsapi/sapi.lua",
+    ["wsapi.ringer"] = "src/wsapi/ringer.lua",
+  },
+  copy_directories = { "samples", "doc", "tests" },
+  install = { bin = { "src/launcher/wsapi.cgi" } }
 }

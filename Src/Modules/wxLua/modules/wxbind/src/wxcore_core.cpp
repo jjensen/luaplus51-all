@@ -4,16 +4,16 @@
 // Any changes made to this file will be lost when the file is regenerated.
 // ---------------------------------------------------------------------------
 
+
+#include "wx/wxprec.h"
+
 #ifdef __BORLANDC__
     #pragma hdrstop
 #endif
 
-#include "wx/wxprec.h"
-
 #ifndef WX_PRECOMP
      #include "wx/wx.h"
 #endif
-
 
 #include "wxlua/include/wxlstate.h"
 #include "wxbind/include/wxcore_bind.h"
@@ -45,7 +45,7 @@ static int LUACALL wxLua_wxLogGui_constructor(lua_State *L)
     // call constructor
     wxLogGui* returns = new wxLogGui();
     // add to tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxLogGui((wxLogGui*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxLogGui);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxLogGui);
 
@@ -54,6 +54,12 @@ static int LUACALL wxLua_wxLogGui_constructor(lua_State *L)
 
 
 
+
+void wxLua_wxLogGui_delete_function(void** p)
+{
+    wxLogGui* o = (wxLogGui*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxLogGui_methods[] = {
@@ -92,7 +98,7 @@ static int LUACALL wxLua_wxLogTextCtrl_constructor(lua_State *L)
     // call constructor
     wxLogTextCtrl* returns = new wxLogTextCtrl(textCtrl);
     // add to tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxLogTextCtrl((wxLogTextCtrl*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxLogTextCtrl);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxLogTextCtrl);
 
@@ -102,6 +108,12 @@ static int LUACALL wxLua_wxLogTextCtrl_constructor(lua_State *L)
 #endif // (wxLUA_USE_wxTextCtrl && wxUSE_TEXTCTRL) && ((wxLUA_USE_wxLog && wxUSE_LOG) && (wxLUA_USE_wxTextCtrl && wxUSE_TEXTCTRL))
 
 
+
+void wxLua_wxLogTextCtrl_delete_function(void** p)
+{
+    wxLogTextCtrl* o = (wxLogTextCtrl*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxLogTextCtrl_methods[] = {
@@ -186,7 +198,7 @@ static int LUACALL wxLua_wxLogWindow_constructor(lua_State *L)
     // call constructor
     wxLogWindow* returns = new wxLogWindow(pParent, szTitle, bShow, bPassToOld);
     // add to tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxLogWindow((wxLogWindow*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxLogWindow);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxLogWindow);
 
@@ -195,6 +207,12 @@ static int LUACALL wxLua_wxLogWindow_constructor(lua_State *L)
 
 
 
+
+void wxLua_wxLogWindow_delete_function(void** p)
+{
+    wxLogWindow* o = (wxLogWindow*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxLogWindow_methods[] = {
@@ -235,7 +253,7 @@ static int LUACALL wxLua_wxSystemSettings_GetColour(lua_State *L)
     // allocate a new object using the copy constructor
     wxColour* returns = new wxColour(wxSystemSettings::GetColour(index));
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (wxColour*)returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxColour);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxColour);
 
@@ -257,7 +275,7 @@ static int LUACALL wxLua_wxSystemSettings_GetFont(lua_State *L)
     // allocate a new object using the copy constructor
     wxFont* returns = new wxFont(wxSystemSettings::GetFont(index));
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (wxFont*)returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxFont);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxFont);
 
@@ -331,6 +349,12 @@ static int LUACALL wxLua_wxSystemSettings_SetScreenType(lua_State *L)
 
 
 
+
+void wxLua_wxSystemSettings_delete_function(void** p)
+{
+    wxSystemSettings* o = (wxSystemSettings*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxSystemSettings_methods[] = {
@@ -476,6 +500,12 @@ static int LUACALL wxLua_wxValidator_Validate(lua_State *L)
 
 
 
+
+void wxLua_wxValidator_delete_function(void** p)
+{
+    wxValidator* o = (wxValidator*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxValidator_methods[] = {
@@ -641,6 +671,12 @@ static int LUACALL wxLua_wxTextValidator_constructor(lua_State *L)
 
 
 
+void wxLua_wxTextValidator_delete_function(void** p)
+{
+    wxTextValidator* o = (wxTextValidator*)(*p);
+    delete o;
+}
+
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxTextValidator_methods[] = {
 #if ((wxCHECK_VERSION(2,6,0)) && ((wxLUA_USE_wxValidator && wxUSE_VALIDATORS) && (wxLUA_USE_wxTextValidator))) && (wxLUA_USE_wxArrayString)
@@ -690,7 +726,7 @@ static int LUACALL wxLua_wxGenericValidatorArrayInt_constructor(lua_State *L)
     // call constructor
     wxGenericValidator *returns = new wxGenericValidator(valPtr->GetArrayPtr());
     // add to tracked memory list
-    wxluaO_addgcobject(L, returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxGenericValidator);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxGenericValidator);
     // return the number of parameters
@@ -710,7 +746,7 @@ static int LUACALL wxLua_wxGenericValidatorBool_constructor(lua_State *L)
     // call constructor
     wxGenericValidator *returns = new wxGenericValidator(boolPtr->GetBoolPtr());
     // add to tracked memory list
-    wxluaO_addgcobject(L, returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxGenericValidator);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxGenericValidator);
     // return the number of parameters
@@ -730,7 +766,7 @@ static int LUACALL wxLua_wxGenericValidatorInt_constructor(lua_State *L)
     // call constructor
     wxGenericValidator *returns = new wxGenericValidator(valPtr->GetIntPtr());
     // add to tracked memory list
-    wxluaO_addgcobject(L, returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxGenericValidator);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxGenericValidator);
     // return the number of parameters
@@ -750,7 +786,7 @@ static int LUACALL wxLua_wxGenericValidatorString_constructor(lua_State *L)
     // call constructor
     wxGenericValidator *returns = new wxGenericValidator(valPtr->GetStringPtr());
     // add to tracked memory list
-    wxluaO_addgcobject(L, returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxGenericValidator);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxGenericValidator);
     // return the number of parameters
@@ -760,6 +796,12 @@ static int LUACALL wxLua_wxGenericValidatorString_constructor(lua_State *L)
 
 
 
+
+void wxLua_wxGenericValidator_delete_function(void** p)
+{
+    wxGenericValidator* o = (wxGenericValidator*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxGenericValidator_methods[] = {
@@ -890,7 +932,7 @@ static int LUACALL wxLua_wxMemoryFSHandler_constructor(lua_State *L)
     // call constructor
     wxMemoryFSHandler* returns = new wxMemoryFSHandler();
     // add to tracked memory list
-    wxluaO_addgcobject(L, returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxMemoryFSHandler);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxMemoryFSHandler);
 
@@ -917,6 +959,12 @@ static wxLuaBindCFunc s_wxluafunc_wxLua_wxMemoryFSHandler_AddFile_overload[] =
 static int s_wxluafunc_wxLua_wxMemoryFSHandler_AddFile_overload_count = sizeof(s_wxluafunc_wxLua_wxMemoryFSHandler_AddFile_overload)/sizeof(wxLuaBindCFunc);
 
 #endif // ((wxLUA_USE_wxBitmap) && ((wxUSE_STREAMS && wxUSE_FILESYSTEM) && (wxUSE_IMAGE)))||((wxLUA_USE_wxImage && wxUSE_IMAGE) && ((wxUSE_STREAMS && wxUSE_FILESYSTEM) && (wxUSE_IMAGE)))||(wxUSE_STREAMS && wxUSE_FILESYSTEM)
+
+void wxLua_wxMemoryFSHandler_delete_function(void** p)
+{
+    wxMemoryFSHandler* o = (wxMemoryFSHandler*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxMemoryFSHandler_methods[] = {

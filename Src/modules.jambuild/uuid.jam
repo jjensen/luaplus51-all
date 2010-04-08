@@ -1,0 +1,22 @@
+{
+
+local SRCS =
+		luuid.c
+;
+
+if $(NT)
+{
+	SRCS +=
+			wuuid.c
+			wuuid.h
+	;
+	C.LinkPrebuiltLibraries uuid : rpcrt4 ;
+}
+else if $(OS) = LINUX
+{
+	C.LinkFlags uuid : -luuid ;
+}
+
+Lua.CModule uuid : : $(SRCS) ;
+
+}

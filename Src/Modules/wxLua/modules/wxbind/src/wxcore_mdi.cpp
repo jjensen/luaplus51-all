@@ -4,16 +4,16 @@
 // Any changes made to this file will be lost when the file is regenerated.
 // ---------------------------------------------------------------------------
 
+
+#include "wx/wxprec.h"
+
 #ifdef __BORLANDC__
     #pragma hdrstop
 #endif
 
-#include "wx/wxprec.h"
-
 #ifndef WX_PRECOMP
      #include "wx/wx.h"
 #endif
-
 
 #include "wxlua/include/wxlstate.h"
 #include "wxbind/include/wxcore_bind.h"
@@ -35,6 +35,12 @@
 int wxluatype_wxMDIClientWindow = WXLUA_TUNKNOWN;
 
 
+
+void wxLua_wxMDIClientWindow_delete_function(void** p)
+{
+    wxMDIClientWindow* o = (wxMDIClientWindow*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxMDIClientWindow_methods[] = {
@@ -301,6 +307,12 @@ static int s_wxluafunc_wxLua_wxMDIParentFrame_constructor_overload_count = sizeo
 
 #endif // ((wxLUA_USE_MDI && wxUSE_MDI && wxUSE_DOC_VIEW_ARCHITECTURE) && (wxLUA_USE_wxPointSizeRect))||(wxLUA_USE_MDI && wxUSE_MDI && wxUSE_DOC_VIEW_ARCHITECTURE)
 
+void wxLua_wxMDIParentFrame_delete_function(void** p)
+{
+    wxMDIParentFrame* o = (wxMDIParentFrame*)(*p);
+    delete o;
+}
+
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxMDIParentFrame_methods[] = {
     { "ActivateNext", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxMDIParentFrame_ActivateNext, 1, NULL },
@@ -491,6 +503,12 @@ static int s_wxluafunc_wxLua_wxMDIChildFrame_constructor_overload_count = sizeof
 
 #endif // ((wxLUA_USE_MDI && wxUSE_MDI && wxUSE_DOC_VIEW_ARCHITECTURE) && (wxLUA_USE_wxPointSizeRect))||(wxLUA_USE_MDI && wxUSE_MDI && wxUSE_DOC_VIEW_ARCHITECTURE)
 
+void wxLua_wxMDIChildFrame_delete_function(void** p)
+{
+    wxMDIChildFrame* o = (wxMDIChildFrame*)(*p);
+    delete o;
+}
+
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxMDIChildFrame_methods[] = {
     { "Activate", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxMDIChildFrame_Activate, 1, NULL },
@@ -647,6 +665,12 @@ static wxLuaBindCFunc s_wxluafunc_wxLua_wxDocMDIParentFrame_constructor_overload
 static int s_wxluafunc_wxLua_wxDocMDIParentFrame_constructor_overload_count = sizeof(s_wxluafunc_wxLua_wxDocMDIParentFrame_constructor_overload)/sizeof(wxLuaBindCFunc);
 
 #endif // (((wxLUA_USE_wxFrame) && (wxLUA_USE_MDI && wxUSE_MDI && wxUSE_DOC_VIEW_ARCHITECTURE)) && (wxLUA_USE_wxPointSizeRect))||(wxLUA_USE_MDI && wxUSE_MDI && wxUSE_DOC_VIEW_ARCHITECTURE)
+
+void wxLua_wxDocMDIParentFrame_delete_function(void** p)
+{
+    wxDocMDIParentFrame* o = (wxDocMDIParentFrame*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxDocMDIParentFrame_methods[] = {
@@ -851,6 +875,12 @@ static int s_wxluafunc_wxLua_wxDocMDIChildFrame_constructor_overload_count = siz
 
 #endif // ((wxLUA_USE_MDI && wxUSE_MDI && wxUSE_DOC_VIEW_ARCHITECTURE) && (wxLUA_USE_wxPointSizeRect))||(wxLUA_USE_MDI && wxUSE_MDI && wxUSE_DOC_VIEW_ARCHITECTURE)
 
+void wxLua_wxDocMDIChildFrame_delete_function(void** p)
+{
+    wxDocMDIChildFrame* o = (wxDocMDIChildFrame*)(*p);
+    delete o;
+}
+
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxDocMDIChildFrame_methods[] = {
 #if (wxLUA_USE_MDI && wxUSE_MDI && wxUSE_DOC_VIEW_ARCHITECTURE) && (wxLUA_USE_wxPointSizeRect)
@@ -987,6 +1017,12 @@ static int LUACALL wxLua_wxDocChildFrame_constructor(lua_State *L)
 #endif // ((wxLUA_USE_wxFrame) && (wxLUA_USE_MDI && wxUSE_MDI && wxUSE_DOC_VIEW_ARCHITECTURE)) && (wxLUA_USE_wxPointSizeRect)
 
 
+
+void wxLua_wxDocChildFrame_delete_function(void** p)
+{
+    wxDocChildFrame* o = (wxDocChildFrame*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxDocChildFrame_methods[] = {
@@ -1710,8 +1746,6 @@ static int LUACALL wxLua_wxDocManager_constructor(lua_State *L)
     long flags = (argCount >= 1 ? (long)wxlua_getnumbertype(L, 1) : wxDEFAULT_DOCMAN_FLAGS);
     // call constructor
     wxDocManager* returns = new wxDocManager(flags, initialize);
-    // add to tracked window list, it will check validity
-    wxluaW_addtrackedwindow(L, returns);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxDocManager);
 
@@ -1751,6 +1785,12 @@ static wxLuaBindCFunc s_wxluafunc_wxLua_wxDocManager_FileHistoryAddFilesToMenu_o
 static int s_wxluafunc_wxLua_wxDocManager_FileHistoryAddFilesToMenu_overload_count = sizeof(s_wxluafunc_wxLua_wxDocManager_FileHistoryAddFilesToMenu_overload)/sizeof(wxLuaBindCFunc);
 
 #endif // ((wxLUA_USE_MDI && wxUSE_MDI && wxUSE_DOC_VIEW_ARCHITECTURE) && (wxLUA_USE_wxMenu && wxUSE_MENUS))||(wxLUA_USE_MDI && wxUSE_MDI && wxUSE_DOC_VIEW_ARCHITECTURE)
+
+void wxLua_wxDocManager_delete_function(void** p)
+{
+    wxDocManager* o = (wxDocManager*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxDocManager_methods[] = {
@@ -1886,6 +1926,12 @@ static int LUACALL wxLua_wxDocParentFrame_constructor(lua_State *L)
 #endif // ((wxLUA_USE_wxFrame) && (wxLUA_USE_MDI && wxUSE_MDI && wxUSE_DOC_VIEW_ARCHITECTURE)) && (wxLUA_USE_wxPointSizeRect)
 
 
+
+void wxLua_wxDocParentFrame_delete_function(void** p)
+{
+    wxDocParentFrame* o = (wxDocParentFrame*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxDocParentFrame_methods[] = {
@@ -2249,8 +2295,6 @@ static int LUACALL wxLua_wxDocTemplate_constructor(lua_State *L)
     wxDocManager * manager = (wxDocManager *)wxluaT_getuserdatatype(L, 1, wxluatype_wxDocManager);
     // call constructor
     wxDocTemplate* returns = new wxDocTemplate(manager, descr, filter, dir, ext, docTypeName, viewTypeName, docClassInfo, viewClassInfo, flags);
-    // add to tracked window list, it will check validity
-    wxluaW_addtrackedwindow(L, returns);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxDocTemplate);
 
@@ -2260,6 +2304,12 @@ static int LUACALL wxLua_wxDocTemplate_constructor(lua_State *L)
 #endif // (wxLUA_USE_MDI && wxUSE_MDI && wxUSE_DOC_VIEW_ARCHITECTURE) && (wxLUA_USE_wxClassInfo)
 
 
+
+void wxLua_wxDocTemplate_delete_function(void** p)
+{
+    wxDocTemplate* o = (wxDocTemplate*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxDocTemplate_methods[] = {
@@ -2865,8 +2915,6 @@ static int LUACALL wxLua_wxDocument_constructor(lua_State *L)
 {
     // call constructor
     wxDocument* returns = new wxDocument();
-    // add to tracked window list, it will check validity
-    wxluaW_addtrackedwindow(L, returns);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxDocument);
 
@@ -2875,6 +2923,12 @@ static int LUACALL wxLua_wxDocument_constructor(lua_State *L)
 
 
 
+
+void wxLua_wxDocument_delete_function(void** p)
+{
+    wxDocument* o = (wxDocument*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxDocument_methods[] = {
@@ -3215,6 +3269,12 @@ static int LUACALL wxLua_wxView_SetViewName(lua_State *L)
 
 
 
+
+void wxLua_wxView_delete_function(void** p)
+{
+    wxView* o = (wxView*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxView_methods[] = {
@@ -3638,8 +3698,6 @@ static int LUACALL wxLua_wxCommandProcessor_constructor(lua_State *L)
     int maxCommands = (argCount >= 1 ? (int)wxlua_getnumbertype(L, 1) : -1);
     // call constructor
     wxCommandProcessor* returns = new wxCommandProcessor(maxCommands);
-    // add to tracked window list, it will check validity
-    wxluaW_addtrackedwindow(L, returns);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxCommandProcessor);
 
@@ -3648,6 +3706,12 @@ static int LUACALL wxLua_wxCommandProcessor_constructor(lua_State *L)
 
 
 
+
+void wxLua_wxCommandProcessor_delete_function(void** p)
+{
+    wxCommandProcessor* o = (wxCommandProcessor*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxCommandProcessor_methods[] = {
@@ -3769,6 +3833,12 @@ static int LUACALL wxLua_wxCommand_Undo(lua_State *L)
 
 
 
+
+void wxLua_wxCommand_delete_function(void** p)
+{
+    wxCommand* o = (wxCommand*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxCommand_methods[] = {
@@ -4005,7 +4075,7 @@ static int LUACALL wxLua_wxFileHistory_constructor(lua_State *L)
     // call constructor
     wxFileHistory* returns = new wxFileHistory(maxFiles, idBase);
     // add to tracked memory list
-    wxluaO_addgcobject(L, returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxFileHistory);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxFileHistory);
 
@@ -4028,6 +4098,12 @@ static wxLuaBindCFunc s_wxluafunc_wxLua_wxFileHistory_AddFilesToMenu_overload[] 
 static int s_wxluafunc_wxLua_wxFileHistory_AddFilesToMenu_overload_count = sizeof(s_wxluafunc_wxLua_wxFileHistory_AddFilesToMenu_overload)/sizeof(wxLuaBindCFunc);
 
 #endif // ((wxLUA_USE_wxFileHistory && wxUSE_DOC_VIEW_ARCHITECTURE) && (wxLUA_USE_wxMenu && wxUSE_MENUS))||(wxLUA_USE_wxFileHistory && wxUSE_DOC_VIEW_ARCHITECTURE)
+
+void wxLua_wxFileHistory_delete_function(void** p)
+{
+    wxFileHistory* o = (wxFileHistory*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxFileHistory_methods[] = {

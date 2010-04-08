@@ -34,7 +34,8 @@ struct WXDLLIMPEXP_WXLUA wxLuaBindClass;
 // Note that WXLUA_TUNKNOWN is used as an initialiser for class types
 //   and is used as an end marker for the wxLuaArgType array that
 //   represents function prototype argument types in the wxLuaBindCFunc struct
-//   and it must always be 0.
+//   and it must always be 0. The Lua type LUA_TNONE starts at 1 since 
+//   Lua arrays start at 1.
 
 // wxLua types for Lua types
 #define WXLUA_TUNKNOWN         0  // unset and invalid, not a LUA_TXXX
@@ -57,9 +58,11 @@ struct WXDLLIMPEXP_WXLUA wxLuaBindClass;
 #define WXLUATYPE_NULL         13 // C++ NULL, is full wxLua type with metatable
 
 // Check that the Lua LUA_TXXX types are what they used to be
-#if (LUA_TNONE != -1) || (LUA_TNIL != 0) || (LUA_TBOOLEAN != 1) || (LUA_TLIGHTUSERDATA != 2) || \
-    (LUA_TNUMBER != 3) || (LUA_TSTRING != 4) || (LUA_TTABLE != 5) || (LUA_TFUNCTION != 6) || \
-    (LUA_TUSERDATA != 7) || (LUA_TTHREAD != 8)
+#if (LUA_TNONE     != -1) || (LUA_TNIL           != 0) || \
+    (LUA_TBOOLEAN  != 1)  || (LUA_TLIGHTUSERDATA != 2) || \
+    (LUA_TNUMBER   != 3)  || (LUA_TSTRING        != 4) || \
+    (LUA_TTABLE    != 5)  || (LUA_TFUNCTION      != 6) || \
+    (LUA_TUSERDATA != 7)  || (LUA_TTHREAD        != 8)
 #   error "Lua has changed it's LUA_TXXX defines."
 #endif
 
@@ -78,6 +81,7 @@ struct WXDLLIMPEXP_WXLUA wxLuaBindClass;
 // Variables used in the wxLuaArgType member of the wxLuaBindCFunc for
 // Lua types. The binding generator uses these and generates new ones for
 // classes and structs as specified in the bindings.
+extern WXDLLIMPEXP_DATA_WXLUA(int) wxluatype_TUNKNOWN;
 extern WXDLLIMPEXP_DATA_WXLUA(int) wxluatype_TNONE;
 extern WXDLLIMPEXP_DATA_WXLUA(int) wxluatype_TNIL;
 extern WXDLLIMPEXP_DATA_WXLUA(int) wxluatype_TBOOLEAN;
@@ -97,12 +101,16 @@ extern WXDLLIMPEXP_DATA_WXLUA(int) wxluatype_TCFUNCTION;
 extern WXDLLIMPEXP_DATA_WXLUA(int) wxluatype_NULL;                 // wxLua type for NULL pointer
 extern WXDLLIMPEXP_DATA_WXLUA(wxLuaBindClass) wxLuaBindClass_NULL; // for NULL pointer
 
-// Copies of wxLua types that are used very often.
+// Copies of wxLua types that are used very often, point to wxluatype_TUNKNOWN if unset.
 // Note that we do not use the original since we may not be linked
 // to the binding library that defines them.
-extern WXDLLIMPEXP_DATA_WXLUA(int*) p_wxluatype_wxEvent;       // wxLua type for wxEvents
-extern WXDLLIMPEXP_DATA_WXLUA(int*) p_wxluatype_wxWindow;      // wxLua type for wxWindows
-extern WXDLLIMPEXP_DATA_WXLUA(int*) p_wxluatype_wxString;      // wxLua type for wxStrings
+// Their values are set at compile time if linked to library, 
+//   see wxbase_rules.lua and wxcore_rules.lua
+extern WXDLLIMPEXP_DATA_WXLUA(int*) p_wxluatype_wxEvent;       // wxLua type for wxEvent
+extern WXDLLIMPEXP_DATA_WXLUA(int*) p_wxluatype_wxWindow;      // wxLua type for wxWindow
+extern WXDLLIMPEXP_DATA_WXLUA(int*) p_wxluatype_wxScrollEvent; // wxLua type for wxScrollEvent - see wxLuaEventCallback::OnEvent
+extern WXDLLIMPEXP_DATA_WXLUA(int*) p_wxluatype_wxSpinEvent;   // wxLua type for wxSpinEvent   - see wxLuaEventCallback::OnEvent
+extern WXDLLIMPEXP_DATA_WXLUA(int*) p_wxluatype_wxString;      // wxLua type for wxString
 extern WXDLLIMPEXP_DATA_WXLUA(int*) p_wxluatype_wxArrayString; // wxLua type for wxArrayString
 extern WXDLLIMPEXP_DATA_WXLUA(int*) p_wxluatype_wxSortedArrayString; // wxLua type for wxSortedArrayString
 extern WXDLLIMPEXP_DATA_WXLUA(int*) p_wxluatype_wxArrayInt;    // wxLua type for wxArrayInt
@@ -119,7 +127,7 @@ extern WXDLLIMPEXP_DATA_WXLUA(wxLuaArgType) g_wxluaargtypeArray_None[1]; // = {0
 // ----------------------------------------------------------------------------
 enum wxLuaMethod_Type
 {
-    WXLUAMETHOD_CONSTRUCTOR = 0x0001, // constructor
+    WXLUAMETHOD_CONSTRUCTOR = 0x0001, // class constructor
     WXLUAMETHOD_METHOD      = 0x0002, // class member function
     WXLUAMETHOD_CFUNCTION   = 0x0004, // global C function (not part of a class)
     WXLUAMETHOD_GETPROP     = 0x0008, // Get %property funcName, read
@@ -131,16 +139,7 @@ enum wxLuaMethod_Type
                                       // to delete this class and is not part of the
                                       // original class.
 
-    WXLUAMETHOD_ENCAPSULATE = 0x4000, // This class is not derived from a wxObject
-
-    WXLUAMETHOD_CHECKED_OVERLOAD = 0x10000, // Class method has been checked to see if it is
-                                            // overloaded function from the base class by
-                                            // wxLuaBinding::InitAllBindings().
-                                            // wxLuaBindMethod::basemethod is !NULL
-                                            // if an overloaded function was found.
-
-    WXLUAMETHOD_SEARCH_MASK = 0xFFFF,    // Helper for wxLuaBinding::GetClassMethod(), ignore WXLUAMETHOD_CHECKED_OVERLOAD
-    WXLUAMETHOD_SORT_MASK   = 0xFFFF,    // Helper for wxLuaBinding::InitAllBindings(), ignore WXLUAMETHOD_CHECKED_OVERLOAD
+    WXLUAMETHOD_MASK        = 0xFFFF  // Match any type for searching
 };
 
 // ----------------------------------------------------------------------------
@@ -152,7 +151,7 @@ struct WXDLLIMPEXP_WXLUA wxLuaBindCFunc
     lua_CFunction lua_cfunc;   // C function that implements the method or property
     int           method_type; // enum wxLuaMethod_Type flags for this function
     int           minargs;     // Min number of required args
-    int           maxargs;     // Max number of args allowed
+    int           maxargs;     // Max number of args allowed, equal to length of argtypes array
     wxLuaArgType* argtypes;    // Array of wxLua types representing each argument, NULL terminated.
 };
 
@@ -168,7 +167,6 @@ struct WXDLLIMPEXP_WXLUA wxLuaBindMethod
     wxLuaBindCFunc*  wxluacfuncs;   // Array of C functions for this method
     int              wxluacfuncs_n; // Number of C functions (overloaded > 1) for this method
     wxLuaBindMethod* basemethod;    // Overloaded method from the base class, else NULL.
-                                    //   See comments for WXLUAMETHOD_CHECKED_OVERLOAD
 };
 
 // ----------------------------------------------------------------------------
@@ -180,8 +178,6 @@ struct WXDLLIMPEXP_WXLUA wxLuaBindNumber
     const char* name;          // name
     double      value;         // numeric value
 };
-
-extern WXDLLIMPEXP_DATA_WXLUA(wxLuaBindNumber) g_wxluanumberArray_None[1]; // = {{0,0}}
 
 // ----------------------------------------------------------------------------
 // wxLuaBindString - Defines a wxWidgets wxChar* string for wxLua
@@ -215,16 +211,19 @@ struct WXDLLIMPEXP_WXLUA wxLuaBindObject
     int*         wxluatype; // wxLua class type of the object or pointer.
     const void*  objPtr;    // Pointer to the object, e.g. &wxDefaultPosition
     const void** pObjPtr;   // Pointer to the object pointer, e.g. (const void **)&wxThePenList
+                            // This is done since the object may not be created at compile time.
 };
 
 // ----------------------------------------------------------------------------
 // wxLuaBindClass - Defines a C++ class or struct for wxLua
 // ----------------------------------------------------------------------------
 
+typedef void (*wxlua_delete_function) (void** o);
+
 struct WXDLLIMPEXP_WXLUA wxLuaBindClass
 {
     const char*      name;           // Name of the class or struct
-    wxLuaBindMethod* wxluamethods;   // Pointer to methods for this class
+    wxLuaBindMethod* wxluamethods;   // Pointer to array of methods for this class
     int              wxluamethods_n; // Number of methods
     wxClassInfo*     classInfo;      // Pointer to the wxClassInfo associated with this class or NULL.
     int*             wxluatype;      // wxLua class type for userdata
@@ -239,8 +238,17 @@ struct WXDLLIMPEXP_WXLUA wxLuaBindClass
                                      // since any one of these may be NULL if the
                                      // library or module with the base class is not loaded.
 
+    wxLuaArgType*    baseclass_wxluatypes;     // NULL terminated array of wxLua types for the base classes
+                                               // that are from second or higher base classes
+    int*             baseclass_vtable_offsets; // Array of pointer offsets of the second or higher
+                                               // base classes from the root class.
+                                               // See note above wxluaT_getuserdatatype()
+
     wxLuaBindNumber* enums;          // Class member enums or NULL if none
     int              enums_n;        // number of enums
+    
+    wxlua_delete_function delete_fn; // Function that will cast the void* pointer
+                                     // to the class type and then call delete on it.
 };
 
 // ----------------------------------------------------------------------------
@@ -263,10 +271,10 @@ WXDLLIMPEXP_WXLUA int LUACALL wxlua_wxLuaBindClass__tostring(lua_State *L);
 // Overloaded binding function call helper functions.
 // ----------------------------------------------------------------------------
 
-// Redirect a Lua function call to 1 wxLuaBindCFunc from a list of overloaded functions.
+// Redirect a Lua function call to one wxLuaBindCFunc from a list of overloaded functions.
 // The 1st upvalue must be a wxLuaBindMethod.
-int LUACALL wxlua_callOverloadedFunction(lua_State* L);
-// Redirect a Lua function call to 1 wxLuaBindCFunc from a list of overloaded functions
+WXDLLIMPEXP_WXLUA int LUACALL wxlua_callOverloadedFunction(lua_State* L);
+// Redirect a Lua function call to one wxLuaBindCFunc from a list of overloaded functions
 // declared in the wxLuaBindMethod.
 WXDLLIMPEXP_WXLUA int LUACALL wxlua_callOverloadedFunction(lua_State* L, struct wxLuaBindMethod* wxlMethod);
 // Get a human readable string of the Lua args (items on the stack) for a function call
@@ -343,57 +351,6 @@ protected:
 private:
     DECLARE_ABSTRACT_CLASS(wxLuaObject)
 };
-
-// ----------------------------------------------------------------------------
-// wxLUA_DECLARE_ENCAPSULATION and wxLUA_IMPLEMENT_ENCAPSULATION
-//     Declare the macros used to define and implement classes that
-//     wrap non-wxObject derived pointers used by wxLua in the bindings.
-//
-// IMPEXPSYMBOL : similiar to WXDLLIMPEXP_WXBIND, you cannot leave this
-//   parameter empty, but you may use WXLUA_NO_DLLIMPEXP and
-//   WXLUA_NO_DLLIMPEXP_DATA(x) if you don't want DLL export symbols.
-// className : name of the class to encapsulate (may be NameSpace::MyClass)
-// objName : name to use in naming the encapsulation class (NameSpace_MyClass)
-// ----------------------------------------------------------------------------
-
-#define WXLUA_NO_DLLIMPEXP           // use if you don't want to export class
-#define WXLUA_NO_DLLIMPEXP_DATA(x) x // use if you don't want to export data
-
-#define wxLUA_DECLARE_ENCAPSULATION(IMPEXPSYMBOL, className, objName) \
-class IMPEXPSYMBOL wxLua_wxObject_##objName : public wxObject \
-{ \
-public: \
-    wxLua_wxObject_##objName(className *p_##objName) : m_p##objName(p_##objName) {} \
-    virtual ~wxLua_wxObject_##objName(); \
-    className *m_p##objName; \
-    DECLARE_ABSTRACT_CLASS(wxLua_wxObject_##objName) \
-};
-
-// we may not have fully defined the class/object in header so delete it in src.
-#define wxLUA_IMPLEMENT_ENCAPSULATION(className, objName) \
-IMPLEMENT_ABSTRACT_CLASS(wxLua_wxObject_##objName, wxObject) \
-wxLua_wxObject_##objName::~wxLua_wxObject_##objName() \
-{ \
-    delete m_p##objName; \
-}
-
-#define wxGridCellWorkerDummyFriend wxGridCellWorkerDummyFriend; \
-    public: \
-    size_t GetRef() const { return m_nRef; }
-
-#define wxGridCellAttrDummyFriend wxGridCellAttrDummyFriend; \
-    public: \
-    size_t GetRef() const { return m_nRef; }
-
-#include "wx/grid.h"
-
-// The wxGridWorker classes have protected destructors, use DecRef().
-#define wxLUA_IMPLEMENT_wxGridCellWorker_ENCAPSULATION(className, objName) \
-IMPLEMENT_ABSTRACT_CLASS(wxLua_wxObject_##objName, wxObject) \
-wxLua_wxObject_##objName::~wxLua_wxObject_##objName() \
-{ \
-    m_p##objName->DecRef(); \
-}
 
 // ----------------------------------------------------------------------------
 // wxLuaSmartStringArray - Wraps a "new" array of wxStrings with an automatic
@@ -519,14 +476,18 @@ public:
 //                the wxLuaState.
 // ----------------------------------------------------------------------------
 
-// list of wxLua Bindings
-WX_DECLARE_USER_EXPORTED_LIST(wxLuaBinding, wxLuaBindingList, WXDLLIMPEXP_WXLUA);
+// wxArray of wxLua Bindings
+WX_DEFINE_USER_EXPORTED_ARRAY_PTR(wxLuaBinding*, wxLuaBindingArray, class WXDLLIMPEXP_WXLUA);
 
 class WXDLLIMPEXP_WXLUA wxLuaBinding : public wxObject
 {
 public:
     wxLuaBinding();
     virtual ~wxLuaBinding() {}
+
+    // Register all the bindings added to the static member wxLuaBindingArray.
+    // Leaves nothing on the stack.
+    static bool RegisterBindings(const wxLuaState& wxlState);
 
     // Binds C Functions/Defines/Object/Events to a Lua table with binding's namespace.
     // The Lua table that the bindings were installed into is left on the top
@@ -590,7 +551,7 @@ public:
     const wxLuaBindClass* GetBindClass(const wxLuaBindCFunc* wxlCFunc) const;
 
     // -----------------------------------------------------------------------
-    // These functions search through the static wxLuaBinding::GetBindingList()
+    // These functions search through the static wxLuaBinding::GetBindingArray()
     // for the items.
 
     // Get the installed wxLuaBinding with the given
@@ -634,20 +595,22 @@ public:
 
     // Get all the bindings that were initialized using the generated binding
     //   function wxLuaBinding_[binding name]_init().
-    //   You can adjust the list *only* if you do not have any wxLuaStates
+    //   You can adjust the array *only* if you do not have any wxLuaStates
     //   created, otherwise the wxLua types will be out of sync.
-    static wxLuaBindingList* GetBindingList() { return &sm_bindingList; }
+    static wxLuaBindingArray& GetBindingArray() { return sm_bindingArray; }
 
     // -----------------------------------------------------------------------
 
-    // Initialize all of the bindings by iterating the GetBindingList() and
+    // Initialize all of the bindings by iterating the GetBindingArray() and
     // setting the base classes and base class functions. This function
-    // is automatically run by the wxLuaState and should not need to be called.
+    // is automatically run by the wxLuaState and should not need to be called
+    // unless you later add a new binding to the array, in which case force it to be rerun.
     static void InitAllBindings(bool force_update = false);
 
 protected:
-    void InitBinding(); // must called after subclassed version is created
-                        // to sort the bindings appropriately
+
+    // Call only once after subclassed version is created to sort the bindings appropriately
+    void InitBinding(); 
 
     // Register the classes, defines, strings, events, objects, and functions
     // stored in the binding arrays. The Lua table to install them into
@@ -673,9 +636,9 @@ protected:
     int m_first_wxluatype;      // The first wxLua type allocated for a class
     int m_last_wxluatype;       // The last wxLua type of registered classes
 
-    static wxLuaBindingList sm_bindingList;
-    static bool             sm_bindingList_initialized;
-    static int              sm_wxluatype_max;
+    static wxLuaBindingArray sm_bindingArray;
+    static int               sm_bindingArray_initialized;
+    static int               sm_wxluatype_max;
 
     DECLARE_ABSTRACT_CLASS(wxLuaBinding)
 };

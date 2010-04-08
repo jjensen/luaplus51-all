@@ -16,9 +16,9 @@
 // Check if the version of binding generator used to create this is older than
 //   the current version of the bindings.
 //   See 'bindings/genwxbind.lua' and 'modules/wxlua/include/wxldefs.h'
-#if WXLUA_BINDING_VERSION > 27
+#if WXLUA_BINDING_VERSION > 30
 #   error "The WXLUA_BINDING_VERSION in the bindings is too old, regenerate bindings."
-#endif //WXLUA_BINDING_VERSION > 27
+#endif //WXLUA_BINDING_VERSION > 30
 // ---------------------------------------------------------------------------
 
 // binding class
@@ -35,7 +35,7 @@ private:
 
 
 // initialize wxLuaBinding_wxlua for all wxLuaStates
-extern WXDLLIMPEXP_WXLUA bool wxLuaBinding_wxlua_init();
+extern WXDLLIMPEXP_WXLUA wxLuaBinding* wxLuaBinding_wxlua_init();
 
 // ---------------------------------------------------------------------------
 // Includes
@@ -50,10 +50,6 @@ extern WXDLLIMPEXP_WXLUA bool wxLuaBinding_wxlua_init();
 extern WXDLLIMPEXP_DATA_WXLUA(int) wxluatype_wxLuaObject;
 extern WXDLLIMPEXP_DATA_WXLUA(int) wxluatype_wxLuaState;
 
-
-// ---------------------------------------------------------------------------
-// Encapsulation Declarations - need to be public for other bindings.
-// ---------------------------------------------------------------------------
 
 
 #endif // __HOOK_WXLUA_wxlua_H__

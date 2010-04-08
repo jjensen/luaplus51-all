@@ -1,10 +1,8 @@
 #!/usr/bin/env wsapi.cgi
  
 require "orbit"
-require "orbit.routes"
+local R = require "orbit.routes"
 
-local R = orbit.routes.R
- 
 local hello = orbit.new()
 
 hello:dispatch_get(function (web)

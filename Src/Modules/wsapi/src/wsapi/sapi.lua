@@ -5,6 +5,11 @@ require "wsapi.response"
 module(..., package.seeall)
 
 function run(wsapi_env)
+  _G.CGILUA_APPS = _G.CGILUA_APPS or wsapi_env.DOCUMENT_ROOT .. "/cgilua"
+  _G.CGILUA_CONF = _G.CGILUA_CONF or wsapi_env.DOCUMENT_ROOT .. "/cgilua"
+  _G.CGILUA_TMP = _G.CGILUA_TMP or os.getenv("TMP") or os.getenv("TEMP") or "/tmp"
+  _G.CGILUA_ISDIRECT = true
+
   local res = wsapi.response.new()
 
   _G.SAPI = {

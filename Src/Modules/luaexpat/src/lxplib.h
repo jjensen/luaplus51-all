@@ -20,4 +20,4 @@
 #define ProcessingInstructionKey	"ProcessingInstruction"
 #define UnparsedEntityDeclKey		"UnparsedEntityDecl"
 
-LUAMODULE_API int luaopen_lxp (lua_State *L);
+int luaopen_lxp (lua_State *L);

@@ -133,13 +133,15 @@ public:
 
     // fill this with the stack entries for the wxLuaState
     //   returns the number of stack entries added
-    int EnumerateStack(const wxLuaState& wxlState);
+    int EnumerateStack(lua_State* L);
     // fill this with the locals from a particular stack frame, if an item on the stack is a
     //   table then add a reference to it in the references array
-    int EnumerateStackEntry(const wxLuaState& wxlState, int stack_frame, wxArrayInt& references);
-    // fill this with the name and value of items in a table at the given reference,
-    //   if the table has a sub table then add a reference to it to the references array
-    int EnumerateTable(const wxLuaState& wxlState, int nRef, int nEntry, wxArrayInt& references);
+    int EnumerateStackEntry(lua_State* L, int stack_frame, wxArrayInt& references);
+    // Fill this with the name and value of items in a table at the given reference
+    // in the wxlua_lreg_debug_refs_key in the LUA_REGISTRYINDEX.
+    // nRef may also be LUA_GLOBALSINDEX and LUA_REGISTRYINDEX.
+    // If the table has a sub table then add a reference to it to the references array.
+    int EnumerateTable(lua_State* L, int nRef, int nEntry, wxArrayInt& references);
 
     //-------------------------------------------------------------------------
     // These functions are static to allow them to be used in other places to
@@ -147,12 +149,12 @@ public:
 
     // Get information about the item at the 'stack_idx'. Returns the lua_type(L, stack_idx),
     //   fills 'wxl_type' with the WXLUA_TXXX type and 'value' with a human readable value.
-    static int GetTypeValue(const wxLuaState& wxlState, int stack_idx, int* wxl_type, wxString& value);
+    static int GetTypeValue(lua_State *L, int stack_idx, int* wxl_type, wxString& value);
     // Get a wxString description about the table at the stack_idx in the Lua stack
-    static wxString GetTableInfo(const wxLuaState& wxlState, int stack_idx);
+    static wxString GetTableInfo(lua_State *L, int stack_idx);
     // Get a wxString description about user data at the stack_idx in the Lua stack
     //  if full then try to look up the name of the user data from the bindings
-    static wxString GetUserDataInfo(const wxLuaState& wxlState, int stack_idx, bool full_userdata);
+    static wxString GetUserDataInfo(lua_State *L, int stack_idx, bool full_userdata);
 
     //-------------------------------------------------------------------------
 

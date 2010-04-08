@@ -103,44 +103,48 @@ local launcher_params = {
   ttl = config.ttl or ONE_DAY
 }
 
-if #config.rules == 0 then
-  config.rules = {
-    { -- URI remapping example
-      match = "^/$",
-      with = xavante.redirecthandler,
-      params = {"index.html"}
-    }, 
+config.rules = config.rules or {}
 
-    { -- wsapihandler example
-      match = {"%.lua$", "%.lua/" },
-      with = wsapi.xavante.makeGenericHandler (config.docroot, launcher_params)
-    },
+local function addrule(rule)
+  config.rules[#config.rules+1] = rule
+end
 
-    { -- wsapihandler example
-      match = {"%.ws$", "%.ws/" },
-      with = wsapi.xavante.makeGenericHandler (config.docroot, launcher_params)
-    },
-  }
-  if opts.cgilua then
-     require "xavante.cgiluahandler"
-     config.rules[#config.rules+1] = {
-	match = {"%.lp$", "%.lp/.*$", "%.cgi$", "%.cgi/.*$" },
-	with = xavante.cgiluahandler.makeHandler (config.docroot, launcher_params)
-     }
-  end
-  if opts.op then
-     require "orbit.ophandler"
-     config.rules[#config.rules+1] = {
-	match = {"%.op$", "%.op/.*$" },
-	with = orbit.ophandler.makeHandler (config.docroot, launcher_params)
-     }
-  end
-  config.rules[#config.rules+1] = { -- filehandler example
-     match = ".",
-     with = xavante.filehandler,
-     params = { baseDir = config.docroot }
+addrule{ -- URI remapping example
+  match = "^/$",
+  with = xavante.redirecthandler,
+  params = {"index.html"}
+}
+
+addrule{ -- wsapihandler example
+  match = {"%.lua$", "%.lua/" },
+  with = wsapi.xavante.makeGenericHandler (config.docroot, launcher_params)
+}
+
+addrule{ -- wsapihandler example
+  match = {"%.ws$", "%.ws/" },
+  with = wsapi.xavante.makeGenericHandler (config.docroot, launcher_params)
+}
+
+if opts.cgilua then
+  require "xavante.cgiluahandler"
+  addrule{
+    match = {"%.lp$", "%.lp/.*$", "%.cgi$", "%.cgi/.*$" },
+    with = xavante.cgiluahandler.makeHandler (config.docroot, launcher_params)
   }
 end
+if opts.op then
+  require "orbit.ophandler"
+  addrule{
+    match = {"%.op$", "%.op/.*$" },
+    with = orbit.ophandler.makeHandler (config.docroot, launcher_params)
+  }
+end
+
+addrule{ -- filehandler example
+  match = ".",
+  with = xavante.filehandler,
+  params = { baseDir = config.docroot }
+}
 
 -- Displays a message in the console with the used ports
 xavante.start_message(config.start_message)

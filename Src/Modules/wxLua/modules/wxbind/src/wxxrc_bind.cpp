@@ -4,16 +4,16 @@
 // Any changes made to this file will be lost when the file is regenerated.
 // ---------------------------------------------------------------------------
 
+
+#include "wx/wxprec.h"
+
 #ifdef __BORLANDC__
     #pragma hdrstop
 #endif
 
-#include "wx/wxprec.h"
-
 #ifndef WX_PRECOMP
      #include "wx/wx.h"
 #endif
-
 
 #include "wxlua/include/wxlstate.h"
 #include "wxbind/include/wxxrc_bind.h"
@@ -203,7 +203,7 @@ static int LUACALL wxLua_wxXmlResource_LoadBitmap(lua_State *L)
     // allocate a new object using the copy constructor
     wxBitmap* returns = new wxBitmap(self->LoadBitmap(name));
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (wxBitmap*)returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxBitmap);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxBitmap);
 
@@ -297,7 +297,7 @@ static int LUACALL wxLua_wxXmlResource_LoadIcon(lua_State *L)
     // allocate a new object using the copy constructor
     wxIcon* returns = new wxIcon(self->LoadIcon(name));
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (wxIcon*)returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxIcon);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxIcon);
 
@@ -442,7 +442,7 @@ static int LUACALL wxLua_wxXmlResource_Set(lua_State *L)
     if (wxluaO_isgcobject(L, res)) wxluaO_undeletegcobject(L, res);
     // call Set
     wxXmlResource* returns = (wxXmlResource*)wxXmlResource::Set(res);
-    if (!wxluaO_isgcobject(L, returns)) wxluaO_addgcobject(L, returns);
+    if (!wxluaO_isgcobject(L, returns)) wxluaO_addgcobject(L, returns, wxluatype_wxXmlResource);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxXmlResource);
 
@@ -519,7 +519,7 @@ static int LUACALL wxLua_wxXmlResource_constructor1(lua_State *L)
     // call constructor
     wxXmlResource* returns = new wxXmlResource(filemask, flags, domain);
     // add to tracked memory list
-    wxluaO_addgcobject(L, returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxXmlResource);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxXmlResource);
 
@@ -541,7 +541,7 @@ static int LUACALL wxLua_wxXmlResource_constructor(lua_State *L)
     // call constructor
     wxXmlResource* returns = new wxXmlResource(flags, domain);
     // add to tracked memory list
-    wxluaO_addgcobject(L, returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxXmlResource);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxXmlResource);
 
@@ -603,6 +603,12 @@ static wxLuaBindCFunc s_wxluafunc_wxLua_wxXmlResource_constructor_overload[] =
 static int s_wxluafunc_wxLua_wxXmlResource_constructor_overload_count = sizeof(s_wxluafunc_wxLua_wxXmlResource_constructor_overload)/sizeof(wxLuaBindCFunc);
 
 #endif // (wxLUA_USE_wxXRC && wxUSE_XRC)
+
+void wxLua_wxXmlResource_delete_function(void** p)
+{
+    wxXmlResource* o = (wxXmlResource*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxXmlResource_methods[] = {
@@ -778,6 +784,7 @@ static wxLuaBindClass* wxluabaseclassbinds_wxXmlResource[] = { NULL };
 #if wxLUA_USE_wxXRC && wxUSE_XRC
     extern wxLuaBindMethod wxXmlResource_methods[];
     extern int wxXmlResource_methodCount;
+    extern void wxLua_wxXmlResource_delete_function(void** p);
 #endif // wxLUA_USE_wxXRC && wxUSE_XRC
 
 
@@ -788,7 +795,7 @@ wxLuaBindClass* wxLuaGetClassList_wxxrc(size_t &count)
     static wxLuaBindClass classList[] =
     {
 #if wxLUA_USE_wxXRC && wxUSE_XRC
-        { wxluaclassname_wxXmlResource, wxXmlResource_methods, wxXmlResource_methodCount, NULL, &wxluatype_wxXmlResource, wxluabaseclassnames_wxXmlResource, wxluabaseclassbinds_wxXmlResource, g_wxluanumberArray_None, 0, }, 
+        { wxluaclassname_wxXmlResource, wxXmlResource_methods, wxXmlResource_methodCount, CLASSINFO(wxXmlResource), &wxluatype_wxXmlResource, wxluabaseclassnames_wxXmlResource, wxluabaseclassbinds_wxXmlResource, NULL, NULL, NULL, 0, &wxLua_wxXmlResource_delete_function, }, 
 #endif // wxLUA_USE_wxXRC && wxUSE_XRC
 
 
@@ -815,19 +822,21 @@ wxLuaBinding_wxxrc::wxLuaBinding_wxxrc() : wxLuaBinding()
     m_eventArray    = wxLuaGetEventList_wxxrc(m_eventCount);
     m_objectArray   = wxLuaGetObjectList_wxxrc(m_objectCount);
     m_functionArray = wxLuaGetFunctionList_wxxrc(m_functionCount);
+    InitBinding();
 }
 
 
 
 // ---------------------------------------------------------------------------
 
-bool wxLuaBinding_wxxrc_init()
+wxLuaBinding* wxLuaBinding_wxxrc_init()
 {
     static wxLuaBinding_wxxrc m_binding;
-    if (wxLuaBinding::GetBindingList()->Find(&m_binding)) return false;
 
-    wxLuaBinding::GetBindingList()->Append(&m_binding);
-    return true;
+    if (wxLuaBinding::GetBindingArray().Index(&m_binding) == wxNOT_FOUND)
+        wxLuaBinding::GetBindingArray().Add(&m_binding);
+
+    return &m_binding;
 }
 
 

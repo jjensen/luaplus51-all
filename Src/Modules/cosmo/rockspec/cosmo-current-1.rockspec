@@ -16,43 +16,15 @@ without without the downside of allowing arbitrary code in the templates.
 dependencies = { "lpeg >= 0.8.1" }
 
 source = {
-  url = "http://cosmo.luaforge.net/cosmo-current.tar.gz"
+  url = "git://github.com/mascarenhas/cosmo.git"
 }
 
 build = {
-   platforms = {
-     unix = {
-        type = "make",
-	build_pass = true,
-	build_target = "all",
-   	install_target = "install-rocks",
-       	build_variables = {
-          LIB_OPTION = "$(LIBFLAG)",
-          CFLAGS = "$(CFLAGS) -I$(LUA_INCDIR)",
-       	},
-       	install_variables = {
-	  PREFIX  = "$(PREFIX)",
-          LUA_BIN = "/usr/bin/env lua",
-          LUA_DIR= "$(LUADIR)",
-          LUA_LIBDIR = "$(LIBDIR)"
-       	}
-     },
-     win32 = {
-        type = "make",
-	build_pass = true,
-	build_target = "all",
-   	install_target = "install-rocks",
-       	build_variables = {
-          LIB_OPTION = "$(LUA_LIBDIR)\\lua5.1.lib",
-          CFLAGS = "$(CFLAGS)",
-	  LUA_INCLUDE = "$(LUA_INCDIR)"
-       	},
-       	install_variables = {
-	  PREFIX  = "$(PREFIX)",
-          LUA_BIN = "/usr/bin/env lua",
-          LUA_DIR= "$(LUADIR)",
-          LUA_LIBDIR = "$(LIBDIR)"
-       	}
-     }
-  }
+   type = "module",
+   modules = {
+     cosmo = "src/cosmo.lua",
+     ["cosmo.fill"] = "src/cosmo/fill.lua",
+     ["cosmo.grammar"] = "src/cosmo/grammar.lua",
+   },
+   copy_directories = { "doc", "samples", "tests" }
 }

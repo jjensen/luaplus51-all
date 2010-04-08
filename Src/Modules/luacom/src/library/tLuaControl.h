@@ -20,8 +20,8 @@ public:
     tLuaControl(lua_State* L, ITypeInfo *pTypeinfo, int ref);
     ~tLuaControl();
     STDMETHOD(QueryInterface)(REFIID riid, void FAR* FAR* ppvObj);
-    STDMETHODIMP_(unsigned long) AddRef(void);
-    STDMETHODIMP_(unsigned long) Release(void);
+    STDMETHODIMP_(ULONG) AddRef(void);
+    STDMETHODIMP_(ULONG) Release(void);
 
     //=--------------------------------------------------------------------------=
     // IPersist methods.  used by IPersistStream and IPersistStorage
@@ -61,8 +61,8 @@ public:
 	STDMETHOD(InitFromData)(IDataObject* pDataObject, BOOL fCreation, DWORD dwReserved);
 	STDMETHOD(IsUpToDate)();
 	STDMETHOD(GetClipboardData)(DWORD dwReserved, IDataObject** ppDataObject);
-	STDMETHOD(DoVerb)(long iVerb, MSG* lpmsg, IOleClientSite* pActiveSite,
-		long lIndex, HWND hwndParent, LPCRECT lprcPosRect);
+	STDMETHOD(DoVerb)(LONG iVerb, LPMSG lpmsg, IOleClientSite* pActiveSite,
+		LONG lIndex, HWND hwndParent, LPCRECT lprcPosRect);
 	STDMETHOD(EnumVerbs)(IEnumOLEVERB** ppEnumOleVerb);
 	STDMETHOD(Update)();
 	STDMETHOD(GetUserClassID)(CLSID* pClsid);
@@ -96,7 +96,7 @@ public:
 	STDMETHOD(Draw)(DWORD dwDrawAspect, LONG lindex, void  *pvAspect,
                     DVTARGETDEVICE  *ptd, HDC hdcTargetDev, HDC hdcDraw,
                     LPCRECTL lprcBounds, LPCRECTL lprcWBounds,
-                    BOOL ( STDMETHODCALLTYPE *pfnContinue )(ULONG_PTR dwContinue),
+                    BOOL ( __stdcall  *pfnContinue )(ULONG_PTR dwContinue),
                     ULONG_PTR dwContinue);
     STDMETHOD(GetColorSet)(DWORD dwDrawAspect,LONG lindex, void  *pvAspect,
                            DVTARGETDEVICE  *ptd, HDC hicTargetDev,

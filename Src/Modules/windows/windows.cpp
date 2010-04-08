@@ -3,45 +3,40 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "LuaPlus/LuaPlus.h"
+extern "C" {
+#include <lua.h>
+#include <lauxlib.h>
+}
 #include "KeystrokeEngine.h"
 
-using namespace LuaPlus;
-
-static int LS_GetForegroundWindow( LuaState* state )
-{
+static int l_GetForegroundWindow(lua_State* L) {
 	HWND hwnd = ::GetForegroundWindow();
-	state->PushInteger((UINT)hwnd);
+	lua_pushinteger(L, (UINT)hwnd);
 	return 1;
 }
 
 
-static int LS_GetActiveWindow( LuaState* state )
-{
+static int l_GetActiveWindow(lua_State* L) {
 	HWND hwnd = ::GetActiveWindow();
-	state->PushInteger((UINT)hwnd);
+	lua_pushinteger(L, (UINT)hwnd);
 	return 1;
 }
 
 
-static int LS_GetFocus( LuaState* state )
-{
+static int l_GetFocus(lua_State* L) {
 	HWND hwnd = ::GetFocus();
-	state->PushInteger((UINT)hwnd);
+	lua_pushinteger(L, (UINT)hwnd);
 	return 1;
 }
 
 
-static int LS_GetWindowText( LuaState* state )
-{
-	LuaStack args(state);
-	if (!args[1].IsNumber())
-	{
-		state->PushString("");
+static int l_GetWindowText(lua_State* L) {
+	if (!lua_isnumber(L, 1)) {
+		lua_pushstring(L, "");
 		return 1;
 	}
 
-	HWND hwnd = (HWND)(UINT)args[1].GetNumber();
+	HWND hwnd = (HWND)(UINT)lua_tonumber(L, 1);
 
 	// ::GetWindowText does not always seem to work
 	CString sText;
@@ -53,26 +48,24 @@ static int LS_GetWindowText( LuaState* state )
 		::SendMessage(hwnd, WM_GETTEXT, 256, (LPARAM)(LPCTSTR)buffer);
 	}
 
-	state->PushString(buffer);
+	lua_pushstring(L, buffer);
 	return 1;
 }
 
 
-static int LS_FindWindowEx( LuaState* state )
+static int l_FindWindowEx(lua_State* L)
 {
-	LuaStack args(state);
-	if (!args[1].IsNumber())
-	{
-		state->PushNumber(0);
+	if (!lua_isnumber(L, 1)) {
+		lua_pushnumber(L, 0);
 		return 1;
 	}
 
-	HWND hwnd = (HWND)(UINT)args[1].GetNumber();
-	HWND hwndChildAfter = (HWND)(args[2].IsNumber() ? (UINT)args[2].GetNumber() : 0);
-	LPCSTR className = args[3].IsString() ? args[3].GetString() : NULL;
-	LPCSTR windowName = args[4].IsString() ? args[4].GetString() : NULL;
+	HWND hwnd = (HWND)(UINT)lua_tonumber(L, 1);
+	HWND hwndChildAfter = (HWND)luaL_optinteger(L, 2, 0);
+	LPCSTR className = luaL_optstring(L, 3, NULL);
+	LPCSTR windowName = luaL_optstring(L, 4, NULL);
 	HWND foundHwnd = FindWindowEx(hwnd, hwndChildAfter, className, windowName);
-	state->PushInteger((UINT)foundHwnd);
+	lua_pushinteger(L, (UINT)foundHwnd);
 	return 1;
 }
 
@@ -1572,7 +1565,7 @@ void __PushKeys(const char* src)
 
 
 /*
-static int LS_DoIt( LuaState* state )
+static int l_DoIt(lua_State* L)
 {
 	if (!args[1].IsNumber())
 	{
@@ -1608,28 +1601,26 @@ static int LS_DoIt( LuaState* state )
 }
 */
 
-static int LS_SendKeys( LuaState* state )
-{
-	LuaStack args(state);
-	LPCSTR keys = args[1].GetString();
+static int l_SendKeys(lua_State* L) {
+	LPCSTR keys = luaL_checkstring(L, 1);
 	CKeystrokeEngine keystrokeEngine(keys);
 	keystrokeEngine.SendKeys();
 	return 0;
 }
 
 
-extern "C" LUAMODULE_API int luaopen_windows(lua_State* L)
-{
-	LuaState* state = LuaState::CastState(L);
-	LuaObject obj = state->GetGlobals().CreateTable( "windows" );
-	obj.Register( "GetForegroundWindow", LS_GetForegroundWindow );
-	obj.Register( "GetActiveWindow", LS_GetActiveWindow );
-	obj.Register( "GetFocus", LS_GetFocus );
-	obj.Register( "GetWindowText", LS_GetWindowText );
-	obj.Register( "FindWindowEx", LS_FindWindowEx );
-	obj.Register( "SendKeys", LS_SendKeys );
-//	obj.Register( "DoIt", LS_DoIt );
-	return 0;
+static const struct luaL_reg windows_funcs[] = {
+	{ "GetForegroundWindow", l_GetForegroundWindow },
+	{ "GetActiveWindow", l_GetActiveWindow },
+	{ "GetFocus", l_GetFocus },
+	{ "GetWindowText", l_GetWindowText },
+	{ "FindWindowEx", l_FindWindowEx },
+	{ "SendKeys", l_SendKeys },
+	{ NULL, NULL }
+};
+
+
+LUALIB_API int luaopen_windows(lua_State* L) {
+	luaL_register(L, "windows", windows_funcs);
+	return 1;
 }
-
-

@@ -96,16 +96,24 @@ The handler receives a <code>web</code> object</p>
 client, can be overriden. The handler receives a <code>web</code> object</p>
 
 <p><strong>app:dispatch_get(<em>func</em>, <em>patt</em>[, <em>patt</em>...])</strong> - installs <em>func</em> as a GET handler for
-the patterns <em>patt</em>. <em>func</em> receives a <code>web</code> object and the captures</p>
+the patterns <em>patt</em>. <em>func</em> receives a <code>web</code> object and the captures; this handler should return
+the contents of the response or <strong>app.reparse</strong> if you want to hand control back to
+the dispatcher and let it continue matching;</p>
 
 <p><strong>app:dispatch_post(<em>func</em>, <em>patt</em>[, <em>patt</em>...])</strong> - installs <em>func</em> as a POST handler for
-the patterns <em>patt</em>. <em>func</em> receives a <code>web</code> object and the captures</p>
+the patterns <em>patt</em>. <em>func</em> receives a <code>web</code> object and the captures; this handler should return
+the contents of the response or <strong>app.reparse</strong> if you want to hand control back to
+the dispatcher and let it continue matching;</p>
 
 <p><strong>app:dispatch_put(<em>func</em>, <em>patt</em>[, <em>patt</em>...])</strong> - installs <em>func</em> as a PUT handler for
-the patterns <em>patt</em>. <em>func</em> receives a <code>web</code> object and the captures</p>
+the patterns <em>patt</em>. <em>func</em> receives a <code>web</code> object and the captures; this handler should return
+the contents of the response or <strong>app.reparse</strong> if you want to hand control back to
+the dispatcher and let it continue matching;</p>
 
 <p><strong>app:dispatch_delete(<em>func</em>, <em>patt</em>[, <em>patt</em>...])</strong> - installs <em>func</em> as a DELETE handler for
-the patterns <em>patt</em>. <em>func</em> receives a <code>web</code> object and the captures</p>
+the patterns <em>patt</em>. <em>func</em> receives a <code>web</code> object and the captures; this handler should return
+the contents of the response or <strong>app.reparse</strong> if you want to hand control back to
+the dispatcher and let it continue matching;</p>
 
 <p><strong>app:dispatch_wsapi(<em>func</em>, <em>patt</em>[, <em>patt</em>...])</strong> - installs <em>func</em> as a WSAPI handler for
 the patterns <em>patt</em>. <em>func</em> receives the unmodified WSAPI environment</p>
@@ -251,6 +259,27 @@ called <code>updated_at</code> this row is set to the last update's date.</p>
 
 <p><strong>an_instance:delete()</strong> - deletes an instance from the DB</p>
 
+<h2>Module <code>orbit.routes</code></h2>
+
+<p>This module has a single function, <strong>R</strong>, and you can also call the module itself. This function takes a PATH_INFO pattern where the path segments (the parts of the path separated by <code>/</code> or <code>.</code>) can be named parameters (<code>:name</code>), <em>splats</em> (*), optional parameters (<code>?:name?</code>), or literals, and returns a pattern.</p>
+
+<p>A pattern is an object with two methods:</p>
+
+<p><strong>patt:match(<em>str</em>)</strong> - tries to match <em>str</em> and returns a hash of named parameters; splats are returned in a <code>splat</code> array inside this hash.</p>
+
+<p><strong>patt:build(<em>params</em>)</strong> - builds the original pattern string from a hash of named parameters</p>
+
+<p>Some examples of patterns, what they match, and the parameter hashes:</p>
+
+<ul>
+    <li>'/foo', matches '/foo', empty hash</li>
+    <li>'/foo/:bar/baz' matches '/foo/orbit/baz' or '/foo/xxx.yyy/baz' with hashes { bar = 'orbit' } and { bar = 'xxx.yyy' }</li>
+    <li>'/:name.:ext' matches '/xxx.yyy' or '/filename.ext' with hashes { name = 'xxx', ext = 'yyy' } and { name = 'filename', ext = 'ext' }</li>
+    <li>'/<em>/foo/</em>' matches '/bar/foo' or '/bar/foo/bling/baz/boom' with hashes { splat = { 'bar' } } and { splat = { 'bar', 'bling/baz/boom' } }</li>
+    <li>'/?:foo?/?:bar?' matches '/' or '/orbit' or '/orbit/routes' with hashes {} and { foo = 'orbit' } and { foo = 'orbit', bar = 'routes' }</li>
+</ul>
+
+<p>And several more, see <code>test/test_routes.lua</code> for a comprehensive test suite.</p>
 
 
 

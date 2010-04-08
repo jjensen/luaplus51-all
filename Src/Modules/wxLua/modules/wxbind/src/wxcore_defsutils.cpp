@@ -4,16 +4,16 @@
 // Any changes made to this file will be lost when the file is regenerated.
 // ---------------------------------------------------------------------------
 
+
+#include "wx/wxprec.h"
+
 #ifdef __BORLANDC__
     #pragma hdrstop
 #endif
 
-#include "wx/wxprec.h"
-
 #ifndef WX_PRECOMP
      #include "wx/wx.h"
 #endif
-
 
 #include "wxlua/include/wxlstate.h"
 #include "wxbind/include/wxcore_bind.h"
@@ -298,7 +298,7 @@ static int LUACALL wxLua_wxProcess_constructor(lua_State *L)
     // call constructor
     wxProcess* returns = new wxProcess(parent, nId);
     // add to tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxProcess((wxProcess*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxProcess);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxProcess);
 
@@ -307,6 +307,12 @@ static int LUACALL wxLua_wxProcess_constructor(lua_State *L)
 
 
 
+
+void wxLua_wxProcess_delete_function(void** p)
+{
+    wxProcess* o = (wxProcess*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxProcess_methods[] = {
@@ -672,7 +678,7 @@ static int LUACALL wxLua_wxMouseState_constructor(lua_State *L)
     // call constructor
     wxMouseState* returns = new wxMouseState();
     // add to tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxMouseState((wxMouseState*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxMouseState);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxMouseState);
 
@@ -681,6 +687,12 @@ static int LUACALL wxLua_wxMouseState_constructor(lua_State *L)
 
 
 
+
+void wxLua_wxMouseState_delete_function(void** p)
+{
+    wxMouseState* o = (wxMouseState*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxMouseState_methods[] = {
@@ -743,7 +755,7 @@ static int LUACALL wxLua_wxBusyCursor_constructor(lua_State *L)
     // call constructor
     wxBusyCursor *returns = new wxBusyCursor(cursor);
     // add to tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxBusyCursor((wxBusyCursor *)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxBusyCursor);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxBusyCursor);
 
@@ -754,6 +766,12 @@ static int LUACALL wxLua_wxBusyCursor_constructor(lua_State *L)
 #endif // (wxLUA_USE_wxBusyCursor) && (wxLUA_USE_wxCursor)
 
 
+
+void wxLua_wxBusyCursor_delete_function(void** p)
+{
+    wxBusyCursor* o = (wxBusyCursor*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxBusyCursor_methods[] = {
@@ -797,7 +815,7 @@ static int LUACALL wxLua_wxBusyInfo_constructor(lua_State *L)
     // call constructor
     wxBusyInfo* returns = new wxBusyInfo(message, parent);
     // add to tracked memory list
-    wxluaO_addgcobject(L, returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxBusyInfo);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxBusyInfo);
 
@@ -806,6 +824,12 @@ static int LUACALL wxLua_wxBusyInfo_constructor(lua_State *L)
 
 
 
+
+void wxLua_wxBusyInfo_delete_function(void** p)
+{
+    wxBusyInfo* o = (wxBusyInfo*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxBusyInfo_methods[] = {
@@ -964,7 +988,7 @@ static int LUACALL wxLua_wxTimer_constructor(lua_State *L)
     // call constructor
     wxTimer* returns = new wxTimer(owner, id);
     // add to tracked memory list
-    wxluaO_addgcobject(L, returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxTimer);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxTimer);
 
@@ -973,6 +997,12 @@ static int LUACALL wxLua_wxTimer_constructor(lua_State *L)
 
 
 
+
+void wxLua_wxTimer_delete_function(void** p)
+{
+    wxTimer* o = (wxTimer*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxTimer_methods[] = {
@@ -1023,6 +1053,12 @@ static wxLuaBindCFunc s_wxluafunc_wxLua_wxTimerEvent_delete[1] = {{ wxlua_userda
 
 
 
+
+void wxLua_wxTimerEvent_delete_function(void** p)
+{
+    wxTimerEvent* o = (wxTimerEvent*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxTimerEvent_methods[] = {

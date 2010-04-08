@@ -26,9 +26,11 @@ teste.TestDATE = teste.Test
 date = "29/2/1996 10:00:00"
 date2 = "1/1/2001 01:00:00"
 date_res1, date_res2, date_res3 = obj:TestDATE(date, date2)
-assert(date_res1 == date2)
-assert(date_res2 == date)
-assert(date_res3 == date)
+assert(date_res1:find '01')
+assert(date_res2:find '96')
+assert(date_res3 == date_res2)
+-- note: Regional Settings in Windows Control Panel
+-- may convert dates to a different format.
 
 luacom.DateFormat = "table"
 

@@ -5,24 +5,33 @@ local format = string.format
 
 module("wsapi.response", package.seeall)
 
-local function write(self, s)
-  if type(s) == "string" then
-    table.insert(self.body, s)
-  else
-    s = table.concat(s)
-    table.insert(self.body, s)
+methods = {}
+methods.__index = methods
+
+function methods:write(...)
+  for _, s in ipairs{ ... } do
+    if type(s) == "table" then
+      self:write(unpack(s))
+    elseif s then
+      local s = tostring(s)
+      self.body[#self.body+1] = s
+      self.length = self.length + #s
+    end
   end
-  self.length = self.length + #s
 end
 
-local function finish(self)
+function methods:forward(url)
+  self.env.PATH_INFO = url or self.env.PATH_INFO
+  return "MK_FORWARD"
+end
+
+function methods:finish()
   self.headers["Content-Length"] = self.length
-  return self.status, self.headers,
-    coroutine.wrap(function ()
-		     for _, s in ipairs(self.body) do
-		       coroutine.yield(s)
-		     end
-		   end)
+  return self.status, self.headers, coroutine.wrap(function ()
+						     for _, s in ipairs(self.body) do
+						       coroutine.yield(s)
+						     end
+						   end)
 end
 
 local function optional (what, name)
@@ -50,7 +59,7 @@ local function make_cookie(name, value)
   return cookie
 end
 
-local function set_cookie(self, name, value)
+function methods:set_cookie(name, value)
   local cookie = self.headers["Set-Cookie"]
   if type(cookie) == "table" then
     table.insert(self.headers["Set-Cookie"], make_cookie(name, value))
@@ -61,31 +70,26 @@ local function set_cookie(self, name, value)
   end
 end
 
-local function delete_cookie(self, name, path)
+function methods:delete_cookie(name, path)
   self:set_cookie(name, { value =  "xxx", expires = 1, path = path })
 end
 
-function new(status, headers, body)
+function methods:redirect(url)
+  self.status = 302
+  self.headers["Location"] = url
+  self.body = {}
+  return self:finish()
+end
+
+function methods:content_type(type)
+  self.headers["Content-Type"] = type
+end
+
+function new(status, headers)
   status = status or 200
   headers = headers or {}
   if not headers["Content-Type"] then
     headers["Content-Type"] = "text/html"
   end
-  body = body or function () return nil end
-  
-  local resp = { status = status, headers = headers, body = {}, cookies = {}, length = 0 }
-  local s = body()
-  while s do
-    write(resp, s)
-    s = body()
-  end
-
-  resp.write = write
-  resp.finish = finish
-  resp.set_cookie = set_cookie
-  resp.delete_cookie = delete_cookie
-
-  setmetatable(resp, { __index = headers, __newindex = headers })
-  return resp
+  return setmetatable({ status = status, headers = headers, body = {}, length = 0 }, methods)
 end
-

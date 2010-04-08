@@ -25,7 +25,7 @@ external_dependencies = {
 }
 
 source = {
-  url = "http://cloud.github.com/downloads/keplerproject/wsapi/wsapi-1.2.tar.gz"
+  url = "http://github.com/downloads/keplerproject/wsapi/wsapi-1.2.tar.gz"
 }
 
 build = {

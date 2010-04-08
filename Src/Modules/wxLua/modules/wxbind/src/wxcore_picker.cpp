@@ -4,16 +4,16 @@
 // Any changes made to this file will be lost when the file is regenerated.
 // ---------------------------------------------------------------------------
 
+
+#include "wx/wxprec.h"
+
 #ifdef __BORLANDC__
     #pragma hdrstop
 #endif
 
-#include "wx/wxprec.h"
-
 #ifndef WX_PRECOMP
      #include "wx/wx.h"
 #endif
-
 
 #include "wxlua/include/wxlstate.h"
 #include "wxbind/include/wxcore_bind.h"
@@ -281,6 +281,12 @@ static int LUACALL wxLua_wxPickerBase_UpdateTextCtrlFromPicker(lua_State *L)
 
 
 
+void wxLua_wxPickerBase_delete_function(void** p)
+{
+    wxPickerBase* o = (wxPickerBase*)(*p);
+    delete o;
+}
+
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxPickerBase_methods[] = {
     { "GetInternalMargin", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxPickerBase_GetInternalMargin, 1, NULL },
@@ -369,7 +375,7 @@ static int LUACALL wxLua_wxColourPickerCtrl_GetColour(lua_State *L)
     // allocate a new object using the copy constructor
     wxColour* returns = new wxColour(self->GetColour());
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (wxColour*)returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxColour);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxColour);
 
@@ -499,6 +505,12 @@ static int s_wxluafunc_wxLua_wxColourPickerCtrl_constructor_overload_count = siz
 
 #endif // ((((wxLUA_USE_wxColourPenBrush) && (wxLUA_USE_wxValidator && wxUSE_VALIDATORS)) && ((wxCHECK_VERSION(2,8,0) && wxLUA_USE_wxPicker) && (wxLUA_USE_wxColourPickerCtrl && wxUSE_COLOURPICKERCTRL))) && (wxLUA_USE_wxPointSizeRect))||((wxCHECK_VERSION(2,8,0) && wxLUA_USE_wxPicker) && (wxLUA_USE_wxColourPickerCtrl && wxUSE_COLOURPICKERCTRL))
 
+void wxLua_wxColourPickerCtrl_delete_function(void** p)
+{
+    wxColourPickerCtrl* o = (wxColourPickerCtrl*)(*p);
+    delete o;
+}
+
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxColourPickerCtrl_methods[] = {
 #if (((wxLUA_USE_wxColourPenBrush) && (wxLUA_USE_wxValidator && wxUSE_VALIDATORS)) && ((wxCHECK_VERSION(2,8,0) && wxLUA_USE_wxPicker) && (wxLUA_USE_wxColourPickerCtrl && wxUSE_COLOURPICKERCTRL))) && (wxLUA_USE_wxPointSizeRect)
@@ -546,7 +558,7 @@ static int LUACALL wxLua_wxColourPickerEvent_GetColour(lua_State *L)
     // allocate a new object using the copy constructor
     wxColour* returns = new wxColour(self->GetColour());
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (wxColour*)returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxColour);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxColour);
 
@@ -591,7 +603,7 @@ static int LUACALL wxLua_wxColourPickerEvent_constructor1(lua_State *L)
     // call constructor
     wxColourPickerEvent* returns = new wxColourPickerEvent(generator, id, *col);
     // add to tracked memory list
-    wxluaO_addgcobject(L, returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxColourPickerEvent);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxColourPickerEvent);
 
@@ -608,7 +620,7 @@ static int LUACALL wxLua_wxColourPickerEvent_constructor(lua_State *L)
     // call constructor
     wxColourPickerEvent* returns = new wxColourPickerEvent();
     // add to tracked memory list
-    wxluaO_addgcobject(L, returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxColourPickerEvent);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxColourPickerEvent);
 
@@ -631,6 +643,12 @@ static wxLuaBindCFunc s_wxluafunc_wxLua_wxColourPickerEvent_constructor_overload
 static int s_wxluafunc_wxLua_wxColourPickerEvent_constructor_overload_count = sizeof(s_wxluafunc_wxLua_wxColourPickerEvent_constructor_overload)/sizeof(wxLuaBindCFunc);
 
 #endif // (((wxLUA_USE_wxColourPenBrush) && (wxLUA_USE_wxObject)) && ((wxCHECK_VERSION(2,8,0) && wxLUA_USE_wxPicker) && (wxLUA_USE_wxColourPickerCtrl && wxUSE_COLOURPICKERCTRL)))||((wxCHECK_VERSION(2,8,0) && wxLUA_USE_wxPicker) && (wxLUA_USE_wxColourPickerCtrl && wxUSE_COLOURPICKERCTRL))
+
+void wxLua_wxColourPickerEvent_delete_function(void** p)
+{
+    wxColourPickerEvent* o = (wxColourPickerEvent*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxColourPickerEvent_methods[] = {
@@ -734,7 +752,7 @@ static int LUACALL wxLua_wxDatePickerCtrl_GetValue(lua_State *L)
     // allocate a new object using the copy constructor
     wxDateTime* returns = new wxDateTime(self->GetValue());
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxDateTime((wxDateTime*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxDateTime);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxDateTime);
 
@@ -846,6 +864,12 @@ static int s_wxluafunc_wxLua_wxDatePickerCtrl_constructor_overload_count = sizeo
 
 #endif // ((((wxLUA_USE_wxValidator && wxUSE_VALIDATORS) && ((wxCHECK_VERSION(2,8,0) && wxLUA_USE_wxPicker) && (wxLUA_USE_wxDatePickerCtrl && wxUSE_DATEPICKCTRL))) && (wxLUA_USE_wxDateTime && wxUSE_DATETIME)) && (wxLUA_USE_wxPointSizeRect))||((wxCHECK_VERSION(2,8,0) && wxLUA_USE_wxPicker) && (wxLUA_USE_wxDatePickerCtrl && wxUSE_DATEPICKCTRL))
 
+void wxLua_wxDatePickerCtrl_delete_function(void** p)
+{
+    wxDatePickerCtrl* o = (wxDatePickerCtrl*)(*p);
+    delete o;
+}
+
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxDatePickerCtrl_methods[] = {
 #if (((wxLUA_USE_wxValidator && wxUSE_VALIDATORS) && ((wxCHECK_VERSION(2,8,0) && wxLUA_USE_wxPicker) && (wxLUA_USE_wxDatePickerCtrl && wxUSE_DATEPICKCTRL))) && (wxLUA_USE_wxDateTime && wxUSE_DATETIME)) && (wxLUA_USE_wxPointSizeRect)
@@ -949,6 +973,12 @@ static int LUACALL wxLua_wxFileDirPickerCtrlBase_SetPath(lua_State *L)
 
 
 
+void wxLua_wxFileDirPickerCtrlBase_delete_function(void** p)
+{
+    wxFileDirPickerCtrlBase* o = (wxFileDirPickerCtrlBase*)(*p);
+    delete o;
+}
+
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxFileDirPickerCtrlBase_methods[] = {
     { "CheckPath", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxFileDirPickerCtrlBase_CheckPath, 1, NULL },
@@ -1026,7 +1056,7 @@ static int LUACALL wxLua_wxFileDirPickerEvent_constructor(lua_State *L)
     // call constructor
     wxFileDirPickerEvent* returns = new wxFileDirPickerEvent(type, generator, id, path);
     // add to tracked memory list
-    wxluaO_addgcobject(L, returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxFileDirPickerEvent);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxFileDirPickerEvent);
 
@@ -1036,6 +1066,12 @@ static int LUACALL wxLua_wxFileDirPickerEvent_constructor(lua_State *L)
 #endif // ((wxCHECK_VERSION(2,8,0) && wxLUA_USE_wxPicker) && ((wxLUA_USE_wxDirPickerCtrl || wxLUA_USE_wxFilePickerCtrl ) && (wxUSE_FILEPICKERCTRL || wxUSE_DIRPICKERCTRL ))) && (wxLUA_USE_wxObject)
 
 
+
+void wxLua_wxFileDirPickerEvent_delete_function(void** p)
+{
+    wxFileDirPickerEvent* o = (wxFileDirPickerEvent*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxFileDirPickerEvent_methods[] = {
@@ -1169,6 +1205,12 @@ static wxLuaBindCFunc s_wxluafunc_wxLua_wxDirPickerCtrl_constructor_overload[] =
 static int s_wxluafunc_wxLua_wxDirPickerCtrl_constructor_overload_count = sizeof(s_wxluafunc_wxLua_wxDirPickerCtrl_constructor_overload)/sizeof(wxLuaBindCFunc);
 
 #endif // (((wxLUA_USE_wxValidator && wxUSE_VALIDATORS) && ((wxCHECK_VERSION(2,8,0) && wxLUA_USE_wxPicker) && (wxLUA_USE_wxDirPickerCtrl && (wxUSE_FILEPICKERCTRL || wxUSE_DIRPICKERCTRL )))) && (wxLUA_USE_wxPointSizeRect))||((wxCHECK_VERSION(2,8,0) && wxLUA_USE_wxPicker) && (wxLUA_USE_wxDirPickerCtrl && (wxUSE_FILEPICKERCTRL || wxUSE_DIRPICKERCTRL )))
+
+void wxLua_wxDirPickerCtrl_delete_function(void** p)
+{
+    wxDirPickerCtrl* o = (wxDirPickerCtrl*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxDirPickerCtrl_methods[] = {
@@ -1307,6 +1349,12 @@ static int s_wxluafunc_wxLua_wxFilePickerCtrl_constructor_overload_count = sizeo
 
 #endif // (((wxLUA_USE_wxValidator && wxUSE_VALIDATORS) && ((wxCHECK_VERSION(2,8,0) && wxLUA_USE_wxPicker) && (wxLUA_USE_wxDirPickerCtrl && (wxUSE_FILEPICKERCTRL || wxUSE_DIRPICKERCTRL )))) && (wxLUA_USE_wxPointSizeRect))||((wxCHECK_VERSION(2,8,0) && wxLUA_USE_wxPicker) && (wxLUA_USE_wxDirPickerCtrl && (wxUSE_FILEPICKERCTRL || wxUSE_DIRPICKERCTRL )))
 
+void wxLua_wxFilePickerCtrl_delete_function(void** p)
+{
+    wxFilePickerCtrl* o = (wxFilePickerCtrl*)(*p);
+    delete o;
+}
+
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxFilePickerCtrl_methods[] = {
 #if ((wxLUA_USE_wxValidator && wxUSE_VALIDATORS) && ((wxCHECK_VERSION(2,8,0) && wxLUA_USE_wxPicker) && (wxLUA_USE_wxDirPickerCtrl && (wxUSE_FILEPICKERCTRL || wxUSE_DIRPICKERCTRL )))) && (wxLUA_USE_wxPointSizeRect)
@@ -1400,7 +1448,7 @@ static int LUACALL wxLua_wxFontPickerCtrl_GetSelectedFont(lua_State *L)
     // allocate a new object using the copy constructor
     wxFont* returns = new wxFont(self->GetSelectedFont());
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (wxFont*)returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxFont);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxFont);
 
@@ -1514,6 +1562,12 @@ static int s_wxluafunc_wxLua_wxFontPickerCtrl_constructor_overload_count = sizeo
 
 #endif // (((((wxCHECK_VERSION(2,8,0) && wxLUA_USE_wxPicker) && (wxLUA_USE_wxFontPickerCtrl && wxUSE_FONTPICKERCTRL)) && (wxLUA_USE_wxFont)) && (wxLUA_USE_wxValidator && wxUSE_VALIDATORS)) && (wxLUA_USE_wxPointSizeRect))||((wxCHECK_VERSION(2,8,0) && wxLUA_USE_wxPicker) && (wxLUA_USE_wxFontPickerCtrl && wxUSE_FONTPICKERCTRL))
 
+void wxLua_wxFontPickerCtrl_delete_function(void** p)
+{
+    wxFontPickerCtrl* o = (wxFontPickerCtrl*)(*p);
+    delete o;
+}
+
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxFontPickerCtrl_methods[] = {
 #if ((((wxCHECK_VERSION(2,8,0) && wxLUA_USE_wxPicker) && (wxLUA_USE_wxFontPickerCtrl && wxUSE_FONTPICKERCTRL)) && (wxLUA_USE_wxFont)) && (wxLUA_USE_wxValidator && wxUSE_VALIDATORS)) && (wxLUA_USE_wxPointSizeRect)
@@ -1565,7 +1619,7 @@ static int LUACALL wxLua_wxFontPickerEvent_GetFont(lua_State *L)
     // allocate a new object using the copy constructor
     wxFont* returns = new wxFont(self->GetFont());
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (wxFont*)returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxFont);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxFont);
 
@@ -1610,7 +1664,7 @@ static int LUACALL wxLua_wxFontPickerEvent_constructor(lua_State *L)
     // call constructor
     wxFontPickerEvent* returns = new wxFontPickerEvent(generator, id, *f);
     // add to tracked memory list
-    wxluaO_addgcobject(L, returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxFontPickerEvent);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxFontPickerEvent);
 
@@ -1620,6 +1674,12 @@ static int LUACALL wxLua_wxFontPickerEvent_constructor(lua_State *L)
 #endif // (((wxCHECK_VERSION(2,8,0) && wxLUA_USE_wxPicker) && (wxLUA_USE_wxFontPickerCtrl && wxUSE_FONTPICKERCTRL)) && (wxLUA_USE_wxFont)) && (wxLUA_USE_wxObject)
 
 
+
+void wxLua_wxFontPickerEvent_delete_function(void** p)
+{
+    wxFontPickerEvent* o = (wxFontPickerEvent*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxFontPickerEvent_methods[] = {

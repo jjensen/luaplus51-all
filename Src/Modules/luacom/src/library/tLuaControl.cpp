@@ -7,6 +7,15 @@
 #include <oleidl.h>
 #include <ocidl.h>
 
+// for MINGW and/or Wine
+#include <olectl.h>
+#ifndef VIEWSTATUS_OPAQUE
+#define VIEWSTATUS_OPAQUE 1
+#endif
+#ifndef POINTERINACTIVE_ACTIVATEONENTRY
+#define POINTERINACTIVE_ACTIVATEONENTRY 1
+#endif
+
 extern "C"
 {
 #include "lua.h"
@@ -215,8 +224,8 @@ tLuaControl::tLuaControl(lua_State* L, ITypeInfo *pTypeinfo, int ref) : tLuaDisp
 	lua_remove(L, -3);
 	const char * err;
 	if(!luaCompat_call(L, 1, 2, &err)) {
-		m_Size.cx = lua_tonumber(L,-2);
-		m_Size.cy = lua_tonumber(L,-1);
+		m_Size.cx = (LONG)lua_tointeger(L,-2);
+		m_Size.cy = (LONG)lua_tointeger(L,-1);
 	} else {
 		m_Size.cx = 50;
 		m_Size.cy = 20;
@@ -376,13 +385,13 @@ STDMETHODIMP tLuaControl::QueryInterface(REFIID riid, void FAR* FAR* ppv)
     return ResultFromScode(E_NOINTERFACE);
 }
 
-STDMETHODIMP_(unsigned long) tLuaControl::AddRef()
+STDMETHODIMP_(ULONG) tLuaControl::AddRef()
 {
 	return ++m_refs;
 }
 
 
-STDMETHODIMP_(unsigned long) tLuaControl::Release()
+STDMETHODIMP_(ULONG) tLuaControl::Release()
 {
   assert(m_refs > 0);
   if(--m_refs == 0)
@@ -445,7 +454,7 @@ STDMETHODIMP tLuaControl::GetControlInfo(CONTROLINFO *pControlInfo)
     // return accelerator information in their control.
     //
     pControlInfo->hAccel = NULL;
-    pControlInfo->cAccel = NULL;
+    pControlInfo->cAccel = 0;
 
     return S_OK;
 }
@@ -754,6 +763,12 @@ STDMETHODIMP tLuaControl::DoVerb(LONG lVerb, LPMSG pMsg, IOleClientSite *pActive
         // if it's a derived-control defined verb, pass it on to them
         //
         if (lVerb > 0) {
+
+            // FIX-TODO!!! hr is undefined here.
+            // http://lua-users.org/lists/lua-l/2006-09/msg00030.html
+            #pragma message("FIX - luacom bug http://lua-users.org/lists/lua-l/2006-09/msg00030.html")
+            FAIL("FIX - luacom bug lua-l/2006-09/msg00030.html");
+
             if (hr == OLEOBJ_S_INVALIDVERB) {
                 // unrecognised verb -- just do the primary verb and
                 // activate the sucker.
@@ -1546,9 +1561,9 @@ STDMETHODIMP tLuaControl::EnableModeless(BOOL fEnable) {
 //
 STDMETHODIMP tLuaControl::Draw(DWORD dwDrawAspect, LONG lIndex, void *pvAspect,
     DVTARGETDEVICE *ptd, HDC hicTargetDevice, HDC hdcDraw, LPCRECTL prcBounds,
-    LPCRECTL prcWBounds, BOOL (STDMETHODCALLTYPE *pfnContinue)(ULONG_PTR dwContinue), ULONG_PTR dwContinue)
+    LPCRECTL prcWBounds, BOOL (__stdcall *pfnContinue)(ULONG_PTR dwContinue), ULONG_PTR dwContinue)
 {
-    HWND hwnd;
+    //unused: HWND hwnd;
     RECT rcClient;
     int  iMapMode;
     POINT ptWOrg, ptVOrg;
@@ -1595,9 +1610,9 @@ STDMETHODIMP tLuaControl::Draw(DWORD dwDrawAspect, LONG lIndex, void *pvAspect,
 
 //	SendMessage(WindowFromDC(hdcDraw), WM_PAINT, NULL, NULL);
 
-	LRESULT wndProc = GetWindowLong(m_hwnd, GWLP_WNDPROC);
+	LRESULT wndProc = GetWindowLong(m_hwnd, GWL_WNDPROC);
 	if(!wndProc)
-		wndProc = GetWindowLong(m_hwnd, DWLP_DLGPROC);
+		wndProc = GetWindowLong(m_hwnd, DWL_DLGPROC);
     CallWindowProc((WNDPROC)wndProc, m_hwnd, WM_PAINT, (WPARAM)hdcDraw, 0);
 
     return S_OK;
@@ -2149,7 +2164,7 @@ STDMETHODIMP tLuaControl::QuickActivate(QACONTAINER *pContainer, QACONTROL *pCon
         // don't need to pass the cookie back since there can only be one
         // person advising at a time.
         //
-        hr = Advise(pContainer->pAdviseSink, &dw);
+        hr = Advise((IAdviseSink*)pContainer->pAdviseSink, &dw);
         RETURN_ON_FAILURE(hr);
     }
 

@@ -1,7 +1,11 @@
-SubDir LUAPLUS Src Modules lexers ;
+{
 
-IncludeModule copyfile ;
+local SRCS =
+		csv.lua
+		ini.lua
+;
 
-LuaPlusAddSimpleModule lexers : csv.lua ini.lua ;
-CopyFile lexers : $(LUA_LDIR)/lexers/csv.lua : $(SUBDIR)/csv.lua ;
-CopyFile lexers : $(LUA_LDIR)/lexers/ini.lua : $(SUBDIR)/ini.lua ;
+Lua.Module lexers : : $(SRCS) ;
+CopyFiles lexers : $(LUA_LDIR)/lexers : $(SUBDIR)/$(SRCS) ;
+
+}

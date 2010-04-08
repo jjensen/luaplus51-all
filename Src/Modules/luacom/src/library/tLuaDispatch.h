@@ -50,12 +50,12 @@ public:
     );
 
   tLuaDispatch(lua_State* L, ITypeInfo *pTypeinfo, int ref);
-  tLuaDispatch::~tLuaDispatch();
+  ~tLuaDispatch();
 
   /* IUnknown methods */
   STDMETHOD(QueryInterface)(REFIID riid, void FAR* FAR* ppvObj);
-  STDMETHOD_(unsigned long, AddRef)(void);
-  STDMETHOD_(unsigned long, Release)(void);
+  STDMETHOD_(ULONG, AddRef)(void);
+  STDMETHOD_(ULONG, Release)(void);
 
   /* IDispatch methods */
   STDMETHOD(GetTypeInfoCount)(unsigned int FAR* pcTypeInfo);
@@ -128,9 +128,10 @@ protected:
   {
   public:
     ProvideClassInfo2(ITypeInfo* p_coclassinfo, IUnknown* p_pUnk);
+	ProvideClassInfo2::~ProvideClassInfo2();
 
-    STDMETHODIMP_(unsigned long) AddRef(void);
-    STDMETHODIMP_(unsigned long) Release(void);
+    STDMETHODIMP_(ULONG) AddRef(void);
+    STDMETHODIMP_(ULONG) Release(void);
     STDMETHOD(QueryInterface)(REFIID riid, void FAR* FAR* ppvObj);
     STDMETHOD(GetClassInfo)(ITypeInfo** ppTypeInfo);
     STDMETHOD(GetGUID)(DWORD dwGuidKind, GUID * pGUID);

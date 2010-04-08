@@ -4,7 +4,7 @@
 %include "cansim.h"
 %include "wx/gdicmn.h"
 
-%class %noclassinfo wxlCanObj, wxObject
+%class wxlCanObj, wxObject
     wxlCanObj( double x = 0, double y = 0 )
    	void SetPos( double x, double y )
     double GetX()
@@ -15,24 +15,24 @@
     void AddObject( wxlCanObj *canobj )
 %endclass
 
-%class %noclassinfo wxlCanObjRect, wxlCanObj
+%class wxlCanObjRect, wxlCanObj
     wxlCanObjRect(  double x, double y, double w, double h )
 %endclass
 
-%class %noclassinfo wxlCanObjCircle, wxlCanObj
+%class wxlCanObjCircle, wxlCanObj
     wxlCanObjCircle( double x, double y, double r )
 %endclass
 
-%class %noclassinfo wxlCanObjScript, wxlCanObj
+%class wxlCanObjScript, wxlCanObj
     wxlCanObjScript( double x, double y, const wxString& name )
 %endclass
 
-%class %noclassinfo wxlCanObjAddScript, wxlCanObj
+%class wxlCanObjAddScript, wxlCanObj
     wxlCanObjAddScript( double x, double y,  const wxString& script )
     void SetScript( const wxString& script )
 %endclass
 
-%class %noclassinfo wxlCan, wxScrolledWindow
+%class wxlCan, wxScrolledWindow
     wxlCan( wxWindow* parent, wxWindowID id = -1, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize )
     void AddObject( wxlCanObj *canobj )
     bool GetYaxis()
@@ -43,7 +43,7 @@
 %function wxlCan* GetCan()
 %function wxlLuaCanCmd* GetCmdhMain()
 
-%class %noclassinfo wxlLuaCanCmd, wxCommandProcessor
+%class wxlLuaCanCmd, wxCommandProcessor
     wxlLuaCanCmd( wxlCan* canvas, int maxCommands = -1 )
     void MoveObject( int index, double x, double y )
 %endclass

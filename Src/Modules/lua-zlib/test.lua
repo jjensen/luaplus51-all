@@ -1,8 +1,8 @@
 print "1..9"
 
---local src_dir, build_dir = ...
---package.path  = src_dir .. "?.lua;" .. package.path
---package.cpath = build_dir .. "?.so;" .. package.cpath
+local src_dir, build_dir = ...
+package.path  = src_dir .. "?.lua;" .. package.path
+package.cpath = build_dir .. "?.so;" .. package.cpath
 
 local tap   = require("tap")
 local lz    = require("zlib")
@@ -63,7 +63,7 @@ function test_streaming()
    local shrink     = lz.deflate(lz.BEST_COMPRESSION)
    local enlarge    = lz.inflate()
    local expected   = {}
-   local got        = {}
+   local got        = {} 
    local chant      = "Isn't He great, isn't He wonderful?\n"
    for i=1,100 do
       if ( i == 100 ) then
@@ -96,7 +96,7 @@ function test_illegal_state()
       end)
    ok(string.find(emsg, "^IllegalState"),
       string.format("IllegalState error (%s)", emsg))
-
+   
    local enlarge = lz.inflate()
 end
 

@@ -3,7 +3,7 @@
 // Author:      J Winwood
 // Created:     14/11/2001
 // Modifications: Enhanced console window functionality
-// RCS-ID:      $Id: lconsole.cpp,v 1.19 2008/12/05 05:57:21 jrl1 Exp $
+// RCS-ID:      $Id: lconsole.cpp,v 1.20 2009/09/27 05:35:20 jrl1 Exp $
 // Copyright:   (c) 2001-2002 Lomtick Software. All rights reserved.
 // Licence:     wxWidgets licence
 /////////////////////////////////////////////////////////////////////////////
@@ -23,9 +23,15 @@
 //#endif
 
 #include "wx/splitter.h"
+#include "wx/toolbar.h"
+#include "wx/filename.h"
 
 #include "wxlua/include/wxlua.h"
 #include "lconsole.h"
+
+#include "../../../art/new.xpm"
+#include "../../../art/save.xpm"
+#include "../../../art/copy.xpm"
 
 // ----------------------------------------------------------------------------
 // wxLuaConsole
@@ -33,6 +39,7 @@
 
 BEGIN_EVENT_TABLE(wxLuaConsole, wxFrame)
     EVT_CLOSE(wxLuaConsole::OnCloseWindow)
+    EVT_MENU(wxID_ANY, wxLuaConsole::OnMenu)
 END_EVENT_TABLE()
 
 wxLuaConsole::wxLuaConsole(wxLuaConsoleWrapper* consoleWrapper,
@@ -40,16 +47,28 @@ wxLuaConsole::wxLuaConsole(wxLuaConsoleWrapper* consoleWrapper,
                            const wxPoint& pos, const wxSize& size,
                            long style, const wxString& name)
              :wxFrame(parent, id, title, pos, size, style, name),
-              m_wrapper(consoleWrapper), m_exit_on_error(false)
+              m_wrapper(consoleWrapper), m_exit_when_closed(false)
 {
+    m_savePath = wxGetCwd();
+
     SetIcon(wxICON(LUA));
+
+    wxToolBar* tb = CreateToolBar();
+
+    tb->AddTool(wxID_NEW,    wxT("Clear window"), wxBitmap(new_xpm),  wxT("Clear console window"), wxITEM_NORMAL);
+    tb->AddTool(wxID_SAVEAS, wxT("Save output"),  wxBitmap(save_xpm), wxT("Save contents to file"), wxITEM_NORMAL);
+    tb->AddTool(wxID_COPY,   wxT("Copy text"),    wxBitmap(copy_xpm), wxT("Copy contents to clipboard"), wxITEM_NORMAL);
+
+    tb->Realize();
 
     m_splitter = new wxSplitterWindow(this, wxID_ANY,
                                       wxDefaultPosition, wxDefaultSize,
                                       wxSP_3DSASH);
     m_textCtrl = new wxTextCtrl(m_splitter, wxID_ANY, wxEmptyString,
                                 wxDefaultPosition, wxDefaultSize,
-                                wxTE_MULTILINE | wxTE_READONLY | wxTE_RICH);
+                                wxTE_MULTILINE | wxTE_READONLY | wxTE_RICH | wxTE_DONTWRAP);
+    m_textCtrl->SetFont(wxFont(10, wxTELETYPE, wxNORMAL, wxNORMAL));
+
     m_debugListBox = new wxListBox(m_splitter, wxID_ANY,
                                    wxDefaultPosition, wxDefaultSize,
                                    0, NULL, wxLB_SINGLE);
@@ -68,13 +87,59 @@ void wxLuaConsole::OnCloseWindow(wxCloseEvent&)
         m_wrapper->SetConsole(NULL);
 
     Destroy();
-    if (m_exit_on_error)
+    if (m_exit_when_closed)
         wxExit();
 }
 
-void wxLuaConsole::DisplayText(const wxString& msg)
+void wxLuaConsole::OnMenu(wxCommandEvent& event)
+{   
+    switch (event.GetId())
+    {
+        case wxID_NEW :
+        {
+            m_textCtrl->Clear();
+            break;
+        }
+        case wxID_SAVEAS :
+        {
+            wxString filename = wxFileSelector(wxT("Select file to save output to"), 
+                                               m_savePath,
+                                               m_saveFilename, 
+                                               wxT("txt"),
+                                               wxT("Text files (*.txt)|*.txt|All files|*.*"), 
+                                               wxFD_SAVE|wxFD_OVERWRITE_PROMPT,
+                                               this);
+
+            if (!filename.IsEmpty())
+            {
+                wxFileName fn(filename);
+                m_savePath = fn.GetPath();
+                m_saveFilename = fn.GetFullName();
+
+                m_textCtrl->SaveFile(filename);
+            }
+            break;
+        }
+        case wxID_COPY :
+        {
+            m_textCtrl->Copy();
+            break;
+        }
+    }
+}
+
+void wxLuaConsole::AppendText(const wxString& msg)
 {
     m_textCtrl->AppendText(msg + wxT("\n"));
+}
+void wxLuaConsole::AppendTextWithAttr(const wxString& msg, const wxTextAttr& attr)
+{
+    wxTextAttr oldAttr = m_textCtrl->GetDefaultStyle();
+
+    m_textCtrl->SetDefaultStyle(attr);
+    m_textCtrl->AppendText(msg + wxT("\n"));
+
+    m_textCtrl->SetDefaultStyle(oldAttr);
 }
 
 void wxLuaConsole::DisplayStack(const wxLuaState& wxlState)

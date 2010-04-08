@@ -1,6 +1,25 @@
  wxLua ChangeLog
  ===============
 
+ version 
+ --------------------------------------------------------------------
+
+ - Fixed crash in error handler for wxLua functions.
+ - Fixed multiple inheritance by adding the offset to the vtable 
+   of second or higher base classes. It has been tested in GCC and
+   MSVC. See note in wxlstate.cpp above wxluaT_getuserdatatype().
+ * Removed %encapsulate from the %class declarations in the bindings.
+   Instead of wrapping non wxObject classes in a wxObject for deletion
+   we now call a newly added delete function added to the wxLuaBindClass
+   structs that properly cast the void* to the actual class type.
+   The upshot is that wxLua is about 5% faster when creating thousands of
+   wxPoints and just slightly smaller, 50Kb.
+   Please remove this tag from your bindings.
+ * Removed %noclassinfo from the %class declarations in the bindings.
+   It is no longer used or needed since we can verify if a class is derived
+   from a wxObject by inheritance. 
+   Please remove this tag from your bindings.
+
  version 2.8.10.0  (released 05/25/2009)
  --------------------------------------------------------------------
 

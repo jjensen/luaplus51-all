@@ -5,8 +5,8 @@
 #define LUACOM_COPYRIGHT "Copyright (C) 1998-2005 Tecgraf, PUC-Rio"
 #define LUACOM_AUTHORS   "V. Almendra & R. Cerqueira & F. Mascarenhas"
 
-#ifndef LUAMODULE_API
-#define LUAMODULE_API
+#ifndef LUACOM_API
+#define LUACOM_API
 #endif
 
 enum
@@ -23,12 +23,12 @@ extern "C"
 {
 #endif
 
-LUAMODULE_API void luacom_open(lua_State *L);
-LUAMODULE_API void luacom_close(lua_State *L);
+LUACOM_API void luacom_open(lua_State *L);
+LUACOM_API void luacom_close(lua_State *L);
 
-LUAMODULE_API int luacom_IDispatch2LuaCOM(lua_State *L, void *pdisp_arg);
+LUACOM_API int luacom_IDispatch2LuaCOM(lua_State *L, void *pdisp_arg);
 
-LUAMODULE_API int luacom_detectAutomation(lua_State *L, int argc, char *argv[]);
+LUACOM_API int luacom_detectAutomation(lua_State *L, int argc, char *argv[]);
 
 #ifdef __cplusplus
 }

@@ -1,4 +1,5 @@
 EXPORTS
+	luaopen_luacom
 	luacom_openlib
 	luacom_open
 	luacom_close

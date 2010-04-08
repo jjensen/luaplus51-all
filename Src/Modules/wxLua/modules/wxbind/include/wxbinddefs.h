@@ -242,7 +242,7 @@
 // ----------------------------------------------------------------------------
 
 #if wxLUA_USEBINDING_WXLUA
-    #define WXLUA_DECLARE_BIND_WXLUA extern WXDLLIMPEXP_WXLUA bool wxLuaBinding_wxlua_init(); // modules/wxlua
+    #define WXLUA_DECLARE_BIND_WXLUA extern WXDLLIMPEXP_WXLUA wxLuaBinding* wxLuaBinding_wxlua_init(); // modules/wxlua
     #define WXLUA_IMPLEMENT_BIND_WXLUA wxLuaBinding_wxlua_init();
 #else
     #define WXLUA_DECLARE_BIND_WXLUA
@@ -250,7 +250,7 @@
 #endif // wxLUA_USEBINDING_WXLUA
 
 #if wxLUA_USEBINDING_WXLUASOCKET
-    #define WXLUA_DECLARE_BIND_WXLUASOCKET extern WXDLLIMPEXP_WXLUASOCKET bool wxLuaBinding_wxluasocket_init(); // modules/wxluasocket
+    #define WXLUA_DECLARE_BIND_WXLUASOCKET extern WXDLLIMPEXP_WXLUASOCKET wxLuaBinding* wxLuaBinding_wxluasocket_init(); // modules/wxluasocket
     #define WXLUA_IMPLEMENT_BIND_WXLUASOCKET wxLuaBinding_wxluasocket_init();
 #else
     #define WXLUA_DECLARE_BIND_WXLUASOCKET
@@ -260,7 +260,7 @@
 
 
 #if wxLUA_USEBINDING_WXADV
-    #define WXLUA_DECLARE_BIND_WXADV  extern WXDLLIMPEXP_BINDWXADV bool wxLuaBinding_wxadv_init(); // modules/wxbind
+    #define WXLUA_DECLARE_BIND_WXADV  extern WXDLLIMPEXP_BINDWXADV wxLuaBinding* wxLuaBinding_wxadv_init(); // modules/wxbind
     #define WXLUA_IMPLEMENT_BIND_WXADV  wxLuaBinding_wxadv_init();
 #else
     #define WXLUA_DECLARE_BIND_WXADV
@@ -268,7 +268,7 @@
 #endif // wxLUA_USEBINDING_WXADV
 
 #if wxLUA_USEBINDING_WXAUI && wxUSE_AUI
-    #define WXLUA_DECLARE_BIND_WXAUI extern WXDLLIMPEXP_BINDWXAUI bool wxLuaBinding_wxaui_init(); // modules/wxbind
+    #define WXLUA_DECLARE_BIND_WXAUI extern WXDLLIMPEXP_BINDWXAUI wxLuaBinding* wxLuaBinding_wxaui_init(); // modules/wxbind
     #define WXLUA_IMPLEMENT_BIND_WXAUI wxLuaBinding_wxaui_init();
 #else
     #define WXLUA_DECLARE_BIND_WXAUI
@@ -277,7 +277,7 @@
 #endif // wxLUA_USEBINDING_WXAUI && wxUSE_AUI
 
 #if wxLUA_USEBINDING_WXBASE
-    #define WXLUA_DECLARE_BIND_WXBASE extern WXDLLIMPEXP_BINDWXBASE bool wxLuaBinding_wxbase_init(); // modules/wxbind
+    #define WXLUA_DECLARE_BIND_WXBASE extern WXDLLIMPEXP_BINDWXBASE wxLuaBinding* wxLuaBinding_wxbase_init(); // modules/wxbind
     #define WXLUA_IMPLEMENT_BIND_WXBASE wxLuaBinding_wxbase_init();
 #else
     #define WXLUA_DECLARE_BIND_WXBASE
@@ -285,7 +285,7 @@
 #endif // wxLUA_USEBINDING_WXBASE
 
 #if wxLUA_USEBINDING_WXCORE
-    #define WXLUA_DECLARE_BIND_WXCORE extern WXDLLIMPEXP_BINDWXCORE bool wxLuaBinding_wxcore_init(); // modules/wxbind
+    #define WXLUA_DECLARE_BIND_WXCORE extern WXDLLIMPEXP_BINDWXCORE wxLuaBinding* wxLuaBinding_wxcore_init(); // modules/wxbind
     #define WXLUA_IMPLEMENT_BIND_WXCORE wxLuaBinding_wxcore_init();
 #else
     #define WXLUA_DECLARE_BIND_WXCORE
@@ -293,7 +293,7 @@
 #endif // wxLUA_USEBINDING_WXCORE
 
 #if wxLUA_USEBINDING_WXGL && wxUSE_GLCANVAS
-    #define WXLUA_DECLARE_BIND_WXGL extern WXDLLIMPEXP_BINDWXGL bool wxLuaBinding_wxgl_init(); // modules/wxbind
+    #define WXLUA_DECLARE_BIND_WXGL extern WXDLLIMPEXP_BINDWXGL wxLuaBinding* wxLuaBinding_wxgl_init(); // modules/wxbind
     #define WXLUA_IMPLEMENT_BIND_WXGL wxLuaBinding_wxgl_init();
 #else
     #define WXLUA_DECLARE_BIND_WXGL
@@ -301,7 +301,7 @@
 #endif // wxLUA_USEBINDING_WXGL && wxUSE_GLCANVAS
 
 #if wxLUA_USEBINDING_WXHTML && wxUSE_HTML
-    #define WXLUA_DECLARE_BIND_WXHTML extern WXDLLIMPEXP_BINDWXHTML bool wxLuaBinding_wxhtml_init(); // modules/wxbind
+    #define WXLUA_DECLARE_BIND_WXHTML extern WXDLLIMPEXP_BINDWXHTML wxLuaBinding* wxLuaBinding_wxhtml_init(); // modules/wxbind
     #define WXLUA_IMPLEMENT_BIND_WXHTML wxLuaBinding_wxhtml_init();
 #else
     #define WXLUA_DECLARE_BIND_WXHTML
@@ -309,7 +309,7 @@
 #endif // wxLUA_USEBINDING_WXHTML && wxUSE_HTML
 
 #if wxLUA_USEBINDING_WXMEDIA && wxUSE_MEDIACTRL
-    #define WXLUA_DECLARE_BIND_WXMEDIA extern WXDLLIMPEXP_BINDWXMEDIA bool wxLuaBinding_wxmedia_init(); // modules/wxbind
+    #define WXLUA_DECLARE_BIND_WXMEDIA extern WXDLLIMPEXP_BINDWXMEDIA wxLuaBinding* wxLuaBinding_wxmedia_init(); // modules/wxbind
     #define WXLUA_IMPLEMENT_BIND_WXMEDIA wxLuaBinding_wxmedia_init();
 #else
     #define WXLUA_DECLARE_BIND_WXMEDIA
@@ -317,7 +317,7 @@
 #endif // wxLUA_USEBINDING_WXMEDIA && wxUSE_MEDIACTRL
 
 #if wxLUA_USEBINDING_WXNET
-    #define WXLUA_DECLARE_BIND_WXNET  extern WXDLLIMPEXP_BINDWXNET  bool wxLuaBinding_wxnet_init(); // modules/wxbind
+    #define WXLUA_DECLARE_BIND_WXNET  extern WXDLLIMPEXP_BINDWXNET  wxLuaBinding* wxLuaBinding_wxnet_init(); // modules/wxbind
     #define WXLUA_IMPLEMENT_BIND_WXNET  wxLuaBinding_wxnet_init();
 #else
     #define WXLUA_DECLARE_BIND_WXNET
@@ -325,7 +325,7 @@
 #endif // wxLUA_USEBINDING_WXNET
 
 #if wxLUA_USEBINDING_WXRICHTEXT && wxUSE_RICHTEXT
-    #define WXLUA_DECLARE_BIND_WXRICHTEXT extern WXDLLIMPEXP_BINDWXRICHTEXT bool wxLuaBinding_wxrichtext_init(); // modules/wxbind
+    #define WXLUA_DECLARE_BIND_WXRICHTEXT extern WXDLLIMPEXP_BINDWXRICHTEXT wxLuaBinding* wxLuaBinding_wxrichtext_init(); // modules/wxbind
     #define WXLUA_IMPLEMENT_BIND_WXRICHTEXT wxLuaBinding_wxrichtext_init();
 #else
     #define WXLUA_DECLARE_BIND_WXRICHTEXT
@@ -333,7 +333,7 @@
 #endif // wxLUA_USEBINDING_WXRICHTEXT && wxUSE_RICHTEXT
 
 #if wxLUA_USEBINDING_WXSTC
-    #define WXLUA_DECLARE_BIND_WXSTC extern WXDLLIMPEXP_BINDWXSTC bool wxLuaBinding_wxstc_init(); // modules/wxbind
+    #define WXLUA_DECLARE_BIND_WXSTC extern WXDLLIMPEXP_BINDWXSTC wxLuaBinding* wxLuaBinding_wxstc_init(); // modules/wxbind
     #define WXLUA_IMPLEMENT_BIND_WXSTC wxLuaBinding_wxstc_init();
 #else
     #define WXLUA_DECLARE_BIND_WXSTC
@@ -341,7 +341,7 @@
 #endif // wxLUA_USEBINDING_WXSTC
 
 #if wxLUA_USEBINDING_WXXML && wxUSE_XML
-    #define WXLUA_DECLARE_BIND_WXXML extern WXDLLIMPEXP_BINDWXXML bool wxLuaBinding_wxxml_init(); // modules/wxbind
+    #define WXLUA_DECLARE_BIND_WXXML extern WXDLLIMPEXP_BINDWXXML wxLuaBinding* wxLuaBinding_wxxml_init(); // modules/wxbind
     #define WXLUA_IMPLEMENT_BIND_WXXML wxLuaBinding_wxxml_init();
 #else
     #define WXLUA_DECLARE_BIND_WXXML
@@ -349,7 +349,7 @@
 #endif // wxLUA_USEBINDING_WXXML && wxUSE_XML
 
 #if wxLUA_USEBINDING_WXXRC && wxUSE_XRC
-    #define WXLUA_DECLARE_BIND_WXXRC extern WXDLLIMPEXP_BINDWXXRC bool wxLuaBinding_wxxrc_init(); // modules/wxbind
+    #define WXLUA_DECLARE_BIND_WXXRC extern WXDLLIMPEXP_BINDWXXRC wxLuaBinding* wxLuaBinding_wxxrc_init(); // modules/wxbind
     #define WXLUA_IMPLEMENT_BIND_WXXRC wxLuaBinding_wxxrc_init();
 #else
     #define WXLUA_DECLARE_BIND_WXXRC

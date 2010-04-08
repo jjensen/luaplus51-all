@@ -378,7 +378,7 @@ void wxLuaEditorApp::DisplayMessage(const wxString &msg, bool is_error,
     if (!is_error)
     {
         if (m_luaConsoleWrapper.Ok())
-            m_luaConsoleWrapper.GetConsole()->DisplayText(msg);
+            m_luaConsoleWrapper.GetConsole()->AppendText(msg);
         else
         {
 #ifdef __WXMSW__
@@ -395,8 +395,8 @@ void wxLuaEditorApp::DisplayMessage(const wxString &msg, bool is_error,
             m_pDebugTarget->DisplayError(msg);
         else if (m_luaConsoleWrapper.Ok())
         {
-            m_luaConsoleWrapper.GetConsole()->DisplayText(msg);
-            m_luaConsoleWrapper.GetConsole()->SetExitOnError(is_error);
+            m_luaConsoleWrapper.GetConsole()->AppendText(msg);
+            m_luaConsoleWrapper.GetConsole()->SetExitWhenClosed(is_error);
             if (wxlState.Ok())
                 m_luaConsoleWrapper.GetConsole()->DisplayStack(wxlState);
         }

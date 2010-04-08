@@ -15,9 +15,9 @@ install:
 	copy src\cosmo\fill.lua "$(LUA_DIR)\cosmo"
 
 install-rocks: install
-	mkdir "$(PREFIX)\samples"
-	mkdir "$(PREFIX)\doc"
-	mkdir "$(PREFIX)\tests"
+	IF NOT EXIST "$(PREFIX)\samples" mkdir "$(PREFIX)\samples"
+	IF NOT EXIST "$(PREFIX)\doc" mkdir "$(PREFIX)\doc"
+	IF NOT EXIST "$(PREFIX)\tests" mkdir "$(PREFIX)\tests"
 	xcopy /E samples "$(PREFIX)\samples\"
 	xcopy /E doc "$(PREFIX)\doc\"
 	xcopy /E tests "$(PREFIX)\tests\"

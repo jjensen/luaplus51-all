@@ -1,1 +1,0 @@
-docs/ReleaseNotes-1.0.txt

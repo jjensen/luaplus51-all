@@ -115,6 +115,14 @@ local symbols =
 		lua_typename
 		lua_xmove
 		lua_yield
+		luaopen_base
+		luaopen_debug
+		luaopen_io
+		luaopen_math
+		luaopen_os
+		luaopen_package
+		luaopen_string
+		luaopen_table
 ;
 
 
@@ -138,6 +146,8 @@ rule LuaProxyDll TARGET
 
 	C.OutputPostfix $(TARGET) : : release ;
 	C.OutputPath $(TARGET) : $(LUAPLUS_OUTPUT_DIRECTORY) ;
+
+	UseCommandLine $(TARGET) : $(symbols) ;
 
 	C.Library $(TARGET) : : shared nomanifest nodefaults ;
 }

@@ -4,16 +4,16 @@
 // Any changes made to this file will be lost when the file is regenerated.
 // ---------------------------------------------------------------------------
 
+
+#include "wx/wxprec.h"
+
 #ifdef __BORLANDC__
     #pragma hdrstop
 #endif
 
-#include "wx/wxprec.h"
-
 #ifndef WX_PRECOMP
      #include "wx/wx.h"
 #endif
-
 
 #include "wxlua/include/wxlstate.h"
 #include "wxbind/include/wxbase_bind.h"
@@ -212,7 +212,7 @@ static int LUACALL wxLua_wxDateTime_GetLastMonthDay(lua_State *L)
     // allocate a new object using the copy constructor
     wxDateTime* returns = new wxDateTime(self->GetLastMonthDay(month, year));
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxDateTime((wxDateTime*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxDateTime);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxDateTime);
 
@@ -239,7 +239,7 @@ static int LUACALL wxLua_wxDateTime_GetLastWeekDay(lua_State *L)
     // allocate a new object using the copy constructor
     wxDateTime* returns = new wxDateTime(self->GetLastWeekDay(weekday, month, year));
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxDateTime((wxDateTime*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxDateTime);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxDateTime);
 
@@ -292,7 +292,7 @@ static int LUACALL wxLua_wxDateTime_GetNextWeekDay(lua_State *L)
     // allocate a new object using the copy constructor
     wxDateTime* returns = new wxDateTime(self->GetNextWeekDay(weekday));
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxDateTime((wxDateTime*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxDateTime);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxDateTime);
 
@@ -313,7 +313,7 @@ static int LUACALL wxLua_wxDateTime_GetPrevWeekDay(lua_State *L)
     // allocate a new object using the copy constructor
     wxDateTime* returns = new wxDateTime(self->GetPrevWeekDay(weekday));
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxDateTime((wxDateTime*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxDateTime);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxDateTime);
 
@@ -372,7 +372,7 @@ static int LUACALL wxLua_wxDateTime_GetWeek(lua_State *L)
     // allocate a new object using the copy constructor
     wxDateTime* returns = new wxDateTime(self->GetWeek(numWeek, weekday));
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxDateTime((wxDateTime*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxDateTime);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxDateTime);
 
@@ -403,7 +403,7 @@ static int LUACALL wxLua_wxDateTime_GetWeekDay(lua_State *L)
     // allocate a new object using the copy constructor
     wxDateTime* returns = new wxDateTime(self->GetWeekDay(weekday, n, month, year));
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxDateTime((wxDateTime*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxDateTime);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxDateTime);
 
@@ -424,7 +424,7 @@ static int LUACALL wxLua_wxDateTime_GetWeekDayInSameWeek(lua_State *L)
     // allocate a new object using the copy constructor
     wxDateTime* returns = new wxDateTime(self->GetWeekDayInSameWeek(weekday));
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxDateTime((wxDateTime*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxDateTime);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxDateTime);
 
@@ -445,7 +445,7 @@ static int LUACALL wxLua_wxDateTime_GetYearDay(lua_State *L)
     // allocate a new object using the copy constructor
     wxDateTime* returns = new wxDateTime(self->GetYearDay(yday));
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxDateTime((wxDateTime*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxDateTime);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxDateTime);
 
@@ -682,6 +682,22 @@ static int LUACALL wxLua_wxDateTime_MakeGMT(lua_State *L)
     return 1;
 }
 
+static int LUACALL wxLua_wxDateTime_Now(lua_State *L);
+static wxLuaBindCFunc s_wxluafunc_wxLua_wxDateTime_Now[1] = {{ wxLua_wxDateTime_Now, WXLUAMETHOD_METHOD|WXLUAMETHOD_STATIC, 0, 0, g_wxluaargtypeArray_None }};
+//     static wxDateTime Now()
+static int LUACALL wxLua_wxDateTime_Now(lua_State *L)
+{
+    // call Now
+    // allocate a new object using the copy constructor
+    wxDateTime* returns = new wxDateTime(wxDateTime::Now());
+    // add the new object to the tracked memory list
+    wxluaO_addgcobject(L, returns, wxluatype_wxDateTime);
+    // push the result datatype
+    wxluaT_pushuserdatatype(L, returns, wxluatype_wxDateTime);
+
+    return 1;
+}
+
 static wxLuaArgType s_wxluatypeArray_wxLua_wxDateTime_ParseDate[] = { &wxluatype_wxDateTime, &wxluatype_TSTRING, NULL };
 static int LUACALL wxLua_wxDateTime_ParseDate(lua_State *L);
 static wxLuaBindCFunc s_wxluafunc_wxLua_wxDateTime_ParseDate[1] = {{ wxLua_wxDateTime_ParseDate, WXLUAMETHOD_METHOD, 2, 2, s_wxluatypeArray_wxLua_wxDateTime_ParseDate }};
@@ -810,6 +826,20 @@ static int LUACALL wxLua_wxDateTime_Set(lua_State *L)
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxDateTime);
 
     return 1;
+}
+
+static wxLuaArgType s_wxluatypeArray_wxLua_wxDateTime_SetCountry[] = { &wxluatype_TINTEGER, NULL };
+static int LUACALL wxLua_wxDateTime_SetCountry(lua_State *L);
+static wxLuaBindCFunc s_wxluafunc_wxLua_wxDateTime_SetCountry[1] = {{ wxLua_wxDateTime_SetCountry, WXLUAMETHOD_METHOD|WXLUAMETHOD_STATIC, 1, 1, s_wxluatypeArray_wxLua_wxDateTime_SetCountry }};
+//     static void SetCountry(wxDateTime::Country country)
+static int LUACALL wxLua_wxDateTime_SetCountry(lua_State *L)
+{
+    // wxDateTime::Country country
+    wxDateTime::Country country = (wxDateTime::Country)wxlua_getenumtype(L, 1);
+    // call SetCountry
+    wxDateTime::SetCountry(country);
+
+    return 0;
 }
 
 static wxLuaArgType s_wxluatypeArray_wxLua_wxDateTime_SetDay[] = { &wxluatype_wxDateTime, &wxluatype_TNUMBER, NULL };
@@ -1182,7 +1212,7 @@ static int LUACALL wxLua_wxDateTime_SetToWeekOfYear(lua_State *L)
     // allocate a new object using the copy constructor
     wxDateTime* returns = new wxDateTime(wxDateTime::SetToWeekOfYear(year, numWeek, weekday));
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxDateTime((wxDateTime*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxDateTime);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxDateTime);
 
@@ -1286,7 +1316,39 @@ static int LUACALL wxLua_wxDateTime_ToGMT(lua_State *L)
     // allocate a new object using the copy constructor
     wxDateTime* returns = new wxDateTime(self->ToGMT(noDST));
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxDateTime((wxDateTime*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxDateTime);
+    // push the result datatype
+    wxluaT_pushuserdatatype(L, returns, wxluatype_wxDateTime);
+
+    return 1;
+}
+
+static int LUACALL wxLua_wxDateTime_Today(lua_State *L);
+static wxLuaBindCFunc s_wxluafunc_wxLua_wxDateTime_Today[1] = {{ wxLua_wxDateTime_Today, WXLUAMETHOD_METHOD|WXLUAMETHOD_STATIC, 0, 0, g_wxluaargtypeArray_None }};
+//     static wxDateTime Today()
+static int LUACALL wxLua_wxDateTime_Today(lua_State *L)
+{
+    // call Today
+    // allocate a new object using the copy constructor
+    wxDateTime* returns = new wxDateTime(wxDateTime::Today());
+    // add the new object to the tracked memory list
+    wxluaO_addgcobject(L, returns, wxluatype_wxDateTime);
+    // push the result datatype
+    wxluaT_pushuserdatatype(L, returns, wxluatype_wxDateTime);
+
+    return 1;
+}
+
+static int LUACALL wxLua_wxDateTime_UNow(lua_State *L);
+static wxLuaBindCFunc s_wxluafunc_wxLua_wxDateTime_UNow[1] = {{ wxLua_wxDateTime_UNow, WXLUAMETHOD_METHOD|WXLUAMETHOD_STATIC, 0, 0, g_wxluaargtypeArray_None }};
+//     static wxDateTime UNow()
+static int LUACALL wxLua_wxDateTime_UNow(lua_State *L)
+{
+    // call UNow
+    // allocate a new object using the copy constructor
+    wxDateTime* returns = new wxDateTime(wxDateTime::UNow());
+    // add the new object to the tracked memory list
+    wxluaO_addgcobject(L, returns, wxluatype_wxDateTime);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxDateTime);
 
@@ -1307,7 +1369,7 @@ static int LUACALL wxLua_wxDateTime_constructor1(lua_State *L)
     // call constructor
     wxDateTime* returns = new wxDateTime(dateTime);
     // add to tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxDateTime((wxDateTime*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxDateTime);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxDateTime);
 
@@ -1322,7 +1384,7 @@ static int LUACALL wxLua_wxDateTime_constructor(lua_State *L)
     // call constructor
     wxDateTime* returns = new wxDateTime();
     // add to tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxDateTime((wxDateTime*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxDateTime);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxDateTime);
 
@@ -1354,7 +1416,7 @@ static int LUACALL wxLua_wxDateTimeFromDMY_constructor(lua_State *L)
     // call constructor
     wxDateTime* returns = new wxDateTime(day, month, year, hour, minute, second, millisec);
     // add to tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxDateTime((wxDateTime*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxDateTime);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxDateTime);
 
@@ -1378,7 +1440,7 @@ static int LUACALL wxLua_wxDateTimeFromHMS_constructor(lua_State *L)
     // call constructor
     wxDateTime* returns = new wxDateTime(hour, minute, second, millisec);
     // add to tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxDateTime((wxDateTime*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxDateTime);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxDateTime);
 
@@ -1396,7 +1458,7 @@ static int LUACALL wxLua_wxDateTimeFromJDN_constructor(lua_State *L)
     // call constructor
     wxDateTime* returns = new wxDateTime(dateTime);
     // add to tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxDateTime((wxDateTime*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxDateTime);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxDateTime);
 
@@ -1448,6 +1510,12 @@ static int s_wxluafunc_wxLua_wxDateTime_constructor_overload_count = sizeof(s_wx
 
 #endif // (wxLUA_USE_wxDateTime && wxUSE_DATETIME)
 
+void wxLua_wxDateTime_delete_function(void** p)
+{
+    wxDateTime* o = (wxDateTime*)(*p);
+    delete o;
+}
+
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxDateTime_methods[] = {
 #if ((wxLUA_USE_wxDateTime && wxUSE_DATETIME) && (wxLUA_USE_wxDateSpan && wxUSE_DATETIME))||((wxLUA_USE_wxDateTime && wxUSE_DATETIME) && (wxLUA_USE_wxTimeSpan && wxUSE_DATETIME))
@@ -1493,6 +1561,7 @@ wxLuaBindMethod wxDateTime_methods[] = {
     { "IsValid", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxDateTime_IsValid, 1, NULL },
     { "IsWorkDay", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxDateTime_IsWorkDay, 1, NULL },
     { "MakeGMT", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxDateTime_MakeGMT, 1, NULL },
+    { "Now", WXLUAMETHOD_METHOD|WXLUAMETHOD_STATIC, s_wxluafunc_wxLua_wxDateTime_Now, 1, NULL },
     { "ParseDate", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxDateTime_ParseDate, 1, NULL },
     { "ParseDateTime", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxDateTime_ParseDateTime, 1, NULL },
     { "ParseFormat", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxDateTime_ParseFormat, 1, NULL },
@@ -1500,6 +1569,7 @@ wxLuaBindMethod wxDateTime_methods[] = {
     { "ParseTime", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxDateTime_ParseTime, 1, NULL },
     { "ResetTime", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxDateTime_ResetTime, 1, NULL },
     { "Set", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxDateTime_Set, 1, NULL },
+    { "SetCountry", WXLUAMETHOD_METHOD|WXLUAMETHOD_STATIC, s_wxluafunc_wxLua_wxDateTime_SetCountry, 1, NULL },
     { "SetDay", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxDateTime_SetDay, 1, NULL },
     { "SetHour", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxDateTime_SetHour, 1, NULL },
     { "SetMillisecond", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxDateTime_SetMillisecond, 1, NULL },
@@ -1534,6 +1604,8 @@ wxLuaBindMethod wxDateTime_methods[] = {
 #endif // ((wxLUA_USE_wxDateTime && wxUSE_DATETIME) && (wxLUA_USE_wxDateSpan && wxUSE_DATETIME))||((wxLUA_USE_wxDateTime && wxUSE_DATETIME) && (wxLUA_USE_wxTimeSpan && wxUSE_DATETIME))
 
     { "ToGMT", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxDateTime_ToGMT, 1, NULL },
+    { "Today", WXLUAMETHOD_METHOD|WXLUAMETHOD_STATIC, s_wxluafunc_wxLua_wxDateTime_Today, 1, NULL },
+    { "UNow", WXLUAMETHOD_METHOD|WXLUAMETHOD_STATIC, s_wxluafunc_wxLua_wxDateTime_UNow, 1, NULL },
     { "delete", WXLUAMETHOD_METHOD|WXLUAMETHOD_DELETE, s_wxluafunc_wxLua_wxDateTime_delete, 1, NULL },
 
 #if (wxLUA_USE_wxDateTime && wxUSE_DATETIME)
@@ -1799,7 +1871,7 @@ static int LUACALL wxLua_wxDateTimeArray_Item(lua_State *L)
     // allocate a new object using the copy constructor
     wxDateTime* returns = new wxDateTime(self->Item(nIndex));
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxDateTime((wxDateTime*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxDateTime);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxDateTime);
 
@@ -1818,7 +1890,7 @@ static int LUACALL wxLua_wxDateTimeArray_Last(lua_State *L)
     // allocate a new object using the copy constructor
     wxDateTime* returns = new wxDateTime(self->Last());
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxDateTime((wxDateTime*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxDateTime);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxDateTime);
 
@@ -1873,7 +1945,7 @@ static int LUACALL wxLua_wxDateTimeArray_constructor1(lua_State *L)
     // call constructor
     wxDateTimeArray* returns = new wxDateTimeArray(*array);
     // add to tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxDateTimeArray((wxDateTimeArray*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxDateTimeArray);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxDateTimeArray);
 
@@ -1888,7 +1960,7 @@ static int LUACALL wxLua_wxDateTimeArray_constructor(lua_State *L)
     // call constructor
     wxDateTimeArray* returns = new wxDateTimeArray();
     // add to tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxDateTimeArray((wxDateTimeArray*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxDateTimeArray);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxDateTimeArray);
 
@@ -1908,6 +1980,12 @@ static wxLuaBindCFunc s_wxluafunc_wxLua_wxDateTimeArray_constructor_overload[] =
 static int s_wxluafunc_wxLua_wxDateTimeArray_constructor_overload_count = sizeof(s_wxluafunc_wxLua_wxDateTimeArray_constructor_overload)/sizeof(wxLuaBindCFunc);
 
 #endif // (wxLUA_USE_wxDateTime && wxUSE_DATETIME)
+
+void wxLua_wxDateTimeArray_delete_function(void** p)
+{
+    wxDateTimeArray* o = (wxDateTimeArray*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxDateTimeArray_methods[] = {
@@ -1956,7 +2034,7 @@ static int LUACALL wxLua_wxTimeSpan_Abs(lua_State *L)
     // allocate a new object using the copy constructor
     wxTimeSpan* returns = new wxTimeSpan(self->Abs());
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxTimeSpan((wxTimeSpan*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxTimeSpan);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxTimeSpan);
 
@@ -1977,7 +2055,7 @@ static int LUACALL wxLua_wxTimeSpan_Add(lua_State *L)
     // allocate a new object using the copy constructor
     wxTimeSpan* returns = new wxTimeSpan(self->Add(*diff));
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxTimeSpan((wxTimeSpan*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxTimeSpan);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxTimeSpan);
 
@@ -1993,7 +2071,7 @@ static int LUACALL wxLua_wxTimeSpan_Day(lua_State *L)
     // allocate a new object using the copy constructor
     wxTimeSpan* returns = new wxTimeSpan(wxTimeSpan::Day());
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxTimeSpan((wxTimeSpan*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxTimeSpan);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxTimeSpan);
 
@@ -2012,7 +2090,7 @@ static int LUACALL wxLua_wxTimeSpan_Days(lua_State *L)
     // allocate a new object using the copy constructor
     wxTimeSpan* returns = new wxTimeSpan(wxTimeSpan::Days(days));
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxTimeSpan((wxTimeSpan*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxTimeSpan);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxTimeSpan);
 
@@ -2085,7 +2163,7 @@ static int LUACALL wxLua_wxTimeSpan_GetMilliseconds(lua_State *L)
     // allocate a new object using the copy constructor
     wxLongLong* returns = new wxLongLong(self->GetMilliseconds());
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxLongLong((wxLongLong*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxLongLong);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxLongLong);
 
@@ -2124,7 +2202,7 @@ static int LUACALL wxLua_wxTimeSpan_GetSeconds(lua_State *L)
     // allocate a new object using the copy constructor
     wxLongLong* returns = new wxLongLong(self->GetSeconds());
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxLongLong((wxLongLong*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxLongLong);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxLongLong);
 
@@ -2143,7 +2221,7 @@ static int LUACALL wxLua_wxTimeSpan_GetValue(lua_State *L)
     // allocate a new object using the copy constructor
     wxLongLong* returns = new wxLongLong(self->GetValue());
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxLongLong((wxLongLong*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxLongLong);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxLongLong);
 
@@ -2177,7 +2255,7 @@ static int LUACALL wxLua_wxTimeSpan_Hour(lua_State *L)
     // allocate a new object using the copy constructor
     wxTimeSpan* returns = new wxTimeSpan(wxTimeSpan::Hour());
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxTimeSpan((wxTimeSpan*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxTimeSpan);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxTimeSpan);
 
@@ -2196,7 +2274,7 @@ static int LUACALL wxLua_wxTimeSpan_Hours(lua_State *L)
     // allocate a new object using the copy constructor
     wxTimeSpan* returns = new wxTimeSpan(wxTimeSpan::Hours(hours));
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxTimeSpan((wxTimeSpan*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxTimeSpan);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxTimeSpan);
 
@@ -2314,7 +2392,7 @@ static int LUACALL wxLua_wxTimeSpan_Minute(lua_State *L)
     // allocate a new object using the copy constructor
     wxTimeSpan* returns = new wxTimeSpan(wxTimeSpan::Minute());
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxTimeSpan((wxTimeSpan*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxTimeSpan);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxTimeSpan);
 
@@ -2333,7 +2411,7 @@ static int LUACALL wxLua_wxTimeSpan_Minutes(lua_State *L)
     // allocate a new object using the copy constructor
     wxTimeSpan* returns = new wxTimeSpan(wxTimeSpan::Minutes(min));
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxTimeSpan((wxTimeSpan*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxTimeSpan);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxTimeSpan);
 
@@ -2354,7 +2432,7 @@ static int LUACALL wxLua_wxTimeSpan_Multiply(lua_State *L)
     // allocate a new object using the copy constructor
     wxTimeSpan* returns = new wxTimeSpan(self->Multiply(n));
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxTimeSpan((wxTimeSpan*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxTimeSpan);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxTimeSpan);
 
@@ -2389,7 +2467,7 @@ static int LUACALL wxLua_wxTimeSpan_Negate(lua_State *L)
     // allocate a new object using the copy constructor
     wxTimeSpan* returns = new wxTimeSpan(self->Negate());
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxTimeSpan((wxTimeSpan*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxTimeSpan);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxTimeSpan);
 
@@ -2405,7 +2483,7 @@ static int LUACALL wxLua_wxTimeSpan_Second(lua_State *L)
     // allocate a new object using the copy constructor
     wxTimeSpan* returns = new wxTimeSpan(wxTimeSpan::Second());
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxTimeSpan((wxTimeSpan*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxTimeSpan);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxTimeSpan);
 
@@ -2424,7 +2502,7 @@ static int LUACALL wxLua_wxTimeSpan_Seconds(lua_State *L)
     // allocate a new object using the copy constructor
     wxTimeSpan* returns = new wxTimeSpan(wxTimeSpan::Seconds(sec));
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxTimeSpan((wxTimeSpan*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxTimeSpan);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxTimeSpan);
 
@@ -2445,7 +2523,7 @@ static int LUACALL wxLua_wxTimeSpan_Subtract(lua_State *L)
     // allocate a new object using the copy constructor
     wxTimeSpan* returns = new wxTimeSpan(self->Subtract(*diff));
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxTimeSpan((wxTimeSpan*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxTimeSpan);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxTimeSpan);
 
@@ -2461,7 +2539,7 @@ static int LUACALL wxLua_wxTimeSpan_Week(lua_State *L)
     // allocate a new object using the copy constructor
     wxTimeSpan* returns = new wxTimeSpan(wxTimeSpan::Week());
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxTimeSpan((wxTimeSpan*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxTimeSpan);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxTimeSpan);
 
@@ -2480,7 +2558,7 @@ static int LUACALL wxLua_wxTimeSpan_Weeks(lua_State *L)
     // allocate a new object using the copy constructor
     wxTimeSpan* returns = new wxTimeSpan(wxTimeSpan::Weeks(weeks));
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxTimeSpan((wxTimeSpan*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxTimeSpan);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxTimeSpan);
 
@@ -2509,7 +2587,7 @@ static int LUACALL wxLua_wxTimeSpan_constructor1(lua_State *L)
     // call constructor
     wxTimeSpan* returns = new wxTimeSpan(hours, minutes, seconds, milliseconds);
     // add to tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxTimeSpan((wxTimeSpan*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxTimeSpan);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxTimeSpan);
 
@@ -2524,7 +2602,7 @@ static int LUACALL wxLua_wxTimeSpan_constructor(lua_State *L)
     // call constructor
     wxTimeSpan* returns = new wxTimeSpan();
     // add to tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxTimeSpan((wxTimeSpan*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxTimeSpan);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxTimeSpan);
 
@@ -2544,6 +2622,12 @@ static wxLuaBindCFunc s_wxluafunc_wxLua_wxTimeSpan_constructor_overload[] =
 static int s_wxluafunc_wxLua_wxTimeSpan_constructor_overload_count = sizeof(s_wxluafunc_wxLua_wxTimeSpan_constructor_overload)/sizeof(wxLuaBindCFunc);
 
 #endif // (wxLUA_USE_wxTimeSpan && wxUSE_DATETIME)
+
+void wxLua_wxTimeSpan_delete_function(void** p)
+{
+    wxTimeSpan* o = (wxTimeSpan*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxTimeSpan_methods[] = {
@@ -2621,7 +2705,7 @@ static int LUACALL wxLua_wxDateSpan_Add(lua_State *L)
     // allocate a new object using the copy constructor
     wxDateSpan* returns = new wxDateSpan(self->Add(*other));
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxDateSpan((wxDateSpan*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxDateSpan);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxDateSpan);
 
@@ -2637,7 +2721,7 @@ static int LUACALL wxLua_wxDateSpan_Day(lua_State *L)
     // allocate a new object using the copy constructor
     wxDateSpan* returns = new wxDateSpan(wxDateSpan::Day());
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxDateSpan((wxDateSpan*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxDateSpan);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxDateSpan);
 
@@ -2656,7 +2740,7 @@ static int LUACALL wxLua_wxDateSpan_Days(lua_State *L)
     // allocate a new object using the copy constructor
     wxDateSpan* returns = new wxDateSpan(wxDateSpan::Days(days));
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxDateSpan((wxDateSpan*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxDateSpan);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxDateSpan);
 
@@ -2752,7 +2836,7 @@ static int LUACALL wxLua_wxDateSpan_Month(lua_State *L)
     // allocate a new object using the copy constructor
     wxDateSpan* returns = new wxDateSpan(wxDateSpan::Month());
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxDateSpan((wxDateSpan*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxDateSpan);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxDateSpan);
 
@@ -2771,7 +2855,7 @@ static int LUACALL wxLua_wxDateSpan_Months(lua_State *L)
     // allocate a new object using the copy constructor
     wxDateSpan* returns = new wxDateSpan(wxDateSpan::Months(mon));
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxDateSpan((wxDateSpan*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxDateSpan);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxDateSpan);
 
@@ -2792,7 +2876,7 @@ static int LUACALL wxLua_wxDateSpan_Multiply(lua_State *L)
     // allocate a new object using the copy constructor
     wxDateSpan* returns = new wxDateSpan(self->Multiply(factor));
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxDateSpan((wxDateSpan*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxDateSpan);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxDateSpan);
 
@@ -2827,7 +2911,7 @@ static int LUACALL wxLua_wxDateSpan_Negate(lua_State *L)
     // allocate a new object using the copy constructor
     wxDateSpan* returns = new wxDateSpan(self->Negate());
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxDateSpan((wxDateSpan*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxDateSpan);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxDateSpan);
 
@@ -2920,7 +3004,7 @@ static int LUACALL wxLua_wxDateSpan_Subtract(lua_State *L)
     // allocate a new object using the copy constructor
     wxDateSpan* returns = new wxDateSpan(self->Subtract(*other));
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxDateSpan((wxDateSpan*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxDateSpan);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxDateSpan);
 
@@ -2936,7 +3020,7 @@ static int LUACALL wxLua_wxDateSpan_Week(lua_State *L)
     // allocate a new object using the copy constructor
     wxDateSpan* returns = new wxDateSpan(wxDateSpan::Week());
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxDateSpan((wxDateSpan*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxDateSpan);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxDateSpan);
 
@@ -2955,7 +3039,7 @@ static int LUACALL wxLua_wxDateSpan_Weeks(lua_State *L)
     // allocate a new object using the copy constructor
     wxDateSpan* returns = new wxDateSpan(wxDateSpan::Weeks(weeks));
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxDateSpan((wxDateSpan*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxDateSpan);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxDateSpan);
 
@@ -2971,7 +3055,7 @@ static int LUACALL wxLua_wxDateSpan_Year(lua_State *L)
     // allocate a new object using the copy constructor
     wxDateSpan* returns = new wxDateSpan(wxDateSpan::Year());
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxDateSpan((wxDateSpan*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxDateSpan);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxDateSpan);
 
@@ -2990,7 +3074,7 @@ static int LUACALL wxLua_wxDateSpan_Years(lua_State *L)
     // allocate a new object using the copy constructor
     wxDateSpan* returns = new wxDateSpan(wxDateSpan::Years(years));
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxDateSpan((wxDateSpan*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxDateSpan);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxDateSpan);
 
@@ -3037,7 +3121,7 @@ static int LUACALL wxLua_wxDateSpan_constructor(lua_State *L)
     // call constructor
     wxDateSpan* returns = new wxDateSpan(years, months, weeks, days);
     // add to tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxDateSpan((wxDateSpan*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxDateSpan);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxDateSpan);
 
@@ -3046,6 +3130,12 @@ static int LUACALL wxLua_wxDateSpan_constructor(lua_State *L)
 
 
 
+
+void wxLua_wxDateSpan_delete_function(void** p)
+{
+    wxDateSpan* o = (wxDateSpan*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxDateSpan_methods[] = {
@@ -3158,6 +3248,12 @@ static int LUACALL wxLua_wxDateTimeHolidayAuthority_IsHoliday(lua_State *L)
 
 
 
+void wxLua_wxDateTimeHolidayAuthority_delete_function(void** p)
+{
+    wxDateTimeHolidayAuthority* o = (wxDateTimeHolidayAuthority*)(*p);
+    delete o;
+}
+
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxDateTimeHolidayAuthority_methods[] = {
     { "AddAuthority", WXLUAMETHOD_METHOD|WXLUAMETHOD_STATIC, s_wxluafunc_wxLua_wxDateTimeHolidayAuthority_AddAuthority, 1, NULL },
@@ -3195,7 +3291,7 @@ static int LUACALL wxLua_wxDateTimeWorkDays_constructor(lua_State *L)
     // call constructor
     wxDateTimeWorkDays* returns = new wxDateTimeWorkDays();
     // add to tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxDateTimeWorkDays((wxDateTimeWorkDays*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxDateTimeWorkDays);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxDateTimeWorkDays);
 
@@ -3204,6 +3300,12 @@ static int LUACALL wxLua_wxDateTimeWorkDays_constructor(lua_State *L)
 
 
 
+
+void wxLua_wxDateTimeWorkDays_delete_function(void** p)
+{
+    wxDateTimeWorkDays* o = (wxDateTimeWorkDays*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxDateTimeWorkDays_methods[] = {
@@ -3299,7 +3401,7 @@ static int LUACALL wxLua_wxStopWatch_constructor(lua_State *L)
     // call constructor
     wxStopWatch* returns = new wxStopWatch();
     // add to tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxStopWatch((wxStopWatch*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxStopWatch);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxStopWatch);
 
@@ -3308,6 +3410,12 @@ static int LUACALL wxLua_wxStopWatch_constructor(lua_State *L)
 
 
 
+
+void wxLua_wxStopWatch_delete_function(void** p)
+{
+    wxStopWatch* o = (wxStopWatch*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxStopWatch_methods[] = {
@@ -3473,7 +3581,7 @@ static int LUACALL wxLua_wxLanguageInfo_constructor(lua_State *L)
     // call constructor
     wxLanguageInfo* returns = new wxLanguageInfo();
     // add to tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxLanguageInfo((wxLanguageInfo*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxLanguageInfo);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxLanguageInfo);
 
@@ -3482,6 +3590,12 @@ static int LUACALL wxLua_wxLanguageInfo_constructor(lua_State *L)
 
 
 
+
+void wxLua_wxLanguageInfo_delete_function(void** p)
+{
+    wxLanguageInfo* o = (wxLanguageInfo*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxLanguageInfo_methods[] = {
@@ -3977,7 +4091,7 @@ static int LUACALL wxLua_wxLocale_constructor2(lua_State *L)
     // call constructor
     wxLocale* returns = new wxLocale(language, flags);
     // add to tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxLocale((wxLocale*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxLocale);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxLocale);
 
@@ -4005,7 +4119,7 @@ static int LUACALL wxLua_wxLocale_constructor1(lua_State *L)
     // call constructor
     wxLocale* returns = new wxLocale(szName, szShort, szLocale, bLoadDefault, bConvertEncoding);
     // add to tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxLocale((wxLocale*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxLocale);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxLocale);
 
@@ -4020,7 +4134,7 @@ static int LUACALL wxLua_wxLocale_constructor(lua_State *L)
     // call constructor
     wxLocale* returns = new wxLocale();
     // add to tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxLocale((wxLocale*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxLocale);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxLocale);
 
@@ -4065,6 +4179,12 @@ static wxLuaBindCFunc s_wxluafunc_wxLua_wxLocale_constructor_overload[] =
 static int s_wxluafunc_wxLua_wxLocale_constructor_overload_count = sizeof(s_wxluafunc_wxLua_wxLocale_constructor_overload)/sizeof(wxLuaBindCFunc);
 
 #endif // (wxUSE_INTL)
+
+void wxLua_wxLocale_delete_function(void** p)
+{
+    wxLocale* o = (wxLocale*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxLocale_methods[] = {

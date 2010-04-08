@@ -35,10 +35,10 @@ protected:
   static char *messages[];
 };
 
-#define LUACOM_EXCEPTION(x) throw tLuaCOMException(tLuaCOMException::##x, \
+#define LUACOM_EXCEPTION(x) throw tLuaCOMException(tLuaCOMException::x, \
   __FILE__, __LINE__)
 
-#define LUACOM_EXCEPTION_MSG(x,y) throw tLuaCOMException(tLuaCOMException::##x, \
+#define LUACOM_EXCEPTION_MSG(x,y) throw tLuaCOMException(tLuaCOMException::x, \
   __FILE__, __LINE__, y)
 
 

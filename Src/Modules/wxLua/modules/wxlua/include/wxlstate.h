@@ -96,6 +96,31 @@ public:
 // Note that even though these keys have human readable names as values,
 // they're not used, just the memory address.
 
+// The key in the LUA_REGISTRYINDEX table that is a weak keyed table of
+//   the tables wxLua pushed into the registry with their keys as values.
+// This is used by the wxLuaDebugData to know if the table is one of the wxLua
+//   registry tables for better wxLuaStackDialog performance.
+// LUA_REGISTRYINDEX[&wxlua_lreg_regtable_key][weak {wxlua_lreg_XXX_key table}] =
+//    lightuserdata(&wxlua_lreg_XXX_key)
+extern WXDLLIMPEXP_DATA_WXLUA(const char*) wxlua_lreg_regtable_key;
+
+// The key in the LUA_REGISTRYINDEX table whose value is a lightuserdata
+//   of a wxLuaState for this lua_State.
+// LUA_REGISTRYINDEX[&wxlua_lreg_wxluastate_key] = lightuserdata(&wxLuaState)
+extern WXDLLIMPEXP_DATA_WXLUA(const char*) wxlua_lreg_wxluastate_key;
+// The key in the LUA_REGISTRYINDEX table that has a wxLuaStateData class
+//   lightuserdata value for the wxLuaState.
+// LUA_REGISTRYINDEX[&wxlua_lreg_wxluastatedata_key] = lightuserdata(&wxLuaStateData)
+extern WXDLLIMPEXP_DATA_WXLUA(const char*) wxlua_lreg_wxluastatedata_key;
+
+// The key in the LUA_REGISTRYINDEX table that is a table of lightuserdata
+//   wxLuaBindings and the ref to the Lua table they were installed into.
+// LUA_REGISTRYINDEX[&wxlua_lreg_wxluabindings_key] = {lightuserdata(&wxLuaBinding) = wxlua_lreg_refs_key ref#, ...}
+extern WXDLLIMPEXP_DATA_WXLUA(const char*) wxlua_lreg_wxluabindings_key;
+// The key in the LUA_REGISTRYINDEX table that is a lookup table of string
+//   C++ classname keys and lightuserdata pointers to the associated wxLuaBindClass struct.
+// LUA_REGISTRYINDEX[&wxlua_lreg_debug_refs_key][wxLuaBindClass.name] = lightuserdata(&wxLuaBindClass)
+extern WXDLLIMPEXP_DATA_WXLUA(const char*) wxlua_lreg_classes_key;
 // The key in the LUA_REGISTRYINDEX table that is a numerically keyed table indexed
 //   on the wxLua types where each item is a userdata metatable for a C++ class.
 // Note: The wxLua types WXLUA_TXXX that correspond to the Lua LUA_TXXX types
@@ -104,33 +129,7 @@ public:
 //   if the wxLuaBinding containing the wxLua type was not registered.
 // LUA_REGISTRYINDEX[&wxlua_lreg_types_key][wxLua type number] = { metatable for a C++ class }
 extern WXDLLIMPEXP_DATA_WXLUA(const char*) wxlua_lreg_types_key;
-// The key in the LUA_REGISTRYINDEX table that is a numerically keyed table
-//   with references to Lua objects we want to keep a handle to. The object could be
-//   anything, a table, function, number, string, userdata...
-// LUA_REGISTRYINDEX[&wxlua_lreg_refs_key][ref number] = Lua object
-extern WXDLLIMPEXP_DATA_WXLUA(const char*) wxlua_lreg_refs_key;
-// The key in the LUA_REGISTRYINDEX table that is a numerically keyed table
-//   with references to objects the wxLuaDebugData wants to keep a handle to by
-//   storing their value for lookup. It is used only for the wxLuaDebugData.
-// LUA_REGISTRYINDEX[&wxlua_lreg_debug_refs_key][ref number] = Lua object
-extern WXDLLIMPEXP_DATA_WXLUA(const char*) wxlua_lreg_debug_refs_key;
-// The key that in the LUA_REGISTRYINDEX table that is a lookup table of string
-//   C++ classname keys and lightuserdata pointers to the associated wxLuaBindClass struct.
-// LUA_REGISTRYINDEX[&wxlua_lreg_debug_refs_key][wxLuaBindClass.name] = lightuserdata(&wxLuaBindClass)
-extern WXDLLIMPEXP_DATA_WXLUA(const char*) wxlua_lreg_classes_key;
-// The key in the LUA_REGISTRYINDEX table that is a table
-//   of Lua objects/functions assigned to wxLua userdata programatically in Lua.
-// LUA_REGISTRYINDEX[&wxlua_lreg_derivedmethods_key][lightuserdata(obj_ptr)] =
-//    {["derived func/value name"] = wxLuaObject(Lua function/value), ...}
-extern WXDLLIMPEXP_DATA_WXLUA(const char*) wxlua_lreg_derivedmethods_key;
-// The key in the LUA_REGISTRYINDEX table who's value is a lightuserdata
-//   of the wxLuaState for this lua_State.
-// LUA_REGISTRYINDEX[&wxlua_lreg_wxluastate_key] = lightuserdata(&wxLuaState)
-extern WXDLLIMPEXP_DATA_WXLUA(const char*) wxlua_lreg_wxluastate_key;
-// The key in the LUA_REGISTRYINDEX table that is a table of lightuserdata
-//   wxLuaBindings and the ref to the Lua table they were installed into.
-// LUA_REGISTRYINDEX[&wxlua_lreg_wxluabindings_key] = {lightuserdata(&wxLuaBinding) = wxlua_lreg_refs_key ref#, ...}
-extern WXDLLIMPEXP_DATA_WXLUA(const char*) wxlua_lreg_wxluabindings_key;
+
 // The key in the LUA_REGISTRYINDEX table that is a table of all
 //   objects that we've pushed into Lua using wxluaT_pushuserdatatype().
 // Note: A single object like a wxWindow may be pushed with multiple wxLua types.
@@ -140,12 +139,15 @@ extern WXDLLIMPEXP_DATA_WXLUA(const char*) wxlua_lreg_wxluabindings_key;
 extern WXDLLIMPEXP_DATA_WXLUA(const char*) wxlua_lreg_weakobjects_key;
 // The key in the LUA_REGISTRYINDEX table that is a table of all
 //   objects to delete that were added using wxluaO_addgcobject().
-// Note that non wxObject classes use wxLUA_DECLARE_ENCAPSULATION so
-//   the key is the object pointer and the value is the wxObject encapsulation.
-//   Both the key and the value are the same if not encapsulated.
 // LUA_REGISTRYINDEX[&wxlua_lreg_gcobjects_key][lightuserdata(obj_ptr)] =
-//     lightuserdata(wxObject derived class)
+//     integer wxLua type
 extern WXDLLIMPEXP_DATA_WXLUA(const char*) wxlua_lreg_gcobjects_key;
+
+// The key in the LUA_REGISTRYINDEX table that is a table
+//   of Lua objects/functions assigned to wxLua userdata programatically in Lua.
+// LUA_REGISTRYINDEX[&wxlua_lreg_derivedmethods_key][lightuserdata(obj_ptr)] =
+//    {["derived func/value name"] = wxLuaObject(Lua function/value), ...}
+extern WXDLLIMPEXP_DATA_WXLUA(const char*) wxlua_lreg_derivedmethods_key;
 // The key in the LUA_REGISTRYINDEX table that is a table of all
 //   wxLuaEventCallbacks that we've created.
 // LUA_REGISTRYINDEX[&wxlua_lreg_evtcallbacks_key][lightuserdata(&wxLuaEventCallback)] =
@@ -169,21 +171,19 @@ extern WXDLLIMPEXP_DATA_WXLUA(const char*) wxlua_lreg_callbaseclassfunc_key;
 //   of the current wxEvent is that is being run or wxEVT_NULL if not in an event.
 // LUA_REGISTRYINDEX[&wxlua_lreg_wxeventtype_key] = wxEventType (wxEVT_NULL)
 extern WXDLLIMPEXP_DATA_WXLUA(const char*) wxlua_lreg_wxeventtype_key;
-// The key in the LUA_REGISTRYINDEX table that has a wxLuaStateData class
-//   lightuserdata value for the wxLuaState.
-// LUA_REGISTRYINDEX[&wxlua_lreg_wxluastatedata_key] = lightuserdata(&wxLuaStateData)
-extern WXDLLIMPEXP_DATA_WXLUA(const char*) wxlua_lreg_wxluastatedata_key;
-// The key in the LUA_REGISTRYINDEX table that is a weak keyed table of
-//   the tables wxLua pushed into the registry with their keys as values.
-// This is used by the wxLuaDebugData to know if the table is one of the wxLua
-//   registry tables for better wxLuaStackDialog performance.
-// LUA_REGISTRYINDEX[&wxlua_lreg_regtable_key][weak {wxlua_lreg_XXX_key table}] =
-//    lightuserdata(&wxlua_lreg_XXX_key)
-extern WXDLLIMPEXP_DATA_WXLUA(const char*) wxlua_lreg_regtable_key;
 
-// Light userdata used as keys in the metatables created for the class userdata objects.
-// Note that even though these keys have values, they're not used, just the memory address.
+// The key in the LUA_REGISTRYINDEX table that is a numerically keyed table
+//   with references to Lua objects we want to keep a handle to. The object could be
+//   anything, a table, function, number, string, userdata...
+// LUA_REGISTRYINDEX[&wxlua_lreg_refs_key][ref number] = Lua object
+extern WXDLLIMPEXP_DATA_WXLUA(const char*) wxlua_lreg_refs_key;
+// The key in the LUA_REGISTRYINDEX table that is a numerically keyed table
+//   with references to objects the wxLuaDebugData wants to keep a handle to by
+//   storing their value for lookup. It is used only for the wxLuaDebugData.
+// LUA_REGISTRYINDEX[&wxlua_lreg_debug_refs_key][ref number] = Lua object
+extern WXDLLIMPEXP_DATA_WXLUA(const char*) wxlua_lreg_debug_refs_key;
 
+// ----------------------------------------------------------------------------
 // wxLua userdata metatable structure:
 // {
 //    lightuserdata(&wxlua_metatable_type_key) = wxLua type number in wxlua_lreg_types_key table
@@ -193,6 +193,9 @@ extern WXDLLIMPEXP_DATA_WXLUA(const char*) wxlua_lreg_regtable_key;
 //    __newindex = function(wxlua_wxLuaBindClass__newindex)
 //    __tostring = function(wxlua_wxLuaBindClass__tostring)
 // }
+
+// Light userdata used as keys in the metatables created for the class userdata objects.
+// Note that even though these keys have values, they're not used, just the memory address.
 
 // The key of a metatable used for wxLua userdata that is the wxLua type number in the
 //   wxlua_lreg_types_key table this metatable is for.
@@ -292,20 +295,16 @@ enum wxLuaGCObject_Flags
                                        // userdata references to it.
 };
 
-// Track this wxObject and delete it when Lua calls the __gc method for it.
+// Track this object and delete it when Lua calls the __gc method for it.
 // The object is stored in the wxlua_lreg_gcobjects_key of the LUA_REGISTRYINDEX.
-// The second version is used when a non-wxObject class is encapsulated and
-//   the obj_ptr points to the actual object that the wxObject encapsulates.
-//   Note that the lua userdata internal pointer is the obj_ptr and the
-//   wxobj is *only* stored in the wxlua_lreg_gcobjects_key.
-WXDLLIMPEXP_WXLUA void LUACALL wxluaO_addgcobject(lua_State* L, wxObject* wxobj);
-WXDLLIMPEXP_WXLUA void LUACALL wxluaO_addgcobject(lua_State* L, void* obj_ptr, wxObject* wxobj);
-// Remove this obj_ptr wrapped in a Lua userdata, udata, from the
+//   Note that the Lua userdata internal pointer is to the obj_ptr.
+WXDLLIMPEXP_WXLUA bool LUACALL wxluaO_addgcobject(lua_State* L, void* obj_ptr, int wxl_type);
+// Remove the wxLua object wrapped in a Lua userdata at the stack index from the
 //   wxlua_lreg_gcobjects_key table of the LUA_REGISTRYINDEX.
 // It is deleted depending on the flags enum wxLuaGCObject_Flags.
 // If flags = WXLUA_DELETE_OBJECT_ALL or if this is the last userdata it will also remove all
 //   wxlua_lreg_weakobjects_key and wxlua_lreg_derivedmethods_key since the object is gone.
-WXDLLIMPEXP_WXLUA bool LUACALL wxluaO_deletegcobject(lua_State *L, void* udata, void *obj_ptr, int flags);
+WXDLLIMPEXP_WXLUA bool LUACALL wxluaO_deletegcobject(lua_State *L, int stack_idx, int flags);
 // Remove this obj_ptr from the wxlua_lreg_gcobjects_key table of the
 //   LUA_REGISTRYINDEX. The Lua userdata for the object stays in Lua and it's
 //   assumed that someone else will delete the object (took ownership of it).
@@ -417,7 +416,7 @@ WXDLLIMPEXP_WXLUA const wxLuaBindClass* LUACALL wxluaT_getclass(lua_State* L, in
 // Gets the wxLuaBindClass from the wxlua_lreg_classes_key table in the LUA_REGISTRYINDEX.
 WXDLLIMPEXP_WXLUA const wxLuaBindClass* LUACALL wxluaT_getclass(lua_State* L, const char* class_name);
 
-// Is the item at stack_idx of the userdata type with or derived from the the given wxLua type.
+// Is the item at stack_idx of the userdata type or derived from the the given wxLua type.
 WXDLLIMPEXP_WXLUA bool wxluaT_isuserdatatype(lua_State* L, int stack_idx, int wxl_type);
 // Get the userdata object at the stack_idx that is of the wxLua class type or a
 //   class derived from the wxLua type. If the userdata does not have the correct type,
@@ -440,11 +439,15 @@ WXDLLIMPEXP_WXLUA bool LUACALL wxluaT_pushuserdatatype(lua_State* L, const void 
 // ----------------------------------------------------------------------------
 
 // Is a class with the wxl_type equal to or derived from a class with the base_wxl_type.
-//   0 means same class, +1 means base is parent, +2 base is grandparent, ...
+//   Optional input baseclass_n is set to the highest multiple baseclass level, where
+//     0 means that inheritance from wxl_type to base_wxl_type is always the first
+//     base class, a 1 or higher means that wxl_type is derived from the second or higher
+//     base class somewhere along the inheritance chain.
+//   return of 0 means same class, +1 means base is parent, +2 base is grandparent, ...
 //   returns -1 if the wxLua type is not derived from the base type.
-WXDLLIMPEXP_WXLUA int LUACALL wxluaT_isderivedtype(lua_State* L, int wxl_type, int base_wxl_type);
+WXDLLIMPEXP_WXLUA int LUACALL wxluaT_isderivedtype(lua_State* L, int wxl_type, int base_wxl_type, int* baseclass_n = NULL);
 // Same as above, but works directly with the wxLuaBindClasses.
-WXDLLIMPEXP_WXLUA int LUACALL wxluaT_isderivedclass(const wxLuaBindClass* wxlClass, const wxLuaBindClass* base_wxlClass);
+WXDLLIMPEXP_WXLUA int LUACALL wxluaT_isderivedclass(const wxLuaBindClass* wxlClass, const wxLuaBindClass* base_wxlClass, int* baseclass_n = NULL);
 // Verify if the luatype = lua_type(L, stack_idx) is valid for the
 //   wxl_type which is one of the predefined WXLUA_TXXX or s_wxluaarg_XXX types.
 // Returns 1 if it matches, 0 if it doesn't, -1 if the wxl_type is not known.
@@ -756,7 +759,7 @@ public:
     //       its wxLuaStateRefData is finally deleted.
     // Note: The coroutine lua_States are not hashed since we cannot know when
     //       they are created or deleted. We must create wxLuaStates for them on the fly.
-    static wxHashMapLuaState* s_wxHashMapLuaState;
+    static wxHashMapLuaState s_wxHashMapLuaState;
 
     // -----------------------------------------------------------------------
 
@@ -909,11 +912,7 @@ public:
     //   returns NULL on failure. See wxLuaBinding::GetBindClass().
     const wxLuaBindClass* GetBindClass(const wxLuaBindCFunc* wxlCFunc) const;
     // See wxluaT_isderivedtype().
-    int IsDerivedType(int wxl_type, int base_wxl_type) const;
-    // Get wxLuaBindEvent for given wxEventType (wxEvent::GetEventType()) by finding
-    //   the matching wxLuaBindEvent::eventType.
-    // See wxLuaBinding::GetBindEvent().
-    const wxLuaBindEvent* GetBindEvent(wxEventType eventType) const;
+    int IsDerivedType(int wxl_type, int base_wxl_type, int* baseclass_n) const;
 
     // See wxlua_setcallbaseclassfunction() and wxlua_getcallbaseclassfunction().
     void SetCallBaseClassFunction(bool call_base);
@@ -923,11 +922,9 @@ public:
     // memory tracking functions (internal use)
 
     // See wxluaO_addgcobject().
-    void AddGCObject(wxObject *wxobj);
-    // See wxluaO_addgcobject().
-    void AddGCObject(void* obj_ptr, wxObject *wxobj);
+    void AddGCObject(void* obj_ptr, int wxl_type);
     // See wxluaO_deletegcobject().
-    bool DeleteGCObject(void* udata, void *obj_ptr, int flags);
+    bool DeleteGCObject(int stack_idx, int flags);
     // See wxluaO_isgcobject().
     bool IsGCObject(void *obj_ptr) const;
     // See wxluaO_getgcobjectinfo().

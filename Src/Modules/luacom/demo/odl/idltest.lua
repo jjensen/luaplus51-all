@@ -1,3 +1,4 @@
+require "luacom"
 
 lib = luacomE.NewLibrary {
   name = "SmallFurryCreatures",

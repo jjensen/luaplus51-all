@@ -4,16 +4,16 @@
 // Any changes made to this file will be lost when the file is regenerated.
 // ---------------------------------------------------------------------------
 
+
+#include "wx/wxprec.h"
+
 #ifdef __BORLANDC__
     #pragma hdrstop
 #endif
 
-#include "wx/wxprec.h"
-
 #ifndef WX_PRECOMP
      #include "wx/wx.h"
 #endif
-
 
 #include "wxlua/include/wxlstate.h"
 #include "wxbind/include/wxrichtext_bind.h"
@@ -159,19 +159,21 @@ wxLuaBinding_wxrichtext::wxLuaBinding_wxrichtext() : wxLuaBinding()
     m_eventArray    = wxLuaGetEventList_wxrichtext(m_eventCount);
     m_objectArray   = wxLuaGetObjectList_wxrichtext(m_objectCount);
     m_functionArray = wxLuaGetFunctionList_wxrichtext(m_functionCount);
+    InitBinding();
 }
 
 
 
 // ---------------------------------------------------------------------------
 
-bool wxLuaBinding_wxrichtext_init()
+wxLuaBinding* wxLuaBinding_wxrichtext_init()
 {
     static wxLuaBinding_wxrichtext m_binding;
-    if (wxLuaBinding::GetBindingList()->Find(&m_binding)) return false;
 
-    wxLuaBinding::GetBindingList()->Append(&m_binding);
-    return true;
+    if (wxLuaBinding::GetBindingArray().Index(&m_binding) == wxNOT_FOUND)
+        wxLuaBinding::GetBindingArray().Add(&m_binding);
+
+    return &m_binding;
 }
 
 

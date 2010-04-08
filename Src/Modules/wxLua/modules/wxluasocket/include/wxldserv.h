@@ -112,7 +112,6 @@ public:
     virtual void EnumerateStack();
     virtual void EnumerateStackEntry(int nEntry);
     virtual void EnumerateTable(int nRef, int nEntry, long lc_item);
-    virtual void EnumerateGlobalData(long lc_item);
 
     // implementation
 

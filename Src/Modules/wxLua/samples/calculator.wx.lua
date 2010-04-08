@@ -18,7 +18,7 @@ require("wx")
 dialog        = nil -- the wxDialog main toplevel window
 xmlResource   = nil -- the XML resource handle
 txtDisplay    = nil -- statictext window for the display
-clearDisplay  = nil
+clearDisplay  = false
 lastNumber    = 0     -- the last number pressed, 0 - 9
 lastOperationId = nil -- the window id of last operation button pressed
 
@@ -99,7 +99,7 @@ function OnNumber(event)
     if (displayString == "0") or (tonumber(displayString) == nil) or clearDisplay then
         displayString = ""
     end
-    clearDisplay = nil
+    clearDisplay = false
 
     -- Limit string length to 12 chars
     if string.len(displayString) < 12 then
@@ -124,13 +124,13 @@ function OnNumber(event)
             if (num == 0) and (string.len(displayString) == 0) then
                 displayString = "0"
             elseif displayString == "" then
-                displayString = num
+                displayString = tostring(num)
             else
                 displayString = displayString..num
             end
         end
 
-        txtDisplay:SetLabel(tostring(displayString))
+        txtDisplay:SetLabel(displayString)
     end
 end
 
@@ -176,7 +176,7 @@ function OnOperator(event)
     if (lastOperationId ~= ID_EQUALS) or (operationId == ID_EQUALS) then
         txtDisplay:SetLabel(tostring(displayString))
     end
-    clearDisplay  = 1
+    clearDisplay    = true
     lastOperationId = operationId
 end
 
@@ -201,6 +201,8 @@ function main()
     xmlResource:InitAllHandlers()
     local xrcFilename = GetExePath().."/calculator.xrc"
 
+    local logNo = wx.wxLogNull() -- silence wxXmlResource error msg since we provide them
+
     -- try to load the resource and ask for path to it if not found
     while not xmlResource:Load(xrcFilename) do
         -- must unload the file before we try again
@@ -224,6 +226,8 @@ function main()
         end
     end
 
+    logNo:delete() -- turn error messages back on
+
     dialog = wx.wxDialog()
     if not xmlResource:LoadDialog(dialog, wx.NULL, "Calculator") then
         wx.wxMessageBox("Error loading xrc resources!",
@@ -235,8 +239,8 @@ function main()
 
     -- -----------------------------------------------------------------------
     -- This is a little awkward, but it's how it's done in C++ too
-    bitmap = wx.wxBitmap(xpmdata)
-    icon = wx.wxIcon()
+    local bitmap = wx.wxBitmap(xpmdata)
+    local icon = wx.wxIcon()
     icon:CopyFromBitmap(bitmap)
     dialog:SetIcon(icon)
     bitmap:delete()

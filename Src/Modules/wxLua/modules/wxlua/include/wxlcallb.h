@@ -65,7 +65,7 @@ public:
 
     // Get a human readable string about this callback.
     // "wxEVT_XXX(evt#) -> wxLuaEventCallback(&callback, ids %d %d)|wxEvtHandler(&evthandler) -> wxEvtHandlerClassName"
-    wxString GetInfo() const; // Get a human readable string
+    wxString GetInfo() const; 
 
     // Central event handler that calls OnEvent() for the actual
     //   wxLuaEventCallback callback userdata.

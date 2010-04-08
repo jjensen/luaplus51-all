@@ -223,7 +223,7 @@ static luaL_reg func[] = {
 };
 
 
-extern "C" LUAMODULE_API int luaopen_pipe_core(lua_State *L)
+extern "C" int luaopen_pipe_core(lua_State *L)
 {
 	luaL_openlib(L, "pipe", func, 0);
 

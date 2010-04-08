@@ -4,7 +4,8 @@
 
 #include <stdio.h>
 #include <ocidl.h>
-#include <Shlwapi.h>
+#include <shlwapi.h>
+#include <wchar.h>
 
 #include "tCOMUtil.h"
 #include "tLuaCOMException.h"
@@ -79,7 +80,7 @@ ITypeInfo *tCOMUtil::GetCoClassTypeInfo(IDispatch* pdisp, CLSID clsid)
     return NULL;
 
   {
-    unsigned int dumb_index = -1;
+    unsigned int dumb_index = (unsigned int)-1;
     hr = typeinfo->GetContainingTypeLib(&typelib, &dumb_index);
     COM_RELEASE(typeinfo);
   }
@@ -172,7 +173,7 @@ ITypeInfo *tCOMUtil::GetDefaultInterfaceTypeInfo(ITypeInfo* pCoClassinfo,
         if(source == false && !(iFlags & IMPLTYPEFLAG_FSOURCE)
         || source == true && (iFlags & IMPLTYPEFLAG_FSOURCE))
         {
-          HREFTYPE    hRefType=NULL;
+          HREFTYPE    hRefType=0;
 
           /*
            * This is the interface we want.  Get a handle to
@@ -628,8 +629,8 @@ bool tCOMUtil::GetDefaultTypeLibVersion(const char* libid,
 
 bool tCOMUtil::GetRegKeyValue(const char* key, char** pValue) {
 	LONG ec = 0;
-	HKEY hKey;
-	long cbValue;
+	// unused: HKEY hKey;
+	LONG cbValue;
 
 	ec = RegQueryValue(HKEY_CLASSES_ROOT,key,NULL,&cbValue);
 
@@ -684,7 +685,7 @@ bool tCOMUtil::SetRegKeyValue(const char *key,
              0,
              REG_SZ,
              (BYTE *)value,
-             strlen(value)+1);
+             (DWORD)(strlen(value)+1));
     }
     if (ERROR_SUCCESS == ec)
       ok = TRUE;
@@ -736,7 +737,13 @@ void tCOMUtil::DumpTypeInfo(ITypeInfo *typeinfo)
   // prints IID
   LPOLESTR lpsz = NULL;
 
+#ifdef __WINE__
+  hr = 0;
+  MessageBox(NULL, "FIX - not implemented - StringFromIID", "LuaCOM", MB_ICONEXCLAMATION);
+  #warning FIX - not implemented - StringFromIID
+#else
   hr = StringFromIID(pta->guid, &lpsz);
+#endif
 
   if(FAILED(hr))
   {
@@ -762,7 +769,7 @@ void tCOMUtil::DumpTypeInfo(ITypeInfo *typeinfo)
 
     typeinfo->GetNames(pfd->memid, names, 1, &dumb);
 
-    printf("%.3d: %-30s\tid=0x%p\t%d param(s)\n", i,
+    printf("%.3d: %-30s\tid=0x%d\t%d param(s)\n", i,
       tUtil::bstr2string(names[0]), pfd->memid, pfd->cParams);
 
     typeinfo->ReleaseFuncDesc(pfd);

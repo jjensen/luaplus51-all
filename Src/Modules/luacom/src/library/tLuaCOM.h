@@ -56,7 +56,7 @@ public:
     bool untyped = false
     );
 
-	void getHelpInfo(char **ppHelpFile, unsigned long *pHelpContext);
+	void getHelpInfo(char **ppHelpFile, DWORD *pHelpContext);
 	bool isMember(const char *name);
 
    ~tLuaCOM();
@@ -71,7 +71,7 @@ public:
      DISPID dispid,
      int invkind,
      FUNCDESC *pFuncDesc,
-     tLuaObjList& params);
+     tLuaObjList params);
 
    bool getFUNCDESC(const char* name, FuncInfo& funcinfo);
    bool getConstant(lua_State* L, const char* name);

@@ -3,7 +3,7 @@ package = "CGILua"
 version = "5.1.3-1"
 
 source = {
-   url = "http://luaforge.net/frs/download.php/3398/cgilua-5.1.3.tar.gz"
+   url = "http://luaforge.net/frs/download.php/3970/cgilua-5.1.3.tar.gz"
 }
 
 description = {

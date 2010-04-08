@@ -19,9 +19,9 @@
 // Check if the version of binding generator used to create this is older than
 //   the current version of the bindings.
 //   See 'bindings/genwxbind.lua' and 'modules/wxlua/include/wxldefs.h'
-#if WXLUA_BINDING_VERSION > 27
+#if WXLUA_BINDING_VERSION > 30
 #   error "The WXLUA_BINDING_VERSION in the bindings is too old, regenerate bindings."
-#endif //WXLUA_BINDING_VERSION > 27
+#endif //WXLUA_BINDING_VERSION > 30
 // ---------------------------------------------------------------------------
 
 // binding class
@@ -37,7 +37,7 @@ private:
 
 
 // initialize wxLuaBinding_wxrichtext for all wxLuaStates
-extern WXDLLIMPEXP_BINDWXRICHTEXT bool wxLuaBinding_wxrichtext_init();
+extern WXDLLIMPEXP_BINDWXRICHTEXT wxLuaBinding* wxLuaBinding_wxrichtext_init();
 
 // ---------------------------------------------------------------------------
 // Includes
@@ -47,10 +47,6 @@ extern WXDLLIMPEXP_BINDWXRICHTEXT bool wxLuaBinding_wxrichtext_init();
 // Lua Tag Method Values and Tables for each Class
 // ---------------------------------------------------------------------------
 
-
-// ---------------------------------------------------------------------------
-// Encapsulation Declarations - need to be public for other bindings.
-// ---------------------------------------------------------------------------
 
 
 #endif // __HOOK_WXLUA_wxrichtext_H__

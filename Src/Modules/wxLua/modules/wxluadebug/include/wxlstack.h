@@ -77,11 +77,11 @@ public:
 
     wxLuaDebugItem* GetDebugItem() { return m_parentDebugData.Item(m_item_idx); }
 
-    int             m_item_idx;
-    int             m_level;
-    wxLuaDebugData  m_parentDebugData;
-    wxLuaDebugData  m_childrenDebugData;
-    wxTreeItemId    m_treeId;
+    int             m_item_idx;          // this item # in m_parentDebugData
+    int             m_level;             // depth into the Lua tables
+    wxLuaDebugData  m_parentDebugData;   // ref of parent's data
+    wxLuaDebugData  m_childrenDebugData; // valid if this item has children, e.g. a table   
+    wxTreeItemId    m_treeId;            // valid if this item is in the treectrl, e.g. a table
 };
 
 // ----------------------------------------------------------------------------
@@ -151,23 +151,30 @@ public:
         LIST_COL_LEVEL,
         LIST_COL_KEY_TYPE,
         LIST_COL_VALUE_TYPE,
-        LIST_COL_VALUE
+        LIST_COL_VALUE,
+        
+        LIST_COL__MAX
     };
-
 
     // Draw the string centered in the bitmap
     virtual wxBitmap CreateBmpString(const wxBitmap& bmp, const wxString& s);
     // Get the IMG_XXX enum to use for this dataitem
-    virtual int GetItemImage(const wxLuaDebugItem *dbgItem);
+    virtual int GetItemImage(const wxLuaDebugItem *dbgItem) const;
     // Get the string to show in the wxListCtrl
     virtual wxString GetItemText(long item, long column, bool exact_value = false);
+    // Get the image to show for the column in the wxListCtrl
+    virtual int GetItemColumnImage(long item, long column) const;
+    // Get the attribute to use for the wxListCtrl
+    virtual wxListItemAttr* GetItemAttr(long item) const;
+
+    // Select one of the stack levels after calling EnumerateStack()
+    void SelectStack(int stack_sel);
 
     // Override these functions if you need to provide an alternate way to get
     //   the wxLuaDebugData. See wxluasocket lib and wxLuaDebuggerStackDialog
     virtual void EnumerateStack();
     virtual void EnumerateStackEntry(int nEntry);
     virtual void EnumerateTable(int nRef, int nEntry, long lc_item);
-    virtual void EnumerateGlobalData(long lc_item);
 
     // Fill the combobox with the stack entries in the debug data and select
     //  the first stack item.
@@ -192,7 +199,6 @@ public:
 
     // Handle and set the stack from the stack combo selection
     void OnSelectStack(wxCommandEvent &event);
-    void SelectStack(int stack_sel);
     // Handle all wxTreeCtrl events
     void OnTreeItem(wxTreeEvent &event);
     // Handle and expand/collapse a listctrl item
@@ -233,6 +239,8 @@ public:
     wxColour     m_typeColours[IMG__COUNT];
     int          m_img_font_size;
 
+    wxListItemAttr m_itemAttr;    // reusable attr for the wxListCtrl
+
     bool m_show_dup_expand_msg;
     int  m_batch_count;
 
@@ -240,7 +248,8 @@ public:
 
     wxArrayPtrVoid m_listData;    // array of wxLuaStackListData
 
-    static wxSize m_defaultSize;  // remember last dialog size
+    static wxSize sm_defaultSize;  // remember last dialog size
+    static bool   sm_maximized;    // remember if maximized
 
 private:
     void Init();

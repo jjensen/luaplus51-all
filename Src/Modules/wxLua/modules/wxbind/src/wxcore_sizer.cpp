@@ -4,16 +4,16 @@
 // Any changes made to this file will be lost when the file is regenerated.
 // ---------------------------------------------------------------------------
 
+
+#include "wx/wxprec.h"
+
 #ifdef __BORLANDC__
     #pragma hdrstop
 #endif
 
-#include "wx/wxprec.h"
-
 #ifndef WX_PRECOMP
      #include "wx/wx.h"
 #endif
-
 
 #include "wxlua/include/wxlstate.h"
 #include "wxbind/include/wxcore_bind.h"
@@ -403,7 +403,7 @@ static int LUACALL wxLua_wxSizerFlags_constructor(lua_State *L)
     // call constructor
     wxSizerFlags* returns = new wxSizerFlags(proportion);
     // add to tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxSizerFlags((wxSizerFlags*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxSizerFlags);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxSizerFlags);
 
@@ -423,6 +423,12 @@ static wxLuaBindCFunc s_wxluafunc_wxLua_wxSizerFlags_Border_overload[] =
 static int s_wxluafunc_wxLua_wxSizerFlags_Border_overload_count = sizeof(s_wxluafunc_wxLua_wxSizerFlags_Border_overload)/sizeof(wxLuaBindCFunc);
 
 #endif // ((wxLUA_USE_wxSizer) && (wxCHECK_VERSION(2,8,0)))
+
+void wxLua_wxSizerFlags_delete_function(void** p)
+{
+    wxSizerFlags* o = (wxSizerFlags*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxSizerFlags_methods[] = {
@@ -482,7 +488,7 @@ static int LUACALL wxLua_wxSizerItem_CalcMin(lua_State *L)
     // allocate a new object using the copy constructor
     wxSize* returns = new wxSize(self->CalcMin());
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxSize((wxSize*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxSize);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxSize);
 
@@ -565,7 +571,7 @@ static int LUACALL wxLua_wxSizerItem_GetMinSize(lua_State *L)
     // allocate a new object using the copy constructor
     wxSize* returns = new wxSize(self->GetMinSize());
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxSize((wxSize*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxSize);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxSize);
 
@@ -584,7 +590,7 @@ static int LUACALL wxLua_wxSizerItem_GetPosition(lua_State *L)
     // allocate a new object using the copy constructor
     wxPoint* returns = new wxPoint(self->GetPosition());
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxPoint((wxPoint*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxPoint);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxPoint);
 
@@ -639,7 +645,7 @@ static int LUACALL wxLua_wxSizerItem_GetRect(lua_State *L)
     // allocate a new object using the copy constructor
     wxRect* returns = new wxRect(self->GetRect());
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxRect((wxRect*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxRect);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxRect);
 
@@ -658,7 +664,7 @@ static int LUACALL wxLua_wxSizerItem_GetSize(lua_State *L)
     // allocate a new object using the copy constructor
     wxSize* returns = new wxSize(self->GetSize());
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxSize((wxSize*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxSize);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxSize);
 
@@ -697,7 +703,7 @@ static int LUACALL wxLua_wxSizerItem_GetSpacer(lua_State *L)
     // allocate a new object using the copy constructor
     wxSize* returns = new wxSize(self->GetSpacer());
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxSize((wxSize*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxSize);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxSize);
 
@@ -1015,8 +1021,6 @@ static int LUACALL wxLua_wxSizerItem_constructor2(lua_State *L)
     wxSizer * sizer = (wxSizer *)wxluaT_getuserdatatype(L, 1, wxluatype_wxSizer);
     // call constructor
     wxSizerItem* returns = new wxSizerItem(sizer, proportion, flag, border, userData);
-    // add to tracked window list, it will check validity
-    wxluaW_addtrackedwindow(L, returns);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxSizerItem);
 
@@ -1041,8 +1045,6 @@ static int LUACALL wxLua_wxSizerItem_constructor1(lua_State *L)
     wxWindow * window = (wxWindow *)wxluaT_getuserdatatype(L, 1, wxluatype_wxWindow);
     // call constructor
     wxSizerItem* returns = new wxSizerItem(window, proportion, flag, border, userData);
-    // add to tracked window list, it will check validity
-    wxluaW_addtrackedwindow(L, returns);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxSizerItem);
 
@@ -1069,8 +1071,6 @@ static int LUACALL wxLua_wxSizerItem_constructor(lua_State *L)
     int width = (int)wxlua_getnumbertype(L, 1);
     // call constructor
     wxSizerItem* returns = new wxSizerItem(width, height, proportion, flag, border, userData);
-    // add to tracked window list, it will check validity
-    wxluaW_addtrackedwindow(L, returns);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxSizerItem);
 
@@ -1112,6 +1112,12 @@ static wxLuaBindCFunc s_wxluafunc_wxLua_wxSizerItem_constructor_overload[] =
 static int s_wxluafunc_wxLua_wxSizerItem_constructor_overload_count = sizeof(s_wxluafunc_wxLua_wxSizerItem_constructor_overload)/sizeof(wxLuaBindCFunc);
 
 #endif // ((wxLUA_USE_wxObject) && ((wxLUA_USE_wxSizer) && (wxCHECK_VERSION(2,8,0))))
+
+void wxLua_wxSizerItem_delete_function(void** p)
+{
+    wxSizerItem* o = (wxSizerItem*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxSizerItem_methods[] = {
@@ -1336,7 +1342,7 @@ static int LUACALL wxLua_wxSizer_CalcMin(lua_State *L)
     // allocate a new object using the copy constructor
     wxSize* returns = new wxSize(self->CalcMin());
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxSize((wxSize*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxSize);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxSize);
 
@@ -1507,7 +1513,7 @@ static int LUACALL wxLua_wxSizer_GetMinSize(lua_State *L)
     // allocate a new object using the copy constructor
     wxSize* returns = new wxSize(self->GetMinSize());
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxSize((wxSize*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxSize);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxSize);
 
@@ -1526,7 +1532,7 @@ static int LUACALL wxLua_wxSizer_GetPosition(lua_State *L)
     // allocate a new object using the copy constructor
     wxPoint* returns = new wxPoint(self->GetPosition());
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxPoint((wxPoint*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxPoint);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxPoint);
 
@@ -1545,7 +1551,7 @@ static int LUACALL wxLua_wxSizer_GetSize(lua_State *L)
     // allocate a new object using the copy constructor
     wxSize* returns = new wxSize(self->GetSize());
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxSize((wxSize*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxSize);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxSize);
 
@@ -2185,6 +2191,12 @@ static int s_wxluafunc_wxLua_wxSizer_Show_overload_count = sizeof(s_wxluafunc_wx
 
 #endif // ((wxLUA_USE_wxSizer) && (wxCHECK_VERSION(2,8,0)))
 
+void wxLua_wxSizer_delete_function(void** p)
+{
+    wxSizer* o = (wxSizer*)(*p);
+    delete o;
+}
+
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxSizer_methods[] = {
 #if ((wxLUA_USE_wxObject) && ((wxLUA_USE_wxSizer) && (wxCHECK_VERSION(2,8,0))))
@@ -2289,8 +2301,6 @@ static int LUACALL wxLua_wxBoxSizer_constructor(lua_State *L)
     int orient = (int)wxlua_getnumbertype(L, 1);
     // call constructor
     wxBoxSizer* returns = new wxBoxSizer(orient);
-    // add to tracked window list, it will check validity
-    wxluaW_addtrackedwindow(L, returns);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxBoxSizer);
 
@@ -2299,6 +2309,12 @@ static int LUACALL wxLua_wxBoxSizer_constructor(lua_State *L)
 
 
 
+
+void wxLua_wxBoxSizer_delete_function(void** p)
+{
+    wxBoxSizer* o = (wxBoxSizer*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxBoxSizer_methods[] = {
@@ -2465,8 +2481,6 @@ static int LUACALL wxLua_wxGridSizer_constructor(lua_State *L)
     int cols = (int)wxlua_getnumbertype(L, 1);
     // call constructor
     wxGridSizer* returns = new wxGridSizer(cols, rows, vgap, hgap);
-    // add to tracked window list, it will check validity
-    wxluaW_addtrackedwindow(L, returns);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxGridSizer);
 
@@ -2475,6 +2489,12 @@ static int LUACALL wxLua_wxGridSizer_constructor(lua_State *L)
 
 
 
+
+void wxLua_wxGridSizer_delete_function(void** p)
+{
+    wxGridSizer* o = (wxGridSizer*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxGridSizer_methods[] = {
@@ -2658,8 +2678,6 @@ static int LUACALL wxLua_wxFlexGridSizer_constructor(lua_State *L)
     int rows = (int)wxlua_getnumbertype(L, 1);
     // call constructor
     wxFlexGridSizer* returns = new wxFlexGridSizer(rows, cols, vgap, hgap);
-    // add to tracked window list, it will check validity
-    wxluaW_addtrackedwindow(L, returns);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxFlexGridSizer);
 
@@ -2668,6 +2686,12 @@ static int LUACALL wxLua_wxFlexGridSizer_constructor(lua_State *L)
 
 
 
+
+void wxLua_wxFlexGridSizer_delete_function(void** p)
+{
+    wxFlexGridSizer* o = (wxFlexGridSizer*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxFlexGridSizer_methods[] = {
@@ -2972,7 +2996,7 @@ static int LUACALL wxLua_wxGridBagSizer_GetCellSize(lua_State *L)
     // allocate a new object using the copy constructor
     wxSize* returns = new wxSize(self->GetCellSize(row, col));
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxSize((wxSize*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxSize);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxSize);
 
@@ -2991,7 +3015,7 @@ static int LUACALL wxLua_wxGridBagSizer_GetEmptyCellSize(lua_State *L)
     // allocate a new object using the copy constructor
     wxSize* returns = new wxSize(self->GetEmptyCellSize());
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxSize((wxSize*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxSize);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxSize);
 
@@ -3014,7 +3038,7 @@ static int LUACALL wxLua_wxGridBagSizer_GetItemPosition2(lua_State *L)
     // allocate a new object using the copy constructor
     wxGBPosition* returns = new wxGBPosition(self->GetItemPosition(index));
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxGBPosition((wxGBPosition*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxGBPosition);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxGBPosition);
 
@@ -3035,7 +3059,7 @@ static int LUACALL wxLua_wxGridBagSizer_GetItemPosition1(lua_State *L)
     // allocate a new object using the copy constructor
     wxGBPosition* returns = new wxGBPosition(self->GetItemPosition(sizer));
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxGBPosition((wxGBPosition*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxGBPosition);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxGBPosition);
 
@@ -3056,7 +3080,7 @@ static int LUACALL wxLua_wxGridBagSizer_GetItemPosition(lua_State *L)
     // allocate a new object using the copy constructor
     wxGBPosition* returns = new wxGBPosition(self->GetItemPosition(window));
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxGBPosition((wxGBPosition*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxGBPosition);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxGBPosition);
 
@@ -3077,7 +3101,7 @@ static int LUACALL wxLua_wxGridBagSizer_GetItemSpan2(lua_State *L)
     // allocate a new object using the copy constructor
     wxGBSpan* returns = new wxGBSpan(self->GetItemSpan(index));
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxGBSpan((wxGBSpan*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxGBSpan);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxGBSpan);
 
@@ -3098,7 +3122,7 @@ static int LUACALL wxLua_wxGridBagSizer_GetItemSpan1(lua_State *L)
     // allocate a new object using the copy constructor
     wxGBSpan* returns = new wxGBSpan(self->GetItemSpan(sizer));
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxGBSpan((wxGBSpan*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxGBSpan);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxGBSpan);
 
@@ -3119,7 +3143,7 @@ static int LUACALL wxLua_wxGridBagSizer_GetItemSpan(lua_State *L)
     // allocate a new object using the copy constructor
     wxGBSpan* returns = new wxGBSpan(self->GetItemSpan(window));
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxGBSpan((wxGBSpan*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxGBSpan);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxGBSpan);
 
@@ -3280,8 +3304,6 @@ static int LUACALL wxLua_wxGridBagSizer_constructor(lua_State *L)
     int vgap = (argCount >= 1 ? (int)wxlua_getnumbertype(L, 1) : 0);
     // call constructor
     wxGridBagSizer* returns = new wxGridBagSizer(vgap, hgap);
-    // add to tracked window list, it will check validity
-    wxluaW_addtrackedwindow(L, returns);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxGridBagSizer);
 
@@ -3367,6 +3389,12 @@ static wxLuaBindCFunc s_wxluafunc_wxLua_wxGridBagSizer_SetItemSpan_overload[] =
 static int s_wxluafunc_wxLua_wxGridBagSizer_SetItemSpan_overload_count = sizeof(s_wxluafunc_wxLua_wxGridBagSizer_SetItemSpan_overload)/sizeof(wxLuaBindCFunc);
 
 #endif // ((wxLUA_USE_wxSizer) && (wxCHECK_VERSION(2,8,0)))
+
+void wxLua_wxGridBagSizer_delete_function(void** p)
+{
+    wxGridBagSizer* o = (wxGridBagSizer*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxGridBagSizer_methods[] = {
@@ -3522,7 +3550,7 @@ static int LUACALL wxLua_wxGBPosition_constructor1(lua_State *L)
     // call constructor
     wxGBPosition* returns = new wxGBPosition(*pos);
     // add to tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxGBPosition((wxGBPosition*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxGBPosition);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxGBPosition);
 
@@ -3544,7 +3572,7 @@ static int LUACALL wxLua_wxGBPosition_constructor(lua_State *L)
     // call constructor
     wxGBPosition* returns = new wxGBPosition(row, col);
     // add to tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxGBPosition((wxGBPosition*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxGBPosition);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxGBPosition);
 
@@ -3564,6 +3592,12 @@ static wxLuaBindCFunc s_wxluafunc_wxLua_wxGBPosition_constructor_overload[] =
 static int s_wxluafunc_wxLua_wxGBPosition_constructor_overload_count = sizeof(s_wxluafunc_wxLua_wxGBPosition_constructor_overload)/sizeof(wxLuaBindCFunc);
 
 #endif // ((wxLUA_USE_wxSizer) && (wxCHECK_VERSION(2,8,0)))
+
+void wxLua_wxGBPosition_delete_function(void** p)
+{
+    wxGBPosition* o = (wxGBPosition*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxGBPosition_methods[] = {
@@ -3690,7 +3724,7 @@ static int LUACALL wxLua_wxGBSpan_constructor1(lua_State *L)
     // call constructor
     wxGBSpan* returns = new wxGBSpan(*span);
     // add to tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxGBSpan((wxGBSpan*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxGBSpan);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxGBSpan);
 
@@ -3712,7 +3746,7 @@ static int LUACALL wxLua_wxGBSpan_constructor(lua_State *L)
     // call constructor
     wxGBSpan* returns = new wxGBSpan(rowspan, colspan);
     // add to tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxGBSpan((wxGBSpan*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxGBSpan);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxGBSpan);
 
@@ -3732,6 +3766,12 @@ static wxLuaBindCFunc s_wxluafunc_wxLua_wxGBSpan_constructor_overload[] =
 static int s_wxluafunc_wxLua_wxGBSpan_constructor_overload_count = sizeof(s_wxluafunc_wxLua_wxGBSpan_constructor_overload)/sizeof(wxLuaBindCFunc);
 
 #endif // ((wxLUA_USE_wxSizer) && (wxCHECK_VERSION(2,8,0)))
+
+void wxLua_wxGBSpan_delete_function(void** p)
+{
+    wxGBSpan* o = (wxGBSpan*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxGBSpan_methods[] = {
@@ -3809,7 +3849,7 @@ static int LUACALL wxLua_wxGBSizerItem_GetPos(lua_State *L)
     // allocate a new object using the copy constructor
     wxGBPosition* returns = new wxGBPosition(self->GetPos());
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxGBPosition((wxGBPosition*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxGBPosition);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxGBPosition);
 
@@ -3828,7 +3868,7 @@ static int LUACALL wxLua_wxGBSizerItem_GetSpan(lua_State *L)
     // allocate a new object using the copy constructor
     wxGBSpan* returns = new wxGBSpan(self->GetSpan());
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxGBSpan((wxGBSpan*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxGBSpan);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxGBSpan);
 
@@ -3947,8 +3987,6 @@ static int LUACALL wxLua_wxGBSizerItem_constructor3(lua_State *L)
     wxSizer * sizer = (wxSizer *)wxluaT_getuserdatatype(L, 1, wxluatype_wxSizer);
     // call constructor
     wxGBSizerItem* returns = new wxGBSizerItem(sizer, *pos, *span, flag, border, userData);
-    // add to tracked window list, it will check validity
-    wxluaW_addtrackedwindow(L, returns);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxGBSizerItem);
 
@@ -3975,8 +4013,6 @@ static int LUACALL wxLua_wxGBSizerItem_constructor2(lua_State *L)
     wxWindow * window = (wxWindow *)wxluaT_getuserdatatype(L, 1, wxluatype_wxWindow);
     // call constructor
     wxGBSizerItem* returns = new wxGBSizerItem(window, *pos, *span, flag, border, userData);
-    // add to tracked window list, it will check validity
-    wxluaW_addtrackedwindow(L, returns);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxGBSizerItem);
 
@@ -4005,8 +4041,6 @@ static int LUACALL wxLua_wxGBSizerItem_constructor1(lua_State *L)
     int width = (int)wxlua_getnumbertype(L, 1);
     // call constructor
     wxGBSizerItem* returns = new wxGBSizerItem(width, height, *pos, *span, flag, border, userData);
-    // add to tracked window list, it will check validity
-    wxluaW_addtrackedwindow(L, returns);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxGBSizerItem);
 
@@ -4022,8 +4056,6 @@ static int LUACALL wxLua_wxGBSizerItem_constructor(lua_State *L)
 {
     // call constructor
     wxGBSizerItem* returns = new wxGBSizerItem();
-    // add to tracked window list, it will check validity
-    wxluaW_addtrackedwindow(L, returns);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxGBSizerItem);
 
@@ -4065,6 +4097,12 @@ static wxLuaBindCFunc s_wxluafunc_wxLua_wxGBSizerItem_constructor_overload[] =
 static int s_wxluafunc_wxLua_wxGBSizerItem_constructor_overload_count = sizeof(s_wxluafunc_wxLua_wxGBSizerItem_constructor_overload)/sizeof(wxLuaBindCFunc);
 
 #endif // ((wxLUA_USE_wxObject) && ((wxLUA_USE_wxSizer) && (wxCHECK_VERSION(2,8,0))))||((wxLUA_USE_wxSizer) && (wxCHECK_VERSION(2,8,0)))
+
+void wxLua_wxGBSizerItem_delete_function(void** p)
+{
+    wxGBSizerItem* o = (wxGBSizerItem*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxGBSizerItem_methods[] = {
@@ -4128,8 +4166,6 @@ static int LUACALL wxLua_wxNotebookSizer_constructor(lua_State *L)
     wxNotebook * notebook = (wxNotebook *)wxluaT_getuserdatatype(L, 1, wxluatype_wxNotebook);
     // call constructor
     wxNotebookSizer* returns = new wxNotebookSizer(notebook);
-    // add to tracked window list, it will check validity
-    wxluaW_addtrackedwindow(L, returns);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxNotebookSizer);
 
@@ -4139,6 +4175,12 @@ static int LUACALL wxLua_wxNotebookSizer_constructor(lua_State *L)
 #endif // (wxLUA_USE_wxNotebook && wxUSE_NOTEBOOK) && ((wxLUA_USE_wxSizer) && (wxCHECK_VERSION(2,8,0)) && (wxUSE_NOTEBOOK && (!wxCHECK_VERSION(2,6,0))))
 
 
+
+void wxLua_wxNotebookSizer_delete_function(void** p)
+{
+    wxNotebookSizer* o = (wxNotebookSizer*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxNotebookSizer_methods[] = {
@@ -4198,8 +4240,6 @@ static int LUACALL wxLua_wxStaticBoxSizer_constructor1(lua_State *L)
     int orient = (int)wxlua_getnumbertype(L, 1);
     // call constructor
     wxStaticBoxSizer* returns = new wxStaticBoxSizer(orient, parent, label);
-    // add to tracked window list, it will check validity
-    wxluaW_addtrackedwindow(L, returns);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxStaticBoxSizer);
 
@@ -4220,8 +4260,6 @@ static int LUACALL wxLua_wxStaticBoxSizer_constructor(lua_State *L)
     wxStaticBox * box = (wxStaticBox *)wxluaT_getuserdatatype(L, 1, wxluatype_wxStaticBox);
     // call constructor
     wxStaticBoxSizer* returns = new wxStaticBoxSizer(box, orient);
-    // add to tracked window list, it will check validity
-    wxluaW_addtrackedwindow(L, returns);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxStaticBoxSizer);
 
@@ -4245,6 +4283,12 @@ static wxLuaBindCFunc s_wxluafunc_wxLua_wxStaticBoxSizer_constructor_overload[] 
 static int s_wxluafunc_wxLua_wxStaticBoxSizer_constructor_overload_count = sizeof(s_wxluafunc_wxLua_wxStaticBoxSizer_constructor_overload)/sizeof(wxLuaBindCFunc);
 
 #endif // ((wxLUA_USE_wxSizer) && (wxCHECK_VERSION(2,8,0)) && (wxUSE_STATBOX))||(((wxLUA_USE_wxSizer) && (wxCHECK_VERSION(2,8,0)) && (wxUSE_STATBOX)) && (wxLUA_USE_wxStaticBox && wxUSE_STATBOX))
+
+void wxLua_wxStaticBoxSizer_delete_function(void** p)
+{
+    wxStaticBoxSizer* o = (wxStaticBoxSizer*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxStaticBoxSizer_methods[] = {
@@ -4444,8 +4488,6 @@ static int LUACALL wxLua_wxStdDialogButtonSizer_constructor(lua_State *L)
 {
     // call constructor
     wxStdDialogButtonSizer* returns = new wxStdDialogButtonSizer();
-    // add to tracked window list, it will check validity
-    wxluaW_addtrackedwindow(L, returns);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxStdDialogButtonSizer);
 
@@ -4454,6 +4496,12 @@ static int LUACALL wxLua_wxStdDialogButtonSizer_constructor(lua_State *L)
 
 
 
+
+void wxLua_wxStdDialogButtonSizer_delete_function(void** p)
+{
+    wxStdDialogButtonSizer* o = (wxStdDialogButtonSizer*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxStdDialogButtonSizer_methods[] = {
@@ -4499,8 +4547,6 @@ static int LUACALL wxLua_wxLayoutConstraints_constructor(lua_State *L)
 {
     // call constructor
     wxLayoutConstraints* returns = new wxLayoutConstraints();
-    // add to tracked window list, it will check validity
-    wxluaW_addtrackedwindow(L, returns);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxLayoutConstraints);
 
@@ -4509,6 +4555,12 @@ static int LUACALL wxLua_wxLayoutConstraints_constructor(lua_State *L)
 
 
 
+
+void wxLua_wxLayoutConstraints_delete_function(void** p)
+{
+    wxLayoutConstraints* o = (wxLayoutConstraints*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxLayoutConstraints_methods[] = {
@@ -4729,8 +4781,6 @@ static int LUACALL wxLua_wxIndividualLayoutConstraint_constructor(lua_State *L)
 {
     // call constructor
     wxIndividualLayoutConstraint* returns = new wxIndividualLayoutConstraint();
-    // add to tracked window list, it will check validity
-    wxluaW_addtrackedwindow(L, returns);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxIndividualLayoutConstraint);
 
@@ -4739,6 +4789,12 @@ static int LUACALL wxLua_wxIndividualLayoutConstraint_constructor(lua_State *L)
 
 
 
+
+void wxLua_wxIndividualLayoutConstraint_delete_function(void** p)
+{
+    wxIndividualLayoutConstraint* o = (wxIndividualLayoutConstraint*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxIndividualLayoutConstraint_methods[] = {

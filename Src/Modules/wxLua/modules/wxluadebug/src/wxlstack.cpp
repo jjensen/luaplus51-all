@@ -61,15 +61,14 @@ public:
         m_stkDlg = stkDialog;
     }
 
+    // overridden wxListCtrl virtual functions
     virtual wxString OnGetItemText(long item, long column) const;
     virtual int OnGetItemImage(long item) const;
     virtual int OnGetItemColumnImage(long item, long column) const;
     virtual wxListItemAttr *OnGetItemAttr(long item) const;
 
-    wxListItemAttr    m_itemAttr;
     wxLuaStackDialog* m_stkDlg;
 };
-
 
 wxString wxLuaStackListCtrl::OnGetItemText(long item, long column) const
 {
@@ -81,58 +80,11 @@ int wxLuaStackListCtrl::OnGetItemImage(long item) const
 }
 int wxLuaStackListCtrl::OnGetItemColumnImage(long item, long column) const
 {
-    if ((column == wxLuaStackDialog::LIST_COL_KEY) ||
-        (column == wxLuaStackDialog::LIST_COL_KEY_TYPE) ||
-        (column == wxLuaStackDialog::LIST_COL_VALUE_TYPE))
-    {
-        wxLuaStackListData* stkListData = (wxLuaStackListData*)m_stkDlg->m_listData[item];
-        wxCHECK_MSG(stkListData, -1, wxT("Invalid wxLuaStackListData item"));
-        wxLuaDebugItem* debugItem = stkListData->GetDebugItem();
-        wxCHECK_MSG(debugItem, -1, wxT("Invalid wxLuaDebugItem item"));
-
-        if (column == wxLuaStackDialog::LIST_COL_KEY)
-            return m_stkDlg->GetItemImage(debugItem);
-        else if (column == wxLuaStackDialog::LIST_COL_KEY_TYPE)
-        {
-            if (debugItem->GetFlagBit(WXLUA_DEBUGITEM_KEY_REF))
-            {
-                if (debugItem->GetFlagBit(WXLUA_DEBUGITEM_EXPANDED))
-                    return wxLuaStackDialog::IMG_TABLE_OPEN;
-                else
-                    return wxLuaStackDialog::IMG_TABLE;
-            }
-        }
-        else if (column == wxLuaStackDialog::LIST_COL_VALUE_TYPE)
-        {
-            if (debugItem->GetFlagBit(WXLUA_DEBUGITEM_VALUE_REF))
-            {
-                if (debugItem->GetFlagBit(WXLUA_DEBUGITEM_EXPANDED))
-                    return wxLuaStackDialog::IMG_TABLE_OPEN;
-                else
-                    return wxLuaStackDialog::IMG_TABLE;
-            }
-        }
-    }
-
-    return -1;
+    return m_stkDlg->GetItemColumnImage(item, column);
 }
 wxListItemAttr *wxLuaStackListCtrl::OnGetItemAttr(long item) const
 {
-    wxLuaStackListData* stkListData = (wxLuaStackListData*)m_stkDlg->m_listData[item];
-    wxCHECK_MSG(stkListData, NULL, wxT("Invalid wxLuaStackListData item"));
-    wxLuaDebugItem* debugItem = stkListData->GetDebugItem();
-    wxCHECK_MSG(debugItem, NULL, wxT("Invalid wxLuaDebugItem item"));
-
-    int img = m_stkDlg->GetItemImage(debugItem);
-
-    wxLuaStackListCtrl* stkCtrl = (wxLuaStackListCtrl*)this; // unconst
-
-    stkCtrl->m_itemAttr.SetTextColour(m_stkDlg->m_typeColours[img]);
-
-    //unsigned char c = 255 - (stkListData->m_level % 5)*22;
-    //stkCtrl->m_itemAttr.SetBackgroundColour(wxColour(c,c,c));
-
-    return &stkCtrl->m_itemAttr;
+    return m_stkDlg->GetItemAttr(item);
 }
 
 // ----------------------------------------------------------------------------
@@ -140,7 +92,8 @@ wxListItemAttr *wxLuaStackListCtrl::OnGetItemAttr(long item) const
 // ----------------------------------------------------------------------------
 IMPLEMENT_ABSTRACT_CLASS(wxLuaStackDialog, wxDialog)
 
-wxSize wxLuaStackDialog::m_defaultSize(500, 300);
+wxSize wxLuaStackDialog::sm_defaultSize(500, 300);
+bool   wxLuaStackDialog::sm_maximized = false;
 
 BEGIN_EVENT_TABLE(wxLuaStackDialog, wxDialog)
     EVT_CHOICE( ID_WXLUA_STACK_CHOICE, wxLuaStackDialog::OnSelectStack)
@@ -189,7 +142,7 @@ bool wxLuaStackDialog::Create(const wxLuaState& wxlState,
     m_wxlState = wxlState;
 
     wxSize size(size_);
-    if (size == wxDefaultSize) size = m_defaultSize;
+    if (size == wxDefaultSize) size = sm_defaultSize;
 
     if (!wxDialog::Create(parent, id, title, pos, size,
             wxDEFAULT_DIALOG_STYLE | wxDIALOG_MODAL | wxMAXIMIZE_BOX | wxRESIZE_BORDER))
@@ -372,6 +325,9 @@ bool wxLuaStackDialog::Create(const wxLuaState& wxlState,
     rootSizer->SetSizeHints(this);
 
     SetSize(size); // force last good/known size
+    if (sm_maximized)
+        Maximize();
+
 
     EnumerateStack();
 
@@ -381,7 +337,9 @@ bool wxLuaStackDialog::Create(const wxLuaState& wxlState,
 wxLuaStackDialog::~wxLuaStackDialog()
 {
     if (!IsFullScreen() && !IsIconized() && !IsMaximized())
-        m_defaultSize = GetSize();
+        sm_defaultSize = GetSize();
+
+    sm_maximized = IsMaximized();
 
     RemoveAllLuaReferences();
     DeleteAllListItemData();
@@ -424,7 +382,7 @@ wxBitmap wxLuaStackDialog::CreateBmpString(const wxBitmap& bmp_, const wxString&
     return bmp;
 }
 
-int wxLuaStackDialog::GetItemImage(const wxLuaDebugItem *dbgItem)
+int wxLuaStackDialog::GetItemImage(const wxLuaDebugItem *dbgItem) const
 {
     wxCHECK_MSG(dbgItem, IMG_UNKNOWN, wxT("Invalid wxLuaDebugItem"));
 
@@ -504,12 +462,87 @@ wxString wxLuaStackDialog::GetItemText(long item, long column, bool exact_value)
     return wxEmptyString;
 }
 
+int wxLuaStackDialog::GetItemColumnImage(long item, long column) const
+{
+    if ((column == LIST_COL_KEY) ||
+        (column == LIST_COL_KEY_TYPE) ||
+        (column == LIST_COL_VALUE_TYPE))
+    {
+        wxLuaStackListData* stkListData = (wxLuaStackListData*)m_listData[item];
+        wxCHECK_MSG(stkListData, -1, wxT("Invalid wxLuaStackListData item"));
+        wxLuaDebugItem* debugItem = stkListData->GetDebugItem();
+        wxCHECK_MSG(debugItem, -1, wxT("Invalid wxLuaDebugItem item"));
+
+        switch (column)
+        {
+            case LIST_COL_KEY :
+            {
+                return GetItemImage(debugItem);
+            }
+            case LIST_COL_KEY_TYPE :
+            {
+                if (debugItem->GetFlagBit(WXLUA_DEBUGITEM_KEY_REF))
+                {
+                    if (debugItem->GetFlagBit(WXLUA_DEBUGITEM_EXPANDED))
+                        return IMG_TABLE_OPEN;
+                    else
+                        return IMG_TABLE;
+                }
+                break;
+            }
+            case LIST_COL_VALUE_TYPE :
+            {
+                if (debugItem->GetFlagBit(WXLUA_DEBUGITEM_VALUE_REF))
+                {
+                    if (debugItem->GetFlagBit(WXLUA_DEBUGITEM_EXPANDED))
+                        return IMG_TABLE_OPEN;
+                    else
+                        return IMG_TABLE;
+                }
+                break;
+            }
+        }
+    }
+
+    return -1;
+}
+
+wxListItemAttr *wxLuaStackDialog::GetItemAttr(long item) const
+{
+    wxLuaStackListData* stkListData = (wxLuaStackListData*)m_listData[item];
+    wxCHECK_MSG(stkListData, NULL, wxT("Invalid wxLuaStackListData item"));
+    wxLuaDebugItem* debugItem = stkListData->GetDebugItem();
+    wxCHECK_MSG(debugItem, NULL, wxT("Invalid wxLuaDebugItem item"));
+
+    int img = GetItemImage(debugItem);
+
+    wxLuaStackDialog* stkDlg = (wxLuaStackDialog*)this; // unconst this
+
+    stkDlg->m_itemAttr.SetTextColour(m_typeColours[img]);
+
+    //unsigned char c = 255 - (stkListData->m_level % 5)*22;
+    //stkDlg->m_itemAttr.SetBackgroundColour(wxColour(c,c,c));
+
+    return &stkDlg->m_itemAttr;
+}
+
+void wxLuaStackDialog::SelectStack(int stack_sel)
+{
+    wxCHECK_RET((stack_sel >= 0) && (stack_sel < (int)m_stackEntries.GetCount()), wxT("Invalid stack index"));
+
+    RemoveAllLuaReferences(); // remove them now since we're starting from scratch
+
+    m_stack_sel = stack_sel;
+    int n_entry = m_stackEntries[m_stack_sel];
+    EnumerateStackEntry(n_entry);
+}
+
 void wxLuaStackDialog::EnumerateStack()
 {
     wxCHECK_RET(m_wxlState.Ok(), wxT("Invalid wxLuaState"));
     wxBusyCursor wait;
     wxLuaDebugData debugData(true);
-    debugData.EnumerateStack(m_wxlState);
+    debugData.EnumerateStack(m_wxlState.GetLuaState());
     FillStackCombobox(debugData);
 }
 void wxLuaStackDialog::EnumerateStackEntry(int nEntry)
@@ -517,7 +550,7 @@ void wxLuaStackDialog::EnumerateStackEntry(int nEntry)
     wxCHECK_RET(m_wxlState.Ok(), wxT("Invalid wxLuaState"));
     wxBusyCursor wait;
     wxLuaDebugData debugData(true);
-    debugData.EnumerateStackEntry(m_wxlState, nEntry, m_luaReferences);
+    debugData.EnumerateStackEntry(m_wxlState.GetLuaState(), nEntry, m_luaReferences);
     FillStackEntry(nEntry, debugData);
 }
 void wxLuaStackDialog::EnumerateTable(int nRef, int nEntry, long lc_item)
@@ -525,15 +558,7 @@ void wxLuaStackDialog::EnumerateTable(int nRef, int nEntry, long lc_item)
     wxCHECK_RET(m_wxlState.Ok(), wxT("Invalid wxLuaState"));
     wxBusyCursor wait;
     wxLuaDebugData debugData(true);
-    debugData.EnumerateTable(m_wxlState, nRef, nEntry, m_luaReferences);
-    FillTableEntry(lc_item, debugData);
-}
-void wxLuaStackDialog::EnumerateGlobalData(long lc_item)
-{
-    wxCHECK_RET(m_wxlState.Ok(), wxT("Invalid wxLuaState"));
-    wxBusyCursor wait;
-    wxLuaDebugData debugData(true);
-    debugData.EnumerateTable(m_wxlState, -1, -1, m_luaReferences); // Get global table
+    debugData.EnumerateTable(m_wxlState.GetLuaState(), nRef, nEntry, m_luaReferences);
     FillTableEntry(lc_item, debugData);
 }
 
@@ -551,7 +576,7 @@ void wxLuaStackDialog::FillStackCombobox(const wxLuaDebugData& debugData)
         m_stackEntries.Add(item->GetIndex());
         wxString name(item->GetKey());
         if (n == count - 1) name += wxT(" (Globals)");
-		m_stackChoice->Append(name);
+        m_stackChoice->Append(name);
     }
 
     if (count > 0)
@@ -565,7 +590,6 @@ void wxLuaStackDialog::FillStackEntry(int WXUNUSED(nEntry), const wxLuaDebugData
 {
     wxCHECK_RET(debugData.Ok(), wxT("Invalid wxLuaDebugData in FillStackEntry"));
 
-    RemoveAllLuaReferences();
     DeleteAllListItemData();
     m_expandedItems.clear();
     m_listCtrl->SetItemCount(0);
@@ -577,7 +601,7 @@ void wxLuaStackDialog::FillStackEntry(int WXUNUSED(nEntry), const wxLuaDebugData
     // Add the locals, fake a debug item to get it setup right
     wxLuaDebugItem* localItem  = new wxLuaDebugItem(_("Locals"), WXLUA_TNONE,
                     wxString::Format(wxT("%d Items"), (int)debugData.GetCount()), WXLUA_TNONE,
-                    wxT(""), LUA_NOREF, 0, WXLUA_DEBUGITEM_EXPANDED|WXLUA_DEBUGITEM_LOCALS|WXLUA_DEBUGITEM_VALUE_REF);
+                    wxEmptyString, LUA_NOREF, 0, WXLUA_DEBUGITEM_EXPANDED|WXLUA_DEBUGITEM_LOCALS|WXLUA_DEBUGITEM_VALUE_REF);
     wxLuaDebugData localData(true); // this deletes the items
     localData.Add(localItem);
     FillTableEntry(m_listCtrl->GetItemCount(), localData);
@@ -586,17 +610,15 @@ void wxLuaStackDialog::FillStackEntry(int WXUNUSED(nEntry), const wxLuaDebugData
         FillTableEntry(m_listCtrl->GetItemCount()-1, debugData);
 
     //  If at global scope, process globals
-    if (m_stack_sel == (int)m_stackEntries.GetCount() - 1)
+    //if (m_stack_sel == (int)m_stackEntries.GetCount() - 1)
     {
-        EnumerateGlobalData(m_listCtrl->GetItemCount()); // new item, put at end
-
-        // for debugging also add the registry
-        if (m_wxlState.Ok())
-        {
-            wxLuaDebugData regData(true);
-            regData.EnumerateTable(m_wxlState, LUA_REGISTRYINDEX, -1, m_luaReferences); // Get global table
-            FillTableEntry(m_listCtrl->GetItemCount(), regData);
-        }
+        // When used with the wxLuaDebuggerServer we get delayed responses
+        // from the debuggee so we can't expect that the item has been added
+        // to the listctrl yet, but we assume they eventually will be, hence n+x.
+        int n = m_listCtrl->GetItemCount();
+        EnumerateTable(LUA_GLOBALSINDEX,  -1, n);
+        EnumerateTable(LUA_ENVIRONINDEX,  -1, n+1);
+        EnumerateTable(LUA_REGISTRYINDEX, -1, n+2);
     }
 }
 
@@ -670,8 +692,11 @@ void wxLuaStackDialog::FillTableEntry(long lc_item_, const wxLuaDebugData& debug
 
                     wxTreeItemIdValue dummyCookie;
                     wxTreeItemId dummyId = m_treeCtrl->GetFirstChild(treeId, dummyCookie);
-                    if (m_treeCtrl->GetItemText(dummyId) == DUMMY_TREEITEM)
+                    if ((m_treeCtrl->GetItemText(dummyId) == DUMMY_TREEITEM) &&
+                        (m_treeCtrl->GetItemData(dummyId) == NULL))
+                    {
                         m_treeCtrl->Delete(dummyId);
+                    }
                 }
             }
         }
@@ -741,7 +766,16 @@ void wxLuaStackDialog::OnExpandButton(wxCommandEvent &event)
     if (event.GetId() == ID_WXLUA_STACK_EXPAND_BUTTON)
         ExpandItemChildren(start_item);
     else
+    {
+        wxLuaStackListData* stkListData = (wxLuaStackListData*)m_listData[start_item];
+        wxCHECK_RET(stkListData != NULL, wxT("Invalid wxLuaStack data"));
+
+        // Hack for WXLUA_STACK_MSWTREE, collapse tree first
+        if (stkListData->m_treeId && m_treeCtrl->IsExpanded(stkListData->m_treeId))
+            m_treeCtrl->Collapse(stkListData->m_treeId);
+
         CollapseItem(start_item);
+    }
 }
 
 // This code is copied from wxStEdit's function wxSTEPrependComboBoxString
@@ -818,7 +852,7 @@ void wxLuaStackDialog::OnFind(wxCommandEvent &event)
 
     // Remaining events we handle are for finding
 
-    bool find_col[5] = {
+    bool find_col[LIST_COL__MAX] = {
         m_findMenu->IsChecked(ID_WXLUA_STACK_FINDMENU_NAME),
         m_findMenu->IsChecked(ID_WXLUA_STACK_FINDMENU_LEVEL),
         m_findMenu->IsChecked(ID_WXLUA_STACK_FINDMENU_KEYTYPE),
@@ -885,7 +919,7 @@ void wxLuaStackDialog::OnFind(wxCommandEvent &event)
 
         for ( ; (i >= 0) && (i < list_count) && !found; i = i + direction)
         {
-            for (int col = 0; (col < 5) && !found; ++col)
+            for (int col = 0; (col < LIST_COL__MAX) && !found; ++col)
             {
                 if (!find_col[col]) continue;
 
@@ -912,14 +946,6 @@ void wxLuaStackDialog::OnSelectStack(wxCommandEvent &event)
 {
     if (event.GetSelection() >= 0)
         SelectStack(event.GetSelection());
-}
-
-void wxLuaStackDialog::SelectStack(int stack_sel)
-{
-    wxCHECK_RET((stack_sel >= 0) && (stack_sel < (int)m_stackEntries.GetCount()), wxT("Invalid stack index"));
-    m_stack_sel = stack_sel;
-    int n_entry = m_stackEntries[m_stack_sel];
-    EnumerateStackEntry(n_entry);
 }
 
 void wxLuaStackDialog::OnTreeItem(wxTreeEvent &event)
@@ -958,6 +984,8 @@ void wxLuaStackDialog::OnTreeItem(wxTreeEvent &event)
 
 void wxLuaStackDialog::OnListItem(wxListEvent &event)
 {
+    if (m_batch_count > 0) return;
+
     long list_item = event.GetIndex();
 
     wxLuaStackListData* stkListData = (wxLuaStackListData*)m_listData[list_item];
@@ -986,7 +1014,7 @@ void wxLuaStackDialog::OnListItem(wxListEvent &event)
         }
         else
         {
-            // Hack for WXLUA_STACK_MSWTREE, need children to collapse
+            // Hack for WXLUA_STACK_MSWTREE, collapse tree first
             if (stkListData->m_treeId && m_treeCtrl->IsExpanded(stkListData->m_treeId))
                 m_treeCtrl->Collapse(stkListData->m_treeId);
 
@@ -1018,8 +1046,6 @@ bool wxLuaStackDialog::ExpandItem(long lc_item)
     wxLuaDebugItem* debugItem = stkListData->GetDebugItem();
     wxCHECK_MSG(debugItem != NULL, false, wxT("Invalid debug item"));
 
-    int nRef = debugItem->GetRef();
-
     if (!debugItem->GetFlagBit(WXLUA_DEBUGITEM_EXPANDED))
     {
         // re-expand the item that was previously collapsed
@@ -1032,46 +1058,41 @@ bool wxLuaStackDialog::ExpandItem(long lc_item)
                 m_expandedItems[long_key] = (long)stkListData;
 
             FillTableEntry(lc_item, stkListData->m_childrenDebugData);
-            expanded = true;
-            return true;
-        }
 
-        // Check and block linked tables already shown, select it and return
-        if (debugItem->GetRef() != LUA_NOREF)
+            expanded = true;
+        }
+        else if (debugItem->GetRef() != LUA_NOREF)
         {
             long long_key = 0;
             wxCHECK_MSG(debugItem->GetRefPtr(long_key), false, wxT("Invalid table item"));
 
-            if (m_expandedItems[long_key])
+            // Check and block linked tables already shown, select it and return
+            if (m_expandedItems[long_key]) // linked tables
             {
-                if (m_show_dup_expand_msg)
+                if (m_show_dup_expand_msg) // don't bother when expanding all children
                 {
-                    wxMessageBox(wxT("Cannot expand linked tables,\nplease see the already expanded table."),
-                        wxT("wxLua Stack"), wxOK | wxCENTRE, this);
+                    int ret = wxMessageBox(wxString::Format(wxT("Cannot expand linked tables %lx,\nselect Ok to see the previously expanded table."), long_key),
+                                           wxT("wxLua Stack"), wxOK | wxCANCEL | wxCENTRE, this);
+                    if (ret == wxOK)
+                    {
+                        int n = m_listData.Index((void*)m_expandedItems[long_key]);
+                        wxCHECK_MSG(n != wxNOT_FOUND, false, wxT("Unable to find hash of expanded items."));
 
-                    int n = m_listData.Index((void*)m_expandedItems[long_key]);
-                    wxCHECK_MSG(n != wxNOT_FOUND, false, wxT("Unable to find hash of expanded items."));
-
-                    m_listCtrl->SetItemState(n, wxLIST_STATE_FOCUSED, wxLIST_STATE_FOCUSED);
-                    m_listCtrl->SetItemState(n, wxLIST_STATE_SELECTED, wxLIST_STATE_SELECTED);
-                    m_listCtrl->EnsureVisible(n);
+                        m_listCtrl->SetItemState(n, wxLIST_STATE_FOCUSED,  wxLIST_STATE_FOCUSED);
+                        m_listCtrl->SetItemState(n, wxLIST_STATE_SELECTED, wxLIST_STATE_SELECTED);
+                        m_listCtrl->EnsureVisible(n);
+                    }
                 }
-
-                return false;
             }
-        }
+            else // new item to enumerate and expand
+            {
+                debugItem->SetFlagBit(WXLUA_DEBUGITEM_EXPANDED, true);
 
-        if (nRef != LUA_NOREF)
-        {
-            debugItem->SetFlagBit(WXLUA_DEBUGITEM_EXPANDED, true);
+                m_expandedItems[long_key] = (long)stkListData;
 
-            long long_key = 0;
-            wxCHECK_MSG(debugItem->GetRefPtr(long_key), false, wxT("Invalid table item"));
-            m_expandedItems[long_key] = (long)stkListData;
-
-            int nIndex = debugItem->GetIndex() + 1;
-            EnumerateTable(nRef, nIndex, lc_item);
-            expanded = true;
+                EnumerateTable(debugItem->GetRef(), debugItem->GetIndex() + 1, lc_item);
+                expanded = true;
+            }
         }
     }
 
@@ -1106,9 +1127,10 @@ bool wxLuaStackDialog::ExpandItemChildren(long lc_item)
 
         wxLuaStackListData* stkListData_n = (wxLuaStackListData*)m_listData[n];
 
-        if ((n > lc_item) && (stkListData_n->m_level <= level)) break;
+        if ((n > lc_item) && (stkListData_n->m_level <= level))
+            break;
 
-        if (counter % 20 == 0)
+        if (counter % 50 == 0)
         {
             if (!dlg->Pulse(wxString::Format(wxT("Expanding nodes : %d"), counter)))
                 break;
@@ -1132,7 +1154,7 @@ bool wxLuaStackDialog::ExpandItemChildren(long lc_item)
 bool wxLuaStackDialog::CollapseItem(long lc_item)
 {
     wxCHECK_MSG((lc_item >= 0) && (lc_item < m_listCtrl->GetItemCount()), false,
-                wxT("Invalid list item to expand"));
+                wxT("Invalid list item to collapse"));
 
     bool collapsed = false;
 
@@ -1140,51 +1162,58 @@ bool wxLuaStackDialog::CollapseItem(long lc_item)
     wxCHECK_MSG(stkListData != NULL, false, wxT("Invalid wxLuaStack data"));
     wxLuaDebugItem* debugItem = stkListData->GetDebugItem();
     wxCHECK_MSG((debugItem != NULL), false, wxT("Invalid debug item"));
-    wxLuaDebugData childData = stkListData->m_childrenDebugData;
-
-    BeginBatch();
 
     // Collapse the item, remove children
     if (debugItem->GetFlagBit(WXLUA_DEBUGITEM_EXPANDED))
     {
+        BeginBatch();
+        wxLuaDebugData childData = stkListData->m_childrenDebugData;
+
         if (childData.Ok())
         {
+            int level     = stkListData->m_level;
             long n, count = m_listCtrl->GetItemCount();
 
             for (n = lc_item+1; n < count; ++n)
             {
                 wxLuaStackListData* stkListData_n = (wxLuaStackListData*)m_listData[n];
-                wxCHECK_MSG(stkListData_n != NULL, false, wxT("Invalid wxLuaStack data"));
+                wxCHECK_MSG(stkListData_n != NULL, false, wxT("Invalid wxLuaStack data n"));
+                wxLuaDebugItem* debugItem_n = stkListData_n->GetDebugItem();
+                wxCHECK_MSG((debugItem_n != NULL), false, wxT("Invalid debug item n"));
 
-                if (stkListData_n->m_parentDebugData == childData)
+                // are we finished with the original expanded item
+                if (stkListData_n->m_level <= level)
+                    break;
+
+                collapsed = true; // only if we removed anything
+
+                // remove all expanded children items
+                if (debugItem_n->GetFlagBit(WXLUA_DEBUGITEM_EXPANDED))
                 {
-                    if (stkListData_n->m_childrenDebugData.Ok() &&
-                        stkListData_n->GetDebugItem()->GetFlagBit(WXLUA_DEBUGITEM_EXPANDED))
-                    {
-                        long long_key = 0;
-                        if (stkListData_n->GetDebugItem()->GetRefPtr(long_key))
-                            m_expandedItems.erase(long_key);
-
-                        CollapseItem(n);
-
-                        n--; count = m_listData.GetCount();
-                        continue;
-                    }
-
-                    collapsed = true; // only if we removed anything
-
-                    if (stkListData_n->m_treeId)
-                        m_treeCtrl->Delete(stkListData_n->m_treeId);
-
-                    m_listData.RemoveAt(n);
-
-                    if (stkListData_n != NULL)
-                        delete stkListData_n;
-
-                    n--; count = m_listData.GetCount();
+                    long long_key = 0;
+                    if (debugItem_n->GetRefPtr(long_key))
+                        m_expandedItems.erase(long_key);
                 }
+
+                // note that the debug item is a member of the parent debug data array
+                debugItem_n->SetFlagBit(WXLUA_DEBUGITEM_EXPANDED, false);
+
+                //m_listData.RemoveAt(n); // we remove them all at once for speed, see below
+                //n--;
+                //count = m_listData.GetCount();
+                delete stkListData_n;
             }
+
+            m_listData.RemoveAt(lc_item+1, n-lc_item-1);
         }
+
+        long long_key = 0;
+        if (debugItem->GetRefPtr(long_key))
+            m_expandedItems.erase(long_key);
+
+        debugItem->SetFlagBit(WXLUA_DEBUGITEM_EXPANDED, false);
+
+        m_listCtrl->SetItemCount(m_listData.GetCount());
 
         // don't call collapse here, let MSW do it if this is called from OnTreeItem
         // else we've already collapsed it in OnListActivated
@@ -1192,16 +1221,8 @@ bool wxLuaStackDialog::CollapseItem(long lc_item)
         // Add back our dummy item for MSW to allow it to be reexpanded
         m_treeCtrl->AppendItem(stkListData->m_treeId, DUMMY_TREEITEM);
 
-        debugItem->SetFlagBit(WXLUA_DEBUGITEM_EXPANDED, false);
-
-        long long_key = 0;
-        if (debugItem->GetRefPtr(long_key))
-            m_expandedItems.erase(long_key);
+        EndBatch();
     }
-
-    EndBatch();
-
-    m_listCtrl->SetItemCount(m_listData.GetCount());
 
     return collapsed;
 }
@@ -1216,8 +1237,7 @@ void wxLuaStackDialog::DeleteAllListItemData()
     {
         wxLuaStackListData* stkListData = (wxLuaStackListData*)m_listData[i];
 
-        if (stkListData != NULL)
-            delete stkListData;
+        delete stkListData;
     }
 
     m_listData.Clear();
@@ -1268,10 +1288,11 @@ void wxLuaStackDialog::RemoveAllLuaReferences()
 
     m_luaReferences.Clear();
 
+
     // ----------------------------------------------------------------------
     // Sanity check to make sure that we've cleared all the references
     // There should be only one of us created at any time.
-
+    if (1) {
     //wxLuaCheckStack cs(L, wxT("wxLuaStackDialog::RemoveAllLuaReferences"));
     lua_pushlightuserdata(L, &wxlua_lreg_debug_refs_key); // push name of table to get as key
     lua_rawget(L, LUA_REGISTRYINDEX);   // pop key, push result (the refs table)
@@ -1289,9 +1310,11 @@ void wxLuaStackDialog::RemoveAllLuaReferences()
     }
 
     lua_pop(L, 1); // pop ref table
+    }
 
     // Clear out the old numeric references since it should be "empty"
     // though full of dead table[idx]=next_idx, where table[0] = 1;
-
     wxlua_lreg_createtable(L, &wxlua_lreg_debug_refs_key);
+
+    lua_gc(L, LUA_GCCOLLECT, 0); // full garbage collection to cleanup after ourselves
 }

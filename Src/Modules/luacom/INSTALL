@@ -1,7 +1,12 @@
-This is LuaCom 1.3b2
+This is LuaCom 1.4
 
 * Installation Steps
 --------------------
+
+  1. Install LuaRocks
+  2. Do "luarocks install luacom"
+
+  or (the hard way)...
 
   1. Make sure that Lua is installed in your system.
   2. Edit the Makefile file to suit your environment.
@@ -22,9 +27,9 @@ This is LuaCom 1.3b2
 * Tested Platforms
 ------------------
 
-  Operating System:   MS Windows 2000/NT/95/98
-  Lua version:        4.0/5.0
-  Compiler:           MS Visual C++ 6.0 / MS Visual C++ 7.0
+  Operating System:   MS Windows XP
+  Lua version:        5.1
+  Compiler:           MS Visual C++ 2005
 
 
 * If you have problems (and solutions!)

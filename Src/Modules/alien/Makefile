@@ -37,11 +37,11 @@ clean:
 	find . -name "*.so" -o -name "*.o" -o -name "*.dylib" | xargs rm -f
 
 upload-cvs:
-	darcs dist -d alien-current
+	git archive --output alien-current.tar.gz master
 	ncftpput -u mascarenhas ftp.luaforge.net alien/htdocs alien-current.tar.gz
 
 upload-dist:
-	darcs dist -d alien-$(VERSION)
+	git archive --format=tar --prefix=alien-$(VERSION)/ $(VERSION) | gzip > alien-$(VERSION).tar.gz
 	ncftpput -u mascarenhas ftp.luaforge.net alien/htdocs alien-$(VERSION).tar.gz
 	ncftpput -u mascarenhas ftp.luaforge.net alien/htdocs doc/index.html
 

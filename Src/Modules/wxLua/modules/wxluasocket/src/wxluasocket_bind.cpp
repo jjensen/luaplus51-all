@@ -4,16 +4,16 @@
 // Any changes made to this file will be lost when the file is regenerated.
 // ---------------------------------------------------------------------------
 
+
+#include "wx/wxprec.h"
+
 #ifdef __BORLANDC__
     #pragma hdrstop
 #endif
 
-#include "wx/wxprec.h"
-
 #ifndef WX_PRECOMP
      #include "wx/wx.h"
 #endif
-
 
 #include "wxlua/include/wxlstate.h"
 #include "wxluasocket/include/wxluasocket_bind.h"
@@ -358,7 +358,7 @@ static int LUACALL wxLua_wxLuaDebuggerServer_constructor(lua_State *L)
     // call constructor
     wxLuaDebuggerServer* returns = new wxLuaDebuggerServer(portNumber);
     // add to tracked memory list
-    wxluaO_addgcobject(L, returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxLuaDebuggerServer);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxLuaDebuggerServer);
 
@@ -366,6 +366,12 @@ static int LUACALL wxLua_wxLuaDebuggerServer_constructor(lua_State *L)
 }
 
 
+
+void wxLua_wxLuaDebuggerServer_delete_function(void** p)
+{
+    wxLuaDebuggerServer* o = (wxLuaDebuggerServer*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxLuaDebuggerServer_methods[] = {
@@ -471,6 +477,12 @@ static wxLuaArgType s_wxluatypeArray_wxLua_wxLuaDebuggerEvent_delete[] = { &wxlu
 static wxLuaBindCFunc s_wxluafunc_wxLua_wxLuaDebuggerEvent_delete[1] = {{ wxlua_userdata_delete, WXLUAMETHOD_METHOD|WXLUAMETHOD_DELETE, 1, 1, s_wxluatypeArray_wxLua_wxLuaDebuggerEvent_delete }};
 
 
+
+void wxLua_wxLuaDebuggerEvent_delete_function(void** p)
+{
+    wxLuaDebuggerEvent* o = (wxLuaDebuggerEvent*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxLuaDebuggerEvent_methods[] = {
@@ -620,8 +632,10 @@ static wxLuaBindClass* wxluabaseclassbinds_wxLuaDebuggerServer[] = { NULL };
 
 extern wxLuaBindMethod wxLuaDebuggerEvent_methods[];
 extern int wxLuaDebuggerEvent_methodCount;
+extern void wxLua_wxLuaDebuggerEvent_delete_function(void** p);
 extern wxLuaBindMethod wxLuaDebuggerServer_methods[];
 extern int wxLuaDebuggerServer_methodCount;
+extern void wxLua_wxLuaDebuggerServer_delete_function(void** p);
 
 
 
@@ -630,8 +644,8 @@ wxLuaBindClass* wxLuaGetClassList_wxluasocket(size_t &count)
 {
     static wxLuaBindClass classList[] =
     {
-        { wxluaclassname_wxLuaDebuggerEvent, wxLuaDebuggerEvent_methods, wxLuaDebuggerEvent_methodCount, CLASSINFO(wxLuaDebuggerEvent), &wxluatype_wxLuaDebuggerEvent, wxluabaseclassnames_wxLuaDebuggerEvent, wxluabaseclassbinds_wxLuaDebuggerEvent, g_wxluanumberArray_None, 0, }, 
-        { wxluaclassname_wxLuaDebuggerServer, wxLuaDebuggerServer_methods, wxLuaDebuggerServer_methodCount, CLASSINFO(wxLuaDebuggerServer), &wxluatype_wxLuaDebuggerServer, wxluabaseclassnames_wxLuaDebuggerServer, wxluabaseclassbinds_wxLuaDebuggerServer, g_wxluanumberArray_None, 0, }, 
+        { wxluaclassname_wxLuaDebuggerEvent, wxLuaDebuggerEvent_methods, wxLuaDebuggerEvent_methodCount, CLASSINFO(wxLuaDebuggerEvent), &wxluatype_wxLuaDebuggerEvent, wxluabaseclassnames_wxLuaDebuggerEvent, wxluabaseclassbinds_wxLuaDebuggerEvent, NULL, NULL, NULL, 0, &wxLua_wxLuaDebuggerEvent_delete_function, }, 
+        { wxluaclassname_wxLuaDebuggerServer, wxLuaDebuggerServer_methods, wxLuaDebuggerServer_methodCount, CLASSINFO(wxLuaDebuggerServer), &wxluatype_wxLuaDebuggerServer, wxluabaseclassnames_wxLuaDebuggerServer, wxluabaseclassbinds_wxLuaDebuggerServer, NULL, NULL, NULL, 0, &wxLua_wxLuaDebuggerServer_delete_function, }, 
 
         { 0, 0, 0, 0, 0, 0, 0 }, 
     };
@@ -656,19 +670,21 @@ wxLuaBinding_wxluasocket::wxLuaBinding_wxluasocket() : wxLuaBinding()
     m_eventArray    = wxLuaGetEventList_wxluasocket(m_eventCount);
     m_objectArray   = wxLuaGetObjectList_wxluasocket(m_objectCount);
     m_functionArray = wxLuaGetFunctionList_wxluasocket(m_functionCount);
+    InitBinding();
 }
 
 
 
 // ---------------------------------------------------------------------------
 
-bool wxLuaBinding_wxluasocket_init()
+wxLuaBinding* wxLuaBinding_wxluasocket_init()
 {
     static wxLuaBinding_wxluasocket m_binding;
-    if (wxLuaBinding::GetBindingList()->Find(&m_binding)) return false;
 
-    wxLuaBinding::GetBindingList()->Append(&m_binding);
-    return true;
+    if (wxLuaBinding::GetBindingArray().Index(&m_binding) == wxNOT_FOUND)
+        wxLuaBinding::GetBindingArray().Add(&m_binding);
+
+    return &m_binding;
 }
 
 

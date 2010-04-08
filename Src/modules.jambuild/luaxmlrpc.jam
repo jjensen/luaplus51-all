@@ -1,0 +1,18 @@
+{
+
+local XMLRPC_SRCS =
+		cgi.lua
+		http.lua
+		serverproxy.lua
+;
+
+local ROOT_SRCS =
+		xmlrpc.lua
+;
+
+Lua.Module luaxmlrpc : : $(ROOT_SRCS) $(XMLRPC_SRCS) ;
+
+CopyFiles luaxmlrpc : $(LUA_LDIR) : $(SUBDIR)/$(ROOT_SRCS) ;
+CopyFiles luaxmlrpc : $(LUA_LDIR)/xmlrpc : $(SUBDIR)/$(XMLRPC_SRCS) ;
+
+}

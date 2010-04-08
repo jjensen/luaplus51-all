@@ -13,9 +13,6 @@
 -- Author : Renato Maia <maia@inf.puc-rio.br>                                 --
 --------------------------------------------------------------------------------
 
-require'iox'
-local iox = iox
-
 --[[VERBOSE]] local type        = type
 --[[VERBOSE]] local unpack      = unpack
 --[[VERBOSE]] local rawget      = rawget
@@ -144,7 +141,7 @@ function resumeall(self, success, ...)                                          
 			self.currentkey = routine
 		end                                                                         --[[VERBOSE]] else verbose:scheduler(true, "resuming running threads")
 	end
-	routine = self.running[self.currentkey]
+	routine = self.running[self.currentkey] 
 	if routine then
 		self.current = routine                                                      --[[VERBOSE]] verbose:threads(true, "resuming ",routine)
 		return self:resumeall(coroutine.resume(routine, ...))
@@ -181,8 +178,7 @@ function time(self)
 end
 
 function idle(self, timeout)                                                    --[[VERBOSE]] self.verbose:scheduler(true, "starting busy-waiting for ",timeout," seconds")
---	if timeout then repeat until self:time() > timeout end                        --[[VERBOSE]] self.verbose:scheduler(false, "busy-waiting ended")
-	iox.Sleep(timeout)
+	if timeout then repeat until self:time() > timeout end                        --[[VERBOSE]] self.verbose:scheduler(false, "busy-waiting ended")
 end
 
 function error(self, routine, errmsg)
@@ -222,7 +218,7 @@ function resume(self, routine, ...)                                             
 	local current = self:checkcurrent()
 	if not self:register(routine, current) then
 		self:register(self:remove(routine), current)
-	end
+	end                        
 	return coroutine.yield(...)
 end
 
@@ -265,7 +261,7 @@ end
 --------------------------------------------------------------------------------
 
 --[[VERBOSE]] verbose = Verbose()
---[[VERBOSE]]
+--[[VERBOSE]] 
 --[[VERBOSE]] local LabelStart = string.byte("A")
 --[[VERBOSE]] verbose.labels = ObjectCache{ current = 0 }
 --[[VERBOSE]] function verbose.labels:retrieve(value)
@@ -281,7 +277,7 @@ end
 --[[VERBOSE]] 	end
 --[[VERBOSE]] 	return value
 --[[VERBOSE]] end
---[[VERBOSE]]
+--[[VERBOSE]] 
 --[[VERBOSE]] verbose.groups.concurrency = { "scheduler", "threads", "copcall" }
 --[[VERBOSE]] verbose:newlevel{"threads"}
 --[[VERBOSE]] verbose:newlevel{"scheduler"}
@@ -289,7 +285,7 @@ end
 --[[VERBOSE]] function verbose.custom:threads(...)
 --[[VERBOSE]] 	local viewer  = self.viewer
 --[[VERBOSE]] 	local output  = self.viewer.output
---[[VERBOSE]]
+--[[VERBOSE]] 	
 --[[VERBOSE]] 	for i = 1, select("#", ...) do
 --[[VERBOSE]] 		local value = select(i, ...)
 --[[VERBOSE]] 		if type(value) == "string" then
@@ -300,22 +296,22 @@ end
 --[[VERBOSE]] 			viewer:write(value)
 --[[VERBOSE]] 		end
 --[[VERBOSE]] 	end
---[[VERBOSE]]
+--[[VERBOSE]] 	
 --[[VERBOSE]] 	local scheduler = rawget(self, "schedulerdetails")
 --[[VERBOSE]] 	if scheduler then
 --[[VERBOSE]] 		local newline = "\n"..viewer.prefix..viewer.indentation
---[[VERBOSE]]
+--[[VERBOSE]] 	
 --[[VERBOSE]] 		output:write(newline)
 --[[VERBOSE]] 		output:write("Current: ")
 --[[VERBOSE]] 		output:write(tostring(self.labels[scheduler.current]))
---[[VERBOSE]]
+--[[VERBOSE]] 	
 --[[VERBOSE]] 		output:write(newline)
 --[[VERBOSE]] 		output:write("Running:")
 --[[VERBOSE]] 		for current in scheduler.running:sequence() do
 --[[VERBOSE]] 			output:write(" ")
 --[[VERBOSE]] 			output:write(tostring(self.labels[current]))
 --[[VERBOSE]] 		end
---[[VERBOSE]]
+--[[VERBOSE]] 	
 --[[VERBOSE]] 		output:write(newline)
 --[[VERBOSE]] 		output:write("Sleeping:")
 --[[VERBOSE]] 		for current in scheduler.sleeping:sequence() do
@@ -325,7 +321,7 @@ end
 --[[VERBOSE]] 	end
 --[[VERBOSE]] end
 --[[VERBOSE]] verbose.custom.copcall = verbose.custom.threads
---[[VERBOSE]]
+--[[VERBOSE]] 
 --[[DEBUG]] verbose.I = Inspector{ viewer = viewer }
 --[[DEBUG]] function verbose.inspect:debug() self.I:stop(4) end
 --[[DEBUG]] verbose:flag("debug", true)

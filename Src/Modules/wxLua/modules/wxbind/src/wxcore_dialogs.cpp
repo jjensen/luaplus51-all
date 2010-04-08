@@ -4,16 +4,16 @@
 // Any changes made to this file will be lost when the file is regenerated.
 // ---------------------------------------------------------------------------
 
+
+#include "wx/wxprec.h"
+
 #ifdef __BORLANDC__
     #pragma hdrstop
 #endif
 
-#include "wx/wxprec.h"
-
 #ifndef WX_PRECOMP
      #include "wx/wx.h"
 #endif
-
 
 #include "wxlua/include/wxlstate.h"
 #include "wxbind/include/wxcore_bind.h"
@@ -301,6 +301,12 @@ static int s_wxluafunc_wxLua_wxDialog_constructor_overload_count = sizeof(s_wxlu
 
 #endif // ((wxLUA_USE_wxPointSizeRect) && (wxLUA_USE_wxDialog))||(wxLUA_USE_wxDialog)
 
+void wxLua_wxDialog_delete_function(void** p)
+{
+    wxDialog* o = (wxDialog*)(*p);
+    delete o;
+}
+
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxDialog_methods[] = {
 #if (wxLUA_USE_wxPointSizeRect) && (wxLUA_USE_wxDialog)
@@ -390,6 +396,12 @@ static int LUACALL wxLua_wxColourDialog_constructor(lua_State *L)
 
 
 
+void wxLua_wxColourDialog_delete_function(void** p)
+{
+    wxColourDialog* o = (wxColourDialog*)(*p);
+    delete o;
+}
+
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxColourDialog_methods[] = {
     { "GetColourData", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxColourDialog_GetColourData, 1, NULL },
@@ -441,7 +453,7 @@ static int LUACALL wxLua_wxColourData_GetColour(lua_State *L)
     // allocate a new object using the copy constructor
     wxColour* returns = new wxColour(self->GetColour());
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (wxColour*)returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxColour);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxColour);
 
@@ -462,7 +474,7 @@ static int LUACALL wxLua_wxColourData_GetCustomColour(lua_State *L)
     // allocate a new object using the copy constructor
     wxColour* returns = new wxColour(self->GetCustomColour(i));
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (wxColour*)returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxColour);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxColour);
 
@@ -539,7 +551,7 @@ static int LUACALL wxLua_wxColourData_constructor1(lua_State *L)
     // call constructor
     wxColourData* returns = new wxColourData(*cData);
     // add to tracked memory list
-    wxluaO_addgcobject(L, returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxColourData);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxColourData);
 
@@ -554,7 +566,7 @@ static int LUACALL wxLua_wxColourData_constructor(lua_State *L)
     // call constructor
     wxColourData* returns = new wxColourData();
     // add to tracked memory list
-    wxluaO_addgcobject(L, returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxColourData);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxColourData);
 
@@ -574,6 +586,12 @@ static wxLuaBindCFunc s_wxluafunc_wxLua_wxColourData_constructor_overload[] =
 static int s_wxluafunc_wxLua_wxColourData_constructor_overload_count = sizeof(s_wxluafunc_wxLua_wxColourData_constructor_overload)/sizeof(wxLuaBindCFunc);
 
 #endif // (wxLUA_USE_wxColourDialog && wxUSE_COLOURDLG)
+
+void wxLua_wxColourData_delete_function(void** p)
+{
+    wxColourData* o = (wxColourData*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxColourData_methods[] = {
@@ -958,6 +976,12 @@ static int LUACALL wxLua_wxFileDialog_constructor(lua_State *L)
 
 
 
+void wxLua_wxFileDialog_delete_function(void** p)
+{
+    wxFileDialog* o = (wxFileDialog*)(*p);
+    delete o;
+}
+
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxFileDialog_methods[] = {
     { "GetDirectory", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxFileDialog_GetDirectory, 1, NULL },
@@ -1143,6 +1167,12 @@ static int LUACALL wxLua_wxDirDialog_constructor(lua_State *L)
 
 
 
+void wxLua_wxDirDialog_delete_function(void** p)
+{
+    wxDirDialog* o = (wxDirDialog*)(*p);
+    delete o;
+}
+
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxDirDialog_methods[] = {
     { "GetMessage", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxDirDialog_GetMessage, 1, NULL },
@@ -1212,6 +1242,12 @@ static int LUACALL wxLua_wxMessageDialog_constructor(lua_State *L)
 
 
 
+void wxLua_wxMessageDialog_delete_function(void** p)
+{
+    wxMessageDialog* o = (wxMessageDialog*)(*p);
+    delete o;
+}
+
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxMessageDialog_methods[] = {
 #if (wxLUA_USE_wxPointSizeRect) && (wxLUA_USE_wxMessageDialog && wxUSE_MSGDLG)
@@ -1247,7 +1283,7 @@ static int LUACALL wxLua_wxMultiChoiceDialog_GetSelections(lua_State *L)
     // allocate a new object using the copy constructor
     wxArrayInt* returns = new wxArrayInt(self->GetSelections());
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxArrayInt((wxArrayInt*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxArrayInt);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxArrayInt);
 
@@ -1306,6 +1342,12 @@ static int LUACALL wxLua_wxMultiChoiceDialog_constructor(lua_State *L)
 #endif // ((wxLUA_USE_wxArrayString) && (wxLUA_USE_wxPointSizeRect)) && (wxUSE_CHOICEDLG && wxLUA_USE_wxMultiChoiceDialog)
 
 
+
+void wxLua_wxMultiChoiceDialog_delete_function(void** p)
+{
+    wxMultiChoiceDialog* o = (wxMultiChoiceDialog*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxMultiChoiceDialog_methods[] = {
@@ -1421,6 +1463,12 @@ static int LUACALL wxLua_wxSingleChoiceDialog_constructor(lua_State *L)
 
 
 
+void wxLua_wxSingleChoiceDialog_delete_function(void** p)
+{
+    wxSingleChoiceDialog* o = (wxSingleChoiceDialog*)(*p);
+    delete o;
+}
+
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxSingleChoiceDialog_methods[] = {
     { "GetSelection", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxSingleChoiceDialog_GetSelection, 1, NULL },
@@ -1515,6 +1563,12 @@ static int LUACALL wxLua_wxTextEntryDialog_constructor(lua_State *L)
 
 
 
+void wxLua_wxTextEntryDialog_delete_function(void** p)
+{
+    wxTextEntryDialog* o = (wxTextEntryDialog*)(*p);
+    delete o;
+}
+
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxTextEntryDialog_methods[] = {
     { "GetValue", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxTextEntryDialog_GetValue, 1, NULL },
@@ -1574,6 +1628,12 @@ static int LUACALL wxLua_wxPasswordEntryDialog_constructor(lua_State *L)
 #endif // (wxLUA_USE_wxPointSizeRect) && (wxUSE_TEXTDLG && wxLUA_USE_wxTextEntryDialog)
 
 
+
+void wxLua_wxPasswordEntryDialog_delete_function(void** p)
+{
+    wxPasswordEntryDialog* o = (wxPasswordEntryDialog*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxPasswordEntryDialog_methods[] = {
@@ -1635,6 +1695,12 @@ static int LUACALL wxLua_wxFontDialog_constructor(lua_State *L)
 
 
 
+
+void wxLua_wxFontDialog_delete_function(void** p)
+{
+    wxFontDialog* o = (wxFontDialog*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxFontDialog_methods[] = {
@@ -1703,7 +1769,7 @@ static int LUACALL wxLua_wxFontData_GetChosenFont(lua_State *L)
     // allocate a new object using the copy constructor
     wxFont* returns = new wxFont(self->GetChosenFont());
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (wxFont*)returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxFont);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxFont);
 
@@ -1725,7 +1791,7 @@ static int LUACALL wxLua_wxFontData_GetColour(lua_State *L)
     // allocate a new object using the copy constructor
     wxColour* returns = new wxColour(self->GetColour());
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (wxColour*)returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxColour);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxColour);
 
@@ -1764,7 +1830,7 @@ static int LUACALL wxLua_wxFontData_GetInitialFont(lua_State *L)
     // allocate a new object using the copy constructor
     wxFont* returns = new wxFont(self->GetInitialFont());
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (wxFont*)returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxFont);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxFont);
 
@@ -1911,7 +1977,7 @@ static int LUACALL wxLua_wxFontData_constructor1(lua_State *L)
     // call constructor
     wxFontData* returns = new wxFontData(*data);
     // add to tracked memory list
-    wxluaO_addgcobject(L, returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxFontData);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxFontData);
 
@@ -1926,7 +1992,7 @@ static int LUACALL wxLua_wxFontData_constructor(lua_State *L)
     // call constructor
     wxFontData* returns = new wxFontData();
     // add to tracked memory list
-    wxluaO_addgcobject(L, returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxFontData);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxFontData);
 
@@ -1946,6 +2012,12 @@ static wxLuaBindCFunc s_wxluafunc_wxLua_wxFontData_constructor_overload[] =
 static int s_wxluafunc_wxLua_wxFontData_constructor_overload_count = sizeof(s_wxluafunc_wxLua_wxFontData_constructor_overload)/sizeof(wxLuaBindCFunc);
 
 #endif // (wxUSE_FONTDLG && wxLUA_USE_wxFontDialog)
+
+void wxLua_wxFontData_delete_function(void** p)
+{
+    wxFontData* o = (wxFontData*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxFontData_methods[] = {
@@ -2118,6 +2190,12 @@ static int s_wxluafunc_wxLua_wxFindReplaceDialog_constructor_overload_count = si
 
 #endif // (wxUSE_FINDREPLDLG && wxLUA_USE_wxFindReplaceDialog)
 
+void wxLua_wxFindReplaceDialog_delete_function(void** p)
+{
+    wxFindReplaceDialog* o = (wxFindReplaceDialog*)(*p);
+    delete o;
+}
+
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxFindReplaceDialog_methods[] = {
     { "Create", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxFindReplaceDialog_Create, 1, NULL },
@@ -2256,7 +2334,7 @@ static int LUACALL wxLua_wxFindReplaceData_constructor(lua_State *L)
     // call constructor
     wxFindReplaceData* returns = new wxFindReplaceData(flags);
     // add to tracked memory list
-    wxluaO_addgcobject(L, returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxFindReplaceData);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxFindReplaceData);
 
@@ -2265,6 +2343,12 @@ static int LUACALL wxLua_wxFindReplaceData_constructor(lua_State *L)
 
 
 
+
+void wxLua_wxFindReplaceData_delete_function(void** p)
+{
+    wxFindReplaceData* o = (wxFindReplaceData*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxFindReplaceData_methods[] = {
@@ -2423,7 +2507,7 @@ static int LUACALL wxLua_wxFindDialogEvent_constructor(lua_State *L)
     // call constructor
     wxFindDialogEvent* returns = new wxFindDialogEvent(commandType, id);
     // add to tracked memory list
-    wxluaO_addgcobject(L, returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxFindDialogEvent);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxFindDialogEvent);
 
@@ -2432,6 +2516,12 @@ static int LUACALL wxLua_wxFindDialogEvent_constructor(lua_State *L)
 
 
 
+
+void wxLua_wxFindDialogEvent_delete_function(void** p)
+{
+    wxFindDialogEvent* o = (wxFindDialogEvent*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxFindDialogEvent_methods[] = {
@@ -2531,6 +2621,12 @@ static int LUACALL wxLua_wxProgressDialog_constructor(lua_State *L)
 
 
 
+
+void wxLua_wxProgressDialog_delete_function(void** p)
+{
+    wxProgressDialog* o = (wxProgressDialog*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxProgressDialog_methods[] = {

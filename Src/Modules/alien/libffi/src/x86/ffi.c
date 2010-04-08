@@ -1,5 +1,5 @@
 /* -----------------------------------------------------------------------
-   ffi.c - Copyright (c) 1996, 1998, 1999, 2001, 2007  Red Hat, Inc.
+   ffi.c - Copyright (c) 1996, 1998, 1999, 2001, 2007, 2008  Red Hat, Inc.
            Copyright (c) 2002  Ranjit Mathew
            Copyright (c) 2002  Bo Thorsen
            Copyright (c) 2002  Roger Sayle
@@ -18,13 +18,14 @@
    The above copyright notice and this permission notice shall be included
    in all copies or substantial portions of the Software.
 
-   THE SOFTWARE IS PROVIDED ``AS IS'', WITHOUT WARRANTY OF ANY KIND, EXPRESS
-   OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-   MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-   IN NO EVENT SHALL CYGNUS SOLUTIONS BE LIABLE FOR ANY CLAIM, DAMAGES OR
-   OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
-   ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-   OTHER DEALINGS IN THE SOFTWARE.
+   THE SOFTWARE IS PROVIDED ``AS IS'', WITHOUT WARRANTY OF ANY KIND,
+   EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+   MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+   NONINFRINGEMENT.  IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+   HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+   WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+   DEALINGS IN THE SOFTWARE.
    ----------------------------------------------------------------------- */
 
 #ifndef __x86_64__
@@ -179,15 +180,15 @@ ffi_status ffi_prep_cif_machdep(ffi_cif *cif)
 }
 
 extern void ffi_call_SYSV(void (*)(char *, extended_cif *), extended_cif *,
-			  unsigned, unsigned, unsigned *, void (*fn)());
+			  unsigned, unsigned, unsigned *, void (*fn)(void));
 
 #ifdef X86_WIN32
 extern void ffi_call_STDCALL(void (*)(char *, extended_cif *), extended_cif *,
-			  unsigned, unsigned, unsigned *, void (*fn)());
+			  unsigned, unsigned, unsigned *, void (*fn)(void));
 
 #endif /* X86_WIN32 */
 
-void ffi_call(ffi_cif *cif, void (*fn)(), void *rvalue, void **avalue)
+void ffi_call(ffi_cif *cif, void (*fn)(void), void *rvalue, void **avalue)
 {
   extended_cif ecif;
 
@@ -248,7 +249,7 @@ ffi_closure_SYSV_inner (closure, respp, args)
      void **respp;
      void *args;
 {
-  // our various things...
+  /* our various things...  */
   ffi_cif       *cif;
   void         **arg_area;
 
@@ -348,14 +349,14 @@ ffi_prep_closure_loc (ffi_closure* closure,
     {
       FFI_INIT_TRAMPOLINE (&closure->tramp[0],
                            &ffi_closure_SYSV,
-                           (void*)closure);
+                           (void*)codeloc);
     }
 #ifdef X86_WIN32
   else if (cif->abi == FFI_STDCALL)
     {
       FFI_INIT_TRAMPOLINE_STDCALL (&closure->tramp[0],
                                    &ffi_closure_STDCALL,
-                                   (void*)closure, cif->bytes);
+                                   (void*)codeloc, cif->bytes);
     }
 #endif
   else
@@ -422,16 +423,16 @@ ffi_prep_args_raw(char *stack, extended_cif *ecif)
 
 extern void
 ffi_call_SYSV(void (*)(char *, extended_cif *), extended_cif *, unsigned, 
-	      unsigned, unsigned *, void (*fn)());
+	      unsigned, unsigned *, void (*fn)(void));
 
 #ifdef X86_WIN32
 extern void
 ffi_call_STDCALL(void (*)(char *, extended_cif *), extended_cif *, unsigned,
-		 unsigned, unsigned *, void (*fn)());
+		 unsigned, unsigned *, void (*fn)(void));
 #endif /* X86_WIN32 */
 
 void
-ffi_raw_call(ffi_cif *cif, void (*fn)(), void *rvalue, ffi_raw *fake_avalue)
+ffi_raw_call(ffi_cif *cif, void (*fn)(void), void *rvalue, ffi_raw *fake_avalue)
 {
   extended_cif ecif;
   void **avalue = (void **)fake_avalue;

@@ -4,16 +4,16 @@
 // Any changes made to this file will be lost when the file is regenerated.
 // ---------------------------------------------------------------------------
 
+
+#include "wx/wxprec.h"
+
 #ifdef __BORLANDC__
     #pragma hdrstop
 #endif
 
-#include "wx/wxprec.h"
-
 #ifndef WX_PRECOMP
      #include "wx/wx.h"
 #endif
-
 
 #include "wxlua/include/wxlstate.h"
 #include "wxbind/include/wxcore_bind.h"
@@ -304,6 +304,12 @@ static int LUACALL wxLua_wxPrintout_OnPrintPage(lua_State *L)
 
 
 
+void wxLua_wxPrintout_delete_function(void** p)
+{
+    wxPrintout* o = (wxPrintout*)(*p);
+    delete o;
+}
+
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxPrintout_methods[] = {
 #if (wxLUA_USE_wxDC) && (wxLUA_USE_wxPrint && wxUSE_PRINTING_ARCHITECTURE)
@@ -444,7 +450,7 @@ static int LUACALL wxLua_wxLuaPrintout_constructor(lua_State *L)
     // call constructor
     wxLuaPrintout *returns = new wxLuaPrintout(wxlState, title, pObject);
     // add to tracked memory list
-    wxluaO_addgcobject(L, (wxLuaPrintout *)returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxLuaPrintout);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxLuaPrintout);
 
@@ -454,6 +460,12 @@ static int LUACALL wxLua_wxLuaPrintout_constructor(lua_State *L)
 
 
 
+
+void wxLua_wxLuaPrintout_delete_function(void** p)
+{
+    wxLuaPrintout* o = (wxLuaPrintout*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxLuaPrintout_methods[] = {
@@ -652,7 +664,7 @@ static int LUACALL wxLua_wxPrinter_constructor(lua_State *L)
     // call constructor
     wxPrinter* returns = new wxPrinter(data);
     // add to tracked memory list
-    wxluaO_addgcobject(L, returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxPrinter);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxPrinter);
 
@@ -662,6 +674,12 @@ static int LUACALL wxLua_wxPrinter_constructor(lua_State *L)
 #endif // (wxLUA_USE_wxPrint && wxUSE_PRINTING_ARCHITECTURE) && ((wxLUA_USE_wxPrint && wxUSE_PRINTING_ARCHITECTURE) && (wxLUA_USE_wxLuaPrintout))
 
 
+
+void wxLua_wxPrinter_delete_function(void** p)
+{
+    wxPrinter* o = (wxPrinter*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxPrinter_methods[] = {
@@ -715,7 +733,7 @@ static int LUACALL wxLua_wxPrintData_Copy(lua_State *L)
     // Copy data over
     *returns = *self;
     // add to tracked memory list
-    wxluaO_addgcobject(L, returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxPrintData);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxPrintData);
     // return the number of parameters
@@ -889,7 +907,7 @@ static int LUACALL wxLua_wxPrintData_GetPaperSize(lua_State *L)
     // allocate a new object using the copy constructor
     wxSize* returns = new wxSize(self->GetPaperSize());
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxSize((wxSize*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxSize);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxSize);
 
@@ -1252,7 +1270,7 @@ static int LUACALL wxLua_wxPrintData_constructor1(lua_State *L)
     // call constructor
     wxPrintData* returns = new wxPrintData(*data);
     // add to tracked memory list
-    wxluaO_addgcobject(L, returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxPrintData);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxPrintData);
 
@@ -1267,7 +1285,7 @@ static int LUACALL wxLua_wxPrintData_constructor(lua_State *L)
     // call constructor
     wxPrintData* returns = new wxPrintData();
     // add to tracked memory list
-    wxluaO_addgcobject(L, returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxPrintData);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxPrintData);
 
@@ -1287,6 +1305,12 @@ static wxLuaBindCFunc s_wxluafunc_wxLua_wxPrintData_constructor_overload[] =
 static int s_wxluafunc_wxLua_wxPrintData_constructor_overload_count = sizeof(s_wxluafunc_wxLua_wxPrintData_constructor_overload)/sizeof(wxLuaBindCFunc);
 
 #endif // (wxLUA_USE_wxPrint && wxUSE_PRINTING_ARCHITECTURE)
+
+void wxLua_wxPrintData_delete_function(void** p)
+{
+    wxPrintData* o = (wxPrintData*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxPrintData_methods[] = {
@@ -1415,7 +1439,7 @@ static int LUACALL wxLua_wxPageSetupDialogData_Copy(lua_State *L)
     // Copy data over
     *returns = *self;
     // add to tracked memory list
-    wxluaO_addgcobject(L, returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxPageSetupDialogData);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxPageSetupDialogData);
     // return the number of parameters
@@ -1629,7 +1653,7 @@ static int LUACALL wxLua_wxPageSetupDialogData_GetMarginBottomRight(lua_State *L
     // allocate a new object using the copy constructor
     wxPoint* returns = new wxPoint(self->GetMarginBottomRight());
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxPoint((wxPoint*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxPoint);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxPoint);
 
@@ -1648,7 +1672,7 @@ static int LUACALL wxLua_wxPageSetupDialogData_GetMarginTopLeft(lua_State *L)
     // allocate a new object using the copy constructor
     wxPoint* returns = new wxPoint(self->GetMarginTopLeft());
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxPoint((wxPoint*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxPoint);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxPoint);
 
@@ -1667,7 +1691,7 @@ static int LUACALL wxLua_wxPageSetupDialogData_GetMinMarginBottomRight(lua_State
     // allocate a new object using the copy constructor
     wxPoint* returns = new wxPoint(self->GetMinMarginBottomRight());
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxPoint((wxPoint*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxPoint);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxPoint);
 
@@ -1686,7 +1710,7 @@ static int LUACALL wxLua_wxPageSetupDialogData_GetMinMarginTopLeft(lua_State *L)
     // allocate a new object using the copy constructor
     wxPoint* returns = new wxPoint(self->GetMinMarginTopLeft());
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxPoint((wxPoint*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxPoint);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxPoint);
 
@@ -1725,7 +1749,7 @@ static int LUACALL wxLua_wxPageSetupDialogData_GetPaperSize(lua_State *L)
     // allocate a new object using the copy constructor
     wxSize* returns = new wxSize(self->GetPaperSize());
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxSize((wxSize*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxSize);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxSize);
 
@@ -1948,7 +1972,7 @@ static int LUACALL wxLua_wxPageSetupDialogData_constructor1(lua_State *L)
     // call constructor
     wxPageSetupDialogData* returns = new wxPageSetupDialogData(*data);
     // add to tracked memory list
-    wxluaO_addgcobject(L, returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxPageSetupDialogData);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxPageSetupDialogData);
 
@@ -1963,7 +1987,7 @@ static int LUACALL wxLua_wxPageSetupDialogData_constructor(lua_State *L)
     // call constructor
     wxPageSetupDialogData* returns = new wxPageSetupDialogData();
     // add to tracked memory list
-    wxluaO_addgcobject(L, returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxPageSetupDialogData);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxPageSetupDialogData);
 
@@ -1997,6 +2021,12 @@ static wxLuaBindCFunc s_wxluafunc_wxLua_wxPageSetupDialogData_constructor_overlo
 static int s_wxluafunc_wxLua_wxPageSetupDialogData_constructor_overload_count = sizeof(s_wxluafunc_wxLua_wxPageSetupDialogData_constructor_overload)/sizeof(wxLuaBindCFunc);
 
 #endif // (wxLUA_USE_wxPrint && wxUSE_PRINTING_ARCHITECTURE)
+
+void wxLua_wxPageSetupDialogData_delete_function(void** p)
+{
+    wxPageSetupDialogData* o = (wxPageSetupDialogData*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxPageSetupDialogData_methods[] = {
@@ -2116,8 +2146,6 @@ static int LUACALL wxLua_wxPageSetupDialog_constructor(lua_State *L)
     wxWindow * parent = (wxWindow *)wxluaT_getuserdatatype(L, 1, wxluatype_wxWindow);
     // call constructor
     wxPageSetupDialog* returns = new wxPageSetupDialog(parent, data);
-    // add to tracked window list, it will check validity
-    wxluaW_addtrackedwindow(L, returns);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxPageSetupDialog);
 
@@ -2126,6 +2154,12 @@ static int LUACALL wxLua_wxPageSetupDialog_constructor(lua_State *L)
 
 
 
+
+void wxLua_wxPageSetupDialog_delete_function(void** p)
+{
+    wxPageSetupDialog* o = (wxPageSetupDialog*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxPageSetupDialog_methods[] = {
@@ -2230,8 +2264,6 @@ static int LUACALL wxLua_wxPrintDialog_constructor(lua_State *L)
     wxWindow * parent = (wxWindow *)wxluaT_getuserdatatype(L, 1, wxluatype_wxWindow);
     // call constructor
     wxPrintDialog* returns = new wxPrintDialog(parent, data);
-    // add to tracked window list, it will check validity
-    wxluaW_addtrackedwindow(L, returns);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxPrintDialog);
 
@@ -2240,6 +2272,12 @@ static int LUACALL wxLua_wxPrintDialog_constructor(lua_State *L)
 
 
 
+
+void wxLua_wxPrintDialog_delete_function(void** p)
+{
+    wxPrintDialog* o = (wxPrintDialog*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxPrintDialog_methods[] = {
@@ -2762,7 +2800,7 @@ static int LUACALL wxLua_wxPrintDialogData_constructor2(lua_State *L)
     // call constructor
     wxPrintDialogData* returns = new wxPrintDialogData(*data);
     // add to tracked memory list
-    wxluaO_addgcobject(L, returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxPrintDialogData);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxPrintDialogData);
 
@@ -2780,7 +2818,7 @@ static int LUACALL wxLua_wxPrintDialogData_constructor1(lua_State *L)
     // call constructor
     wxPrintDialogData* returns = new wxPrintDialogData(*dialogData);
     // add to tracked memory list
-    wxluaO_addgcobject(L, returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxPrintDialogData);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxPrintDialogData);
 
@@ -2795,7 +2833,7 @@ static int LUACALL wxLua_wxPrintDialogData_constructor(lua_State *L)
     // call constructor
     wxPrintDialogData* returns = new wxPrintDialogData();
     // add to tracked memory list
-    wxluaO_addgcobject(L, returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxPrintDialogData);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxPrintDialogData);
 
@@ -2816,6 +2854,12 @@ static wxLuaBindCFunc s_wxluafunc_wxLua_wxPrintDialogData_constructor_overload[]
 static int s_wxluafunc_wxLua_wxPrintDialogData_constructor_overload_count = sizeof(s_wxluafunc_wxLua_wxPrintDialogData_constructor_overload)/sizeof(wxLuaBindCFunc);
 
 #endif // (wxLUA_USE_wxPrint && wxUSE_PRINTING_ARCHITECTURE)
+
+void wxLua_wxPrintDialogData_delete_function(void** p)
+{
+    wxPrintDialogData* o = (wxPrintDialogData*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxPrintDialogData_methods[] = {
@@ -2905,6 +2949,12 @@ static int LUACALL wxLua_wxPreviewCanvas_constructor(lua_State *L)
 #endif // ((wxLUA_USE_wxPointSizeRect) && ((wxLUA_USE_wxPrint && wxUSE_PRINTING_ARCHITECTURE) && (wxLUA_USE_wxLuaPrintout))) && (wxLUA_USE_wxPrint && wxUSE_PRINTING_ARCHITECTURE)
 
 
+
+void wxLua_wxPreviewCanvas_delete_function(void** p)
+{
+    wxPreviewCanvas* o = (wxPreviewCanvas*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxPreviewCanvas_methods[] = {
@@ -2997,6 +3047,12 @@ static int LUACALL wxLua_wxPreviewControlBar_constructor(lua_State *L)
 #endif // ((wxLUA_USE_wxPointSizeRect) && ((wxLUA_USE_wxPrint && wxUSE_PRINTING_ARCHITECTURE) && (wxLUA_USE_wxLuaPrintout))) && (wxLUA_USE_wxPrint && wxUSE_PRINTING_ARCHITECTURE)
 
 
+
+void wxLua_wxPreviewControlBar_delete_function(void** p)
+{
+    wxPreviewControlBar* o = (wxPreviewControlBar*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxPreviewControlBar_methods[] = {
@@ -3371,6 +3427,12 @@ static int LUACALL wxLua_wxPrintPreview_constructor(lua_State *L)
 
 
 
+void wxLua_wxPrintPreview_delete_function(void** p)
+{
+    wxPrintPreview* o = (wxPrintPreview*)(*p);
+    delete o;
+}
+
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxPrintPreview_methods[] = {
 #if ((wxLUA_USE_wxDC) && (wxLUA_USE_wxPrint && wxUSE_PRINTING_ARCHITECTURE)) && ((wxLUA_USE_wxPrint && wxUSE_PRINTING_ARCHITECTURE) && (wxLUA_USE_wxLuaPrintout))
@@ -3537,6 +3599,12 @@ static int LUACALL wxLua_wxPreviewFrame_constructor(lua_State *L)
 
 
 
+void wxLua_wxPreviewFrame_delete_function(void** p)
+{
+    wxPreviewFrame* o = (wxPreviewFrame*)(*p);
+    delete o;
+}
+
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxPreviewFrame_methods[] = {
     { "CreateCanvas", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxPreviewFrame_CreateCanvas, 1, NULL },
@@ -3611,7 +3679,7 @@ static int LUACALL wxLua_wxPostScriptDC_constructor(lua_State *L)
     // call constructor
     wxPostScriptDC* returns = new wxPostScriptDC(*printData);
     // add to tracked memory list
-    wxluaO_addgcobject(L, returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxPostScriptDC);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxPostScriptDC);
 
@@ -3621,6 +3689,12 @@ static int LUACALL wxLua_wxPostScriptDC_constructor(lua_State *L)
 #endif // (wxLUA_USE_wxPrint && wxUSE_PRINTING_ARCHITECTURE) && ((wxLUA_USE_wxPrint && wxUSE_PRINTING_ARCHITECTURE) && (wxUSE_POSTSCRIPT))
 
 
+
+void wxLua_wxPostScriptDC_delete_function(void** p)
+{
+    wxPostScriptDC* o = (wxPostScriptDC*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxPostScriptDC_methods[] = {
@@ -3664,7 +3738,7 @@ static int LUACALL wxLua_wxPrinterDC_constructor(lua_State *L)
     // call constructor
     wxPrinterDC* returns = new wxPrinterDC(*printData);
     // add to tracked memory list
-    wxluaO_addgcobject(L, returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxPrinterDC);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxPrinterDC);
 
@@ -3674,6 +3748,12 @@ static int LUACALL wxLua_wxPrinterDC_constructor(lua_State *L)
 #endif // ((wxLUA_USE_wxPrint && wxUSE_PRINTING_ARCHITECTURE) && (defined(__WXMSW__) || defined(__WXMAC__))) && (wxLUA_USE_wxPrint && wxUSE_PRINTING_ARCHITECTURE)
 
 
+
+void wxLua_wxPrinterDC_delete_function(void** p)
+{
+    wxPrinterDC* o = (wxPrinterDC*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxPrinterDC_methods[] = {

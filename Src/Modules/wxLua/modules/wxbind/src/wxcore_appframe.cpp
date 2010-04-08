@@ -4,16 +4,16 @@
 // Any changes made to this file will be lost when the file is regenerated.
 // ---------------------------------------------------------------------------
 
+
+#include "wx/wxprec.h"
+
 #ifdef __BORLANDC__
     #pragma hdrstop
 #endif
 
-#include "wx/wxprec.h"
-
 #ifndef WX_PRECOMP
      #include "wx/wx.h"
 #endif
-
 
 #include "wxlua/include/wxlstate.h"
 #include "wxbind/include/wxcore_bind.h"
@@ -347,6 +347,12 @@ static int LUACALL wxLua_wxApp_SetVendorName(lua_State *L)
 
 
 
+void wxLua_wxApp_delete_function(void** p)
+{
+    wxApp* o = (wxApp*)(*p);
+    delete o;
+}
+
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxApp_methods[] = {
     { "Dispatch", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxApp_Dispatch, 1, NULL },
@@ -421,7 +427,7 @@ static int LUACALL wxLua_wxTopLevelWindow_GetIcon(lua_State *L)
     // allocate a new object using the copy constructor
     wxIcon* returns = new wxIcon(self->GetIcon());
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (wxIcon*)returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxIcon);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxIcon);
 
@@ -723,6 +729,12 @@ static int LUACALL wxLua_wxTopLevelWindow_ShowFullScreen(lua_State *L)
 
 
 
+void wxLua_wxTopLevelWindow_delete_function(void** p)
+{
+    wxTopLevelWindow* o = (wxTopLevelWindow*)(*p);
+    delete o;
+}
+
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxTopLevelWindow_methods[] = {
 #if (wxCHECK_VERSION(2,8,0)) && (wxLUA_USE_wxFrame || wxLUA_USE_wxDialog)
@@ -890,7 +902,7 @@ static int LUACALL wxLua_wxFrame_GetClientAreaOrigin(lua_State *L)
     // allocate a new object using the copy constructor
     wxPoint* returns = new wxPoint(self->GetClientAreaOrigin());
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxPoint((wxPoint*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxPoint);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxPoint);
 
@@ -1184,6 +1196,12 @@ static int s_wxluafunc_wxLua_wxFrame_constructor_overload_count = sizeof(s_wxlua
 
 #endif // ((wxLUA_USE_wxFrame) && (wxLUA_USE_wxPointSizeRect))||(wxLUA_USE_wxFrame)
 
+void wxLua_wxFrame_delete_function(void** p)
+{
+    wxFrame* o = (wxFrame*)(*p);
+    delete o;
+}
+
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxFrame_methods[] = {
 #if (wxLUA_USE_wxFrame) && (wxLUA_USE_wxPointSizeRect)
@@ -1356,6 +1374,12 @@ static wxLuaBindCFunc s_wxluafunc_wxLua_wxMiniFrame_constructor_overload[] =
 static int s_wxluafunc_wxLua_wxMiniFrame_constructor_overload_count = sizeof(s_wxluafunc_wxLua_wxMiniFrame_constructor_overload)/sizeof(wxLuaBindCFunc);
 
 #endif // ((wxLUA_USE_wxPointSizeRect) && ((wxLUA_USE_wxFrame) && (wxLUA_USE_wxMiniFrame)))||((wxLUA_USE_wxFrame) && (wxLUA_USE_wxMiniFrame))
+
+void wxLua_wxMiniFrame_delete_function(void** p)
+{
+    wxMiniFrame* o = (wxMiniFrame*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxMiniFrame_methods[] = {
@@ -1655,6 +1679,12 @@ static wxLuaBindCFunc s_wxluafunc_wxLua_wxStatusBar_constructor_overload[] =
 static int s_wxluafunc_wxLua_wxStatusBar_constructor_overload_count = sizeof(s_wxluafunc_wxLua_wxStatusBar_constructor_overload)/sizeof(wxLuaBindCFunc);
 
 #endif // (wxLUA_USE_wxStatusBar && wxUSE_STATUSBAR)
+
+void wxLua_wxStatusBar_delete_function(void** p)
+{
+    wxStatusBar* o = (wxStatusBar*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxStatusBar_methods[] = {

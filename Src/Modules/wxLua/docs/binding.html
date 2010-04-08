@@ -2,6 +2,8 @@
 <html><head>
 
 
+
+
 <meta content="text/html; charset=ISO-8859-1" http-equiv="content-type"><title>wxLua Binding HowTo</title> <meta content="John Labenski" name="author"></head><body><h2><u>wxLuaBinding 2.8.10 - Writing and Generating Binding Files</u></h2>
 
 <div style="text-align: justify;">The binding
@@ -418,8 +420,7 @@ Tags</h3>
 <b><i>%alias</i><br>
 </b>Reference a class by another name (currently unused).
 <br><br>
-<i><b>%class [%delete] [%noclassinfo]
-[%encapsulate] ClassName [, BaseClassName] <br>
+<i><b>%class [%delete] ClassName [, BaseClassName] <br>
 </b>ClassName(...)<br>
 member functions<b><br>
 %endclass<br>
@@ -451,22 +452,7 @@ where a class object would be typically
 owned, perhaps after calling a function with them as a
 parameter, but may not start off that way can use the <i>%delete</i>
 tag, but the function that takes ownership should use the <i>%ungc</i>
-tag before the parameter.</li> </ul> <li><i><b>%noclassinfo</b></i>
-is for all classes that
-do
-not have
-DECLARE_XXX_CLASS in their declaration, e.g. wxPoint and any non
-wxObject
-derived classes.</li> <ul> <li>You can use the
-samples/bindings.wx.lua program to test if the assigned classinfo is
-correct.</li> </ul> <li> <i><b>%encapsulate</b></i>
-is for <b>all</b>
-classes
-that are not
-wxObject derived to aid in deleting them. The macros
-wxLUA_DECLARE_ENCAPSULATION and wxLUA_IMPLEMENT_ENCAPSULATION are used
-to wrap the object in a wxObject derived class so that a single list of
-tracked objects can be maintained.<br> </li>
+tag before the parameter.</li> </ul> 
 </ul><b><i>%define NUMBER
 [Value]</i><br>
 </b><ul> <li>Adds a number to the binding table

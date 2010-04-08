@@ -19,9 +19,9 @@
 // Check if the version of binding generator used to create this is older than
 //   the current version of the bindings.
 //   See 'bindings/genwxbind.lua' and 'modules/wxlua/include/wxldefs.h'
-#if WXLUA_BINDING_VERSION > 27
+#if WXLUA_BINDING_VERSION > 30
 #   error "The WXLUA_BINDING_VERSION in the bindings is too old, regenerate bindings."
-#endif //WXLUA_BINDING_VERSION > 27
+#endif //WXLUA_BINDING_VERSION > 30
 // ---------------------------------------------------------------------------
 
 // binding class
@@ -37,7 +37,7 @@ private:
 
 
 // initialize wxLuaBinding_wxadv for all wxLuaStates
-extern WXDLLIMPEXP_BINDWXADV bool wxLuaBinding_wxadv_init();
+extern WXDLLIMPEXP_BINDWXADV wxLuaBinding* wxLuaBinding_wxadv_init();
 
 // ---------------------------------------------------------------------------
 // Includes
@@ -203,43 +203,6 @@ extern WXDLLIMPEXP_BINDWXADV bool wxLuaBinding_wxadv_init();
     extern WXDLLIMPEXP_DATA_BINDWXADV(int) wxluatype_wxWizardPageSimple;
 #endif // wxUSE_WIZARDDLG && wxLUA_USE_wxWizard
 
-
-// ---------------------------------------------------------------------------
-// Encapsulation Declarations - need to be public for other bindings.
-// ---------------------------------------------------------------------------
-
-#if wxCHECK_VERSION(2,8,0) && wxUSE_ABOUTDLG && wxLUA_USE_wxAboutDialog
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXADV, wxAboutDialogInfo, wxAboutDialogInfo)
-#endif // wxCHECK_VERSION(2,8,0) && wxUSE_ABOUTDLG && wxLUA_USE_wxAboutDialog
-
-#if wxLUA_USE_wxCalendarCtrl && wxUSE_CALENDARCTRL
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXADV, wxCalendarDateAttr, wxCalendarDateAttr)
-#endif // wxLUA_USE_wxCalendarCtrl && wxUSE_CALENDARCTRL
-
-#if wxLUA_USE_wxGrid && wxUSE_GRID
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXADV, wxGridCellAttr, wxGridCellAttr)
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXADV, wxGridCellAttrProvider, wxGridCellAttrProvider)
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXADV, wxGridCellAutoWrapStringEditor, wxGridCellAutoWrapStringEditor)
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXADV, wxGridCellAutoWrapStringRenderer, wxGridCellAutoWrapStringRenderer)
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXADV, wxGridCellBoolEditor, wxGridCellBoolEditor)
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXADV, wxGridCellBoolRenderer, wxGridCellBoolRenderer)
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXADV, wxGridCellChoiceEditor, wxGridCellChoiceEditor)
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXADV, wxGridCellCoords, wxGridCellCoords)
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXADV, wxGridCellCoordsArray, wxGridCellCoordsArray)
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXADV, wxGridCellDateTimeRenderer, wxGridCellDateTimeRenderer)
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXADV, wxGridCellEditor, wxGridCellEditor)
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXADV, wxGridCellEnumEditor, wxGridCellEnumEditor)
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXADV, wxGridCellEnumRenderer, wxGridCellEnumRenderer)
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXADV, wxGridCellFloatEditor, wxGridCellFloatEditor)
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXADV, wxGridCellFloatRenderer, wxGridCellFloatRenderer)
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXADV, wxGridCellNumberEditor, wxGridCellNumberEditor)
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXADV, wxGridCellNumberRenderer, wxGridCellNumberRenderer)
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXADV, wxGridCellRenderer, wxGridCellRenderer)
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXADV, wxGridCellStringRenderer, wxGridCellStringRenderer)
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXADV, wxGridCellTextEditor, wxGridCellTextEditor)
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXADV, wxGridCellWorker, wxGridCellWorker)
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXADV, wxGridTableMessage, wxGridTableMessage)
-#endif // wxLUA_USE_wxGrid && wxUSE_GRID
 
 
 #endif // __HOOK_WXLUA_wxadv_H__

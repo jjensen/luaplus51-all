@@ -20,7 +20,7 @@ public:
   static const char* getPrintableInvokeKind(const INVOKEKIND invkind);
   static const char* getPrintableTypeDesc(const TYPEDESC& tdesc);
 	static void DumpTypeInfo(ITypeInfo* typeinfo);
-    static bool tCOMUtil::GetRegKeyValue(const char* key, char** pValue);
+    static bool GetRegKeyValue(const char* key, char** pValue);
 	static bool SetRegKeyValue(const char* key, const char* subkey, const char* value);
     static bool DelRegKey(const char *key, const char *subkey);
 	static CLSID GetCLSID(ITypeInfo* coclassinfo);

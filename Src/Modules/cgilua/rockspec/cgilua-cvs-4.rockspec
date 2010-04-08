@@ -16,13 +16,11 @@ description = {
 
 dependencies = {
    "lua >= 5.1",
-   "luafilesystem cvs",
+   "luafilesystem >= 1.5.0",
 }
 
 source = {
-   url = "cvs://:pserver:anonymous@cvs.luaforge.net:/cvsroot/cgilua",
-   cvs_tag = "HEAD",
-   dir = "cgilua"
+   url = "git://github.com/keplerproject/cgilua.git",
 }
 
 local CGILUA_LUAS = { "src/cgilua/authentication.lua", 
@@ -41,7 +39,9 @@ build = {
    type = "module",
    modules = {
      cgilua = "src/cgilua/cgilua.lua"
-   }
+   },
+   install = { bin = { "src/launchers/cgilua.cgi", "src/launchers/cgilua.fcgi" } },
+   copy_directories = { "examples", "doc" }
 }
 
 for i = 1, #CGILUA_LUAS do

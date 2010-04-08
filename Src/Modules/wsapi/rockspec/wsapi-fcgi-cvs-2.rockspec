@@ -29,9 +29,7 @@ source = {
 }
 
 build = {
-   platforms = {
-     unix = {
-        type = "module",
+        type = "builtin",
 	modules = {
 	  ["wsapi.fastcgi"] = "src/wsapi/fastcgi.lua",
 	  lfcgi = {
@@ -42,22 +40,4 @@ build = {
           }
         },
        install = { bin = { "src/launcher/wsapi.fcgi" } }
-     },
-     win32 = {
-        type = "make",
-   	install_target = "install-fcgi",
-       	build_pass = true,
-       	build_target = "fcgi",
-       	build_variables = {
-       	 LUA_INCLUDE = "$(LUA_INCDIR)",
-	 	 LUA_LIB = "$(LUA_LIBDIR)\\lua5.1.lib",
-         LIB_OPTION = "$(LUA_LIBDIR)\\lua5.1.lib $(FASTCGI_DIR)\\libfcgi\\Release\\fcgi_stdio.obj $(FASTCGI_DIR)\\libfcgi\\Release\\os_win32.obj $(FASTCGI_DIR)\\libfcgi\\Release\\fcgiapp.obj",
-         CFLAGS = "$(CFLAGS) /I$(FASTCGI_DIR)\\include",
-       	},
-       	install_variables = {
-         LUA_LIBDIR = "$(LIBDIR)",
-	 BIN_DIR = "$(BINDIR)"
-       	}
-     }
-  }
 }

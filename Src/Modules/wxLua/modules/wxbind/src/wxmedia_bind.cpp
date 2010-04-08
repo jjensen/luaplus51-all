@@ -4,16 +4,16 @@
 // Any changes made to this file will be lost when the file is regenerated.
 // ---------------------------------------------------------------------------
 
+
+#include "wx/wxprec.h"
+
 #ifdef __BORLANDC__
     #pragma hdrstop
 #endif
 
-#include "wx/wxprec.h"
-
 #ifndef WX_PRECOMP
      #include "wx/wx.h"
 #endif
-
 
 #include "wxlua/include/wxlstate.h"
 #include "wxbind/include/wxmedia_bind.h"
@@ -490,6 +490,12 @@ static int s_wxluafunc_wxLua_wxMediaCtrl_constructor_overload_count = sizeof(s_w
 
 #endif // (((wxLUA_USE_wxMediaCtrl && wxUSE_MEDIACTRL) && (wxLUA_USE_wxValidator && wxUSE_VALIDATORS)) && (wxLUA_USE_wxPointSizeRect))||(wxLUA_USE_wxMediaCtrl && wxUSE_MEDIACTRL)
 
+void wxLua_wxMediaCtrl_delete_function(void** p)
+{
+    wxMediaCtrl* o = (wxMediaCtrl*)(*p);
+    delete o;
+}
+
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxMediaCtrl_methods[] = {
 #if ((wxLUA_USE_wxMediaCtrl && wxUSE_MEDIACTRL) && (wxLUA_USE_wxValidator && wxUSE_VALIDATORS)) && (wxLUA_USE_wxPointSizeRect)
@@ -562,7 +568,7 @@ static int LUACALL wxLua_wxMediaEvent_constructor(lua_State *L)
     // call constructor
     wxMediaEvent* returns = new wxMediaEvent(commandType, winid);
     // add to tracked memory list
-    wxluaO_addgcobject(L, returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxMediaEvent);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxMediaEvent);
 
@@ -571,6 +577,12 @@ static int LUACALL wxLua_wxMediaEvent_constructor(lua_State *L)
 
 
 
+
+void wxLua_wxMediaEvent_delete_function(void** p)
+{
+    wxMediaEvent* o = (wxMediaEvent*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxMediaEvent_methods[] = {
@@ -744,8 +756,10 @@ static wxLuaBindClass* wxluabaseclassbinds_wxMediaEvent[] = { NULL };
 #if wxLUA_USE_wxMediaCtrl && wxUSE_MEDIACTRL
     extern wxLuaBindMethod wxMediaCtrl_methods[];
     extern int wxMediaCtrl_methodCount;
+    extern void wxLua_wxMediaCtrl_delete_function(void** p);
     extern wxLuaBindMethod wxMediaEvent_methods[];
     extern int wxMediaEvent_methodCount;
+    extern void wxLua_wxMediaEvent_delete_function(void** p);
 #endif // wxLUA_USE_wxMediaCtrl && wxUSE_MEDIACTRL
 
 
@@ -756,8 +770,8 @@ wxLuaBindClass* wxLuaGetClassList_wxmedia(size_t &count)
     static wxLuaBindClass classList[] =
     {
 #if wxLUA_USE_wxMediaCtrl && wxUSE_MEDIACTRL
-        { wxluaclassname_wxMediaCtrl, wxMediaCtrl_methods, wxMediaCtrl_methodCount, CLASSINFO(wxMediaCtrl), &wxluatype_wxMediaCtrl, wxluabaseclassnames_wxMediaCtrl, wxluabaseclassbinds_wxMediaCtrl, g_wxluanumberArray_None, 0, }, 
-        { wxluaclassname_wxMediaEvent, wxMediaEvent_methods, wxMediaEvent_methodCount, CLASSINFO(wxMediaEvent), &wxluatype_wxMediaEvent, wxluabaseclassnames_wxMediaEvent, wxluabaseclassbinds_wxMediaEvent, g_wxluanumberArray_None, 0, }, 
+        { wxluaclassname_wxMediaCtrl, wxMediaCtrl_methods, wxMediaCtrl_methodCount, CLASSINFO(wxMediaCtrl), &wxluatype_wxMediaCtrl, wxluabaseclassnames_wxMediaCtrl, wxluabaseclassbinds_wxMediaCtrl, NULL, NULL, NULL, 0, &wxLua_wxMediaCtrl_delete_function, }, 
+        { wxluaclassname_wxMediaEvent, wxMediaEvent_methods, wxMediaEvent_methodCount, CLASSINFO(wxMediaEvent), &wxluatype_wxMediaEvent, wxluabaseclassnames_wxMediaEvent, wxluabaseclassbinds_wxMediaEvent, NULL, NULL, NULL, 0, &wxLua_wxMediaEvent_delete_function, }, 
 #endif // wxLUA_USE_wxMediaCtrl && wxUSE_MEDIACTRL
 
 
@@ -784,19 +798,21 @@ wxLuaBinding_wxmedia::wxLuaBinding_wxmedia() : wxLuaBinding()
     m_eventArray    = wxLuaGetEventList_wxmedia(m_eventCount);
     m_objectArray   = wxLuaGetObjectList_wxmedia(m_objectCount);
     m_functionArray = wxLuaGetFunctionList_wxmedia(m_functionCount);
+    InitBinding();
 }
 
 
 
 // ---------------------------------------------------------------------------
 
-bool wxLuaBinding_wxmedia_init()
+wxLuaBinding* wxLuaBinding_wxmedia_init()
 {
     static wxLuaBinding_wxmedia m_binding;
-    if (wxLuaBinding::GetBindingList()->Find(&m_binding)) return false;
 
-    wxLuaBinding::GetBindingList()->Append(&m_binding);
-    return true;
+    if (wxLuaBinding::GetBindingArray().Index(&m_binding) == wxNOT_FOUND)
+        wxLuaBinding::GetBindingArray().Add(&m_binding);
+
+    return &m_binding;
 }
 
 

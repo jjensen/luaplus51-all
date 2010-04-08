@@ -292,7 +292,6 @@ function CreatewxLuaMethod_TypeString(t_)
     end
 
     -- subtract values from high to low value
-    t = HasBit(t, wxlua.WXLUAMETHOD_CHECKED_OVERLOAD, nil, nil) -- nobody should care about this
     t = HasBit(t, wxlua.WXLUAMETHOD_DELETE,      s, "Delete")
     t = HasBit(t, wxlua.WXLUAMETHOD_STATIC,      s, "Static")
     t = HasBit(t, wxlua.WXLUAMETHOD_SETPROP,     s, "SetProp")
@@ -302,9 +301,6 @@ function CreatewxLuaMethod_TypeString(t_)
     t = HasBit(t, wxlua.WXLUAMETHOD_CONSTRUCTOR, s, "Constructor")
 
     assert(t == 0, "The wxLuaMethod_Type is not handled correctly, remainder "..tostring(t).." of "..tostring(t_))
-
-    -- remove this, nobody should care and it'll probably be confusing
-    t = HasBit(t_, wxlua.WXLUAMETHOD_CHECKED_OVERLOAD, nil, nil)
 
     return string.format("0x%04X (%s)", t, table.concat(s, ", "))
 end
@@ -338,12 +334,12 @@ end
 function CreatewxLuaBindClass(tbl)
     local t = {
         {"..", ["icon"] = list_images.folder},
-        ["col_labels"] = { "Class Name", "# Methods", "wxClassInfo", "Class Tag", "Base Class Names", "# Enums" },
+        ["col_labels"] = { "Class Name", "# Methods", "wxClassInfo", "Class Tag", "Base Class Names", "# Enums", "VTable Offsets" },
         ["object_type"] = "wxLuaBindClass"
     }
 
     -- items in table from binding.GetClassArray are these
-    -- { "name", "wxluamethods", "wxluamethods_n", "classInfo", "wxluatype", "baseclassNames", "baseBindClasses", "enums", "enums_n" }
+    -- { "name", "wxluamethods", "wxluamethods_n", "classInfo", "wxluatype", "baseclassNames", "baseBindClasses", "baseclass_wxluatypes", "baseclass_vtable_offsets", "enums", "enums_n" }
 
     local function GetClassInfoStr(classInfo)
         local s = ""
@@ -364,6 +360,22 @@ function CreatewxLuaBindClass(tbl)
         return s
     end
 
+    local function GetVTableOffsets(cbind_tbl)
+        local s = ""
+        
+        local baseclass_wxluatypes     = cbind_tbl.baseclass_wxluatypes
+        local baseclass_vtable_offsets = cbind_tbl.baseclass_vtable_offsets
+        
+        if baseclass_wxluatypes then
+            for i = 1, #baseclass_wxluatypes do
+                s = s..string.format("%s(+%d),", wxlua.typename(baseclass_wxluatypes[i]), baseclass_vtable_offsets[i])
+            end
+            s = string.sub(s, 1, -2)
+        end
+        
+        return s
+    end
+
     t.col_numbers = {}
     t.col_numbers[2] = true
     t.col_numbers[4] = true
@@ -378,6 +390,7 @@ function CreatewxLuaBindClass(tbl)
             tbl[i].wxluatype,
             table.concat(tbl[i].baseclassNames or {}, ","),
             tbl[i].enums_n,
+            GetVTableOffsets(tbl[i]),
             ["col_icons"] = {},
             ["data"] = {}
         }
@@ -1100,34 +1113,39 @@ function CreateAllClassesTable()
 
             -- now do wxWidgets base class info
             if c.classInfo then
-                local ci = c.classInfo
-                local c_table2 = {a.."wx"}
 
-                while ci do
-                    -- we don't bind some classes since we wouldn't need them
-                    if unwrappedBaseClasses[ci:GetClassName()] then
-                        c_table2[#c_table2] = c_table2[#c_table2].."("..ci:GetClassName()..")"
-                    elseif c_table[#c_table2+1] and (wxwidgetsNoClassInfo[c_table[#c_table2+1]] == ci:GetClassName()) then
-                        table.insert(c_table2, c_table[#c_table2+1].." - No wxClassInfo")
-                        table.insert(c_table2, ci:GetClassName())
-                    elseif c_table[#c_table2+1] and classinfoNotes[c_table[#c_table2+1]] then
-                        c_table[#c_table2+1] = c_table[#c_table2+1]..classinfoNotes[c_table[#c_table2+1]]
-                        table.insert(c_table2, ci:GetClassName())
-                        c_table2.color = list_colors.purple
-                    else
-                        table.insert(c_table2, ci:GetClassName())
-                        if ((c_table[#c_table2] ~= c_table2[#c_table2])) and
-                           (c_table2.color == nil) then
-                            c_table2.color = wx.wxRED
+                local ci = c.classInfo
+                local ci_table = GetwxClassInfoBases(ci)
+
+                for ci_i = 1, #ci_table do
+
+                    local ci_table_i = ci_table[ci_i];
+
+                    local c_table2 = {a.."wx"..tostring(ci_i)}
+                    for ci_ij = 1, #ci_table_i do
+
+                        if unwrappedBaseClasses[ci_table_i[ci_ij]] then
+                            c_table2[#c_table2] = c_table2[#c_table2].."("..ci_table_i[ci_ij]..")"
+                        elseif c_table[#c_table2+1] and (wxwidgetsNoClassInfo[c_table[#c_table2+1]] == ci_table_i[ci_ij]) then
+                            table.insert(c_table2, c_table[#c_table2+1].." - No wxClassInfo")
+                            table.insert(c_table2, ci_table_i[ci_ij])
+                        elseif c_table[#c_table2+1] and classinfoNotes[c_table[#c_table2+1]] then
+                            c_table[#c_table2+1] = c_table[#c_table2+1]..classinfoNotes[c_table[#c_table2+1]]
+                            table.insert(c_table2, ci_table_i[ci_ij])
+                            c_table2.color = list_colors.purple
+                        else
+                            table.insert(c_table2, ci_table_i[ci_ij])
+                            if ((c_table[1][#c_table2] ~= c_table2[#c_table2])) and
+                                (c_table2.color == nil) then
+                                c_table2.color = wx.wxRED
+                            end
                         end
                     end
-
-                    if ci:GetBaseClass2() then print(ci:GetClassName(), "Has two bases!") end
-                    ci = ci:GetBaseClass1() -- FIXME handle two base classes, maybe?
+                    
+                    if max_cols < #c_table2 then max_cols = #c_table2 end
+                    table.insert(t, c_table2)
                 end
 
-                if max_cols < #c_table2 then max_cols = #c_table2 end
-                table.insert(t, c_table2)
             end
 
         end
@@ -1143,6 +1161,39 @@ function CreateAllClassesTable()
         for j = 1, max_cols do
             if t[i][j] == nil then t[i][j] = "" end
         end
+    end
+
+    return t
+end
+
+-- ----------------------------------------------------------------------------
+-- Create a table of baseclasses from a class wxWidgets wxClassInfo
+-- ----------------------------------------------------------------------------
+
+-- create a table of tables of cols of the classname and baseclass names
+-- if there is a baseclass2 then the returned table will have > 1 tables
+function GetwxClassInfoBases(ci)
+    local c = ci
+    local t = {{}}
+
+    while c do
+        table.insert(t[1], c:GetClassName())
+
+        if c:GetBaseClass2() then
+            --print(c:GetClassName(), "Has Base2", c:GetBaseClass2())
+
+            local baseTable2 = GetwxClassInfoBases(c:GetBaseClass2())
+            for i = 1, #baseTable2 do
+                -- insert back in the original info
+                for j = 1, #t do
+                    table.insert(baseTable2[i], j, t[1][j])
+                end
+                baseTable2[i][1] = baseTable2[i][1].." (base class #"..tostring(i)..")" -- count # of base2s
+                table.insert(t, baseTable2[i])
+            end
+        end
+
+        c = c:GetBaseClass1()
     end
 
     return t
@@ -1166,38 +1217,9 @@ function CreatewxClassInfoTable()
         end
     end
 
-    -- create a table of tables of cols of the classname and baseclass names
-    -- if there is a baseclass2 then the returned table will have > 1 tables
-    local function GetBases(ci)
-        local c = ci
-        local t = {{}}
-
-        while c do
-            table.insert(t[1], c:GetClassName())
-
-            if c:GetBaseClass2() then
-                --print(c:GetClassName(), "Has Base2", c:GetBaseClass2())
-
-                local baseTable2 = GetBases(c:GetBaseClass2())
-                for i = 1, #baseTable2 do
-                    -- insert back in the original info
-                    for j = 1, #t do
-                        table.insert(baseTable2[i], j, t[1][j])
-                    end
-                    baseTable2[i][1] = baseTable2[i][1].." (Multiple base classes "..tostring(i)..")" -- count # of base2s
-                    table.insert(t, baseTable2[i])
-                end
-            end
-
-            c = c:GetBaseClass1()
-        end
-
-        return t
-    end
-
     local t = {
         {"..", ["icon"] = list_images.folder},
-        ["col_labels"] = {"wxClassInfo::GetClassName() (wxLua wraps blue)"},
+        ["col_labels"]  = {"wxClassInfo::GetClassName() (wxLua wraps blue)"},
         ["object_type"] = "All wxWidgets wxClassInfo"
     }
 
@@ -1205,7 +1227,7 @@ function CreatewxClassInfoTable()
     local max_cols = 1
 
     while ci do
-        local baseTable = GetBases(ci)
+        local baseTable = GetwxClassInfoBases(ci)
         for i = 1, #baseTable do
             if wxluaClasses[baseTable[i][1]] then
                 baseTable[i].color = wx.wxBLUE
@@ -1383,6 +1405,8 @@ function main()
     --local bmp = wx.wxArtProvider.GetBitmap(wx.wxART_GO_FORWARD, wx.wxART_TOOLBAR, wx.wxDefaultSize)
     --toolbar:AddTool(wx.wxID_FORWARD, "Forward", bmp, "Go forward a level")
     --bmp:delete()
+
+    toolbar:Realize()
 
     -- -----------------------------------------------------------------------
 

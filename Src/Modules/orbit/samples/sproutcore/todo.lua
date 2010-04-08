@@ -4,11 +4,24 @@ require "orbit"
 require "orbit.cache"
 require "luasql.sqlite3"
 
+local schema = require "orbit.schema"
 local encode = require "json.encode"
 local decode = require "json.decode"
 
 local todo = orbit.new()
 todo.mapper.conn = luasql.sqlite3():connect(todo.real_path .. "/todo.db")
+
+todo.mapper.schema = schema.loadstring([[
+  todo_list = entity {
+    fields = {
+       id = key(),
+       description = text(),
+       is_done = boolean(),
+       created_at = timestamp()
+    }
+  }
+]], "@todo_schema.lua")
+
 local todo_list = todo:model("todo_list")
 local cache = orbit.cache.new(todo)
 

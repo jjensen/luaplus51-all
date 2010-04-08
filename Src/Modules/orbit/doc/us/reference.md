@@ -29,16 +29,24 @@ The handler receives a `web` object
 client, can be overriden. The handler receives a `web` object
 
 **app:dispatch\_get(*func*, *patt*[, *patt*...])** - installs *func* as a GET handler for
-the patterns *patt*. *func* receives a `web` object and the captures
+the patterns *patt*. *func* receives a `web` object and the captures; this handler should return
+the contents of the response or **app.reparse** if you want to hand control back to
+the dispatcher and let it continue matching;
 
 **app:dispatch\_post(*func*, *patt*[, *patt*...])** - installs *func* as a POST handler for
-the patterns *patt*. *func* receives a `web` object and the captures
+the patterns *patt*. *func* receives a `web` object and the captures; this handler should return
+the contents of the response or **app.reparse** if you want to hand control back to
+the dispatcher and let it continue matching;
 
 **app:dispatch\_put(*func*, *patt*[, *patt*...])** - installs *func* as a PUT handler for
-the patterns *patt*. *func* receives a `web` object and the captures
+the patterns *patt*. *func* receives a `web` object and the captures; this handler should return
+the contents of the response or **app.reparse** if you want to hand control back to
+the dispatcher and let it continue matching;
 
 **app:dispatch\_delete(*func*, *patt*[, *patt*...])** - installs *func* as a DELETE handler for
-the patterns *patt*. *func* receives a `web` object and the captures
+the patterns *patt*. *func* receives a `web` object and the captures; this handler should return
+the contents of the response or **app.reparse** if you want to hand control back to
+the dispatcher and let it continue matching;
 
 **app:dispatch\_wsapi(*func*, *patt*[, *patt*...])** - installs *func* as a WSAPI handler for
 the patterns *patt*. *func* receives the unmodified WSAPI environment
@@ -184,3 +192,22 @@ called `updated_at` this row is set to the last update's date.
 
 **an\_instance:delete()** - deletes an instance from the DB
 
+## Module `orbit.routes`
+
+This module has a single function, **R**, and you can also call the module itself. This function takes a PATH\_INFO pattern where the path segments (the parts of the path separated by `/` or `.`) can be named parameters (`:name`), *splats* (\*), optional parameters (`?:name?`), or literals, and returns a pattern.
+
+A pattern is an object with two methods:
+
+**patt:match(*str*)** - tries to match *str* and returns a hash of named parameters; splats are returned in a `splat` array inside this hash.
+
+**patt:build(*params*)** - builds the original pattern string from a hash of named parameters
+
+Some examples of patterns, what they match, and the parameter hashes:
+
+* '/foo', matches '/foo', empty hash
+* '/foo/:bar/baz' matches '/foo/orbit/baz' or '/foo/xxx.yyy/baz' with hashes { bar = 'orbit' } and { bar = 'xxx.yyy' }
+* '/:name.:ext' matches '/xxx.yyy' or '/filename.ext' with hashes { name = 'xxx', ext = 'yyy' } and { name = 'filename', ext = 'ext' }
+* '/*/foo/*' matches '/bar/foo' or '/bar/foo/bling/baz/boom' with hashes { splat = { 'bar' } } and { splat = { 'bar', 'bling/baz/boom' } }
+* '/?:foo?/?:bar?' matches '/' or '/orbit' or '/orbit/routes' with hashes {} and { foo = 'orbit' } and { foo = 'orbit', bar = 'routes' }
+
+And several more, see `test/test_routes.lua` for a comprehensive test suite.

@@ -19,9 +19,9 @@
 // Check if the version of binding generator used to create this is older than
 //   the current version of the bindings.
 //   See 'bindings/genwxbind.lua' and 'modules/wxlua/include/wxldefs.h'
-#if WXLUA_BINDING_VERSION > 27
+#if WXLUA_BINDING_VERSION > 30
 #   error "The WXLUA_BINDING_VERSION in the bindings is too old, regenerate bindings."
-#endif //WXLUA_BINDING_VERSION > 27
+#endif //WXLUA_BINDING_VERSION > 30
 // ---------------------------------------------------------------------------
 
 // binding class
@@ -38,7 +38,7 @@ private:
 
 
 // initialize wxLuaBinding_wxcore for all wxLuaStates
-extern WXDLLIMPEXP_BINDWXCORE bool wxLuaBinding_wxcore_init();
+extern WXDLLIMPEXP_BINDWXCORE wxLuaBinding* wxLuaBinding_wxcore_init();
 
 // ---------------------------------------------------------------------------
 // Includes
@@ -135,6 +135,7 @@ extern WXDLLIMPEXP_BINDWXCORE bool wxLuaBinding_wxcore_init();
 #endif // (wxLUA_USE_wxValidator && wxUSE_VALIDATORS) && (wxLUA_USE_wxTextValidator)
 
 #include "wx/control.h"
+#include "wx/ctrlsub.h"
 #include "wx/defs.h"
 #include "wx/effects.h"
 #include "wx/event.h"
@@ -539,7 +540,8 @@ extern WXDLLIMPEXP_BINDWXCORE bool wxLuaBinding_wxcore_init();
 #endif // (wxLUA_USE_wxButton && wxUSE_BUTTON) && (wxLUA_USE_wxBitmapButton && wxUSE_BMPBUTTON)
 
 #if (wxLUA_USE_wxChoice || wxLUA_USE_wxComboBox || wxLUA_USE_wxListBox ) && wxUSE_CONTROLS
-    extern WXDLLIMPEXP_DATA_BINDWXCORE(int) wxluatype_wxControlWithItems;
+    extern WXDLLIMPEXP_DATA_BINDWXCORE(int) wxluatype_wxItemContainer;
+    extern WXDLLIMPEXP_DATA_BINDWXCORE(int) wxluatype_wxItemContainerImmutable;
 #endif // (wxLUA_USE_wxChoice || wxLUA_USE_wxComboBox || wxLUA_USE_wxListBox ) && wxUSE_CONTROLS
 
 #if (wxLUA_USE_wxClipboard && wxUSE_CLIPBOARD) && (wxCHECK_VERSION(2,8,0))
@@ -700,6 +702,7 @@ extern WXDLLIMPEXP_DATA_BINDWXCORE(int) wxluatype_wxCloseEvent;
 extern WXDLLIMPEXP_DATA_BINDWXCORE(int) wxluatype_wxCommandEvent;
 extern WXDLLIMPEXP_DATA_BINDWXCORE(int) wxluatype_wxContextMenuEvent;
 extern WXDLLIMPEXP_DATA_BINDWXCORE(int) wxluatype_wxControl;
+extern WXDLLIMPEXP_DATA_BINDWXCORE(int) wxluatype_wxControlWithItems;
 extern WXDLLIMPEXP_DATA_BINDWXCORE(int) wxluatype_wxDisplayChangedEvent;
 extern WXDLLIMPEXP_DATA_BINDWXCORE(int) wxluatype_wxEffects;
 extern WXDLLIMPEXP_DATA_BINDWXCORE(int) wxluatype_wxEraseEvent;
@@ -1141,7 +1144,6 @@ extern WXDLLIMPEXP_DATA_BINDWXCORE(int) wxluatype_wxWindowUpdateLocker;
 #if wxLUA_USE_wxToolbar
     extern WXDLLIMPEXP_DATA_BINDWXCORE(int) wxluatype_wxToolBar;
     extern WXDLLIMPEXP_DATA_BINDWXCORE(int) wxluatype_wxToolBarBase;
-    extern WXDLLIMPEXP_DATA_BINDWXCORE(int) wxluatype_wxToolBarTool;
     extern WXDLLIMPEXP_DATA_BINDWXCORE(int) wxluatype_wxToolBarToolBase;
 #endif // wxLUA_USE_wxToolbar
 
@@ -1197,150 +1199,6 @@ extern WXDLLIMPEXP_DATA_BINDWXCORE(int) wxluatype_wxWindowUpdateLocker;
     extern WXDLLIMPEXP_DATA_BINDWXCORE(int) wxluatype_wxTextEntryDialog;
 #endif // wxUSE_TEXTDLG && wxLUA_USE_wxTextEntryDialog
 
-
-// ---------------------------------------------------------------------------
-// Encapsulation Declarations - need to be public for other bindings.
-// ---------------------------------------------------------------------------
-
-#if (wxLUA_USE_wxColourPenBrush) && (wxCHECK_VERSION(2,8,0))
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXCORE, wxStockGDI, wxStockGDI)
-#endif // (wxLUA_USE_wxColourPenBrush) && (wxCHECK_VERSION(2,8,0))
-
-#if (wxLUA_USE_wxDataObject && wxUSE_DATAOBJ) && (wxCHECK_VERSION(2,8,0))
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXCORE, wxURLDataObject, wxURLDataObject)
-#endif // (wxLUA_USE_wxDataObject && wxUSE_DATAOBJ) && (wxCHECK_VERSION(2,8,0))
-
-#if (wxLUA_USE_wxLog && wxUSE_LOG) && (wxLUA_USE_wxLogWindow && wxUSE_LOGWINDOW)
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXCORE, wxLogWindow, wxLogWindow)
-#endif // (wxLUA_USE_wxLog && wxUSE_LOG) && (wxLUA_USE_wxLogWindow && wxUSE_LOGWINDOW)
-
-#if (wxLUA_USE_wxLog && wxUSE_LOG) && (wxLUA_USE_wxTextCtrl && wxUSE_TEXTCTRL)
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXCORE, wxLogTextCtrl, wxLogTextCtrl)
-#endif // (wxLUA_USE_wxLog && wxUSE_LOG) && (wxLUA_USE_wxTextCtrl && wxUSE_TEXTCTRL)
-
-#if (wxLUA_USE_wxLog && wxUSE_LOG) && (wxUSE_LOGGUI)
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXCORE, wxLogGui, wxLogGui)
-#endif // (wxLUA_USE_wxLog && wxUSE_LOG) && (wxUSE_LOGGUI)
-
-#if (wxLUA_USE_wxSizer) && (wxCHECK_VERSION(2,8,0))
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXCORE, wxGBPosition, wxGBPosition)
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXCORE, wxGBSpan, wxGBSpan)
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXCORE, wxSizerFlags, wxSizerFlags)
-#endif // (wxLUA_USE_wxSizer) && (wxCHECK_VERSION(2,8,0))
-
-wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXCORE, wxPropagateOnce, wxPropagateOnce)
-wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXCORE, wxPropagationDisabler, wxPropagationDisabler)
-wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXCORE, wxVisualAttributes, wxVisualAttributes)
-wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXCORE, wxWindowDisabler, wxWindowDisabler)
-wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXCORE, wxWindowUpdateLocker, wxWindowUpdateLocker)
-
-#if wxCHECK_VERSION(2,8,0)
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXCORE, wxMouseState, wxMouseState)
-#endif // wxCHECK_VERSION(2,8,0)
-
-#if wxLUA_USE_Geometry && wxUSE_GEOMETRY
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXCORE, wxPoint2DDouble, wxPoint2DDouble)
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXCORE, wxPoint2DInt, wxPoint2DInt)
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXCORE, wxRect2DDouble, wxRect2DDouble)
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXCORE, wxRect2DInt, wxRect2DInt)
-#endif // wxLUA_USE_Geometry && wxUSE_GEOMETRY
-
-#if wxLUA_USE_wxAcceleratorTable && wxUSE_ACCEL
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXCORE, wxAcceleratorEntry, wxAcceleratorEntry)
-#endif // wxLUA_USE_wxAcceleratorTable && wxUSE_ACCEL
-
-#if wxLUA_USE_wxBusyCursor
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXCORE, wxBusyCursor, wxBusyCursor)
-#endif // wxLUA_USE_wxBusyCursor
-
-#if wxLUA_USE_wxCaret && wxUSE_CARET
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXCORE, wxCaret, wxCaret)
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXCORE, wxCaretSuspend, wxCaretSuspend)
-#endif // wxLUA_USE_wxCaret && wxUSE_CARET
-
-#if wxLUA_USE_wxClipboard && wxUSE_CLIPBOARD
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXCORE, wxClipboardLocker, wxClipboardLocker)
-#endif // wxLUA_USE_wxClipboard && wxUSE_CLIPBOARD
-
-#if wxLUA_USE_wxColourPenBrush
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXCORE, wxColourDatabase, wxColourDatabase)
-#endif // wxLUA_USE_wxColourPenBrush
-
-#if wxLUA_USE_wxDC
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXCORE, wxDCClipper, wxDCClipper)
-#endif // wxLUA_USE_wxDC
-
-#if wxLUA_USE_wxDataObject && wxUSE_DATAOBJ
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXCORE, wxBitmapDataObject, wxBitmapDataObject)
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXCORE, wxDataFormat, wxDataFormat)
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXCORE, wxDataObjectComposite, wxDataObjectComposite)
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXCORE, wxDataObjectSimple, wxDataObjectSimple)
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXCORE, wxFileDataObject, wxFileDataObject)
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXCORE, wxTextDataObject, wxTextDataObject)
-#endif // wxLUA_USE_wxDataObject && wxUSE_DATAOBJ
-
-#if wxLUA_USE_wxDisplay && wxUSE_DISPLAY
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXCORE, wxArrayVideoModes, wxArrayVideoModes)
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXCORE, wxDisplay, wxDisplay)
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXCORE, wxVideoMode, wxVideoMode)
-#endif // wxLUA_USE_wxDisplay && wxUSE_DISPLAY
-
-#if wxLUA_USE_wxDragDrop && wxUSE_DRAG_AND_DROP
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXCORE, wxDropSource, wxDropSource)
-#endif // wxLUA_USE_wxDragDrop && wxUSE_DRAG_AND_DROP
-
-#if wxLUA_USE_wxFont
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXCORE, wxNativeFontInfo, wxNativeFontInfo)
-#endif // wxLUA_USE_wxFont
-
-#if wxLUA_USE_wxFontEnumerator
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXCORE, wxFontEnumerator, wxFontEnumerator)
-#endif // wxLUA_USE_wxFontEnumerator
-
-#if wxLUA_USE_wxHelpController && wxUSE_HELP
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXCORE, wxHelpControllerHelpProvider, wxHelpControllerHelpProvider)
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXCORE, wxHelpProvider, wxHelpProvider)
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXCORE, wxSimpleHelpProvider, wxSimpleHelpProvider)
-#endif // wxLUA_USE_wxHelpController && wxUSE_HELP
-
-#if wxLUA_USE_wxIcon
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXCORE, wxIconBundle, wxIconBundle)
-#endif // wxLUA_USE_wxIcon
-
-#if wxLUA_USE_wxImage && wxUSE_IMAGE
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXCORE, wxImageHistogram, wxImageHistogram)
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXCORE, wxImageHistogram::iterator, wxImageHistogram_iterator)
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXCORE, wxImageHistogramEntry, wxImageHistogramEntry)
-#endif // wxLUA_USE_wxImage && wxUSE_IMAGE
-
-#if wxLUA_USE_wxListCtrl && wxUSE_LISTCTRL
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXCORE, wxListItemAttr, wxListItemAttr)
-#endif // wxLUA_USE_wxListCtrl && wxUSE_LISTCTRL
-
-#if wxLUA_USE_wxPointSizeRect
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXCORE, wxPoint, wxPoint)
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXCORE, wxRect, wxRect)
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXCORE, wxSize, wxSize)
-#endif // wxLUA_USE_wxPointSizeRect
-
-#if wxLUA_USE_wxProcess
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXCORE, wxProcess, wxProcess)
-#endif // wxLUA_USE_wxProcess
-
-#if wxLUA_USE_wxRenderer
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXCORE, wxHeaderButtonParams, wxHeaderButtonParams)
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXCORE, wxRendererNative, wxRendererNative)
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXCORE, wxRendererVersion, wxRendererVersion)
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXCORE, wxSplitterRenderParams, wxSplitterRenderParams)
-#endif // wxLUA_USE_wxRenderer
-
-#if wxLUA_USE_wxTextCtrl && wxUSE_TEXTCTRL
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXCORE, wxTextAttr, wxTextAttr)
-#endif // wxLUA_USE_wxTextCtrl && wxUSE_TEXTCTRL
-
-#if wxLUA_USE_wxTreeCtrl && wxUSE_TREECTRL
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXCORE, wxTreeItemId, wxTreeItemId)
-#endif // wxLUA_USE_wxTreeCtrl && wxUSE_TREECTRL
 
 
 #endif // __HOOK_WXLUA_wxcore_H__

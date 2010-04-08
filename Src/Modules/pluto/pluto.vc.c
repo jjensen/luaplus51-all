@@ -43,7 +43,7 @@
 
 
 
-//#define PLUTO_DEBUG
+#define PLUTO_DEBUG
 
 
 
@@ -1549,7 +1549,7 @@ static luaL_reg pluto_reg[] = {
 	{ NULL, NULL }
 };
 
-LUAMODULE_API int luaopen_pluto(lua_State *L) {
+LUALIB_API int luaopen_pluto(lua_State *L) {
 	luaL_openlib(L, "pluto", pluto_reg, 0);
 	return 1;
 }

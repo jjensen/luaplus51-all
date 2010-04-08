@@ -9,41 +9,32 @@
 
 require "wsapi.xavante"
 require "wsapi.common"
-require "kepler_init"
 
 module ("xavante.cgiluahandler", package.seeall)
 
-local function sapi_loader(wsapi_env, reload)
-  wsapi.common.normalize_paths(wsapi_env)
-  local bootstrap = [[
-    function print(...)
-       remotedostring("print(...)", ...)
-    end
-    
-    io.stdout = {
-       write = function (...)
-		  remotedostring("io.write(...)", ...)
-	       end
-    }
-
-    io.stderr = {
-       write = function (...)
-		  remotedostring("io.stderr(...)", ...)
-	       end
-    }
-  ]]
-  for _, global in ipairs(RINGS_CGILUA_GLOBALS) do
-    bootstrap = bootstrap .. 
-      "_, _G[\"" .. global .. "\"] = remotedostring(\"return _G['" ..
-      global .. "']\")\n"
+local bootstrap = [[
+  function print(...)
+    remotedostring("print(...)", ...)
   end
-  local app = wsapi.common.load_isolated_launcher(wsapi_env.PATH_TRANSLATED, "wsapi.sapi", bootstrap, reload)
-  return app(wsapi_env)
-end 
+    
+  io.stdout = {
+     write = function (...)
+	       remotedostring("io.write(...)", ...)
+	     end
+   }
+
+  io.stderr = {
+    write = function (...)
+	      remotedostring("io.stderr(...)", ...)
+	    end
+  }
+]]
 
 -------------------------------------------------------------------------------
 -- Returns the CGILua handler
 -------------------------------------------------------------------------------
-function makeHandler (diskpath, reload)
-   return wsapi.xavante.makeHandler(function (wsapi_env) return sapi_loader(wsapi_env, reload) end, nil, diskpath, diskpath)
+function makeHandler (diskpath, params)
+   params = setmetatable({ modname = params.modname or "wsapi.sapi", bootstrap = bootstrap }, { __index = params or {} })
+   local sapi_loader = wsapi.common.make_isolated_launcher(params)
+   return wsapi.xavante.makeHandler(sapi_loader, nil, diskpath)
 end

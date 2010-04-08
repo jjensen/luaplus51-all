@@ -4,7 +4,6 @@
 --
 -- Starts the orbit server
 --
--- orbit app.lua [port]
 --
 -------------------------------------------------------------------------------
 
@@ -24,7 +23,7 @@ require "xavante.urlhandler"
 require "wsapi.util"
 
 local usage = [[
-Usage: orbit [options] <application.(lua|ws)>
+Usage: orbit [options] <application.(lua|ws)> <app_args>
 
 Starts a Xavante instance to serve a single Orbit application. Adds the
 application's path to LUA_PATH.
@@ -40,7 +39,7 @@ Options:
 
 local opts, args = wsapi.util.getopt({ ... }, "lp")
 
-local app = args[1]
+local app, app_args = args[1], { select(2, unpack(args)) }
 
 if not app or opts.h or opts.help then
   print(usage)
@@ -82,7 +81,10 @@ package.path = package.path .. ";" .. path .. "?.lua;" .. path .. "?/?.lua"
 
 wsapi.app_path = path
 
-local app = dofile(path .. name)
+local app_func, err = loadfile(path .. name)
+if not app_func then error(err) end
+
+local app = app_func(unpack(app_args))
 
 if not app then app = _G[name:match("(.+)%.")] end
 

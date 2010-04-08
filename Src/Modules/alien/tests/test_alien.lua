@@ -6,6 +6,7 @@ require "alien.struct"
 local dll = alien.alientest
 
 do
+  io.write(".")
   local f = dll._testfunc_i_bhilfd
   f:types("int", "byte", "short", "int", "long",  "float", "double")
   local result = f(string.byte("x"), 1, 3, 4, 5, 6)
@@ -13,6 +14,7 @@ do
 end
 
 do
+  io.write(".")
   local f = dll._testfunc_i_bhilfd
   f:types{ ret = "int", "byte", "short", "int", "long",  "float", "double" }
   local result = f(string.byte("x"), 1, 3, 4, 5, 6)
@@ -20,6 +22,7 @@ do
 end
 
 do
+  io.write(".")
   local f = dll._testfunc_i_bhilfd
   f:types{ "byte", "short", "int", "long",  "float", "double" }
   local result = f(string.byte("x"), 1, 3, 4, 5, 6)
@@ -27,6 +30,7 @@ do
 end
 
 do
+  io.write(".")
   local f = dll._testfunc_p_p
   f:types("pointer", "ref int")
   local result, copy = f(42)
@@ -35,6 +39,7 @@ do
 end
 
 do
+  io.write(".")
   local f = dll._testfunc_callback_i_if
   f:types("int", "int", "callback")
   local args = {}
@@ -50,6 +55,7 @@ do
 end
 
 do
+  io.write(".")
   local f = dll._testfunc_callback_i_if
   f:types("int", "int", "callback")
   local function callback(value)
@@ -67,6 +73,7 @@ do
 end
 
 do
+  io.write(".")
   local integrate = dll.integrate
   integrate:types("double", "double", "double", "callback", "long")
   local function func(x)
@@ -78,82 +85,98 @@ do
 end
 
 do
+  io.write(".")
   dll.tf_b:types("byte", "byte")
   assert(dll.tf_b(-126) == -42)
 end
 
 do
+  io.write(".")
   dll.tf_bb:types("byte", "byte", "byte")
   assert(dll.tf_bb(0, -126) == -42)
 end
 
 do
+  io.write(".")
   dll.tf_B:types("char", "char")
   assert(dll.tf_B(255) == 85)
 end
 
 do
+  io.write(".")
   dll.tf_bB:types("char", "byte", "char")
   assert(dll.tf_bB(0, 255) == 85)
 end
 
 do
+  io.write(".")
   dll.tf_h:types("short", "short")
   assert(dll.tf_h(-32766) == -10922)
 end
 
 do
+  io.write(".")
   dll.tf_bh:types("short", "byte", "short")
   assert(dll.tf_bh(0, -32766) == -10922)
 end
 
 do
+  io.write(".")
   dll.tf_i:types("int", "int")
   assert(dll.tf_i(-2147483646) ==  -715827882)
 end
 
 do
+  io.write(".")
   dll.tf_bi:types("int", "byte", "int")
   assert(dll.tf_bi(0, -2147483646) ==  -715827882)
 end
 
 do
+  io.write(".")
   dll.tf_l:types("long", "long")
   assert(dll.tf_l(-2147483646) ==  -715827882)
 end
 
 do
+  io.write(".")
   dll.tf_bl:types("long", "byte", "long")
   assert(dll.tf_bl(0, -2147483646) ==  -715827882)
 end
 
 do
+  io.write(".")
   dll.tf_f:types("float", "float")
   assert(dll.tf_f(-42) == -14)
 end
 
 do
+  io.write(".")
   dll.tf_bf:types("float", "byte", "float")
   assert(dll.tf_bf(0, -42) == -14)
 end
 
 do
+  io.write(".")
   dll.tf_d:types("double", "double")
   assert(dll.tf_d(-42) == -14)
 end
 
 do
+  io.write(".")
   dll.tf_bd:types("double", "byte", "double")
   assert(dll.tf_bd(0, -42) == -14)
 end
 
 do
+  io.write(".")
   dll.tv_i:types("void", "int")
   assert(dll.tv_i(42) == nil)
   assert(dll.tv_i(-42) == nil)
 end
 
 do
+  io.write(".")
   local strchr = dll.my_strchr
   strchr:types("pointer", "string", "char")
   assert(alien.tostring(strchr("abcdefghi", string.byte("b"))) == "bcdefghi") 
@@ -161,6 +184,7 @@ do
 end
 
 do
+  io.write(".")
   local strtok = dll.my_strtok
   strtok:types("pointer", "string", "string")
   local buf = alien.buffer("a\nb\nc")
@@ -172,6 +196,7 @@ do
 end
 
 do
+  io.write(".")
   local f = dll._testfunc_v
   f:types("void", "int", "int", "ref int")
   local r1, r2 = f(1, 2, 0)
@@ -180,6 +205,7 @@ do
 end
 
 do
+  io.write(".")
   local f = dll._testfunc_i_bhilfd
   f:types("int", "byte", "short", "int", "long", "float", "double")
   local result = f(1, 2, 3, 4, 5, 6)
@@ -194,6 +220,7 @@ do
 end
 
 do
+  io.write(".")
   local f = dll._testfunc_f_bhilfd
   f:types("float", "byte", "short", "int", "long", "float", "double")
   local result = f(1, 2, 3, 4, 5.0, 6.0)
@@ -203,6 +230,7 @@ do
 end
 
 do
+  io.write(".")
   local f = dll._testfunc_d_bhilfd
   f:types("double", "byte", "short", "int", "long", "float", "double")
   local result = f(1, 2, 3, 4, 5.0, 6.0)
@@ -212,6 +240,7 @@ do
 end
 
 do
+  io.write(".")
   local f = dll._testfunc_p_p
   f:types("pointer", "string")
   local result = f("123")
@@ -221,6 +250,7 @@ do
 end
 
 do
+  io.write(".")
   local f = dll.my_sqrt
   f:types("double", "double")
   assert(f(4) == 2)
@@ -228,6 +258,7 @@ do
 end
 
 do
+  io.write(".")
   local function sort(a, b)
     return a - b
   end
@@ -240,6 +271,18 @@ do
 end
 
 do
+  io.write(".")
+  local compare = dll.my_compare
+  compare:types("int", "ref char", "ref char")
+  local qsort = dll.my_qsort
+  qsort:types("void", "pointer", "int", "int", "callback")
+  local chars = alien.buffer("spam, spam, and spam")
+  qsort(chars, chars:len(), alien.sizeof("char"), compare)
+  assert(chars:tostring() == "   ,,aaaadmmmnpppsss")
+end
+
+do
+  io.write(".")
   local funcs = alien.buffer(2 * alien.sizeof("callback"))
   local res = {}
   local function callback(a, b)
@@ -258,6 +301,7 @@ do
 end
 
 do
+  io.write(".")
   local tag1 = alien.tag("alientest_tag1")
   assert(type(tag1) == "table")
   local tag2 = alien.tag("alientest_tag1")
@@ -271,6 +315,7 @@ dll.my_malloc:types("pointer", "int")
 dll.my_free:types("void", "pointer")
 
 do
+  io.write(".")
   local tag = alien.tag("alientest_tag")
   local ptr = dll.my_malloc(4)
   local obj = alien.wrap("alientest_tag", 1, 2, ptr, 10)
@@ -332,6 +377,7 @@ for _, t in ipairs(types) do
 end
 
 do
+  io.write(".")
   local function callback(a, b)
     return a + b
   end
@@ -347,6 +393,7 @@ do
 end
 
 do
+  io.write(".")
   local function sort(a, b)
     return a - b
   end
@@ -374,6 +421,7 @@ for _, t in ipairs(types) do
 end
 
 do
+  io.write(".")
   local function sort(a, b)
      a = alien.buffer(a):get(1, "string")
      b = alien.buffer(b):get(1, "string")
@@ -414,3 +462,145 @@ for _, t in ipairs(types) do
    assert(not pcall(function () return arr[5] end))
 end
 
+do
+  io.write(".")
+  local rect = alien.defstruct{
+    { "left", "long" },
+    { "top", "long" },
+    { "right", "long" },
+    { "bottom", "long" }
+  }
+  local rect1 = rect:new()
+  local getrect = dll.GetRectangle1
+  getrect:types("int", "int", "pointer")
+  assert(getrect(1, rect1()))
+  assert(rect1.left == 1)
+  assert(rect1.top == 2)
+  assert(rect1.right == 3)
+  assert(rect1.bottom == 4)
+end
+
+do
+  io.write(".")
+  local rect = alien.defstruct{
+    { "left", "short" },
+    { "top", "long" },
+    { "right", "short" },
+    { "bottom", "long" }
+  }
+  local rect1 = rect:new()
+  local getrect = dll.GetRectangle2
+  getrect:types("int", "int", "pointer")
+  assert(getrect(1, rect1()))
+  assert(rect1.left == 1)
+  assert(rect1.top == 2)
+  assert(rect1.right == 3)
+  assert(rect1.bottom == 4)
+end
+
+do
+  io.write(".")
+  local rect = alien.defstruct{
+    { "left", "short" },
+    { "top", "long" },
+    { "right", "short" },
+    { "bottom", "long" }
+  }
+  local rect1 = rect:new()
+  rect1.left, rect1.top, rect1.right, rect1.bottom = 1, 2, 3, 4
+  local getrect = dll.GetRectangle3
+  getrect:types("int", "pointer")
+  assert(getrect(rect1()))
+  assert(rect1.left == 2)
+  assert(rect1.top == 4)
+  assert(rect1.right == 6)
+  assert(rect1.bottom == 8)
+end
+
+do
+  io.write(".")
+  local rect = alien.defstruct{
+    { "left", "short" },
+    { "top", "long" },
+    { "right", "short" },
+    { "bottom", "long" }
+  }
+  --local rect1 = rect:new()
+  --rect1.left, rect1.top, rect1.right, rect1.bottom = 1, 2, 3, 4
+  --local getrect = dll.GetRectangle4
+  --getrect:types("int", rect:byval())
+  --assert(getrect(alien.byval(rect1())) == 10)
+end
+
+do
+  io.write(".")
+   local struct = alien.struct
+
+   local buf = alien.buffer('123456')
+   assert(alien.buffer(buf:topointer(3)):tostring(3,2)=='456')
+   
+   --buf:set(1,'123abc')
+   --assert(alien.buffer(buf:topointer(3)):tostring(3,2)=='abc')
+
+   local S = '>ipbph'
+   local ba = alien.buffer('a\0')
+   local bb = alien.buffer('b\0')
+   local s = struct.pack(S,1,ba,2,bb,3)
+   local buf = alien.buffer(s)
+   local one,pba,two,pbb,three = struct.unpack(S,buf,struct.size(S))
+   assert(one==1) assert(two==2) assert(three==3)
+   assert(alien.buffer(pba):tostring()=='a')
+   assert(alien.tostring(pbb)=='b')
+   
+   local pbb,three = struct.unpack('>ph',buf,struct.size(S),struct.offset(S,4))
+   assert(alien.buffer(pbb):tostring()=='b')
+   assert(three==3)
+
+   --buf:set(struct.offset(S,4),struct.pack('p',ba))
+   --assert(alien.buffer(struct.unpack('p',buf,struct.size(S),struct.offset(S,4))):tostring()=='a')
+
+   assert(struct.size('p')==alien.sizeof("pointer"))
+   assert(struct.offset(S,1)==1)
+   assert(struct.offset(S,4)==6+alien.sizeof("pointer"))
+   assert(struct.offset(S,alien.sizeof("pointer")+2)==struct.size(S)+1)
+end
+
+local maxushort = 2^(8*alien.sizeof("ushort"))-1
+local maxuint = 2^(8*alien.sizeof("uint"))-1
+local maxulong = 2^(8*alien.sizeof("ulong"))-1
+
+do
+  io.write(".")
+   assert(alien.sizeof('ushort')==alien.sizeof('short'))
+   assert(alien.sizeof('uint')==alien.sizeof('int'))
+   assert(alien.sizeof('ulong')==alien.sizeof('long'))
+   local buf = alien.buffer(alien.sizeof('ulong'))
+   buf:set(1,maxushort,'ushort')
+   assert(buf:get(1,'short')==-1)
+   assert(buf:get(1,'ushort')==maxushort)
+   assert(alien.toushort(buf:topointer())==maxushort)
+   buf:set(1,maxuint,'uint')
+   assert(buf:get(1,'int')==-1)
+   assert(buf:get(1,'uint')==maxuint)
+   assert(alien.touint(buf:topointer())==maxuint)
+   if alien.sizeof("long") < 8 then
+     buf:set(1,maxulong,'ulong')
+     assert(buf:get(1,'long')==-1)
+     assert(buf:get(1,'ulong')==maxulong)
+     assert(alien.toulong(buf:topointer())==maxulong)
+   end
+end
+
+do
+  io.write(".")
+  assert(alien.sizeof('ushort')==alien.sizeof('short'))
+  assert(alien.sizeof('uint')==alien.sizeof('int'))
+  assert(alien.sizeof('ulong')==alien.sizeof('long'))
+  local f = dll._testfunc_L_HIL
+  f:types("ulong", "ushort", "uint", "ulong")
+  assert(f(maxushort,0,0)==maxushort)
+  assert(f(0,maxuint,0)==maxuint)
+  if alien.sizeof("long") < 8 then assert(f(0,0,maxulong)==maxulong) end
+end
+
+print()

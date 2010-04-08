@@ -27,7 +27,7 @@ Andr&eacute; Carregal.
 The implementation is not derived from licensed software.</p>
 
 <hr/>
-<p>Copyright &copy; 2007 Kepler Project.</p>
+<p>Copyright &copy; 2007-2010 Kepler Project.</p>
 
 <p>Permission is hereby granted, free of charge, to any person
 obtaining a copy of this software and associated documentation

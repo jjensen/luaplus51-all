@@ -57,21 +57,24 @@
 
 <h2><a name="install"></a>Installing</h2>
 
-<p>
-Xavante follows the
-<a href="http://www.inf.puc-rio.br/~roberto/pil2/chapter15.pdf">package model</a>
-for Lua 5.1, therefore it should be "installed" in your <code>package.path</code>.
-</p>
+<p>You can install Xavante using <a href="http://www.luarocks.org">LuaRocks</a>:</p>
 
-<p>
-This will add Xavante as a module to your system so you can <code>require</code> it as part of your application. If you want to use Xavante as a standalone web server please check the Kepler distribution. Kepler offers Xavante launchers for Unix and Windows both on the command line and as a Windows Tray application.
-</p>
+<pre class="example">
+luarocks install xavante
+</pre>
+
+<p>The "xavante" package installs Xavante as a library. To run Xavante as an application please install <a href="http://wsapi.luaforge.net">WSAPI</a>:</p>
+
+<pre class="example">
+luarocks install wsapi-xavante
+</pre>
 
 <h2><a name="config"></a>Configuring</h2>
 
 <p>
-After the Xavante module is loaded, it needs to be configured before being able to serve requests. If you are using Kepler this is done in the <code>KEPLER_CONF/xavante/config.lua</code> file, but if you are using Xavante as a module you need to register the handlers using the
-<code>xavante.HTTP</code> constructor.
+After the Xavante module is loaded, it needs to be configured before
+  being able to serve requests. You need to register the handlers
+  using the <code>xavante.HTTP</code> constructor.
 </p>
 
 <p>
@@ -145,12 +148,6 @@ xavante.HTTP{
 
 
 <h2><a name="running"></a>Running</h2>
-
-<p>
-If you are using Xavante as part of the Kepler distribution, please refer to
-the Kepler documentation for details on how to execute Xavante from the
-command line or the Windows Tray bar.
-</p>
 
 <p>
 If you are using Xavante as a module, then to start it you need to call

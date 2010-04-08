@@ -45,16 +45,15 @@ DEFINE_EVENT_TYPE(wxEVT_WXLUA_DEBUGGER_EVALUATE_EXPR)
 IMPLEMENT_DYNAMIC_CLASS(wxLuaDebuggerEvent, wxEvent)
 
 wxLuaDebuggerEvent::wxLuaDebuggerEvent(const wxLuaDebuggerEvent& event)
-				   :wxEvent(event),
+                   :wxEvent(event),
                     m_line_number(event.m_line_number),
                     m_fileName(event.m_fileName),
                     m_strMessage(event.m_strMessage),
                     m_has_message(event.m_has_message),
                     m_lua_ref(event.m_lua_ref),
-                    m_debugData(wxNullLuaDebugData),
+                    m_debugData(event.m_debugData),
                     m_enabled_flag(event.m_enabled_flag)
 {
-    SetDebugData(event.GetReference(), event.GetDebugData());
 }
 
 wxLuaDebuggerEvent::wxLuaDebuggerEvent(wxEventType eventType,
@@ -125,13 +124,6 @@ void wxLuaDebuggerStackDialog::EnumerateTable(int nRef, int nEntry, long lc_item
     wxCHECK_RET(m_luaDebugger, wxT("Invalid wxLuaDebuggerServer"));
     wxBeginBusyCursor(); // ended in wxLuaDebuggerBase::OnDebugXXX
     m_luaDebugger->EnumerateTable(nRef, nEntry, lc_item);
-}
-
-void wxLuaDebuggerStackDialog::EnumerateGlobalData(long lc_item)
-{
-    wxCHECK_RET(m_luaDebugger, wxT("Invalid wxLuaDebuggerServer"));
-    wxBeginBusyCursor(); // ended in wxLuaDebuggerBase::OnDebugXXX
-    m_luaDebugger->EnumerateTable(-1, -1, lc_item);
 }
 
 // ----------------------------------------------------------------------------
@@ -538,11 +530,8 @@ bool wxLuaDebuggerBase::CheckSocketRead(bool read_ok, const wxString& msg)
 {
     if (!read_ok)
     {
-        wxString s = wxT("Failed reading from the debugger socket. ") + msg + wxT("\n");
-        s += GetSocketErrorMsg();
-
         wxLuaDebuggerEvent debugEvent(wxEVT_WXLUA_DEBUGGER_DEBUGGEE_DISCONNECTED, this);
-        debugEvent.SetMessage(s);
+        debugEvent.SetMessage(wxString::Format(wxT("Failed reading from the debugger socket. %s\n"), msg.c_str(), GetSocketErrorMsg().c_str()));
         SendEvent(debugEvent);
     }
 
@@ -552,11 +541,8 @@ bool wxLuaDebuggerBase::CheckSocketWrite(bool write_ok, const wxString& msg)
 {
     if (!write_ok)
     {
-        wxString s = wxT("Failed writing to the debugger socket. ") + msg + wxT("\n");
-        s += GetSocketErrorMsg();
-
         wxLuaDebuggerEvent debugEvent(wxEVT_WXLUA_DEBUGGER_DEBUGGEE_DISCONNECTED, this);
-        debugEvent.SetMessage(s);
+        debugEvent.SetMessage(wxString::Format(wxT("Failed writing to the debugger socket. %s\n%s"), msg.c_str(), GetSocketErrorMsg().c_str()));
         SendEvent(debugEvent);
     }
 

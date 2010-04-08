@@ -17,6 +17,8 @@ frame       = nil
 textCtrl    = nil
 taskbarIcon = nil -- The wxTaskBarIcon that we install
 
+wxwindowClassInfo = wx.wxClassInfo("wxWindow")
+
 -- wxBitmap to use for controls that need one
 bmp = wx.wxArtProvider.GetBitmap(wx.wxART_INFORMATION, wx.wxART_TOOLBAR, wx.wxSize(16, 16))
 
@@ -39,10 +41,13 @@ bindingList = wxlua.GetBindings() -- Table of {wxLuaBinding functions}
 controlTable   = {} -- Table of { win_id = "win name" }
 ignoreControls = {} -- Table of { win_id = "win name" } of controls to ignore events from
 
+-- IDs for controls used by this program
+ID_EVENT_LISTCTRL   = 5000
+ID_CONTROL_LISTCTRL = 5001
+ID_CLEAR_LOG        = 5002
+
 -- IDs for the windows that we show
 ID_PARENT_SCROLLEDWINDOW = 1000
-ID_EVENT_LISTCTRL = 5000
-ID_CONTROL_LISTCTRL = 5001
 
 ID_ANIMATIONCTRL    = 1001
 ID_BITMAPBUTTON     = 1002
@@ -310,6 +315,12 @@ function FuncsToString(event, funcTable, evtClassName)
             s = s..typ_name.."(GetId='"..v:GetId().."')"
         elseif typ_name == "wxWindow" then
             s = s..typ_name.."(GetName="..v:GetName()..")"
+        elseif typ_name == "wxObject" then
+            local obj_name = "nil"
+            if v then
+                obj_name = v:GetClassInfo():GetClassName()
+            end
+            s = s..obj_name
         else
             s = s..tostring(v)
             --v:delete()
@@ -329,7 +340,7 @@ end
 
 function OnEvent(event)
     local skip = true
-    local evtClassName = wxlua.typename(wxEVT_TableByType[event:GetEventType()].wxluatype)
+    local evtClassName = wxlua.type(event) 
     local evtTypeStr   = wxEVT_TableByType[event:GetEventType()].name
 
     -- You absolutely must create a wxPaintDC for a wxEVT_PAINT in MSW
@@ -340,17 +351,23 @@ function OnEvent(event)
         dc:delete()
     end
 
-    -- during shutdown, we nil textCtrl since events are sent and we don't want them anymore
-    if (not textCtrl) or ignoreEVTs[evtTypeStr] or ignoreControls[event:GetId()] then
-        event:Skip(skip)
-        return
-    end
-
-    --print(evtClassName, wxEVT_TableByType[event:GetEventType()].name)
-
     -- try to figure out where this came from using the GetEventObject()
     local obj_str = "nil"
+    local win_id  = -100000000
     if event:GetEventObject() then
+    
+        -- get the window id from the object since some events don't properly set the id.
+        if event:GetEventObject():IsKindOf(wxwindowClassInfo) then
+            local win = event:GetEventObject():DynamicCast("wxWindow")
+            if win then
+                win_id = win:GetId();
+            end
+        end
+    
+        --if win_id ~= event:GetId() then
+        --    print(string.format("WARNING : wxEvent ID=%d does not match wxWindow ID=%d", event:GetId(), win_id))
+        --end
+    
         local classInfo = event:GetEventObject():GetClassInfo()
         if classInfo then
             obj_str = classInfo:GetClassName()
@@ -358,6 +375,14 @@ function OnEvent(event)
             obj_str = "No wxClassInfo"
         end
     end
+
+    -- during shutdown, we nil textCtrl since events are sent and we don't want them anymore
+    if (not textCtrl) or ignoreEVTs[evtTypeStr] or ignoreControls[event:GetId()] or ignoreControls[win_id] then
+        event:Skip(skip)
+        return
+    end
+
+    --print(evtClassName, wxEVT_TableByType[event:GetEventType()].name)
 
     local s = string.format("%s %s(%s) GetEventObject=%s", wx.wxNow(), evtClassName, evtTypeStr, obj_str)
 
@@ -368,12 +393,12 @@ function OnEvent(event)
         else
             s = s.."\n\t"..evtClassName.." - "..wxEvent_GetFuncs[evtClassName](event)
         end
-        evtClassName = wxCLASS_TableByName[evtClassName].baseclassName
+        evtClassName = wxCLASS_TableByName[evtClassName].baseclassNames[1]
     end
 
     -- for debugging, this means we need to add it to the wxEvent_GetFuncs table
     if evtClassName ~= "wxObject" then
-        print("Unhandled wxEventXXX type in OnEvent:", evtClassName)
+        print("Unhandled wxEventXXX type in OnEvent:", evtClassName, evtTypeStr)
     end
 
     textCtrl:AppendText(s.."\n\n")
@@ -685,7 +710,7 @@ function CreateControlsWindow(parent)
     local s = wx.wxBoxSizer(wx.wxVERTICAL)
 
     control = wx.wxNotebook(p, ID_NOTEBOOK,
-                                         wx.wxDefaultPosition, wx.wxSize(200,200))
+                            wx.wxDefaultPosition, wx.wxSize(200,200))
     SetupBook(control)
 
     s:Add(control, 1, wx.wxEXPAND)
@@ -859,7 +884,7 @@ function CreateControlsWindow(parent)
                             wx.wxDefaultPosition, wx.wxSize(200, 200),
                             wx.wxTR_HAS_BUTTONS+wx.wxTR_MULTIPLE)
     control:SetImageList(imageList)
-    local item = control:AddRoot("Root Note", 0)
+    local item = control:AddRoot("Root Node", 0)
     control:AppendItem(item, "Item 1", 1)
     control:AppendItem(item, "Item 2")
     item = control:AppendItem(item, "Item 3", 2)
@@ -911,6 +936,8 @@ function main()
             end)
 
     local fileMenu = wx.wxMenu()
+    fileMenu:Append(ID_CLEAR_LOG, "&Clear log\tCtrl-C", "Clear text in the log window")
+    fileMenu:AppendSeparator()
     fileMenu:Append(wx.wxID_EXIT, "E&xit", "Quit the program")
 
     local helpMenu = wx.wxMenu()
@@ -924,6 +951,10 @@ function main()
     frame:CreateStatusBar(1)
     frame:SetStatusText("Welcome to wxLua.")
 
+
+    frame:Connect(ID_CLEAR_LOG, wx.wxEVT_COMMAND_MENU_SELECTED,
+                  function (event) textCtrl:Clear() end )
+
     -- connect the selection event of the exit menu item to an
     -- event handler that closes the window
     frame:Connect(wx.wxID_EXIT, wx.wxEVT_COMMAND_MENU_SELECTED,
@@ -932,8 +963,8 @@ function main()
     -- connect the selection event of the about menu item
     frame:Connect(wx.wxID_ABOUT, wx.wxEVT_COMMAND_MENU_SELECTED,
         function (event)
-            wx.wxMessageBox('This is the "About" dialog of the Controls wxLua sample.\n'..
-                            'Check or uncheck events you want shown.\n'..
+            wx.wxMessageBox('This is the "About" dialog of the Controls wxLua sample.\n\n'..
+                            'Check or uncheck events and windows you want logged.\n'..
                             wxlua.wxLUA_VERSION_STRING.." built with "..wx.wxVERSION_STRING,
                             "About wxLua",
                             wx.wxOK + wx.wxICON_INFORMATION,
@@ -1023,7 +1054,6 @@ function main()
                     ignoreEVTs[sel[n][2]] = nil
                 end
             elseif win_id == ID_CONTROL_LISTCTRL then
-                print(sel[n][2], type(sel[n][2]))
                 if img == 0 then
                     ignoreControls[tonumber(sel[n][2])] = true
                 else

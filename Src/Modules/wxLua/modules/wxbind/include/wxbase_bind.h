@@ -10,6 +10,20 @@
 
 #include "wxbind/include/wxbinddefs.h"
 #include "wxluasetup.h"
+    
+// ----------------------------------------------------------------------------
+// Convert from wxWidgets wxT('') to wxT(""), a string. Copied from wx/filefn.h
+
+// platform independent versions
+#if defined(__UNIX__) && !defined(__OS2__)
+  // CYGWIN also uses UNIX settings
+  #define wxLua_FILE_SEP_PATH     wxT("/")
+#elif defined(__MAC__)
+  #define wxLua_FILE_SEP_PATH     wxT(":")
+#else   // Windows and OS/2
+  #define wxLua_FILE_SEP_PATH     wxT("\\")
+#endif  // Unix/Windows
+
 
 #include "wxlua/include/wxlstate.h"
 #include "wxlua/include/wxlbind.h"
@@ -18,9 +32,9 @@
 // Check if the version of binding generator used to create this is older than
 //   the current version of the bindings.
 //   See 'bindings/genwxbind.lua' and 'modules/wxlua/include/wxldefs.h'
-#if WXLUA_BINDING_VERSION > 27
+#if WXLUA_BINDING_VERSION > 30
 #   error "The WXLUA_BINDING_VERSION in the bindings is too old, regenerate bindings."
-#endif //WXLUA_BINDING_VERSION > 27
+#endif //WXLUA_BINDING_VERSION > 30
 // ---------------------------------------------------------------------------
 
 // binding class
@@ -37,7 +51,7 @@ private:
 
 
 // initialize wxLuaBinding_wxbase for all wxLuaStates
-extern WXDLLIMPEXP_BINDWXBASE bool wxLuaBinding_wxbase_init();
+extern WXDLLIMPEXP_BINDWXBASE wxLuaBinding* wxLuaBinding_wxbase_init();
 
 // ---------------------------------------------------------------------------
 // Includes
@@ -310,117 +324,6 @@ extern WXDLLIMPEXP_DATA_BINDWXBASE(int) wxluatype_wxStringTokenizer;
     extern WXDLLIMPEXP_DATA_BINDWXBASE(int) wxluatype_wxStreamBase;
 #endif // wxUSE_STREAMS
 
-
-// ---------------------------------------------------------------------------
-// Encapsulation Declarations - need to be public for other bindings.
-// ---------------------------------------------------------------------------
-
-wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXBASE, wxDynamicLibrary, wxDynamicLibrary)
-wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXBASE, wxDynamicLibraryDetails, wxDynamicLibraryDetails)
-wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXBASE, wxDynamicLibraryDetailsArray, wxDynamicLibraryDetailsArray)
-wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXBASE, wxFileType, wxFileType)
-wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXBASE, wxFileType::MessageParameters, wxFileType_MessageParameters)
-wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXBASE, wxFileTypeInfo, wxFileTypeInfo)
-wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXBASE, wxIconLocation, wxIconLocation)
-wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXBASE, wxMimeTypesManager, wxMimeTypesManager)
-wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXBASE, wxPathList, wxPathList)
-wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXBASE, wxString, wxString)
-
-#if wxLUA_USE_wxArrayInt
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXBASE, wxArrayInt, wxArrayInt)
-#endif // wxLUA_USE_wxArrayInt
-
-#if wxLUA_USE_wxArrayString
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXBASE, wxArrayString, wxArrayString)
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXBASE, wxSortedArrayString, wxSortedArrayString)
-#endif // wxLUA_USE_wxArrayString
-
-#if wxLUA_USE_wxConfig && wxUSE_CONFIG
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXBASE, wxConfig, wxConfig)
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXBASE, wxConfigBase, wxConfigBase)
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXBASE, wxConfigPathChanger, wxConfigPathChanger)
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXBASE, wxFileConfig, wxFileConfig)
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXBASE, wxMemoryConfig, wxMemoryConfig)
-#endif // wxLUA_USE_wxConfig && wxUSE_CONFIG
-
-#if wxLUA_USE_wxCriticalSection && wxUSE_THREADS
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXBASE, wxCriticalSection, wxCriticalSection)
-#endif // wxLUA_USE_wxCriticalSection && wxUSE_THREADS
-
-#if wxLUA_USE_wxCriticalSectionLocker
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXBASE, wxCriticalSectionLocker, wxCriticalSectionLocker)
-#endif // wxLUA_USE_wxCriticalSectionLocker
-
-#if wxLUA_USE_wxDateSpan && wxUSE_DATETIME
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXBASE, wxDateSpan, wxDateSpan)
-#endif // wxLUA_USE_wxDateSpan && wxUSE_DATETIME
-
-#if wxLUA_USE_wxDateTime && wxUSE_DATETIME
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXBASE, wxDateTime, wxDateTime)
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXBASE, wxDateTimeArray, wxDateTimeArray)
-#endif // wxLUA_USE_wxDateTime && wxUSE_DATETIME
-
-#if wxLUA_USE_wxDateTimeHolidayAuthority && wxUSE_DATETIME
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXBASE, wxDateTimeHolidayAuthority, wxDateTimeHolidayAuthority)
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXBASE, wxDateTimeWorkDays, wxDateTimeWorkDays)
-#endif // wxLUA_USE_wxDateTimeHolidayAuthority && wxUSE_DATETIME
-
-#if wxLUA_USE_wxDir
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXBASE, wxDir, wxDir)
-#endif // wxLUA_USE_wxDir
-
-#if wxLUA_USE_wxFile && wxUSE_FILE
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXBASE, wxFile, wxFile)
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXBASE, wxTempFile, wxTempFile)
-#endif // wxLUA_USE_wxFile && wxUSE_FILE
-
-#if wxLUA_USE_wxFileName
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXBASE, wxFileName, wxFileName)
-#endif // wxLUA_USE_wxFileName
-
-#if wxLUA_USE_wxLog && wxUSE_LOG
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXBASE, wxLog, wxLog)
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXBASE, wxLogBuffer, wxLogBuffer)
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXBASE, wxLogChain, wxLogChain)
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXBASE, wxLogNull, wxLogNull)
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXBASE, wxLogPassThrough, wxLogPassThrough)
-#endif // wxLUA_USE_wxLog && wxUSE_LOG
-
-#if wxLUA_USE_wxRegEx && wxUSE_REGEX
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXBASE, wxRegEx, wxRegEx)
-#endif // wxLUA_USE_wxRegEx && wxUSE_REGEX
-
-#if wxLUA_USE_wxStopWatch && wxUSE_STOPWATCH
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXBASE, wxStopWatch, wxStopWatch)
-#endif // wxLUA_USE_wxStopWatch && wxUSE_STOPWATCH
-
-#if wxLUA_USE_wxTimeSpan && wxUSE_DATETIME
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXBASE, wxTimeSpan, wxTimeSpan)
-#endif // wxLUA_USE_wxTimeSpan && wxUSE_DATETIME
-
-#if wxUSE_INTL
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXBASE, wxLanguageInfo, wxLanguageInfo)
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXBASE, wxLocale, wxLocale)
-#endif // wxUSE_INTL
-
-#if wxUSE_LONGLONG
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXBASE, wxLongLong, wxLongLong)
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXBASE, wxULongLong, wxULongLong)
-#endif // wxUSE_LONGLONG
-
-#if wxUSE_SNGLINST_CHECKER
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXBASE, wxSingleInstanceChecker, wxSingleInstanceChecker)
-#endif // wxUSE_SNGLINST_CHECKER
-
-#if wxUSE_STREAMS
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXBASE, wxDataInputStream, wxDataInputStream)
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXBASE, wxDataOutputStream, wxDataOutputStream)
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXBASE, wxFileInputStream, wxFileInputStream)
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXBASE, wxFileOutputStream, wxFileOutputStream)
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXBASE, wxInputStream, wxInputStream)
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXBASE, wxMemoryInputStream, wxMemoryInputStream)
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXBASE, wxOutputStream, wxOutputStream)
-#endif // wxUSE_STREAMS
 
 
 #endif // __HOOK_WXLUA_wxbase_H__

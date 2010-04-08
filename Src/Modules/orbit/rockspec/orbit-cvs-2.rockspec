@@ -12,10 +12,11 @@ description = {
   homepage = "http://www.keplerproject.org/orbit"
 }
 
-dependencies = { 'luafilesystem cvs' }
+dependencies = { 'luafilesystem >= 1.5.0', 'lpeg >= 0.9', 'wsapi >= 1.3.4', 'mk' }
 
 source = {
-  url = "git://github.com/keplerproject/orbit.git"
+  url = "git://github.com/keplerproject/orbit.git",
+  branch = "origin/mk"
 }
 
 build = {
@@ -23,10 +24,9 @@ build = {
    modules = {
      orbit = "src/orbit.lua",
      ["orbit.model"] = "src/orbit/model.lua",
+     ["orbit.schema"] = "src/orbit/schema.lua",
      ["orbit.pages"] = "src/orbit/pages.lua",
-     ["orbit.cache"] = "src/orbit/cache.lua",
      ["orbit.ophandler"] = "src/orbit/ophandler.lua",
-     ["orbit.routes"] = "src/orbit/routes.lua",
    },
    install = { bin = { "src/launchers/orbit", "src/launchers/op.cgi", "src/launchers/op.fcgi" } },
    copy_directories = { "doc", "samples", "test" }

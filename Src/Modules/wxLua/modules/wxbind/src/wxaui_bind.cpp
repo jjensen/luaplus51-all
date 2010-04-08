@@ -4,16 +4,16 @@
 // Any changes made to this file will be lost when the file is regenerated.
 // ---------------------------------------------------------------------------
 
+
+#include "wx/wxprec.h"
+
 #ifdef __BORLANDC__
     #pragma hdrstop
 #endif
 
-#include "wx/wxprec.h"
-
 #ifndef WX_PRECOMP
      #include "wx/wx.h"
 #endif
-
 
 #include "wxlua/include/wxlstate.h"
 #include "wxbind/include/wxaui_bind.h"
@@ -138,7 +138,7 @@ static int LUACALL wxLua_wxAuiNotebookEvent_constructor1(lua_State *L)
     // call constructor
     wxAuiNotebookEvent* returns = new wxAuiNotebookEvent(*c);
     // add to tracked memory list
-    wxluaO_addgcobject(L, returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxAuiNotebookEvent);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxAuiNotebookEvent);
 
@@ -160,7 +160,7 @@ static int LUACALL wxLua_wxAuiNotebookEvent_constructor(lua_State *L)
     // call constructor
     wxAuiNotebookEvent* returns = new wxAuiNotebookEvent(command_type, win_id);
     // add to tracked memory list
-    wxluaO_addgcobject(L, returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxAuiNotebookEvent);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxAuiNotebookEvent);
 
@@ -180,6 +180,12 @@ static wxLuaBindCFunc s_wxluafunc_wxLua_wxAuiNotebookEvent_constructor_overload[
 static int s_wxluafunc_wxLua_wxAuiNotebookEvent_constructor_overload_count = sizeof(s_wxluafunc_wxLua_wxAuiNotebookEvent_constructor_overload)/sizeof(wxLuaBindCFunc);
 
 #endif // (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI)
+
+void wxLua_wxAuiNotebookEvent_delete_function(void** p)
+{
+    wxAuiNotebookEvent* o = (wxAuiNotebookEvent*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxAuiNotebookEvent_methods[] = {
@@ -386,6 +392,12 @@ static wxLuaBindCFunc s_wxluafunc_wxLua_wxAuiNotebookPage_delete[1] = {{ wxlua_u
 
 
 
+void wxLua_wxAuiNotebookPage_delete_function(void** p)
+{
+    wxAuiNotebookPage* o = (wxAuiNotebookPage*)(*p);
+    delete o;
+}
+
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxAuiNotebookPage_methods[] = {
     // %member    { "Get_active", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxAuiNotebookPage_Get_active, 1, NULL },
@@ -544,7 +556,7 @@ static int LUACALL wxLua_wxAuiNotebookPageArray_Item(lua_State *L)
     // allocate a new object using the copy constructor
     wxAuiNotebookPage* returns = new wxAuiNotebookPage(self->Item(nIndex));
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxAuiNotebookPage((wxAuiNotebookPage*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxAuiNotebookPage);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxAuiNotebookPage);
 
@@ -581,7 +593,7 @@ static int LUACALL wxLua_wxAuiNotebookPageArray_constructor1(lua_State *L)
     // call constructor
     wxAuiNotebookPageArray* returns = new wxAuiNotebookPageArray(*array);
     // add to tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxAuiNotebookPageArray((wxAuiNotebookPageArray*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxAuiNotebookPageArray);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxAuiNotebookPageArray);
 
@@ -596,7 +608,7 @@ static int LUACALL wxLua_wxAuiNotebookPageArray_constructor(lua_State *L)
     // call constructor
     wxAuiNotebookPageArray* returns = new wxAuiNotebookPageArray();
     // add to tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxAuiNotebookPageArray((wxAuiNotebookPageArray*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxAuiNotebookPageArray);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxAuiNotebookPageArray);
 
@@ -616,6 +628,12 @@ static wxLuaBindCFunc s_wxluafunc_wxLua_wxAuiNotebookPageArray_constructor_overl
 static int s_wxluafunc_wxLua_wxAuiNotebookPageArray_constructor_overload_count = sizeof(s_wxluafunc_wxLua_wxAuiNotebookPageArray_constructor_overload)/sizeof(wxLuaBindCFunc);
 
 #endif // (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI)
+
+void wxLua_wxAuiNotebookPageArray_delete_function(void** p)
+{
+    wxAuiNotebookPageArray* o = (wxAuiNotebookPageArray*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxAuiNotebookPageArray_methods[] = {
@@ -860,6 +878,12 @@ static wxLuaBindCFunc s_wxluafunc_wxLua_wxAuiTabContainerButton_delete[1] = {{ w
 
 
 
+void wxLua_wxAuiTabContainerButton_delete_function(void** p)
+{
+    wxAuiTabContainerButton* o = (wxAuiTabContainerButton*)(*p);
+    delete o;
+}
+
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxAuiTabContainerButton_methods[] = {
 #if (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI) && (wxLUA_USE_wxBitmap)
@@ -946,7 +970,7 @@ static int LUACALL wxLua_wxAuiTabArt_Clone(lua_State *L)
     wxAuiTabArt * self = (wxAuiTabArt *)wxluaT_getuserdatatype(L, 1, wxluatype_wxAuiTabArt);
     // call Clone
     wxAuiTabArt* returns = (wxAuiTabArt*)self->Clone();
-    if (!wxluaO_isgcobject(L, returns)) wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxAuiTabArt(returns));
+    if (!wxluaO_isgcobject(L, returns)) wxluaO_addgcobject(L, returns, wxluatype_wxAuiTabArt);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxAuiTabArt);
 
@@ -1104,7 +1128,7 @@ static int LUACALL wxLua_wxAuiTabArt_GetTabSize(lua_State *L)
     // allocate a new object using the copy constructor
     wxSize* returns = new wxSize(self->GetTabSize(*dc, wnd, caption, *bitmap, active, close_button_state, x_extent));
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxSize((wxSize*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxSize);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxSize);
 
@@ -1230,6 +1254,12 @@ static wxLuaBindCFunc s_wxluafunc_wxLua_wxAuiTabArt_delete[1] = {{ wxlua_userdat
 
 
 
+void wxLua_wxAuiTabArt_delete_function(void** p)
+{
+    wxAuiTabArt* o = (wxAuiTabArt*)(*p);
+    delete o;
+}
+
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxAuiTabArt_methods[] = {
     { "Clone", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxAuiTabArt_Clone, 1, NULL },
@@ -1292,7 +1322,7 @@ static int LUACALL wxLua_wxAuiDefaultTabArt_constructor(lua_State *L)
     // call constructor
     wxAuiDefaultTabArt* returns = new wxAuiDefaultTabArt();
     // add to tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxAuiDefaultTabArt((wxAuiDefaultTabArt*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxAuiDefaultTabArt);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxAuiDefaultTabArt);
 
@@ -1301,6 +1331,12 @@ static int LUACALL wxLua_wxAuiDefaultTabArt_constructor(lua_State *L)
 
 
 
+
+void wxLua_wxAuiDefaultTabArt_delete_function(void** p)
+{
+    wxAuiDefaultTabArt* o = (wxAuiDefaultTabArt*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxAuiDefaultTabArt_methods[] = {
@@ -1334,7 +1370,7 @@ static int LUACALL wxLua_wxAuiSimpleTabArt_constructor(lua_State *L)
     // call constructor
     wxAuiSimpleTabArt* returns = new wxAuiSimpleTabArt();
     // add to tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxAuiSimpleTabArt((wxAuiSimpleTabArt*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxAuiSimpleTabArt);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxAuiSimpleTabArt);
 
@@ -1343,6 +1379,12 @@ static int LUACALL wxLua_wxAuiSimpleTabArt_constructor(lua_State *L)
 
 
 
+
+void wxLua_wxAuiSimpleTabArt_delete_function(void** p)
+{
+    wxAuiSimpleTabArt* o = (wxAuiSimpleTabArt*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxAuiSimpleTabArt_methods[] = {
@@ -2011,6 +2053,12 @@ static int s_wxluafunc_wxLua_wxAuiTabCtrl_SetActivePage_overload_count = sizeof(
 
 #endif // (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI)
 
+void wxLua_wxAuiTabCtrl_delete_function(void** p)
+{
+    wxAuiTabCtrl* o = (wxAuiTabCtrl*)(*p);
+    delete o;
+}
+
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxAuiTabCtrl_methods[] = {
 #if (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI) && (wxLUA_USE_wxBitmap)
@@ -2289,7 +2337,7 @@ static int LUACALL wxLua_wxAuiNotebook_GetPageBitmap(lua_State *L)
     // allocate a new object using the copy constructor
     wxBitmap* returns = new wxBitmap(self->GetPageBitmap(page_idx));
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (wxBitmap*)returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxBitmap);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxBitmap);
 
@@ -2740,6 +2788,12 @@ static int s_wxluafunc_wxLua_wxAuiNotebook_constructor_overload_count = sizeof(s
 
 #endif // ((wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI) && (wxLUA_USE_wxPointSizeRect))||(wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI)
 
+void wxLua_wxAuiNotebook_delete_function(void** p)
+{
+    wxAuiNotebook* o = (wxAuiNotebook*)(*p);
+    delete o;
+}
+
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxAuiNotebook_methods[] = {
 #if (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI) && (wxLUA_USE_wxBitmap)
@@ -2994,7 +3048,7 @@ static int LUACALL wxLua_wxAuiDockArt_GetColor(lua_State *L)
     // allocate a new object using the copy constructor
     wxColour* returns = new wxColour(self->GetColor(id));
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (wxColour*)returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxColour);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxColour);
 
@@ -3015,7 +3069,7 @@ static int LUACALL wxLua_wxAuiDockArt_GetColour(lua_State *L)
     // allocate a new object using the copy constructor
     wxColour* returns = new wxColour(self->GetColour(id));
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (wxColour*)returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxColour);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxColour);
 
@@ -3039,7 +3093,7 @@ static int LUACALL wxLua_wxAuiDockArt_GetFont(lua_State *L)
     // allocate a new object using the copy constructor
     wxFont* returns = new wxFont(self->GetFont(id));
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (wxFont*)returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxFont);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxFont);
 
@@ -3151,6 +3205,12 @@ static wxLuaBindCFunc s_wxluafunc_wxLua_wxAuiDockArt_delete[1] = {{ wxlua_userda
 
 
 
+void wxLua_wxAuiDockArt_delete_function(void** p)
+{
+    wxAuiDockArt* o = (wxAuiDockArt*)(*p);
+    delete o;
+}
+
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxAuiDockArt_methods[] = {
 #if ((wxLUA_USE_wxPointSizeRect) && (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI)) && (wxLUA_USE_wxDC)
@@ -3212,7 +3272,7 @@ static int LUACALL wxLua_wxAuiDefaultDockArt_constructor(lua_State *L)
     // call constructor
     wxAuiDefaultDockArt* returns = new wxAuiDefaultDockArt();
     // add to tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxAuiDefaultDockArt((wxAuiDefaultDockArt*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxAuiDefaultDockArt);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxAuiDefaultDockArt);
 
@@ -3221,6 +3281,12 @@ static int LUACALL wxLua_wxAuiDefaultDockArt_constructor(lua_State *L)
 
 
 
+
+void wxLua_wxAuiDefaultDockArt_delete_function(void** p)
+{
+    wxAuiDefaultDockArt* o = (wxAuiDefaultDockArt*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxAuiDefaultDockArt_methods[] = {
@@ -3305,6 +3371,12 @@ static int LUACALL wxLua_wxAuiFloatingFrame_constructor(lua_State *L)
 
 
 
+
+void wxLua_wxAuiFloatingFrame_delete_function(void** p)
+{
+    wxAuiFloatingFrame* o = (wxAuiFloatingFrame*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxAuiFloatingFrame_methods[] = {
@@ -5249,7 +5321,7 @@ static int LUACALL wxLua_wxAuiPaneInfo_constructor1(lua_State *L)
     // call constructor
     wxAuiPaneInfo* returns = new wxAuiPaneInfo(*c);
     // add to tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxAuiPaneInfo((wxAuiPaneInfo*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxAuiPaneInfo);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxAuiPaneInfo);
 
@@ -5264,7 +5336,7 @@ static int LUACALL wxLua_wxAuiPaneInfo_constructor(lua_State *L)
     // call constructor
     wxAuiPaneInfo* returns = new wxAuiPaneInfo();
     // add to tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxAuiPaneInfo((wxAuiPaneInfo*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxAuiPaneInfo);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxAuiPaneInfo);
 
@@ -5342,6 +5414,12 @@ static wxLuaBindCFunc s_wxluafunc_wxLua_wxAuiPaneInfo_constructor_overload[] =
 static int s_wxluafunc_wxLua_wxAuiPaneInfo_constructor_overload_count = sizeof(s_wxluafunc_wxLua_wxAuiPaneInfo_constructor_overload)/sizeof(wxLuaBindCFunc);
 
 #endif // (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI)
+
+void wxLua_wxAuiPaneInfo_delete_function(void** p)
+{
+    wxAuiPaneInfo* o = (wxAuiPaneInfo*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxAuiPaneInfo_methods[] = {
@@ -5699,7 +5777,7 @@ static int LUACALL wxLua_wxAuiPaneInfoArray_Item(lua_State *L)
     // allocate a new object using the copy constructor
     wxAuiPaneInfo* returns = new wxAuiPaneInfo(self->Item(nIndex));
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxAuiPaneInfo((wxAuiPaneInfo*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxAuiPaneInfo);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxAuiPaneInfo);
 
@@ -5736,7 +5814,7 @@ static int LUACALL wxLua_wxAuiPaneInfoArray_constructor1(lua_State *L)
     // call constructor
     wxAuiPaneInfoArray* returns = new wxAuiPaneInfoArray(*array);
     // add to tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxAuiPaneInfoArray((wxAuiPaneInfoArray*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxAuiPaneInfoArray);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxAuiPaneInfoArray);
 
@@ -5751,7 +5829,7 @@ static int LUACALL wxLua_wxAuiPaneInfoArray_constructor(lua_State *L)
     // call constructor
     wxAuiPaneInfoArray* returns = new wxAuiPaneInfoArray();
     // add to tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxAuiPaneInfoArray((wxAuiPaneInfoArray*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxAuiPaneInfoArray);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxAuiPaneInfoArray);
 
@@ -5771,6 +5849,12 @@ static wxLuaBindCFunc s_wxluafunc_wxLua_wxAuiPaneInfoArray_constructor_overload[
 static int s_wxluafunc_wxLua_wxAuiPaneInfoArray_constructor_overload_count = sizeof(s_wxluafunc_wxLua_wxAuiPaneInfoArray_constructor_overload)/sizeof(wxLuaBindCFunc);
 
 #endif // (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI)
+
+void wxLua_wxAuiPaneInfoArray_delete_function(void** p)
+{
+    wxAuiPaneInfoArray* o = (wxAuiPaneInfoArray*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxAuiPaneInfoArray_methods[] = {
@@ -5893,7 +5977,7 @@ static int LUACALL wxLua_wxAuiManager_CalculateHintRect(lua_State *L)
     // allocate a new object using the copy constructor
     wxRect* returns = new wxRect(self->CalculateHintRect(pane_window, *pt, *offset));
     // add the new object to the tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxRect((wxRect*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxRect);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxRect);
 
@@ -6451,8 +6535,6 @@ static int LUACALL wxLua_wxAuiManager_constructor(lua_State *L)
     wxWindow * managed_wnd = (argCount >= 1 ? (wxWindow *)wxluaT_getuserdatatype(L, 1, wxluatype_wxWindow) : NULL);
     // call constructor
     wxAuiManager* returns = new wxAuiManager(managed_wnd, flags);
-    // add to tracked window list, it will check validity
-    wxluaW_addtrackedwindow(L, returns);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxAuiManager);
 
@@ -6487,6 +6569,12 @@ static wxLuaBindCFunc s_wxluafunc_wxLua_wxAuiManager_GetPane_overload[] =
 static int s_wxluafunc_wxLua_wxAuiManager_GetPane_overload_count = sizeof(s_wxluafunc_wxLua_wxAuiManager_GetPane_overload)/sizeof(wxLuaBindCFunc);
 
 #endif // (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI)
+
+void wxLua_wxAuiManager_delete_function(void** p)
+{
+    wxAuiManager* o = (wxAuiManager*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxAuiManager_methods[] = {
@@ -6774,7 +6862,7 @@ static int LUACALL wxLua_wxAuiManagerEvent_constructor1(lua_State *L)
     // call constructor
     wxAuiManagerEvent* returns = new wxAuiManagerEvent(*c);
     // add to tracked memory list
-    wxluaO_addgcobject(L, returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxAuiManagerEvent);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxAuiManagerEvent);
 
@@ -6794,7 +6882,7 @@ static int LUACALL wxLua_wxAuiManagerEvent_constructor(lua_State *L)
     // call constructor
     wxAuiManagerEvent* returns = new wxAuiManagerEvent(type);
     // add to tracked memory list
-    wxluaO_addgcobject(L, returns);
+    wxluaO_addgcobject(L, returns, wxluatype_wxAuiManagerEvent);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxAuiManagerEvent);
 
@@ -6814,6 +6902,12 @@ static wxLuaBindCFunc s_wxluafunc_wxLua_wxAuiManagerEvent_constructor_overload[]
 static int s_wxluafunc_wxLua_wxAuiManagerEvent_constructor_overload_count = sizeof(s_wxluafunc_wxLua_wxAuiManagerEvent_constructor_overload)/sizeof(wxLuaBindCFunc);
 
 #endif // (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI)
+
+void wxLua_wxAuiManagerEvent_delete_function(void** p)
+{
+    wxAuiManagerEvent* o = (wxAuiManagerEvent*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxAuiManagerEvent_methods[] = {
@@ -7242,7 +7336,7 @@ static int LUACALL wxLua_wxAuiDockInfo_constructor1(lua_State *L)
     // call constructor
     wxAuiDockInfo* returns = new wxAuiDockInfo(*c);
     // add to tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxAuiDockInfo((wxAuiDockInfo*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxAuiDockInfo);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxAuiDockInfo);
 
@@ -7257,7 +7351,7 @@ static int LUACALL wxLua_wxAuiDockInfo_constructor(lua_State *L)
     // call constructor
     wxAuiDockInfo* returns = new wxAuiDockInfo();
     // add to tracked memory list
-    wxluaO_addgcobject(L, (void*)returns, new wxLua_wxObject_wxAuiDockInfo((wxAuiDockInfo*)returns));
+    wxluaO_addgcobject(L, returns, wxluatype_wxAuiDockInfo);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxAuiDockInfo);
 
@@ -7277,6 +7371,12 @@ static wxLuaBindCFunc s_wxluafunc_wxLua_wxAuiDockInfo_constructor_overload[] =
 static int s_wxluafunc_wxLua_wxAuiDockInfo_constructor_overload_count = sizeof(s_wxluafunc_wxLua_wxAuiDockInfo_constructor_overload)/sizeof(wxLuaBindCFunc);
 
 #endif // (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI)
+
+void wxLua_wxAuiDockInfo_delete_function(void** p)
+{
+    wxAuiDockInfo* o = (wxAuiDockInfo*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxAuiDockInfo_methods[] = {
@@ -7629,6 +7729,12 @@ static wxLuaBindCFunc s_wxluafunc_wxLua_wxAuiDockUIPart_delete[1] = {{ wxlua_use
 
 
 
+void wxLua_wxAuiDockUIPart_delete_function(void** p)
+{
+    wxAuiDockUIPart* o = (wxAuiDockUIPart*)(*p);
+    delete o;
+}
+
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxAuiDockUIPart_methods[] = {
     // %member    { "Get_button", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxAuiDockUIPart_Get_button, 1, NULL },
@@ -7764,6 +7870,12 @@ static wxLuaBindCFunc s_wxluafunc_wxLua_wxAuiPaneButton_delete[1] = {{ wxlua_use
 
 
 
+
+void wxLua_wxAuiPaneButton_delete_function(void** p)
+{
+    wxAuiPaneButton* o = (wxAuiPaneButton*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxAuiPaneButton_methods[] = {
@@ -8170,6 +8282,12 @@ static int s_wxluafunc_wxLua_wxAuiMDIParentFrame_constructor_overload_count = si
 
 #endif // ((wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI) && (wxLUA_USE_wxPointSizeRect))||(wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI)
 
+void wxLua_wxAuiMDIParentFrame_delete_function(void** p)
+{
+    wxAuiMDIParentFrame* o = (wxAuiMDIParentFrame*)(*p);
+    delete o;
+}
+
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxAuiMDIParentFrame_methods[] = {
     { "ActivateNext", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxAuiMDIParentFrame_ActivateNext, 1, NULL },
@@ -8563,6 +8681,12 @@ static int s_wxluafunc_wxLua_wxAuiMDIChildFrame_constructor_overload_count = siz
 
 #endif // ((wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI) && (wxLUA_USE_wxPointSizeRect))||(wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI)
 
+void wxLua_wxAuiMDIChildFrame_delete_function(void** p)
+{
+    wxAuiMDIChildFrame* o = (wxAuiMDIChildFrame*)(*p);
+    delete o;
+}
+
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxAuiMDIChildFrame_methods[] = {
     { "Activate", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxAuiMDIChildFrame_Activate, 1, NULL },
@@ -8711,6 +8835,12 @@ static wxLuaBindCFunc s_wxluafunc_wxLua_wxAuiMDIClientWindow_constructor_overloa
 static int s_wxluafunc_wxLua_wxAuiMDIClientWindow_constructor_overload_count = sizeof(s_wxluafunc_wxLua_wxAuiMDIClientWindow_constructor_overload)/sizeof(wxLuaBindCFunc);
 
 #endif // (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI)
+
+void wxLua_wxAuiMDIClientWindow_delete_function(void** p)
+{
+    wxAuiMDIClientWindow* o = (wxAuiMDIClientWindow*)(*p);
+    delete o;
+}
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxAuiMDIClientWindow_methods[] = {
@@ -9009,52 +9139,74 @@ static wxLuaBindClass* wxluabaseclassbinds_wxAuiTabCtrl[] = { NULL };
 #if wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI
     extern wxLuaBindMethod wxAuiDefaultDockArt_methods[];
     extern int wxAuiDefaultDockArt_methodCount;
+    extern void wxLua_wxAuiDefaultDockArt_delete_function(void** p);
     extern wxLuaBindMethod wxAuiDefaultTabArt_methods[];
     extern int wxAuiDefaultTabArt_methodCount;
+    extern void wxLua_wxAuiDefaultTabArt_delete_function(void** p);
     extern wxLuaBindMethod wxAuiDockArt_methods[];
     extern int wxAuiDockArt_methodCount;
+    extern void wxLua_wxAuiDockArt_delete_function(void** p);
     extern wxLuaBindMethod wxAuiDockInfo_methods[];
     extern int wxAuiDockInfo_methodCount;
+    extern void wxLua_wxAuiDockInfo_delete_function(void** p);
     extern wxLuaBindMethod wxAuiDockUIPart_methods[];
     extern int wxAuiDockUIPart_methodCount;
     extern wxLuaBindNumber wxAuiDockUIPart_enums[];
     extern int wxAuiDockUIPart_enumCount;
+    extern void wxLua_wxAuiDockUIPart_delete_function(void** p);
     extern wxLuaBindMethod wxAuiFloatingFrame_methods[];
     extern int wxAuiFloatingFrame_methodCount;
+    extern void wxLua_wxAuiFloatingFrame_delete_function(void** p);
     extern wxLuaBindMethod wxAuiMDIChildFrame_methods[];
     extern int wxAuiMDIChildFrame_methodCount;
+    extern void wxLua_wxAuiMDIChildFrame_delete_function(void** p);
     extern wxLuaBindMethod wxAuiMDIClientWindow_methods[];
     extern int wxAuiMDIClientWindow_methodCount;
+    extern void wxLua_wxAuiMDIClientWindow_delete_function(void** p);
     extern wxLuaBindMethod wxAuiMDIParentFrame_methods[];
     extern int wxAuiMDIParentFrame_methodCount;
+    extern void wxLua_wxAuiMDIParentFrame_delete_function(void** p);
     extern wxLuaBindMethod wxAuiManager_methods[];
     extern int wxAuiManager_methodCount;
+    extern void wxLua_wxAuiManager_delete_function(void** p);
     extern wxLuaBindMethod wxAuiManagerEvent_methods[];
     extern int wxAuiManagerEvent_methodCount;
+    extern void wxLua_wxAuiManagerEvent_delete_function(void** p);
     extern wxLuaBindMethod wxAuiNotebook_methods[];
     extern int wxAuiNotebook_methodCount;
+    extern void wxLua_wxAuiNotebook_delete_function(void** p);
     extern wxLuaBindMethod wxAuiNotebookEvent_methods[];
     extern int wxAuiNotebookEvent_methodCount;
+    extern void wxLua_wxAuiNotebookEvent_delete_function(void** p);
     extern wxLuaBindMethod wxAuiNotebookPage_methods[];
     extern int wxAuiNotebookPage_methodCount;
+    extern void wxLua_wxAuiNotebookPage_delete_function(void** p);
     extern wxLuaBindMethod wxAuiNotebookPageArray_methods[];
     extern int wxAuiNotebookPageArray_methodCount;
+    extern void wxLua_wxAuiNotebookPageArray_delete_function(void** p);
     extern wxLuaBindMethod wxAuiPaneButton_methods[];
     extern int wxAuiPaneButton_methodCount;
+    extern void wxLua_wxAuiPaneButton_delete_function(void** p);
     extern wxLuaBindMethod wxAuiPaneInfo_methods[];
     extern int wxAuiPaneInfo_methodCount;
     extern wxLuaBindNumber wxAuiPaneInfo_enums[];
     extern int wxAuiPaneInfo_enumCount;
+    extern void wxLua_wxAuiPaneInfo_delete_function(void** p);
     extern wxLuaBindMethod wxAuiPaneInfoArray_methods[];
     extern int wxAuiPaneInfoArray_methodCount;
+    extern void wxLua_wxAuiPaneInfoArray_delete_function(void** p);
     extern wxLuaBindMethod wxAuiSimpleTabArt_methods[];
     extern int wxAuiSimpleTabArt_methodCount;
+    extern void wxLua_wxAuiSimpleTabArt_delete_function(void** p);
     extern wxLuaBindMethod wxAuiTabArt_methods[];
     extern int wxAuiTabArt_methodCount;
+    extern void wxLua_wxAuiTabArt_delete_function(void** p);
     extern wxLuaBindMethod wxAuiTabContainerButton_methods[];
     extern int wxAuiTabContainerButton_methodCount;
+    extern void wxLua_wxAuiTabContainerButton_delete_function(void** p);
     extern wxLuaBindMethod wxAuiTabCtrl_methods[];
     extern int wxAuiTabCtrl_methodCount;
+    extern void wxLua_wxAuiTabCtrl_delete_function(void** p);
 #endif // wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI
 
 
@@ -9065,28 +9217,28 @@ wxLuaBindClass* wxLuaGetClassList_wxaui(size_t &count)
     static wxLuaBindClass classList[] =
     {
 #if wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI
-        { wxluaclassname_wxAuiDefaultDockArt, wxAuiDefaultDockArt_methods, wxAuiDefaultDockArt_methodCount, NULL, &wxluatype_wxAuiDefaultDockArt, wxluabaseclassnames_wxAuiDefaultDockArt, wxluabaseclassbinds_wxAuiDefaultDockArt, g_wxluanumberArray_None, 0, }, 
-        { wxluaclassname_wxAuiDefaultTabArt, wxAuiDefaultTabArt_methods, wxAuiDefaultTabArt_methodCount, NULL, &wxluatype_wxAuiDefaultTabArt, wxluabaseclassnames_wxAuiDefaultTabArt, wxluabaseclassbinds_wxAuiDefaultTabArt, g_wxluanumberArray_None, 0, }, 
-        { wxluaclassname_wxAuiDockArt, wxAuiDockArt_methods, wxAuiDockArt_methodCount, NULL, &wxluatype_wxAuiDockArt, NULL, NULL, g_wxluanumberArray_None, 0, }, 
-        { wxluaclassname_wxAuiDockInfo, wxAuiDockInfo_methods, wxAuiDockInfo_methodCount, NULL, &wxluatype_wxAuiDockInfo, NULL, NULL, g_wxluanumberArray_None, 0, }, 
-        { wxluaclassname_wxAuiDockUIPart, wxAuiDockUIPart_methods, wxAuiDockUIPart_methodCount, NULL, &wxluatype_wxAuiDockUIPart, NULL, NULL, wxAuiDockUIPart_enums, wxAuiDockUIPart_enumCount, }, 
-        { wxluaclassname_wxAuiFloatingFrame, wxAuiFloatingFrame_methods, wxAuiFloatingFrame_methodCount, CLASSINFO(wxAuiFloatingFrame), &wxluatype_wxAuiFloatingFrame, wxluabaseclassnames_wxAuiFloatingFrame, wxluabaseclassbinds_wxAuiFloatingFrame, g_wxluanumberArray_None, 0, }, 
-        { wxluaclassname_wxAuiMDIChildFrame, wxAuiMDIChildFrame_methods, wxAuiMDIChildFrame_methodCount, CLASSINFO(wxAuiMDIChildFrame), &wxluatype_wxAuiMDIChildFrame, wxluabaseclassnames_wxAuiMDIChildFrame, wxluabaseclassbinds_wxAuiMDIChildFrame, g_wxluanumberArray_None, 0, }, 
-        { wxluaclassname_wxAuiMDIClientWindow, wxAuiMDIClientWindow_methods, wxAuiMDIClientWindow_methodCount, CLASSINFO(wxAuiMDIClientWindow), &wxluatype_wxAuiMDIClientWindow, wxluabaseclassnames_wxAuiMDIClientWindow, wxluabaseclassbinds_wxAuiMDIClientWindow, g_wxluanumberArray_None, 0, }, 
-        { wxluaclassname_wxAuiMDIParentFrame, wxAuiMDIParentFrame_methods, wxAuiMDIParentFrame_methodCount, CLASSINFO(wxAuiMDIParentFrame), &wxluatype_wxAuiMDIParentFrame, wxluabaseclassnames_wxAuiMDIParentFrame, wxluabaseclassbinds_wxAuiMDIParentFrame, g_wxluanumberArray_None, 0, }, 
-        { wxluaclassname_wxAuiManager, wxAuiManager_methods, wxAuiManager_methodCount, CLASSINFO(wxAuiManager), &wxluatype_wxAuiManager, wxluabaseclassnames_wxAuiManager, wxluabaseclassbinds_wxAuiManager, g_wxluanumberArray_None, 0, }, 
-        { wxluaclassname_wxAuiManagerEvent, wxAuiManagerEvent_methods, wxAuiManagerEvent_methodCount, CLASSINFO(wxAuiManagerEvent), &wxluatype_wxAuiManagerEvent, wxluabaseclassnames_wxAuiManagerEvent, wxluabaseclassbinds_wxAuiManagerEvent, g_wxluanumberArray_None, 0, }, 
-        { wxluaclassname_wxAuiNotebook, wxAuiNotebook_methods, wxAuiNotebook_methodCount, CLASSINFO(wxAuiNotebook), &wxluatype_wxAuiNotebook, wxluabaseclassnames_wxAuiNotebook, wxluabaseclassbinds_wxAuiNotebook, g_wxluanumberArray_None, 0, }, 
-        { wxluaclassname_wxAuiNotebookEvent, wxAuiNotebookEvent_methods, wxAuiNotebookEvent_methodCount, CLASSINFO(wxAuiNotebookEvent), &wxluatype_wxAuiNotebookEvent, wxluabaseclassnames_wxAuiNotebookEvent, wxluabaseclassbinds_wxAuiNotebookEvent, g_wxluanumberArray_None, 0, }, 
-        { wxluaclassname_wxAuiNotebookPage, wxAuiNotebookPage_methods, wxAuiNotebookPage_methodCount, NULL, &wxluatype_wxAuiNotebookPage, NULL, NULL, g_wxluanumberArray_None, 0, }, 
-        { wxluaclassname_wxAuiNotebookPageArray, wxAuiNotebookPageArray_methods, wxAuiNotebookPageArray_methodCount, NULL, &wxluatype_wxAuiNotebookPageArray, NULL, NULL, g_wxluanumberArray_None, 0, }, 
-        { wxluaclassname_wxAuiPaneButton, wxAuiPaneButton_methods, wxAuiPaneButton_methodCount, NULL, &wxluatype_wxAuiPaneButton, NULL, NULL, g_wxluanumberArray_None, 0, }, 
-        { wxluaclassname_wxAuiPaneInfo, wxAuiPaneInfo_methods, wxAuiPaneInfo_methodCount, NULL, &wxluatype_wxAuiPaneInfo, NULL, NULL, wxAuiPaneInfo_enums, wxAuiPaneInfo_enumCount, }, 
-        { wxluaclassname_wxAuiPaneInfoArray, wxAuiPaneInfoArray_methods, wxAuiPaneInfoArray_methodCount, NULL, &wxluatype_wxAuiPaneInfoArray, NULL, NULL, g_wxluanumberArray_None, 0, }, 
-        { wxluaclassname_wxAuiSimpleTabArt, wxAuiSimpleTabArt_methods, wxAuiSimpleTabArt_methodCount, NULL, &wxluatype_wxAuiSimpleTabArt, wxluabaseclassnames_wxAuiSimpleTabArt, wxluabaseclassbinds_wxAuiSimpleTabArt, g_wxluanumberArray_None, 0, }, 
-        { wxluaclassname_wxAuiTabArt, wxAuiTabArt_methods, wxAuiTabArt_methodCount, NULL, &wxluatype_wxAuiTabArt, NULL, NULL, g_wxluanumberArray_None, 0, }, 
-        { wxluaclassname_wxAuiTabContainerButton, wxAuiTabContainerButton_methods, wxAuiTabContainerButton_methodCount, NULL, &wxluatype_wxAuiTabContainerButton, NULL, NULL, g_wxluanumberArray_None, 0, }, 
-        { wxluaclassname_wxAuiTabCtrl, wxAuiTabCtrl_methods, wxAuiTabCtrl_methodCount, CLASSINFO(wxAuiTabCtrl), &wxluatype_wxAuiTabCtrl, wxluabaseclassnames_wxAuiTabCtrl, wxluabaseclassbinds_wxAuiTabCtrl, g_wxluanumberArray_None, 0, }, 
+        { wxluaclassname_wxAuiDefaultDockArt, wxAuiDefaultDockArt_methods, wxAuiDefaultDockArt_methodCount, NULL, &wxluatype_wxAuiDefaultDockArt, wxluabaseclassnames_wxAuiDefaultDockArt, wxluabaseclassbinds_wxAuiDefaultDockArt, NULL, NULL, NULL, 0, &wxLua_wxAuiDefaultDockArt_delete_function, }, 
+        { wxluaclassname_wxAuiDefaultTabArt, wxAuiDefaultTabArt_methods, wxAuiDefaultTabArt_methodCount, NULL, &wxluatype_wxAuiDefaultTabArt, wxluabaseclassnames_wxAuiDefaultTabArt, wxluabaseclassbinds_wxAuiDefaultTabArt, NULL, NULL, NULL, 0, &wxLua_wxAuiDefaultTabArt_delete_function, }, 
+        { wxluaclassname_wxAuiDockArt, wxAuiDockArt_methods, wxAuiDockArt_methodCount, NULL, &wxluatype_wxAuiDockArt, NULL, NULL, NULL, NULL, NULL, 0, &wxLua_wxAuiDockArt_delete_function, }, 
+        { wxluaclassname_wxAuiDockInfo, wxAuiDockInfo_methods, wxAuiDockInfo_methodCount, NULL, &wxluatype_wxAuiDockInfo, NULL, NULL, NULL, NULL, NULL, 0, &wxLua_wxAuiDockInfo_delete_function, }, 
+        { wxluaclassname_wxAuiDockUIPart, wxAuiDockUIPart_methods, wxAuiDockUIPart_methodCount, NULL, &wxluatype_wxAuiDockUIPart, NULL, NULL, NULL, NULL, wxAuiDockUIPart_enums, wxAuiDockUIPart_enumCount, &wxLua_wxAuiDockUIPart_delete_function, }, 
+        { wxluaclassname_wxAuiFloatingFrame, wxAuiFloatingFrame_methods, wxAuiFloatingFrame_methodCount, CLASSINFO(wxAuiFloatingFrame), &wxluatype_wxAuiFloatingFrame, wxluabaseclassnames_wxAuiFloatingFrame, wxluabaseclassbinds_wxAuiFloatingFrame, NULL, NULL, NULL, 0, &wxLua_wxAuiFloatingFrame_delete_function, }, 
+        { wxluaclassname_wxAuiMDIChildFrame, wxAuiMDIChildFrame_methods, wxAuiMDIChildFrame_methodCount, CLASSINFO(wxAuiMDIChildFrame), &wxluatype_wxAuiMDIChildFrame, wxluabaseclassnames_wxAuiMDIChildFrame, wxluabaseclassbinds_wxAuiMDIChildFrame, NULL, NULL, NULL, 0, &wxLua_wxAuiMDIChildFrame_delete_function, }, 
+        { wxluaclassname_wxAuiMDIClientWindow, wxAuiMDIClientWindow_methods, wxAuiMDIClientWindow_methodCount, CLASSINFO(wxAuiMDIClientWindow), &wxluatype_wxAuiMDIClientWindow, wxluabaseclassnames_wxAuiMDIClientWindow, wxluabaseclassbinds_wxAuiMDIClientWindow, NULL, NULL, NULL, 0, &wxLua_wxAuiMDIClientWindow_delete_function, }, 
+        { wxluaclassname_wxAuiMDIParentFrame, wxAuiMDIParentFrame_methods, wxAuiMDIParentFrame_methodCount, CLASSINFO(wxAuiMDIParentFrame), &wxluatype_wxAuiMDIParentFrame, wxluabaseclassnames_wxAuiMDIParentFrame, wxluabaseclassbinds_wxAuiMDIParentFrame, NULL, NULL, NULL, 0, &wxLua_wxAuiMDIParentFrame_delete_function, }, 
+        { wxluaclassname_wxAuiManager, wxAuiManager_methods, wxAuiManager_methodCount, CLASSINFO(wxAuiManager), &wxluatype_wxAuiManager, wxluabaseclassnames_wxAuiManager, wxluabaseclassbinds_wxAuiManager, NULL, NULL, NULL, 0, &wxLua_wxAuiManager_delete_function, }, 
+        { wxluaclassname_wxAuiManagerEvent, wxAuiManagerEvent_methods, wxAuiManagerEvent_methodCount, CLASSINFO(wxAuiManagerEvent), &wxluatype_wxAuiManagerEvent, wxluabaseclassnames_wxAuiManagerEvent, wxluabaseclassbinds_wxAuiManagerEvent, NULL, NULL, NULL, 0, &wxLua_wxAuiManagerEvent_delete_function, }, 
+        { wxluaclassname_wxAuiNotebook, wxAuiNotebook_methods, wxAuiNotebook_methodCount, CLASSINFO(wxAuiNotebook), &wxluatype_wxAuiNotebook, wxluabaseclassnames_wxAuiNotebook, wxluabaseclassbinds_wxAuiNotebook, NULL, NULL, NULL, 0, &wxLua_wxAuiNotebook_delete_function, }, 
+        { wxluaclassname_wxAuiNotebookEvent, wxAuiNotebookEvent_methods, wxAuiNotebookEvent_methodCount, CLASSINFO(wxAuiNotebookEvent), &wxluatype_wxAuiNotebookEvent, wxluabaseclassnames_wxAuiNotebookEvent, wxluabaseclassbinds_wxAuiNotebookEvent, NULL, NULL, NULL, 0, &wxLua_wxAuiNotebookEvent_delete_function, }, 
+        { wxluaclassname_wxAuiNotebookPage, wxAuiNotebookPage_methods, wxAuiNotebookPage_methodCount, NULL, &wxluatype_wxAuiNotebookPage, NULL, NULL, NULL, NULL, NULL, 0, &wxLua_wxAuiNotebookPage_delete_function, }, 
+        { wxluaclassname_wxAuiNotebookPageArray, wxAuiNotebookPageArray_methods, wxAuiNotebookPageArray_methodCount, NULL, &wxluatype_wxAuiNotebookPageArray, NULL, NULL, NULL, NULL, NULL, 0, &wxLua_wxAuiNotebookPageArray_delete_function, }, 
+        { wxluaclassname_wxAuiPaneButton, wxAuiPaneButton_methods, wxAuiPaneButton_methodCount, NULL, &wxluatype_wxAuiPaneButton, NULL, NULL, NULL, NULL, NULL, 0, &wxLua_wxAuiPaneButton_delete_function, }, 
+        { wxluaclassname_wxAuiPaneInfo, wxAuiPaneInfo_methods, wxAuiPaneInfo_methodCount, NULL, &wxluatype_wxAuiPaneInfo, NULL, NULL, NULL, NULL, wxAuiPaneInfo_enums, wxAuiPaneInfo_enumCount, &wxLua_wxAuiPaneInfo_delete_function, }, 
+        { wxluaclassname_wxAuiPaneInfoArray, wxAuiPaneInfoArray_methods, wxAuiPaneInfoArray_methodCount, NULL, &wxluatype_wxAuiPaneInfoArray, NULL, NULL, NULL, NULL, NULL, 0, &wxLua_wxAuiPaneInfoArray_delete_function, }, 
+        { wxluaclassname_wxAuiSimpleTabArt, wxAuiSimpleTabArt_methods, wxAuiSimpleTabArt_methodCount, NULL, &wxluatype_wxAuiSimpleTabArt, wxluabaseclassnames_wxAuiSimpleTabArt, wxluabaseclassbinds_wxAuiSimpleTabArt, NULL, NULL, NULL, 0, &wxLua_wxAuiSimpleTabArt_delete_function, }, 
+        { wxluaclassname_wxAuiTabArt, wxAuiTabArt_methods, wxAuiTabArt_methodCount, NULL, &wxluatype_wxAuiTabArt, NULL, NULL, NULL, NULL, NULL, 0, &wxLua_wxAuiTabArt_delete_function, }, 
+        { wxluaclassname_wxAuiTabContainerButton, wxAuiTabContainerButton_methods, wxAuiTabContainerButton_methodCount, NULL, &wxluatype_wxAuiTabContainerButton, NULL, NULL, NULL, NULL, NULL, 0, &wxLua_wxAuiTabContainerButton_delete_function, }, 
+        { wxluaclassname_wxAuiTabCtrl, wxAuiTabCtrl_methods, wxAuiTabCtrl_methodCount, CLASSINFO(wxAuiTabCtrl), &wxluatype_wxAuiTabCtrl, wxluabaseclassnames_wxAuiTabCtrl, wxluabaseclassbinds_wxAuiTabCtrl, NULL, NULL, NULL, 0, &wxLua_wxAuiTabCtrl_delete_function, }, 
 #endif // wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI
 
 
@@ -9113,36 +9265,21 @@ wxLuaBinding_wxaui::wxLuaBinding_wxaui() : wxLuaBinding()
     m_eventArray    = wxLuaGetEventList_wxaui(m_eventCount);
     m_objectArray   = wxLuaGetObjectList_wxaui(m_objectCount);
     m_functionArray = wxLuaGetFunctionList_wxaui(m_functionCount);
+    InitBinding();
 }
 
 
 
 // ---------------------------------------------------------------------------
 
-bool wxLuaBinding_wxaui_init()
+wxLuaBinding* wxLuaBinding_wxaui_init()
 {
     static wxLuaBinding_wxaui m_binding;
-    if (wxLuaBinding::GetBindingList()->Find(&m_binding)) return false;
 
-    wxLuaBinding::GetBindingList()->Append(&m_binding);
-    return true;
+    if (wxLuaBinding::GetBindingArray().Index(&m_binding) == wxNOT_FOUND)
+        wxLuaBinding::GetBindingArray().Add(&m_binding);
+
+    return &m_binding;
 }
-
-
-#if wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI
-wxLUA_IMPLEMENT_ENCAPSULATION(wxAuiDefaultDockArt, wxAuiDefaultDockArt)
-wxLUA_IMPLEMENT_ENCAPSULATION(wxAuiDefaultTabArt, wxAuiDefaultTabArt)
-wxLUA_IMPLEMENT_ENCAPSULATION(wxAuiDockArt, wxAuiDockArt)
-wxLUA_IMPLEMENT_ENCAPSULATION(wxAuiDockInfo, wxAuiDockInfo)
-wxLUA_IMPLEMENT_ENCAPSULATION(wxAuiDockUIPart, wxAuiDockUIPart)
-wxLUA_IMPLEMENT_ENCAPSULATION(wxAuiNotebookPage, wxAuiNotebookPage)
-wxLUA_IMPLEMENT_ENCAPSULATION(wxAuiNotebookPageArray, wxAuiNotebookPageArray)
-wxLUA_IMPLEMENT_ENCAPSULATION(wxAuiPaneButton, wxAuiPaneButton)
-wxLUA_IMPLEMENT_ENCAPSULATION(wxAuiPaneInfo, wxAuiPaneInfo)
-wxLUA_IMPLEMENT_ENCAPSULATION(wxAuiPaneInfoArray, wxAuiPaneInfoArray)
-wxLUA_IMPLEMENT_ENCAPSULATION(wxAuiSimpleTabArt, wxAuiSimpleTabArt)
-wxLUA_IMPLEMENT_ENCAPSULATION(wxAuiTabArt, wxAuiTabArt)
-wxLUA_IMPLEMENT_ENCAPSULATION(wxAuiTabContainerButton, wxAuiTabContainerButton)
-#endif // wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI
 
 

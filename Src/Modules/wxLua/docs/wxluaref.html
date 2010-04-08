@@ -1773,6 +1773,16 @@
 <td align="center" bgcolor=AAFFAA>X
 <td>&nbsp;
 <tr>
+<td><a href="#wxItemContainer">wxItemContainer</a>
+<td bgcolor=FFAAAA>&nbsp;
+<td align="center" bgcolor=AAFFAA>X
+<td>&nbsp;
+<tr>
+<td><a href="#wxItemContainerImmutable">wxItemContainerImmutable</a>
+<td bgcolor=FFAAAA>&nbsp;
+<td align="center" bgcolor=AAFFAA>X
+<td>&nbsp;
+<tr>
 <td><a href="#wxJPEGHandler">wxJPEGHandler</a>
 <td bgcolor=FFAAAA>&nbsp;
 <td align="center" bgcolor=AAFFAA>X
@@ -3148,11 +3158,6 @@
 <td align="center" bgcolor=AAFFAA>X
 <td>&nbsp;
 <tr>
-<td><a href="#wxToolBarTool">wxToolBarTool</a>
-<td bgcolor=FFAAAA>&nbsp;
-<td align="center" bgcolor=AAFFAA>X
-<td>&nbsp;
-<tr>
 <td><a href="#wxToolBarToolBase">wxToolBarToolBase</a>
 <td bgcolor=FFAAAA>&nbsp;
 <td align="center" bgcolor=AAFFAA>X
@@ -3724,7 +3729,7 @@
 <br>
 <i>%include</i> "wx/sysopt.h"<br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%noclassinfo</i> <a name="wxSystemOptions">wxSystemOptions</a>, <a href="#wxObject">wxObject</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <a name="wxSystemOptions">wxSystemOptions</a>, <a href="#wxObject">wxObject</a></font></b>
 <blockquote>
     <font color=#009900>//<a href="#wxSystemOptions">wxSystemOptions</a>() // No constructor, all member functions static</font><br>
 <br>
@@ -3817,7 +3822,7 @@
 </font>
 </blockquote><font color=#0066CC><i>%endenum</i></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%noclassinfo</i> <a name="wxPlatformInfo">wxPlatformInfo</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <a name="wxPlatformInfo">wxPlatformInfo</a></font></b>
 <blockquote>
     <font color=#009900>// No constructor, use static Get() function</font><br>
     <font color=#009900>//<a href="#wxPlatformInfo">wxPlatformInfo</a>();</font><br>
@@ -3886,7 +3891,7 @@
 <br>
 <i>%include</i> "wx/snglinst.h"<br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxSingleInstanceChecker">wxSingleInstanceChecker</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxSingleInstanceChecker">wxSingleInstanceChecker</a></font></b>
 <blockquote>
     <a href="#wxSingleInstanceChecker">wxSingleInstanceChecker</a>() <font color=#009900>// default ctor, use Create() after it</font><br>
     <font color=#009900>// like Create() but no error checking (dangerous!)</font><br>
@@ -3978,7 +3983,7 @@
 <font color=#006666><i>%define_string</i> wxTRACE_RefCount <font color=#009900>//wxT("refcount") // trace various ref counting operations</font></font><br>
 <font color=#006666><i>%msw</i> <i>%define_string</i> wxTRACE_OleCalls <font color=#009900>//wxT("ole") // OLE interface calls</font></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxLog">wxLog</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxLog">wxLog</a></font></b>
 <blockquote>
     <font color=#009900>//<a href="#wxLog">wxLog</a>() - No constructor, a base class, use one of the derived classes.</font><br>
 <br>
@@ -4007,7 +4012,7 @@
     static void AddTraceMask(const <a href="#wxString">wxString</a>&amp; str)<br>
     static void RemoveTraceMask(const <a href="#wxString">wxString</a>&amp; str)<br>
     static void ClearTraceMasks()<br>
-    static const <a href="#wxArrayString">wxArrayString</a> GetTraceMasks()<br>
+    static <a href="#wxArrayString">wxArrayString</a> GetTraceMasks() <font color=#009900>// not const <a href="#wxArrayString">wxArrayString</a> since we copy it anyway</font><br>
 <br>
 <font color=#BB0055>    <font color=#009900>// <i>%override</i> static void wxLog::SetTimestamp(const <a href="#wxString">wxString</a>&amp; ts)</font></font><br>
     <font color=#009900>// Allows an input of "nil" or no value to disable time stamping.</font><br>
@@ -4024,7 +4029,7 @@
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
 <font color=#009900>// <a href="#wxLogBuffer">wxLogBuffer</a></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxLogBuffer">wxLogBuffer</a>, <a href="#wxLog">wxLog</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxLogBuffer">wxLogBuffer</a>, <a href="#wxLog">wxLog</a></font></b>
 <blockquote>
     <a href="#wxLogBuffer">wxLogBuffer</a>()<br>
 <br>
@@ -4034,7 +4039,7 @@
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
 <font color=#009900>// <a href="#wxLogChain">wxLogChain</a></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxLogChain">wxLogChain</a>, <a href="#wxLog">wxLog</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxLogChain">wxLogChain</a>, <a href="#wxLog">wxLog</a></font></b>
 <blockquote>
     <a href="#wxLogChain">wxLogChain</a>(<a href="#wxLog">wxLog</a> *logger)<br>
 <br>
@@ -4051,7 +4056,7 @@
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
 <font color=#009900>// <a href="#wxLogNull">wxLogNull</a></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxLogNull">wxLogNull</a>, <a href="#wxLog">wxLog</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxLogNull">wxLogNull</a> <font color=#009900>// NOTE: this is not derived from <a href="#wxLog">wxLog</a></font></font></b>
 <blockquote>
     <font color=#009900>// NOTE: ALWAYS delete() this when done since Lua's gc may not delete it soon enough</font><br>
     <a href="#wxLogNull">wxLogNull</a>()<br>
@@ -4061,7 +4066,7 @@
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
 <font color=#009900>// <a href="#wxLogPassThrough">wxLogPassThrough</a> - a chain log target which uses itself as the new logger</font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxLogPassThrough">wxLogPassThrough</a>, <a href="#wxLogChain">wxLogChain</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxLogPassThrough">wxLogPassThrough</a>, <a href="#wxLogChain">wxLogChain</a></font></b>
 <blockquote>
     <a href="#wxLogPassThrough">wxLogPassThrough</a>()<br>
 <br>
@@ -4071,7 +4076,7 @@
 <font color=#009900>// wxLogStderr - FIXME need to implement FILE*</font><br>
 <br>
 <font color=#888888>/*<br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxLogStderr">wxLogStderr</a>, <a href="#wxLog">wxLog</a></font></b></font>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxLogStderr">wxLogStderr</a>, <a href="#wxLog">wxLog</a></font></b></font>
 <blockquote><font color=#888888>
     wxLogStderr(FILE *fp = (FILE *) NULL) <font color=#009900>// redirect log output to a FILE</font><br>
 <br>
@@ -4084,7 +4089,7 @@
 <font color=#888888>/*<br>
 <i>%if</i> wxUSE_STD_IOSTREAM<br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxLogStream">wxLogStream</a>, <a href="#wxLog">wxLog</a></font></b></font>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxLogStream">wxLogStream</a>, <a href="#wxLog">wxLog</a></font></b></font>
 <blockquote><font color=#888888>
     wxLogStream(wxSTD ostream *ostr = NULL); <font color=#009900>// redirect log output to an ostream</font><br>
 <br>
@@ -4137,7 +4142,7 @@
 </blockquote><font color=#0066CC><i>%endenum</i></font><br>
 <br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxDynamicLibraryDetails">wxDynamicLibraryDetails</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxDynamicLibraryDetails">wxDynamicLibraryDetails</a></font></b>
 <blockquote>
     <font color=#009900>// ctor, normally never used as these objects are only created by <a href="#wxDynamicLibrary">wxDynamicLibrary</a></font><br>
     <font color=#009900>// wxDynamicLibrary::ListLoaded()</font><br>
@@ -4152,7 +4157,7 @@
     <a href="#wxString">wxString</a> GetVersion() const <font color=#009900>// return the version of the DLL (may be empty if no version info)</font><br>
 </blockquote><font color=#DD0000><font color=#DD0000><i>%endclass</i></font></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxDynamicLibraryDetailsArray">wxDynamicLibraryDetailsArray</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxDynamicLibraryDetailsArray">wxDynamicLibraryDetailsArray</a></font></b>
 <blockquote>
     <font color=#009900>//<a href="#wxDynamicLibraryDetailsArray">wxDynamicLibraryDetailsArray</a>() // Get this from wxDynamicLibrary::ListLoaded</font><br>
 <br>
@@ -4161,7 +4166,7 @@
 </blockquote><font color=#DD0000><font color=#DD0000><i>%endclass</i></font></font><br>
 <br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxDynamicLibrary">wxDynamicLibrary</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxDynamicLibrary">wxDynamicLibrary</a></font></b>
 <blockquote>
     <a href="#wxDynamicLibrary">wxDynamicLibrary</a>()<br>
     <a href="#wxDynamicLibrary">wxDynamicLibrary</a>(const <a href="#wxString">wxString</a>&amp; libname, int flags = wxDL_DEFAULT)<br>
@@ -4257,7 +4262,7 @@
 <br>
 <i>%include</i> "wx/thread.h"<br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%encapsulate</i> <i>%noclassinfo</i> <a name="wxCriticalSection">wxCriticalSection</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxCriticalSection">wxCriticalSection</a></font></b>
 <blockquote>
     <a href="#wxCriticalSection">wxCriticalSection</a>()<br>
     void Enter()<br>
@@ -4274,7 +4279,7 @@
 <br>
 <i>%include</i> "wx/thread.h"<br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%encapsulate</i> <i>%noclassinfo</i> <a name="wxCriticalSectionLocker">wxCriticalSectionLocker</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxCriticalSectionLocker">wxCriticalSectionLocker</a></font></b>
 <blockquote>
     <a href="#wxCriticalSectionLocker">wxCriticalSectionLocker</a>(<a href="#wxCriticalSection">wxCriticalSection</a>&amp; cs);<br>
 </blockquote><font color=#DD0000><font color=#DD0000><i>%endclass</i></font></font><br>
@@ -4307,7 +4312,7 @@
 </font>
 </blockquote><font color=#0066CC><i>%endenum</i></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxRegEx">wxRegEx</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxRegEx">wxRegEx</a></font></b>
 <blockquote>
     <a href="#wxRegEx">wxRegEx</a>()<br>
     <a href="#wxRegEx">wxRegEx</a>(const <a href="#wxString">wxString</a>&amp; expr, int flags = wxRE_DEFAULT)<br>
@@ -4385,7 +4390,7 @@
 </font>
 </blockquote><font color=#0066CC><i>%endenum</i></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxConfigBase">wxConfigBase</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxConfigBase">wxConfigBase</a></font></b>
 <blockquote>
     <font color=#009900>// No constructor since this is a base class</font><br>
 <br>
@@ -4472,7 +4477,7 @@
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
 <font color=#009900>// <a href="#wxConfig">wxConfig</a></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxConfig">wxConfig</a>, wxConfigBase</font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxConfig">wxConfig</a>, wxConfigBase</font></b>
 <blockquote>
     <a href="#wxConfig">wxConfig</a>(const <a href="#wxString">wxString</a>&amp; appName = "", const <a href="#wxString">wxString</a>&amp; vendorName = "", const <a href="#wxString">wxString</a>&amp; localFilename = "", const <a href="#wxString">wxString</a>&amp; globalFilename = "", long style = 0)<br>
 <br>
@@ -4481,7 +4486,7 @@
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
 <font color=#009900>// <a href="#wxFileConfig">wxFileConfig</a></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxFileConfig">wxFileConfig</a>, <a href="#wxConfigBase">wxConfigBase</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxFileConfig">wxFileConfig</a>, <a href="#wxConfigBase">wxConfigBase</a></font></b>
 <blockquote>
     <a href="#wxFileConfig">wxFileConfig</a>(const <a href="#wxString">wxString</a>&amp; appName = "", const <a href="#wxString">wxString</a>&amp; vendorName = "", const <a href="#wxString">wxString</a>&amp; localFilename = "", const <a href="#wxString">wxString</a>&amp; globalFilename = "", long style = wxCONFIG_USE_LOCAL_FILE | wxCONFIG_USE_GLOBAL_FILE) <font color=#009900>//, wxMBConv&amp; conv = wxConvUTF8)</font><br>
 <br>
@@ -4493,7 +4498,7 @@
 <br>
 <i>%include</i> "wx/memconf.h"<br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxMemoryConfig">wxMemoryConfig</a>, <a href="#wxFileConfig">wxFileConfig</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxMemoryConfig">wxMemoryConfig</a>, <a href="#wxFileConfig">wxFileConfig</a></font></b>
 <blockquote>
     <a href="#wxMemoryConfig">wxMemoryConfig</a>()<br>
 <br>
@@ -4507,7 +4512,7 @@
 <font color=#009900>// you work in the entry directory and the path is automatically restored</font><br>
 <font color=#009900>// when the function returns</font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxConfigPathChanger">wxConfigPathChanger</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxConfigPathChanger">wxConfigPathChanger</a></font></b>
 <blockquote>
     <font color=#009900>// NOTE: ALWAYS delete() this when done since Lua's gc may not delete it soon enough</font><br>
     <a href="#wxConfigPathChanger">wxConfigPathChanger</a>(const <a href="#wxConfigBase">wxConfigBase</a> *pContainer, const <a href="#wxString">wxString</a>&amp; strEntry)<br>
@@ -4538,7 +4543,7 @@
 <font color=#009900>// a <a href="#wxString">wxString</a> can take a Lua string. All functions that return a <a href="#wxString">wxString</a></font><br>
 <font color=#009900>// actually return Lua string unless otherwise noted.</font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxString">wxString</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxString">wxString</a></font></b>
 <blockquote>
     <a href="#wxString">wxString</a>(const <a href="#wxString">wxString</a>&amp; str = "")<br>
 <br>
@@ -4562,7 +4567,7 @@
 </font>
 </blockquote><font color=#0066CC><i>%endenum</i></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <a name="wxStringTokenizer">wxStringTokenizer</a>, <a href="#wxObject">wxObject</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxStringTokenizer">wxStringTokenizer</a>, <a href="#wxObject">wxObject</a></font></b>
 <blockquote>
     <a href="#wxStringTokenizer">wxStringTokenizer</a>()<br>
     <a href="#wxStringTokenizer">wxStringTokenizer</a>(const <a href="#wxString">wxString</a>&amp; str, const <a href="#wxString">wxString</a>&amp; delims = wxDEFAULT_DELIMITERS, <a href="#wxStringTokenizerMode">wxStringTokenizerMode</a> mode = wxTOKEN_DEFAULT);<br>
@@ -4594,7 +4599,7 @@
 <font color=#009900>//    wxClientData_Void</font><br>
 <font color=#009900>//<i>%endenum</i></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%noclassinfo</i> <a name="wxClientData">wxClientData</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <a name="wxClientData">wxClientData</a></font></b>
 <blockquote>
     <font color=#009900>// declare this as a datatype, but there is nothing we can do with this as</font><br>
     <font color=#009900>// it must be derived, see <a href="#wxStringClientData">wxStringClientData</a></font><br>
@@ -4606,7 +4611,7 @@
 <font color=#009900>// No <i>%delete</i> since the container will delete it and you should only create one</font><br>
 <font color=#009900>// of these if you plan on attaching it to a container to avoid a memory leak.</font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%noclassinfo</i> <a name="wxStringClientData">wxStringClientData</a>, <a href="#wxClientData">wxClientData</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <a name="wxStringClientData">wxStringClientData</a>, <a href="#wxClientData">wxClientData</a></font></b>
 <blockquote>
     <a href="#wxStringClientData">wxStringClientData</a>(const <a href="#wxString">wxString</a>&amp; data = "")<br>
 <br>
@@ -4617,7 +4622,7 @@
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
 <font color=#009900>// <a href="#wxClientDataContainer">wxClientDataContainer</a></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%noclassinfo</i> <a name="wxClientDataContainer">wxClientDataContainer</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <a name="wxClientDataContainer">wxClientDataContainer</a></font></b>
 <blockquote>
     <a href="#wxClientDataContainer">wxClientDataContainer</a>()<br>
 <br>
@@ -4659,7 +4664,7 @@
     <font color=#009900>//<i>%operator</i> <a href="#wxObject">wxObject</a>&amp; operator=(const <a href="#wxObject">wxObject</a>&amp; other)</font><br>
 </blockquote><font color=#DD0000><font color=#DD0000><i>%endclass</i></font></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%noclassinfo</i> <a name="wxObjectRefData">wxObjectRefData</a> <font color=#009900>// no <i>%delete</i> since this should be from a <a href="#wxObject">wxObject</a></font></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <a name="wxObjectRefData">wxObjectRefData</a> <font color=#009900>// no <i>%delete</i> since this should be from a <a href="#wxObject">wxObject</a></font></font></b>
 <blockquote>
     int GetRefCount() const<br>
 </blockquote><font color=#DD0000><font color=#DD0000><i>%endclass</i></font></font><br>
@@ -4673,7 +4678,7 @@
 <br>
 <i>%include</i> "wx/object.h"<br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%noclassinfo</i> <a name="wxClassInfo">wxClassInfo</a> <font color=#009900>// no <i>%delete</i> since we're always getting a static instance</font></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <a name="wxClassInfo">wxClassInfo</a> <font color=#009900>// no <i>%delete</i> since we're always getting a static instance</font></font></b>
 <blockquote>
 <font color=#BB0055>    <font color=#009900>// <i>%override</i> <a href="#wxClassInfo">wxClassInfo</a>() constructor creates an instance using wxClassInfo::FindClass</font></font><br>
     <a href="#wxClassInfo">wxClassInfo</a>(const <a href="#wxString">wxString</a> &amp;name)<br>
@@ -4741,7 +4746,7 @@
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
 <font color=#009900>// <a href="#wxNode">wxNode</a> - <a href="#wxList">wxList</a></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%noclassinfo</i> <a name="wxNode">wxNode</a> <font color=#009900>// no <i>%delete</i> since we get this from a <a href="#wxList">wxList</a></font></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <a name="wxNode">wxNode</a> <font color=#009900>// no <i>%delete</i> since we get this from a <a href="#wxList">wxList</a></font></font></b>
 <blockquote>
     <font color=#009900>// no constructor, just use this from a <a href="#wxList">wxList</a></font><br>
 <br>
@@ -4752,7 +4757,7 @@
     <font color=#009900>//int IndexOf() - unfortunately a protected member of wxNodeBase</font><br>
 <br>
     <font color=#009900>// To convert <a href="#wxObject">wxObject</a>* GetData() to another type use wxObject::DynamicCast</font><br>
-    <font color=#009900>// See <a href="#wxPenList">wxPenList</a>, <a href="#wxBrushList">wxBrushList</a>, <a href="#wxMenuItemList">wxMenuItemList</a>, <a href="#wxWindowList">wxWindowList</a></font><br>
+    <font color=#009900>// See <a href="#wxMenuItemList">wxMenuItemList</a>, <a href="#wxWindowList">wxWindowList</a></font><br>
 <br>
     <font color=#009900>// Example: How to use a <a href="#wxWindowList">wxWindowList</a></font><br>
     <font color=#009900>// frame = wx.<a href="#wxFrame">wxFrame</a>(wx.NULL, wx.wxID_ANY, "Test");</font><br>
@@ -4775,7 +4780,7 @@
 <font color=#009900>// wxArray - Can't implement this since it's not really a class.</font><br>
 <font color=#009900>//           Here's the list of generic functions.</font><br>
 <br>
-<font color=#009900>//<i>%class</i> <i>%noclassinfo</i> wxArray</font><br>
+<font color=#009900>//<i>%class</i> wxArray</font><br>
 <font color=#009900>//    // no constructor since this class doesn't exist</font><br>
 <font color=#009900>//    void Add(T &amp;item, size_t copies = 1)</font><br>
 <font color=#009900>//    void Alloc(size_t count)</font><br>
@@ -4798,7 +4803,7 @@
 <br>
 <i>%include</i> "wx/dynarray.h"<br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxArrayInt">wxArrayInt</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxArrayInt">wxArrayInt</a></font></b>
 <blockquote>
     <a href="#wxArrayInt">wxArrayInt</a>()<br>
     <a href="#wxArrayInt">wxArrayInt</a>(const <a href="#wxArrayInt">wxArrayInt</a>&amp; array)<br>
@@ -4836,7 +4841,7 @@
 <br>
 <i>%include</i> "wx/arrstr.h"<br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxArrayString">wxArrayString</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxArrayString">wxArrayString</a></font></b>
 <blockquote>
     <a href="#wxArrayString">wxArrayString</a>()<br>
     <a href="#wxArrayString">wxArrayString</a>(const <a href="#wxArrayString">wxArrayString</a>&amp; array)<br>
@@ -4873,7 +4878,7 @@
 <font color=#009900>// Note: We cheat by saying that it's derived from a <a href="#wxArrayString">wxArrayString</a> to not</font><br>
 <font color=#009900>//       have to duplicate it's methods. The binder doesn't know any better.</font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxSortedArrayString">wxSortedArrayString</a>, <a href="#wxArrayString">wxArrayString</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxSortedArrayString">wxSortedArrayString</a>, <a href="#wxArrayString">wxArrayString</a></font></b>
 <blockquote>
     <a href="#wxSortedArrayString">wxSortedArrayString</a>()<br>
     <a href="#wxSortedArrayString">wxSortedArrayString</a>(const <a href="#wxArrayString">wxArrayString</a>&amp; src) <font color=#009900>// have to have this constructor since they're not actually derived</font><br>
@@ -4888,7 +4893,7 @@
 <br>
 <font color=#009900>//<i>%if</i> wxLUA_USE_wxStringList</font><br>
 <font color=#009900>//<i>%include</i> "wx/list.h"</font><br>
-<font color=#009900>//<i>%class</i> <i>%noclassinfo</i> wxStringList, <a href="#wxList">wxList</a></font><br>
+<font color=#009900>//<i>%class</i> wxStringList, <a href="#wxList">wxList</a></font><br>
 <font color=#009900>//    wxStringList()</font><br>
 <font color=#009900>//    <a href="#wxNode">wxNode</a> *Add(const <a href="#wxString">wxString</a>&amp; s)</font><br>
 <font color=#009900>//    void Clear()</font><br>
@@ -4906,11 +4911,11 @@
 <font color=#009900>//<i>%include</i> "wx/hash.h"</font><br>
 <br>
 <font color=#009900>//<i>%if</i> <i>%wxchkver_2_6</i></font><br>
-<font color=#009900>//<i>%class</i> <i>%noclassinfo</i> wxHashTable::Node</font><br>
+<font color=#009900>//<i>%class</i> wxHashTable::Node</font><br>
 <font color=#009900>//<i>%endclass</i></font><br>
 <font color=#009900>//<i>%endif</i></font><br>
 <br>
-<font color=#009900>//<i>%class</i> <i>%noclassinfo</i> wxHashTable, <a href="#wxObject">wxObject</a></font><br>
+<font color=#009900>//<i>%class</i> wxHashTable, <a href="#wxObject">wxObject</a></font><br>
 <font color=#009900>//    !<i>%wxchkver_2_6</i> wxHashTable(unsigned int key_type, int size = 1000)</font><br>
 <font color=#009900>//    <i>%wxchkver_2_6</i> wxHashTable(<a href="#wxKeyType">wxKeyType</a> key_type, int size = 1000)</font><br>
 <font color=#009900>//    void BeginFind()</font><br>
@@ -4936,7 +4941,7 @@
 <br>
 <i>%include</i> "wx/longlong.h"<br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%encapsulate</i> <i>%noclassinfo</i> <a name="wxLongLong">wxLongLong</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxLongLong">wxLongLong</a></font></b>
 <blockquote>
     <a href="#wxLongLong">wxLongLong</a>(long hi = 0, unsigned long lo = 0)<br>
 <br>
@@ -4958,7 +4963,7 @@
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
 <font color=#009900>// <a href="#wxULongLong">wxULongLong</a></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%encapsulate</i> <i>%noclassinfo</i> <a name="wxULongLong">wxULongLong</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxULongLong">wxULongLong</a></font></b>
 <blockquote>
     <a href="#wxULongLong">wxULongLong</a>(unsigned long hi = 0, unsigned long lo = 0)<br>
 <br>
@@ -5119,7 +5124,7 @@
 <br>
 <i>%typedef</i> unsigned short wxDateTime::wxDateTime_t<br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxDateTime">wxDateTime</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxDateTime">wxDateTime</a></font></b>
 <blockquote>
 <font color=#006666>    <i>%define_object</i> wxDefaultDateTime</font><br>
 <br>
@@ -5197,7 +5202,7 @@
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
 <font color=#009900>// <a href="#wxDateTimeArray">wxDateTimeArray</a></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxDateTimeArray">wxDateTimeArray</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxDateTimeArray">wxDateTimeArray</a></font></b>
 <blockquote>
     <a href="#wxDateTimeArray">wxDateTimeArray</a>()<br>
     <a href="#wxDateTimeArray">wxDateTimeArray</a>(const <a href="#wxDateTimeArray">wxDateTimeArray</a>&amp; array)<br>
@@ -5224,7 +5229,7 @@
 <br>
 <i>%include</i> "wx/datetime.h"<br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxTimeSpan">wxTimeSpan</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxTimeSpan">wxTimeSpan</a></font></b>
 <blockquote>
     <a href="#wxTimeSpan">wxTimeSpan</a>()<br>
     <a href="#wxTimeSpan">wxTimeSpan</a>(long hours, long minutes = 0, long seconds = 0, long milliseconds = 0)<br>
@@ -5270,7 +5275,7 @@
 <br>
 <i>%include</i> "wx/datetime.h"<br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxDateSpan">wxDateSpan</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxDateSpan">wxDateSpan</a></font></b>
 <blockquote>
     <a href="#wxDateSpan">wxDateSpan</a>(int years = 0, int months = 0, int weeks = 0, int days = 0)<br>
 <br>
@@ -5307,7 +5312,7 @@
 <br>
 <i>%if</i> wxLUA_USE_wxDateTimeHolidayAuthority &amp;&amp; wxUSE_DATETIME<br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxDateTimeHolidayAuthority">wxDateTimeHolidayAuthority</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <a name="wxDateTimeHolidayAuthority">wxDateTimeHolidayAuthority</a></font></b>
 <blockquote>
     <font color=#009900>// no constructor since this class has pure virtual functions</font><br>
 <br>
@@ -5321,7 +5326,7 @@
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
 <font color=#009900>// <a href="#wxDateTimeWorkDays">wxDateTimeWorkDays</a></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxDateTimeWorkDays">wxDateTimeWorkDays</a>, <a href="#wxDateTimeHolidayAuthority">wxDateTimeHolidayAuthority</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxDateTimeWorkDays">wxDateTimeWorkDays</a>, <a href="#wxDateTimeHolidayAuthority">wxDateTimeHolidayAuthority</a></font></b>
 <blockquote>
     <a href="#wxDateTimeWorkDays">wxDateTimeWorkDays</a>()<br>
 </blockquote><font color=#DD0000><font color=#DD0000><i>%endclass</i></font></font><br>
@@ -5336,7 +5341,7 @@
 <br>
 <i>%include</i> "wx/stopwatch.h"<br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxStopWatch">wxStopWatch</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxStopWatch">wxStopWatch</a></font></b>
 <blockquote>
     <a href="#wxStopWatch">wxStopWatch</a>() <font color=#009900>// ctor starts the stop watch</font><br>
 <br>
@@ -5756,7 +5761,7 @@
 </blockquote><font color=#0066CC><i>%endenum</i></font><br>
 <i>%endif</i> <i>%wxchkver_2_8</i><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%struct</i> <i>%delete</i> <i>%encapsulate</i> <a name="wxLanguageInfo">wxLanguageInfo</a></font></b>
+<b><font size=+1 color=#DD0000><i>%struct</i> <i>%delete</i> <a name="wxLanguageInfo">wxLanguageInfo</a></font></b>
 <blockquote>
     <a href="#wxLanguageInfo">wxLanguageInfo</a>() <font color=#009900>// you must set all the values by hand</font><br>
 <br>
@@ -5767,7 +5772,7 @@
 </blockquote><font color=#DD0000><font color=#DD0000><i>%endstruct</i></font></font><br>
 <br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxLocale">wxLocale</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxLocale">wxLocale</a></font></b>
 <blockquote>
 <br>
     <font color=#009900>// call Init() if you use this ctor</font><br>
@@ -5995,7 +6000,7 @@
 </blockquote><font color=#0066CC><i>%endenum</i></font><br>
 <br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%noclassinfo</i> <a name="wxStandardPaths">wxStandardPaths</a> <font color=#009900>// we ignore wxStandardPathsBase</font></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <a name="wxStandardPaths">wxStandardPaths</a> <font color=#009900>// we ignore wxStandardPathsBase</font></font></b>
 <blockquote>
     <font color=#009900>// No constructor - use static Get() function</font><br>
 <br>
@@ -6031,7 +6036,7 @@
 <br>
 <i>%include</i> "wx/filefn.h"<br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%encapsulate</i> <i>%noclassinfo</i> <a name="wxPathList">wxPathList</a>, <a href="#wxArrayString">wxArrayString</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxPathList">wxPathList</a>, <a href="#wxArrayString">wxArrayString</a></font></b>
 <blockquote>
     <a href="#wxPathList">wxPathList</a>()<br>
     <font color=#009900>//<a href="#wxPathList">wxPathList</a>(const <a href="#wxArrayString">wxArrayString</a> &amp;arr)</font><br>
@@ -6093,7 +6098,7 @@
 </font>
 </blockquote><font color=#0066CC><i>%endenum</i></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxFileName">wxFileName</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxFileName">wxFileName</a></font></b>
 <blockquote>
     <a href="#wxFileName">wxFileName</a>()<br>
     <a href="#wxFileName">wxFileName</a>(const <a href="#wxFileName">wxFileName</a>&amp; filename)<br>
@@ -6287,7 +6292,7 @@
 <font color=#006666><i>%define</i> wxS_IXOTH</font><br>
 <font color=#006666><i>%define</i> wxS_DEFAULT</font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxFile">wxFile</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxFile">wxFile</a></font></b>
 <blockquote>
     <a href="#wxFile">wxFile</a>()<br>
     <a href="#wxFile">wxFile</a>(const <a href="#wxString">wxString</a>&amp; filename, wxFile::OpenMode mode = wxFile::read)<br>
@@ -6326,7 +6331,7 @@
 <br>
 <i>%include</i> "wx/file.h"<br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxTempFile">wxTempFile</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxTempFile">wxTempFile</a></font></b>
 <blockquote>
     <a href="#wxTempFile">wxTempFile</a>()<br>
     <font color=#009900>// associates the temp file with the file to be replaced and opens it</font><br>
@@ -6370,7 +6375,7 @@
 <font color=#006666><i>%define</i> wxDIR_DOTDOT</font><br>
 <font color=#006666><i>%define</i> wxDIR_DEFAULT</font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxDir">wxDir</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxDir">wxDir</a></font></b>
 <blockquote>
     <a href="#wxDir">wxDir</a>()<br>
     <a href="#wxDir">wxDir</a>(const <a href="#wxString">wxString</a>&amp; dir)<br>
@@ -6412,7 +6417,7 @@
 <br>
 <i>%include</i> "wx/mimetype.h"<br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxFileTypeInfo">wxFileTypeInfo</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxFileTypeInfo">wxFileTypeInfo</a></font></b>
 <blockquote>
     <font color=#009900>//  the ... parameters form a NULL terminated list of extensions</font><br>
     <font color=#009900>//<a href="#wxFileTypeInfo">wxFileTypeInfo</a>(const wxChar *mimeType, const wxChar *openCmd, const wxChar *printCmd, const wxChar *desc, ...)</font><br>
@@ -6443,7 +6448,7 @@
 <br>
 <i>%include</i> "wx/iconloc.h"<br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxIconLocation">wxIconLocation</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxIconLocation">wxIconLocation</a></font></b>
 <blockquote>
     <font color=#009900>// ctor takes the name of the file where the icon is</font><br>
     !<i>%msw</i> <a href="#wxIconLocation">wxIconLocation</a>(const <a href="#wxString">wxString</a>&amp; filename = "")<br>
@@ -6464,7 +6469,7 @@
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
 <font color=#009900>//  wxFileType::MessageParameters</font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxFileType::MessageParameters">wxFileType::MessageParameters</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxFileType::MessageParameters">wxFileType::MessageParameters</a></font></b>
 <blockquote>
     <font color=#009900>//wxFileType::MessageParameters()</font><br>
     wxFileType::MessageParameters(const <a href="#wxString">wxString</a>&amp; filename, const <a href="#wxString">wxString</a>&amp; mimetype = "")<br>
@@ -6480,7 +6485,7 @@
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
 <font color=#009900>//  <a href="#wxFileType">wxFileType</a></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxFileType">wxFileType</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxFileType">wxFileType</a></font></b>
 <blockquote>
     <a href="#wxFileType">wxFileType</a>(const <a href="#wxFileTypeInfo">wxFileTypeInfo</a>&amp; ftInfo)<br>
 <br>
@@ -6535,7 +6540,7 @@
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
 <font color=#009900>//  <a href="#wxMimeTypesManager">wxMimeTypesManager</a></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxMimeTypesManager">wxMimeTypesManager</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <a name="wxMimeTypesManager">wxMimeTypesManager</a></font></b>
 <blockquote>
 <font color=#006666>    <i>%define_pointer</i> wxTheMimeTypesManager</font><br>
 <br>
@@ -6617,7 +6622,7 @@
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
 <font color=#009900>//  <a href="#wxStreamBase">wxStreamBase</a></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%noclassinfo</i> <a name="wxStreamBase">wxStreamBase</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <a name="wxStreamBase">wxStreamBase</a></font></b>
 <blockquote>
     <font color=#009900>// <a href="#wxStreamBase">wxStreamBase</a>() this is only a base class</font><br>
 <br>
@@ -6632,7 +6637,7 @@
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
 <font color=#009900>//  <a href="#wxInputStream">wxInputStream</a></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxInputStream">wxInputStream</a>, <a href="#wxStreamBase">wxStreamBase</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <a name="wxInputStream">wxInputStream</a>, <a href="#wxStreamBase">wxStreamBase</a></font></b>
 <blockquote>
     <font color=#009900>// <a href="#wxInputStream">wxInputStream</a>() this is only a base class</font><br>
 <br>
@@ -6660,7 +6665,7 @@
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
 <font color=#009900>//  <a href="#wxOutputStream">wxOutputStream</a></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxOutputStream">wxOutputStream</a>, <a href="#wxStreamBase">wxStreamBase</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <a name="wxOutputStream">wxOutputStream</a>, <a href="#wxStreamBase">wxStreamBase</a></font></b>
 <blockquote>
     <font color=#009900>// <a href="#wxOutputStream">wxOutputStream</a>() this is only a base class</font><br>
 <br>
@@ -6682,7 +6687,7 @@
 <br>
 <i>%include</i> "wx/wfstream.h"<br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxFileInputStream">wxFileInputStream</a>, <a href="#wxInputStream">wxInputStream</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxFileInputStream">wxFileInputStream</a>, <a href="#wxInputStream">wxInputStream</a></font></b>
 <blockquote>
     <a href="#wxFileInputStream">wxFileInputStream</a>(const <a href="#wxString">wxString</a>&amp; fileName)<br>
     <a href="#wxFileInputStream">wxFileInputStream</a>(<a href="#wxFile">wxFile</a>&amp; file)<br>
@@ -6694,7 +6699,7 @@
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
 <font color=#009900>//  <a href="#wxFileOutputStream">wxFileOutputStream</a></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxFileOutputStream">wxFileOutputStream</a>, <a href="#wxOutputStream">wxOutputStream</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxFileOutputStream">wxFileOutputStream</a>, <a href="#wxOutputStream">wxOutputStream</a></font></b>
 <blockquote>
     <a href="#wxFileOutputStream">wxFileOutputStream</a>(const <a href="#wxString">wxString</a>&amp; fileName)<br>
     <a href="#wxFileOutputStream">wxFileOutputStream</a>(<a href="#wxFile">wxFile</a>&amp; file)<br>
@@ -6708,7 +6713,7 @@
 <br>
 <i>%include</i> "wx/mstream.h"<br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxMemoryInputStream">wxMemoryInputStream</a>, <a href="#wxInputStream">wxInputStream</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxMemoryInputStream">wxMemoryInputStream</a>, <a href="#wxInputStream">wxInputStream</a></font></b>
 <blockquote>
     <a href="#wxMemoryInputStream">wxMemoryInputStream</a>(const char *data, size_t length)<br>
     <font color=#009900>//<a href="#wxMemoryInputStream">wxMemoryInputStream</a>(const wxMemoryOutputStream&amp; stream)</font><br>
@@ -6720,7 +6725,7 @@
 <br>
 <font color=#009900>//<i>%include</i> "wx/mstream.h"</font><br>
 <br>
-<font color=#009900>//<i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a href="#wxMemoryInputStream">wxMemoryInputStream</a>, <a href="#wxInputStream">wxInputStream</a></font><br>
+<font color=#009900>//<i>%class</i> <i>%delete</i> <a href="#wxMemoryInputStream">wxMemoryInputStream</a>, <a href="#wxInputStream">wxInputStream</a></font><br>
 <font color=#009900>//    wxMemoryOutputStream(void *data, size_t length)</font><br>
 <font color=#009900>//    <a href="#wxMemoryInputStream">wxMemoryInputStream</a>(const wxMemoryOutputStream&amp; stream)</font><br>
 <font color=#009900>//<i>%endclass</i></font><br>
@@ -6730,7 +6735,7 @@
 <br>
 <i>%include</i> "wx/datstrm.h"<br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxDataInputStream">wxDataInputStream</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxDataInputStream">wxDataInputStream</a></font></b>
 <blockquote>
     <font color=#009900>// <a href="#wxDataInputStream">wxDataInputStream</a>(<a href="#wxInputStream">wxInputStream</a>&amp; s, const wxMBConv&amp; conv = wxConvAuto());</font><br>
     <a href="#wxDataInputStream">wxDataInputStream</a>(<a href="#wxInputStream">wxInputStream</a>&amp; s)<br>
@@ -6774,7 +6779,7 @@
 <br>
 <i>%include</i> "wx/datstrm.h"<br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxDataOutputStream">wxDataOutputStream</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxDataOutputStream">wxDataOutputStream</a></font></b>
 <blockquote>
     <font color=#009900>// <a href="#wxDataOutputStream">wxDataOutputStream</a>(<a href="#wxOutputStream">wxOutputStream</a>&amp; s, const wxMBConv&amp; conv = wxConvAuto());</font><br>
     <a href="#wxDataOutputStream">wxDataOutputStream</a>(<a href="#wxOutputStream">wxOutputStream</a>&amp; s);<br>
@@ -7295,7 +7300,7 @@
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
 <font color=#009900>// <a href="#wxClipboardLocker">wxClipboardLocker</a></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxClipboardLocker">wxClipboardLocker</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxClipboardLocker">wxClipboardLocker</a></font></b>
 <blockquote>
     <font color=#009900>// NOTE: ALWAYS delete() this when done since Lua's gc may not delete it soon enough</font><br>
     <a href="#wxClipboardLocker">wxClipboardLocker</a>(<a href="#wxClipboard">wxClipboard</a> *clipboard = NULL)<br>
@@ -7356,7 +7361,7 @@
 </font>
 </blockquote><font color=#0066CC><i>%endenum</i></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxDataFormat">wxDataFormat</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxDataFormat">wxDataFormat</a></font></b>
 <blockquote>
 <font color=#006666>    <i>%define_object</i> wxFormatInvalid</font><br>
 <br>
@@ -7381,7 +7386,7 @@
 </font>
 </blockquote><font color=#0066CC><i>%endenum</i></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%noclassinfo</i> <a name="wxDataObject">wxDataObject</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <a name="wxDataObject">wxDataObject</a></font></b>
 <blockquote>
     <font color=#009900>//<a href="#wxDataObject">wxDataObject</a>() this is a base class, use simplified derived classes</font><br>
 <br>
@@ -7406,7 +7411,7 @@
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
 <font color=#009900>// <a href="#wxDataObjectSimple">wxDataObjectSimple</a></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxDataObjectSimple">wxDataObjectSimple</a>, <a href="#wxDataObject">wxDataObject</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxDataObjectSimple">wxDataObjectSimple</a>, <a href="#wxDataObject">wxDataObject</a></font></b>
 <blockquote>
     <a href="#wxDataObjectSimple">wxDataObjectSimple</a>(const <a href="#wxDataFormat">wxDataFormat</a>&amp; format = wxFormatInvalid)<br>
 <br>
@@ -7427,7 +7432,7 @@
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
 <font color=#009900>// <a href="#wxDataObjectComposite">wxDataObjectComposite</a></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxDataObjectComposite">wxDataObjectComposite</a>, <a href="#wxDataObject">wxDataObject</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxDataObjectComposite">wxDataObjectComposite</a>, <a href="#wxDataObject">wxDataObject</a></font></b>
 <blockquote>
     <a href="#wxDataObjectComposite">wxDataObjectComposite</a>()<br>
 <br>
@@ -7438,7 +7443,7 @@
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
 <font color=#009900>// <a href="#wxFileDataObject">wxFileDataObject</a></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxFileDataObject">wxFileDataObject</a>, <a href="#wxDataObjectSimple">wxDataObjectSimple</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxFileDataObject">wxFileDataObject</a>, <a href="#wxDataObjectSimple">wxDataObjectSimple</a></font></b>
 <blockquote>
     <a href="#wxFileDataObject">wxFileDataObject</a>()<br>
 <br>
@@ -7449,7 +7454,7 @@
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
 <font color=#009900>// <a href="#wxTextDataObject">wxTextDataObject</a></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxTextDataObject">wxTextDataObject</a>, <a href="#wxDataObjectSimple">wxDataObjectSimple</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxTextDataObject">wxTextDataObject</a>, <a href="#wxDataObjectSimple">wxDataObjectSimple</a></font></b>
 <blockquote>
     <a href="#wxTextDataObject">wxTextDataObject</a>(const <a href="#wxString">wxString</a>&amp; text = "")<br>
 <br>
@@ -7461,7 +7466,7 @@
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
 <font color=#009900>// <a href="#wxBitmapDataObject">wxBitmapDataObject</a></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxBitmapDataObject">wxBitmapDataObject</a>, <a href="#wxDataObjectSimple">wxDataObjectSimple</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxBitmapDataObject">wxBitmapDataObject</a>, <a href="#wxDataObjectSimple">wxDataObjectSimple</a></font></b>
 <blockquote>
     <a href="#wxBitmapDataObject">wxBitmapDataObject</a>(const <a href="#wxBitmap">wxBitmap</a>&amp; bitmap = wxNullBitmap)<br>
 <br>
@@ -7472,7 +7477,7 @@
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
 <font color=#009900>// wxCustomDataObject - FIXME implement this?</font><br>
 <br>
-<font color=#009900>//<i>%class</i> <i>%noclassinfo</i> <i>%encapsulate</i> wxCustomDataObject, <a href="#wxDataObjectSimple">wxDataObjectSimple</a></font><br>
+<font color=#009900>//<i>%class</i> wxCustomDataObject, <a href="#wxDataObjectSimple">wxDataObjectSimple</a></font><br>
 <font color=#009900>//    wxCustomDataObject(const <a href="#wxDataFormat">wxDataFormat</a>&amp; format = wxFormatInvalid)</font><br>
 <font color=#009900>//</font><br>
 <font color=#009900>//    virtual void *Alloc(size_t size)</font><br>
@@ -7488,7 +7493,7 @@
 <br>
 <i>%if</i> <i>%wxchkver_2_8</i><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxURLDataObject">wxURLDataObject</a>, <a href="#wxTextDataObject">wxTextDataObject</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxURLDataObject">wxURLDataObject</a>, <a href="#wxTextDataObject">wxTextDataObject</a></font></b>
 <blockquote>
     <a href="#wxURLDataObject">wxURLDataObject</a>(const <a href="#wxString">wxString</a>&amp; url = "")<br>
 <br>
@@ -7528,7 +7533,7 @@
 <br>
 <font color=#AA0000><i>%function</i> bool wxIsDragResultOk(<a href="#wxDragResult">wxDragResult</a> res)</font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%noclassinfo</i> <a name="wxDropTarget">wxDropTarget</a> <font color=#009900>// FIXME implement virtual</font></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <a name="wxDropTarget">wxDropTarget</a> <font color=#009900>// FIXME implement virtual</font></font></b>
 <blockquote>
 <br>
     <font color=#009900>//<a href="#wxDropTarget">wxDropTarget</a>(<a href="#wxDataObject">wxDataObject</a>* data = NULL) pure virtual functions in MSW</font><br>
@@ -7546,7 +7551,7 @@
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
 <font color=#009900>// wxFileDropTarget</font><br>
 <br>
-<font color=#009900>//<i>%class</i> <i>%noclassinfo</i> wxFileDropTarget, <a href="#wxDropTarget">wxDropTarget</a> // FIXME implement virtual</font><br>
+<font color=#009900>//<i>%class</i> wxFileDropTarget, <a href="#wxDropTarget">wxDropTarget</a> // FIXME implement virtual</font><br>
 <font color=#009900>//    wxFileDropTarget()</font><br>
 <font color=#009900>//    virtual <a href="#wxDragResult">wxDragResult</a> OnData(wxCoord x, wxCoord y, <a href="#wxDragResult">wxDragResult</a> def)</font><br>
 <font color=#009900>//    virtual bool OnDrop(long x, long y, const void *data, size_t size)</font><br>
@@ -7556,7 +7561,7 @@
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
 <font color=#009900>// wxTextDropTarget</font><br>
 <br>
-<font color=#009900>//<i>%class</i> <i>%noclassinfo</i> wxTextDropTarget, <a href="#wxDropTarget">wxDropTarget</a> // FIXME implement virtual</font><br>
+<font color=#009900>//<i>%class</i> wxTextDropTarget, <a href="#wxDropTarget">wxDropTarget</a> // FIXME implement virtual</font><br>
 <font color=#009900>//    wxTextDropTarget()</font><br>
 <font color=#009900>//    virtual bool OnDropText(wxCoord x, wxCoord y, const <a href="#wxString">wxString</a>&amp; text)</font><br>
 <font color=#009900>//    virtual <a href="#wxDragResult">wxDragResult</a> OnData(wxCoord x, wxCoord y, <a href="#wxDragResult">wxDragResult</a> def)</font><br>
@@ -7565,7 +7570,7 @@
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
 <font color=#009900>// <a href="#wxDropSource">wxDropSource</a></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxDropSource">wxDropSource</a> <font color=#009900>// FIXME implement virtual</font></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxDropSource">wxDropSource</a> <font color=#009900>// FIXME implement virtual</font></font></b>
 <blockquote>
     <i>%win</i>|<i>%mac</i> <a href="#wxDropSource">wxDropSource</a>(<a href="#wxWindow">wxWindow</a>* win = NULL, const <a href="#wxCursor">wxCursor</a>&amp; cursorCopy = wxNullCursor, const <a href="#wxCursor">wxCursor</a>&amp; cursorMove = wxNullCursor, const <a href="#wxCursor">wxCursor</a>&amp; cursorStop = wxNullCursor)<br>
     <i>%gtk</i> <a href="#wxDropSource">wxDropSource</a>(<a href="#wxWindow">wxWindow</a>* win = NULL, const <a href="#wxIcon">wxIcon</a>&amp; iconCopy = wxNullIcon, const <a href="#wxIcon">wxIcon</a>&amp; iconMove = wxNullIcon, const <a href="#wxIcon">wxIcon</a>&amp; iconStop = wxNullIcon)<br>
@@ -7609,7 +7614,7 @@
 <br>
 <font color=#009900>//<i>%function</i> bool wxMakeMetafilePlaceable(const <a href="#wxString">wxString</a>&amp; filename, int minX, int minY, int maxX, int maxY, float scale = 1.0)</font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <a name="wxMetafile">wxMetafile</a>, <a href="#wxObject">wxObject</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxMetafile">wxMetafile</a>, <a href="#wxObject">wxObject</a></font></b>
 <blockquote>
     <a href="#wxMetafile">wxMetafile</a>(const <a href="#wxString">wxString</a>&amp; filename = "")<br>
 <br>
@@ -7620,7 +7625,7 @@
 <br>
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
 <font color=#009900>// <a href="#wxMetafileDC">wxMetafileDC</a></font><br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <a name="wxMetafileDC">wxMetafileDC</a>, <a href="#wxDC">wxDC</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxMetafileDC">wxMetafileDC</a>, <a href="#wxDC">wxDC</a></font></b>
 <blockquote>
     <a href="#wxMetafileDC">wxMetafileDC</a>(const <a href="#wxString">wxString</a>&amp; filename = "")<br>
 <br>
@@ -7760,43 +7765,84 @@
 <i>%endif</i> <font color=#009900>//wxLUA_USE_wxCheckBox &amp;&amp; wxUSE_CHECKBOX</font><br>
 <br>
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
-<font color=#009900>// <a href="#wxControlWithItems">wxControlWithItems</a></font><br>
+<font color=#009900>// <a href="#wxItemContainerImmutable">wxItemContainerImmutable</a></font><br>
 <br>
 <i>%if</i> (wxLUA_USE_wxChoice|wxLUA_USE_wxComboBox|wxLUA_USE_wxListBox) &amp;&amp; wxUSE_CONTROLS<br>
 <br>
 <i>%include</i> "wx/ctrlsub.h"<br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <a name="wxControlWithItems">wxControlWithItems</a>, <a href="#wxControl">wxControl</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <a name="wxItemContainerImmutable">wxItemContainerImmutable</a></font></b>
+<blockquote>
+    <font color=#009900>// no constructor, used only as a base class</font><br>
+<br>
+    virtual unsigned int GetCount() const<br>
+    virtual bool IsEmpty() const<br>
+<br>
+    virtual <a href="#wxString">wxString</a> GetString(unsigned int n) <font color=#009900>// = 0;</font><br>
+    <a href="#wxArrayString">wxArrayString</a> GetStrings() const<br>
+    virtual void SetString(unsigned int n, const <a href="#wxString">wxString</a>&amp; s) <font color=#009900>// = 0;</font><br>
+<br>
+    virtual int FindString(const <a href="#wxString">wxString</a>&amp; s, bool bCase = false) const<br>
+<br>
+    virtual void SetSelection(int n) <font color=#009900>//= 0;</font><br>
+    virtual int GetSelection() const <font color=#009900>//= 0;</font><br>
+<br>
+    bool SetStringSelection(const <a href="#wxString">wxString</a>&amp; s)<br>
+    <a href="#wxString">wxString</a> GetStringSelection() const<br>
+<br>
+    void Select(int n)<br>
+<br>
+</blockquote><font color=#DD0000><font color=#DD0000><i>%endclass</i></font></font><br>
+<br>
+<font color=#009900>// ---------------------------------------------------------------------------</font><br>
+<font color=#009900>// <a href="#wxItemContainer">wxItemContainer</a></font><br>
+<br>
+<i>%include</i> "wx/ctrlsub.h"<br>
+<br>
+<b><font size=+1 color=#DD0000><i>%class</i> <a name="wxItemContainer">wxItemContainer</a>, wxItemContainerImmutable</font></b>
+<blockquote>
+    <font color=#009900>// no constructor, used only as base class</font><br>
+<br>
+    int Append(const <a href="#wxString">wxString</a>&amp; item)<br>
+    int Append(const <a href="#wxString">wxString</a>&amp;  item, voidptr_long number) <font color=#009900>// C++ is (void *clientData) You can put a number here</font><br>
+    int Append(const <a href="#wxString">wxString</a>&amp; item, <a href="#wxClientData">wxClientData</a> *clientData)<br>
+<br>
+    void AppendString( const <a href="#wxString">wxString</a>&amp; item)<br>
+<br>
+    void Append(const <a href="#wxArrayString">wxArrayString</a>&amp; strings);<br>
+<br>
+    int Insert(const <a href="#wxString">wxString</a>&amp; item, unsigned int pos)<br>
+    int Insert(const <a href="#wxString">wxString</a>&amp;  item, unsigned int pos, voidptr_long number) <font color=#009900>// C++ is (void *clientData) You can put a number here</font><br>
+    int Insert(const <a href="#wxString">wxString</a>&amp; item, unsigned int pos, <a href="#wxClientData">wxClientData</a> *clientData);<br>
+<br>
+    virtual void Clear() <font color=#009900>//= 0;</font><br>
+    virtual void Delete(unsigned int n) <font color=#009900>//= 0;</font><br>
+<br>
+<br>
+    void SetClientData(unsigned int n, voidptr_long number) <font color=#009900>// C++ is (void *clientData) You can put a number here</font><br>
+    voidptr_long GetClientData(unsigned int n) const <font color=#009900>// C++ returns (void *) You get a number here</font><br>
+<br>
+    void SetClientObject(unsigned int n, <a href="#wxClientData">wxClientData</a>* clientData)<br>
+    <a href="#wxClientData">wxClientData</a>* GetClientObject(unsigned int n) const<br>
+<br>
+    bool HasClientObjectData() const<br>
+    bool HasClientUntypedData() const<br>
+<br>
+</blockquote><font color=#DD0000><font color=#DD0000><i>%endclass</i></font></font><br>
+<br>
+<i>%endif</i><br>
+<br>
+<font color=#009900>// ---------------------------------------------------------------------------</font><br>
+<font color=#009900>// <a href="#wxControlWithItems">wxControlWithItems</a></font><br>
+<br>
+<i>%include</i> "wx/ctrlsub.h"<br>
+<br>
+<b><font size=+1 color=#DD0000><i>%class</i> <a name="wxControlWithItems">wxControlWithItems</a>, <a href="#wxControl">wxControl</a>, <a href="#wxItemContainer">wxItemContainer</a></font></b>
 <blockquote>
     <font color=#009900>// no constructor, this is just a base class</font><br>
 <br>
-    int Append(const <a href="#wxString">wxString</a>&amp;  item)<br>
-    int Append(const <a href="#wxString">wxString</a>&amp;  item, voidptr_long number) <font color=#009900>// C++ is (void *clientData) You can put a number here</font><br>
-    int Append(const <a href="#wxString">wxString</a>&amp;  item, <a href="#wxClientData">wxClientData</a> *clientData)<br>
-    void Append(const <a href="#wxArrayString">wxArrayString</a>&amp; strings)<br>
-    void Clear()<br>
-    void Delete(unsigned int n)<br>
-    int FindString(const <a href="#wxString">wxString</a>&amp; string)<br>
-    <font color=#009900>// C++ Func: void* GetClientData(unsigned int n) const</font><br>
-    voidptr_long GetClientData(unsigned int n) const <font color=#009900>// C++ returns (void *) You get a number here</font><br>
+    virtual bool ShouldInheritColours() const<br>
 <br>
-    <a href="#wxClientData">wxClientData</a>* GetClientObject(unsigned int n) const<br>
-<font color=#990099>    <i>%rename</i> GetStringClientObject <a href="#wxStringClientData">wxStringClientData</a>* GetClientObject(unsigned int n) const</font><br>
-    int GetCount() const<br>
-    int GetSelection() const<br>
-    <a href="#wxString">wxString</a> GetString(unsigned int n) const<br>
-    <a href="#wxString">wxString</a> GetStringSelection() const<br>
-    int Insert(const <a href="#wxString">wxString</a>&amp;  item, int pos)<br>
-    int Insert(const <a href="#wxString">wxString</a>&amp;  item, unsigned int pos, voidptr_long number) <font color=#009900>// C++ is (void *clientData) You can put a number here</font><br>
-    int Insert(const <a href="#wxString">wxString</a>&amp; item, unsigned int pos, <a href="#wxClientData">wxClientData</a> *clientData)<br>
-    bool IsEmpty() const<br>
-    <font color=#009900>// int Number() const // obsolete since 2.2 use GetCount()</font><br>
-    void Select(int n)<br>
-    void SetClientData(unsigned int n, voidptr_long number) <font color=#009900>// C++ is (void *clientData) You can put a number here</font><br>
-    void SetClientObject(unsigned int n, <a href="#wxClientData">wxClientData</a> *data)<br>
-    void SetSelection(unsigned int n)<br>
-    void SetString(unsigned int n, const <a href="#wxString">wxString</a>&amp;  string)<br>
-    bool SetStringSelection(const <a href="#wxString">wxString</a>&amp;  string)<br>
 </blockquote><font color=#DD0000><font color=#DD0000><i>%endclass</i></font></font><br>
 <br>
 <i>%endif</i> <font color=#009900>//(wxLUA_USE_wxChoice|wxLUA_USE_wxComboBox|wxLUA_USE_wxListBox) &amp;&amp; wxUSE_CONTROLS</font><br>
@@ -7817,6 +7863,8 @@
     int    GetCurrentSelection() const<br>
     <font color=#009900>//int  GetColumns() const       // Motif only but returns 1 otherwise</font><br>
     <font color=#009900>//void SetColumns(int n = 1)</font><br>
+<br>
+    void Command(<a href="#wxCommandEvent">wxCommandEvent</a>&amp; event)<br>
 </blockquote><font color=#DD0000><font color=#DD0000><i>%endclass</i></font></font><br>
 <br>
 <i>%endif</i> <font color=#009900>//wxLUA_USE_wxChoice &amp;&amp; wxUSE_CHOICE</font><br>
@@ -7833,7 +7881,7 @@
 <font color=#006666><i>%define</i> wxCB_SIMPLE</font><br>
 <font color=#006666><i>%define</i> wxCB_SORT</font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <a name="wxComboBox">wxComboBox</a>, <a href="#wxControlWithItems">wxControlWithItems</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <a name="wxComboBox">wxComboBox</a>, <a href="#wxControl">wxControl</a>, <a href="#wxItemContainer">wxItemContainer</a></font></b>
 <blockquote>
     <a href="#wxComboBox">wxComboBox</a>()<br>
     <a href="#wxComboBox">wxComboBox</a>(<a href="#wxWindow">wxWindow</a>* parent, wxWindowID id, const <a href="#wxString">wxString</a>&amp; value = "", const <a href="#wxPoint">wxPoint</a>&amp; pos = wxDefaultPosition, const <a href="#wxSize">wxSize</a>&amp; size = wxDefaultSize, const <a href="#wxArrayString">wxArrayString</a>&amp; choices = wxLuaNullSmart<a href="#wxArrayString">wxArrayString</a>, long style = 0, const <a href="#wxValidator">wxValidator</a>&amp; validator = wxDefaultValidator, const <a href="#wxString">wxString</a>&amp; name = "wxComboBox")<br>
@@ -8115,7 +8163,7 @@
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
 <font color=#009900>// <a href="#wxListItemAttr">wxListItemAttr</a> - <a href="#wxListCtrl">wxListCtrl</a></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxListItemAttr">wxListItemAttr</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxListItemAttr">wxListItemAttr</a></font></b>
 <blockquote>
     <a href="#wxListItemAttr">wxListItemAttr</a>(const <a href="#wxColour">wxColour</a>&amp; colText = wxNullColour, const <a href="#wxColour">wxColour</a>&amp; colBack = wxNullColour, const <a href="#wxFont">wxFont</a>&amp; font = wxNullFont)<br>
 <br>
@@ -8595,7 +8643,7 @@
 <font color=#006666><i>%define</i> wxTEXT_ATTR_RIGHT_INDENT</font><br>
 <font color=#006666><i>%define</i> wxTEXT_ATTR_TABS</font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxTextAttr">wxTextAttr</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxTextAttr">wxTextAttr</a></font></b>
 <blockquote>
     <font color=#009900>//<a href="#wxTextAttr">wxTextAttr</a>()</font><br>
     <a href="#wxTextAttr">wxTextAttr</a>(const <a href="#wxColour">wxColour</a>&amp; colText = wxNullColour, const <a href="#wxColour">wxColour</a>&amp; colBack = wxNullColour, const <a href="#wxFont">wxFont</a>&amp; font = wxNullFont, <a href="#wxTextAttrAlignment">wxTextAttrAlignment</a> alignment = wxTEXT_ALIGNMENT_DEFAULT)<br>
@@ -8799,7 +8847,7 @@
 <font color=#009900>// This is only used internally in wxWidgets with no public accessors to them.</font><br>
 <br>
 <font color=#888888>/*<br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxTreeItemAttr">wxTreeItemAttr</a></font></b></font>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxTreeItemAttr">wxTreeItemAttr</a></font></b></font>
 <blockquote><font color=#888888>
     wxTreeItemAttr(const <a href="#wxColour">wxColour</a>&amp; colText = wxNullColour, const <a href="#wxColour">wxColour</a>&amp; colBack = wxNullColour, const <a href="#wxFont">wxFont</a>&amp; font = wxNullFont)<br>
 <br>
@@ -8819,7 +8867,7 @@
 <font color=#009900>// <a href="#wxTreeItemIdValue">wxTreeItemIdValue</a> - <a href="#wxTreeCtrl">wxTreeCtrl</a></font><br>
 <br>
 <font color=#009900>//<i>%if</i> <i>%wxchkver_2_6</i></font><br>
-<font color=#009900>//<i>%class</i> <i>%noclassinfo</i> <a href="#wxTreeItemIdValue">wxTreeItemIdValue</a></font><br>
+<font color=#009900>//<i>%class</i> <a href="#wxTreeItemIdValue">wxTreeItemIdValue</a></font><br>
 <font color=#009900>//<i>%endclass</i></font><br>
 <font color=#009900>//<i>%endif</i></font><br>
 <br>
@@ -8833,7 +8881,7 @@
 </font>
 </blockquote><font color=#0066CC><i>%endenum</i></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxTreeItemId">wxTreeItemId</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxTreeItemId">wxTreeItemId</a></font></b>
 <blockquote>
     <a href="#wxTreeItemId">wxTreeItemId</a>()<br>
     <a href="#wxTreeItemId">wxTreeItemId</a>(const <a href="#wxTreeItemId">wxTreeItemId</a>&amp; id)<br>
@@ -8855,7 +8903,7 @@
 <font color=#009900>//       See wxLua's wxTreeItemId::GetValue() function</font><br>
 <br>
 <font color=#888888>/*<br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxArrayTreeItemIds">wxArrayTreeItemIds</a></font></b></font>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxArrayTreeItemIds">wxArrayTreeItemIds</a></font></b></font>
 <blockquote><font color=#888888>
     wxArrayTreeItemIds()<br>
     wxArrayTreeItemIds(const wxArrayTreeItemIds&amp; array)<br>
@@ -8882,7 +8930,7 @@
 <font color=#009900>// No <i>%delete</i> since the <a href="#wxTreeCtrl">wxTreeCtrl</a> should do it and you should only create one</font><br>
 <font color=#009900>// of these if you're going to attach it to a <a href="#wxTreeCtrl">wxTreeCtrl</a> to avoid memory leaks.</font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%noclassinfo</i> <a name="wxTreeItemData">wxTreeItemData</a>, <a href="#wxClientData">wxClientData</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <a name="wxTreeItemData">wxTreeItemData</a>, <a href="#wxClientData">wxClientData</a></font></b>
 <blockquote>
     <a href="#wxTreeItemData">wxTreeItemData</a>()<br>
 <br>
@@ -8898,7 +8946,7 @@
 <br>
 <i>%include</i> "wxbind/include/wxcore_wxlcore.h"<br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%noclassinfo</i> <a name="wxLuaTreeItemData">wxLuaTreeItemData</a>, <a href="#wxTreeItemData">wxTreeItemData</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <a name="wxLuaTreeItemData">wxLuaTreeItemData</a>, <a href="#wxTreeItemData">wxTreeItemData</a></font></b>
 <blockquote>
     <a href="#wxLuaTreeItemData">wxLuaTreeItemData</a>(double value = 0)<br>
 <br>
@@ -9022,7 +9070,7 @@
 <br>
 <i>%if</i> wxUSE_LOGGUI<br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxLogGui">wxLogGui</a>, <a href="#wxLog">wxLog</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxLogGui">wxLogGui</a>, <a href="#wxLog">wxLog</a></font></b>
 <blockquote>
     <a href="#wxLogGui">wxLogGui</a>()<br>
 </blockquote><font color=#DD0000><font color=#DD0000><i>%endclass</i></font></font><br>
@@ -9034,7 +9082,7 @@
 <br>
 <i>%if</i> wxLUA_USE_wxTextCtrl &amp;&amp; wxUSE_TEXTCTRL<br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxLogTextCtrl">wxLogTextCtrl</a>, <a href="#wxLog">wxLog</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxLogTextCtrl">wxLogTextCtrl</a>, <a href="#wxLog">wxLog</a></font></b>
 <blockquote>
     <a href="#wxLogTextCtrl">wxLogTextCtrl</a>(<a href="#wxTextCtrl">wxTextCtrl</a>* textCtrl);<br>
 <br>
@@ -9047,7 +9095,7 @@
 <br>
 <i>%if</i> wxLUA_USE_wxLogWindow &amp;&amp; wxUSE_LOGWINDOW<br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxLogWindow">wxLogWindow</a>, <a href="#wxLogPassThrough">wxLogPassThrough</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxLogWindow">wxLogWindow</a>, <a href="#wxLogPassThrough">wxLogPassThrough</a></font></b>
 <blockquote>
     <a href="#wxLogWindow">wxLogWindow</a>(<a href="#wxWindow">wxWindow</a> *pParent, const <a href="#wxString">wxString</a>&amp; szTitle, bool bShow = true, bool bPassToOld = true);<br>
 <br>
@@ -9186,7 +9234,7 @@
 </font>
 </blockquote><font color=#0066CC><i>%endenum</i></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%noclassinfo</i> <a name="wxSystemSettings">wxSystemSettings</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <a name="wxSystemSettings">wxSystemSettings</a></font></b>
 <blockquote>
     <font color=#009900>//<a href="#wxSystemSettings">wxSystemSettings</a>() // No constructor, all members static</font><br>
 <br>
@@ -9306,7 +9354,7 @@
 <br>
 <i>%include</i> "wx/fs_mem.h"<br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%noclassinfo</i> <i>%delete</i> <a name="wxMemoryFSHandler">wxMemoryFSHandler</a>, <a href="#wxFileSystemHandler">wxFileSystemHandler</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxMemoryFSHandler">wxMemoryFSHandler</a>, <a href="#wxFileSystemHandler">wxFileSystemHandler</a></font></b>
 <blockquote>
     <a href="#wxMemoryFSHandler">wxMemoryFSHandler</a>()<br>
 <br>
@@ -9417,7 +9465,7 @@
 </font>
 </blockquote><font color=#0066CC><i>%endenum</i></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%encapsulate</i> <a name="wxProcess">wxProcess</a>, <a href="#wxEvtHandler">wxEvtHandler</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxProcess">wxProcess</a>, <a href="#wxEvtHandler">wxEvtHandler</a></font></b>
 <blockquote>
     <a href="#wxProcess">wxProcess</a>(<a href="#wxEvtHandler">wxEvtHandler</a> *parent = NULL, int nId = wxID_ANY)<br>
     <font color=#009900>//<a href="#wxProcess">wxProcess</a>(int flags)</font><br>
@@ -9543,7 +9591,7 @@
 <br>
 <i>%if</i> <i>%wxchkver_2_8</i><br>
 <font color=#009900>// This is in wxWidgets 2.6 docs, but it's only in &gt;=2.7</font><br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxMouseState">wxMouseState</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxMouseState">wxMouseState</a></font></b>
 <blockquote>
     <a href="#wxMouseState">wxMouseState</a>()<br>
 <br>
@@ -9864,7 +9912,7 @@
 <br>
 <i>%include</i> "wx/utils.h"<br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxBusyCursor">wxBusyCursor</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxBusyCursor">wxBusyCursor</a></font></b>
 <blockquote>
     <font color=#009900>// NOTE: ALWAYS delete() this when done since Lua's gc may not delete it soon enough</font><br>
     <a href="#wxBusyCursor">wxBusyCursor</a>(<a href="#wxCursor">wxCursor</a>* cursor = wxHOURGLASS_CURSOR)<br>
@@ -9875,7 +9923,7 @@
 <font color=#009900>// automatically collect items when they go out of scope so you would have to</font><br>
 <font color=#009900>// delete() this anyway which is just as easy as wxBegin/EndBusyCursor</font><br>
 <br>
-<font color=#009900>//<i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> wxBusyCursorSuspender</font><br>
+<font color=#009900>//<i>%class</i> <i>%delete</i> wxBusyCursorSuspender</font><br>
     <font color=#009900>// NOTE: ALWAYS delete() this when done since Lua's gc may not delete it soon enough</font><br>
 <font color=#009900>//    wxBusyCursorSuspender()</font><br>
 <br>
@@ -9890,7 +9938,7 @@
 <br>
 <i>%include</i> "wx/busyinfo.h"<br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <a name="wxBusyInfo">wxBusyInfo</a>, <a href="#wxObject">wxObject</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxBusyInfo">wxBusyInfo</a>, <a href="#wxObject">wxObject</a></font></b>
 <blockquote>
     <font color=#009900>// NOTE: ALWAYS delete() this when done since Lua's gc may not delete it soon enough</font><br>
     <a href="#wxBusyInfo">wxBusyInfo</a>(const <a href="#wxString">wxString</a>&amp; message, <a href="#wxWindow">wxWindow</a> *parent = NULL)<br>
@@ -10336,7 +10384,7 @@
 </font>
 </blockquote><font color=#0066CC><i>%endenum</i></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <a name="wxFindReplaceData">wxFindReplaceData</a>, <a href="#wxObject">wxObject</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxFindReplaceData">wxFindReplaceData</a>, <a href="#wxObject">wxObject</a></font></b>
 <blockquote>
     <a href="#wxFindReplaceData">wxFindReplaceData</a>(int flags = 0)<br>
 <br>
@@ -10506,7 +10554,7 @@
 <br>
 <i>%include</i> "wx/event.h"<br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxPropagationDisabler">wxPropagationDisabler</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxPropagationDisabler">wxPropagationDisabler</a></font></b>
 <blockquote>
     <font color=#009900>// NOTE: ALWAYS delete() this when done since Lua's gc may not delete it soon enough</font><br>
     <a href="#wxPropagationDisabler">wxPropagationDisabler</a>(<a href="#wxEvent">wxEvent</a>&amp; event)<br>
@@ -10518,7 +10566,7 @@
 <br>
 <i>%include</i> "wx/event.h"<br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxPropagateOnce">wxPropagateOnce</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxPropagateOnce">wxPropagateOnce</a></font></b>
 <blockquote>
     <font color=#009900>// NOTE: ALWAYS delete() this when done since Lua's gc may not delete it soon enough</font><br>
     <a href="#wxPropagateOnce">wxPropagateOnce</a>(<a href="#wxEvent">wxEvent</a>&amp; event)<br>
@@ -10643,7 +10691,7 @@
 <font color=#009900>//<i>%if</i> !<i>%mac</i></font><br>
 <font color=#009900>//<i>%include</i> "wx/dialup.h"</font><br>
 <br>
-<font color=#009900>//<i>%class</i> <i>%delete</i> <i>%noclassinfo</i> wxDialUpEvent, <a href="#wxCommandEvent">wxCommandEvent</a></font><br>
+<font color=#009900>//<i>%class</i> <i>%delete</i> wxDialUpEvent, <a href="#wxCommandEvent">wxCommandEvent</a></font><br>
 <font color=#009900>//    <i>%define_event</i> wxEVT_DIALUP_CONNECTED      // EVT_DIALUP_CONNECTED(func)</font><br>
 <font color=#009900>//    <i>%define_event</i> wxEVT_DIALUP_DISCONNECTED   // EVT_DIALUP_DISCONNECTED(func)</font><br>
 <br>
@@ -11446,7 +11494,7 @@
 <br>
 <font color=#006666><i>%define</i> wxDefaultCoord</font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxPoint">wxPoint</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxPoint">wxPoint</a></font></b>
 <blockquote>
 <font color=#006666>    <i>%define_object</i> wxDefaultPosition</font><br>
 <br>
@@ -11488,7 +11536,7 @@
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
 <font color=#009900>// wxRealPoint - Used nowhere in wxWidgets</font><br>
 <br>
-<font color=#009900>//<i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> wxRealPoint</font><br>
+<font color=#009900>//<i>%class</i> <i>%delete</i> wxRealPoint</font><br>
 <font color=#009900>//    wxRealPoint(double xx = 0, double yy = 0)</font><br>
 <font color=#009900>//</font><br>
 <font color=#009900>//    <i>%rename</i> X <i>%member</i> double x // GetX() and SetX(int x)</font><br>
@@ -11498,7 +11546,7 @@
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
 <font color=#009900>// <a href="#wxSize">wxSize</a></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxSize">wxSize</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxSize">wxSize</a></font></b>
 <blockquote>
 <font color=#006666>    <i>%define_object</i> wxDefaultSize</font><br>
 <br>
@@ -11541,7 +11589,7 @@
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
 <font color=#009900>// <a href="#wxRect">wxRect</a></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxRect">wxRect</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxRect">wxRect</a></font></b>
 <blockquote>
     <a href="#wxRect">wxRect</a>(int x = 0, int y = 0, int w = 0, int h = 0)<br>
     <a href="#wxRect">wxRect</a>(const <a href="#wxRect">wxRect</a>&amp; rect)<br>
@@ -11838,7 +11886,7 @@
 <br>
 <i>%include</i> "wx/fontutil.h"<br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxNativeFontInfo">wxNativeFontInfo</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxNativeFontInfo">wxNativeFontInfo</a></font></b>
 <blockquote>
     <a href="#wxNativeFontInfo">wxNativeFontInfo</a>()<br>
     <a href="#wxNativeFontInfo">wxNativeFontInfo</a>(const <a href="#wxNativeFontInfo">wxNativeFontInfo</a>&amp; info)<br>
@@ -11890,7 +11938,7 @@
 <br>
 <i>%include</i> "wx/fontenum.h"<br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxFontEnumerator">wxFontEnumerator</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxFontEnumerator">wxFontEnumerator</a></font></b>
 <blockquote>
     <a href="#wxFontEnumerator">wxFontEnumerator</a>()<br>
 <br>
@@ -11914,7 +11962,7 @@
 <br>
 <i>%if</i> wxLUA_USE_wxFontList<br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%noclassinfo</i> <a name="wxFontList">wxFontList</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <a name="wxFontList">wxFontList</a></font></b>
 <blockquote>
 <font color=#006666>    <i>%define_pointer</i> wxTheFontList</font><br>
 <br>
@@ -11937,7 +11985,7 @@
 <br>
 <i>%include</i> "wx/fontmap.h"<br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%noclassinfo</i> <a name="wxFontMapper">wxFontMapper</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <a name="wxFontMapper">wxFontMapper</a></font></b>
 <blockquote>
     <font color=#009900>// No constructor, use static Get() function</font><br>
 <br>
@@ -12023,7 +12071,7 @@
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
 <font color=#009900>// <a href="#wxColourDatabase">wxColourDatabase</a></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxColourDatabase">wxColourDatabase</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxColourDatabase">wxColourDatabase</a></font></b>
 <blockquote>
     <a href="#wxColourDatabase">wxColourDatabase</a>()<br>
 <br>
@@ -12117,7 +12165,7 @@
 <br>
 <i>%if</i> wxLUA_USE_wxPenList<br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%noclassinfo</i> <a name="wxPenList">wxPenList</a>, <a href="#wxList">wxList</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <a name="wxPenList">wxPenList</a> <font color=#009900>//, <a href="#wxList">wxList</a> - it's not really derived from a <a href="#wxList">wxList</a></font></font></b>
 <blockquote>
 <font color=#006666>    <i>%define_pointer</i> wxThePenList</font><br>
 <br>
@@ -12126,9 +12174,6 @@
     <font color=#009900>// Note: we don't gc the returned pen as the list will delete it</font><br>
     <a href="#wxPen">wxPen</a>* FindOrCreatePen(const <a href="#wxColour">wxColour</a>&amp; colour, int width, int style)<br>
 <br>
-    <font color=#009900>// Use the <a href="#wxList">wxList</a> methods, see also <a href="#wxNode">wxNode</a></font><br>
-    <font color=#009900>//void AddPen(<a href="#wxPen">wxPen</a> *pen)       internal use for wxWidgets</font><br>
-    <font color=#009900>//void RemovePen(<a href="#wxPen">wxPen</a> *pen)</font><br>
 </blockquote><font color=#DD0000><font color=#DD0000><i>%endclass</i></font></font><br>
 <br>
 <i>%endif</i> <font color=#009900>//wxLUA_USE_wxPenList</font><br>
@@ -12178,7 +12223,7 @@
 <br>
 <i>%if</i> wxLUA_USE_wxBrushList<br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%noclassinfo</i> <a name="wxBrushList">wxBrushList</a>, <a href="#wxList">wxList</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <a name="wxBrushList">wxBrushList</a> <font color=#009900>//, <a href="#wxList">wxList</a> - it's not really derived from it</font></font></b>
 <blockquote>
 <font color=#006666>    <i>%define_pointer</i> wxTheBrushList</font><br>
 <br>
@@ -12190,6 +12235,7 @@
     <font color=#009900>// Use the <a href="#wxList">wxList</a> methods, see also <a href="#wxNode">wxNode</a></font><br>
     <font color=#009900>//void AddBrush(<a href="#wxBrush">wxBrush</a> *brush)    internal use for wxWidgets</font><br>
     <font color=#009900>//void RemoveBrush(<a href="#wxBrush">wxBrush</a> *brush)</font><br>
+<br>
 </blockquote><font color=#DD0000><font color=#DD0000><i>%endclass</i></font></font><br>
 <br>
 <i>%endif</i> <font color=#009900>//wxLUA_USE_wxBrushList</font><br>
@@ -12242,7 +12288,7 @@
 </font>
 </blockquote><font color=#0066CC><i>%endenum</i></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxStockGDI">wxStockGDI</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <a name="wxStockGDI">wxStockGDI</a></font></b>
 <blockquote>
     <font color=#009900>//<a href="#wxStockGDI">wxStockGDI</a>() use instance to get the implemented <a href="#wxStockGDI">wxStockGDI</a></font><br>
 <br>
@@ -12324,7 +12370,7 @@
 <br>
 <i>%include</i> "wx/iconbndl.h"<br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxIconBundle">wxIconBundle</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxIconBundle">wxIconBundle</a></font></b>
 <blockquote>
     <a href="#wxIconBundle">wxIconBundle</a>()<br>
     <a href="#wxIconBundle">wxIconBundle</a>( const <a href="#wxString">wxString</a>&amp; file, long type )<br>
@@ -12348,11 +12394,11 @@
 <br>
 <i>%include</i> "wx/bitmap.h"<br>
 <br>
-<font color=#009900>//<i>%win</i> <i>%class</i> <i>%delete</i> <i>%noclassinfo</i> wxBitmapHandler   // are these even necessary?</font><br>
+<font color=#009900>//<i>%win</i> <i>%class</i> <i>%delete</i> wxBitmapHandler   // are these even necessary?</font><br>
 <font color=#009900>//<i>%endclass</i></font><br>
-<font color=#009900>//<i>%win</i> <i>%class</i> <i>%delete</i> <i>%noclassinfo</i> wxGDIImageHandler</font><br>
+<font color=#009900>//<i>%win</i> <i>%class</i> <i>%delete</i> wxGDIImageHandler</font><br>
 <font color=#009900>//<i>%endclass</i></font><br>
-<font color=#009900>//<i>%wxchkver_2_6</i>&amp;<i>%win</i> <i>%class</i> <i>%noclassinfo</i> wxGDIImageHandlerList, <a href="#wxList">wxList</a></font><br>
+<font color=#009900>//<i>%wxchkver_2_6</i>&amp;<i>%win</i> <i>%class</i> wxGDIImageHandlerList, <a href="#wxList">wxList</a></font><br>
 <font color=#009900>//<i>%endclass</i></font><br>
 <br>
 <b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxBitmap">wxBitmap</a>, <a href="#wxGDIObject">wxGDIObject</a></font></b>
@@ -12882,7 +12928,7 @@
 <br>
 <i>%include</i> "wx/dc.h"<br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxDCClipper">wxDCClipper</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxDCClipper">wxDCClipper</a></font></b>
 <blockquote>
     <a href="#wxDCClipper">wxDCClipper</a>(<a href="#wxDC">wxDC</a>&amp; dc, const <a href="#wxRect">wxRect</a>&amp; r)<br>
     <font color=#009900>//<a href="#wxDCClipper">wxDCClipper</a>(<a href="#wxDC">wxDC</a>&amp; dc, const <a href="#wxRegion">wxRegion</a>&amp; r)</font><br>
@@ -12898,7 +12944,7 @@
 <br>
 <i>%include</i> "wx/caret.h"<br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxCaret">wxCaret</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxCaret">wxCaret</a></font></b>
 <blockquote>
     <a href="#wxCaret">wxCaret</a>()<br>
     <a href="#wxCaret">wxCaret</a>(<a href="#wxWindow">wxWindow</a>* window, const <a href="#wxSize">wxSize</a>&amp; size)<br>
@@ -12936,7 +12982,7 @@
 <br>
 <i>%include</i> "wx/caret.h"<br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxCaretSuspend">wxCaretSuspend</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxCaretSuspend">wxCaretSuspend</a></font></b>
 <blockquote>
     <font color=#009900>// NOTE: ALWAYS delete() this when done since Lua's gc may not delete it soon enough</font><br>
     <a href="#wxCaretSuspend">wxCaretSuspend</a>(<a href="#wxWindow">wxWindow</a> *win = NULL)<br>
@@ -12951,7 +12997,7 @@
 <br>
 <i>%include</i> "wx/display.h"<br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxVideoMode">wxVideoMode</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxVideoMode">wxVideoMode</a></font></b>
 <blockquote>
 <font color=#006666>    <i>%define_object</i> wxDefaultVideoMode</font><br>
 <br>
@@ -12969,7 +13015,7 @@
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
 <font color=#009900>// <a href="#wxArrayVideoModes">wxArrayVideoModes</a></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxArrayVideoModes">wxArrayVideoModes</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxArrayVideoModes">wxArrayVideoModes</a></font></b>
 <blockquote>
     <a href="#wxArrayVideoModes">wxArrayVideoModes</a>()<br>
     <a href="#wxArrayVideoModes">wxArrayVideoModes</a>(const <a href="#wxArrayVideoModes">wxArrayVideoModes</a>&amp; array)<br>
@@ -12993,7 +13039,7 @@
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
 <font color=#009900>// <a href="#wxDisplay">wxDisplay</a></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxDisplay">wxDisplay</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxDisplay">wxDisplay</a></font></b>
 <blockquote>
     <a href="#wxDisplay">wxDisplay</a>(size_t index = 0)<br>
 <br>
@@ -13075,7 +13121,7 @@
 </font>
 </blockquote><font color=#0066CC><i>%endenum</i></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%struct</i> <i>%delete</i> <i>%encapsulate</i> <a name="wxSplitterRenderParams">wxSplitterRenderParams</a></font></b>
+<b><font size=+1 color=#DD0000><i>%struct</i> <i>%delete</i> <a name="wxSplitterRenderParams">wxSplitterRenderParams</a></font></b>
 <blockquote>
     <font color=#009900>// the only way to initialize this struct is by using this ctor</font><br>
     <a href="#wxSplitterRenderParams">wxSplitterRenderParams</a>(wxCoord widthSash_, wxCoord border_, bool isSens_)<br>
@@ -13087,7 +13133,7 @@
 <br>
 <br>
 <font color=#009900>// extra optional parameters for DrawHeaderButton</font><br>
-<b><font size=+1 color=#DD0000><i>%struct</i> <i>%delete</i> <i>%encapsulate</i> <a name="wxHeaderButtonParams">wxHeaderButtonParams</a></font></b>
+<b><font size=+1 color=#DD0000><i>%struct</i> <i>%delete</i> <a name="wxHeaderButtonParams">wxHeaderButtonParams</a></font></b>
 <blockquote>
     <a href="#wxHeaderButtonParams">wxHeaderButtonParams</a>()<br>
 <br>
@@ -13121,7 +13167,7 @@
 </blockquote><font color=#0066CC><i>%endenum</i></font><br>
 <br>
 <font color=#009900>// <a href="#wxRendererNative">wxRendererNative</a> interface version</font><br>
-<b><font size=+1 color=#DD0000><i>%struct</i> <i>%delete</i> <i>%encapsulate</i> <a name="wxRendererVersion">wxRendererVersion</a></font></b>
+<b><font size=+1 color=#DD0000><i>%struct</i> <i>%delete</i> <a name="wxRendererVersion">wxRendererVersion</a></font></b>
 <blockquote>
     <a href="#wxRendererVersion">wxRendererVersion</a>(int version_, int age_)<br>
 <br>
@@ -13133,7 +13179,7 @@
 </blockquote><font color=#DD0000><font color=#DD0000><i>%endstruct</i></font></font><br>
 <br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxRendererNative">wxRendererNative</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxRendererNative">wxRendererNative</a></font></b>
 <blockquote>
     <font color=#009900>// pseudo constructors</font><br>
     <font color=#009900>// -------------------</font><br>
@@ -13253,7 +13299,7 @@
 <font color=#009900>// <a href="#wxPoint2DInt">wxPoint2DInt</a></font><br>
 <br>
 <i>%include</i> "wx/geometry.h"<br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxPoint2DInt">wxPoint2DInt</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxPoint2DInt">wxPoint2DInt</a></font></b>
 <blockquote>
     <font color=#009900>//<a href="#wxPoint2DInt">wxPoint2DInt</a>()</font><br>
     <a href="#wxPoint2DInt">wxPoint2DInt</a>( wxInt32 x=0, wxInt32 y=0 )<br>
@@ -13301,7 +13347,7 @@
 <font color=#009900>// <a href="#wxPoint2DDouble">wxPoint2DDouble</a></font><br>
 <br>
 <i>%include</i> "wx/geometry.h"<br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxPoint2DDouble">wxPoint2DDouble</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxPoint2DDouble">wxPoint2DDouble</a></font></b>
 <blockquote>
     <font color=#009900>//<a href="#wxPoint2DDouble">wxPoint2DDouble</a>()</font><br>
     <a href="#wxPoint2DDouble">wxPoint2DDouble</a>( wxDouble x=0, wxDouble y=0 )<br>
@@ -13343,7 +13389,7 @@
 <font color=#009900>// <a href="#wxRect2DDouble">wxRect2DDouble</a></font><br>
 <br>
 <i>%include</i> "wx/geometry.h"<br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxRect2DDouble">wxRect2DDouble</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxRect2DDouble">wxRect2DDouble</a></font></b>
 <blockquote>
     <font color=#009900>//<a href="#wxRect2DDouble">wxRect2DDouble</a>()</font><br>
     <a href="#wxRect2DDouble">wxRect2DDouble</a>(wxDouble x=0, wxDouble y=0, wxDouble w=0, wxDouble h=0)<br>
@@ -13413,7 +13459,7 @@
 <font color=#009900>// <a href="#wxRect2DInt">wxRect2DInt</a></font><br>
 <br>
 <i>%include</i> "wx/geometry.h"<br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxRect2DInt">wxRect2DInt</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxRect2DInt">wxRect2DInt</a></font></b>
 <blockquote>
     <font color=#009900>//<a href="#wxRect2DInt">wxRect2DInt</a>()</font><br>
     <a href="#wxRect2DInt">wxRect2DInt</a>(wxInt32 x=0, wxInt32 y=0, wxInt32 w=0, wxInt32 h=0)<br>
@@ -13489,7 +13535,7 @@
 <font color=#009900>// wxTransform2D - an abstract class</font><br>
 <br>
 <font color=#009900>//<i>%include</i> "wx/geometry.h"</font><br>
-<font color=#009900>//<i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> wxTransform2D</font><br>
+<font color=#009900>//<i>%class</i> <i>%delete</i> wxTransform2D</font><br>
 <font color=#009900>//    virtual void                    Transform( <a href="#wxPoint2DInt">wxPoint2DInt</a>* pt )const  = 0</font><br>
 <font color=#009900>//    virtual void                    Transform( <a href="#wxRect2DInt">wxRect2DInt</a>* r ) const</font><br>
 <font color=#009900>//    virtual <a href="#wxPoint2DInt">wxPoint2DInt</a>    Transform( const <a href="#wxPoint2DInt">wxPoint2DInt</a> &amp;pt ) const</font><br>
@@ -13562,7 +13608,7 @@
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
 <font color=#009900>// <a href="#wxHelpProvider">wxHelpProvider</a></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxHelpProvider">wxHelpProvider</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxHelpProvider">wxHelpProvider</a></font></b>
 <blockquote>
     <font color=#009900>// No constructor see <a href="#wxSimpleHelpProvider">wxSimpleHelpProvider</a></font><br>
 <br>
@@ -13582,7 +13628,7 @@
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
 <font color=#009900>// <a href="#wxSimpleHelpProvider">wxSimpleHelpProvider</a></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxSimpleHelpProvider">wxSimpleHelpProvider</a>, <a href="#wxHelpProvider">wxHelpProvider</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxSimpleHelpProvider">wxSimpleHelpProvider</a>, <a href="#wxHelpProvider">wxHelpProvider</a></font></b>
 <blockquote>
     <a href="#wxSimpleHelpProvider">wxSimpleHelpProvider</a>()<br>
 <br>
@@ -13591,7 +13637,7 @@
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
 <font color=#009900>// <a href="#wxHelpControllerHelpProvider">wxHelpControllerHelpProvider</a></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxHelpControllerHelpProvider">wxHelpControllerHelpProvider</a>, <a href="#wxSimpleHelpProvider">wxSimpleHelpProvider</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxHelpControllerHelpProvider">wxHelpControllerHelpProvider</a>, <a href="#wxSimpleHelpProvider">wxSimpleHelpProvider</a></font></b>
 <blockquote>
     <a href="#wxHelpControllerHelpProvider">wxHelpControllerHelpProvider</a>(<a href="#wxHelpController">wxHelpController</a>* hc = NULL)<br>
 <br>
@@ -13934,14 +13980,14 @@
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
 <font color=#009900>// <a href="#wxImageHistogram">wxImageHistogram</a></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxImageHistogramEntry">wxImageHistogramEntry</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxImageHistogramEntry">wxImageHistogramEntry</a></font></b>
 <blockquote>
     <a href="#wxImageHistogramEntry">wxImageHistogramEntry</a>()<br>
 <font color=#CC6600>    <i>%member</i> unsigned long index <font color=#009900>// GetIndex() only, SetIndex(idx) is not allowed</font></font><br>
 <font color=#CC6600>    <i>%member</i> unsigned long value <font color=#009900>// GetValue() and SetValue(val)</font></font><br>
 </blockquote><font color=#DD0000><font color=#DD0000><i>%endclass</i></font></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxImageHistogram::iterator">wxImageHistogram::iterator</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxImageHistogram::iterator">wxImageHistogram::iterator</a></font></b>
 <blockquote>
 <font color=#CC6600>    <i>%member</i> long first</font><br>
 <font color=#CC6600>    <i>%member</i> <a href="#wxImageHistogramEntry">wxImageHistogramEntry</a> second</font><br>
@@ -13951,7 +13997,7 @@
     <i>%operator</i> wxImageHistogram::iterator&amp; operator++()<br>
 </blockquote><font color=#DD0000><font color=#DD0000><i>%endclass</i></font></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxImageHistogram">wxImageHistogram</a> <font color=#009900>// wxImageHistogramBase actually a hash map</font></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxImageHistogram">wxImageHistogram</a> <font color=#009900>// wxImageHistogramBase actually a hash map</font></font></b>
 <blockquote>
     <a href="#wxImageHistogram">wxImageHistogram</a>()<br>
 <br>
@@ -13962,11 +14008,11 @@
     <font color=#009900>//bool FindFirstUnusedColour(unsigned char *r, unsigned char *g, unsigned char *b, unsigned char startR = 1, unsigned char startG = 0, unsigned char startB = 0 ) const</font><br>
 <br>
     <font color=#009900>// Selected functions from the base wxHashMap class</font><br>
-    const wxImageHistogram::iterator begin() const<br>
+    wxImageHistogram::iterator begin() const <font color=#009900>// not const iterator since we create a new copy of it</font><br>
     void clear()<br>
     size_t count(long key) const<br>
     bool empty() const<br>
-    const wxImageHistogram::iterator end() const<br>
+    wxImageHistogram::iterator end() const <font color=#009900>// not const iterator since we create a new copy of it</font><br>
     size_t erase(long key)<br>
     wxImageHistogram::iterator find(long key)<br>
     <font color=#009900>//Insert_Result insert(const value_type&amp; v)</font><br>
@@ -14893,7 +14939,7 @@
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
 <font color=#009900>// <a href="#wxMenuItemList">wxMenuItemList</a></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%noclassinfo</i> <a name="wxMenuItemList">wxMenuItemList</a>, <a href="#wxList">wxList</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <a name="wxMenuItemList">wxMenuItemList</a>, <a href="#wxList">wxList</a></font></b>
 <blockquote>
     <font color=#009900>// no constructor, you only get this back from wxMenu::GetMenuItems</font><br>
 <br>
@@ -14939,7 +14985,7 @@
 <font color=#006666><i>%define</i> wxTB_HORZ_LAYOUT</font><br>
 <font color=#006666><i>%define</i> wxTB_HORZ_TEXT</font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%noclassinfo</i> <a name="wxToolBarBase">wxToolBarBase</a>, <a href="#wxControl">wxControl</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <a name="wxToolBarBase">wxToolBarBase</a>, <a href="#wxControl">wxControl</a></font></b>
 <blockquote>
     <font color=#009900>// no constructors base class</font><br>
 <br>
@@ -15074,11 +15120,10 @@
 </blockquote><font color=#DD0000><font color=#DD0000><i>%endclass</i></font></font><br>
 <br>
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
-<font color=#009900>// <a href="#wxToolBarTool">wxToolBarTool</a></font><br>
+<font color=#009900>// wxToolBarTool - This class doesn't exist!</font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%noclassinfo</i> <a name="wxToolBarTool">wxToolBarTool</a>, wxToolBarToolBase</font></b>
-<blockquote>
-</blockquote><font color=#DD0000><font color=#DD0000><i>%endclass</i></font></font><br>
+<font color=#009900>//<i>%class</i> wxToolBarTool, <a href="#wxToolBarToolBase">wxToolBarToolBase</a></font><br>
+<font color=#009900>//<i>%endclass</i></font><br>
 <br>
 <i>%endif</i> <font color=#009900>//wxLUA_USE_wxToolbar</font><br>
 <br>
@@ -15126,7 +15171,7 @@
 </font>
 </blockquote><font color=#0066CC><i>%endenum</i></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxAcceleratorEntry">wxAcceleratorEntry</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxAcceleratorEntry">wxAcceleratorEntry</a></font></b>
 <blockquote>
     <a href="#wxAcceleratorEntry">wxAcceleratorEntry</a>(int flags = 0, int keyCode = 0, int cmd = 0, <a href="#wxMenuItem">wxMenuItem</a> *item = NULL)<br>
     <a href="#wxAcceleratorEntry">wxAcceleratorEntry</a>(const <a href="#wxAcceleratorEntry">wxAcceleratorEntry</a>&amp; entry)<br>
@@ -16036,7 +16081,7 @@
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
 <font color=#009900>// <a href="#wxSizerFlags">wxSizerFlags</a></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%encapsulate</i> <i>%noclassinfo</i> <a name="wxSizerFlags">wxSizerFlags</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxSizerFlags">wxSizerFlags</a></font></b>
 <blockquote>
     <a href="#wxSizerFlags">wxSizerFlags</a>(int proportion = 0)<br>
 <br>
@@ -16276,7 +16321,7 @@
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
 <font color=#009900>// <a href="#wxGBPosition">wxGBPosition</a></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxGBPosition">wxGBPosition</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxGBPosition">wxGBPosition</a></font></b>
 <blockquote>
     <a href="#wxGBPosition">wxGBPosition</a>(int row=0, int col=0)<br>
     <a href="#wxGBPosition">wxGBPosition</a>(const <a href="#wxGBPosition">wxGBPosition</a>&amp; pos)<br>
@@ -16292,7 +16337,7 @@
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
 <font color=#009900>// <a href="#wxGBSpan">wxGBSpan</a></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxGBSpan">wxGBSpan</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxGBSpan">wxGBSpan</a></font></b>
 <blockquote>
     <a href="#wxGBSpan">wxGBSpan</a>(int rowspan=1, int colspan=1)<br>
     <a href="#wxGBSpan">wxGBSpan</a>(const <a href="#wxGBSpan">wxGBSpan</a>&amp; span)<br>
@@ -16496,7 +16541,7 @@
 <br>
 <i>%include</i> "wx/utils.h"<br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxWindowDisabler">wxWindowDisabler</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxWindowDisabler">wxWindowDisabler</a></font></b>
 <blockquote>
     <font color=#009900>// NOTE: ALWAYS delete() this when done since Lua's gc may not delete it soon enough</font><br>
     <a href="#wxWindowDisabler">wxWindowDisabler</a>(<a href="#wxWindow">wxWindow</a> *winToSkip = NULL)<br>
@@ -16507,7 +16552,7 @@
 <br>
 <i>%include</i> "wx/wupdlock.h"<br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxWindowUpdateLocker">wxWindowUpdateLocker</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxWindowUpdateLocker">wxWindowUpdateLocker</a></font></b>
 <blockquote>
     <font color=#009900>// NOTE: ALWAYS delete() this when done since Lua's gc may not delete it soon enough</font><br>
     <a href="#wxWindowUpdateLocker">wxWindowUpdateLocker</a>(<a href="#wxWindow">wxWindow</a> *winToLock = NULL)<br>
@@ -16561,7 +16606,7 @@
 <font color=#009900>//<i>%mgl</i> <i>%typedef</i> window_t WXWidget</font><br>
 <font color=#009900>//<i>%msw</i>|<i>%os2</i> <i>%typedef</i> unsigned long WXWidget</font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxVisualAttributes">wxVisualAttributes</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxVisualAttributes">wxVisualAttributes</a></font></b>
 <blockquote>
 <font color=#CC6600>    <i>%member</i> <a href="#wxFont">wxFont</a> font</font><br>
 <font color=#CC6600>    <i>%member</i> <a href="#wxColour">wxColour</a> colFg</font><br>
@@ -16808,7 +16853,7 @@
 <br>
 <i>%if</i> wxLUA_USE_wxWindowList &amp;&amp; !wxUSE_STL<br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%noclassinfo</i> <a name="wxWindowList">wxWindowList</a>, <a href="#wxList">wxList</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <a name="wxWindowList">wxWindowList</a>, <a href="#wxList">wxList</a></font></b>
 <blockquote>
     <font color=#009900>//<a href="#wxWindowList">wxWindowList</a>() - no constructor, just get this from wxWindow::GetChildren()</font><br>
 <br>
@@ -17506,7 +17551,7 @@
 <br>
 <i>%include</i> "wx/aboutdlg.h"<br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxAboutDialogInfo">wxAboutDialogInfo</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxAboutDialogInfo">wxAboutDialogInfo</a></font></b>
 <blockquote>
     <a href="#wxAboutDialogInfo">wxAboutDialogInfo</a>()<br>
 <br>
@@ -17640,7 +17685,7 @@
 <br>
 <i>%include</i> "wx/bmpcbox.h"<br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <a name="wxBitmapComboBox">wxBitmapComboBox</a> <font color=#009900>//, <a href="#wxControlWithItems">wxControlWithItems</a></font></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <a name="wxBitmapComboBox">wxBitmapComboBox</a>, <a href="#wxControl">wxControl</a></font></b>
 <blockquote>
     <a href="#wxBitmapComboBox">wxBitmapComboBox</a>()<br>
     <font color=#009900>//<a href="#wxBitmapComboBox">wxBitmapComboBox</a>(<a href="#wxWindow">wxWindow</a>* parent, wxWindowID id, const <a href="#wxString">wxString</a>&amp; value = "", const <a href="#wxPoint">wxPoint</a>&amp; pos = wxDefaultPosition, const <a href="#wxSize">wxSize</a>&amp; size = wxDefaultSize, int n = 0, const <a href="#wxString">wxString</a> choices[] = NULL, long style = 0, const <a href="#wxValidator">wxValidator</a>&amp; validator = wxDefaultValidator, const <a href="#wxString">wxString</a>&amp; name = "comboBox")</font><br>
@@ -17648,19 +17693,37 @@
     <font color=#009900>//bool Create(<a href="#wxWindow">wxWindow</a>* parent, wxWindowID id, const <a href="#wxString">wxString</a>&amp; value = "", const <a href="#wxPoint">wxPoint</a>&amp; pos = wxDefaultPosition, const <a href="#wxSize">wxSize</a>&amp; size = wxDefaultSize, int n, const <a href="#wxString">wxString</a> choices[], long style = 0, const <a href="#wxValidator">wxValidator</a>&amp; validator = wxDefaultValidator, const <a href="#wxString">wxString</a>&amp; name = "wxBitmapComboBox")</font><br>
     bool Create(<a href="#wxWindow">wxWindow</a>* parent, wxWindowID id, const <a href="#wxString">wxString</a>&amp; value, const <a href="#wxPoint">wxPoint</a>&amp; pos = wxDefaultPosition, const <a href="#wxSize">wxSize</a>&amp; size = wxDefaultSize, const <a href="#wxArrayString">wxArrayString</a>&amp; choices = wxLuaNullSmart<a href="#wxArrayString">wxArrayString</a>, long style = 0, const <a href="#wxValidator">wxValidator</a>&amp; validator = wxDefaultValidator, const <a href="#wxString">wxString</a>&amp; name = "wxBitmapComboBox")<br>
 <br>
-    int Append(const <a href="#wxString">wxString</a>&amp;  item, const <a href="#wxBitmap">wxBitmap</a>&amp; bitmap = wxNullBitmap)<br>
-    int Append(const <a href="#wxString">wxString</a>&amp;  item, const <a href="#wxBitmap">wxBitmap</a>&amp; bitmap, voidptr_long data ) <font color=#009900>// C++ is (void *clientData) You can put a number here</font><br>
-    int Append(const <a href="#wxString">wxString</a>&amp;  item, const <a href="#wxBitmap">wxBitmap</a>&amp; bitmap, <a href="#wxClientData">wxClientData</a> *clientData)<br>
+    int Append(const <a href="#wxString">wxString</a>&amp; item, const <a href="#wxBitmap">wxBitmap</a>&amp; bitmap = wxNullBitmap)<br>
+    int Append(const <a href="#wxString">wxString</a>&amp; item, const <a href="#wxBitmap">wxBitmap</a>&amp; bitmap, voidptr_long data ) <font color=#009900>// C++ is (void *clientData) You can put a number here</font><br>
+    int Append(const <a href="#wxString">wxString</a>&amp; item, const <a href="#wxBitmap">wxBitmap</a>&amp; bitmap, <a href="#wxClientData">wxClientData</a> *clientData)<br>
 <br>
     <a href="#wxSize">wxSize</a> GetBitmapSize() const<br>
-    <a href="#wxBitmap">wxBitmap</a>  GetItemBitmap(unsigned int n) const<br>
+    <a href="#wxBitmap">wxBitmap</a> GetItemBitmap(unsigned int n) const<br>
 <br>
-    int Insert(const <a href="#wxString">wxString</a>&amp;  item, const <a href="#wxBitmap">wxBitmap</a>&amp; bitmap, unsigned int pos)<br>
-    int Insert(const <a href="#wxString">wxString</a>&amp;  item, const <a href="#wxBitmap">wxBitmap</a>&amp; bitmap, unsigned int pos, voidptr_long data ) <font color=#009900>// C++ is (void *clientData) You can put a number here</font><br>
-    int Insert(const <a href="#wxString">wxString</a>&amp;  item, const <a href="#wxBitmap">wxBitmap</a>&amp; bitmap, unsigned int pos, <a href="#wxClientData">wxClientData</a> *clientData)<br>
+    int Insert(const <a href="#wxString">wxString</a>&amp; item, const <a href="#wxBitmap">wxBitmap</a>&amp; bitmap, unsigned int pos)<br>
+    int Insert(const <a href="#wxString">wxString</a>&amp; item, const <a href="#wxBitmap">wxBitmap</a>&amp; bitmap, unsigned int pos, voidptr_long data ) <font color=#009900>// C++ is (void *clientData) You can put a number here</font><br>
+    int Insert(const <a href="#wxString">wxString</a>&amp; item, const <a href="#wxBitmap">wxBitmap</a>&amp; bitmap, unsigned int pos, <a href="#wxClientData">wxClientData</a> *clientData)<br>
 <br>
     void SetItemBitmap(unsigned int n, const <a href="#wxBitmap">wxBitmap</a>&amp; bitmap)<br>
 <br>
+    void Clear()<br>
+    void Delete(unsigned int n)<br>
+    unsigned int GetCount() const<br>
+    <a href="#wxString">wxString</a> GetString(unsigned int n) const<br>
+    void SetString(unsigned int n, const <a href="#wxString">wxString</a>&amp; s)<br>
+    int FindString(const <a href="#wxString">wxString</a>&amp; s, bool bCase = false) const<br>
+    void Select(int n)<br>
+    int GetSelection() const<br>
+    <font color=#009900>//void GetSelection(long* from, long* to) const</font><br>
+    void SetSelection(int n)<br>
+    <font color=#009900>//void SetSelection(long from, long to)</font><br>
+    <font color=#009900>//int GetWidestItemWidth()</font><br>
+    <font color=#009900>//int GetWidestItem()</font><br>
+    <br>
+    void SetValue(const <a href="#wxString">wxString</a>&amp; value)<br>
+    void SetString(unsigned int n, const <a href="#wxString">wxString</a>&amp; s)<br>
+    bool SetStringSelection(const <a href="#wxString">wxString</a>&amp; s)<br>
+    <br>
 </blockquote><font color=#DD0000><font color=#DD0000><i>%endclass</i></font></font><br>
 <br>
 <i>%endif</i> <font color=#009900>//wxLUA_USE_wxBitmapComboBox &amp;&amp; wxUSE_BITMAPCOMBOBOX</font><br>
@@ -17737,7 +17800,7 @@
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
 <font color=#009900>// <a href="#wxCalendarDateAttr">wxCalendarDateAttr</a></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxCalendarDateAttr">wxCalendarDateAttr</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxCalendarDateAttr">wxCalendarDateAttr</a></font></b>
 <blockquote>
     <a href="#wxCalendarDateAttr">wxCalendarDateAttr</a>()<br>
     <a href="#wxCalendarDateAttr">wxCalendarDateAttr</a>(const <a href="#wxColour">wxColour</a>&amp; colText, const <a href="#wxColour">wxColour</a>&amp; colBack = wxNullColour, const <a href="#wxColour">wxColour</a>&amp; colBorder = wxNullColour, const <a href="#wxFont">wxFont</a>&amp; font = wxNullFont, <a href="#wxCalendarDateBorder">wxCalendarDateBorder</a> border = wxCAL_BORDER_NONE)<br>
@@ -17940,7 +18003,7 @@
 <br>
 <i>%include</i> "wx/laywin.h"<br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <a name="wxLayoutAlgorithm">wxLayoutAlgorithm</a>, <a href="#wxObject">wxObject</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxLayoutAlgorithm">wxLayoutAlgorithm</a>, <a href="#wxObject">wxObject</a></font></b>
 <blockquote>
     <a href="#wxLayoutAlgorithm">wxLayoutAlgorithm</a>()<br>
 <br>
@@ -18139,7 +18202,7 @@
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
 <font color=#009900>// <a href="#wxTaskBarIconEvent">wxTaskBarIconEvent</a></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <a name="wxTaskBarIconEvent">wxTaskBarIconEvent</a>, <a href="#wxEvent">wxEvent</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxTaskBarIconEvent">wxTaskBarIconEvent</a>, <a href="#wxEvent">wxEvent</a></font></b>
 <blockquote>
 <font color=#006666>    <i>%define_event</i> wxEVT_TASKBAR_MOVE            <font color=#009900>// EVT_TASKBAR_MOVE(func)</font></font><br>
 <font color=#006666>    <i>%define_event</i> wxEVT_TASKBAR_LEFT_DOWN       <font color=#009900>// EVT_TASKBAR_LEFT_DOWN(func)</font></font><br>
@@ -18270,7 +18333,7 @@
 <br>
 <i>%include</i> "wx/sound.h"<br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <a name="wxSound">wxSound</a>, <a href="#wxObject">wxObject</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxSound">wxSound</a>, <a href="#wxObject">wxObject</a></font></b>
 <blockquote>
     <a href="#wxSound">wxSound</a>()<br>
     <a href="#wxSound">wxSound</a>(const <a href="#wxString">wxString</a>&amp; fileName, bool isResource = false)<br>
@@ -18294,7 +18357,7 @@
 <br>
 <i>%include</i> "wx/wave.h"<br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <a name="wxWave">wxWave</a>, <a href="#wxObject">wxObject</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxWave">wxWave</a>, <a href="#wxObject">wxObject</a></font></b>
 <blockquote>
     <a href="#wxWave">wxWave</a>()<br>
     <a href="#wxWave">wxWave</a>(const <a href="#wxString">wxString</a>&amp; fileName, bool isResource = false)<br>
@@ -18355,7 +18418,7 @@
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
 <font color=#009900>// <a href="#wxGridCellWorker">wxGridCellWorker</a></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxGridCellWorker">wxGridCellWorker</a>, <a href="#wxClientDataContainer">wxClientDataContainer</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxGridCellWorker">wxGridCellWorker</a>, <a href="#wxClientDataContainer">wxClientDataContainer</a></font></b>
 <blockquote>
     <font color=#009900>// <a href="#wxGridCellWorker">wxGridCellWorker</a>() - base class only</font><br>
 <br>
@@ -18370,7 +18433,7 @@
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
 <font color=#009900>// <a href="#wxGridCellRenderer">wxGridCellRenderer</a></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxGridCellRenderer">wxGridCellRenderer</a>, <a href="#wxGridCellWorker">wxGridCellWorker</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxGridCellRenderer">wxGridCellRenderer</a>, <a href="#wxGridCellWorker">wxGridCellWorker</a></font></b>
 <blockquote>
     <font color=#009900>//<a href="#wxGridCellRenderer">wxGridCellRenderer</a>() - no constructor abstract class</font><br>
 <br>
@@ -18381,7 +18444,7 @@
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
 <font color=#009900>// <a href="#wxGridCellStringRenderer">wxGridCellStringRenderer</a></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxGridCellStringRenderer">wxGridCellStringRenderer</a>, <a href="#wxGridCellRenderer">wxGridCellRenderer</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxGridCellStringRenderer">wxGridCellStringRenderer</a>, <a href="#wxGridCellRenderer">wxGridCellRenderer</a></font></b>
 <blockquote>
     <a href="#wxGridCellStringRenderer">wxGridCellStringRenderer</a>()<br>
 <br>
@@ -18390,7 +18453,7 @@
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
 <font color=#009900>// <a href="#wxGridCellNumberRenderer">wxGridCellNumberRenderer</a></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxGridCellNumberRenderer">wxGridCellNumberRenderer</a>, <a href="#wxGridCellStringRenderer">wxGridCellStringRenderer</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxGridCellNumberRenderer">wxGridCellNumberRenderer</a>, <a href="#wxGridCellStringRenderer">wxGridCellStringRenderer</a></font></b>
 <blockquote>
     <a href="#wxGridCellNumberRenderer">wxGridCellNumberRenderer</a>()<br>
 </blockquote><font color=#DD0000><font color=#DD0000><i>%endclass</i></font></font><br>
@@ -18398,7 +18461,7 @@
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
 <font color=#009900>// <a href="#wxGridCellFloatRenderer">wxGridCellFloatRenderer</a></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxGridCellFloatRenderer">wxGridCellFloatRenderer</a>, <a href="#wxGridCellStringRenderer">wxGridCellStringRenderer</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxGridCellFloatRenderer">wxGridCellFloatRenderer</a>, <a href="#wxGridCellStringRenderer">wxGridCellStringRenderer</a></font></b>
 <blockquote>
     <a href="#wxGridCellFloatRenderer">wxGridCellFloatRenderer</a>(int width = -1, int precision = -1)<br>
 <br>
@@ -18411,7 +18474,7 @@
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
 <font color=#009900>// <a href="#wxGridCellBoolRenderer">wxGridCellBoolRenderer</a></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxGridCellBoolRenderer">wxGridCellBoolRenderer</a>, <a href="#wxGridCellRenderer">wxGridCellRenderer</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxGridCellBoolRenderer">wxGridCellBoolRenderer</a>, <a href="#wxGridCellRenderer">wxGridCellRenderer</a></font></b>
 <blockquote>
     <a href="#wxGridCellBoolRenderer">wxGridCellBoolRenderer</a>()<br>
 </blockquote><font color=#DD0000><font color=#DD0000><i>%endclass</i></font></font><br>
@@ -18419,7 +18482,7 @@
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
 <font color=#009900>// <a href="#wxGridCellDateTimeRenderer">wxGridCellDateTimeRenderer</a></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxGridCellDateTimeRenderer">wxGridCellDateTimeRenderer</a>, <a href="#wxGridCellStringRenderer">wxGridCellStringRenderer</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxGridCellDateTimeRenderer">wxGridCellDateTimeRenderer</a>, <a href="#wxGridCellStringRenderer">wxGridCellStringRenderer</a></font></b>
 <blockquote>
     <a href="#wxGridCellDateTimeRenderer">wxGridCellDateTimeRenderer</a>(const <a href="#wxString">wxString</a>&amp; outformat = wxDefaultDateTimeFormat, const <a href="#wxString">wxString</a>&amp; informat = wxDefaultDateTimeFormat)<br>
 </blockquote><font color=#DD0000><font color=#DD0000><i>%endclass</i></font></font><br>
@@ -18427,7 +18490,7 @@
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
 <font color=#009900>// <a href="#wxGridCellEnumRenderer">wxGridCellEnumRenderer</a></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxGridCellEnumRenderer">wxGridCellEnumRenderer</a>, <a href="#wxGridCellStringRenderer">wxGridCellStringRenderer</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxGridCellEnumRenderer">wxGridCellEnumRenderer</a>, <a href="#wxGridCellStringRenderer">wxGridCellStringRenderer</a></font></b>
 <blockquote>
     <a href="#wxGridCellEnumRenderer">wxGridCellEnumRenderer</a>( const <a href="#wxString">wxString</a>&amp; choices = "" )<br>
 </blockquote><font color=#DD0000><font color=#DD0000><i>%endclass</i></font></font><br>
@@ -18435,7 +18498,7 @@
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
 <font color=#009900>// <a href="#wxGridCellAutoWrapStringRenderer">wxGridCellAutoWrapStringRenderer</a></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxGridCellAutoWrapStringRenderer">wxGridCellAutoWrapStringRenderer</a>, <a href="#wxGridCellStringRenderer">wxGridCellStringRenderer</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxGridCellAutoWrapStringRenderer">wxGridCellAutoWrapStringRenderer</a>, <a href="#wxGridCellStringRenderer">wxGridCellStringRenderer</a></font></b>
 <blockquote>
     <a href="#wxGridCellAutoWrapStringRenderer">wxGridCellAutoWrapStringRenderer</a>()<br>
 </blockquote><font color=#DD0000><font color=#DD0000><i>%endclass</i></font></font><br>
@@ -18443,7 +18506,7 @@
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
 <font color=#009900>// <a href="#wxGridCellEditor">wxGridCellEditor</a></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxGridCellEditor">wxGridCellEditor</a>, <a href="#wxGridCellWorker">wxGridCellWorker</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxGridCellEditor">wxGridCellEditor</a>, <a href="#wxGridCellWorker">wxGridCellWorker</a></font></b>
 <blockquote>
     <font color=#009900>// <a href="#wxGridCellEditor">wxGridCellEditor</a>() - no constructor abstract class</font><br>
 <br>
@@ -18473,7 +18536,7 @@
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
 <font color=#009900>// <a href="#wxGridCellTextEditor">wxGridCellTextEditor</a></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxGridCellTextEditor">wxGridCellTextEditor</a>, <a href="#wxGridCellEditor">wxGridCellEditor</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxGridCellTextEditor">wxGridCellTextEditor</a>, <a href="#wxGridCellEditor">wxGridCellEditor</a></font></b>
 <blockquote>
     <a href="#wxGridCellTextEditor">wxGridCellTextEditor</a>()<br>
 </blockquote><font color=#DD0000><font color=#DD0000><i>%endclass</i></font></font><br>
@@ -18481,7 +18544,7 @@
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
 <font color=#009900>// <a href="#wxGridCellNumberEditor">wxGridCellNumberEditor</a></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxGridCellNumberEditor">wxGridCellNumberEditor</a>, <a href="#wxGridCellTextEditor">wxGridCellTextEditor</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxGridCellNumberEditor">wxGridCellNumberEditor</a>, <a href="#wxGridCellTextEditor">wxGridCellTextEditor</a></font></b>
 <blockquote>
     <a href="#wxGridCellNumberEditor">wxGridCellNumberEditor</a>(int min = -1, int max = -1)<br>
 </blockquote><font color=#DD0000><font color=#DD0000><i>%endclass</i></font></font><br>
@@ -18489,7 +18552,7 @@
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
 <font color=#009900>// <a href="#wxGridCellFloatEditor">wxGridCellFloatEditor</a></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxGridCellFloatEditor">wxGridCellFloatEditor</a>, <a href="#wxGridCellTextEditor">wxGridCellTextEditor</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxGridCellFloatEditor">wxGridCellFloatEditor</a>, <a href="#wxGridCellTextEditor">wxGridCellTextEditor</a></font></b>
 <blockquote>
     <a href="#wxGridCellFloatEditor">wxGridCellFloatEditor</a>(int width = -1, int precision = -1)<br>
 </blockquote><font color=#DD0000><font color=#DD0000><i>%endclass</i></font></font><br>
@@ -18497,7 +18560,7 @@
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
 <font color=#009900>// <a href="#wxGridCellBoolEditor">wxGridCellBoolEditor</a></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxGridCellBoolEditor">wxGridCellBoolEditor</a>, <a href="#wxGridCellEditor">wxGridCellEditor</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxGridCellBoolEditor">wxGridCellBoolEditor</a>, <a href="#wxGridCellEditor">wxGridCellEditor</a></font></b>
 <blockquote>
     <a href="#wxGridCellBoolEditor">wxGridCellBoolEditor</a>()<br>
 </blockquote><font color=#DD0000><font color=#DD0000><i>%endclass</i></font></font><br>
@@ -18505,7 +18568,7 @@
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
 <font color=#009900>// <a href="#wxGridCellChoiceEditor">wxGridCellChoiceEditor</a></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxGridCellChoiceEditor">wxGridCellChoiceEditor</a>, <a href="#wxGridCellEditor">wxGridCellEditor</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxGridCellChoiceEditor">wxGridCellChoiceEditor</a>, <a href="#wxGridCellEditor">wxGridCellEditor</a></font></b>
 <blockquote>
     <a href="#wxGridCellChoiceEditor">wxGridCellChoiceEditor</a>(const <a href="#wxArrayString">wxArrayString</a>&amp; choices, bool allowOthers = false)<br>
 </blockquote><font color=#DD0000><font color=#DD0000><i>%endclass</i></font></font><br>
@@ -18513,7 +18576,7 @@
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
 <font color=#009900>// <a href="#wxGridCellEnumEditor">wxGridCellEnumEditor</a></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxGridCellEnumEditor">wxGridCellEnumEditor</a>, <a href="#wxGridCellChoiceEditor">wxGridCellChoiceEditor</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxGridCellEnumEditor">wxGridCellEnumEditor</a>, <a href="#wxGridCellChoiceEditor">wxGridCellChoiceEditor</a></font></b>
 <blockquote>
     <a href="#wxGridCellEnumEditor">wxGridCellEnumEditor</a>( const <a href="#wxString">wxString</a>&amp; choices = "" )<br>
 </blockquote><font color=#DD0000><font color=#DD0000><i>%endclass</i></font></font><br>
@@ -18521,7 +18584,7 @@
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
 <font color=#009900>// <a href="#wxGridCellAutoWrapStringEditor">wxGridCellAutoWrapStringEditor</a></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxGridCellAutoWrapStringEditor">wxGridCellAutoWrapStringEditor</a>, <a href="#wxGridCellTextEditor">wxGridCellTextEditor</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxGridCellAutoWrapStringEditor">wxGridCellAutoWrapStringEditor</a>, <a href="#wxGridCellTextEditor">wxGridCellTextEditor</a></font></b>
 <blockquote>
     <a href="#wxGridCellAutoWrapStringEditor">wxGridCellAutoWrapStringEditor</a>()<br>
 </blockquote><font color=#DD0000><font color=#DD0000><i>%endclass</i></font></font><br>
@@ -18540,7 +18603,7 @@
 </font>
 </blockquote><font color=#0066CC><i>%endenum</i></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxGridCellAttr">wxGridCellAttr</a>, <a href="#wxClientDataContainer">wxClientDataContainer</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxGridCellAttr">wxGridCellAttr</a>, <a href="#wxClientDataContainer">wxClientDataContainer</a></font></b>
 <blockquote>
     <a href="#wxGridCellAttr">wxGridCellAttr</a>()<br>
     <a href="#wxGridCellAttr">wxGridCellAttr</a>(const <a href="#wxColour">wxColour</a>&amp; colText, const <a href="#wxColour">wxColour</a>&amp; colBack, const <a href="#wxFont">wxFont</a>&amp; font, int hAlign, int vAlign)<br>
@@ -18593,7 +18656,7 @@
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
 <font color=#009900>// <a href="#wxGridCellAttrProvider">wxGridCellAttrProvider</a></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxGridCellAttrProvider">wxGridCellAttrProvider</a>, <a href="#wxClientDataContainer">wxClientDataContainer</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxGridCellAttrProvider">wxGridCellAttrProvider</a>, <a href="#wxClientDataContainer">wxClientDataContainer</a></font></b>
 <blockquote>
     <a href="#wxGridCellAttrProvider">wxGridCellAttrProvider</a>()<br>
 <br>
@@ -18756,7 +18819,7 @@
 </blockquote><font color=#0066CC><i>%endenum</i></font><br>
 <br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxGridTableMessage">wxGridTableMessage</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxGridTableMessage">wxGridTableMessage</a></font></b>
 <blockquote>
     <a href="#wxGridTableMessage">wxGridTableMessage</a>( <a href="#wxGridTableBase">wxGridTableBase</a> *table, int id, int comInt1 = -1, int comInt2 = -1 )<br>
 <br>
@@ -18773,7 +18836,7 @@
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
 <font color=#009900>// <a href="#wxGridCellCoords">wxGridCellCoords</a></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxGridCellCoords">wxGridCellCoords</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxGridCellCoords">wxGridCellCoords</a></font></b>
 <blockquote>
 <font color=#006666>    <i>%define_object</i> wxGridNoCellCoords</font><br>
 <br>
@@ -18795,7 +18858,7 @@
 <br>
 <i>%include</i> "wx/dynarray.h"<br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxGridCellCoordsArray">wxGridCellCoordsArray</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxGridCellCoordsArray">wxGridCellCoordsArray</a></font></b>
 <blockquote>
     <a href="#wxGridCellCoordsArray">wxGridCellCoordsArray</a>()<br>
     <a href="#wxGridCellCoordsArray">wxGridCellCoordsArray</a>(const <a href="#wxGridCellCoordsArray">wxGridCellCoordsArray</a>&amp; array)<br>
@@ -19898,7 +19961,7 @@
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
 <font color=#009900>// <a href="#wxXmlNode">wxXmlNode</a></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxXmlNode">wxXmlNode</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxXmlNode">wxXmlNode</a></font></b>
 <blockquote>
     <a href="#wxXmlNode">wxXmlNode</a>()<br>
     <a href="#wxXmlNode">wxXmlNode</a>(<a href="#wxXmlNodeType">wxXmlNodeType</a> type, const <a href="#wxString">wxString</a>&amp; name, const <a href="#wxString">wxString</a>&amp; content = "")<br>
@@ -19943,7 +20006,7 @@
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
 <font color=#009900>// <a href="#wxXmlProperty">wxXmlProperty</a></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxXmlProperty">wxXmlProperty</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxXmlProperty">wxXmlProperty</a></font></b>
 <blockquote>
     <a href="#wxXmlProperty">wxXmlProperty</a>()<br>
     <a href="#wxXmlProperty">wxXmlProperty</a>(const <a href="#wxString">wxString</a>&amp; name, const <a href="#wxString">wxString</a>&amp; value, <a href="#wxXmlProperty">wxXmlProperty</a> *next)<br>
@@ -20005,7 +20068,7 @@
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
 <font color=#009900>// wxXmlResourceHandler - wxLua shouldn't need this</font><br>
 <br>
-<font color=#009900>//<i>%class</i> <i>%noclassinfo</i> wxXmlResourceHandler, <a href="#wxObject">wxObject</a></font><br>
+<font color=#009900>//<i>%class</i> wxXmlResourceHandler, <a href="#wxObject">wxObject</a></font><br>
 <font color=#009900>//<i>%endclass</i></font><br>
 <br>
 <b><font size=+1 color=#0066CC><i>%enum</i> <a name="wxXmlResourceFlags">wxXmlResourceFlags</a></font></b>
@@ -20019,7 +20082,7 @@
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
 <font color=#009900>// <a href="#wxXmlResource">wxXmlResource</a></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <a name="wxXmlResource">wxXmlResource</a>, <a href="#wxObject">wxObject</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxXmlResource">wxXmlResource</a>, <a href="#wxObject">wxObject</a></font></b>
 <blockquote>
     <font color=#009900>//<a href="#wxXmlResource">wxXmlResource</a>();</font><br>
     <a href="#wxXmlResource">wxXmlResource</a>(int flags = wxXRC_USE_LOCALE, const <a href="#wxString">wxString</a>&amp; domain = "");<br>
@@ -20146,7 +20209,7 @@
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
 <font color=#009900>// <a href="#wxAuiNotebookPage">wxAuiNotebookPage</a></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxAuiNotebookPage">wxAuiNotebookPage</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxAuiNotebookPage">wxAuiNotebookPage</a></font></b>
 <blockquote>
 <font color=#CC6600>    <i>%member</i> <a href="#wxWindow">wxWindow</a>* window;     <font color=#009900>// page's associated window</font></font><br>
 <font color=#CC6600>    <i>%member</i> <a href="#wxString">wxString</a> caption;     <font color=#009900>// caption displayed on the tab</font></font><br>
@@ -20159,7 +20222,7 @@
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
 <font color=#009900>// <a href="#wxAuiNotebookPageArray">wxAuiNotebookPageArray</a></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxAuiNotebookPageArray">wxAuiNotebookPageArray</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxAuiNotebookPageArray">wxAuiNotebookPageArray</a></font></b>
 <blockquote>
     <a href="#wxAuiNotebookPageArray">wxAuiNotebookPageArray</a>()<br>
     <a href="#wxAuiNotebookPageArray">wxAuiNotebookPageArray</a>(const <a href="#wxAuiNotebookPageArray">wxAuiNotebookPageArray</a>&amp; array)<br>
@@ -20177,7 +20240,7 @@
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
 <font color=#009900>// <a href="#wxAuiTabContainerButton">wxAuiTabContainerButton</a></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxAuiTabContainerButton">wxAuiTabContainerButton</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxAuiTabContainerButton">wxAuiTabContainerButton</a></font></b>
 <blockquote>
 <font color=#CC6600>    <i>%member</i> int id;               <font color=#009900>// button's id</font></font><br>
 <font color=#CC6600>    <i>%member</i> int cur_state;        <font color=#009900>// current state (normal, hover, pressed, etc.)</font></font><br>
@@ -20193,7 +20256,7 @@
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
 <font color=#009900>// <a href="#wxAuiTabArt">wxAuiTabArt</a></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxAuiTabArt">wxAuiTabArt</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxAuiTabArt">wxAuiTabArt</a></font></b>
 <blockquote>
     <font color=#009900>// <a href="#wxAuiTabArt">wxAuiTabArt</a>() No constructor - base class</font><br>
 <br>
@@ -20217,7 +20280,7 @@
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
 <font color=#009900>// <a href="#wxAuiDefaultTabArt">wxAuiDefaultTabArt</a></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxAuiDefaultTabArt">wxAuiDefaultTabArt</a>, <a href="#wxAuiTabArt">wxAuiTabArt</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxAuiDefaultTabArt">wxAuiDefaultTabArt</a>, <a href="#wxAuiTabArt">wxAuiTabArt</a></font></b>
 <blockquote>
     <a href="#wxAuiDefaultTabArt">wxAuiDefaultTabArt</a>();<br>
 <br>
@@ -20227,7 +20290,7 @@
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
 <font color=#009900>// <a href="#wxAuiSimpleTabArt">wxAuiSimpleTabArt</a></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxAuiSimpleTabArt">wxAuiSimpleTabArt</a>, <a href="#wxAuiTabArt">wxAuiTabArt</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxAuiSimpleTabArt">wxAuiSimpleTabArt</a>, <a href="#wxAuiTabArt">wxAuiTabArt</a></font></b>
 <blockquote>
     <a href="#wxAuiSimpleTabArt">wxAuiSimpleTabArt</a>();<br>
 <br>
@@ -20236,7 +20299,7 @@
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
 <font color=#009900>// wxAuiTabContainer</font><br>
 <br>
-<font color=#009900>//<i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> wxAuiTabContainer</font><br>
+<font color=#009900>//<i>%class</i> <i>%delete</i> wxAuiTabContainer</font><br>
 <font color=#009900>//    wxAuiTabContainer();</font><br>
 <font color=#009900>//</font><br>
 <font color=#009900>//    All methods put into <a href="#wxAuiTabCtrl">wxAuiTabCtrl</a> since this isn't the base class of anything else</font><br>
@@ -20372,7 +20435,7 @@
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
 <font color=#009900>// <a href="#wxAuiDockArt">wxAuiDockArt</a></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%encapsulate</i> <i>%noclassinfo</i> <a name="wxAuiDockArt">wxAuiDockArt</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxAuiDockArt">wxAuiDockArt</a></font></b>
 <blockquote>
     <font color=#009900>// <a href="#wxAuiDockArt">wxAuiDockArt</a>() - No constructor - base class</font><br>
 <br>
@@ -20397,7 +20460,7 @@
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
 <font color=#009900>// <a href="#wxAuiDefaultDockArt">wxAuiDefaultDockArt</a></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxAuiDefaultDockArt">wxAuiDefaultDockArt</a>, <a href="#wxAuiDockArt">wxAuiDockArt</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxAuiDefaultDockArt">wxAuiDefaultDockArt</a>, <a href="#wxAuiDockArt">wxAuiDockArt</a></font></b>
 <blockquote>
     <a href="#wxAuiDefaultDockArt">wxAuiDefaultDockArt</a>();<br>
 <br>
@@ -20572,7 +20635,7 @@
 </blockquote><font color=#0066CC><i>%endenum</i></font><br>
 <br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxAuiPaneInfo">wxAuiPaneInfo</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxAuiPaneInfo">wxAuiPaneInfo</a></font></b>
 <blockquote>
 <font color=#006666>    <i>%define_object</i> wxAuiNullPaneInfo</font><br>
 <br>
@@ -20697,7 +20760,7 @@
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
 <font color=#009900>// <a href="#wxAuiPaneInfoArray">wxAuiPaneInfoArray</a></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxAuiPaneInfoArray">wxAuiPaneInfoArray</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxAuiPaneInfoArray">wxAuiPaneInfoArray</a></font></b>
 <blockquote>
     <a href="#wxAuiPaneInfoArray">wxAuiPaneInfoArray</a>()<br>
     <a href="#wxAuiPaneInfoArray">wxAuiPaneInfoArray</a>(const <a href="#wxAuiPaneInfoArray">wxAuiPaneInfoArray</a>&amp; array)<br>
@@ -20809,7 +20872,7 @@
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
 <font color=#009900>// <a href="#wxAuiDockInfo">wxAuiDockInfo</a></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxAuiDockInfo">wxAuiDockInfo</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxAuiDockInfo">wxAuiDockInfo</a></font></b>
 <blockquote>
 <font color=#006666>    <i>%define_object</i> wxAuiNullDockInfo</font><br>
 <br>
@@ -20856,7 +20919,7 @@
 </font>
 </blockquote><font color=#0066CC><i>%endenum</i></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxAuiDockUIPart">wxAuiDockUIPart</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxAuiDockUIPart">wxAuiDockUIPart</a></font></b>
 <blockquote>
 <br>
 <font color=#CC6600>    <i>%member</i> int type;                <font color=#009900>// ui part type (see enum above)</font></font><br>
@@ -20873,7 +20936,7 @@
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
 <font color=#009900>// <a href="#wxAuiPaneButton">wxAuiPaneButton</a></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <i>%encapsulate</i> <a name="wxAuiPaneButton">wxAuiPaneButton</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxAuiPaneButton">wxAuiPaneButton</a></font></b>
 <blockquote>
 <font color=#CC6600>    <i>%member</i> int button_id;        <font color=#009900>// id of the button (e.g. buttonClose)</font></font><br>
 </blockquote><font color=#DD0000><font color=#DD0000><i>%endclass</i></font></font><br>
@@ -21191,7 +21254,7 @@
 <br>
 <i>%include</i> "wx/html/htmlcell.h"<br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <a name="wxHtmlLinkInfo">wxHtmlLinkInfo</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxHtmlLinkInfo">wxHtmlLinkInfo</a></font></b>
 <blockquote>
     <a href="#wxHtmlLinkInfo">wxHtmlLinkInfo</a>(const <a href="#wxString">wxString</a>&amp; href, const <a href="#wxString">wxString</a>&amp; target = "")<br>
 <br>
@@ -21403,7 +21466,7 @@
 </font>
 </blockquote><font color=#0066CC><i>%endenum</i></font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%noclassinfo</i> <a name="wxHtmlWindowInterface">wxHtmlWindowInterface</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <a name="wxHtmlWindowInterface">wxHtmlWindowInterface</a></font></b>
 <blockquote>
 <br>
     virtual void SetHTMLWindowTitle(const <a href="#wxString">wxString</a>&amp; title)<br>
@@ -21426,7 +21489,7 @@
 <font color=#006666><i>%define</i> wxHLB_DEFAULT_STYLE</font><br>
 <font color=#006666><i>%define</i> wxHLB_MULTIPLE</font><br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <a name="wxSimpleHtmlListBox">wxSimpleHtmlListBox</a>, <a href="#wxHtmlWindowInterface">wxHtmlWindowInterface</a> <font color=#009900>//: public wxHtmlListBox, public wxItemContainer</font></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <a name="wxSimpleHtmlListBox">wxSimpleHtmlListBox</a>, <a href="#wxPanel">wxPanel</a>, <a href="#wxHtmlWindowInterface">wxHtmlWindowInterface</a> <font color=#009900>//: public wxHtmlListBox, public <a href="#wxItemContainer">wxItemContainer</a></font></font></b>
 <blockquote>
     <a href="#wxSimpleHtmlListBox">wxSimpleHtmlListBox</a>()<br>
     <a href="#wxSimpleHtmlListBox">wxSimpleHtmlListBox</a>(<a href="#wxWindow">wxWindow</a> *parent, wxWindowID id, const <a href="#wxPoint">wxPoint</a>&amp; pos, const <a href="#wxSize">wxSize</a>&amp; size, const <a href="#wxArrayString">wxArrayString</a>&amp; choices, long style = wxHLB_DEFAULT_STYLE, const <a href="#wxValidator">wxValidator</a>&amp; validator = wxDefaultValidator, const <a href="#wxString">wxString</a>&amp; name = "wxSimpleHtmlListBox")<br>
@@ -21453,7 +21516,7 @@
 <br>
 <i>%include</i> "wx/html/htmprint.h"<br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <a name="wxHtmlDCRenderer">wxHtmlDCRenderer</a>, <a href="#wxObject">wxObject</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxHtmlDCRenderer">wxHtmlDCRenderer</a>, <a href="#wxObject">wxObject</a></font></b>
 <blockquote>
     <a href="#wxHtmlDCRenderer">wxHtmlDCRenderer</a>()<br>
 <br>
@@ -21471,7 +21534,7 @@
 <br>
 <i>%include</i> "wx/html/htmprint.h"<br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <a name="wxHtmlEasyPrinting">wxHtmlEasyPrinting</a>, <a href="#wxObject">wxObject</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxHtmlEasyPrinting">wxHtmlEasyPrinting</a>, <a href="#wxObject">wxObject</a></font></b>
 <blockquote>
     <a href="#wxHtmlEasyPrinting">wxHtmlEasyPrinting</a>(const <a href="#wxString">wxString</a>&amp; name = "Printing", <a href="#wxFrame">wxFrame</a>* parent_frame = NULL)<br>
 <br>
@@ -21493,7 +21556,7 @@
 <br>
 <i>%include</i> "wx/html/htmprint.h"<br>
 <br>
-<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <i>%noclassinfo</i> <a name="wxHtmlPrintout">wxHtmlPrintout</a>, <a href="#wxPrintout">wxPrintout</a></font></b>
+<b><font size=+1 color=#DD0000><i>%class</i> <i>%delete</i> <a name="wxHtmlPrintout">wxHtmlPrintout</a>, <a href="#wxPrintout">wxPrintout</a></font></b>
 <blockquote>
     <a href="#wxHtmlPrintout">wxHtmlPrintout</a>(const <a href="#wxString">wxString</a>&amp; title = "Printout")<br>
 <br>
@@ -21511,14 +21574,14 @@
 <i>%if</i> wxLUA_USE_wxHtmlHelpController &amp;&amp; wxUSE_WXHTML_HELP<br>
 <br>
 <font color=#009900>//<i>%if</i> !<i>%wxchkver_2_6</i>|<i>%wxcompat_2_4</i></font><br>
-<font color=#009900>//<i>%struct</i> <i>%noclassinfo</i> wxHtmlContentsItem</font><br>
+<font color=#009900>//<i>%struct</i> wxHtmlContentsItem</font><br>
 <font color=#009900>//    // needs access functions</font><br>
 <font color=#009900>//<i>%endstruct</i></font><br>
 <font color=#009900>//<i>%endif</i></font><br>
 <br>
 <i>%include</i> "wx/html/helpdata.h"<br>
 <br>
-<font color=#009900>//<i>%class</i> <i>%delete</i> <i>%encapsulate</i> <i>%noclassinfo</i> wxHtmlBookRecord</font><br>
+<font color=#009900>//<i>%class</i> <i>%delete</i> wxHtmlBookRecord</font><br>
 <font color=#009900>//    wxHtmlBookRecord(const <a href="#wxString">wxString</a>&amp; bookfile, const <a href="#wxString">wxString</a>&amp; basepath, const <a href="#wxString">wxString</a>&amp; title, const <a href="#wxString">wxString</a>&amp; start)</font><br>
 <font color=#009900>//</font><br>
 <font color=#009900>//    <a href="#wxString">wxString</a> GetBookFile() const</font><br>
@@ -21535,7 +21598,7 @@
 <font color=#009900>//    <a href="#wxString">wxString</a> GetFullPath(const <a href="#wxString">wxString</a> &amp;page) const;</font><br>
 <font color=#009900>//<i>%endclass</i></font><br>
 <font color=#009900>//</font><br>
-<font color=#009900>//<i>%class</i> <i>%delete</i> <i>%encapsulate</i> <i>%noclassinfo</i> wxHtmlBookRecArray</font><br>
+<font color=#009900>//<i>%class</i> <i>%delete</i> wxHtmlBookRecArray</font><br>
 <font color=#009900>//    wxHtmlBookRecArray()</font><br>
 <font color=#009900>//</font><br>
 <font color=#009900>//    size_t Add(const wxHtmlBookRecord&amp; book, size_t copies = 1)</font><br>
@@ -25261,7 +25324,7 @@
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
 <font color=#009900>// wxLuaDebugData</font><br>
 <br>
-<font color=#009900>//<i>%class</i> <i>%noclassinfo</i> wxLuaDebugData</font><br>
+<font color=#009900>//<i>%class</i> wxLuaDebugData</font><br>
 <font color=#009900>//<i>%endclass</i></font><br>
 <br>
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>

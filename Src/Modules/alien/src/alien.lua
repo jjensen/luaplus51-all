@@ -3,12 +3,15 @@
 local core = require "alien.core"
 local io = require "io"
 
-local pairs = pairs
+local pairs, ipairs = pairs, ipairs
 local setmetatable = setmetatable
 local error = error
 local pcall = pcall
 local type = type
 local rawset = rawset
+local unpack = unpack
+local math = math
+local print = print
 
 module "alien"
 
@@ -45,7 +48,7 @@ function find_library.darwin(libname)
   return nil
 end
 
-function load_library_helper(libname, libext)
+local function load_library_helper(libname, libext)
   if libname:match("/") or libname:match("%" .. libext) then
     return core.load(libname)
   else
@@ -98,6 +101,12 @@ end
 
 function load(libname)
   return loaded[libname]
+end
+
+function callback(f, ...)
+  local cb = core.callback(f)
+  cb.types(cb, ...)
+  return cb
 end
 
 local array_methods = {}
@@ -163,4 +172,74 @@ function array(t, length, init)
     end
   end
   return arr
+end
+
+local function struct_new(s_proto, ptr)
+  local buf = core.buffer(ptr or s_proto.size)
+  local function struct_get(_, key)
+    if s_proto.offsets[key] then
+      return buf:get(s_proto.offsets[key] + 1, s_proto.types[key])
+    else
+      error("field " .. key .. " does not exist")
+    end
+  end
+  local function struct_set(_, key, val)
+    if s_proto.offsets[key] then
+      buf:set(s_proto.offsets[key] + 1, val, s_proto.types[key])
+    else
+      error("field " .. key .. " does not exist")
+    end
+  end
+  return setmetatable({}, { __index = struct_get, __newindex = struct_set,
+			    __call = function () return buf end })
+end
+
+local function struct_byval(s_proto)
+  local types = {}
+  local size = s_proto.size
+  for i = 0, size - 1, 4 do
+    if size - i == 1 then
+      types[#types + 1] = "char"
+    elseif size - i == 2 then
+      types[#types + 1] = "short"
+    else
+      types[#types + 1] = "int"
+    end
+  end
+  return unpack(types)
+end
+
+function defstruct(t)
+  local off = 0
+  local names, offsets, types = {}, {}, {}
+  for _, field in ipairs(t) do
+    local name, type = field[1], field[2]
+    names[#names + 1] = name
+    off = math.ceil(off / core.align(type)) * core.align(type)
+    offsets[name] = off
+    types[name] = type
+    off = off + core.sizeof(type)
+  end
+  return { names = names, offsets = offsets, types = types, size = off, new = struct_new,
+	    byval = struct_byval }
+end
+
+function byval(buf)
+  if buf.size then
+    local size = buf.size
+    local types = { "char", "short"}
+    local vals = {}
+    for i = 1, size, 4 do
+      if size - i == 0 then
+	vals[#vals + 1] = buf:get(i, "char")
+      elseif size - i == 1 then
+	vals[#vals + 1] = buf:get(i, "short")
+      else
+	vals[#vals + 1] = buf:get(i, "int")
+      end
+    end
+    return unpack(vals)
+  else
+    error("this type of buffer can't be passed by value")
+  end
 end

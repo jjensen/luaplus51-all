@@ -19,9 +19,9 @@
 // Check if the version of binding generator used to create this is older than
 //   the current version of the bindings.
 //   See 'bindings/genwxbind.lua' and 'modules/wxlua/include/wxldefs.h'
-#if WXLUA_BINDING_VERSION > 27
+#if WXLUA_BINDING_VERSION > 30
 #   error "The WXLUA_BINDING_VERSION in the bindings is too old, regenerate bindings."
-#endif //WXLUA_BINDING_VERSION > 27
+#endif //WXLUA_BINDING_VERSION > 30
 // ---------------------------------------------------------------------------
 
 // binding class
@@ -37,7 +37,7 @@ private:
 
 
 // initialize wxLuaBinding_wxaui for all wxLuaStates
-extern WXDLLIMPEXP_BINDWXAUI bool wxLuaBinding_wxaui_init();
+extern WXDLLIMPEXP_BINDWXAUI wxLuaBinding* wxLuaBinding_wxaui_init();
 
 // ---------------------------------------------------------------------------
 // Includes
@@ -76,26 +76,6 @@ extern WXDLLIMPEXP_BINDWXAUI bool wxLuaBinding_wxaui_init();
     extern WXDLLIMPEXP_DATA_BINDWXAUI(int) wxluatype_wxAuiTabCtrl;
 #endif // wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI
 
-
-// ---------------------------------------------------------------------------
-// Encapsulation Declarations - need to be public for other bindings.
-// ---------------------------------------------------------------------------
-
-#if wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXAUI, wxAuiDefaultDockArt, wxAuiDefaultDockArt)
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXAUI, wxAuiDefaultTabArt, wxAuiDefaultTabArt)
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXAUI, wxAuiDockArt, wxAuiDockArt)
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXAUI, wxAuiDockInfo, wxAuiDockInfo)
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXAUI, wxAuiDockUIPart, wxAuiDockUIPart)
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXAUI, wxAuiNotebookPage, wxAuiNotebookPage)
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXAUI, wxAuiNotebookPageArray, wxAuiNotebookPageArray)
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXAUI, wxAuiPaneButton, wxAuiPaneButton)
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXAUI, wxAuiPaneInfo, wxAuiPaneInfo)
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXAUI, wxAuiPaneInfoArray, wxAuiPaneInfoArray)
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXAUI, wxAuiSimpleTabArt, wxAuiSimpleTabArt)
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXAUI, wxAuiTabArt, wxAuiTabArt)
-    wxLUA_DECLARE_ENCAPSULATION(WXDLLIMPEXP_BINDWXAUI, wxAuiTabContainerButton, wxAuiTabContainerButton)
-#endif // wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI
 
 
 #endif // __HOOK_WXLUA_wxaui_H__
