@@ -8,6 +8,6 @@ local SRCS =
 
 CopyFile pipe : $(LUA_LDIR)/pipe.lua : $(SUBDIR)/pipe.lua ;
 
-LuaPlus.CModule pipe : : $(SRCS) ;
+LuaPlus.CModule pipe : pipe pipe_core : $(SRCS) ;
 
 }

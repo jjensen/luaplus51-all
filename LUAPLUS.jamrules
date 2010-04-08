@@ -58,7 +58,7 @@ rule LuaPlus.CModule TARGET : OUTPUT_NAME : SOURCES : MODULES_SUBDIR {
 		if $(exportPath) != "" {
 			exportPath = $(exportPath)_ ;
 		}
-#		C.LinkFlags $(TARGET) : /EXPORT:luaopen_$(exportPath)$(exportName) ;
+		C.LinkFlags $(TARGET) : /EXPORT:luaopen_$(exportPath)$(exportName) ;
 	}
 
 	C.OutputName $(TARGET) : $(OUTPUT_NAME[1]) ;
