@@ -61,6 +61,6 @@ if $(PLATFORM) = linux32
 	C.LinkFlags lanes : -lpthread ;
 }
 
-Lua.CModule lanes : lanes : $(SRCS) ;
+Lua.CModule lanes : lua51-lanes lanes : $(SRCS) ;
 
 }
