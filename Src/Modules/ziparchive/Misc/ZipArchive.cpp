@@ -2678,7 +2678,7 @@ extern "C" DWORD ZipArchive_GetFileCRC(FILE* file, UINT startOffset, unsigned ch
 	while (bytesToDo > 0) {
 		DWORD bytesToRead = bytesToDo < FILE_BLOCK_SIZE ? bytesToDo : FILE_BLOCK_SIZE;
 
-        fread(buffer, bytesToRead, 1, file);
+		size_t bytesRead = fread(buffer, bytesToRead, 1, file);
 		bytesToDo -= bytesToRead;
 		fileCRC = crc32(fileCRC, buffer, bytesToRead);
 		MD5Update(&c, (unsigned char*)buffer, bytesToRead);
@@ -2796,6 +2796,7 @@ bool ZipArchive::ProcessFileList(ZipArchive::FileOrderList& fileOrderList, Proce
 
 			fileNameMap[fileOrderInfo.entryName.Lower()] = &fileOrderInfo;
 		} else {
+#ifdef WIN32
 			WIN32_FIND_DATA fd;
 
 			// If the file time was already provided by the file order entry, then assign it
@@ -2817,6 +2818,7 @@ bool ZipArchive::ProcessFileList(ZipArchive::FileOrderList& fileOrderList, Proce
 				this->errorString = "Unable to open file [" + fileOrderInfo.srcPath + "].";
 				return false;
 			}
+#endif // WIN32
 		}
 	}
 
@@ -3048,13 +3050,21 @@ bool ZipArchive::ProcessFileList(ZipArchive::FileOrderList& fileOrderList, Proce
 		HeapString oldPassword = this->defaultPassword;
 		if (!newArchive->Create(newArchiveFileName, m_flags, oldPassword)) {
 			delete newArchive;
+#ifdef WIN32
 			_unlink(newArchiveFileName);
+#else
+			unlink(newArchiveFileName);
+#endif
 			return false;
 		}
 #else
 		if (!newArchive->Create(newArchiveFileName, 0, m_flags)) {
 			delete newArchive;
+#ifdef WIN32
 			_unlink(newArchiveFileName);
+#else
+			unlink(newArchiveFileName);
+#endif
 			return false;
 		}
 #endif // ZIPARCHIVE_ENCRYPTION
@@ -3320,7 +3330,7 @@ bool ZipArchive::ProcessFileList(ZipArchive::FileOrderList& fileOrderList, Proce
 		_unlink(newArchiveFileName);
 #else
 		assert(0);
-		unlink(newFileName);
+		unlink(newArchiveFileName);
 #endif
 
 		// Open it with the new

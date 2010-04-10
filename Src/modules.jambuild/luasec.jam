@@ -31,13 +31,12 @@ CopyFile luasec : $(LUA_LDIR)/ssl.lua : $(SUBDIR)/src/ssl.lua ;
 if $(MSVCNT) {
 	C.Defines luasec : "LUASEC_API=__declspec(dllexport)" ;
 	C.LinkPrebuiltLibraries luasec : wsock32 ;
+	C.IncludeDirectories luasec : c:/openssl/include ;
+	C.LinkDirectories luasec : c:/openssl/lib/vc ;
+	C.LinkPrebuiltLibraries luasec : libeay32MD ssleay32MD ;
 } else {
 	C.Defines luasec : LUASEC_API ;
 }
-
-C.IncludeDirectories luasec : c:/openssl/include ;
-C.LinkDirectories luasec : c:/openssl/lib/vc ;
-C.LinkPrebuiltLibraries luasec : libeay32MD ssleay32MD ;
 
 Lua.CModule luasec : ssl ssl_core : $(SRCS) ;
 

@@ -1,3 +1,6 @@
+# Deprecated and Windows only.
+if $(MSVCNT) {
+
 SubIncludeRelative Misc : Misc ;
 
 C.IncludeDirectories vdrive : ../zlib ;
@@ -12,3 +15,5 @@ if $(NT)
 }
 
 Lua.CModule vdrive : : vdrive.cpp ;
+
+}

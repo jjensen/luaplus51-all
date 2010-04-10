@@ -888,7 +888,7 @@ static int ziparchive_fileentry_create_metatable(lua_State *L) {
 	lua_newtable(L);										// metatable __index table table
 
 	for (const _zafe_index_properties_reg* l = _zafe_index_properties; l->name; l++) {
-		lua_pushlightuserdata(L, l->func);
+		lua_pushlightuserdata(L, (void*)l->func);
 		lua_setfield(L, -2, l->name);
 	}
 

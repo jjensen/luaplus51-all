@@ -79,7 +79,7 @@ rule Lua.CModule TARGET : OUTPUT_NAME : SOURCES : MODULES_SUBDIR {
 
 	LuaPlusDefines $(TARGET) ;
 	C.IncludeDirectories $(TARGET) : "$(LUAPLUS)/Src/LuaPlus/src" ;
-	C.LinkLibraries $(TARGET) : lua51 ;
+	C.LinkLibraries $(TARGET) : lua5.1 ;
 
 	OUTPUT_NAME ?= $(TARGET) ;
 
