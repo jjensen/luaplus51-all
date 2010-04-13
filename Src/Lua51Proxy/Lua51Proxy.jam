@@ -1,7 +1,7 @@
 {
 
 if $(MSVCNT) {
-	local symbols =
+	__Lua51Proxy_Symbols =
 			luaL_addlstring
 			luaL_addstring
 			luaL_addvalue
@@ -139,7 +139,7 @@ if $(MSVCNT) {
 	#		/IMPLIB:lua5.1.lib
 
 		local symbol ;
-		for symbol in $(symbols)
+		for symbol in $(__Lua51Proxy_Symbols)
 		{
 			C.LinkFlags $(TARGET) : "/EXPORT:$(symbol)=LuaPlus_1100.$(symbol)" ;
 		}
@@ -160,10 +160,10 @@ if $(MSVCNT) {
 
 		local linkTarget ;
 		on LuaPlusShared linkTarget = $(LINK_TARGET[1]) ;
-		
+
 		local proxySharedLibrary = [ C.TargetGrist $(TARGET) : $(TARGET)$(linkTarget:S) ] ;
 		local realProxySharedLibraryName = lib$(TARGET)$(linkTarget:S) ;
-		BINDING on $(proxySharedLibrary) = $(realProxySharedLibraryName) ; 
+		BINDING on $(proxySharedLibrary) = $(realProxySharedLibraryName) ;
 		MakeLocate $(proxySharedLibrary) : [ C._retrieveOutputPath LuaPlusShared ] ;
 
 		local proxyFakeExportLibrary = [ C.TargetGrist $(TARGET) : $(TARGET)$(SUFLIB) ] ;
@@ -180,7 +180,7 @@ if $(MSVCNT) {
 
 LuaProxySharedLibrary lua5.1 ;
 
-if $(WIN32) {
+if $(NT) {
 	LuaProxySharedLibrary lua51 ;
 }
 
