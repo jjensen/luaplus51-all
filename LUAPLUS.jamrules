@@ -80,7 +80,7 @@ rule Lua.CModule TARGET : OUTPUT_NAME : SOURCES : MODULES_SUBDIR {
 	LuaPlusDefines $(TARGET) ;
 	C.IncludeDirectories $(TARGET) : "$(LUAPLUS)/Src/LuaPlus/src" ;
 
-	if $(OS) != MACOSX {
+	if $(OS) != MACOSX  &&  $(OS) != LINUX {
 		C.LinkLibraries $(TARGET) : lua5.1 ;
 	}
 
