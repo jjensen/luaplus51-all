@@ -1113,7 +1113,7 @@ static int LS_FreeLibrary(LuaState* state)
 
 extern "C" int luaopen_iox(lua_State* L)
 {
-	LuaState* state = LuaState::CastState(L);
+	LuaState* state = lua_State_To_LuaState(L);
 	LuaObject ioxObj = state->GetGlobals().CreateTable("iox");
 	ioxObj.RegisterDirect("PathCreate", PathCreate);
 	ioxObj.RegisterDirect("PathDestroy", PathDestroy);
