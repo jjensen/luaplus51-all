@@ -737,7 +737,7 @@ static void SendCallStack(LuaState* luaStateToDebug)
 **/
 static void DebugLineHook( lua_State* inState, lua_Debug* /*ar*/ )
 {
-	LuaState* luaStateToDebug = LuaState::CastState( inState );
+	LuaState* luaStateToDebug = lua_State_To_LuaState(inState);
 
 	LuaStateInfo* luaStateInfo = GetAtLuaStateInfo(luaStateToDebug);
 	if (!luaStateInfo)
