@@ -79,7 +79,6 @@ int posix_spawnp(
           _exit(111);
     }
     environ = (char **)envp;
-	printf("%s\n", path);
     execvp(path, argv);
     _exit(111);
     /*NOTREACHED*/
