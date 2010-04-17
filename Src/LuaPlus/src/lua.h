@@ -459,15 +459,15 @@ LUA_API void lua_setusergcfunction(lua_State *L, void (*userGCFunction)(void*));
 
 LUA_EXTERN_C_END
 
-#ifdef _WIN32_WCE
-#include "../luace.h"
-#endif /* _WIN32_WCE */
-
 #endif /* LUAPLUS_EXTENSIONS */
+
+LUA_EXTERN_C_BEGIN
 
 #if LUA_ENDIAN_SUPPORT
 LUA_API int (lua_dumpendian) (lua_State *L, lua_Writer writer, void *data, int strip, char endian);
 #endif /* LUA_ENDIAN_SUPPORT */
+
+LUA_EXTERN_C_END
 
 NAMESPACE_LUA_END
 
