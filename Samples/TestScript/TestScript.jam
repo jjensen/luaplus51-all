@@ -2,6 +2,9 @@
 
 SubDir LUAPLUS Samples TestScript ;
 
+LUAPLUS_OUTPUT_DIRECTORY = $(ALL_LOCATE_TARGET)/image ;
+C.OutputPath * : $(ALL_LOCATE_TARGET)/image ;
+
 SubInclude LUAPLUS Src LuaPlus SharedLib : LuaPlusSharedLib ;
 
 local HEADER_FILES_SRCS =

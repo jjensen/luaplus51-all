@@ -461,7 +461,7 @@ int Chunkwriter(lua_State *L, const void* p,
 
 void TestHeap()
 {
-	SimpleHeap mainHeap("Test");
+	SimpleHeap mainHeap("Test", false);
 	mainHeap.Initialize(1 * 1024 * 1024);
 	heap = &mainHeap;
 
@@ -506,7 +506,7 @@ void TestHeap()
 void TestGCObject()
 {
 	TestHeap();
-	SimpleHeap mainHeap("Test");
+	SimpleHeap mainHeap("Test", false);
 	mainHeap.Initialize(1 * 1024 * 1024);
 	heap = &mainHeap;
 
@@ -562,7 +562,7 @@ void TestGCObject()
 
 void SetUserData()
 {
-	SimpleHeap mainHeap("Test");
+	SimpleHeap mainHeap("Test", false);
 	mainHeap.Initialize(1 * 1024 * 1024);
 	heap = &mainHeap;
 
@@ -585,7 +585,7 @@ void SetUserData()
 
 void CloneTest()
 {
-	SimpleHeap mainHeap("Test");
+	SimpleHeap mainHeap("Test", false);
 	mainHeap.Initialize(1 * 1024 * 1024);
 	heap = &mainHeap;
 
@@ -872,7 +872,7 @@ void lua_StateCallbackTest()
 
 void MemoryTest()
 {
-	SimpleHeap mainHeap("Test");
+	SimpleHeap mainHeap("Test", false);
 	mainHeap.Initialize(1 * 1024 * 1024);
 	heap = &mainHeap;
 
@@ -1112,21 +1112,21 @@ namespace LPCD
 */
 	inline void Push(lua_State* L, const VECTOR& value)
 	{
-		LuaState* state = LuaState::CastState(L);
+		LuaState* state = lua_State_To_LuaState(L);
 		LuaObject obj = state->BoxPointer((void*)&value);
 		obj.SetMetaTable(state->GetRegistry()["VECTOR"]);
 	}
 
 	inline bool	Match(TypeWrapper<VECTOR>, lua_State* L, int idx)
 	{
-		LuaState* state = LuaState::CastState(L);
+		LuaState* state = lua_State_To_LuaState(L);
 		LuaObject obj = state->Stack(idx);
 		return obj.GetMetaTable() == state->GetRegistry()["VECTOR"];
 	}
 
 	inline bool	Match(TypeWrapper<VECTOR&>, lua_State* L, int idx)
 	{
-		LuaState* state = LuaState::CastState(L);
+		LuaState* state = lua_State_To_LuaState(L);
 		LuaObject obj = state->Stack(idx);
 		return obj.GetMetaTable() == state->GetRegistry()["VECTOR"];
 	}
@@ -1273,7 +1273,7 @@ void CoroutineTest()
 
 void MemoryKeyTest()
 {
-	SimpleHeap mainHeap("Test");
+	SimpleHeap mainHeap("Test", false);
 	mainHeap.Initialize(1 * 1024 * 1024);
 	heap = &mainHeap;
 
@@ -1281,7 +1281,6 @@ void MemoryKeyTest()
 		lua_setdefaultallocfunction(ReallocFunction, &mainHeap);
 		LuaStateOwner state(false);
 		mainHeap.IntegrityCheck();
-//		lua_dostring(state->GetCState(), "require 'compat-5.1'");
 		lua_setdefaultallocfunction(NULL, NULL);
 
 		LuaObject string1;
@@ -1689,21 +1688,21 @@ void GCTest()
 	lua_State* L = lua_open();
 	lua_cpcall(L, &GCTest_pmain, NULL);
 
-	lua_dofile(L, "../../test/sieve.lua");
+	luaL_dofile(L, "../../test/sieve.lua");
 //	lua_setgcthreshold(L, 0);
 //	lua_dofile(L, "../../test/sort.lua");
-	lua_dofile(L, "../../test/bisect.lua");
+	luaL_dofile(L, "../../test/bisect.lua");
 
 	lua_pushstring(L, "Hello");
 	lua_pop(L, 1);
 
-	lua_dostring(L, "table1 = { str = 'Hi', num = 5 }");
-	lua_dostring(L, "table1 = nil");
-	lua_dostring(L, "table2 = table1");
-	lua_dostring(L, "table2 = nil");
+	luaL_dostring(L, "table1 = { str = 'Hi', num = 5 }");
+	luaL_dostring(L, "table1 = nil");
+	luaL_dostring(L, "table2 = table1");
+	luaL_dostring(L, "table2 = nil");
 
 	clock_t c = clock();
-	lua_dostring(L, "for i = 1, 1000000 do myTable = {} end");
+	luaL_dostring(L, "for i = 1, 1000000 do myTable = {} end");
 	printf("%f\n", (double)(clock() - c) / CLOCKS_PER_SEC);
 
 	lua_close(L);
@@ -1907,7 +1906,7 @@ void NextTest()
 {
 	lua_State* L = lua_open();
 
-	lua_dostring(L, "MyTable = { Key1 = 5, KeyA = 10, KeyQ = 15 }");
+	luaL_dostring(L, "MyTable = { Key1 = 5, KeyA = 10, KeyQ = 15 }");
 
 	lua_getglobal(L, "MyTable");
 	lua_pushnil(L);
@@ -1934,7 +1933,7 @@ void ConcatTest()
 {
 	lua_State* L = lua_open();
 
-	lua_dostring(L, "s = 'Hello' .. '*' .. 'Everybody'");
+	luaL_dostring(L, "s = 'Hello' .. '*' .. 'Everybody'");
 
 	lua_close(L);
 }
@@ -2339,7 +2338,7 @@ void issue_4( lua_State *L )
 	lua_gc(L, LUA_GCCOLLECT, 0);
 
     // call script to return obj to call on stack
-  	lua_dofile( L, "issue_4.lua" );
+  	luaL_dofile( L, "issue_4.lua" );
 
     // lookup func on table
     lua_pushstring(L, "doit");
@@ -2450,7 +2449,7 @@ void CoroutineIssue( void )
 	luaL_openlib( l, 0, udata_meta, 0 );
 	lua_pop( l, 1 );
 
-	lua_dostring( l, script );
+	luaL_dostring( l, script );
 
 	lua_close( l );
 }
@@ -2459,7 +2458,7 @@ void UpvalueTest()
 {
 	lua_State *L = lua_open();
 
-	lua_dostring(L,
+	luaL_dostring(L,
 "for index = 1, 3 do\n"
 "	local actualName = 'Hello'\n"
 "	function TestFunction()\n"
@@ -2500,7 +2499,7 @@ void FuncUserData()
 	luaL_openlib( l, 0, udata_meta, 0 );
 	lua_pop( l, 1 );
 
-    lua_dostring( l, "function Test() local a = io.open('TestScript.cpp') end   Test()" );
+    luaL_dostring( l, "function Test() local a = io.open('TestScript.cpp') end   Test()" );
 
 	lua_close( l );
 }
