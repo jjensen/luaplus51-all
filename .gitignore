@@ -1,4 +1,5 @@
-bin*/
+CVS/
+bin.*/
 build*/
 obj/
 
