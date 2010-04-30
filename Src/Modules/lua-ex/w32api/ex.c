@@ -459,7 +459,9 @@ static int ex_spawn(lua_State *L)
     break;
   case LUA_TTABLE:
     have_options = 1;
-    lua_getfield(L, 1, "command");      /* opts ... cmd */
+	/* avoid issues with strict.lua */
+	lua_pushstring(L, "command");		/* opts ... cmd */
+	lua_rawget(L, 1);
     if (!lua_isnil(L, -1)) {
       /* convert {command=command,arg1,...} to command {arg1,...} */
       lua_insert(L, 1);                 /* cmd opts ... */
