@@ -1,4 +1,4 @@
-SubIncludeRelative Misc : Misc ;
+{
 
 local PCH_SRCS =
 		AnsiString.cpp
@@ -117,3 +117,6 @@ if $(NT)
 }
 
 Lua.CModule ziparchive : : Misc/Misc_InternalPch.cpp $(MISC_SRCS) lziparchive.cpp ;
+
+}
+
