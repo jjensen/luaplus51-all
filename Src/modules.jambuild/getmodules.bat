@@ -16,6 +16,8 @@ wget http://lua-users.org/files/wiki_insecure/users/pshook/template/Expand.lua
 
 wget http://sourceforge.net/projects/expat/files/expat/2.0.1/expat-2.0.1.tar.gz/download
 
+git clone git://repo.or.cz/lqt.git
+
 git clone git://github.com/harningt/luajson.git
 
 wget http://luaforge.net/frs/download.php/3927/lanes-2.0.3.tgz
