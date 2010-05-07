@@ -74,3 +74,5 @@ wget http://luaforge.net/frs/download.php/4232/stdlib-12.tar.gz
 git clone git://github.com/keplerproject/wsapi.git
 
 git clone git://github.com/keplerproject/xavante.git
+
+git clone http://github.com/Orc/discount.git
