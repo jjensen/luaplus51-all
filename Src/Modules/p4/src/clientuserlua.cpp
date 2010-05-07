@@ -319,16 +319,18 @@ ClientUserLua::InputData( StrBuf *strbuf, Error *e )
 	lua_rawgeti( L, LUA_REGISTRYINDEX, inputRef );		// input
 
 	// Is it an array?
-	lua_rawgeti( L, -1, 1 );							// input input[1]
-	if ( !lua_isnil( L, -1 ) ) {
-		lua_getglobal( L, "table" );					// input input[1] table
-		lua_getfield( L, -1, "remove" );				// input input[1] table remove
-		lua_pushvalue( L, -4 );							// input input[1] table remove input
-		lua_pushnumber( L, 1 );							// input input[1] table remove input 1
-		lua_call( L, 2, 0 );							// input input[1] table
-		lua_pop( L, 1 );								// input input[1]
-	} else {
-		lua_pop( L, 1 );
+	if (lua_type( L, -1 ) == LUA_TTABLE ) {
+		lua_rawgeti( L, -1, 1 );							// input input[1]
+		if ( !lua_isnil( L, -1 ) ) {
+			lua_getglobal( L, "table" );					// input input[1] table
+			lua_getfield( L, -1, "remove" );				// input input[1] table remove
+			lua_pushvalue( L, -4 );							// input input[1] table remove input
+			lua_pushnumber( L, 1 );							// input input[1] table remove input 1
+			lua_call( L, 2, 0 );							// input input[1] table
+			lua_pop( L, 1 );								// input input[1]
+		} else {
+			lua_pop( L, 1 );
+		}
 	}
 
 	if ( lua_isnil( L, -1 ) )
