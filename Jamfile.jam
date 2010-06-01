@@ -64,7 +64,11 @@ if $(OS) = NT
 	local moduleinfo ;
 	for moduleinfo in $(modulefiles) {
 		local parts = [ Split $(moduleinfo) : \= ] ;
-		SubInclude LUAPLUS Src Modules $(parts[1]) : $(parts[2]) ;
+		if [ Glob $(LUAPLUS)/Src/Modules : $(parts[1])/ : 1 ] {
+			SubInclude LUAPLUS Src Modules $(parts[1]) : $(parts[2]) ;
+		} else {
+			Echo * Not building $(parts[1]), because its source files do not exist. ;
+		}
 	}
 }
 
