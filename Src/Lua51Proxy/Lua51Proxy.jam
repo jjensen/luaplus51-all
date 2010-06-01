@@ -141,7 +141,7 @@ if $(MSVCNT) {
 		local symbol ;
 		for symbol in $(__Lua51Proxy_Symbols)
 		{
-			C.LinkFlags $(TARGET) : "/EXPORT:$(symbol)=LuaPlus_1100.$(symbol)" ;
+			C.LinkFlags $(TARGET) : "/EXPORT:$(symbol)=luaplus_1100.$(symbol)" ;
 		}
 
 		C.OutputPostfix $(TARGET) : : release ;
