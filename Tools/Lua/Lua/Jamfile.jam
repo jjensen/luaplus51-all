@@ -41,6 +41,7 @@ rule LuaApplication TARGET : OPTIONS
 	if $(OS) = LINUX
 	{
 		C.LinkFlags : -Wl,-E -lreadline ;
+		C.LinkFlags : -Wl,--rpath=\\$ORIGIN -z origin ;
 	}
 	LuaPlusFixUpTarget $(TARGET) ;	
 	C.Application : $(SRCS) : $(OPTIONS) ;

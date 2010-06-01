@@ -110,6 +110,7 @@ C.Defines LuaPlusShared : LUAPLUS_BUILDDLL LUAPLUS_DLL ;
 if $(UNIX)
 {
 	C.LinkFlags LuaPlusShared : -lstdc++ -ldl ;
+	C.LinkFlags LuaPlusShared : -Wl,-soname,luaplus_1100.so ;
 }
 
 C.OutputName LuaPlusShared : luaplus_1100 ;
