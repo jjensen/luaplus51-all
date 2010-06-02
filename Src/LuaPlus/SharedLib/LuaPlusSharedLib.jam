@@ -102,7 +102,7 @@ local LUAPLUS_SRCS =
 LUAPLUS_SRCS += ../popen.c ;
 
 C.IncludeDirectories LuaPlusShared : $(LUAPLUS)/Src/LuaPlus/src ;
-C.InstallNamePath LuaPlusShared : @executable_path ;
+C.InstallNamePath LuaPlusShared : @loader_path ;
 
 C.Defines LuaPlusShared : LUA_OPNAMES ;
 C.Defines LuaPlusShared : LUAPLUS_BUILDDLL LUAPLUS_DLL ;
@@ -110,7 +110,9 @@ C.Defines LuaPlusShared : LUAPLUS_BUILDDLL LUAPLUS_DLL ;
 if $(UNIX)
 {
 	C.LinkFlags LuaPlusShared : -lstdc++ -ldl ;
-	C.LinkFlags LuaPlusShared : -Wl,-soname,luaplus_1100.so ;
+	if $(OS) != MACOSX {
+		C.LinkFlags LuaPlusShared : -Wl,-soname,luaplus_1100.so ;
+	}
 }
 
 C.OutputName LuaPlusShared : luaplus_1100 ;
