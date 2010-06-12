@@ -1,8 +1,8 @@
 ///////////////////////////////////////////////////////////////////////////////
 // This source file is part of the LuaPlus source distribution and is Copyright
-// 2001-2005 by Joshua C. Jensen (jjensen@workspacewhiz.com).
+// 2001-2010 by Joshua C. Jensen (jjensen@workspacewhiz.com).
 //
-// The latest version may be obtained from http://wwhiz.com/LuaPlus/.
+// The latest version may be obtained from http://luaplus.org/.
 //
 // The code presented in this file may be used in any environment it is
 // acceptable to use Lua.
@@ -77,6 +77,7 @@ static int LS_GetTickCount( LuaState* state )
 
 void ScriptFunctionsRegister(struct lua_State* L)
 {
+#if LUAPLUS_EXTENSIONS
 	LuaState* state = lua_State_To_LuaState(L);
 	LuaObject globalsObj = state->GetGlobals();
 	globalsObj.Register("GetTickCount",		LS_GetTickCount);
@@ -90,10 +91,13 @@ void ScriptFunctionsRegister(struct lua_State* L)
 	slashPtr++;
 	*slashPtr = 0;
 #endif // _MSC_VER
+#endif // LUAPLUS_EXTENSIONS
 
+#if LUAPLUS_DUMPOBJECT
     state->GetGlobals().Register("LuaDumpGlobals", LS_LuaDumpGlobals);
 	state->GetGlobals().Register("LuaDumpObject", LS_LuaDumpObject);
 	state->GetGlobals().Register("LuaDumpFile", LS_LuaDumpFile);
+#endif // LUAPLUS_DUMPOBJECT
 }
 
 } // namespace LuaPlus

@@ -3,10 +3,7 @@
 SubDir LUAPLUS Src LuaPlus StaticLib ;
 
 local LUAPLUS_SRCS =
-		../auxiliar.c
-		../auxiliar.h
 		../LuaAutoBlock.h
-		../LuaCall.cpp
 		../LuaCall.h
 		../LuaFunction.h
 		../LuaHelper.h
@@ -24,10 +21,8 @@ local LUAPLUS_SRCS =
 		../LuaPlusFunctions.h
 		../LuaPlusInternal.h
 		../LuaPlus_Libs.cpp
-		../LuaStackObject.cpp
 		../LuaStackObject.h
 		../LuaStackObject.inl
-		../LuaStackTableIterator.cpp
 		../LuaStackTableIterator.h
 		../LuaState.cpp
 		../LuaState.h
@@ -107,7 +102,7 @@ C.Defines LuaPlusShared : LUA_OPNAMES ;
 
 LuaPlusFixUpTarget LuaPlusStatic ;
 
-C.OutputName LuaPlusStatic : luaplusstatic ;
+C.OutputName LuaPlusStatic : luaplusstatic51_1200 ;
 
 C.Library LuaPlusStatic : $(LUAPLUS_SRCS) ;
 

@@ -1,31 +1,29 @@
 ///////////////////////////////////////////////////////////////////////////////
 // This source file is part of the LuaPlus source distribution and is Copyright
-// 2001-2004 by Joshua C. Jensen (jjensen@workspacewhiz.com).
+// 2001-2010 by Joshua C. Jensen (jjensen@workspacewhiz.com).
 //
-// The latest version may be obtained from http://wwhiz.com/LuaPlus/.
+// The latest version may be obtained from http://luaplus.org/.
 //
 // The code presented in this file may be used in any environment it is
 // acceptable to use Lua.
 ///////////////////////////////////////////////////////////////////////////////
-#ifdef _MSC_VER
-#pragma once
-#endif // _MSC_VER
 #ifndef LUAFUNCTION_H
 #define LUAFUNCTION_H
 
 #include "LuaPlusInternal.h"
 #include "LuaAutoBlock.h"
 
+#if LUAPLUS_EXTENSIONS
+
 namespace LuaPlus {
 
 #define LUAFUNCTION_PRECALL() \
-		lua_State* L = m_functionObj.GetCState(); \
+		lua_State* L = functionObj.GetCState(); \
 		LuaAutoBlock autoBlock(L); \
-		m_functionObj.Push();
+		functionObj.Push();
 
 #define LUAFUNCTION_POSTCALL(numArgs) \
-		if (lua_pcall(L, numArgs, 1, 0)) \
-		{ \
+		if (lua_pcall(L, numArgs, 1, 0)) { \
 			const char* errorString = lua_tostring(L, -1);  (void)errorString; \
 			luaplus_assert(0); \
 		} \
@@ -38,35 +36,30 @@ template <typename RT>
 class LuaFunction
 {
 public:
-	LuaFunction(LuaObject& functionObj) :
-		m_functionObj(functionObj)
-	{
-		luaplus_assert(m_functionObj.IsFunction());
+	LuaFunction(LuaObject& _functionObj)
+		: functionObj(_functionObj) {
+		luaplus_assert(functionObj.IsFunction());
 	}
 
-	LuaFunction(LuaState* state, const char* functionName)
-	{
-		m_functionObj = state->GetGlobals()[functionName];
-		luaplus_assert(m_functionObj.IsFunction());
+	LuaFunction(LuaState* state, const char* functionName) {
+		functionObj = state->GetGlobals()[functionName];
+		luaplus_assert(functionObj.IsFunction());
 	}
 
-	RT operator()()
-	{
+	RT operator()() {
 		LUAFUNCTION_PRECALL();
 		LUAFUNCTION_POSTCALL(0);
 	}
 
 	template <typename P1>
-	RT operator()(P1 p1)
-	{
+	RT operator()(P1 p1) {
 		LUAFUNCTION_PRECALL();
 		LPCD::Push(L, p1);
 		LUAFUNCTION_POSTCALL(1);
 	}
 
 	template <typename P1, typename P2>
-	RT operator()(P1 p1, P2 p2)
-	{
+	RT operator()(P1 p1, P2 p2) {
 		LUAFUNCTION_PRECALL();
 		LPCD::Push(L, p1);
 		LPCD::Push(L, p2);
@@ -74,8 +67,7 @@ public:
 	}
 
 	template <typename P1, typename P2, typename P3>
-	RT operator()(P1 p1, P2 p2, P3 p3)
-	{
+	RT operator()(P1 p1, P2 p2, P3 p3) {
 		LUAFUNCTION_PRECALL();
 		LPCD::Push(L, p1);
 		LPCD::Push(L, p2);
@@ -84,8 +76,7 @@ public:
 	}
 
 	template <typename P1, typename P2, typename P3, typename P4>
-	RT operator()(P1 p1, P2 p2, P3 p3, P4 p4)
-	{
+	RT operator()(P1 p1, P2 p2, P3 p3, P4 p4) {
 		LUAFUNCTION_PRECALL();
 		LPCD::Push(L, p1);
 		LPCD::Push(L, p2);
@@ -95,8 +86,7 @@ public:
 	}
 
 	template <typename P1, typename P2, typename P3, typename P4, typename P5>
-	RT operator()(P1 p1, P2 p2, P3 p3, P4 p4, P5 p5)
-	{
+	RT operator()(P1 p1, P2 p2, P3 p3, P4 p4, P5 p5) {
 		LUAFUNCTION_PRECALL();
 		LPCD::Push(L, p1);
 		LPCD::Push(L, p2);
@@ -107,8 +97,7 @@ public:
 	}
 
 	template <typename P1, typename P2, typename P3, typename P4, typename P5, typename P6>
-	RT operator()(P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6)
-	{
+	RT operator()(P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6) {
 		LUAFUNCTION_PRECALL();
 		LPCD::Push(L, p1);
 		LPCD::Push(L, p2);
@@ -120,8 +109,7 @@ public:
 	}
 
 	template <typename P1, typename P2, typename P3, typename P4, typename P5, typename P6, typename P7>
-	RT operator()(P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7)
-	{
+	RT operator()(P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7) {
 		LUAFUNCTION_PRECALL();
 		LPCD::Push(L, p1);
 		LPCD::Push(L, p2);
@@ -134,18 +122,17 @@ public:
 	}
 
 protected:
-	LuaObject m_functionObj;
+	LuaObject functionObj;
 };
 
 
 #define LUAFUNCTIONVOID_PRECALL() \
-		lua_State* L = m_functionObj.GetCState(); \
+		lua_State* L = functionObj.GetCState(); \
 		LuaAutoBlock autoBlock(L); \
-		m_functionObj.Push();
+		functionObj.Push();
 
 #define LUAFUNCTIONVOID_POSTCALL(numArgs) \
-		if (lua_pcall(L, numArgs, 1, 0)) \
-		{ \
+		if (lua_pcall(L, numArgs, 1, 0)) { \
 			const char* errorString = lua_tostring(L, -1); (void)errorString;\
 			luaplus_assert(0); \
 		}
@@ -157,15 +144,15 @@ class LuaFunctionVoid
 {
 public:
 	LuaFunctionVoid(const LuaObject& functionObj) :
-		m_functionObj(functionObj)
+		functionObj(functionObj)
 	{
-		luaplus_assert(m_functionObj.IsFunction());
+		luaplus_assert(functionObj.IsFunction());
 	}
 
 	LuaFunctionVoid(LuaState* state, const char* functionName)
 	{
-		m_functionObj = state->GetGlobals()[functionName];
-		luaplus_assert(m_functionObj.IsFunction());
+		functionObj = state->GetGlobals()[functionName];
+		luaplus_assert(functionObj.IsFunction());
 	}
 
 	void operator()()
@@ -252,9 +239,11 @@ public:
 	}
 
 protected:
-	LuaObject m_functionObj;
+	LuaObject functionObj;
 };
 
 } // namespace LuaPlus
+
+#endif // LUAPLUS_EXTENSIONS
 
 #endif // LUAFUNCTION_H

@@ -71,9 +71,9 @@ static void setprogdir (lua_State *L) {
   char *lb;
   unsigned int path_len = sizeof(buff)/sizeof(char);
 #ifdef _DEBUG
-  const char* luaplusdllName = "luaplus_1100.debug.so";
+  const char* luaplusdllName = "luaplus51-1200_debug.so";
 #else // _DEBUG
-  const char* luaplusdllName = "luaplus_1100.so";
+  const char* luaplusdllName = "luaplus51-1200.so";
 #endif // _DEBUG
   Dl_info info;
   dladdr(setprogdir, &info);
@@ -130,9 +130,9 @@ static void setprogdir (lua_State *L) {
   DWORD nsize = sizeof(buff)/sizeof(char);
 #if LUAPLUS_EXTENSIONS
 #ifndef NDEBUG
-  const char* luaplusdllName = "luaplus_1100.debug.dll";
+  const char* luaplusdllName = "luaplus51-1200_debug.dll";
 #else // _DEBUG
-  const char* luaplusdllName = "luaplus_1100.dll";
+  const char* luaplusdllName = "luaplus51-1200.dll";
 #endif // _DEBUG
 
   DWORD n = GetModuleFileNameA(GetModuleHandle(luaplusdllName), buff, nsize);
@@ -143,11 +143,19 @@ static void setprogdir (lua_State *L) {
     if (!loadedproxies) {
       loadedproxies = 1;
 
+#ifndef NDEBUG
+      strcpy(lb, "\\lua51.debug.dll");
+      LoadLibrary(buff);
+
+      strcpy(lb, "\\lua5.1.debug.dll");
+      LoadLibrary(buff);
+#else // _DEBUG
       strcpy(lb, "\\lua51.dll");
       LoadLibrary(buff);
 
       strcpy(lb, "\\lua5.1.dll");
       LoadLibrary(buff);
+#endif // _DEBUG
     }
 #else
   DWORD n = GetModuleFileNameA(NULL, buff, nsize);
@@ -241,9 +249,9 @@ static void setprogdir (lua_State *L) {
   char *lb;
   unsigned int path_len = sizeof(buff)/sizeof(char);
 #ifdef _DEBUG
-  const char* luaplusdllName = "luaplus_1100.debug.so";
+  const char* luaplusdllName = "luaplus51-1200_debug.so";
 #else // _DEBUG
-  const char* luaplusdllName = "luaplus_1100.so";
+  const char* luaplusdllName = "luaplus51-1200.so";
 #endif // _DEBUG
   Dl_info info;
   dladdr(setprogdir, &info);

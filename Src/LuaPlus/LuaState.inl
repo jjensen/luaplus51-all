@@ -1,15 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 // This source file is part of the LuaPlus source distribution and is Copyright
-// 2001-2005 by Joshua C. Jensen (jjensen@workspacewhiz.com).
+// 2001-2010 by Joshua C. Jensen (jjensen@workspacewhiz.com).
 //
-// The latest version may be obtained from http://wwhiz.com/LuaPlus/.
+// The latest version may be obtained from http://luaplus.org/.
 //
 // The code presented in this file may be used in any environment it is
 // acceptable to use Lua.
 ///////////////////////////////////////////////////////////////////////////////
-#ifdef _MSC_VER
-#pragma once
-#endif // _MSC_VER
 #ifndef LUASTATE_INL
 #define LUASTATE_INL
 
@@ -25,6 +22,16 @@ namespace LuaPlus
 LUAPLUS_INLINE lua_CFunction LuaState::AtPanic(lua_CFunction panicf)
 {
 	return lua_atpanic(LuaState_to_lua_State(this), panicf);
+}
+
+LUAPLUS_INLINE LuaStackObject LuaState::Stack(int index)
+{
+    return LuaStackObject(this, index);
+}
+
+LUAPLUS_INLINE LuaStackObject LuaState::StackTop()
+{
+    return LuaStackObject(this, GetTop());
 }
 
 // Basic stack manipulation.
@@ -306,46 +313,6 @@ LUAPLUS_INLINE int LuaState::DoFile(const char *filename)
 	return luaL_dofile(LuaState_to_lua_State(this), filename);
 }
 
-LUAPLUS_INLINE void callalert (lua_State *L, int status) {
-  if (status != 0) {
-    lua_getglobal(L, "_ALERT");
-    if (lua_isfunction(L, -1)) {
-      lua_insert(L, -2);
-      lua_call(L, 1, 0);
-    }
-    else {  /* no _ALERT function; print it on stderr */
-      fprintf(stderr, "%s\n", lua_tostring(L, -2));
-      lua_pop(L, 2);  /* remove error message and _ALERT */
-    }
-  }
-}
-
-#if 0
-static int traceback (lua_State *L)
-{
-	luaL_getfield(L, LUA_GLOBALSINDEX, "debug.traceback");
-	if (!lua_isfunction(L, -1))
-		lua_pop(L, 1);
-	else
-	{
-		lua_pushvalue(L, 1);  /* pass error message */
-		lua_pushinteger(L, 2);  /* skip this function and traceback */
-		lua_call(L, 2, 1);  /* call debug.traceback */
-	}
-	return 1;
-}
-#endif
-
-
-LUAPLUS_INLINE int aux_do (lua_State *L, int status) {
-  if (status == 0) {  /* parse OK? */
-    status = lua_pcall(L, 0, LUA_MULTRET, 0);  /* call main */
-  }
-  callalert(L, status);
-  return status;
-}
-
-
 LUAPLUS_INLINE int LuaState::DoString(const char *str)
 {
 	return luaL_dostring(LuaState_to_lua_State(this), str);
@@ -491,6 +458,165 @@ LUAPLUS_INLINE void* LuaState::UnBoxPointer(int stackIndex)
 	return (*(void **)(lua_touserdata(LuaState_to_lua_State(this), stackIndex)));
 }
 
+
+LUAPLUS_INLINE int LuaState::TypeError(int narg, const char* tname)
+{
+	return luaL_typerror(LuaState_to_lua_State(this), narg, tname);
+}
+
+
+LUAPLUS_INLINE int LuaState::ArgError(int narg, const char* extramsg)
+{
+	return luaL_argerror(LuaState_to_lua_State(this), narg, extramsg);
+}
+
+
+LUAPLUS_INLINE const char* LuaState::CheckLString(int numArg, size_t* len)
+{
+	return luaL_checklstring(LuaState_to_lua_State(this), numArg, len);
+}
+
+
+LUAPLUS_INLINE const char* LuaState::OptLString(int numArg, const char *def, size_t* len)
+{
+	return luaL_optlstring(LuaState_to_lua_State(this), numArg, def, len);
+}
+
+
+LUAPLUS_INLINE lua_Number LuaState::CheckNumber(int numArg)
+{
+	return luaL_checknumber(LuaState_to_lua_State(this), numArg);
+}
+
+
+LUAPLUS_INLINE lua_Number LuaState::OptNumber(int nArg, lua_Number def)
+{
+	return luaL_optnumber(LuaState_to_lua_State(this), nArg, def);
+}
+
+
+LUAPLUS_INLINE lua_Integer LuaState::CheckInteger(int numArg)
+{
+	return luaL_checkinteger(LuaState_to_lua_State(this), numArg);
+}
+
+
+LUAPLUS_INLINE lua_Integer LuaState::OptInteger(int nArg, lua_Integer def)
+{
+	return luaL_optinteger(LuaState_to_lua_State(this), nArg, def);
+}
+
+
+LUAPLUS_INLINE void LuaState::ArgCheck(bool condition, int numarg, const char* extramsg)
+{
+	luaL_argcheck(LuaState_to_lua_State(this), condition, numarg, extramsg);
+}
+
+
+LUAPLUS_INLINE const char* LuaState::CheckString(int numArg)
+{
+	return luaL_checkstring(LuaState_to_lua_State(this), numArg);
+}
+
+
+LUAPLUS_INLINE const char* LuaState::OptString(int numArg, const char* def)
+{
+	return luaL_optlstring(LuaState_to_lua_State(this), numArg, def, NULL);
+}
+
+
+LUAPLUS_INLINE int LuaState::CheckInt(int numArg)
+{
+	return (int)luaL_checkint(LuaState_to_lua_State(this), numArg);
+}
+
+
+LUAPLUS_INLINE long LuaState::CheckLong(int numArg)
+{
+	return (long)luaL_checklong(LuaState_to_lua_State(this), numArg);
+}
+
+
+LUAPLUS_INLINE int LuaState::OptInt(int numArg, int def)
+{
+	return (int)luaL_optint(LuaState_to_lua_State(this), numArg, def);
+}
+
+
+LUAPLUS_INLINE long LuaState::OptLong(int numArg, int def)
+{
+	return (long)luaL_optlong(LuaState_to_lua_State(this), numArg, def);
+}
+
+
+LUAPLUS_INLINE void LuaState::CheckStack(int sz, const char* msg)
+{
+	luaL_checkstack(LuaState_to_lua_State(this), sz, msg);
+}
+
+
+LUAPLUS_INLINE void LuaState::CheckType(int narg, int t)
+{
+	luaL_checktype(LuaState_to_lua_State(this), narg, t);
+}
+
+
+LUAPLUS_INLINE void LuaState::CheckAny(int narg)
+{
+	luaL_checkany(LuaState_to_lua_State(this), narg);
+}
+
+
+LUAPLUS_INLINE LuaStackObject LuaState::NewMetaTable(const char* tname)
+{
+	luaL_newmetatable(LuaState_to_lua_State(this), tname);
+	return LuaStackObject(this, GetTop());
+}
+
+	
+LUAPLUS_INLINE void* LuaState::CheckUData(int ud, const char* tname)
+{
+	return luaL_checkudata(LuaState_to_lua_State(this), ud, tname);
+}
+
+
+LUAPLUS_INLINE int LuaState::Where(int lvl)
+{
+	luaL_where(LuaState_to_lua_State(this), lvl);
+	return LuaStackObject(this, GetTop());
+}
+
+	
+LUAPLUS_INLINE const char* LuaState::GSub(const char *s, const char *p, const char *r)
+{
+	return luaL_gsub(LuaState_to_lua_State(this), s, p, r);
+}
+
+
+LUAPLUS_INLINE const char* LuaState::FindTable(int idx, const char *fname, int szhint)
+{
+	return luaL_findtable(LuaState_to_lua_State(this), idx, fname, szhint);
+}
+
+
+#if LUA_WIDESTRING
+
+LUAPLUS_INLINE int LuaState::LoadWString(const lua_WChar* str)
+{
+	return luaL_loadwbuffer(LuaState_to_lua_State(this), str, lua_WChar_len(str), "name");
+}
+
+#endif /* LUA_WIDESTRING */
+
+LUAPLUS_INLINE int LuaState::UpValueIndex(int i)
+{
+	return lua_upvalueindex(i);
+}
+
+LUAPLUS_INLINE int LuaState::LoadString(const char* str)
+{
+	return luaL_loadbuffer(LuaState_to_lua_State(this), str, strlen(str), str);
+}
 
 
 } // namespace LuaPlus

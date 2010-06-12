@@ -1,8 +1,8 @@
 ///////////////////////////////////////////////////////////////////////////////
 // This source file is part of the LuaPlus source distribution and is Copyright
-// 2001-2005 by Joshua C. Jensen (jjensen@workspacewhiz.com).
+// 2001-2010 by Joshua C. Jensen (jjensen@workspacewhiz.com).
 //
-// The latest version may be obtained from http://wwhiz.com/LuaPlus/.
+// The latest version may be obtained from http://luaplus.org/.
 //
 // The code presented in this file may be used in any environment it is
 // acceptable to use Lua.
@@ -16,7 +16,7 @@ LUA_EXTERN_C_BEGIN
 #include "src/lgc.h"
 LUA_EXTERN_C_END
 #include "LuaPlus.h"
-#include "LuaCall.h"
+#include "LuaState.h"
 #include <string.h>
 #ifdef WIN32
 #if defined(WIN32) && !defined(_XBOX) && !defined(_XBOX_VER) && !defined(_WIN32_WCE)
@@ -56,6 +56,8 @@ namespace LuaPlus {
 	return state;
 }
 
+#if LUAPLUS_EXTENSIONS
+
 LuaObject LuaState::CreateThread(LuaState* parentState)
 {
     lua_State* L1 = lua_newthread(LuaState_to_lua_State(parentState));
@@ -67,111 +69,13 @@ LuaObject LuaState::CreateThread(LuaState* parentState)
 #endif /* LUA_REFCOUNT */
     setthvalue(parentState->GetCState(), &tobject, L1);
 
-//	lua_State* L = L1;
 	LuaObject retObj = LuaObject(lua_State_To_LuaState(L1), &tobject);
     setnilvalue(&tobject);
     lua_pop(LuaState_to_lua_State(parentState), 1);
     return retObj;
 }
 
-
-static int LS_LOG( lua_State* L )
-{
-	int n = lua_gettop(L);  /* number of arguments */
-	int i;
-	lua_getglobal(L, "towstring");
-	lua_getglobal(L, "tostring");
-	for (i=1; i<=n; i++) {
-		const char *s = NULL;
-#if LUA_WIDESTRING
-		const lua_WChar *ws = NULL;
-#endif /* LUA_WIDESTRING */
-		if (lua_type(L, i) == LUA_TSTRING)
-		{
-			s = lua_tostring(L, -1);
-		}
-#if LUA_WIDESTRING
-		else if (lua_type(L, i) != LUA_TWSTRING)
-		{
-			lua_pushvalue(L, -1);  /* function to be called */
-			lua_pushvalue(L, i);   /* value to print */
-			lua_call(L, 1, 1);
-			s = lua_tostring(L, -1);  /* get result */
-			if (s == NULL)
-				return luaL_error(L, "`tostring' must return a string to `print'");
-		}
-#endif /* LUA_WIDESTRING */
-		else
-		{
-			lua_pushvalue(L, -2);  /* function to be called */
-			lua_pushvalue(L, i);   /* value to print */
-			lua_call(L, 1, 1);
-#if LUA_WIDESTRING
-			ws = lua_towstring(L, -1);  /* get result */
-			if (ws == NULL)
-				return luaL_error(L, "`tostring' must return a string to `print'");
-#endif /* LUA_WIDESTRING */
-		}
-		if (i>1)
-		{
-#ifdef WIN32
-			OutputDebugStringA("\t");
-#else
-			fputs("\t", stdout);
-#endif
-		}
-		if (s)
-		{
-#ifdef WIN32
-			OutputDebugStringA(s);
-#else
-			fputs(s, stdout);
-#endif
-		}
-#if LUA_WIDESTRING
-		else if (ws)
-		{
-            wchar_t out[512];
-            wchar_t* outEnd = out + sizeof(out) - 2;
-            while (*ws) {
-                wchar_t* outPos = out;
-                while (*ws && outPos != outEnd) {
-                *outPos++ = *ws++;
-                }
-                *outPos++ = 0;
-#ifdef WIN32
-			    OutputDebugStringW(out);
-#else
-    			fputws(out, stdout);
-#endif
-            }
-		}
-#endif /* LUA_WIDESTRING */
-		lua_pop(L, 1);  /* pop result */
-	}
-
-#ifdef WIN32
-	OutputDebugStringA("\n");
-#else
-	fputs("\n", stdout);
-#endif
-
-	return 0;
-}
-
-
-static int LS_ALERT( lua_State* L )
-{
-	const char* err = lua_tostring(L, 1);
-#ifdef WIN32
-	OutputDebugString(err);
-    OutputDebugString("\n");
-#else // !WIN32
-	puts(err);
-#endif // WIN32
-
-	return 0;
-}
+#endif // LUAPLUS_EXTENSIONS
 
 
 class LuaStateOutString : public LuaStateOutFile
@@ -322,6 +226,8 @@ protected:
 #endif
 
 
+#if LUAPLUS_DUMPOBJECT
+
 extern "C" void luaplus_dumptable(lua_State* L, int index)
 {
 	LuaState* state = lua_State_To_LuaState(L);
@@ -440,6 +346,8 @@ int LS_LuaDumpGlobals(LuaState* state)
 
 	return 0;
 }
+
+#endif // LUAPLUS_DUMPOBJECT
 
 
 static int pmain (lua_State *L)

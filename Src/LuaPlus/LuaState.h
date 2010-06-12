@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // This source file is part of the LuaPlus source distribution and is Copyright
-// 2001-2008 by Joshua C. Jensen (jjensen@workspacewhiz.com).
+// 2001-2010 by Joshua C. Jensen (jjensen@workspacewhiz.com).
 //
 // The latest version may be obtained from http://luaplus.org/.
 //
@@ -11,9 +11,6 @@
 #define LUASTATE_H
 
 #include "LuaPlusInternal.h"
-
-#define LuaState_to_lua_State(state) ((lua_State*)(state))
-#define lua_State_To_LuaState(L) ((LuaPlus::LuaState*)L)
 
 ///////////////////////////////////////////////////////////////////////////////
 // namespace LuaPlus
@@ -26,7 +23,7 @@ typedef const char * (*luaplus_Reader) (lua_State *L, void *ud, size_t *sz);
 /**
 	A lua_State wrapper.
 **/
-class LUAPLUS_CLASS LuaState
+class LuaState
 {
 public:
 	enum DumpObjectTypes
@@ -38,15 +35,16 @@ public:
 
 
 	///////////////////////////////////////////////////////////////////////////
-	static LuaState* Create();
-	static LuaState* Create(bool initStandardLibrary);
-	static LuaObject CreateThread(LuaState* parentState);
-	static LuaState* CastState(lua_State* L);
-	static void Destroy(LuaState* state);
+	LUAPLUS_CLASS_API static LuaState* Create();
+	LUAPLUS_CLASS_API static LuaState* Create(bool initStandardLibrary);
+#if LUAPLUS_EXTENSIONS
+	LUAPLUS_CLASS_API static LuaObject CreateThread(LuaState* parentState);
+#endif // LUAPLUS_EXTENSIONS
+	LUAPLUS_CLASS_API static void Destroy(LuaState* state);
 
 	lua_CFunction AtPanic(lua_CFunction panicf);
 
-	void OpenLibs();
+	LUAPLUS_CLASS_API void OpenLibs();
 
 	// Stack functions.
 	LuaStackObject Stack(int index);
@@ -63,10 +61,14 @@ public:
 
 	// access functions
 	int Equal(int index1, int index2);
-	int Equal(const LuaObject& o1, const LuaObject& o2);
+#if LUAPLUS_EXTENSIONS
+ 	LUAPLUS_CLASS_API int Equal(const LuaObject& o1, const LuaObject& o2);
+#endif // LUAPLUS_EXTENSIONS
 	int RawEqual(int index1, int index2);
 	int LessThan(int index1, int index2);
-	int LessThan(const LuaObject& o1, const LuaObject& o2);
+#if LUAPLUS_EXTENSIONS
+	LUAPLUS_CLASS_API int LessThan(const LuaObject& o1, const LuaObject& o2);
+#endif // LUAPLUS_EXTENSIONS
 
 	// push functions (C -> stack)
 	LuaStackObject PushNil();
@@ -74,15 +76,15 @@ public:
 	LuaStackObject PushInteger(int n);
 	LuaStackObject PushLString(const char *s, size_t len);
 	LuaStackObject PushString(const char *s);
-	LuaStackObject PushVFString(const char* fmt, va_list argp);
-	LuaStackObject PushFString(const char* fmt, ...);
+	LUAPLUS_CLASS_API LuaStackObject PushVFString(const char* fmt, va_list argp);
+	LUAPLUS_CLASS_API LuaStackObject PushFString(const char* fmt, ...);
 #if LUA_WIDESTRING
 	LuaStackObject PushLWString(const lua_WChar* s, size_t len);
 	LuaStackObject PushWString(const lua_WChar* s);
 #endif /* LUA_WIDESTRING */
 	
 	LuaStackObject PushCClosure(lua_CFunction fn, int n);
-	LuaStackObject PushCClosure(int (*f)(LuaState*), int n);
+	LUAPLUS_CLASS_API LuaStackObject PushCClosure(int (*f)(LuaState*), int n);
 
 	LuaStackObject PushCFunction(lua_CFunction f);
 	LuaStackObject PushBoolean(bool value);
@@ -99,11 +101,13 @@ public:
 	LuaStackObject GetMetaTable(int objindex);
 
 	// LuaPlus ---->
-	LuaObject GetGlobals() throw();
+#if LUAPLUS_EXTENSIONS
+	LUAPLUS_CLASS_API LuaObject GetGlobals() throw();
+	LUAPLUS_CLASS_API LuaObject GetRegistry();
+	LUAPLUS_CLASS_API LuaObject GetGlobal(const char *name);
+#endif // LUAPLUS_EXTENSIONS
 	LuaStackObject GetGlobals_Stack();					// Backward compatible.
-	LuaObject GetRegistry();
 	LuaStackObject GetRegistry_Stack();
-	LuaObject GetGlobal(const char *name);
 	LuaStackObject GetGlobal_Stack(const char *name);
 	// set functions(stack -> Lua)
 	void SetTable(int index);
@@ -203,13 +207,13 @@ public:
 	long OptLong(int numArg, int def);
 
 	int DoFile(const char *filename);
-	int DoFile(const char *filename, LuaObject& fenvObj);
-
 	int DoString(const char *str);
-	int DoString(const char *str, LuaObject& fenvObj);
-
 	int DoBuffer(const char *buff, size_t size, const char *name);
-	int DoBuffer(const char *buff, size_t size, const char *name, LuaObject& fenvObj);
+#if LUAPLUS_EXTENSIONS
+	LUAPLUS_CLASS_API int DoFile(const char *filename, LuaObject& fenvObj);
+	LUAPLUS_CLASS_API int DoString(const char *str, LuaObject& fenvObj);
+	LUAPLUS_CLASS_API int DoBuffer(const char *buff, size_t size, const char *name, LuaObject& fenvObj);
+#endif // LUAPLUS_EXTENSIONS
 
 #if LUA_WIDESTRING
 	int LoadWBuffer(const lua_WChar* buff, size_t size, const char* name);
@@ -219,20 +223,24 @@ public:
 	int DoWBuffer(const lua_WChar* buff, size_t size, const char *name);
 #endif /* LUA_WIDESTRING */
 
-	LuaObject NewUserDataBox(void* u);
+#if LUAPLUS_EXTENSIONS
+	LUAPLUS_CLASS_API LuaObject NewUserDataBox(void* u);
+#endif // LUAPLUS_EXTENSIONS
 
-	bool DumpObject(const char* filename, const char* name, LuaObject& value, unsigned int flags = DUMP_ALPHABETICAL,
+#if LUAPLUS_DUMPOBJECT
+	LUAPLUS_CLASS_API bool DumpObject(const char* filename, const char* name, LuaObject& value, unsigned int flags = DUMP_ALPHABETICAL,
 					int indentLevel = 0, unsigned int maxIndentLevel = 0xffffffff);
-	bool DumpObject(const char* filename, LuaObject& key, LuaObject& value, unsigned int flags = DUMP_ALPHABETICAL,
-					int indentLevel = 0, unsigned int maxIndentLevel = 0xffffffff);
-
-	bool DumpObject(LuaStateOutFile& file, const char* name, LuaObject& value, unsigned int flags = DUMP_ALPHABETICAL,
-					int indentLevel = 0, unsigned int maxIndentLevel = 0xffffffff);
-	bool DumpObject(LuaStateOutFile& file, LuaObject& key, LuaObject& value, unsigned int flags = DUMP_ALPHABETICAL,
+	LUAPLUS_CLASS_API bool DumpObject(const char* filename, LuaObject& key, LuaObject& value, unsigned int flags = DUMP_ALPHABETICAL,
 					int indentLevel = 0, unsigned int maxIndentLevel = 0xffffffff);
 
-	bool DumpGlobals(const char* filename, unsigned int flags = DUMP_ALPHABETICAL, unsigned int maxIndentLevel = 0xFFFFFFFF);
-	bool DumpGlobals(LuaStateOutFile& file, unsigned int flags = DUMP_ALPHABETICAL, unsigned int maxIndentLevel = 0xFFFFFFFF);
+	LUAPLUS_CLASS_API bool DumpObject(LuaStateOutFile& file, const char* name, LuaObject& value, unsigned int flags = DUMP_ALPHABETICAL,
+					int indentLevel = 0, unsigned int maxIndentLevel = 0xffffffff);
+	LUAPLUS_CLASS_API bool DumpObject(LuaStateOutFile& file, LuaObject& key, LuaObject& value, unsigned int flags = DUMP_ALPHABETICAL,
+					int indentLevel = 0, unsigned int maxIndentLevel = 0xffffffff);
+
+	LUAPLUS_CLASS_API bool DumpGlobals(const char* filename, unsigned int flags = DUMP_ALPHABETICAL, unsigned int maxIndentLevel = 0xFFFFFFFF);
+	LUAPLUS_CLASS_API bool DumpGlobals(LuaStateOutFile& file, unsigned int flags = DUMP_ALPHABETICAL, unsigned int maxIndentLevel = 0xFFFFFFFF);
+#endif // LUAPLUS_DUMPOBJECT
 
 	operator lua_State*()						{  return (lua_State*)this;  }
 	lua_State* GetCState()						{  return (lua_State*)this;  }
@@ -243,7 +251,9 @@ public:
 
 	int UpValueIndex(int i);
 
-	LuaObject GetLocalByName( int level, const char* name );
+#if LUAPLUS_EXTENSIONS
+	LUAPLUS_CLASS_API LuaObject GetLocalByName( int level, const char* name );
+#endif // LUAPLUS_EXTENSIONS
 
 	// LuaPlus ------->
 	void SetFEnv( int index );
@@ -253,9 +263,11 @@ protected:
 	~LuaState();
 	LuaState& operator=(LuaState& src);		// Not implemented.
 
+#if LUAPLUS_EXTENSIONS
 	bool CallFormatting(LuaObject& tableObj, LuaStateOutFile& file, int indentLevel,
 			bool writeAll, bool alphabetical, bool writeTablePointers,
 			unsigned int maxIndentLevel);
+#endif // LUAPLUS_EXTENSIONS
 };
 
 
@@ -354,13 +366,13 @@ namespace LPCD
 		{  return static_cast<const lua_WChar*>(lua_towstring(L, idx));  }
 #endif /* LUA_WIDESTRING */
 
-	LUAPLUS_API void Push(lua_State* L, int (*value)(LuaState*));
+	LUAPLUS_CLASS_API void Push(lua_State* L, int (*value)(LuaState*));
 
 	inline bool	Match(TypeWrapper<LuaState*>, lua_State* L, int idx)
 		{  return lua_type(L, idx) == LUA_TNONE;  }
 
 	inline LuaState* Get(TypeWrapper<LuaState*>, lua_State* L, int /*idx*/)
-		{  return LuaState::CastState(L);  }
+		{  return lua_State_To_LuaState(L);  }
 
 	inline int LuaStateFunctionDispatcher(lua_State* L)
 	{

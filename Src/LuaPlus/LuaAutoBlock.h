@@ -1,15 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 // This source file is part of the LuaPlus source distribution and is Copyright
-// 2001-2005 by Joshua C. Jensen (jjensen@workspacewhiz.com).
+// 2001-2010 by Joshua C. Jensen (jjensen@workspacewhiz.com).
 //
-// The latest version may be obtained from http://wwhiz.com/LuaPlus/.
+// The latest version may be obtained from http://luaplus.org/.
 //
 // The code presented in this file may be used in any environment it is
 // acceptable to use Lua.
 ///////////////////////////////////////////////////////////////////////////////
-#ifdef _MSC_VER
-#pragma once
-#endif // _MSC_VER
 #ifndef LUAAUTOBLOCK_H
 #define LUAAUTOBLOCK_H
 
@@ -31,36 +28,31 @@ namespace LuaPlus
 class LuaAutoBlock
 {
 public:
-
-	LuaAutoBlock(LuaState* state) :
-		m_state(state->GetCState()),
-		m_stackTop(lua_gettop(m_state))
-	{
+	LuaAutoBlock(LuaState* state)
+		: L(LuaState_to_lua_State(state))
+		, stackTop(lua_gettop(L)) {
 	}
 
-	LuaAutoBlock(lua_State* state) :
-		m_state(state),
-		m_stackTop(lua_gettop(m_state))
-	{
+	LuaAutoBlock(lua_State* _L)
+		: L(_L)
+		, stackTop(lua_gettop(L)) {
 	}
 
-	LuaAutoBlock(LuaStackObject& object) :
-		m_state(object.GetCState()),
-		m_stackTop(lua_gettop(m_state))
-	{
+	LuaAutoBlock(LuaStackObject& object)
+		: L(object.GetCState())
+		, stackTop(lua_gettop(L)) {
 	}
 
-	~LuaAutoBlock()
-	{
-		lua_settop(m_state, m_stackTop);
+	~LuaAutoBlock() {
+		lua_settop(L, stackTop);
 	}
 
 private:
 	LuaAutoBlock(const LuaAutoBlock& src);					// Not implemented
 	const LuaAutoBlock& operator=(const LuaAutoBlock& src);	// Not implemented
 
-	lua_State* m_state;
-	int m_stackTop;
+	lua_State* L;
+	int stackTop;
 };
 
 

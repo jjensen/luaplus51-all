@@ -1,8 +1,8 @@
 ///////////////////////////////////////////////////////////////////////////////
 // This source file is part of the LuaPlus source distribution and is Copyright
-// 2001-2005 by Joshua C. Jensen (jjensen@workspacewhiz.com).
+// 2001-2010 by Joshua C. Jensen (jjensen@workspacewhiz.com).
 //
-// The latest version may be obtained from http://wwhiz.com/LuaPlus/.
+// The latest version may be obtained from http://luaplus.org/.
 //
 // The code presented in this file may be used in any environment it is
 // acceptable to use Lua.
@@ -16,7 +16,8 @@ LUA_EXTERN_C_BEGIN
 #include "src/lgc.h"
 LUA_EXTERN_C_END
 #include "LuaPlus.h"
-#include "LuaCall.h"
+#include "LuaState.h"
+//#include "LuaCall.h"
 #include <string.h>
 #ifdef WIN32
 #if defined(WIN32) && !defined(_XBOX) && !defined(_XBOX_VER) && !defined(_WIN32_WCE)
@@ -120,8 +121,6 @@ void LuaState_UserStateOpen(lua_State* L)
 {
 #if LUAPLUS_EXTENSIONS
 	lua_setusergcfunction(L, LuaPlusGCFunction);
-#else
-	luaplus_assert(0);
 #endif /* LUAPLUS_EXTENSIONS */
 	lua_atpanic(L, FatalError);
 }
@@ -135,6 +134,8 @@ namespace LuaPlus
 {
 
 USING_NAMESPACE_LUA
+
+#if LUAPLUS_EXCEPTIONS
 
 LuaException::LuaException(const char* message)
 	: m_message(NULL)
@@ -168,15 +169,12 @@ LuaException::~LuaException()
     delete[] m_message;
 }
 
+#endif // LUAPLUS_EXCEPTIONS
+
+
 /*static*/ LuaState* LuaState::Create()
 {
 	return lua_State_To_LuaState(lua_newstate(luaHelper_defaultAlloc, luaHelper_ud));
-}
-
-
-/*static*/ LuaState* LuaState::CastState( lua_State* L )
-{
-	return lua_State_To_LuaState(L);
 }
 
 

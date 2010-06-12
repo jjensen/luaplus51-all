@@ -2922,7 +2922,7 @@ LuaObject::LuaObject(ManagedLuaPlus::LuaState^ state, LuaPlus::LuaObject& object
 
 LuaObject::LuaObject(ManagedLuaPlus::LuaStackObject^ object) :
 	m_state(object->m_state),
-	m_object(new LuaPlus::LuaObject(object->m_object->m_state, *object->m_object))
+	m_object(new LuaPlus::LuaObject(object->m_object->L, *object->m_object))
 {
 	GetState()->m_objects->Add(this, true);
 }

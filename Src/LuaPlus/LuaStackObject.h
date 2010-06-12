@@ -1,15 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 // This source file is part of the LuaPlus source distribution and is Copyright
-// 2001-2005 by Joshua C. Jensen (jjensen@workspacewhiz.com).
+// 2001-2010 by Joshua C. Jensen (jjensen@workspacewhiz.com).
 //
-// The latest version may be obtained from http://wwhiz.com/LuaPlus/.
+// The latest version may be obtained from http://luaplus.org/.
 //
 // The code presented in this file may be used in any environment it is
 // acceptable to use Lua.
 ///////////////////////////////////////////////////////////////////////////////
-#ifdef _MSC_VER
-#pragma once
-#endif // _MSC_VER
 #ifndef LUASTACKOBJECT_H
 #define LUASTACKOBJECT_H
 
@@ -28,13 +25,13 @@ namespace LuaPlus
 /**
 	Representation of a Lua object residing on the Lua stack.
 **/
-class LUAPLUS_CLASS LuaStackObject
+class LuaStackObject
 {
 public:
 	/**
 	**/
 	LuaStackObject() :
-		m_state(NULL)
+		L(NULL)
 	{
 		// Bad to have this... but useful for containers.
 	}
@@ -42,19 +39,19 @@ public:
 	/**
 		Various constructors accepting different parameters.
 	**/
-	LuaStackObject(LuaState* state, int stackIndex);
+	LuaStackObject(lua_State* L, int _stackIndex);
 
 	/**
 		Various constructors accepting different parameters.
 	**/
-	LuaStackObject(LuaState& state, int stackIndex);
+	LuaStackObject(LuaState* state, int _stackIndex);
 
 	/**
 		Copy constructor.
 	**/
-	LuaStackObject(const LuaStackObject& src) :
-		m_state(src.m_state),
-		m_stackIndex(src.m_stackIndex)
+	LuaStackObject(const LuaStackObject& src)
+		: L(src.L)
+		, m_stackIndex(src.m_stackIndex)
 	{
 	}
 
@@ -63,7 +60,7 @@ public:
 	**/
 	const LuaStackObject& operator=(const LuaStackObject& src)
 	{
-		m_state = src.m_state;
+		L = src.L;
 		m_stackIndex = src.m_stackIndex;
 		return *this;
 	}
@@ -157,7 +154,7 @@ public:
 //protected:
 	friend class LuaState;
 
-	LuaState* m_state;		//!< The parent state of this object.
+	lua_State* L;			//!< The parent state of this object.
 	int m_stackIndex;		//!< The stack index representing this object.
 };
 
@@ -165,7 +162,7 @@ public:
 /**
 	Representation of a Lua object residing on the Lua stack.
 **/
-class LUAPLUS_CLASS LuaAutoObject : public LuaStackObject
+class LuaAutoObject : public LuaStackObject
 {
 public:
 	/**
@@ -177,11 +174,6 @@ public:
 		Various constructors accepting different parameters.
 	**/
 	LuaAutoObject(LuaState* state, int stackIndex) : LuaStackObject(state, stackIndex) {}
-
-	/**
-		Various constructors accepting different parameters.
-	**/
-	LuaAutoObject(LuaState& state, int stackIndex) : LuaStackObject(state, stackIndex) {}
 
 	/**
 		Copy constructor.
@@ -201,7 +193,7 @@ public:
 	**/
 	const LuaAutoObject& operator=(const LuaAutoObject& src)
 	{
-		m_state = src.m_state;
+		L = src.L;
 		m_stackIndex = src.m_stackIndex;
 		return *this;
 	}
@@ -213,7 +205,7 @@ public:
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
-class LUAPLUS_CLASS LuaStack
+class LuaStack
 {
 public:
 	LuaStack(LuaState* state);
@@ -224,13 +216,11 @@ public:
 	LuaStackObject operator[](int index);
 
 protected:
-	LuaState* m_state;
+	lua_State* L;
 	int m_numStack;
 };
 
 } // namespace LuaPlus
-
-#include "LuaState.h"
 
 #ifdef LUAPLUS_ENABLE_INLINES
 #include "LuaStackObject.inl"
@@ -245,48 +235,7 @@ namespace LPCD {
 	inline bool	Match(TypeWrapper<LuaStackObject>, lua_State* L, int idx)
 		{  (void)L, (void)idx;  return true;  }
 	inline LuaStackObject	Get(TypeWrapper<LuaStackObject>, lua_State* L, int idx)
-		{  return LuaStackObject(LuaPlus::LuaState::CastState(L), idx);  }
-
-	inline int LuaStateOldFunctionDispatcher(lua_State* L)
-	{
-		typedef int (*Functor)(LuaPlus::LuaState*, LuaPlus::LuaStackObject*);
-		unsigned char* buffer = LPCD::GetFirstUpValueAsUserData(L);
-		Functor& func = *(Functor*)(buffer);
-		LuaPlus::LuaState* state = lua_State_To_LuaState(L);
-		int numArgs = lua_gettop(L);
-		numArgs = 20;
-		LuaPlus::LuaStackObject args[20 + 1];
-		for (int i = 1; i <= numArgs; ++i)
-		{
-			args[i].m_state = state;
-			args[i].m_stackIndex = i;
-		}
- 		return (*func)(state, args);
-	}
-
-	template <typename Callee>
-	class LuaStateOldMemberDispatcherHelper
-	{
-	public:
-		static inline int LuaStateOldMemberDispatcher(lua_State* L)
-		{
-			typedef int (Callee::*Functor)(LuaPlus::LuaState*, LuaPlus::LuaStackObject*);
- 			unsigned char* buffer = LPCD::GetFirstUpValueAsUserData(L);
-			Callee& callee = **(Callee**)buffer;
-			Functor& func = *(Functor*)(buffer + sizeof(Callee*));
-			LuaPlus::LuaState* state = lua_State_To_LuaState(L);
-			int numArgs = lua_gettop(L);
-			numArgs = 20;
-			LuaPlus::LuaStackObject args[20 + 1];
-			for (int i = 1; i <= numArgs; ++i)
-			{
-				args[i].m_state = state;
-				args[i].m_stackIndex = i;
-			}
-			return (callee.*func)(state, args);
-		}
-	};
-
+		{  return LuaStackObject(lua_State_To_LuaState(L), idx);  }
 } // namespace LPCD
 
 #endif // LUASTACKOBJECT_H

@@ -1,8 +1,8 @@
 ///////////////////////////////////////////////////////////////////////////////
 // This source file is part of the LuaPlus source distribution and is Copyright
-// 2001-2005 by Joshua C. Jensen (jjensen@workspacewhiz.com).
+// 2001-2010 by Joshua C. Jensen (jjensen@workspacewhiz.com).
 //
-// The latest version may be obtained from http://wwhiz.com/LuaPlus/.
+// The latest version may be obtained from http://luaplus.org/.
 //
 // The code presented in this file may be used in any environment it is
 // acceptable to use Lua.
@@ -26,6 +26,8 @@ LUA_EXTERN_C_END
 #if defined(_MSC_VER)
 #include <malloc.h>
 #endif
+
+#if LUAPLUS_EXTENSIONS
 
 NAMESPACE_LUA_BEGIN
 LUA_EXTERN_C TValue *index2adr (lua_State *L, int idx);
@@ -71,42 +73,67 @@ namespace LuaPlus
 LuaObject::LuaObject() :
 	m_next(NULL),
 	m_prev(NULL),
-	m_state(NULL)
+	L(NULL)
 {
 	setnilvalue2n(NULL, &m_object);
 }
 
 
+LuaObject::LuaObject(lua_State* L) throw()
+{
+	AddToUsedList(L);
+	setnilvalue2n(L, &m_object);
+}
+
+
 LuaObject::LuaObject(LuaState* state) throw()
 {
-	AddToUsedList(state);
-	setnilvalue2n(LuaState_to_lua_State(state), &m_object);
+	lua_State* L = LuaState_to_lua_State(state);
+	AddToUsedList(L);
+	setnilvalue2n(L, &m_object);
+}
+
+
+LuaObject::LuaObject(lua_State* L, int stackIndex) throw()
+{
+	setnilvalue2n(L, &m_object);
+	AddToUsedList(L, *index2adr(L, stackIndex));
 }
 
 
 LuaObject::LuaObject(LuaState* state, int stackIndex) throw()
 {
-	setnilvalue2n(LuaState_to_lua_State(state), &m_object);
-	AddToUsedList(state, *index2adr(LuaState_to_lua_State(state), stackIndex));
+	lua_State* L = LuaState_to_lua_State(state);
+	setnilvalue2n(L, &m_object);
+	AddToUsedList(L, *index2adr(L, stackIndex));
+}
+
+
+LuaObject::LuaObject(lua_State* L, const TValue* obj)
+{
+	luaplus_assert(obj);
+	setnilvalue2n(L, &m_object);
+	AddToUsedList(L, *obj);
 }
 
 
 LuaObject::LuaObject(LuaState* state, const TValue* obj)
 {
+	lua_State* L = LuaState_to_lua_State(state);
 	luaplus_assert(obj);
-	setnilvalue2n(LuaState_to_lua_State(state), &m_object);
-	AddToUsedList(state, *obj);
+	setnilvalue2n(L, &m_object);
+	AddToUsedList(L, *obj);
 }
 
 
 LuaObject::LuaObject(const LuaObject& src) throw()
 {
-	setnilvalue2n(src.m_state, &m_object);
-	if (src.m_state)
-		AddToUsedList(src.m_state, src.m_object);
+	setnilvalue2n(src.L, &m_object);
+	if (src.L)
+		AddToUsedList(src.L, src.m_object);
 	else
 	{
-		m_state = NULL;
+		L = NULL;
 		m_next = m_prev = NULL;
 	}
 }
@@ -114,12 +141,12 @@ LuaObject::LuaObject(const LuaObject& src) throw()
 
 LuaObject::LuaObject(const LuaStackObject& src) throw()
 {
-	setnilvalue2n(src.m_state, &m_object);
-	if (src.m_state)
-		AddToUsedList(src.m_state, *index2adr(LuaState_to_lua_State(src.m_state), src.m_stackIndex));
+	setnilvalue2n(src.L, &m_object);
+	if (src.L)
+		AddToUsedList(src.L, *index2adr(src.L, src.m_stackIndex));
 	else
 	{
-		m_state = NULL;
+		L = NULL;
 		m_next = m_prev = NULL;
 	}
 }
@@ -128,11 +155,11 @@ LuaObject::LuaObject(const LuaStackObject& src) throw()
 LuaObject& LuaObject::operator=(const LuaObject& src) throw()
 {
 	RemoveFromUsedList();
-	if (src.m_state)
-		AddToUsedList(src.m_state, src.m_object);
+	if (src.L)
+		AddToUsedList(src.L, src.m_object);
 	else
 	{
-		m_state = NULL;
+		L = NULL;
 		m_next = m_prev = NULL;
 	}
 	return *this;
@@ -142,11 +169,11 @@ LuaObject& LuaObject::operator=(const LuaObject& src) throw()
 LuaObject& LuaObject::operator=(const LuaStackObject& src) throw()
 {
 	RemoveFromUsedList();
-	if (src.m_state)
-		AddToUsedList(src.m_state, *index2adr(LuaState_to_lua_State(src.m_state), src.m_stackIndex));
+	if (src.L)
+		AddToUsedList(src.L, *index2adr(src.L, src.m_stackIndex));
 	else
 	{
-		m_state = NULL;
+		L = NULL;
 		m_next = m_prev = NULL;
 	}
 	return *this;
@@ -165,7 +192,7 @@ LuaObject::~LuaObject()
 void LuaObject::Reset()
 {
 	RemoveFromUsedList();
-	m_state = NULL;
+	L = NULL;
 	m_next = m_prev = NULL;
 }
 
@@ -248,11 +275,10 @@ bool LuaObject::IsWString() const
 // Mirrors lua_isinteger().
 bool LuaObject::IsConvertibleToInteger() const
 {
-	luaplus_assert(m_state);
-	lua_State* L = GetCState();  (void)L;
+	luaplus_assert(L);
 	const TValue* o = &m_object;
 	TValue n;
-	setnilvalue2n(m_state, &n);
+	setnilvalue2n(L, &n);
     lua_lock(L);
 	bool ret = tonumber(o, &n);
     lua_unlock(L);
@@ -263,11 +289,10 @@ bool LuaObject::IsConvertibleToInteger() const
 // Mirrors lua_isnumber().
 bool LuaObject::IsConvertibleToNumber() const
 {
-	luaplus_assert(m_state);
-	lua_State* L = GetCState();  (void)L;
+	luaplus_assert(L);
 	const TValue* o = &m_object;
 	TValue n;
-	setnilvalue2n(m_state, &n);
+	setnilvalue2n(L, &n);
     lua_lock(L);
 	bool ret = tonumber(o, &n);
     lua_unlock(L);
@@ -324,7 +349,6 @@ bool LuaObject::IsBoolean() const
 // Mirrors lua_tointeger()
 int LuaObject::ToInteger()
 {
-	lua_State* L = GetCState();  (void)L;
 	const TValue* o = &m_object;
 	TValue n;
     lua_lock(L);
@@ -340,7 +364,6 @@ int LuaObject::ToInteger()
 // Mirrors lua_tonumber()
 lua_Number LuaObject::ToNumber()
 {
-	lua_State* L = GetCState();  (void)L;
 	const TValue* o = &m_object;
 	TValue n;
     lua_lock(L);
@@ -361,9 +384,9 @@ const char* LuaObject::ToString()
 	else
 	{
 		const char *s;
-		lua_lock(LuaState_to_lua_State(m_state));  /* `luaV_tostring' may create a new string */
-		s = (luaV_tostring(LuaState_to_lua_State(m_state), &m_object) ? svalue(&m_object) : NULL);
-		lua_unlock(LuaState_to_lua_State(m_state));
+		lua_lock(L);  /* `luaV_tostring' may create a new string */
+		s = (luaV_tostring(L, &m_object) ? svalue(&m_object) : NULL);
+		lua_unlock(L);
 		return s;
 	}
 }
@@ -378,9 +401,9 @@ const lua_WChar* LuaObject::ToWString()
 	else
 	{
 		const lua_WChar *s;
-		lua_lock(LuaState_to_lua_State(m_state));  /* `luaV_tostring' may create a new string */
-		s = (luaV_towstring(LuaState_to_lua_State(m_state), &m_object) ? wsvalue(&m_object) : NULL);
-		lua_unlock(LuaState_to_lua_State(m_state));
+		lua_lock(L);  /* `luaV_tostring' may create a new string */
+		s = (luaV_towstring(L, &m_object) ? wsvalue(&m_object) : NULL);
+		lua_unlock(L);
 		return s;
 	}
 }
@@ -398,9 +421,9 @@ size_t LuaObject::ToStrLen()
 	else
 	{
 		size_t l;
-		lua_lock(LuaState_to_lua_State(m_state));  /* `luaV_tostring' may create a new string */
-		l = (luaV_tostring(LuaState_to_lua_State(m_state), &m_object) ? tsvalue(&m_object)->len : 0);
-		lua_unlock(LuaState_to_lua_State(m_state));
+		lua_lock(L);  /* `luaV_tostring' may create a new string */
+		l = (luaV_tostring(L, &m_object) ? tsvalue(&m_object)->len : 0);
+		lua_unlock(L);
 		return l;
 	}
 }
@@ -408,35 +431,35 @@ size_t LuaObject::ToStrLen()
 
 int LuaObject::GetInteger() const
 {
-	luaplus_assert(m_state  &&  IsInteger());
+	luaplus_assert(L  &&  IsInteger());
 	return (int)(unsigned int)nvalue(&m_object);
 }
 
 
 float LuaObject::GetFloat() const
 {
-	luaplus_assert(m_state  &&  IsNumber());
+	luaplus_assert(L  &&  IsNumber());
 	return (float)nvalue(&m_object);
 }
 
 
 double LuaObject::GetDouble() const
 {
-	luaplus_assert(m_state  &&  IsNumber());
+	luaplus_assert(L  &&  IsNumber());
 	return (double)nvalue(&m_object);
 }
 
 
 lua_Number LuaObject::GetNumber() const
 {
-	luaplus_assert(m_state  &&  IsNumber());
+	luaplus_assert(L  &&  IsNumber());
 	return (lua_Number)nvalue(&m_object);
 }
 
 
 const char* LuaObject::GetString() const
 {
-	luaplus_assert(m_state  &&  IsString());
+	luaplus_assert(L  &&  IsString());
 	return svalue(&m_object);
 }
 
@@ -444,7 +467,7 @@ const char* LuaObject::GetString() const
 #if LUA_WIDESTRING
 const lua_WChar* LuaObject::GetWString()const
 {
-	luaplus_assert(m_state  &&  IsWString());
+	luaplus_assert(L  &&  IsWString());
 	return wsvalue(&m_object);
 }
 #endif /* LUA_WIDESTRING */
@@ -452,7 +475,7 @@ const lua_WChar* LuaObject::GetWString()const
 
 int LuaObject::StrLen()
 {
-	luaplus_assert(m_state);
+	luaplus_assert(L);
 #if LUA_WIDESTRING
 	if (IsString()  ||  IsWString())
 #else
@@ -475,7 +498,7 @@ int LuaObject::StrLen()
 
 NAMESPACE_LUA_PREFIX lua_CFunction LuaObject::GetCFunction() const
 {
-	luaplus_assert(m_state  &&  IsCFunction());
+	luaplus_assert(L  &&  IsCFunction());
 	return (!iscfunction(&m_object)) ? NULL : clvalue(&m_object)->c.f;
 }
 
@@ -483,7 +506,7 @@ NAMESPACE_LUA_PREFIX lua_CFunction LuaObject::GetCFunction() const
 // Mirrors lua_touserdata().
 void* LuaObject::GetUserData()
 {
-	luaplus_assert(m_state  &&  IsUserData());
+	luaplus_assert(L  &&  IsUserData());
 
 	StkId o = &m_object;
 	switch (ttype(o))
@@ -498,7 +521,7 @@ void* LuaObject::GetUserData()
 // Mirrors lua_topointer.
 const void* LuaObject::GetLuaPointer()
 {
-	luaplus_assert(m_state);
+	luaplus_assert(L);
 	StkId o = &m_object;
 	switch (ttype(o))
 	{
@@ -515,7 +538,7 @@ const void* LuaObject::GetLuaPointer()
 // No equivalent.
 void* LuaObject::GetLightUserData() const
 {
-	luaplus_assert(m_state  &&  IsLightUserData());
+	luaplus_assert(L  &&  IsLightUserData());
 	return pvalue(&m_object);
 }
 
@@ -523,7 +546,7 @@ void* LuaObject::GetLightUserData() const
 // Mirrors lua_toboolean().
 bool LuaObject::GetBoolean() const
 {
-	luaplus_assert(m_state  &&  IsBoolean()  ||  IsNil());
+	luaplus_assert(L  &&  IsBoolean()  ||  IsNil());
 	return !l_isfalse(&m_object);
 }
 
@@ -532,12 +555,11 @@ bool LuaObject::GetBoolean() const
 **/
 LuaObject LuaObject::Clone()
 {
-	lua_State* L = GetCState();  (void)L;
     lua_lock(L);
 	if (IsTable())
 	{
-		LuaObject tableObj(m_state);
-		sethvalue(L, &tableObj.m_object, luaH_new(LuaState_to_lua_State(m_state), hvalue(&m_object)->sizearray, hvalue(&m_object)->lsizenode));
+		LuaObject tableObj(L);
+		sethvalue(L, &tableObj.m_object, luaH_new(L, hvalue(&m_object)->sizearray, hvalue(&m_object)->lsizenode));
 		tableObj.SetMetaTable(GetMetaTable());
 
 		for (LuaTableIterator it(*this); it; ++it)
@@ -556,7 +578,7 @@ LuaObject LuaObject::Clone()
 
     lua_unlock(L);
 
-	return LuaObject(m_state, &m_object);
+	return LuaObject(L, &m_object);
 }
 
 
@@ -613,9 +635,9 @@ void LuaObject::DeepClone(LuaObject& outObj)
 }
 
 	
-static inline int InternalGetTop(LuaState* state)
+static inline int InternalGetTop(lua_State* L)
 {
-  return (state->GetCState()->top - state->GetCState()->base);
+  return (L->top - L->base);
 }
 
 
@@ -635,16 +657,15 @@ static inline void InternalPushTObject(lua_State *L, const void* tobject)
 
 LuaStackObject LuaObject::Push() const
 {
-	luaplus_assert(m_state);
-	InternalPushTObject(LuaState_to_lua_State(m_state), &m_object);
-	return LuaStackObject(m_state, InternalGetTop(m_state));
+	luaplus_assert(L);
+	InternalPushTObject(L, &m_object);
+	return LuaStackObject(L, InternalGetTop(L));
 }
 
 
 LuaObject LuaObject::GetMetaTable()
 {
-	luaplus_assert(m_state);
-	lua_State* L = GetCState();  (void)L;
+	luaplus_assert(L);
     lua_lock(L);
 
 	Table *mt = NULL;
@@ -662,7 +683,7 @@ LuaObject LuaObject::GetMetaTable()
 			break;
 	}
 
-	LuaObject ret(m_state);
+	LuaObject ret(L);
 	if (mt)
 	{
 		sethvalue(L, &ret.m_object, mt);
@@ -675,8 +696,7 @@ LuaObject LuaObject::GetMetaTable()
 
 void LuaObject::SetMetaTable(const LuaObject& valueObj)
 {
-	luaplus_assert(m_state);
-	lua_State* L = GetCState();  (void)L;
+	luaplus_assert(L);
     lua_lock(L);
 
 	TValue* obj = &m_object;
@@ -720,7 +740,7 @@ void LuaObject::SetMetaTable(const LuaObject& valueObj)
 		}
 	}	
 	
-	//jj	luaT_setmetatable(LuaState_to_lua_State(m_state), &m_object, hvalue(&valueObj.m_object));
+	//jj	luaT_setmetatable(L, &m_object, hvalue(&valueObj.m_object));
     lua_unlock(L);
 }
 
@@ -729,19 +749,19 @@ void LuaObject::SetMetaTable(const LuaObject& valueObj)
 
 int LuaObject::GetN()
 {
-	luaplus_assert(m_state);
-	LuaAutoBlock autoBlock(GetCState());
+	luaplus_assert(L);
+	LuaAutoBlock autoBlock(L);
 	Push();
-	return luaL_getn(LuaState_to_lua_State(m_state), -1);
+	return luaL_getn(L, -1);
 }
 
 
 void LuaObject::SetN(int n)
 {
-	luaplus_assert(m_state);
-	LuaAutoBlock autoBlock(GetCState());
+	luaplus_assert(L);
+	LuaAutoBlock autoBlock(L);
 	Push();
-	luaL_setn(LuaState_to_lua_State(m_state), -1, n);
+	luaL_setn(LuaState_to_lua_State(L), -1, n);
 }
 
 #endif /* LUA_COMPAT_GETN */
@@ -749,10 +769,11 @@ void LuaObject::SetN(int n)
 
 void LuaObject::Insert(LuaObject& obj)
 {
-	luaplus_assert(m_state);
-	luaplus_assert(m_state == obj.m_state);
-	LuaAutoBlock autoBlock(GetCState());
-	LuaObject tableObj = m_state->GetGlobal("table");
+	luaplus_assert(L);
+	luaplus_assert(L == obj.L);
+	LuaAutoBlock autoBlock(L);
+	LuaState* state = lua_State_To_LuaState(L);
+	LuaObject tableObj = state->GetGlobal("table");
 	LuaObject funcObj = tableObj["insert"];
 	luaplus_assert(funcObj.IsFunction());
     LuaCall callObj(funcObj);
@@ -762,10 +783,11 @@ void LuaObject::Insert(LuaObject& obj)
 
 void LuaObject::Insert(int index, LuaObject& obj)
 {
-	luaplus_assert(m_state);
-	luaplus_assert(m_state == obj.m_state);
-	LuaAutoBlock autoBlock(GetCState());
-	LuaObject tableObj = m_state->GetGlobal("table");
+	luaplus_assert(L);
+	luaplus_assert(L == obj.L);
+	LuaAutoBlock autoBlock(L);
+	LuaState* state = lua_State_To_LuaState(L);
+	LuaObject tableObj = state->GetGlobal("table");
 	LuaObject funcObj = tableObj["insert"];
 	luaplus_assert(funcObj.IsFunction());
     LuaCall callObj(funcObj);
@@ -775,9 +797,10 @@ void LuaObject::Insert(int index, LuaObject& obj)
 
 void LuaObject::Remove(int index)
 {
-	luaplus_assert(m_state);
-	LuaAutoBlock autoBlock(GetCState());
-	LuaObject tableObj = m_state->GetGlobal("table");
+	luaplus_assert(L);
+	LuaAutoBlock autoBlock(L);
+	LuaState* state = lua_State_To_LuaState(L);
+	LuaObject tableObj = state->GetGlobal("table");
 	LuaObject funcObj = tableObj["remove"];
 	luaplus_assert(funcObj.IsFunction());
     LuaCall callObj(funcObj);
@@ -787,9 +810,10 @@ void LuaObject::Remove(int index)
 
 void LuaObject::Sort()
 {
-	luaplus_assert(m_state);
-	LuaAutoBlock autoBlock(GetCState());
-	LuaObject tableObj = m_state->GetGlobal("table");
+	luaplus_assert(L);
+	LuaAutoBlock autoBlock(L);
+	LuaState* state = lua_State_To_LuaState(L);
+	LuaObject tableObj = state->GetGlobal("table");
 	LuaObject funcObj = tableObj["sort"];
 	luaplus_assert(funcObj.IsFunction());
     LuaCall callObj(funcObj);
@@ -799,10 +823,10 @@ void LuaObject::Sort()
 
 int LuaObject::GetCount()
 {
-	luaplus_assert(m_state);
+	luaplus_assert(L);
 	Push();
-	int count = lua_objlen(LuaState_to_lua_State(m_state), -1);
-	m_state->Pop();
+	int count = lua_objlen(L, -1);
+	lua_pop(L, 1);
 	return count;
 }
 
@@ -827,10 +851,9 @@ int LuaObject::GetTableCount()
 **/
 LuaObject LuaObject::CreateTable(const char* key, int narray, int lnhash)
 {
-	luaplus_assert(m_state);
-	lua_State* L = GetCState();  (void)L;
-	LuaObject ret(m_state);
-	sethvalue2n(L, &ret.m_object, luaH_new(LuaState_to_lua_State(m_state), narray, lnhash));
+	luaplus_assert(L);
+	LuaObject ret(L);
+	sethvalue2n(L, &ret.m_object, luaH_new(L, narray, lnhash));
 	SetTableHelper(key, &ret.m_object);
 	return ret;
 }
@@ -845,10 +868,9 @@ LuaObject LuaObject::CreateTable(const char* key, int narray, int lnhash)
 **/
 LuaObject LuaObject::CreateTable(int key, int narray, int lnhash)
 {
-	luaplus_assert(m_state);
-	lua_State* L = GetCState();  (void)L;
-	LuaObject ret(m_state);
-	sethvalue2n(L, &ret.m_object, luaH_new(LuaState_to_lua_State(m_state), narray, lnhash));
+	luaplus_assert(L);
+	LuaObject ret(L);
+	sethvalue2n(L, &ret.m_object, luaH_new(LuaState_to_lua_State(L), narray, lnhash));
 	SetTableHelper(key, &ret.m_object);
 	return ret;
 }
@@ -863,10 +885,9 @@ LuaObject LuaObject::CreateTable(int key, int narray, int lnhash)
 **/
 LuaObject LuaObject::CreateTable(LuaObject& key, int narray, int lnhash)
 {
-	luaplus_assert(m_state);
-	lua_State* L = GetCState();  (void)L;
-	LuaObject ret(m_state);
-	sethvalue2n(L, &ret.m_object, luaH_new(LuaState_to_lua_State(m_state), narray, lnhash));
+	luaplus_assert(L);
+	LuaObject ret(L);
+	sethvalue2n(L, &ret.m_object, luaH_new(L, narray, lnhash));
 	SetTableHelper(key, &ret.m_object);
 	return ret;
 }
@@ -874,9 +895,7 @@ LuaObject LuaObject::CreateTable(LuaObject& key, int narray, int lnhash)
 
 LuaObject LuaObject::GetByName(const char* key)
 {
-	luaplus_assert(m_state);
-
-	lua_State* L = GetCState();
+	luaplus_assert(L);
 
 	api_check(L, ttistable(&m_object));
 
@@ -906,46 +925,45 @@ LuaObject LuaObject::GetByName(const char* key)
 	}
 
 	if (ttype(&str) == LUA_TNIL)
-		return LuaObject(m_state);
+		return LuaObject(L);
 
 	TValue v;
-	luaV_gettable(GetCState(), &m_object, &str, &v);
+	luaV_gettable(L, &m_object, &str, &v);
 	setnilvalue(&str);
-	return LuaObject(m_state, &v);
+	return LuaObject(L, &v);
 }
 
 LuaObject LuaObject::GetByIndex(int key)
 {
-	luaplus_assert(m_state);
-	api_check(GetCState(), ttistable(&m_object));
+	luaplus_assert(L);
+	api_check(L, ttistable(&m_object));
 
 	TValue obj;
 	setnvalue2n(&obj, key);
 	TValue v;
-	luaV_gettable(GetCState(), &m_object, &obj, &v);
-	return LuaObject(m_state, &v);
+	luaV_gettable(L, &m_object, &obj, &v);
+	return LuaObject(L, &v);
 }
 
 LuaObject LuaObject::GetByObject(const LuaObject& key)
 {
-	luaplus_assert(m_state);
-	api_check(GetCState(), ttistable(&m_object));
+	luaplus_assert(L);
+	api_check(L, ttistable(&m_object));
 
 	TValue v;
-	luaV_gettable(GetCState(), &m_object, (TValue*)&key.m_object, &v);
-	return LuaObject(m_state, &v);
+	luaV_gettable(L, &m_object, (TValue*)&key.m_object, &v);
+	return LuaObject(L, &v);
 }
 
 
 LuaObject LuaObject::GetByObject(const LuaStackObject& key)
 {
-	luaplus_assert(m_state);
-	lua_State* L = GetCState();
+	luaplus_assert(L);
 	api_check(L, ttistable(&m_object));
 
 	TValue v;
 	luaV_gettable(L, &m_object, index2adr(L, key.m_stackIndex), &v);
-	return LuaObject(m_state, &v);
+	return LuaObject(L, &v);
 }
 
 
@@ -973,13 +991,11 @@ LuaObject LuaObject::RawGetByObject(const LuaStackObject& key)
 
 LuaObject LuaObject::operator[](const char* name)
 {
-	luaplus_assert(m_state);
-	api_check(GetCState(), ttistable(&m_object));
-
-	lua_State* L = GetCState();
+	luaplus_assert(L);
+	api_check(L, ttistable(&m_object));
 
 	TValue str;
-	setnilvalue2n(m_state, &str);
+	setnilvalue2n(L, &str);
 
 	// It's safe to assume that if name is not in the hash table, this function can return nil.
 	size_t l = strlen(name);
@@ -1004,44 +1020,41 @@ LuaObject LuaObject::operator[](const char* name)
 	}
 
 	if (ttype(&str) == LUA_TNIL)
-		return LuaObject(m_state);
+		return LuaObject(L);
 
 //	setsvalue(&str, luaS_newlstr(L, name, strlen(name)));
 	const TValue* v = luaH_get(hvalue(&m_object), &str);
 	setnilvalue(&str);
-	return LuaObject(m_state, v);
+	return LuaObject(L, v);
 }
 
 LuaObject LuaObject::operator[](int index)
 {
-	luaplus_assert(m_state);
-	lua_State* L = GetCState();		(void)L;
+	luaplus_assert(L);
 	api_check(L, ttistable(&m_object));
 
 	StkId o = &m_object;
 	api_check(L, ttistable(o));
 	const TValue* v = luaH_getnum(hvalue(o), index);
-	return LuaObject(m_state, v);
+	return LuaObject(L, v);
 }
 
 LuaObject LuaObject::operator[](const LuaObject& obj)
 {
-	luaplus_assert(m_state);
-	lua_State* L = GetCState();		(void)L;
+	luaplus_assert(L);
 	api_check(L, ttistable(&m_object));
 
 	const TValue* v = luaH_get(hvalue(&m_object), &obj.m_object);
-	return LuaObject(m_state, v);
+	return LuaObject(L, v);
 }
 
 LuaObject LuaObject::operator[](const LuaStackObject& obj)
 {
-	luaplus_assert(m_state);
-	lua_State* L = GetCState();		(void)L;
+	luaplus_assert(L);
 	api_check(L, ttistable(&m_object));
 
-	const TValue* v = luaH_get(hvalue(&m_object), index2adr(GetCState(), obj.m_stackIndex));
-	return LuaObject(m_state, v);
+	const TValue* v = luaH_get(hvalue(&m_object), index2adr(L, obj.m_stackIndex));
+	return LuaObject(L, v);
 }
 
 
@@ -1105,7 +1118,7 @@ LuaObject LuaObject::Lookup(const char* key)
 #if !defined(_MSC_VER)
     delete [] buf;
 #endif
-	return LuaObject(m_state);
+	return LuaObject(L);
 }
 
 namespace detail
@@ -1130,34 +1143,34 @@ namespace detail
 
 LuaObject& LuaObject::SetNil(const char* key)
 {
-	luaplus_assert(m_state  &&  IsTable());
+	luaplus_assert(L  &&  IsTable());
 	TValue valueObj;
-	setnilvalue2n(m_state, &valueObj);
+	setnilvalue2n(L, &valueObj);
 	return SetTableHelper(key, &valueObj);
 }
 
 
 LuaObject& LuaObject::SetNil(int key)
 {
-	luaplus_assert(m_state  &&  IsTable());
+	luaplus_assert(L  &&  IsTable());
 	TValue valueObj;
-	setnilvalue2n(m_state, &valueObj);
+	setnilvalue2n(L, &valueObj);
 	return SetTableHelper(key, &valueObj);
 }
 
 
 LuaObject& LuaObject::SetNil(LuaObject& key)
 {
-	luaplus_assert(m_state  &&  IsTable());
+	luaplus_assert(L  &&  IsTable());
 	TValue valueObj;
-	setnilvalue2n(m_state, &valueObj);
+	setnilvalue2n(L, &valueObj);
 	return SetTableHelper(key, &valueObj);
 }
 
 
 LuaObject& LuaObject::SetBoolean(const char* key, bool value)
 {
-	luaplus_assert(m_state  &&  IsTable());
+	luaplus_assert(L  &&  IsTable());
 	TValue valueObj;
 	setbvalue2n(&valueObj, value);
 	return SetTableHelper(key, &valueObj);
@@ -1166,7 +1179,7 @@ LuaObject& LuaObject::SetBoolean(const char* key, bool value)
 
 LuaObject& LuaObject::SetBoolean(int key, bool value)
 {
-	luaplus_assert(m_state  &&  IsTable());
+	luaplus_assert(L  &&  IsTable());
 	TValue valueObj;
 	setbvalue2n(&valueObj, value);
 	return SetTableHelper(key, &valueObj);
@@ -1175,7 +1188,7 @@ LuaObject& LuaObject::SetBoolean(int key, bool value)
 
 LuaObject& LuaObject::SetBoolean(LuaObject& key, bool value)
 {
-	luaplus_assert(m_state  &&  IsTable());
+	luaplus_assert(L  &&  IsTable());
 	TValue valueObj;
 	setbvalue2n(&valueObj, value);
 	return SetTableHelper(key, &valueObj);
@@ -1184,7 +1197,7 @@ LuaObject& LuaObject::SetBoolean(LuaObject& key, bool value)
 
 LuaObject& LuaObject::SetInteger(const char* key, int value)
 {
-	luaplus_assert(m_state  &&  IsTable());
+	luaplus_assert(L  &&  IsTable());
 	TValue valueObj;
 	setnvalue2n(&valueObj, value);
 	return SetTableHelper(key, &valueObj);
@@ -1193,7 +1206,7 @@ LuaObject& LuaObject::SetInteger(const char* key, int value)
 
 LuaObject& LuaObject::SetInteger(int key, int value)
 {
-	luaplus_assert(m_state  &&  IsTable());
+	luaplus_assert(L  &&  IsTable());
 	TValue valueObj;
 	setnvalue2n(&valueObj, value);
 	return SetTableHelper(key, &valueObj);
@@ -1202,7 +1215,7 @@ LuaObject& LuaObject::SetInteger(int key, int value)
 
 LuaObject& LuaObject::SetInteger(LuaObject& key, int value)
 {
-	luaplus_assert(m_state  &&  IsTable());
+	luaplus_assert(L  &&  IsTable());
 	TValue valueObj;
 	setnvalue2n(&valueObj, value);
 	return SetTableHelper(key, &valueObj);
@@ -1211,7 +1224,7 @@ LuaObject& LuaObject::SetInteger(LuaObject& key, int value)
 
 LuaObject& LuaObject::SetNumber(const char* key, lua_Number value)
 {
-	luaplus_assert(m_state  &&  IsTable());
+	luaplus_assert(L  &&  IsTable());
 	TValue valueObj;
 	setnvalue2n(&valueObj, value);
 	return SetTableHelper(key, &valueObj);
@@ -1220,7 +1233,7 @@ LuaObject& LuaObject::SetNumber(const char* key, lua_Number value)
 
 LuaObject& LuaObject::SetNumber(int key, lua_Number value)
 {
-	luaplus_assert(m_state  &&  IsTable());
+	luaplus_assert(L  &&  IsTable());
 	TValue valueObj;
 	setnvalue2n(&valueObj, value);
 	return SetTableHelper(key, &valueObj);
@@ -1229,7 +1242,7 @@ LuaObject& LuaObject::SetNumber(int key, lua_Number value)
 
 LuaObject& LuaObject::SetNumber(LuaObject& key, lua_Number value)
 {
-	luaplus_assert(m_state  &&  IsTable());
+	luaplus_assert(L  &&  IsTable());
 	TValue valueObj;
 	setnvalue2n(&valueObj, value);
 	return SetTableHelper(key, &valueObj);
@@ -1238,8 +1251,7 @@ LuaObject& LuaObject::SetNumber(LuaObject& key, lua_Number value)
 
 LuaObject& LuaObject::SetString(const char* key, const char* value, int len)
 {
-	luaplus_assert(m_state  &&  IsTable());
-	lua_State* L = GetCState(); (void)L;
+	luaplus_assert(L  &&  IsTable());
 	TValue valueObj;
 	if (value == NULL)
 	{
@@ -1249,7 +1261,7 @@ LuaObject& LuaObject::SetString(const char* key, const char* value, int len)
 	{
 		if (len == -1)
 			len = strlen(value);
-		setsvalue2n(L, &valueObj, luaS_newlstr(LuaState_to_lua_State(m_state), value, len));
+		setsvalue2n(L, &valueObj, luaS_newlstr(LuaState_to_lua_State(L), value, len));
 	}
 	SetTableHelper(key, &valueObj);
 	setnilvalue(&valueObj);
@@ -1259,8 +1271,7 @@ LuaObject& LuaObject::SetString(const char* key, const char* value, int len)
 
 LuaObject& LuaObject::SetString(int key, const char* value, int len)
 {
-	luaplus_assert(m_state  &&  IsTable());
-	lua_State* L = GetCState(); (void)L;
+	luaplus_assert(L  &&  IsTable());
 	TValue valueObj;
 	if (value == NULL)
 	{
@@ -1270,7 +1281,7 @@ LuaObject& LuaObject::SetString(int key, const char* value, int len)
 	{
 		if (len == -1)
 			len = strlen(value);
-		setsvalue2n(L, &valueObj, luaS_newlstr(LuaState_to_lua_State(m_state), value, len));
+		setsvalue2n(L, &valueObj, luaS_newlstr(LuaState_to_lua_State(L), value, len));
 	}
 	SetTableHelper(key, &valueObj);
 	setnilvalue(&valueObj);
@@ -1280,8 +1291,7 @@ LuaObject& LuaObject::SetString(int key, const char* value, int len)
 
 LuaObject& LuaObject::SetString(LuaObject& key, const char* value, int len)
 {
-	luaplus_assert(m_state  &&  IsTable());
-	lua_State* L = GetCState(); (void)L;
+	luaplus_assert(L  &&  IsTable());
 	TValue valueObj;
 	if (value == NULL)
 	{
@@ -1291,7 +1301,7 @@ LuaObject& LuaObject::SetString(LuaObject& key, const char* value, int len)
 	{
 		if (len == -1)
 			len = strlen(value);
-		setsvalue2n(L, &valueObj, luaS_newlstr(LuaState_to_lua_State(m_state), value, len));
+		setsvalue2n(L, &valueObj, luaS_newlstr(LuaState_to_lua_State(L), value, len));
 	}
 	SetTableHelper(key, &valueObj);
 	setnilvalue(&valueObj);
@@ -1302,8 +1312,7 @@ LuaObject& LuaObject::SetString(LuaObject& key, const char* value, int len)
 #if LUA_WIDESTRING
 LuaObject& LuaObject::SetWString(const char* key, const lua_WChar* value, int len)
 {
-	luaplus_assert(m_state  &&  IsTable());
-	lua_State* L = GetCState(); (void)L;
+	luaplus_assert(L  &&  IsTable());
 	TValue valueObj;
 	if (value == NULL)
 	{
@@ -1313,7 +1322,7 @@ LuaObject& LuaObject::SetWString(const char* key, const lua_WChar* value, int le
 	{
 		if (len == -1)
 			len = lua_WChar_len(value);
-		setwsvalue2n(L, &valueObj, luaS_newlwstr(LuaState_to_lua_State(m_state), value, len));
+		setwsvalue2n(L, &valueObj, luaS_newlwstr(LuaState_to_lua_State(L), value, len));
 	}
 	SetTableHelper(key, &valueObj);
 	setnilvalue(&valueObj);
@@ -1323,8 +1332,7 @@ LuaObject& LuaObject::SetWString(const char* key, const lua_WChar* value, int le
 
 LuaObject& LuaObject::SetWString(int key, const lua_WChar* value, int len)
 {
-	luaplus_assert(m_state  &&  IsTable());
-	lua_State* L = GetCState(); (void)L;
+	luaplus_assert(L  &&  IsTable());
 	TValue valueObj;
 	if (value == NULL)
 	{
@@ -1334,7 +1342,7 @@ LuaObject& LuaObject::SetWString(int key, const lua_WChar* value, int len)
 	{
 		if (len == -1)
 			len = lua_WChar_len(value);
-		setwsvalue2n(L, &valueObj, luaS_newlwstr(LuaState_to_lua_State(m_state), value, len));
+		setwsvalue2n(L, &valueObj, luaS_newlwstr(LuaState_to_lua_State(L), value, len));
 	}
 	SetTableHelper(key, &valueObj);
 	setnilvalue(&valueObj);
@@ -1344,8 +1352,7 @@ LuaObject& LuaObject::SetWString(int key, const lua_WChar* value, int len)
 
 LuaObject& LuaObject::SetWString(LuaObject& key, const lua_WChar* value, int len)
 {
-	luaplus_assert(m_state  &&  IsTable());
-	lua_State* L = GetCState(); (void)L;
+	luaplus_assert(L  &&  IsTable());
 	TValue valueObj;
 	if (value == NULL)
 	{
@@ -1355,7 +1362,7 @@ LuaObject& LuaObject::SetWString(LuaObject& key, const lua_WChar* value, int len
 	{
 		if (len == -1)
 			len = lua_WChar_len(value);
-		setwsvalue2n(L, &valueObj, luaS_newlwstr(LuaState_to_lua_State(m_state), value, len));
+		setwsvalue2n(L, &valueObj, luaS_newlwstr(LuaState_to_lua_State(L), value, len));
 	}
 	SetTableHelper(key, &valueObj);
 	setnilvalue(&valueObj);
@@ -1366,9 +1373,8 @@ LuaObject& LuaObject::SetWString(LuaObject& key, const lua_WChar* value, int len
 
 LuaObject& LuaObject::SetUserData(const char* key, void* value)
 {
-	luaplus_assert(m_state  &&  IsTable());
-	lua_State* L = GetCState(); (void)L;
-	Udata* u = luaS_newudata(LuaState_to_lua_State(m_state), 4, getcurrenv(L));
+	luaplus_assert(L  &&  IsTable());
+	Udata* u = luaS_newudata(LuaState_to_lua_State(L), 4, getcurrenv(L));
 	u->uv.len = 1;  // user data box bit is set.
 	*(void**)(u + 1) = value;
 
@@ -1382,9 +1388,8 @@ LuaObject& LuaObject::SetUserData(const char* key, void* value)
 
 LuaObject& LuaObject::SetUserData(int key, void* value)
 {
-	luaplus_assert(m_state  &&  IsTable());
-	lua_State* L = GetCState(); (void)L;
-	Udata* u = luaS_newudata(LuaState_to_lua_State(m_state), 4, getcurrenv(L));
+	luaplus_assert(L  &&  IsTable());
+	Udata* u = luaS_newudata(LuaState_to_lua_State(L), 4, getcurrenv(L));
 	u->uv.len = 1;  // user data box bit is set.
 	*(void**)(u + 1) = value;
 
@@ -1398,9 +1403,8 @@ LuaObject& LuaObject::SetUserData(int key, void* value)
 
 LuaObject& LuaObject::SetUserData(LuaObject& key, void* value)
 {
-	luaplus_assert(m_state  &&  IsTable());
-	lua_State* L = GetCState(); (void)L;
-	Udata* u = luaS_newudata(LuaState_to_lua_State(m_state), 4, getcurrenv(L));
+	luaplus_assert(L  &&  IsTable());
+	Udata* u = luaS_newudata(LuaState_to_lua_State(L), 4, getcurrenv(L));
 	u->uv.len = 1;  // user data box bit is set.
 	*(void**)(u + 1) = value;
 
@@ -1414,7 +1418,7 @@ LuaObject& LuaObject::SetUserData(LuaObject& key, void* value)
 
 LuaObject& LuaObject::SetLightUserData(const char* key, void* value)
 {
-	luaplus_assert(m_state  &&  IsTable());
+	luaplus_assert(L  &&  IsTable());
 	TValue valueObj;
 	setpvalue2n(&valueObj, value);
 	return SetTableHelper(key, &valueObj);
@@ -1423,7 +1427,7 @@ LuaObject& LuaObject::SetLightUserData(const char* key, void* value)
 
 LuaObject& LuaObject::SetLightUserData(int key, void* value)
 {
-	luaplus_assert(m_state  &&  IsTable());
+	luaplus_assert(L  &&  IsTable());
 	TValue valueObj;
 	setpvalue2n(&valueObj, value);
 	return SetTableHelper(key, &valueObj);
@@ -1432,7 +1436,7 @@ LuaObject& LuaObject::SetLightUserData(int key, void* value)
 
 LuaObject& LuaObject::SetLightUserData(LuaObject& key, void* value)
 {
-	luaplus_assert(m_state  &&  IsTable());
+	luaplus_assert(L  &&  IsTable());
 	TValue valueObj;
 	setpvalue2n(&valueObj, value);
 	return SetTableHelper(key, &valueObj);
@@ -1441,24 +1445,24 @@ LuaObject& LuaObject::SetLightUserData(LuaObject& key, void* value)
 
 LuaObject& LuaObject::SetObject(const char* key, LuaObject& value)
 {
-	luaplus_assert(m_state  &&  IsTable());
-	luaplus_assert(m_state == value.m_state);
+	luaplus_assert(L  &&  IsTable());
+	luaplus_assert(L == value.L);
 	return SetTableHelper(key, &value.m_object);
 }
 
 
 LuaObject& LuaObject::SetObject(int key, LuaObject& value)
 {
-	luaplus_assert(m_state  &&  IsTable());
-	luaplus_assert(m_state == value.m_state);
+	luaplus_assert(L  &&  IsTable());
+	luaplus_assert(L == value.L);
 	return SetTableHelper(key, &value.m_object);
 }
 
 
 LuaObject& LuaObject::SetObject(LuaObject& key, LuaObject& value)
 {
-	luaplus_assert(m_state  &&  IsTable());
-	luaplus_assert(m_state == value.m_state);
+	luaplus_assert(L  &&  IsTable());
+	luaplus_assert(L == value.L);
 	return SetTableHelper(key, &value.m_object);
 }
 
@@ -1466,34 +1470,34 @@ LuaObject& LuaObject::SetObject(LuaObject& key, LuaObject& value)
 
 LuaObject& LuaObject::RawSetNil(const char* key)
 {
-	luaplus_assert(m_state  &&  IsTable());
+	luaplus_assert(L  &&  IsTable());
 	TValue valueObj;
-	setnilvalue2n(m_state, &valueObj);
+	setnilvalue2n(L, &valueObj);
 	return RawSetTableHelper(key, &valueObj);
 }
 
 
 LuaObject& LuaObject::RawSetNil(int key)
 {
-	luaplus_assert(m_state  &&  IsTable());
+	luaplus_assert(L  &&  IsTable());
 	TValue valueObj;
-	setnilvalue2n(m_state, &valueObj);
+	setnilvalue2n(L, &valueObj);
 	return RawSetTableHelper(key, &valueObj);
 }
 
 
 LuaObject& LuaObject::RawSetNil(LuaObject& key)
 {
-	luaplus_assert(m_state  &&  IsTable());
+	luaplus_assert(L  &&  IsTable());
 	TValue valueObj;
-	setnilvalue2n(m_state, &valueObj);
+	setnilvalue2n(L, &valueObj);
 	return RawSetTableHelper(key, &valueObj);
 }
 
 
 LuaObject& LuaObject::RawSetBoolean(const char* key, bool value)
 {
-	luaplus_assert(m_state  &&  IsTable());
+	luaplus_assert(L  &&  IsTable());
 	TValue valueObj;
 	setbvalue2n(&valueObj, value);
 	return RawSetTableHelper(key, &valueObj);
@@ -1502,7 +1506,7 @@ LuaObject& LuaObject::RawSetBoolean(const char* key, bool value)
 
 LuaObject& LuaObject::RawSetBoolean(int key, bool value)
 {
-	luaplus_assert(m_state  &&  IsTable());
+	luaplus_assert(L  &&  IsTable());
 	TValue valueObj;
 	setbvalue2n(&valueObj, value);
 	return RawSetTableHelper(key, &valueObj);
@@ -1511,7 +1515,7 @@ LuaObject& LuaObject::RawSetBoolean(int key, bool value)
 
 LuaObject& LuaObject::RawSetBoolean(LuaObject& key, bool value)
 {
-	luaplus_assert(m_state  &&  IsTable());
+	luaplus_assert(L  &&  IsTable());
 	TValue valueObj;
 	setbvalue2n(&valueObj, value);
 	return RawSetTableHelper(key, &valueObj);
@@ -1520,7 +1524,7 @@ LuaObject& LuaObject::RawSetBoolean(LuaObject& key, bool value)
 
 LuaObject& LuaObject::RawSetInteger(const char* key, int value)
 {
-	luaplus_assert(m_state  &&  IsTable());
+	luaplus_assert(L  &&  IsTable());
 	TValue valueObj;
 	setnvalue2n(&valueObj, value);
 	return RawSetTableHelper(key, &valueObj);
@@ -1529,7 +1533,7 @@ LuaObject& LuaObject::RawSetInteger(const char* key, int value)
 
 LuaObject& LuaObject::RawSetInteger(int key, int value)
 {
-	luaplus_assert(m_state  &&  IsTable());
+	luaplus_assert(L  &&  IsTable());
 	TValue valueObj;
 	setnvalue2n(&valueObj, value);
 	return RawSetTableHelper(key, &valueObj);
@@ -1538,7 +1542,7 @@ LuaObject& LuaObject::RawSetInteger(int key, int value)
 
 LuaObject& LuaObject::RawSetInteger(LuaObject& key, int value)
 {
-	luaplus_assert(m_state  &&  IsTable());
+	luaplus_assert(L  &&  IsTable());
 	TValue valueObj;
 	setnvalue2n(&valueObj, value);
 	return RawSetTableHelper(key, &valueObj);
@@ -1547,7 +1551,7 @@ LuaObject& LuaObject::RawSetInteger(LuaObject& key, int value)
 
 LuaObject& LuaObject::RawSetNumber(const char* key, lua_Number value)
 {
-	luaplus_assert(m_state  &&  IsTable());
+	luaplus_assert(L  &&  IsTable());
 	TValue valueObj;
 	setnvalue2n(&valueObj, value);
 	return RawSetTableHelper(key, &valueObj);
@@ -1556,7 +1560,7 @@ LuaObject& LuaObject::RawSetNumber(const char* key, lua_Number value)
 
 LuaObject& LuaObject::RawSetNumber(int key, lua_Number value)
 {
-	luaplus_assert(m_state  &&  IsTable());
+	luaplus_assert(L  &&  IsTable());
 	TValue valueObj;
 	setnvalue2n(&valueObj, value);
 	return RawSetTableHelper(key, &valueObj);
@@ -1565,7 +1569,7 @@ LuaObject& LuaObject::RawSetNumber(int key, lua_Number value)
 
 LuaObject& LuaObject::RawSetNumber(LuaObject& key, lua_Number value)
 {
-	luaplus_assert(m_state  &&  IsTable());
+	luaplus_assert(L  &&  IsTable());
 	TValue valueObj;
 	setnvalue2n(&valueObj, value);
 	return RawSetTableHelper(key, &valueObj);
@@ -1574,18 +1578,17 @@ LuaObject& LuaObject::RawSetNumber(LuaObject& key, lua_Number value)
 
 LuaObject& LuaObject::RawSetString(const char* key, const char* value, int len)
 {
-	luaplus_assert(m_state  &&  IsTable());
-	lua_State* L = GetCState(); (void)L;
+	luaplus_assert(L  &&  IsTable());
 	TValue valueObj;
 	if (value == NULL)
 	{
-		setnilvalue2n(m_state, &valueObj);
+		setnilvalue2n(L, &valueObj);
 	}
 	else
 	{
 		if (len == -1)
 			len = strlen(value);
-		setsvalue2n(L, &valueObj, luaS_newlstr(LuaState_to_lua_State(m_state), value, len));
+		setsvalue2n(L, &valueObj, luaS_newlstr(LuaState_to_lua_State(L), value, len));
 	}
 	RawSetTableHelper(key, &valueObj);
 	setnilvalue(&valueObj);
@@ -1595,18 +1598,17 @@ LuaObject& LuaObject::RawSetString(const char* key, const char* value, int len)
 
 LuaObject& LuaObject::RawSetString(int key, const char* value, int len)
 {
-	luaplus_assert(m_state  &&  IsTable());
-	lua_State* L = GetCState(); (void)L;
+	luaplus_assert(L  &&  IsTable());
 	TValue valueObj;
 	if (value == NULL)
 	{
-		setnilvalue2n(m_state, &valueObj);
+		setnilvalue2n(L, &valueObj);
 	}
 	else
 	{
 		if (len == -1)
 			len = strlen(value);
-		setsvalue2n(L, &valueObj, luaS_newlstr(LuaState_to_lua_State(m_state), value, len));
+		setsvalue2n(L, &valueObj, luaS_newlstr(LuaState_to_lua_State(L), value, len));
 	}
 	RawSetTableHelper(key, &valueObj);
 	setnilvalue(&valueObj);
@@ -1616,18 +1618,17 @@ LuaObject& LuaObject::RawSetString(int key, const char* value, int len)
 
 LuaObject& LuaObject::RawSetString(LuaObject& key, const char* value, int len)
 {
-	luaplus_assert(m_state  &&  IsTable());
-	lua_State* L = GetCState(); (void)L;
+	luaplus_assert(L  &&  IsTable());
 	TValue valueObj;
 	if (value == NULL)
 	{
-		setnilvalue2n(m_state, &valueObj);
+		setnilvalue2n(L, &valueObj);
 	}
 	else
 	{
 		if (len == -1)
 			len = strlen(value);
-		setsvalue2n(L, &valueObj, luaS_newlstr(LuaState_to_lua_State(m_state), value, len));
+		setsvalue2n(L, &valueObj, luaS_newlstr(LuaState_to_lua_State(L), value, len));
 	}
 	RawSetTableHelper(key, &valueObj);
 	setnilvalue(&valueObj);
@@ -1638,18 +1639,17 @@ LuaObject& LuaObject::RawSetString(LuaObject& key, const char* value, int len)
 #if LUA_WIDESTRING
 LuaObject& LuaObject::RawSetWString(const char* key, const lua_WChar* value, int len)
 {
-	luaplus_assert(m_state  &&  IsTable());
-	lua_State* L = GetCState(); (void)L;
+	luaplus_assert(L  &&  IsTable());
 	TValue valueObj;
 	if (value == NULL)
 	{
-		setnilvalue2n(m_state, &valueObj);
+		setnilvalue2n(L, &valueObj);
 	}
 	else
 	{
 		if (len == -1)
 			len = lua_WChar_len(value);
-		setwsvalue2n(L, &valueObj, luaS_newlwstr(LuaState_to_lua_State(m_state), value, len));
+		setwsvalue2n(L, &valueObj, luaS_newlwstr(LuaState_to_lua_State(L), value, len));
 	}
 	RawSetTableHelper(key, &valueObj);
 	setnilvalue(&valueObj);
@@ -1659,18 +1659,17 @@ LuaObject& LuaObject::RawSetWString(const char* key, const lua_WChar* value, int
 
 LuaObject& LuaObject::RawSetWString(int key, const lua_WChar* value, int len)
 {
-	luaplus_assert(m_state  &&  IsTable());
-	lua_State* L = GetCState(); (void)L;
+	luaplus_assert(L  &&  IsTable());
 	TValue valueObj;
 	if (value == NULL)
 	{
-		setnilvalue2n(m_state, &valueObj);
+		setnilvalue2n(L, &valueObj);
 	}
 	else
 	{
 		if (len == -1)
 			len = lua_WChar_len(value);
-		setwsvalue2n(L, &valueObj, luaS_newlwstr(LuaState_to_lua_State(m_state), value, len));
+		setwsvalue2n(L, &valueObj, luaS_newlwstr(LuaState_to_lua_State(L), value, len));
 	}
 	RawSetTableHelper(key, &valueObj);
 	setnilvalue(&valueObj);
@@ -1680,18 +1679,17 @@ LuaObject& LuaObject::RawSetWString(int key, const lua_WChar* value, int len)
 
 LuaObject& LuaObject::RawSetWString(LuaObject& key, const lua_WChar* value, int len)
 {
-	luaplus_assert(m_state  &&  IsTable());
-	lua_State* L = GetCState(); (void)L;
+	luaplus_assert(L  &&  IsTable());
 	TValue valueObj;
 	if (value == NULL)
 	{
-		setnilvalue2n(m_state, &valueObj);
+		setnilvalue2n(L, &valueObj);
 	}
 	else
 	{
 		if (len == -1)
 			len = lua_WChar_len(value);
-		setwsvalue2n(L, &valueObj, luaS_newlwstr(LuaState_to_lua_State(m_state), value, len));
+		setwsvalue2n(L, &valueObj, luaS_newlwstr(LuaState_to_lua_State(L), value, len));
 	}
 	RawSetTableHelper(key, &valueObj);
 	setnilvalue(&valueObj);
@@ -1702,9 +1700,8 @@ LuaObject& LuaObject::RawSetWString(LuaObject& key, const lua_WChar* value, int 
 
 LuaObject& LuaObject::RawSetUserData(const char* key, void* value)
 {
-	luaplus_assert(m_state  &&  IsTable());
-	lua_State* L = GetCState(); (void)L;
-	Udata* u = luaS_newudata(LuaState_to_lua_State(m_state), 4, getcurrenv(L));
+	luaplus_assert(L  &&  IsTable());
+	Udata* u = luaS_newudata(LuaState_to_lua_State(L), 4, getcurrenv(L));
 	u->uv.len = 1;  // user data box bit is set.
 	*(void**)(u + 1) = value;
 
@@ -1718,9 +1715,8 @@ LuaObject& LuaObject::RawSetUserData(const char* key, void* value)
 
 LuaObject& LuaObject::RawSetUserData(int key, void* value)
 {
-	luaplus_assert(m_state  &&  IsTable());
-	lua_State* L = GetCState(); (void)L;
-	Udata* u = luaS_newudata(LuaState_to_lua_State(m_state), 4, getcurrenv(L));
+	luaplus_assert(L  &&  IsTable());
+	Udata* u = luaS_newudata(LuaState_to_lua_State(L), 4, getcurrenv(L));
 	u->uv.len = 1;  // user data box bit is set.
 	*(void**)(u + 1) = value;
 
@@ -1734,9 +1730,8 @@ LuaObject& LuaObject::RawSetUserData(int key, void* value)
 
 LuaObject& LuaObject::RawSetUserData(LuaObject& key, void* value)
 {
-	luaplus_assert(m_state  &&  IsTable());
-	lua_State* L = GetCState(); (void)L;
-	Udata* u = luaS_newudata(LuaState_to_lua_State(m_state), 4, getcurrenv(L));
+	luaplus_assert(L  &&  IsTable());
+	Udata* u = luaS_newudata(LuaState_to_lua_State(L), 4, getcurrenv(L));
 	u->uv.len = 1;  // user data box bit is set.
 	*(void**)(u + 1) = value;
 
@@ -1750,7 +1745,7 @@ LuaObject& LuaObject::RawSetUserData(LuaObject& key, void* value)
 
 LuaObject& LuaObject::RawSetLightUserData(const char* key, void* value)
 {
-	luaplus_assert(m_state  &&  IsTable());
+	luaplus_assert(L  &&  IsTable());
 	TValue valueObj;
 	setpvalue2n(&valueObj, value);
 	return RawSetTableHelper(key, &valueObj);
@@ -1759,7 +1754,7 @@ LuaObject& LuaObject::RawSetLightUserData(const char* key, void* value)
 
 LuaObject& LuaObject::RawSetLightUserData(int key, void* value)
 {
-	luaplus_assert(m_state  &&  IsTable());
+	luaplus_assert(L  &&  IsTable());
 	TValue valueObj;
 	setpvalue2n(&valueObj, value);
 	return RawSetTableHelper(key, &valueObj);
@@ -1768,7 +1763,7 @@ LuaObject& LuaObject::RawSetLightUserData(int key, void* value)
 
 LuaObject& LuaObject::RawSetLightUserData(LuaObject& key, void* value)
 {
-	luaplus_assert(m_state  &&  IsTable());
+	luaplus_assert(L  &&  IsTable());
 	TValue valueObj;
 	setpvalue2n(&valueObj, value);
 	return RawSetTableHelper(key, &valueObj);
@@ -1777,21 +1772,21 @@ LuaObject& LuaObject::RawSetLightUserData(LuaObject& key, void* value)
 
 LuaObject& LuaObject::RawSetObject(const char* key, LuaObject& value)
 {
-	luaplus_assert(m_state  &&  IsTable());
+	luaplus_assert(L  &&  IsTable());
 	return RawSetTableHelper(key, &value.m_object);
 }
 
 
 LuaObject& LuaObject::RawSetObject(int key, LuaObject& value)
 {
-	luaplus_assert(m_state  &&  IsTable());
+	luaplus_assert(L  &&  IsTable());
 	return RawSetTableHelper(key, &value.m_object);
 }
 
 
 LuaObject& LuaObject::RawSetObject(LuaObject& key, LuaObject& value)
 {
-	luaplus_assert(m_state  &&  IsTable());
+	luaplus_assert(L  &&  IsTable());
 	return RawSetTableHelper(key, &value.m_object);
 }
 
@@ -1802,60 +1797,55 @@ LuaObject& LuaObject::RawSetObject(LuaObject& key, LuaObject& value)
 
 void LuaObject::AssignNil(LuaState* state)
 {
-	if (state != m_state)
+	if (LuaState_to_lua_State(state) != L)
 	{
 		RemoveFromUsedList();
-		AddToUsedList(state);
+		AddToUsedList(LuaState_to_lua_State(state));
 	}
-	lua_State *L = GetCState();  (void)L;
 	setnilvalue(&m_object);
 }
 
 
 void LuaObject::AssignBoolean(LuaState* state, bool value)
 {
-	if (state != m_state)
+	if (LuaState_to_lua_State(state) != L)
 	{
 		RemoveFromUsedList();
-		AddToUsedList(state);
+		AddToUsedList(LuaState_to_lua_State(state));
 	}
-	lua_State *L = GetCState();  (void)L;
 	setbvalue(&m_object, value);
 }
 
 
 void LuaObject::AssignInteger(LuaState* state, int value)
 {
-	if (state != m_state)
+	if (LuaState_to_lua_State(state) != L)
 	{
 		RemoveFromUsedList();
-		AddToUsedList(state);
+		AddToUsedList(LuaState_to_lua_State(state));
 	}
-	lua_State *L = GetCState();  (void)L;
 	setnvalue(&m_object, value);
 }
 
 
 void LuaObject::AssignNumber(LuaState* state, lua_Number value)
 {
-	if (state != m_state)
+	if (LuaState_to_lua_State(state) != L)
 	{
 		RemoveFromUsedList();
-		AddToUsedList(state);
+		AddToUsedList(LuaState_to_lua_State(state));
 	}
-	lua_State *L = GetCState();  (void)L;
 	setnvalue(&m_object, value);
 }
 
 
 void LuaObject::AssignString(LuaState* state, const char* value, int len)
 {
-	if (state != m_state)
+	if (LuaState_to_lua_State(state) != L)
 	{
 		RemoveFromUsedList();
-		AddToUsedList(state);
+		AddToUsedList(LuaState_to_lua_State(state));
 	}
-	lua_State *L = GetCState();  (void)L;
 	if (value == NULL)
 	{
 		setnilvalue(&m_object);
@@ -1872,12 +1862,11 @@ void LuaObject::AssignString(LuaState* state, const char* value, int len)
 #if LUA_WIDESTRING
 void LuaObject::AssignWString(LuaState* state, const lua_WChar* value, int len)
 {
-	if (state != m_state)
+	if (LuaState_to_lua_State(state) != L)
 	{
 		RemoveFromUsedList();
-		AddToUsedList(state);
+		AddToUsedList(LuaState_to_lua_State(state));
 	}
-	lua_State *L = GetCState();  (void)L;
 	if (value == NULL)
 	{
 		setnilvalue(&m_object);
@@ -1894,12 +1883,11 @@ void LuaObject::AssignWString(LuaState* state, const lua_WChar* value, int len)
 
 void LuaObject::AssignUserData(LuaState* state, void* value)
 {
-	if (state != m_state)
+	if (LuaState_to_lua_State(state) != L)
 	{
 		RemoveFromUsedList();
-		AddToUsedList(state);
+		AddToUsedList(LuaState_to_lua_State(state));
 	}
-	lua_State *L = GetCState();  (void)L;
 	Udata* u = luaS_newudata(L, 4, getcurrenv(L));
 	*(void**)(u + 1) = value;
 	setuvalue(L, &m_object, u);
@@ -1908,36 +1896,33 @@ void LuaObject::AssignUserData(LuaState* state, void* value)
 
 void LuaObject::AssignLightUserData(LuaState* state, void* value)
 {
-	if (state != m_state)
+	if (LuaState_to_lua_State(state) != L)
 	{
 		RemoveFromUsedList();
-		AddToUsedList(state);
+		AddToUsedList(LuaState_to_lua_State(state));
 	}
-	lua_State *L = GetCState();  (void)L;
 	setpvalue(&m_object, value);
 }
 
 
 void LuaObject::AssignObject(LuaObject& value)
 {
-	if (value.m_state != m_state)
+	if (value.L != L)
 	{
 		RemoveFromUsedList();
-		AddToUsedList(value.m_state);
+		AddToUsedList(value.L);
 	}
-	lua_State *L = GetCState();  (void)L;
 	setobj(L, &m_object, &value.m_object);
 }
 
 
 LuaObject& LuaObject::AssignNewTable(LuaState* state, int narray, int nrec)
 {
-	if (state != m_state)
+	if (LuaState_to_lua_State(state) != L)
 	{
 		RemoveFromUsedList();
-		AddToUsedList(state);
+		AddToUsedList(LuaState_to_lua_State(state));
 	}
-	lua_State *L = GetCState();  (void)L;
 	sethvalue(L, &m_object, luaH_new(L, narray, nrec));
 	return *this;
 }
@@ -1945,12 +1930,11 @@ LuaObject& LuaObject::AssignNewTable(LuaState* state, int narray, int nrec)
 
 void LuaObject::AssignTObject(LuaState* state, const TValue* value)
 {
-	if (state != m_state)
+	if (LuaState_to_lua_State(state) != L)
 	{
 		RemoveFromUsedList();
-		AddToUsedList(state);
+		AddToUsedList(LuaState_to_lua_State(state));
 	}
-	lua_State *L = GetCState();  (void)L;
 	setobj(L, &m_object, value);
 }
 
@@ -1974,22 +1958,15 @@ void LuaObject::Register(const char* funcName, int (*func)(LuaState*), int nupva
 }
 
 
-void LuaObject::Register(const char* funcName, int (*func)(LuaState*, LuaStackObject*), int nupvalues)
-{
-	RegisterHelper(funcName, LPCD::LuaStateOldFunctionDispatcher, nupvalues, NULL, 0, &func, sizeof(func));
-}
-
-
 void LuaObject::RegisterHelper(const char* funcName, NAMESPACE_LUA_PREFIX lua_CFunction function, int nupvalues, const void* callee, unsigned int sizeofCallee, void* func, unsigned int sizeofFunc)
 {
-	luaplus_assert(m_state);
-	lua_State* L = GetCState();
+	luaplus_assert(L);
 	lua_lock(L);
 	luaC_checkGC(L);
 
 	if (sizeofFunc != 0)
 	{
-		unsigned char* buffer = (unsigned char*)lua_newuserdata(GetCState(), sizeofCallee + sizeofFunc);
+		unsigned char* buffer = (unsigned char*)lua_newuserdata(L, sizeofCallee + sizeofFunc);
 		unsigned int pos = 0;
 		if (sizeofCallee > 0)
 		{
@@ -2030,13 +2007,12 @@ void LuaObject::RegisterHelper(const char* funcName, NAMESPACE_LUA_PREFIX lua_CF
 **/
 void LuaObject::Unregister(const char* funcName)
 {
-	luaplus_assert(m_state);
+	luaplus_assert(L);
 	SetNil(funcName);
 }
 
 LuaObject& LuaObject::SetTableHelper(const char* key, TValue* valueObj)
 {
-	lua_State *L = LuaState_to_lua_State(m_state);	(void)L;
 	TValue keyObj;
 	setsvalue2n(L, &keyObj, luaS_newlstr(L, key, strlen(key)));
 	luaV_settable(L, &m_object, &keyObj, valueObj);
@@ -2049,28 +2025,27 @@ LuaObject& LuaObject::SetTableHelper(int key, TValue* valueObj)
 {
 	TValue keyObj;
 	setnvalue2n(&keyObj, key);
-	luaV_settable(GetCState(), &m_object, &keyObj, valueObj);
+	luaV_settable(L, &m_object, &keyObj, valueObj);
 	return *this;
 }
 
 
 LuaObject& LuaObject::SetTableHelper(const TValue* keyObj, const TValue* valueObj)
 {
-	luaV_settable(GetCState(), &m_object, (TValue*)keyObj, (TValue*)valueObj);
+	luaV_settable(L, &m_object, (TValue*)keyObj, (TValue*)valueObj);
 	return *this;
 }
 
 
 LuaObject& LuaObject::SetTableHelper(const LuaObject& key, TValue* valueObj)
 {
-	luaV_settable(GetCState(), &m_object, (TValue*)&key.m_object, valueObj);
+	luaV_settable(L, &m_object, (TValue*)&key.m_object, valueObj);
 	return *this;
 }
 
 
 LuaObject& LuaObject::RawSetTableHelper(const char* key, TValue* valueObj)
 {
-	lua_State *L = GetCState();	(void)L;
 	TValue keyObj;
 	setsvalue2n(L, &keyObj, luaS_newlstr(L, key, strlen(key)));
 
@@ -2091,7 +2066,6 @@ LuaObject& LuaObject::RawSetTableHelper(int key, TValue* valueObj)
 
 LuaObject& LuaObject::RawSetTableHelper(const TValue* keyObj, const TValue* valueObj)
 {
-	lua_State *L = GetCState();
 	Table *h = hvalue(&m_object);
 	setobj2t(L, luaH_set(L, h, keyObj), valueObj);
     luaC_barriert(L, h, valueObj);
@@ -2106,43 +2080,37 @@ LuaObject& LuaObject::RawSetTableHelper(const LuaObject& key, TValue* valueObj)
 }
 
 
-inline void LuaObject::AddToUsedList(LuaState* state)
+inline void LuaObject::AddToUsedList(lua_State* _L)
 {
-	luaplus_assert(state);
-	m_state = state;
-#if LUAPLUS_EXTENSIONS
-	LuaObject& headObject = *(LuaObject*)&G(LuaState_to_lua_State(m_state))->gchead_next;
+	luaplus_assert(_L);
+	L = _L;
+	LuaObject& headObject = *(LuaObject*)&G(L)->gchead_next;
 	m_next = headObject.m_next;
 	headObject.m_next = this;
 	m_next->m_prev = this;
 	m_prev = &headObject;
-#endif /* LUAPLUS_EXTENSIONS */
 }
 
 
-inline void LuaObject::AddToUsedList(LuaState* state, const lua_TValue& obj)
+inline void LuaObject::AddToUsedList(lua_State* _L, const lua_TValue& obj)
 {
-	luaplus_assert(state);
-    lua_lock(LuaState_to_lua_State(state));
-	m_state = state;
-#if LUAPLUS_EXTENSIONS
-	LuaObject& headObject = *(LuaObject*)&G(LuaState_to_lua_State(m_state))->gchead_next;
+	luaplus_assert(_L);
+    lua_lock(_L);
+	L = _L;
+	LuaObject& headObject = *(LuaObject*)&G(L)->gchead_next;
 	m_next = headObject.m_next;
 	headObject.m_next = this;
 	m_next->m_prev = this;
 	m_prev = &headObject;
-	lua_State *L = GetCState();  (void)L;
 	setobj(L, &m_object, &obj);
-#endif /* LUAPLUS_EXTENSIONS */
-    lua_unlock(LuaState_to_lua_State(state));
+    lua_unlock(L);
 }
 
 
 inline void LuaObject::RemoveFromUsedList()
 {
-	if (m_state)
+	if (L)
 	{
-		lua_State* L = LuaState_to_lua_State(m_state);    (void)L;
         lua_lock(L);
 
         // remove pOldNode from list
@@ -2350,6 +2318,8 @@ namespace LPCD
 
 	LuaObject Get(TypeWrapper<LuaObject>, lua_State* L, int idx)
 	{
-		return LuaObject(LuaState::CastState(L), idx);
+		return LuaObject(lua_State_To_LuaState(L), idx);
 	}
 }
+
+#endif // LUAPLUS_EXTENSIONS

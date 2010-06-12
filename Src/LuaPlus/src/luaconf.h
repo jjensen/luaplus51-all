@@ -12,11 +12,11 @@
 #include <stddef.h>
 
 #ifndef LUA_WIDESTRING
-#define LUA_WIDESTRING 0
+#define LUA_WIDESTRING 1
 #endif /* LUA_WIDESTRING */
 
 #ifndef LUA_WIDESTRING_FILE
-#define LUA_WIDESTRING_FILE 0
+#define LUA_WIDESTRING_FILE 1
 #endif /* LUA_WIDESTRING_FILE */
 
 #ifndef LUA_BITFIELD_OPS
@@ -51,6 +51,10 @@
 #define LUAPLUS_EXTENSIONS 1
 #endif /* LUAPLUS_EXTENSIONS */
 
+#ifndef LUAPLUS_DUMPOBJECT
+#define LUAPLUS_DUMPOBJECT 1
+#endif /* LUAPLUS_DUMPOBJECT */
+
 #ifndef LUA_EXT_CONTINUE
 #define LUA_EXT_CONTINUE 1
 #endif /* LUA_EXT_CONTINUE */
@@ -59,6 +63,10 @@
 #ifndef LUA_REFCOUNT
 #define LUA_REFCOUNT 0
 #endif /* LUA_REFCOUNT */
+
+#ifndef LUAPLUS_EXCEPTIONS
+#define LUAPLUS_EXCEPTIONS 0
+#endif // LUAPLUS_EXCEPTIONS
 
 #if LUA_WIDESTRING
 #define lua_wstr2number(s,p)    triow_to_double((s), (p))

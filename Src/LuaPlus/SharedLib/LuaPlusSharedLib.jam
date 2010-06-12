@@ -3,11 +3,9 @@
 SubDir LUAPLUS Src LuaPlus SharedLib ;
 
 local LUAPLUS_SRCS =
-		../auxiliar.c
-		../auxiliar.h
 		../LuaAutoBlock.h
-		../LuaCall.cpp
 		../LuaCall.h
+		../LuaCall.inl
 		../LuaFunction.h
 		../LuaHelper.h
 		../LuaHelper_Object.h
@@ -21,14 +19,12 @@ local LUAPLUS_SRCS =
 		../LuaPlusAddons.c
 		../LuaPlusCD.h
 		../LuaPlusFunctions.cpp
-		../LuaPlusFunctions.h
 		../LuaPlusInternal.h
 		../LuaPlus_Libs.cpp
-		../LuaStackObject.cpp
 		../LuaStackObject.h
 		../LuaStackObject.inl
-		../LuaStackTableIterator.cpp
 		../LuaStackTableIterator.h
+		../LuaStackTableIterator.inl
 		../LuaState.cpp
 		../LuaState.h
 		../LuaState.inl
@@ -111,12 +107,13 @@ if $(UNIX)
 {
 	C.LinkFlags LuaPlusShared : -lstdc++ -ldl ;
 	if $(OS) != MACOSX {
-		C.LinkFlags LuaPlusShared : -Wl,-soname,luaplus_1100.so ;
+		C.LinkFlags LuaPlusShared : -Wl,-soname,luaplus-1200.so ;
 	}
 }
 
-C.OutputName LuaPlusShared : luaplus_1100 ;
+C.OutputName LuaPlusShared : luaplus51-1200 ;
 LuaPlusFixUpTarget LuaPlusShared ;
+C.OutputPostfix LuaPlusShared : _debug : debug ;
 
 C.Library LuaPlusShared : $(LUAPLUS_SRCS) : shared ;
 

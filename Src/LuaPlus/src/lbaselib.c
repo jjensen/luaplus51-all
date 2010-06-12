@@ -444,7 +444,7 @@ static int luaB_xpcall (lua_State *L) {
 }
 
 
-#if LUAPLUS_EXTENSIONS
+#if LUAPLUS_DUMPOBJECT
 extern void luaplus_dumptable(lua_State* L, int index);
 #endif
 
@@ -489,7 +489,7 @@ static int luaB_tostring (lua_State *L) {
       break;
     default:
       lua_pushfstring(L, "%s: %p", luaL_typename(L, 1), lua_topointer(L, 1));
-#if LUAPLUS_EXTENSIONS
+#if LUAPLUS_DUMPOBJECT
       if (lua_type(L, 1) == LUA_TTABLE) {
         luaplus_dumptable(L, 1);
         lua_concat(L, 2);

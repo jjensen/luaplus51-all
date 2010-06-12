@@ -1,15 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 // This source file is part of the LuaPlus source distribution and is Copyright
-// 2001-2004 by Joshua C. Jensen (jjensen@workspacewhiz.com).
+// 2001-2010 by Joshua C. Jensen (jjensen@workspacewhiz.com).
 //
-// The latest version may be obtained from http://wwhiz.com/LuaPlus/.
+// The latest version may be obtained from http://luaplus.org/.
 //
 // The code presented in this file may be used in any environment it is
 // acceptable to use Lua.
 ///////////////////////////////////////////////////////////////////////////////
-#ifdef _MSC_VER
-#pragma once
-#endif // _MSC_VER
 #ifndef LUACALL_H
 #define LUACALL_H
 
@@ -20,49 +17,50 @@ namespace LuaPlus {
 
 struct LuaRun
 {
-    LuaRun(int numResults = -1, int alertStackPos = 0) throw() :
-        m_numResults(numResults),
-        m_alertStackPos(alertStackPos)
-	{
+    LuaRun(int _numResults = -1, int _alertStackPos = 0) throw() :
+        numResults(_numResults),
+        alertStackPos(_alertStackPos) {
 	}
 
-	int m_numResults;
-    int m_alertStackPos;
+	int numResults;
+    int alertStackPos;
 };
 
 
-class LUAPLUS_CLASS LuaCall
-{
+class LuaCall {
 public:
 	LuaCall(LuaObject& functionObj);
 
 	LuaStackObject operator<<(const LuaRun& /*run*/);
 	LuaCall& operator=(const LuaCall& src);
 
-	LuaObject m_functionObj;
-	LuaState* m_state;
-	int m_numArgs;
-	int m_startResults;
+	lua_State* L;
+	int numArgs;
+	int startResults;
 };
 
 
-LUAPLUS_API LuaCall& operator<<(LuaCall& call, const LuaArgNil& value);
-LUAPLUS_API LuaCall& operator<<(LuaCall& call, float value);
-LUAPLUS_API LuaCall& operator<<(LuaCall& call, double value);
-LUAPLUS_API LuaCall& operator<<(LuaCall& call, int value);
-LUAPLUS_API LuaCall& operator<<(LuaCall& call, unsigned int value);
-LUAPLUS_API LuaCall& operator<<(LuaCall& call, const char* value);
+LUAPLUS_INLINE LuaCall& operator<<(LuaCall& call, const LuaArgNil& value);
+LUAPLUS_INLINE LuaCall& operator<<(LuaCall& call, float value);
+LUAPLUS_INLINE LuaCall& operator<<(LuaCall& call, double value);
+LUAPLUS_INLINE LuaCall& operator<<(LuaCall& call, int value);
+LUAPLUS_INLINE LuaCall& operator<<(LuaCall& call, unsigned int value);
+LUAPLUS_INLINE LuaCall& operator<<(LuaCall& call, const char* value);
 #if LUA_WIDESTRING
-LUAPLUS_API LuaCall& operator<<(LuaCall& call, const lua_WChar* value);
+LUAPLUS_INLINE LuaCall& operator<<(LuaCall& call, const lua_WChar* value);
 #endif /* LUA_WIDESTRING */
-LUAPLUS_API LuaCall& operator<<(LuaCall& call, lua_CFunction value);
-LUAPLUS_API LuaCall& operator<<(LuaCall& call, int (*value)(LuaState*));
-LUAPLUS_API LuaCall& operator<<(LuaCall& call, bool value);
-LUAPLUS_API LuaCall& operator<<(LuaCall& call, void* value);
-LUAPLUS_API LuaCall& operator<<(LuaCall& call, LuaStackObject& value);
-LUAPLUS_API LuaCall& operator<<(LuaCall& call, LuaObject& value);
+LUAPLUS_INLINE LuaCall& operator<<(LuaCall& call, lua_CFunction value);
+LUAPLUS_INLINE LuaCall& operator<<(LuaCall& call, int (*value)(LuaState*));
+LUAPLUS_INLINE LuaCall& operator<<(LuaCall& call, bool value);
+LUAPLUS_INLINE LuaCall& operator<<(LuaCall& call, void* value);
+LUAPLUS_INLINE LuaCall& operator<<(LuaCall& call, LuaStackObject& value);
+LUAPLUS_INLINE LuaCall& operator<<(LuaCall& call, LuaObject& value);
 
 } // namespace LuaPlus
+
+#ifdef LUAPLUS_ENABLE_INLINES
+#include "LuaCall.inl"
+#endif // LUAPLUS_ENABLE_INLINES
 
 #endif // LUACALL_H
 

@@ -1,8 +1,8 @@
 ///////////////////////////////////////////////////////////////////////////////
 // This source file is part of the LuaPlus source distribution and is Copyright
-// 2001-2005 by Joshua C. Jensen (jjensen@workspacewhiz.com).
+// 2001-2010 by Joshua C. Jensen (jjensen@workspacewhiz.com).
 //
-// The latest version may be obtained from http://wwhiz.com/LuaPlus/.
+// The latest version may be obtained from http://luaplus.org/.
 //
 // The code presented in this file may be used in any environment it is
 // acceptable to use Lua.
@@ -16,7 +16,7 @@ LUA_EXTERN_C_BEGIN
 LUA_EXTERN_C_END
 #include "LuaPlus.h"
 #include "LuaState.h"
-#include "LuaCall.h"
+//#include "LuaCall.h"
 #include "LuaPlusCD.h"
 
 #if defined(WIN32) && !defined(_XBOX) && !defined(_XBOX_VER)
@@ -46,20 +46,15 @@ LUA_EXTERN_C_END
 
 namespace LuaPlus {
 
+#if LUAPLUS_EXTENSIONS
+
 LuaObject LuaState::GetGlobals() throw()
 {
 	return LuaObject( this, gt(LuaState_to_lua_State(this)) );
 }
 
-LuaStackObject LuaState::Stack(int index)
-{
-    return LuaStackObject(this, index);
-}
+#endif // LUAPLUS_EXTENSIONS
 
-LuaStackObject LuaState::StackTop()
-{
-    return LuaStackObject(this, GetTop());
-}
 
 LuaStackObject LuaState::PushVFString(const char *fmt, va_list argp)
 {
@@ -86,9 +81,7 @@ LuaStackObject LuaState::PushFString(const char *fmt, ...)
 }
 
 
-
-
-
+#if LUAPLUS_EXTENSIONS
 
 int LuaState::Equal(const LuaObject& o1, const LuaObject& o2)
 {
@@ -109,146 +102,6 @@ LuaObject LuaState::NewUserDataBox(void* u)
 	LuaObject obj(this);
 	obj.AssignUserData(this, u);
 	return obj;
-}
-
-
-int LuaState::TypeError(int narg, const char* tname)
-{
-	return luaL_typerror(LuaState_to_lua_State(this), narg, tname);
-}
-
-
-int LuaState::ArgError(int narg, const char* extramsg)
-{
-	return luaL_argerror(LuaState_to_lua_State(this), narg, extramsg);
-}
-
-
-const char* LuaState::CheckLString(int numArg, size_t* len)
-{
-	return luaL_checklstring(LuaState_to_lua_State(this), numArg, len);
-}
-
-
-const char* LuaState::OptLString(int numArg, const char *def, size_t* len)
-{
-	return luaL_optlstring(LuaState_to_lua_State(this), numArg, def, len);
-}
-
-
-lua_Number LuaState::CheckNumber(int numArg)
-{
-	return luaL_checknumber(LuaState_to_lua_State(this), numArg);
-}
-
-
-lua_Number LuaState::OptNumber(int nArg, lua_Number def)
-{
-	return luaL_optnumber(LuaState_to_lua_State(this), nArg, def);
-}
-
-
-lua_Integer LuaState::CheckInteger(int numArg)
-{
-	return luaL_checkinteger(LuaState_to_lua_State(this), numArg);
-}
-
-
-lua_Integer LuaState::OptInteger(int nArg, lua_Integer def)
-{
-	return luaL_optinteger(LuaState_to_lua_State(this), nArg, def);
-}
-
-
-void LuaState::ArgCheck(bool condition, int numarg, const char* extramsg)
-{
-	luaL_argcheck(LuaState_to_lua_State(this), condition, numarg, extramsg);
-}
-
-
-const char* LuaState::CheckString(int numArg)
-{
-	return luaL_checkstring(LuaState_to_lua_State(this), numArg);
-}
-
-
-const char* LuaState::OptString(int numArg, const char* def)
-{
-	return luaL_optlstring(LuaState_to_lua_State(this), numArg, def, NULL);
-}
-
-
-int LuaState::CheckInt(int numArg)
-{
-	return (int)luaL_checkint(LuaState_to_lua_State(this), numArg);
-}
-
-
-long LuaState::CheckLong(int numArg)
-{
-	return (long)luaL_checklong(LuaState_to_lua_State(this), numArg);
-}
-
-
-int LuaState::OptInt(int numArg, int def)
-{
-	return (int)luaL_optint(LuaState_to_lua_State(this), numArg, def);
-}
-
-
-long LuaState::OptLong(int numArg, int def)
-{
-	return (long)luaL_optlong(LuaState_to_lua_State(this), numArg, def);
-}
-
-
-void LuaState::CheckStack(int sz, const char* msg)
-{
-	luaL_checkstack(LuaState_to_lua_State(this), sz, msg);
-}
-
-
-void LuaState::CheckType(int narg, int t)
-{
-	luaL_checktype(LuaState_to_lua_State(this), narg, t);
-}
-
-
-void LuaState::CheckAny(int narg)
-{
-	luaL_checkany(LuaState_to_lua_State(this), narg);
-}
-
-
-LuaStackObject LuaState::NewMetaTable(const char* tname)
-{
-	luaL_newmetatable(LuaState_to_lua_State(this), tname);
-	return LuaStackObject(this, GetTop());
-}
-
-	
-void* LuaState::CheckUData(int ud, const char* tname)
-{
-	return luaL_checkudata(LuaState_to_lua_State(this), ud, tname);
-}
-
-
-int LuaState::Where(int lvl)
-{
-	luaL_where(LuaState_to_lua_State(this), lvl);
-	return LuaStackObject(this, GetTop());
-}
-
-	
-const char* LuaState::GSub(const char *s, const char *p, const char *r)
-{
-	return luaL_gsub(LuaState_to_lua_State(this), s, p, r);
-}
-
-
-const char* LuaState::FindTable(int idx, const char *fname, int szhint)
-{
-	return luaL_findtable(LuaState_to_lua_State(this), idx, fname, szhint);
 }
 
 
@@ -273,15 +126,8 @@ LuaObject LuaState::GetLocalByName( int level, const char* name )
 	return LuaObject(this);
 }
 
+#endif // LUAPLUS_EXTENSIONS
 
-#if LUA_WIDESTRING
-
-int LuaState::LoadWString(const lua_WChar* str)
-{
-	return luaL_loadwbuffer(LuaState_to_lua_State(this), str, lua_WChar_len(str), "name");
-}
-
-#endif /* LUA_WIDESTRING */
 
 LuaStackObject LuaState::PushCClosure(int (*f)(LuaState*), int n)
 {
@@ -292,25 +138,18 @@ LuaStackObject LuaState::PushCClosure(int (*f)(LuaState*), int n)
 	return LuaStackObject(this, lua_gettop(LuaState_to_lua_State(this)));
 }
 
-int LuaState::UpValueIndex(int i)
-{
-	return lua_upvalueindex(i);
-}
 
-int LuaState::LoadString(const char* str)
-{
-	return luaL_loadbuffer(LuaState_to_lua_State(this), str, strlen(str), str);
-}
+#if LUAPLUS_EXTENSIONS
 
 int LuaState::DoString( const char *str, LuaObject& fenvObj )
 {
-	int status = luaL_loadbuffer(LuaState_to_lua_State(this), str, strlen(str), str);
-	if (status == 0)
-	{
-		fenvObj.Push();
-		SetFEnv(-2);
-	}
-	return aux_do(LuaState_to_lua_State(this), status);
+	lua_State* L = LuaState_to_lua_State(this);
+	int status = luaL_loadbuffer(L, str, strlen(str), str);
+	if (status != 0)
+		return status;
+	fenvObj.Push();
+	SetFEnv(-2);
+	return lua_pcall(L, 0, LUA_MULTRET, 0);
 }
 
 
@@ -328,25 +167,25 @@ LuaObject LuaState::GetRegistry()
 
 int LuaState::DoFile( const char *filename, LuaObject& fenvObj )
 {
-	int status = luaL_loadfile(LuaState_to_lua_State(this), filename);
-	if (status == 0)
-	{
-		fenvObj.Push();
-		SetFEnv(-2);
-	}
-	return aux_do(LuaState_to_lua_State(this), status);
+	lua_State* L = LuaState_to_lua_State(this);
+	int status = luaL_loadfile(L, filename);
+	if (status != 0)
+		return status;
+	fenvObj.Push();
+	SetFEnv(-2);
+	return lua_pcall(L, 0, LUA_MULTRET, 0);
 }
 
 
 int LuaState::DoBuffer( const char *buff, size_t size, const char *name, LuaObject& fenvObj )
 {
-	int status = luaL_loadbuffer(LuaState_to_lua_State(this), buff, size, name);
-	if (status == 0)
-	{
-		fenvObj.Push();
-		SetFEnv(-2);
-	}
-	return aux_do(LuaState_to_lua_State(this), status);
+	lua_State* L = LuaState_to_lua_State(this);
+	int status = luaL_loadbuffer(L, buff, size, name);
+	if (status != 0)
+		return status;
+	fenvObj.Push();
+	SetFEnv(-2);
+	return lua_pcall(L, 0, LUA_MULTRET, 0);
 }
 
 
@@ -427,6 +266,8 @@ LUAPLUS_API void MergeObjects(LuaObject& mergeTo, LuaObject& mergeFrom, bool rep
 
 } // namespace LuaHelper
 
+#endif // LUAPLUS_EXTENSIONS
+
 } // namespace LuaPlus
 
 
@@ -434,7 +275,7 @@ namespace LPCD
 {
 	void Push(lua_State* L, int (*value)(LuaState*))
 	{
-		LuaState* state = LuaState::CastState(L);
+		LuaState* state = lua_State_To_LuaState(L);
 		state->PushCClosure(value, 0);
 	}
 }

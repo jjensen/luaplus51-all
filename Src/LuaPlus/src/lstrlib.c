@@ -745,7 +745,7 @@ static void addquoted (lua_State *L, luaL_Buffer *b, int arg) {
   luaL_addchar(b, '"');
 }
 
-#if LUAPLUS_EXTENSIONS
+#if LUA_STRING_FORMAT_EXTENSIONS
 void luaI_addquotedbinary (lua_State *L, luaL_Buffer *b, int arg) {
   size_t l;
 #if LUA_WIDESTRING
@@ -812,7 +812,7 @@ void luaI_addquotedbinary (lua_State *L, luaL_Buffer *b, int arg) {
     luaL_addchar(b, '"');
   }
 }
-#endif /* LUAPLUS_EXTENSIONS */
+#endif /* LUA_STRING_FORMAT_EXTENSIONS */
 
 static const char *scanformat (lua_State *L, const char *strfrmt, char *form) {
   const char *p = strfrmt;
@@ -1516,7 +1516,7 @@ int luaopen_pack(lua_State *L)
  return 0;
 }
 
-#endif /* LUAPLUS_EXTENSIONS */
+#endif /* LUA_AUTO_INCLUDE_STRING_PACK_LIBRARY */
 
 /*
 ** Open string library
@@ -1529,7 +1529,7 @@ LUALIB_API int luaopen_string (lua_State *L) {
 #endif
 #if LUA_AUTO_INCLUDE_STRING_PACK_LIBRARY
   luaopen_pack(L);
-#endif /* LUAPLUS_EXTENSIONS */
+#endif /* LUA_AUTO_INCLUDE_STRING_PACK_LIBRARY */
   createmetatable(L);
   return 1;
 }

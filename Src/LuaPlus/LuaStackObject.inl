@@ -1,15 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 // This source file is part of the LuaPlus source distribution and is Copyright
-// 2001-2005 by Joshua C. Jensen (jjensen@workspacewhiz.com).
+// 2001-2010 by Joshua C. Jensen (jjensen@workspacewhiz.com).
 //
-// The latest version may be obtained from http://wwhiz.com/LuaPlus/.
+// The latest version may be obtained from http://luaplus.org/.
 //
 // The code presented in this file may be used in any environment it is
 // acceptable to use Lua.
 ///////////////////////////////////////////////////////////////////////////////
-#ifdef _MSC_VER
-#pragma once
-#endif // _MSC_VER
 #ifndef LUASTACKOBJECT_INL
 #define LUASTACKOBJECT_INL
 
@@ -22,8 +19,8 @@ namespace LuaPlus
 /**
 	Constructor.
 **/
-LUAPLUS_INLINE LuaStackObject::LuaStackObject( LuaState* state, int stackIndex ) :
-	m_state( state ),
+LUAPLUS_INLINE LuaStackObject::LuaStackObject( lua_State* _L, int stackIndex ) :
+	L( _L ),
 	m_stackIndex( stackIndex )
 {
 }
@@ -32,8 +29,8 @@ LUAPLUS_INLINE LuaStackObject::LuaStackObject( LuaState* state, int stackIndex )
 /**
 	Constructor.
 **/
-LUAPLUS_INLINE LuaStackObject::LuaStackObject( LuaState& state, int stackIndex ) :
-	m_state( &state ),
+LUAPLUS_INLINE LuaStackObject::LuaStackObject( LuaState* state, int stackIndex ) :
+	L( LuaState_to_lua_State( state ) ),
 	m_stackIndex( stackIndex )
 {
 }
@@ -43,19 +40,19 @@ LUAPLUS_INLINE LuaStackObject::LuaStackObject( LuaState& state, int stackIndex )
 **/
 LUAPLUS_INLINE bool LuaStackObject::operator==(const LuaStackObject& right) const
 {
-	return m_state->Equal((int)*this, (int)right) != 0;
+	return lua_equal(LuaState_to_lua_State(L), (int)*this, (int)right) != 0;
 }
 
-
+	
 /**
 **/
 LUAPLUS_INLINE LuaState* LuaStackObject::GetState() const
 {
-	return m_state;
+	return lua_State_To_LuaState( L );
 }
 
 
-LUAPLUS_INLINE lua_State* LuaStackObject::GetCState() const			{  return m_state->GetCState();  }
+LUAPLUS_INLINE lua_State* LuaStackObject::GetCState() const			{  return L;  }
 
 /**
 	Retrieves the type name.  Corresponds to the information presented in section
@@ -63,7 +60,7 @@ LUAPLUS_INLINE lua_State* LuaStackObject::GetCState() const			{  return m_state-
 **/
 LUAPLUS_INLINE const char* LuaStackObject::GetTypeName() const
 {
-	return lua_typename( GetCState(), GetType() );
+	return lua_typename( GetCState(), m_stackIndex );
 }
 
 
@@ -139,7 +136,7 @@ LUAPLUS_INLINE bool LuaStackObject::IsFunction() const				{  return lua_isfuncti
 /**
 	\return Returns true if the object is none.
 **/
-LUAPLUS_INLINE bool LuaStackObject::IsNone() const					{  return !m_state  ||  lua_isnone( GetCState(), m_stackIndex );  }
+LUAPLUS_INLINE bool LuaStackObject::IsNone() const					{  return !L  ||  lua_isnone( GetCState(), m_stackIndex );  }
 
 
 /**
@@ -196,7 +193,7 @@ LUAPLUS_INLINE void LuaStackObject::Pop()							{  lua_remove( GetCState(), m_st
 LUAPLUS_INLINE int LuaStackObject::Ref( int lock )
 {
 	Push();
-	return m_state->Ref( lock );
+	return luaL_ref( LuaState_to_lua_State( L ), m_stackIndex );
 }
 
 LUAPLUS_INLINE LuaStackObject LuaStackObject::GetMetaTable()
@@ -229,7 +226,7 @@ LUAPLUS_INLINE LuaStackObject LuaStackObject::CreateTable( const char* name, int
 	(void)narray;
 	(void)lnhash;
 
-//jj		lua_newtablesize(m_state, narray, lnhash);			// T
+//jj		lua_newtablesize(L, narray, lnhash);			// T
 	lua_newtable( GetCState() );								// T
 	lua_pushstring( GetCState(), name );						// T name
 	lua_pushvalue( GetCState(), lua_gettop( GetCState() ) - 1 );	// T name T
@@ -250,7 +247,7 @@ LUAPLUS_INLINE LuaStackObject LuaStackObject::CreateTable(int index, int narray,
 	(void)narray;
 	(void)lnhash;
 
-//jj		lua_newtablesize(m_state, narray, lnhash);			// T
+//jj		lua_newtablesize(L, narray, lnhash);			// T
 	lua_newtable( GetCState() );								// T
 	lua_pushnumber( GetCState(), index );						// T name
 	lua_pushvalue( GetCState(), lua_gettop( GetCState() ) - 1 );	// T name T
@@ -566,7 +563,7 @@ LUAPLUS_INLINE const LuaAutoObject& LuaAutoObject::operator=( const LuaStackObje
 {
 	lua_remove( GetCState(), m_stackIndex );
 
-	m_state = src.m_state;
+	L = src.L;
 	m_stackIndex = src.m_stackIndex;
 	return *this;
 }
@@ -578,14 +575,14 @@ LUAPLUS_INLINE LuaAutoObject::~LuaAutoObject()
 
 
 LUAPLUS_INLINE LuaStack::LuaStack(LuaState* state)
-	: m_state(state)
+	: L( LuaState_to_lua_State( state ) )
 {
-	m_numStack = state->GetTop();
+	m_numStack = lua_gettop(LuaState_to_lua_State(L));
 }
 
-
-LUAPLUS_INLINE LuaStack::LuaStack(lua_State* L) :
-    m_state(LuaState::CastState(L))
+	
+LUAPLUS_INLINE LuaStack::LuaStack(lua_State* _L) :
+    L( _L )
 {
 }
 
@@ -598,7 +595,7 @@ LUAPLUS_INLINE LuaStack::~LuaStack()
 LUAPLUS_INLINE LuaStackObject LuaStack::operator[](int index)
 {
 //	luaplus_assert(index <= m_numStack);
-	return LuaStackObject(m_state, index);
+	return LuaStackObject(L, index);
 }
 
 

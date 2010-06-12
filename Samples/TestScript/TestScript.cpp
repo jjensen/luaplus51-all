@@ -354,6 +354,8 @@ using namespace SimpleMem;
 
 SimpleHeap* heap;
 
+#if LUAPLUS_EXTENSIONS
+
 void* ReallocFunction(void* ud, void* ptr, size_t osize, size_t nsize, const char* allocName, unsigned int flags)
 {
 	SimpleHeap* heap = (SimpleHeap*)ud;
@@ -374,6 +376,7 @@ void* ReallocFunction(void* ud, void* ptr, size_t osize, size_t nsize, const cha
 		allocName, __FILE__, __LINE__);
 }
 
+#endif // LUAPLUS_EXTENSIONS
 
 int checkpoint = 0;
 

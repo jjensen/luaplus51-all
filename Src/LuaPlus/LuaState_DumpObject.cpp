@@ -1,3 +1,12 @@
+///////////////////////////////////////////////////////////////////////////////
+// This source file is part of the LuaPlus source distribution and is Copyright
+// 2001-2010 by Joshua C. Jensen (jjensen@workspacewhiz.com).
+//
+// The latest version may be obtained from http://luaplus.org/.
+//
+// The code presented in this file may be used in any environment it is
+// acceptable to use Lua.
+///////////////////////////////////////////////////////////////////////////////
 #ifndef BUILDING_LUAPLUS
 #define BUILDING_LUAPLUS
 #endif
@@ -23,24 +32,21 @@ NAMESPACE_LUA_END
 
 namespace LuaPlus {
 
-class LUAPLUS_CLASS LuaStateOutputDebugStringFile : public LuaStateOutFile
+class LuaStateOutputDebugStringFile : public LuaStateOutFile
 {
 public:
 	LuaStateOutputDebugStringFile() {}
 	virtual ~LuaStateOutputDebugStringFile() {}
 
-	virtual bool Open(const char* fileName)
-	{
+	virtual bool Open(const char* fileName) {
 		(void)fileName;
 		return true;
 	}
 
-	virtual void Close()
-	{
+	virtual void Close() {
 	}
 
-	virtual void Print(const char* str, ...)
-	{
+	virtual void Print(const char* str, ...) {
 		char message[800];
 		va_list arglist;
 
@@ -59,13 +65,10 @@ protected:
 };
 
 
-static void luaI_addquotedbinary (LuaStateOutFile& file, const char* s, size_t l)
-{
+static void luaI_addquotedbinary (LuaStateOutFile& file, const char* s, size_t l) {
 	file.Print("%c", '"');
-	while (l--)
-	{
-		switch (*s)
-		{
+	while (l--) {
+		switch (*s) {
 			case '"':  case '\\':
 				file.Print("\\%c", *s);
 				break;
@@ -80,9 +83,7 @@ static void luaI_addquotedbinary (LuaStateOutFile& file, const char* s, size_t l
 				if (isprint((unsigned char)*s))
 					file.Print("%c", *s);
 				else
-				{
 					file.Print("\\x%02x", (unsigned int)(unsigned char)*s);
-				}
 		}
 		s++;
 	}
@@ -92,13 +93,10 @@ static void luaI_addquotedbinary (LuaStateOutFile& file, const char* s, size_t l
 
 #if LUA_WIDESTRING
 
-static void luaI_addquotedwidebinary (LuaStateOutFile& file, const lua_WChar* s, int l)
-{
+static void luaI_addquotedwidebinary (LuaStateOutFile& file, const lua_WChar* s, int l) {
 	file.Print("L\"");
-	while (l--)
-	{
-		switch (*s)
-		{
+	while (l--) {
+		switch (*s) {
 			case '"':
 			case '\\':
 				file.Print("\\%c", *s);
@@ -111,12 +109,9 @@ static void luaI_addquotedwidebinary (LuaStateOutFile& file, const lua_WChar* s,
 			case '\t':		file.Print("\\t");		break;
 			case '\v':		file.Print("\\v");		break;
 			default:
-				if (*s < 256  &&  isprint((unsigned char)*s))
-				{
+				if (*s < 256  &&  isprint((unsigned char)*s)) {
 					file.Print("%c", *s);
-				}
-				else
-				{
+				} else {
 					file.Print("\\x%04x", (unsigned int)*s);
 				}
 		}
@@ -129,19 +124,16 @@ static void luaI_addquotedwidebinary (LuaStateOutFile& file, const lua_WChar* s,
 
 #define bufflen(B)	((B)->p - (B)->buffer)
 
-static int LS_LuaFilePrint(LuaState* state)
-{
+static int LS_LuaFilePrint(LuaState* state) {
 	LuaStateOutFile* file = (LuaStateOutFile*)state->Stack(1).GetUserData();
 
 	luaL_Buffer b;
 	str_format_helper(&b, *state, 2);
 
 	size_t l = bufflen(&b);
-	if (l != 0)
-	{
+	if (l != 0) {
 #if LUA_WIDESTRING
-		if (b.isWide)
-		{
+		if (b.isWide) {
 			luaplus_assert(0);
 		}
 		else
@@ -156,8 +148,7 @@ static int LS_LuaFilePrint(LuaState* state)
 }
 
 
-static int LS_LuaFileIndent(LuaState* state)
-{
+static int LS_LuaFileIndent(LuaState* state) {
 	LuaStateOutFile* file = (LuaStateOutFile*)state->Stack(1).GetUserData();
 	int indentLevel = (int)state->Stack(2).GetInteger();
 	file->Indent((unsigned int)indentLevel);
@@ -166,9 +157,10 @@ static int LS_LuaFileIndent(LuaState* state)
 }
 
 
+#if LUAPLUS_DUMPOBJECT
+
 bool LuaState::CallFormatting(LuaObject& tableObj, LuaStateOutFile& file, int indentLevel,
-		bool writeAll, bool alphabetical, bool writeTablePointers, unsigned int maxIndentLevel)
-{
+		bool writeAll, bool alphabetical, bool writeTablePointers, unsigned int maxIndentLevel) {
 	LuaObject metaTableObj = tableObj.GetMetaTable();
 	if (metaTableObj.IsNil())
 		return false;
@@ -181,14 +173,12 @@ bool LuaState::CallFormatting(LuaObject& tableObj, LuaStateOutFile& file, int in
 
 	{
 		LuaObject funcObj = state->GetGlobals()["LuaFilePrint"];
-		if (funcObj.IsNil())
-		{
+		if (funcObj.IsNil()) {
 			state->GetGlobals().Register("LuaFilePrint", LS_LuaFilePrint);
 		}
 
 		funcObj = state->GetGlobals()["LuaFileIndent"];
-		if (funcObj.IsNil())
-		{
+		if (funcObj.IsNil()) {
 			state->GetGlobals().Register("LuaFileIndent", LS_LuaFileIndent);
 		}
 	}
@@ -200,15 +190,12 @@ bool LuaState::CallFormatting(LuaObject& tableObj, LuaStateOutFile& file, int in
 }
 
 
-struct KeyValue
-{
+struct KeyValue {
 	LuaObject key;
 	LuaObject value;
 
-	inline bool operator<(const KeyValue& right) const
-	{
-		if (key.Type() == right.key.Type())
-		{
+	inline bool operator<(const KeyValue& right) const {
+		if (key.Type() == right.key.Type()) {
 			if (key.IsBoolean()  &&  right.key.IsBoolean())
 				return !key.GetBoolean();
 			return key < right.key;
@@ -222,24 +209,18 @@ struct KeyValue
 };
 
 
-static void WriteKey(LuaStateOutFile& file, LuaObject& key)
-{
-	if (key.IsNumber())
-	{
+static void WriteKey(LuaStateOutFile& file, LuaObject& key) {
+	if (key.IsNumber()) {
 		char keyName[255];
 		sprintf(keyName, "[%.16g]", key.GetNumber());
 		file.Print("%s", keyName);
-	}
-	else if (key.IsString())
-	{
+	} else if (key.IsString()) {
 		const char* ptr = key.GetString();
 		bool isAlphaNumeric = true;
 		if (isdigit(*ptr))
 			isAlphaNumeric = false;
-		while (*ptr)
-		{
-			if (!isalnum(*ptr)  &&  *ptr != '_')
-			{
+		while (*ptr) {
+			if (!isalnum(*ptr)  &&  *ptr != '_') {
 				isAlphaNumeric = false;
 				break;
 			}
@@ -248,22 +229,18 @@ static void WriteKey(LuaStateOutFile& file, LuaObject& key)
 
 		if (isAlphaNumeric)
 			file.Print("%s", key.GetString());
-		else
-		{
+		else {
 			file.Print("[");
 			luaI_addquotedbinary(file, key.GetString(), key.StrLen());
 			file.Print("]");
 		}
-	}
-	else if (key.IsBoolean())
-	{
+	} else if (key.IsBoolean()) {
 		file.Print(key.GetBoolean() ? "[true]" : "[false]");
 	}
 }
 
 
-static bool KeyValueCompare(const KeyValue& left, const KeyValue &right)
-{
+static bool KeyValueCompare(const KeyValue& left, const KeyValue &right) {
 	return left < right;
 }
 
@@ -1039,5 +1016,7 @@ bool LuaState::DumpGlobals(LuaStateOutFile& file, unsigned int flags, unsigned i
 
 	return true;
 }
+
+#endif // LUAPLUS_EXTENSIONS
 
 } // namespace LuaPlus

@@ -29,13 +29,16 @@
 			#define LUA_API __declspec(dllexport)
 			#define LUAPLUS_CLASS __declspec(dllexport)
 			#define LUAPLUS_API	__declspec(dllexport)
+			#define LUAPLUS_CLASS_API __declspec(dllexport)
 		#else
 //			#define LUA_API __declspec(dllimport)
 //			#define LUAPLUS_CLASS __declspec(dllimport)
 //			#define LUAPLUS_API	__declspec(dllimport)
+//			#define LUAPLUS_CLASS_API __declspec(dllimport)
 			#define LUA_API
 			#define LUAPLUS_CLASS
 			#define LUAPLUS_API
+			#define LUAPLUS_CLASS_API
 		#endif
 
 		#ifdef LUAMODULE_BUILDDLL
@@ -43,9 +46,10 @@
 		#else
 			#define LUAMODULE_API __declspec(dllimport)
 		#endif
-	#else //!LUASTATEDLL
+	#else // LUAPLUS_LIB
 		#define LUA_API
 		#define LUAPLUS_CLASS
+		#define LUAPLUS_CLASS_API
 		#define LUAPLUS_API extern
 		#define LUAMODULE_API
 	#endif

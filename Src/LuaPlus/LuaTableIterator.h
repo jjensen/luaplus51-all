@@ -1,8 +1,8 @@
 ///////////////////////////////////////////////////////////////////////////////
 // This source file is part of the LuaPlus source distribution and is Copyright
-// 2001-2005 by Joshua C. Jensen (jjensen@workspacewhiz.com).
+// 2001-2010 by Joshua C. Jensen (jjensen@workspacewhiz.com).
 //
-// The latest version may be obtained from http://wwhiz.com/LuaPlus/.
+// The latest version may be obtained from http://luaplus.org/.
 //
 // The code presented in this file may be used in any environment it is
 // acceptable to use Lua.
@@ -10,12 +10,10 @@
 #ifndef LUATABLEITERATOR_H
 #define LUATABLEITERATOR_H
 
-#ifdef _MSC_VER
-#pragma once
-#endif // _MSC_VER
-
 #include "LuaPlusInternal.h"
 #include "LuaObject.h"
+
+#if LUAPLUS_EXTENSIONS
 
 ///////////////////////////////////////////////////////////////////////////////
 // namespace LuaPlus
@@ -23,26 +21,23 @@
 namespace LuaPlus
 {
 
-bool LUAPLUS_API LuaPlusH_next(LuaState* state, LuaObject* table, LuaObject* key, LuaObject* value);
-
 /**
 	The LuaTableIterator class provides a far simpler, safer, and more natural
-	looking table iteration method.  The iterator is not STL compliant,
-	although it could easily be made so.
+	looking table iteration method.
 **/
-class LUAPLUS_CLASS LuaTableIterator
+class LuaTableIterator
 {
 public:
-	LuaTableIterator(LuaObject& tableObj, bool doReset = true);
-	~LuaTableIterator();
-	void Reset();
-	void Invalidate();
-	bool Next();
-	bool IsValid() const;
-	LuaTableIterator& operator++();
-	operator bool() const;
-	LuaObject& GetKey();
-	LuaObject& GetValue();
+	LUAPLUS_CLASS_API LuaTableIterator(LuaObject& tableObj, bool doReset = true);
+	LUAPLUS_CLASS_API ~LuaTableIterator();
+	LUAPLUS_CLASS_API void Reset();
+	LUAPLUS_CLASS_API void Invalidate();
+	LUAPLUS_CLASS_API bool Next();
+	LUAPLUS_CLASS_API bool IsValid() const;
+	LUAPLUS_CLASS_API LuaTableIterator& operator++();
+	LUAPLUS_CLASS_API operator bool() const;
+	LUAPLUS_CLASS_API LuaObject& GetKey();
+	LUAPLUS_CLASS_API LuaObject& GetValue();
 
 protected:
 
@@ -60,5 +55,7 @@ private:
 };
 
 } // namespace LuaPlus
+
+#endif // LUAPLUS_EXTENSIONS
 
 #endif // LUATABLEITERATOR_H
