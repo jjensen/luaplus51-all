@@ -1,6 +1,15 @@
 #ifndef UNITTEST_TIMEHELPERS_H
 #define UNITTEST_TIMEHELPERS_H
 
+#include "../Config.h"
+
+
+#ifdef UNITTEST_MINGW
+    #ifndef __int64
+        #define __int64 long long
+    #endif
+#endif
+
 namespace UnitTest {
 
 class Timer
@@ -8,12 +17,12 @@ class Timer
 public:
     Timer();
 	void Start();
-	int GetTimeInMs() const;    
+	double GetTimeInMs() const;    
 
 private:
     __int64 GetTime() const;
 
-    void* m_threadId;
+    void* m_threadHandle;
 
 #if defined(_WIN64)
     unsigned __int64 m_processAffinityMask;

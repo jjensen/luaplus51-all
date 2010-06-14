@@ -14,10 +14,13 @@ local SRCS =
 		src/Checks.cpp
 		src/Checks.h
 		src/Config.h
+		src/CurrentTest.cpp
+		src/CurrentTest.h
 		src/DeferredTestReporter.cpp
 		src/DeferredTestReporter.h
 		src/DeferredTestResult.cpp
 		src/DeferredTestResult.h
+		src/ExecuteTest.h
 		src/MemoryOutStream.cpp
 		src/MemoryOutStream.h
 		src/ReportAssert.cpp
@@ -49,6 +52,6 @@ local SRCS =
 
 SourceGroup UnitTest++ : Win32 : $(WIN32_SRCS) ;
 
-Library UnitTest++ : $(SRCS) ;
+C.Library UnitTest++ : $(SRCS) ;
 
 }

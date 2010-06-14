@@ -181,6 +181,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\src\CurrentTest.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\src\CurrentTest.h"
+			>
+		</File>
+		<File
 			RelativePath=".\src\DeferredTestReporter.cpp"
 			>
 		</File>
@@ -194,6 +202,10 @@
 		</File>
 		<File
 			RelativePath=".\src\DeferredTestResult.h"
+			>
+		</File>
+		<File
+			RelativePath=".\src\ExecuteTest.h"
 			>
 		</File>
 		<File

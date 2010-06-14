@@ -26,15 +26,15 @@ private:
     struct sigaction m_old_SIGALRM_action;
 };
 
-#ifdef SOLARIS
+#if !defined (__GNUC__)
     #define UNITTEST_EXTENSION
 #else
     #define UNITTEST_EXTENSION __extension__
 #endif
 
 #define UNITTEST_THROW_SIGNALS \
-	SignalTranslator sig; \
-    if (UNITTEST_EXTENSION sigsetjmp(*SignalTranslator::s_jumpTarget, 1) != 0) \
+	UnitTest::SignalTranslator sig; \
+	if (UNITTEST_EXTENSION sigsetjmp(*UnitTest::SignalTranslator::s_jumpTarget, 1) != 0) \
         throw ("Unhandled system exception"); 
 
 }

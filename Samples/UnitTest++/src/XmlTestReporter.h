@@ -11,7 +11,7 @@ namespace UnitTest
 class XmlTestReporter : public DeferredTestReporter
 {
 public:
-    XmlTestReporter(std::ostream& ostream);
+    explicit XmlTestReporter(std::ostream& ostream);
 
     virtual void ReportSummary(int totalTestCount, int failedTestCount, int failureCount, float secondsElapsed);
 

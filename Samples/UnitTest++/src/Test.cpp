@@ -4,6 +4,7 @@
 #include "TestResults.h"
 #include "AssertException.h"
 #include "MemoryOutStream.h"
+#include "ExecuteTest.h"
 
 #ifdef UNITTEST_POSIX
     #include "Posix/SignalTranslator.h"
@@ -17,7 +18,7 @@ TestList& Test::GetTestList()
     return s_list;
 }
 
-Test::Test(char const* testName, char const* suiteName, char const* filename, int const lineNumber)
+Test::Test(char const* testName, char const* suiteName, char const* filename, int lineNumber)
     : m_details(testName, suiteName, filename, lineNumber)
     , next(0)
     , m_timeConstraintExempt(false)
@@ -28,35 +29,13 @@ Test::~Test()
 {
 }
 
-void Test::Run(TestResults& testResults) const
+void Test::Run()
 {
-    try
-    {
-#ifdef UNITTEST_POSIX
-        UNITTEST_THROW_SIGNALS
-#endif
-        RunImpl(testResults);
-    }
-    catch (AssertException const& e)
-    {
-        testResults.OnTestFailure( TestDetails(m_details.testName, m_details.suiteName, e.Filename(), e.LineNumber()), e.what());
-    }
-    catch (std::exception const& e)
-    {
-        MemoryOutStream stream;
-        stream << "Unhandled exception: " << e.what();
-        testResults.OnTestFailure(m_details, stream.GetText());
-    }
-    catch (...)
-    {
-        testResults.OnTestFailure(m_details, "Unhandled exception: Crash!");
-    }
+	ExecuteTest(*this, m_details);
 }
 
-
-void Test::RunImpl(TestResults&) const
+void Test::RunImpl() const
 {
 }
-
 
 }

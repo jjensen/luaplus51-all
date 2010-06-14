@@ -1,5 +1,6 @@
-CC = g++
-CCFLAGS = -g -ansi -Wall -W -ansi # -pedantic
+CXX = g++
+CXXFLAGS ?= -g -Wall -W -Winline -ansi 
+LDFLAGS ?= 
 SED = sed
 MV = mv
 RM = rm
@@ -24,8 +25,14 @@ src = src/AssertException.cpp \
 	src/DeferredTestReporter.cpp \
 	src/DeferredTestResult.cpp \
 	src/XmlTestReporter.cpp \
-	src/Posix/SignalTranslator.cpp \
+	src/CurrentTest.cpp
+	
+ifeq ($(MSYSTEM), MINGW32)
+  src += src/Win32/TimeHelpers.cpp
+else
+  src += src/Posix/SignalTranslator.cpp \
 	src/Posix/TimeHelpers.cpp
+endif
 
 test_src = src/tests/Main.cpp \
 	src/tests/TestAssertHandler.cpp \
@@ -41,7 +48,8 @@ test_src = src/tests/Main.cpp \
 	src/tests/TestTimeConstraintMacro.cpp \
 	src/tests/TestMemoryOutStream.cpp \
 	src/tests/TestDeferredTestReporter.cpp \
-	src/tests/TestXmlTestReporter.cpp
+	src/tests/TestXmlTestReporter.cpp \
+	src/tests/TestCurrentTest.cpp
 
 objects = $(patsubst %.cpp, %.o, $(src))
 test_objects = $(patsubst %.cpp, %.o, $(test_src))
@@ -49,7 +57,7 @@ dependencies = $(subst .o,.d,$(objects))
 test_dependencies = $(subst .o,.d,$(test_objects))
 
 define make-depend
-  $(CC) $(CCFLAGS) -M $1 | \
+  $(CXX) $(CXXFLAGS) -M $1 | \
   $(SED) -e 's,\($(notdir $2)\) *:,$(dir $2)\1: ,' > $3.tmp
   $(SED) -e 's/#.*//' \
       -e 's/^[^:]*: *//' \
@@ -69,7 +77,7 @@ $(lib): $(objects)
     
 $(test): $(lib) $(test_objects)
 	@echo Linking $(test)...
-	@$(CC) -o $(test) $(test_objects) $(lib)
+	@$(CXX) $(LDFLAGS) -o $(test) $(test_objects) $(lib)
 	@echo Running unit tests...
 	@./$(test)
 
@@ -79,7 +87,7 @@ clean:
 %.o : %.cpp
 	@echo $<
 	@$(call make-depend,$<,$@,$(subst .o,.d,$@))
-	@$(CC) $(CCFLAGS) -c $< -o $(patsubst %.cpp, %.o, $<)
+	@$(CXX) $(CXXFLAGS) -c $< -o $(patsubst %.cpp, %.o, $<)
 
 
 ifneq "$(MAKECMDGOALS)" "clean"
