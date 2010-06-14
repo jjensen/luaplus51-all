@@ -53,7 +53,7 @@ TEST(LuaState_CastState)
 {
 	LuaStateOwner state(false);
 	lua_State* L = state->GetCState();
-	LuaState* state2 = LuaState::CastState(L);
+	LuaState* state2 = lua_State_To_LuaState(L);
 	CHECK(state == state2);
 }
 
@@ -641,7 +641,7 @@ TEST(LuaState_PCall)
 //////////////////////////////////////////////////////////////////////////
 static int LuaState_CPCall_Helper(lua_State* L)
 {
-	LuaState* state = LuaState::CastState(L);
+	LuaState* state = lua_State_To_LuaState(L);
 	int* var = (int*)state->Stack(1).GetLightUserData();
 	*var = 5;
 	return 0;
@@ -2157,35 +2157,6 @@ TEST(LuaPlus_BogusCharacters)
 	int ret = state->LoadFile("BogusCharacters.lua");
 	CHECK(ret == LUA_ERRSYNTAX);
 }
-
-//////////////////////////////////////////////////////////////////////////
-int OldStyleFunc(LuaState* state, LuaStackObject* args)
-{
-	return 0;
-}
-
-
-class OldObject
-{
-public:
-	int OldStyleMemberFunc(LuaState* state, LuaStackObject* args)
-	{
-		return 0;
-	}
-};
-
-TEST(LuaObject_OldRegister)
-{
-	OldObject obj;
-
-	LuaStateOwner state;
-	state->GetGlobals().Register("OldStyle", OldStyleFunc, 0);
-	state->GetGlobals().Register("OldStyleMember", obj, &OldObject::OldStyleMemberFunc, 0);
-
-	state->DoString("OldStyle()");
-	state->DoString("OldStyleMember()");
-}
-
 
 //////////////////////////////////////////////////////////////////////////
 TEST(LuaObject_LotsOTables)
