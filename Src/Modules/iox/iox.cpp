@@ -866,9 +866,10 @@ static int LS_SetFileWriteTime(LuaState* state)
 #endif WIN32
 }
 
-static int LS_MakeWritable( LuaState* state, LuaStackObject* args )
+static int LS_MakeWritable( LuaState* state )
 {
-	LuaStackObject fileNameObj(state, 1);
+	LuaStack args( state );
+	LuaStackObject fileNameObj = args[1];
 	if (!fileNameObj.IsString())
 		return 0;
 
