@@ -33,7 +33,7 @@ void LoadScript( LuaState* state, const char* fileName )
 
 void Run()
 {
-	LuaRemoteDebuggingServer::RegisterState("State", g_luaScript);
+	LuaRemoteDebuggingServer::RegisterState("State", *g_luaScript);
 	LuaRemoteDebuggingServer::Initialize();
 	LuaRemoteDebuggingServer::WaitForDebuggerConnection();
 
