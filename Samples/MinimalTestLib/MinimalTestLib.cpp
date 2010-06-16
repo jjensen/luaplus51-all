@@ -20,7 +20,7 @@ int __cdecl main(int argc, char* argv[])
 //	LuaState* state = LuaState::CastState(L);
 //	LuaStateOwner state;
 //	LuaState* state = LuaState::CastState(L);
-	luaL_openlibs(L);
+//	luaL_openlibs(L);
 //	state->DoString("s = \"12345678901234567890123456789012345678901234567890\";  print(s)");
 //	state->DoFile("TestAnsi.lua");
 //	LuaObject sObj = state->GetGlobal("s");
