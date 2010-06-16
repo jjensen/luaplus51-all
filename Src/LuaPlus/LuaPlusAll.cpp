@@ -1,8 +1,7 @@
 #define LUA_FORCE_USE_LONGJMP
-#ifndef LUAPLUS_EXCEPTIONS
-#define LUAPLUS_EXCEPTIONS 0
-#endif
+#ifndef LUAPLUS_ALL
 #define LUAPLUS_ALL
+#endif
 #define loslib_c
 #include "LuaLink.h"
 LUA_EXTERN_C_BEGIN
@@ -37,17 +36,12 @@ LUA_EXTERN_C_BEGIN
 #include "lwstrlib.c"
 #include "LuaPlusAddons.c"
 LUA_EXTERN_C_END
-#include "LuaCall.cpp"
-#include "LuaObject.cpp"
 #include "LuaPlus.cpp"
 #include "LuaPlus_Libs.cpp"
 #include "LuaPlusFunctions.cpp"
-#include "LuaStackObject.cpp"
-#include "LuaStackTableIterator.cpp"
 #include "LuaState.cpp"
 #include "LuaStateOutFile.cpp"
 #include "LuaState_DumpObject.cpp"
-#include "LuaTableIterator.cpp"
 LUA_EXTERN_C_BEGIN
 #include "src/loadlib.c"
 #if defined(LUA_WIN)

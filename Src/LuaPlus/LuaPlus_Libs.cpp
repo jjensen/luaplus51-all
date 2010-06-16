@@ -228,7 +228,7 @@ protected:
 
 #if LUAPLUS_DUMPOBJECT
 
-extern "C" void luaplus_dumptable(lua_State* L, int index)
+LUA_EXTERN_C void luaplus_dumptable(lua_State* L, int index)
 {
 	LuaState* state = lua_State_To_LuaState(L);
 	LuaObject valueObj(state, index);

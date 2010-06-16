@@ -7,32 +7,16 @@ C.OutputPath * : $(ALL_LOCATE_TARGET)/image ;
 
 SubInclude LUAPLUS Src LuaPlus SharedLib : LuaPlusSharedLib ;
 
-local HEADER_FILES_SRCS =
-		SimpleHeap.h
-;
-
-local RESOURCE_FILES_SRCS =
-;
-
-local SOURCE_FILES_SRCS =
-		SimpleHeap.cpp
-		TestScript.cpp
-;
-
 local SRCS =
 		ScriptArrayTest.lua
 		ScriptCallbackTest.lua
 		ScriptDumpTest.lua
 		ScriptSaveTest.lua
 		ScriptVectorDump.lua
-		$(HEADER_FILES_SRCS)
-		$(RESOURCE_FILES_SRCS)
-		$(SOURCE_FILES_SRCS)
+		SimpleHeap.cpp
+		SimpleHeap.h
+		TestScript.cpp
 ;
-
-SourceGroup TestScript : "Header Files" : $(HEADER_FILES_SRCS) ;
-SourceGroup TestScript : "Resource Files" : $(RESOURCE_FILES_SRCS) ;
-SourceGroup TestScript : "Source Files" : $(SOURCE_FILES_SRCS) ;
 
 C.IncludeDirectories TestScript : $(LUAPLUS)/Src ;
 C.LinkLibraries TestScript : LuaPlusShared ;
