@@ -1,32 +1,34 @@
-require "iox"
+require "ex"
 
 function AddAutoExp(autoexpFileName)
 	local ignore = false
 
 	local file = io.open(autoexpFileName .. ".new", "wt")
 
-	for line in io.lines(autoexpFileName) do
-		if line == '; -- LuaPlus and Lua begin --' then
-			ignore = true
-		elseif line == '; -- LuaPlus and Lua end --' then
-			ignore = false
-		elseif line == '; This section lets you define your own errors for the HRESULT display.' then
-			for newLine in io.lines('AutoExpAdditions.txt') do
-				file:write(newLine .. "\n")
-			end
+	if os.path.exists(autoexpFileName) then
+		for line in io.lines(autoexpFileName) do
+			if line == '; -- LuaPlus and Lua begin --' then
+				ignore = true
+			elseif line == '; -- LuaPlus and Lua end --' then
+				ignore = false
+			elseif line == '; This section lets you define your own errors for the HRESULT display.' then
+				for newLine in io.lines('AutoExpAdditions.txt') do
+					file:write(newLine .. "\n")
+				end
 
-			file:write(line .. "\n")
-		else
-			if not ignore then
 				file:write(line .. "\n")
+			else
+				if not ignore then
+					file:write(line .. "\n")
+				end
 			end
 		end
+
+		file:close()
 	end
 
-	file:close()
-
-	iox.CopyFile(autoexpFileName .. ".new", autoexpFileName)
-	iox.DeleteFile(autoexpFileName .. ".new")
+	os.copyfile(autoexpFileName .. ".new", autoexpFileName)
+	os.remove(autoexpFileName .. ".new")
 end
 
 
