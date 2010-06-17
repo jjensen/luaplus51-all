@@ -66,6 +66,16 @@ static TValue *index2adr (lua_State *L, int idx) {
     api_check(L, idx != 0 && -idx <= L->top - L->base);
     return L->top + idx;
   }
+  else if (idx <= LUA_FASTREFNIL) {
+    struct lua_Ref* refobj;
+    if (idx == LUA_FASTREFNIL)
+      return &G(L)->refNilValue;
+    idx = -idx + LUA_FASTREFNIL - 1;
+    refobj = &G(L)->refArray[idx];
+    if (0 <= idx && idx < G(L)->refSize && refobj->st == LUA_FASTREF_LOCK)
+      return &refobj->o;
+	return &G(L)->refNilValue;
+  }
   else switch (idx) {  /* pseudo-indices */
     case LUA_REGISTRYINDEX: return registry(L);
     case LUA_ENVIRONINDEX: {
@@ -1249,5 +1259,74 @@ LUA_API const char *lua_setupvalue (lua_State *L, int funcindex, int n) {
   lua_unlock(L);
   return name;
 }
+
+#if LUAPLUS_EXTENSIONS
+
+LUA_API int lua_getfastref (lua_State *L, int ref) {
+  struct lua_Ref* refobj;
+  if (ref == LUA_FASTREFNIL) {
+    ttype(L->top) = LUA_TNIL;
+    api_incr_top(L);
+    return 1;
+  }
+  ref = -ref + LUA_FASTREFNIL - 1;
+  refobj = &G(L)->refArray[ref];
+  if (0 <= ref && ref < G(L)->refSize && refobj->st == LUA_FASTREF_LOCK)
+    *L->top = refobj->o;
+  else
+    return 0;
+  api_incr_top(L);
+  return 1;
+}
+
+
+LUA_API int lua_fastrefindex (lua_State *L, int idx) {
+  int ref;
+  TValue* value = index2adr(L, idx);
+  if (ttype(value) == LUA_TNIL)
+    return LUA_FASTREFNIL;
+  else {
+    global_State *g = G(L);
+	struct lua_Ref* refobj;
+    if (g->refFree == LUA_FASTREF_NONEXT) {  /* is there a free place? */
+      int origsize = g->refSize;
+	  int i;
+      luaM_growvector(L, g->refArray, g->refSize, g->refSize, struct lua_Ref,
+                      MAX_INT, "reference table overflow");
+	  for (i = g->refSize - 1; i >= origsize; --i) {
+        g->refArray[i].st = g->refFree;
+        g->refFree = i;
+	  }
+      value = index2adr(L, idx);
+	}
+    ref = g->refFree;
+	refobj = &g->refArray[ref];
+    g->refFree = refobj->st;
+    refobj->o = *value;
+    refobj->st = LUA_FASTREF_LOCK;
+  }
+  return LUA_FASTREFNIL - 1 - ref;
+}
+
+
+LUA_API int lua_fastref (lua_State *L) {
+  int ref = lua_fastrefindex(L, -1);
+  lua_pop(L, 1);
+  return ref;
+}
+
+
+LUA_API void lua_fastunref (lua_State *L, int ref) {
+  ref = -ref + LUA_FASTREFNIL - 1;
+  if (ref >= 0) {
+    global_State* g = G(L);
+    luai_apicheck(L, ref < g->refSize && g->refArray[ref].st < 0); //, "invalid ref");
+    g->refArray[ref].st = g->refFree;
+    g->refFree = ref;
+  }
+}
+
+
+#endif
 
 NAMESPACE_LUA_END

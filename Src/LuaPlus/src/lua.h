@@ -457,6 +457,14 @@ LUA_API void lua_setusergcfunction(lua_State *L, void (*userGCFunction)(void*));
 
 #define lua_unboxpointer(L,i)   (*(void **)(lua_touserdata(L, i)))
 
+/* pre-defined references */
+#define LUA_FASTREFNIL	(-39999)
+
+LUA_API int lua_getfastref (lua_State *L, int ref);
+LUA_API int lua_fastrefindex (lua_State *L, int idx);
+LUA_API int lua_fastref (lua_State *L);
+LUA_API void lua_fastunref (lua_State *L, int ref);
+
 LUA_EXTERN_C_END
 
 #endif /* LUAPLUS_EXTENSIONS */

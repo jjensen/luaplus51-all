@@ -15,6 +15,20 @@
 
 NAMESPACE_LUA_BEGIN
 
+#if LUAPLUS_EXTENSIONS
+/*
+** marks for Reference array
+*/
+#define LUA_FASTREF_NONEXT          -1      /* to end the free list */
+#define LUA_FASTREF_LOCK            -4
+
+
+struct lua_Ref {
+  TValue o;
+  int st;  /* can be LUA_FASTREF_LOCK, LUA_FASTREF_NONEXT, or next (for free list) */
+};
+#endif /* LUAPLUS_EXTENSIONS */
+
 struct lua_longjmp;  /* defined in ldo.c */
 
 
@@ -97,6 +111,11 @@ typedef struct global_State {
   void* gctail_next;		   // only valid when in free list
   void* gctail_prev;		   // only valid when in used list
   void (*loadNotifyFunction)(lua_State *L, const char *);
+
+  struct lua_Ref *refArray;  /* locked objects */
+  int refSize;  /* size of refArray */
+  int refFree;  /* list of free positions in refArray */
+  TValue refNilValue;
 #endif /* LUAPLUS_EXTENSIONS */
 } global_State;
 

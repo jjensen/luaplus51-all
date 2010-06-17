@@ -245,6 +245,11 @@ LUA_API lua_State *lua_newstate (lua_Alloc f, void *ud) {
   g->gchead_prev = NULL;
   g->gctail_next = NULL;
   g->gctail_prev = &g->gchead_next;
+
+  g->refArray = NULL;
+  g->refSize = 0;
+  g->refFree = LUA_FASTREF_NONEXT;
+  setnilvalue(&g->refNilValue);
 #endif /* LUAPLUS_EXTENSIONS */
   for (i=0; i<NUM_TAGS; i++) g->mt[i] = NULL;
   if (luaD_rawrunprotected(L, f_luaopen, NULL) != 0) {

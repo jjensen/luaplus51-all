@@ -608,6 +608,18 @@ static void remarkupvals (global_State *g) {
 }
 
 
+#if LUAPLUS_EXTENSIONS
+static void marklock (global_State *g)
+{
+  int i;
+  for (i=0; i<g->refSize; i++) {
+    if (g->refArray[i].st == LUA_FASTREF_LOCK)
+      markvalue(g, &g->refArray[i].o);
+  }
+}
+#endif /* LUAPLUS_EXTENSIONS */
+
+
 static void atomic (lua_State *L) {
   global_State *g = G(L);
   size_t udsize;  /* total size of userdata to be finalized */
@@ -622,6 +634,7 @@ static void atomic (lua_State *L) {
   markobject(g, L);  /* mark running thread */
   markmt(g);  /* mark basic metatables (again) */
 #if LUAPLUS_EXTENSIONS
+  marklock(g); /* mark locked objects */
   if (G(L)->userGCFunction)
     G(L)->userGCFunction(L);
 #endif /* LUAPLUS_EXTENSIONS */
