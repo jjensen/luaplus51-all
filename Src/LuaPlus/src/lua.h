@@ -108,6 +108,10 @@ typedef void * (*lua_Alloc) (void *ud, void *ptr, size_t osize, size_t nsize);
 #include LUA_USER_H
 #endif
 
+#if LUA_FASTREF_SUPPORT
+#define LUA_RIDX_FASTREF_FREELIST	1
+#endif /* LUA_FASTREF_SUPPORT */
+
 
 /* type of numbers in Lua */
 typedef LUA_NUMBER lua_Number;
@@ -376,10 +380,20 @@ struct lua_Debug {
   int i_ci;  /* active function */
 };
 
+#if LUA_FASTREF_SUPPORT
+
+#define LUA_FASTREFNIL	(-1999999)
+
+LUA_API int lua_fastref (lua_State *L);
+LUA_API int lua_fastrefindex (lua_State *L, int idx);
+LUA_API void lua_fastunref (lua_State *L, int ref);
+LUA_API void lua_getfastref (lua_State *L, int ref);
+
+#endif /* LUA_FASTREF_SUPPORT */
+
 LUA_EXTERN_C_END
 
 /* }====================================================================== */
-
 
 /******************************************************************************
 * Copyright (C) 1994-2008 Lua.org, PUC-Rio.  All rights reserved.

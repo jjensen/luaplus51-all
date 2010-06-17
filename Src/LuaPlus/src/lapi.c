@@ -51,6 +51,28 @@ const char lua_ident[] =
 #define api_incr_top(L)   {api_check(L, L->top < L->ci->top); L->top++;}
 
 
+#if LUA_FASTREF_SUPPORT
+
+static const TValue *luaH_getinthelper (Table *t, int key) {
+  /* (1 <= key && key <= t->sizearray) */
+  if (cast(unsigned int, key-1) < cast(unsigned int, t->sizearray))
+    return &t->array[key-1];
+  else
+    return luaH_getnum(t, key);
+}
+
+
+static TValue *luaH_setinthelper (lua_State *L, Table *t, int key) {
+  /* (1 <= key && key <= t->sizearray) */
+  if (cast(unsigned int, key-1) < cast(unsigned int, t->sizearray))
+    return &t->array[key-1];
+  else
+    return luaH_setnum(L, t, key);
+}
+
+#endif /* LUA_FASTREF_SUPPORT */
+
+
 #if LUAPLUS_EXTENSIONS
 TValue *index2adr (lua_State *L, int idx) {
 #else
@@ -66,6 +88,14 @@ static TValue *index2adr (lua_State *L, int idx) {
     api_check(L, idx != 0 && -idx <= L->top - L->base);
     return L->top + idx;
   }
+#if LUA_FASTREF_SUPPORT
+  else if (idx <= LUA_FASTREFNIL) {
+    if (idx == LUA_FASTREFNIL)
+      return &G(L)->fastrefNilValue;
+    idx = -idx + LUA_FASTREFNIL - 1;
+    return (TValue*)luaH_getinthelper(hvalue(&G(L)->l_refs), idx);
+  }
+#endif /* LUA_FASTREF_SUPPORT */
   else switch (idx) {  /* pseudo-indices */
     case LUA_REGISTRYINDEX: return registry(L);
     case LUA_ENVIRONINDEX: {
@@ -1249,5 +1279,97 @@ LUA_API const char *lua_setupvalue (lua_State *L, int funcindex, int n) {
   lua_unlock(L);
   return name;
 }
+
+#if LUA_FASTREF_SUPPORT
+
+/*
+** {======================================================
+** Reference system
+** =======================================================
+*/
+
+LUA_API int lua_fastrefindex (lua_State *L, int idx) {
+  const TValue* firstfree;
+  TValue* value;
+  TValue* newKey;
+  int ref;
+  StkId to = &G(L)->l_refs;
+
+  lua_lock(L);
+
+  value = index2adr(L, idx);
+  if (ttype(value) == LUA_TNIL) {
+    lua_unlock(L);
+    return LUA_FASTREFNIL;
+  }
+
+  /* get first free element */
+  firstfree = luaH_getinthelper(hvalue(to), LUA_RIDX_FASTREF_FREELIST);
+  lua_number2integer(ref, nvalue(firstfree));
+
+  if (ref != 0) {  /* any free element? */
+    /* remove it from list */
+    const TValue* refValue = luaH_getinthelper(hvalue(to), ref);
+    setobj2t(L, (TValue*)firstfree, refValue);
+  }
+  else  /* no free elements */
+    ref = (int)luaH_getn(hvalue(to)) + 1;  /* get a new reference */
+
+  newKey = luaH_setinthelper(L, hvalue(to), ref);
+  if (idx <= LUA_FASTREFNIL) {
+    if (idx == LUA_FASTREFNIL) {
+      value = &G(L)->fastrefNilValue;
+	} else {
+      idx = -idx + LUA_FASTREFNIL - 1;
+      value = (TValue*)luaH_getinthelper(hvalue(&G(L)->l_refs), idx);
+	}
+  } else {
+    value = index2adr(L, idx);
+  }
+  setobj2t(L, newKey, value);
+
+  luaC_barriert(L, hvalue(to), value);
+
+  lua_unlock(L);
+  return LUA_FASTREFNIL - 1 - ref;
+}
+
+
+LUA_API int lua_fastref (lua_State *L) {
+  int ref;
+  lua_lock(L);
+  ref = lua_fastrefindex(L, -1);
+  L->top--;
+  lua_unlock(L);
+  return ref;
+}
+
+
+LUA_API void lua_fastunref (lua_State *L, int ref) {
+  ref = -ref + LUA_FASTREFNIL - 1;
+  if (ref >= 0) {
+	TValue refObj;
+    StkId to = &G(L)->l_refs;
+    const TValue *firstfree = luaH_getinthelper(hvalue(to), LUA_RIDX_FASTREF_FREELIST);
+    setobj2t(L, luaH_setinthelper(L, hvalue(to), ref), firstfree);
+    setnvalue(&refObj, cast_num(ref));
+    setobj2t(L, (TValue*)firstfree, &refObj);
+  }
+}
+
+
+LUA_API void lua_getfastref (lua_State *L, int ref) {
+  StkId o = &G(L)->l_refs;
+  ref = -ref + LUA_FASTREFNIL - 1;
+  lua_lock(L);
+  setobj2s(L, L->top, luaH_getinthelper(hvalue(o), ref));
+  api_incr_top(L);
+  lua_unlock(L);
+}
+
+
+/* }====================================================== */
+
+#endif /* LUA_FASTREF_SUPPORT */
 
 NAMESPACE_LUA_END

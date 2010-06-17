@@ -589,6 +589,9 @@ static void markroot (lua_State *L) {
   /* make global table be traversed before main stack */
   markvalue(g, gt(g->mainthread));
   markvalue(g, registry(L));
+#if LUA_FASTREF_SUPPORT
+  markvalue(g, &G(L)->l_refs);
+#endif /* LUA_FASTREF_SUPPORT */
   markmt(g);
 #if LUAPLUS_EXTENSIONS
   if (G(L)->userGCFunction)
