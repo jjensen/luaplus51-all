@@ -347,13 +347,6 @@ namespace LPCD
 {
 	using namespace LuaPlus;
 
-#if LUA_WIDESTRING
-	inline void Push(lua_State* L, const lua_WChar* value)			{  lua_pushwstring(L, value);  }
-	inline bool	Match(TypeWrapper<const lua_WChar*>, lua_State* L, int idx)
-		{  return lua_type(L, idx) == LUA_TWSTRING;  }
-	inline const lua_WChar*	Get(TypeWrapper<const lua_WChar*>, lua_State* L, int idx)
-		{  return static_cast<const lua_WChar*>(lua_towstring(L, idx));  }
-#endif /* LUA_WIDESTRING */
 
 	LUAPLUS_CLASS_API void Push(lua_State* L, int (*value)(LuaState*));
 

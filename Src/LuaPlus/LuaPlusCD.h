@@ -60,6 +60,7 @@ namespace LPCD
 	inline void Push(lua_State* L, double value)			{  lua_pushnumber(L, (lua_Number)value);  }
 	inline void Push(lua_State* L, float value)				{  lua_pushnumber(L, (lua_Number)value);  }
 	inline void Push(lua_State* L, const char* value)		{  lua_pushstring(L, value);  }
+	inline void Push(lua_State* L, const char* value, int len)		{  lua_pushlstring(L, value, len);  }
 	inline void Push(lua_State* L, const LuaNil&)			{  lua_pushnil(L);  }
 	inline void Push(lua_State* L, lua_CFunction value)		{  lua_pushcclosure(L, value, 0);  }
 	inline void Push(lua_State* L, const void* value)		{  lua_pushlightuserdata(L, (void*)value);  }
@@ -67,6 +68,17 @@ namespace LPCD
     inline void Push(lua_State* L, const LuaUserData& value){  *(void **)(lua_newuserdata(L, sizeof(void *))) = (void*)value.m_value;  }
 
 	template<class T> struct TypeWrapper {};
+
+#if LUA_WIDESTRING
+	inline void Push(lua_State* L, const lua_WChar* value)
+		{  lua_pushwstring(L, value);  }
+	inline void Push(lua_State* L, const lua_WChar* value, int len)
+		{  lua_pushlwstring(L, value, len);  }
+	inline bool	Match(TypeWrapper<const lua_WChar*>, lua_State* L, int idx)
+		{  return lua_type(L, idx) == LUA_TWSTRING;  }
+	inline const lua_WChar*	Get(TypeWrapper<const lua_WChar*>, lua_State* L, int idx)
+		{  return static_cast<const lua_WChar*>(lua_towstring(L, idx));  }
+#endif /* LUA_WIDESTRING */
 
 	inline bool	Match(TypeWrapper<bool>, lua_State* L, int idx)
 		{  return lua_type(L, idx) == LUA_TBOOLEAN;  }
