@@ -431,9 +431,9 @@ static LuaObject GetValueObjectFromIdent( LuaState* luaStateToDebug, SimpleStrin
 		LuaObject findIdentObj;
 		int num = atoi( findIdent );
 		if ( num != 0 )
-			findIdentObj.AssignInteger( luaStateToDebug, num );
+			findIdentObj.Assign( luaStateToDebug, num );
 		else
-			findIdentObj.AssignString( luaStateToDebug, findIdent );
+			findIdentObj.Assign( luaStateToDebug, findIdent );
 		curTable = curTable[ findIdentObj ];
 		if ( curTable.IsNil() )
 			break;
@@ -443,9 +443,9 @@ static LuaObject GetValueObjectFromIdent( LuaState* luaStateToDebug, SimpleStrin
 	LuaObject findIdentObj;
 	int num = atoi( findIdent );
 	if ( num != 0 )
-		findIdentObj.AssignInteger( luaStateToDebug, num );
+		findIdentObj.Assign( luaStateToDebug, num );
 	else
-		findIdentObj.AssignString( luaStateToDebug, findIdent );
+		findIdentObj.Assign( luaStateToDebug, findIdent );
 	LuaObject obj = curTable.IsNil() ? curTable : ( findIdent.IsEmpty() ? curTable : curTable[ findIdentObj ] );
 
 	// Return it.

@@ -252,10 +252,6 @@ LUA_API lua_State *lua_newstate (lua_Alloc f, void *ud) {
 #if LUAPLUS_EXTENSIONS
   g->loadNotifyFunction = NULL;
   g->userGCFunction = NULL;
-  g->gchead_next = &g->gctail_next;
-  g->gchead_prev = NULL;
-  g->gctail_next = NULL;
-  g->gctail_prev = &g->gchead_next;
 #endif /* LUAPLUS_EXTENSIONS */
   for (i=0; i<NUM_TAGS; i++) g->mt[i] = NULL;
   if (luaD_rawrunprotected(L, f_luaopen, NULL) != 0) {

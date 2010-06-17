@@ -224,19 +224,11 @@ namespace LuaPlus {
 
 LuaObject LuaState::CreateThread(LuaState* parentState)
 {
-    lua_State* L1 = lua_newthread(LuaState_to_lua_State(parentState));
-    lua_TValue tobject;
-#if LUA_REFCOUNT
-    setnilvalue2n(L1, &tobject);
-#else
-    setnilvalue(&tobject);
-#endif /* LUA_REFCOUNT */
-    setthvalue(parentState->GetCState(), &tobject, L1);
-
-	LuaObject retObj = LuaObject(lua_State_To_LuaState(L1), &tobject);
-    setnilvalue(&tobject);
-    lua_pop(LuaState_to_lua_State(parentState), 1);
-    return retObj;
+	lua_State* L = LuaState_to_lua_State(parentState);
+    lua_State* L1 = lua_newthread(L);
+	LuaObject ret(L, -1);
+	lua_pop(L, 1);
+	return ret;
 }
 
 #endif // LUAPLUS_EXTENSIONS
