@@ -905,6 +905,7 @@ void RCTest()
 #endif /* LUA_WIDESTRING */
 }
 
+#if LUA_EXCEPTIONS
 
 void ExceptionTest()
 {
@@ -929,6 +930,8 @@ void ExceptionTest()
 		int hi = 5; (void)hi;
 	}
 }
+
+#endif // LUA_EXCEPTIONS
 
 
 void BisectTest()
