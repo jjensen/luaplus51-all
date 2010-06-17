@@ -545,11 +545,11 @@ public:
 	}
 #endif // LUA_WIDESTRING
 
-	size_t ToStrLen()
+	size_t ObjLen()
 	{
 		try
 		{
-			return m_object->ToStrLen();
+			return m_object->ObjLen();
 		}
 		catch (const LuaPlus::LuaException& e)
 		{
@@ -896,11 +896,11 @@ public:
 		return this;
 	}
 
-	LuaObject^ SetBoolean(String^ key, bool value)
+	LuaObject^ Set(String^ key, bool value)
 	{
 		try
 		{
-			m_object->SetBoolean(MarshalStringANSI(key), value);
+			m_object->Set(MarshalStringANSI(key), value);
 		}
 		catch (const LuaPlus::LuaException& e)
 		{
@@ -910,11 +910,11 @@ public:
 		return this;
 	}
 
-	LuaObject^ SetBoolean(int key, bool value)
+	LuaObject^ Set(int key, bool value)
 	{
 		try
 		{
-			m_object->SetBoolean(key, value);
+			m_object->Set(key, value);
 		}
 		catch (const LuaPlus::LuaException& e)
 		{
@@ -928,7 +928,7 @@ public:
 	{
 		try
 		{
-			m_object->SetBoolean(*key->m_object, value);
+			m_object->Set(*key->m_object, value);
 		}
 		catch (const LuaPlus::LuaException& e)
 		{
@@ -942,7 +942,7 @@ public:
 	{
 		try
 		{
-			m_object->SetInteger(MarshalStringANSI(key), value);
+			m_object->Set(MarshalStringANSI(key), value);
 		}
 		catch (const LuaPlus::LuaException& e)
 		{
@@ -956,7 +956,7 @@ public:
 	{
 		try
 		{
-			m_object->SetInteger(key, value);
+			m_object->Set(key, value);
 		}
 		catch (const LuaPlus::LuaException& e)
 		{
@@ -970,7 +970,7 @@ public:
 	{
 		try
 		{
-			m_object->SetInteger(*key->m_object, value);
+			m_object->Set(*key->m_object, value);
 		}
 		catch (const LuaPlus::LuaException& e)
 		{
@@ -984,7 +984,7 @@ public:
 	{
 		try
 		{
-			m_object->SetNumber(MarshalStringANSI(key), value);
+			m_object->Set(MarshalStringANSI(key), value);
 		}
 		catch (const LuaPlus::LuaException& e)
 		{
@@ -998,7 +998,7 @@ public:
 	{
 		try
 		{
-			m_object->SetNumber(key, value);
+			m_object->Set(key, value);
 		}
 		catch (const LuaPlus::LuaException& e)
 		{
@@ -1012,7 +1012,7 @@ public:
 	{
 		try
 		{
-			m_object->SetNumber(*key->m_object, value);
+			m_object->Set(*key->m_object, value);
 		}
 		catch (const LuaPlus::LuaException& e)
 		{
@@ -1026,7 +1026,7 @@ public:
 	{
 		try
 		{
-			m_object->SetString(MarshalStringANSI(key), MarshalStringANSI(value));
+			m_object->Set(MarshalStringANSI(key), MarshalStringANSI(value));
 		}
 		catch (const LuaPlus::LuaException& e)
 		{
@@ -1040,7 +1040,7 @@ public:
 	{
 		try
 		{
-			m_object->SetString(key, MarshalStringANSI(value));
+			m_object->Set(key, MarshalStringANSI(value));
 		}
 		catch (const LuaPlus::LuaException& e)
 		{
@@ -1054,7 +1054,7 @@ public:
 	{
 		try
 		{
-			m_object->SetString(*key->m_object, MarshalStringANSI(value));
+			m_object->Set(*key->m_object, MarshalStringANSI(value));
 		}
 		catch (const LuaPlus::LuaException& e)
 		{
@@ -1069,7 +1069,7 @@ public:
 	{
 		try
 		{
-			m_object->SetWString(MarshalStringANSI(key), MarshalStringUnicode(value));
+			m_object->Set(MarshalStringANSI(key), MarshalStringUnicode(value));
 		}
 		catch (const LuaPlus::LuaException& e)
 		{
@@ -1083,7 +1083,7 @@ public:
 	{
 		try
 		{
-			m_object->SetWString(key, MarshalStringUnicode(value));
+			m_object->Set(key, MarshalStringUnicode(value));
 		}
 		catch (const LuaPlus::LuaException& e)
 		{
@@ -1097,7 +1097,7 @@ public:
 	{
 		try
 		{
-			m_object->SetWString(*key->m_object, MarshalStringUnicode(value));
+			m_object->Set(*key->m_object, MarshalStringUnicode(value));
 		}
 		catch (const LuaPlus::LuaException& e)
 		{
@@ -1112,7 +1112,7 @@ public:
 	{
 		try
 		{
-			m_object->SetString(MarshalStringANSI(key), MarshalStringANSI(value), len);
+			m_object->Set(MarshalStringANSI(key), MarshalStringANSI(value), len);
 		}
 		catch (const LuaPlus::LuaException& e)
 		{
@@ -1126,7 +1126,7 @@ public:
 	{
 		try
 		{
-			m_object->SetString(key, MarshalStringANSI(value), len);
+			m_object->Set(key, MarshalStringANSI(value), len);
 		}
 		catch (const LuaPlus::LuaException& e)
 		{
@@ -1140,7 +1140,7 @@ public:
 	{
 		try
 		{
-			m_object->SetString(*key->m_object, MarshalStringANSI(value), len);
+			m_object->Set(*key->m_object, MarshalStringANSI(value), len);
 		}
 		catch (const LuaPlus::LuaException& e)
 		{
@@ -1155,7 +1155,7 @@ public:
 	{
 		try
 		{
-			m_object->SetWString(MarshalStringANSI(key), MarshalStringUnicode(value), len);
+			m_object->Set(MarshalStringANSI(key), MarshalStringUnicode(value), len);
 		}
 		catch (const LuaPlus::LuaException& e)
 		{
@@ -1169,7 +1169,7 @@ public:
 	{
 		try
 		{
-			m_object->SetWString(key, MarshalStringUnicode(value), len);
+			m_object->Set(key, MarshalStringUnicode(value), len);
 		}
 		catch (const LuaPlus::LuaException& e)
 		{
@@ -1183,7 +1183,7 @@ public:
 	{
 		try
 		{
-			m_object->SetWString(*key->m_object, MarshalStringUnicode(value), len);
+			m_object->Set(*key->m_object, MarshalStringUnicode(value), len);
 		}
 		catch (const LuaPlus::LuaException& e)
 		{
@@ -1198,7 +1198,7 @@ public:
 	{
 		try
 		{
-			m_object->SetUserData(MarshalStringANSI(key), value);
+			m_object->Set(MarshalStringANSI(key), value);
 		}
 		catch (const LuaPlus::LuaException& e)
 		{
@@ -1212,7 +1212,7 @@ public:
 	{
 		try
 		{
-			m_object->SetUserData(key, value);
+			m_object->Set(key, value);
 		}
 		catch (const LuaPlus::LuaException& e)
 		{
@@ -1226,7 +1226,7 @@ public:
 	{
 		try
 		{
-			m_object->SetUserData(*key->m_object, value);
+			m_object->Set(*key->m_object, value);
 		}
 		catch (const LuaPlus::LuaException& e)
 		{
@@ -1240,7 +1240,7 @@ public:
 	{
 		try
 		{
-			m_object->SetLightUserData(MarshalStringANSI(key), value);
+			m_object->Set(MarshalStringANSI(key), value);
 		}
 		catch (const LuaPlus::LuaException& e)
 		{
@@ -1254,7 +1254,7 @@ public:
 	{
 		try
 		{
-			m_object->SetLightUserData(key, value);
+			m_object->Set(key, value);
 		}
 		catch (const LuaPlus::LuaException& e)
 		{
@@ -1268,7 +1268,7 @@ public:
 	{
 		try
 		{
-			m_object->SetLightUserData(*key->m_object, value);
+			m_object->Set(*key->m_object, value);
 		}
 		catch (const LuaPlus::LuaException& e)
 		{
@@ -1282,7 +1282,7 @@ public:
 	{
 		try
 		{
-			m_object->SetObject(MarshalStringANSI(key), *value->m_object);
+			m_object->Set(MarshalStringANSI(key), *value->m_object);
 		}
 		catch (const LuaPlus::LuaException& e)
 		{
@@ -1296,7 +1296,7 @@ public:
 	{
 		try
 		{
-			m_object->SetObject(key, *value->m_object);
+			m_object->Set(key, *value->m_object);
 		}
 		catch (const LuaPlus::LuaException& e)
 		{
@@ -1310,7 +1310,7 @@ public:
 	{
 		try
 		{
-			m_object->SetObject(*key->m_object, *value->m_object);
+			m_object->Set(*key->m_object, *value->m_object);
 		}
 		catch (const LuaPlus::LuaException& e)
 		{
@@ -1369,7 +1369,7 @@ public:
 	{
 		try
 		{
-			m_object->RawSetBoolean(MarshalStringANSI(key), value);
+			m_object->RawSet(MarshalStringANSI(key), value);
 		}
 		catch (const LuaPlus::LuaException& e)
 		{
@@ -1383,7 +1383,7 @@ public:
 	{
 		try
 		{
-			m_object->RawSetBoolean(key, value);
+			m_object->RawSet(key, value);
 		}
 		catch (const LuaPlus::LuaException& e)
 		{
@@ -1397,7 +1397,7 @@ public:
 	{
 		try
 		{
-			m_object->RawSetBoolean(*key->m_object, value);
+			m_object->RawSet(*key->m_object, value);
 		}
 		catch (const LuaPlus::LuaException& e)
 		{
@@ -1411,7 +1411,7 @@ public:
 	{
 		try
 		{
-			m_object->RawSetInteger(MarshalStringANSI(key), value);
+			m_object->RawSet(MarshalStringANSI(key), value);
 		}
 		catch (const LuaPlus::LuaException& e)
 		{
@@ -1425,7 +1425,7 @@ public:
 	{
 		try
 		{
-			m_object->RawSetInteger(key, value);
+			m_object->RawSet(key, value);
 		}
 		catch (const LuaPlus::LuaException& e)
 		{
@@ -1439,7 +1439,7 @@ public:
 	{
 		try
 		{
-			m_object->RawSetInteger(*key->m_object, value);
+			m_object->RawSet(*key->m_object, value);
 		}
 		catch (const LuaPlus::LuaException& e)
 		{
@@ -1453,7 +1453,7 @@ public:
 	{
 		try
 		{
-			m_object->RawSetNumber(MarshalStringANSI(key), value);
+			m_object->RawSet(MarshalStringANSI(key), value);
 		}
 		catch (const LuaPlus::LuaException& e)
 		{
@@ -1467,7 +1467,7 @@ public:
 	{
 		try
 		{
-			m_object->RawSetNumber(key, value);
+			m_object->RawSet(key, value);
 		}
 		catch (const LuaPlus::LuaException& e)
 		{
@@ -1481,7 +1481,7 @@ public:
 	{
 		try
 		{
-			m_object->RawSetNumber(*key->m_object, value);
+			m_object->RawSet(*key->m_object, value);
 		}
 		catch (const LuaPlus::LuaException& e)
 		{
@@ -1495,7 +1495,7 @@ public:
 	{
 		try
 		{
-			m_object->RawSetString(MarshalStringANSI(key), MarshalStringANSI(value));
+			m_object->RawSet(MarshalStringANSI(key), MarshalStringANSI(value));
 		}
 		catch (const LuaPlus::LuaException& e)
 		{
@@ -1509,7 +1509,7 @@ public:
 	{
 		try
 		{
-			m_object->RawSetString(key, MarshalStringANSI(value));
+			m_object->RawSet(key, MarshalStringANSI(value));
 		}
 		catch (const LuaPlus::LuaException& e)
 		{
@@ -1523,7 +1523,7 @@ public:
 	{
 		try
 		{
-			m_object->RawSetString(*key->m_object, MarshalStringANSI(value));
+			m_object->RawSet(*key->m_object, MarshalStringANSI(value));
 		}
 		catch (const LuaPlus::LuaException& e)
 		{
@@ -1538,7 +1538,7 @@ public:
 	{
 		try
 		{
-			m_object->RawSetWString(MarshalStringANSI(key), MarshalStringUnicode(value));
+			m_object->RawSet(MarshalStringANSI(key), MarshalStringUnicode(value));
 		}
 		catch (const LuaPlus::LuaException& e)
 		{
@@ -1552,7 +1552,7 @@ public:
 	{
 		try
 		{
-			m_object->RawSetWString(key, MarshalStringUnicode(value));
+			m_object->RawSet(key, MarshalStringUnicode(value));
 		}
 		catch (const LuaPlus::LuaException& e)
 		{
@@ -1566,7 +1566,7 @@ public:
 	{
 		try
 		{
-			m_object->RawSetWString(*key->m_object, MarshalStringUnicode(value));
+			m_object->RawSet(*key->m_object, MarshalStringUnicode(value));
 		}
 		catch (const LuaPlus::LuaException& e)
 		{
@@ -1581,7 +1581,7 @@ public:
 	{
 		try
 		{
-			m_object->RawSetString(MarshalStringANSI(key), MarshalStringANSI(value), len);
+			m_object->RawSet(MarshalStringANSI(key), MarshalStringANSI(value), len);
 		}
 		catch (const LuaPlus::LuaException& e)
 		{
@@ -1595,7 +1595,7 @@ public:
 	{
 		try
 		{
-			m_object->RawSetString(key, MarshalStringANSI(value), len);
+			m_object->RawSet(key, MarshalStringANSI(value), len);
 		}
 		catch (const LuaPlus::LuaException& e)
 		{
@@ -1609,7 +1609,7 @@ public:
 	{
 		try
 		{
-			m_object->RawSetString(*key->m_object, MarshalStringANSI(value), len);
+			m_object->RawSet(*key->m_object, MarshalStringANSI(value), len);
 		}
 		catch (const LuaPlus::LuaException& e)
 		{
@@ -1624,7 +1624,7 @@ public:
 	{
 		try
 		{
-			m_object->RawSetWString(MarshalStringANSI(key), MarshalStringUnicode(value), len);
+			m_object->RawSet(MarshalStringANSI(key), MarshalStringUnicode(value), len);
 		}
 		catch (const LuaPlus::LuaException& e)
 		{
@@ -1638,7 +1638,7 @@ public:
 	{
 		try
 		{
-			m_object->RawSetWString(key, MarshalStringUnicode(value), len);
+			m_object->RawSet(key, MarshalStringUnicode(value), len);
 		}
 		catch (const LuaPlus::LuaException& e)
 		{
@@ -1652,7 +1652,7 @@ public:
 	{
 		try
 		{
-			m_object->RawSetWString(*key->m_object, MarshalStringUnicode(value), len);
+			m_object->RawSet(*key->m_object, MarshalStringUnicode(value), len);
 		}
 		catch (const LuaPlus::LuaException& e)
 		{
@@ -1667,7 +1667,7 @@ public:
 	{
 		try
 		{
-			m_object->RawSetUserData(MarshalStringANSI(key), value);
+			m_object->RawSet(MarshalStringANSI(key), value);
 		}
 		catch (const LuaPlus::LuaException& e)
 		{
@@ -1681,7 +1681,7 @@ public:
 	{
 		try
 		{
-			m_object->RawSetUserData(key, value);
+			m_object->RawSet(key, value);
 		}
 		catch (const LuaPlus::LuaException& e)
 		{
@@ -1695,7 +1695,7 @@ public:
 	{
 		try
 		{
-			m_object->RawSetUserData(*key->m_object, value);
+			m_object->RawSet(*key->m_object, value);
 		}
 		catch (const LuaPlus::LuaException& e)
 		{
@@ -1709,7 +1709,7 @@ public:
 	{
 		try
 		{
-			m_object->RawSetLightUserData(MarshalStringANSI(key), value);
+			m_object->RawSet(MarshalStringANSI(key), value);
 		}
 		catch (const LuaPlus::LuaException& e)
 		{
@@ -1723,7 +1723,7 @@ public:
 	{
 		try
 		{
-			m_object->RawSetLightUserData(key, value);
+			m_object->RawSet(key, value);
 		}
 		catch (const LuaPlus::LuaException& e)
 		{
@@ -1737,7 +1737,7 @@ public:
 	{
 		try
 		{
-			m_object->RawSetLightUserData(*key->m_object, value);
+			m_object->RawSet(*key->m_object, value);
 		}
 		catch (const LuaPlus::LuaException& e)
 		{
@@ -1751,7 +1751,7 @@ public:
 	{
 		try
 		{
-			m_object->RawSetObject(MarshalStringANSI(key), *value->m_object);
+			m_object->RawSet(MarshalStringANSI(key), *value->m_object);
 		}
 		catch (const LuaPlus::LuaException& e)
 		{
@@ -1765,7 +1765,7 @@ public:
 	{
 		try
 		{
-			m_object->RawSetObject(key, *value->m_object);
+			m_object->RawSet(key, *value->m_object);
 		}
 		catch (const LuaPlus::LuaException& e)
 		{
@@ -1779,7 +1779,7 @@ public:
 	{
 		try
 		{
-			m_object->RawSetObject(*key->m_object, *value->m_object);
+			m_object->RawSet(*key->m_object, *value->m_object);
 		}
 		catch (const LuaPlus::LuaException& e)
 		{
@@ -2983,7 +2983,7 @@ void LuaObject::AssignBoolean(ManagedLuaPlus::LuaState^ state, bool value)
 	{
 		if (GetState())
 			GetState()->m_objects->Remove(this);
-		m_object->AssignBoolean(state->m_state, value);
+		m_object->Assign(state->m_state, value);
 		m_state = state;
 		if (state)
 			GetState()->m_objects->Add(this, true);
@@ -3000,7 +3000,7 @@ void LuaObject::AssignNumber(ManagedLuaPlus::LuaState^ state, lua_Number value)
 	{
 		if (GetState())
 			GetState()->m_objects->Remove(this);
-		m_object->AssignNumber(state->m_state, value);
+		m_object->Assign(state->m_state, value);
 		m_state = state;
 		if (state)
 			GetState()->m_objects->Add(this, true);
@@ -3017,7 +3017,7 @@ void LuaObject::AssignString(ManagedLuaPlus::LuaState^ state, String^ value)
 	{
 		if (GetState())
 			GetState()->m_objects->Remove(this);
-		m_object->AssignString(state->m_state, MarshalStringANSI(value));
+		m_object->Assign(state->m_state, MarshalStringANSI(value));
 		m_state = state;
 		if (state)
 			GetState()->m_objects->Add(this, true);
@@ -3034,7 +3034,7 @@ void LuaObject::AssignString(ManagedLuaPlus::LuaState^ state, String^ value, uns
 	{
 		if (GetState())
 			GetState()->m_objects->Remove(this);
-		m_object->AssignString(state->m_state, MarshalStringANSI(value), len);
+		m_object->Assign(state->m_state, MarshalStringANSI(value), len);
 		m_state = state;
 		if (state)
 			GetState()->m_objects->Add(this, true);
@@ -3052,7 +3052,7 @@ void LuaObject::AssignWString(ManagedLuaPlus::LuaState^ state, String^ value)
 	{
 		if (GetState())
 			GetState()->m_objects->Remove(this);
-		m_object->AssignWString(state->m_state, MarshalStringUnicode(value));
+		m_object->Assign(state->m_state, MarshalStringUnicode(value));
 		m_state = state;
 		if (state)
 			GetState()->m_objects->Add(this, true);
@@ -3069,7 +3069,7 @@ void LuaObject::AssignWString(ManagedLuaPlus::LuaState^ state, String^ value, un
 	{
 		if (GetState())
 			GetState()->m_objects->Remove(this);
-		m_object->AssignWString(state->m_state, MarshalStringUnicode(value), len);
+		m_object->Assign(state->m_state, MarshalStringUnicode(value), len);
 		m_state = state;
 		if (state)
 			GetState()->m_objects->Add(this, true);
@@ -3087,7 +3087,7 @@ void LuaObject::AssignUserData(ManagedLuaPlus::LuaState^ state, void* value)
 	{
 		if (GetState())
 			GetState()->m_objects->Remove(this);
-		m_object->AssignUserData(state->m_state, value);
+		m_object->Assign(state->m_state, value);
 		m_state = state;
 		if (state)
 			GetState()->m_objects->Add(this, true);
@@ -3104,7 +3104,7 @@ void LuaObject::AssignLightUserData(ManagedLuaPlus::LuaState^ state, void* value
 	{
 		if (GetState())
 			GetState()->m_objects->Remove(this);
-		m_object->AssignLightUserData(state->m_state, value);
+		m_object->Assign(state->m_state, value);
 		m_state = state;
 		if (state)
 			GetState()->m_objects->Add(this, true);
@@ -3121,7 +3121,7 @@ void LuaObject::AssignObject(LuaObject^ value)
 	{
 		if (GetState())
 			GetState()->m_objects->Remove(this);
-		m_object->AssignObject(*value->m_object);
+		m_object->Assign(GetState()->m_state, *value->m_object);
 		m_state = value->m_state;
 		if (GetState())
 			GetState()->m_objects->Add(this, true);
