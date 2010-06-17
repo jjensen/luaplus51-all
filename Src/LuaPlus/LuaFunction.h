@@ -143,35 +143,30 @@ protected:
 class LuaFunctionVoid
 {
 public:
-	LuaFunctionVoid(const LuaObject& functionObj) :
-		functionObj(functionObj)
-	{
+	LuaFunctionVoid(const LuaObject& functionObj)
+		: functionObj(functionObj) {
 		luaplus_assert(functionObj.IsFunction());
 	}
 
-	LuaFunctionVoid(LuaState* state, const char* functionName)
-	{
+	LuaFunctionVoid(LuaState* state, const char* functionName) {
 		functionObj = state->GetGlobals()[functionName];
 		luaplus_assert(functionObj.IsFunction());
 	}
 
-	void operator()()
-	{
+	void operator()() {
 		LUAFUNCTIONVOID_PRECALL();
 		LUAFUNCTIONVOID_POSTCALL(0);
 	}
 
 	template <typename P1>
-	void operator()(P1 p1)
-	{
+	void operator()(P1 p1) {
 		LUAFUNCTIONVOID_PRECALL();
 		LPCD::Push(L, p1);
 		LUAFUNCTIONVOID_POSTCALL(1);
 	}
 
 	template <typename P1, typename P2>
-	void operator()(P1 p1, P2 p2)
-	{
+	void operator()(P1 p1, P2 p2) {
 		LUAFUNCTIONVOID_PRECALL();
 		LPCD::Push(L, p1);
 		LPCD::Push(L, p2);
@@ -179,8 +174,7 @@ public:
 	}
 
 	template <typename P1, typename P2, typename P3>
-	void operator()(P1 p1, P2 p2, P3 p3)
-	{
+	void operator()(P1 p1, P2 p2, P3 p3) {
 		LUAFUNCTIONVOID_PRECALL();
 		LPCD::Push(L, p1);
 		LPCD::Push(L, p2);
@@ -189,8 +183,7 @@ public:
 	}
 
 	template <typename P1, typename P2, typename P3, typename P4>
-	void operator()(P1 p1, P2 p2, P3 p3, P4 p4)
-	{
+	void operator()(P1 p1, P2 p2, P3 p3, P4 p4) {
 		LUAFUNCTIONVOID_PRECALL();
 		LPCD::Push(L, p1);
 		LPCD::Push(L, p2);
@@ -200,8 +193,7 @@ public:
 	}
 
 	template <typename P1, typename P2, typename P3, typename P4, typename P5>
-	void operator()(P1 p1, P2 p2, P3 p3, P4 p4, P5 p5)
-	{
+	void operator()(P1 p1, P2 p2, P3 p3, P4 p4, P5 p5) {
 		LUAFUNCTIONVOID_PRECALL();
 		LPCD::Push(L, p1);
 		LPCD::Push(L, p2);
@@ -212,8 +204,7 @@ public:
 	}
 
 	template <typename P1, typename P2, typename P3, typename P4, typename P5, typename P6>
-	void operator()(P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6)
-	{
+	void operator()(P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6) {
 		LUAFUNCTIONVOID_PRECALL();
 		LPCD::Push(L, p1);
 		LPCD::Push(L, p2);
@@ -225,8 +216,7 @@ public:
 	}
 
 	template <typename P1, typename P2, typename P3, typename P4, typename P5, typename P6, typename P7>
-	void operator()(P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7)
-	{
+	void operator()(P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7) {
 		LUAFUNCTIONVOID_PRECALL();
 		LPCD::Push(L, p1);
 		LPCD::Push(L, p2);

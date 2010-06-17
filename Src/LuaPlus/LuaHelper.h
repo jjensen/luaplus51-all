@@ -15,8 +15,7 @@
 
 namespace LuaPlus
 {
-	namespace LuaHelper
-	{
+	namespace LuaHelper {
 		LUAPLUS_API void MergeObjects(LuaObject& mergeTo, LuaObject& mergeFrom, bool replaceDuplicates);
 	}
 }

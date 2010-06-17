@@ -39,13 +39,10 @@ namespace LuaHelper
 		\return Returns the value found or the defaultValue.
 	**/
 	template< typename KeyT >
-	static bool GetBoolean( LuaStackObject& obj, KeyT key, bool require = true, bool defaultValue = false )
-	{
+	static bool GetBoolean( LuaStackObject& obj, KeyT key, bool require = true, bool defaultValue = false ) {
 		LuaAutoObject boolObj = obj[ key ];
-		if ( !boolObj.IsBoolean() )
-		{
-			if ( require )
-			{
+		if ( !boolObj.IsBoolean() ) {
+			if ( require ) {
 				luaplus_assert( 0 );
 			}
 			return defaultValue;
@@ -71,13 +68,10 @@ namespace LuaHelper
 		\return Returns the value found or the defaultValue.
 	**/
 	template< typename KeyT >
-	static int GetInteger( LuaStackObject& obj, KeyT key, bool require = true, int defaultValue = -1 )
-	{
+	static int GetInteger( LuaStackObject& obj, KeyT key, bool require = true, int defaultValue = -1 ) {
 		LuaAutoObject intObj = obj[ key ];
-		if ( !intObj.IsInteger() )
-		{
-			if ( require )
-			{
+		if ( !intObj.IsInteger() ) {
+			if ( require ) {
 				luaplus_assert( 0 );
 			}
 			return defaultValue;
@@ -103,13 +97,10 @@ namespace LuaHelper
 		\return Returns the value found or the defaultValue.
 	**/
 	template< typename KeyT >
-	static float GetFloat( LuaStackObject& obj, KeyT key, bool require = true, float defaultValue = -1.0f )
-	{
+	static float GetFloat( LuaStackObject& obj, KeyT key, bool require = true, float defaultValue = -1.0f ) {
 		LuaAutoObject floatObj = obj[ key ];
-		if ( !floatObj.IsNumber() )
-		{
-			if ( require )
-			{
+		if ( !floatObj.IsNumber() ) {
+			if ( require ) {
 				luaplus_assert( 0 );
 			}
 			return defaultValue;
@@ -135,13 +126,10 @@ namespace LuaHelper
 		\return Returns the value found or the defaultValue.
 	**/
 	template< typename KeyT >
-	static void* GetLightUserData( LuaStackObject& obj, KeyT key, bool require = true, void* defaultValue = NULL )
-	{
+	static void* GetLightUserData( LuaStackObject& obj, KeyT key, bool require = true, void* defaultValue = NULL ) {
 		LuaAutoObject outObj = obj[ key ];
-		if ( !outObj.IsLightUserData() )
-		{
-			if ( require )
-			{
+		if ( !outObj.IsLightUserData() ) {
+			if ( require ) {
 				luaplus_assert( 0 );
 			}
 			return defaultValue;
@@ -167,13 +155,10 @@ namespace LuaHelper
 		\return Returns the value found or the defaultValue.
 	**/
 	template< typename KeyT >
-	static const char* GetString( LuaStackObject& obj, KeyT key, bool require = true, const char* defaultValue = "" )
-	{
+	static const char* GetString( LuaStackObject& obj, KeyT key, bool require = true, const char* defaultValue = "" ) {
 		LuaAutoObject stringObj = obj[ key ];
-		if ( !stringObj.IsString() )
-		{
-			if ( require )
-			{
+		if ( !stringObj.IsString() ) {
+			if ( require ) {
 				luaplus_assert( 0 );
 			}
 			return defaultValue;
@@ -196,13 +181,10 @@ namespace LuaHelper
 		\return Returns the object found.
 	**/
 	template< typename KeyT >
-	static LuaStackObject GetTable( LuaStackObject& obj, KeyT key, bool require = true )
-	{
+	static LuaStackObject GetTable( LuaStackObject& obj, KeyT key, bool require = true ) {
 		LuaStackObject tableObj = obj[ key ];
-		if ( !tableObj.IsTable() )
-		{
-			if ( require )
-			{
+		if ( !tableObj.IsTable() ) {
+			if ( require ) {
 				luaplus_assert( 0 );
 			}
 		}

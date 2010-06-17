@@ -56,8 +56,7 @@ LuaObject LuaState::GetGlobals() throw()
 #endif // LUAPLUS_EXTENSIONS
 
 
-LuaStackObject LuaState::PushVFString(const char *fmt, va_list argp)
-{
+LuaStackObject LuaState::PushVFString(const char *fmt, va_list argp) {
 	lua_State* L = LuaState_to_lua_State(this);
 	lua_lock(L);
 	luaC_checkGC(L);
@@ -67,8 +66,7 @@ LuaStackObject LuaState::PushVFString(const char *fmt, va_list argp)
 }
 
 
-LuaStackObject LuaState::PushFString(const char *fmt, ...)
-{
+LuaStackObject LuaState::PushFString(const char *fmt, ...) {
 	lua_State* L = LuaState_to_lua_State(this);
 	va_list argp;
 	lua_lock(L);

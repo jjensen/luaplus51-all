@@ -23,11 +23,9 @@ typedef const char * (*luaplus_Reader) (lua_State *L, void *ud, size_t *sz);
 /**
 	A lua_State wrapper.
 **/
-class LuaState
-{
+class LuaState {
 public:
-	enum DumpObjectTypes
-	{
+	enum DumpObjectTypes {
 		DUMP_ALPHABETICAL		= 0x00000001,
 		DUMP_WRITEALL			= 0x00000002,
 		DUMP_WRITETABLEPOINTERS = 0x00000004,
@@ -271,8 +269,7 @@ protected:
 };
 
 
-class LuaStateAuto
-{
+class LuaStateAuto {
 public:
     operator LuaState*()							{  return m_state;  }
     operator const LuaState*() const				{  return m_state;  }
@@ -285,14 +282,12 @@ public:
 
 	LuaStateAuto() : m_state(NULL) {}
     LuaStateAuto(LuaState* newState) : m_state(newState) {}
-	LuaStateAuto& operator=(LuaState* newState)
-	{
+	LuaStateAuto& operator=(LuaState* newState) {
 		Assign(newState);
 		return *this;
 	}
 
-	~LuaStateAuto()
-	{
+	~LuaStateAuto() {
 		Assign(NULL);
 	}
 
@@ -302,8 +297,7 @@ protected:
     LuaStateAuto(const LuaStateAuto&);					// Not implemented.
     LuaStateAuto& operator=(const LuaStateAuto&);		// Not implemented.
 
-	void Assign(LuaState* state)
-	{
+	void Assign(LuaState* state) {
 		if (m_state)
 			LuaState::Destroy(m_state);
 		m_state = state;
@@ -311,28 +305,23 @@ protected:
 };
 
 
-class LuaStateOwner : public LuaStateAuto
-{
+class LuaStateOwner : public LuaStateAuto {
 public:
-    LuaStateOwner()
-	{
+    LuaStateOwner() {
 		m_state = LuaState::Create();
 	}
 
-    LuaStateOwner(bool initStandardLibrary)
-	{
+    LuaStateOwner(bool initStandardLibrary) {
 		m_state = LuaState::Create(initStandardLibrary);
 	}
 
     LuaStateOwner(LuaState* newState) : LuaStateAuto(newState) {}
-	LuaStateOwner& operator=(LuaState* newState)
-	{
+	LuaStateOwner& operator=(LuaState* newState) {
 		Assign(newState);
 		return *this;
 	}
 
-	~LuaStateOwner()
-	{
+	~LuaStateOwner() {
 		Assign(NULL);
 	}
 
@@ -374,8 +363,7 @@ namespace LPCD
 	inline LuaState* Get(TypeWrapper<LuaState*>, lua_State* L, int /*idx*/)
 		{  return lua_State_To_LuaState(L);  }
 
-	inline int LuaStateFunctionDispatcher(lua_State* L)
-	{
+	inline int LuaStateFunctionDispatcher(lua_State* L) {
 		typedef int (*Functor)(LuaPlus::LuaState*);
 		unsigned char* buffer = LPCD::GetFirstUpValueAsUserData(L);
 		Functor& func = *(Functor*)(buffer);
@@ -383,11 +371,9 @@ namespace LPCD
 	}
 
 	template <typename Callee>
-	class LuaStateMemberDispatcherHelper
-	{
+	class LuaStateMemberDispatcherHelper {
 	public:
-		static inline int LuaStateMemberDispatcher(lua_State* L)
-		{
+		static inline int LuaStateMemberDispatcher(lua_State* L) {
 			typedef int (Callee::*Functor)(LuaPlus::LuaState*);
  			unsigned char* buffer = LPCD::GetFirstUpValueAsUserData(L);
 			Callee& callee = **(Callee**)buffer;
@@ -397,11 +383,9 @@ namespace LPCD
 	};
 
 	template <typename Callee>
-	class Object_MemberDispatcher_to_LuaStateHelper
-	{
+	class Object_MemberDispatcher_to_LuaStateHelper {
 	public:
-		static inline int Object_MemberDispatcher_to_LuaState(lua_State* L)
-		{
+		static inline int Object_MemberDispatcher_to_LuaState(lua_State* L) {
 			typedef int (Callee::*Functor)(LuaPlus::LuaState*);
  			unsigned char* buffer = GetFirstUpValueAsUserData(L);
 			Functor& func = *(Functor*)(buffer);
