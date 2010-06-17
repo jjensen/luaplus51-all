@@ -2041,6 +2041,8 @@ TEST(LuaState_LoadWString)
 }
 */
 
+#if LUA_EXCEPTIONS
+
 TEST(LuaState_ExceptionTest)
 {
 	LuaStateOwner state;
@@ -2072,6 +2074,8 @@ TEST(LuaState_ExceptionTest)
 
 	CHECK(hitException == true);
 }
+
+#endif // LUA_EXCEPTIONS
 
 
 TEST(LuaState_BitOperators)
