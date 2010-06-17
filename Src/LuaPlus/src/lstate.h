@@ -107,6 +107,10 @@ typedef struct global_State {
   void* gctail_prev;		   // only valid when in used list
   void (*loadNotifyFunction)(lua_State *L, const char *);
 #endif /* LUAPLUS_EXTENSIONS */
+#if LUA_FASTREF_SUPPORT
+  TValue l_refs;
+  TValue fastrefNilValue;
+#endif /* LUA_FASTREF_SUPPORT */
 } global_State;
 
 

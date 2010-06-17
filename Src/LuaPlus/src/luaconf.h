@@ -11,6 +11,10 @@
 #include <limits.h>
 #include <stddef.h>
 
+#ifndef LUA_FASTREF_SUPPORT
+#define LUA_FASTREF_SUPPORT 1
+#endif /* LUA_FASTREF_SUPPORT */
+
 #ifndef LUA_WIDESTRING
 #define LUA_WIDESTRING 1
 #endif /* LUA_WIDESTRING */

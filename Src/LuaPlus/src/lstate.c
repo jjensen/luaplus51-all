@@ -118,6 +118,17 @@ static void f_luaopen (lua_State *L, void *ud) {
   luaM_setname(L, "lua.registry");
 #endif /* LUA_MEMORY_STATS */
   sethvalue(L, registry(L), luaH_new(L, 0, 2));  /* registry */
+#if LUA_FASTREF_SUPPORT
+  {
+    TValue n;
+
+    sethvalue(L, &G(L)->l_refs, luaH_new(L, 0, 2));  /* refs */
+	setnvalue(&n, 0);
+    setobj2t(L, luaH_setnum(L, hvalue(&G(L)->l_refs), LUA_RIDX_FASTREF_FREELIST), &n);
+
+    setnilvalue(&g->fastrefNilValue);
+  }
+#endif /* LUA_FASTREF_SUPPORT */
   luaS_resize(L, MINSTRTABSIZE);  /* initial size of string table */
   luaT_init(L);
   luaX_init(L);
