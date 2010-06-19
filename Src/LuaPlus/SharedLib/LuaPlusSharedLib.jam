@@ -107,7 +107,7 @@ if $(UNIX)
 {
 	C.LinkFlags LuaPlusShared : -lstdc++ -ldl ;
 	if $(OS) != MACOSX {
-		C.LinkFlags LuaPlusShared : -Wl,-soname,luaplus-1200.so ;
+		C.LinkFlags LuaPlusShared : -Wl,-soname,luaplus51-1200.so ;
 	}
 }
 

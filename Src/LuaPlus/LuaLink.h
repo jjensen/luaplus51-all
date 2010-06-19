@@ -60,6 +60,7 @@
 		#define LUA_API extern
 	#endif
     #define LUAPLUS_CLASS
+    #define LUAPLUS_CLASS_API
     #define LUAPLUS_API extern
 	#ifdef LUAMODULE_BUILDDLL
 		#define LUAMODULE_API

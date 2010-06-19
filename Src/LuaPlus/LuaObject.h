@@ -10,8 +10,7 @@
 #ifndef LUAOBJECT_H
 #define LUAOBJECT_H
 
-#include "LuaPlusInternal.h"
-#include "LuaPlusCD.h"
+#include "LuaStateCD.h"
 
 #if LUAPLUS_EXTENSIONS
 
@@ -264,13 +263,6 @@ public:
 	}
 
 	template <class Callee>
-	void Register(const char* funcName, const Callee& callee, int (Callee::*func)(LuaState*, LuaStackObject*), int nupvalues = 0)
-	{
-		const void* pCallee = &callee;
-		RegisterHelper(funcName, &LPCD::LuaStateOldMemberDispatcherHelper<Callee>::LuaStateOldMemberDispatcher, nupvalues, &pCallee, sizeof(Callee*), &func, sizeof(func));
-	}
-
-	template <class Callee>
 	void RegisterObjectFunctor(const char* funcName, int (Callee::*func)(LuaState*), int nupvalues = 0)
 	{
 		RegisterHelper(funcName, LPCD::Object_MemberDispatcher_to_LuaStateHelper<Callee>::Object_MemberDispatcher_to_LuaState, nupvalues, NULL, 0, &func, sizeof(func));
@@ -394,35 +386,31 @@ namespace LPCD
 	LUAPLUS_CLASS_API LuaObject		Get(TypeWrapper<LuaObject>, lua_State* L, int idx);
 
 	template <typename Object, typename VarType>
-	inline void PropertyCreate(LuaObject& metaTableObj, const char* varName, VarType Object::* var, bool read = true, bool write = true)
-	{
+	inline void PropertyCreate(LuaObject& metaTableObj, const char* varName, VarType Object::* var, bool read = true, bool write = true) {
 		LuaObject propsObj = metaTableObj["__props"];
-		if (propsObj.IsNil())
-		{
+		if (propsObj.IsNil()) {
 			propsObj = metaTableObj.CreateTable("__props");
 		}
 
 		LuaObject varObj = propsObj.CreateTable(varName);
 
-		LuaState* state = metaTableObj.GetState();
+		lua_State* L = metaTableObj.GetCState();
 
 		varObj.Push();
 
-		if (read)
-		{
-			state->PushNumber(1);
-			lpcd_pushmemberpropertygetclosure(*state, var);
-			state->RawSet(-3);
+		if (read) {
+			lua_pushnumber(L, 1);
+			lpcd_pushmemberpropertygetclosure(L, var);
+			lua_rawset(L, -3);
 		}
 
-		if (write)
-		{
-			state->PushNumber(2);
-			lpcd_pushmemberpropertysetclosure(*state, var);
-			state->RawSet(-3);
+		if (write) {
+			lua_pushnumber(L, 2);
+			lpcd_pushmemberpropertysetclosure(L, var);
+			lua_rawset(L, -3);
 		}
 
-		state->Pop();
+		lua_pop(L, 1);
 	}
 
 
@@ -438,12 +426,12 @@ namespace LPCD
 	{
 		obj.Push();
 
-		LuaState* state = obj.GetState();
-		state->PushString(funcName);
-		lpcd_pushmemberpropertygetclosure(*state, var);
-		state->RawSet(-3);
-
-		state->Pop();
+		lua_State* L = obj.GetCState();
+		lua_pushstring(L, funcName);
+		lpcd_pushmemberpropertygetclosure(L, var);
+		lua_rawset(L, -3);
+		
+		lua_pop(L, 1);
 	}
 
 	template <typename Object, typename VarType>
@@ -451,12 +439,12 @@ namespace LPCD
 	{
 		obj.Push();
 
-		LuaState* state = obj.GetState();
-		state->PushString(funcName);
-		lpcd_pushmemberpropertysetclosure(*state, var);
-		state->RawSet(-3);
-
-		state->Pop();
+		lua_State* L = obj.GetCState();
+		lua_pushstring(L, funcName);
+		lpcd_pushmemberpropertysetclosure(L, var);
+		lua_rawset(L, -3);
+		
+		lua_pop(L, 1);
 	}
 
 
@@ -465,12 +453,12 @@ namespace LPCD
 	{
 		obj.Push();
 
-		LuaState* state = obj.GetState();
-		state->PushString(funcName);
-		lpcd_pushglobalpropertygetclosure(*state, var);
-		state->RawSet(-3);
-
-		state->Pop();
+		lua_State* L = obj.GetCState();
+		lua_pushstring(L, funcName);
+		lpcd_pushglobalpropertygetclosure(L, var);
+		lua_rawset(L, -3);
+		
+		lua_pop(L, 1);
 	}
 
 	template <typename VarType>
@@ -478,15 +466,15 @@ namespace LPCD
 	{
 		obj.Push();
 
-		LuaState* state = obj.GetState();
-		state->PushString(funcName);
-		lpcd_pushglobalpropertysetclosure(*state, var);
-		state->RawSet(-3);
-
-		state->Pop();
+		lua_State* L = obj.GetCState();
+		lua_pushstring(L, funcName);
+		lpcd_pushglobalpropertysetclosure(L, var);
+		lua_rawset(L, -3);
+		
+		lua_pop(L, 1);
 	}
 } // namespace LPCD
 
-#endif // LUAPLUS_EXTENSIONSs
+#endif // LUAPLUS_EXTENSIONS
 
 #endif // LUAOBJECT_H
