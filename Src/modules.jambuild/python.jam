@@ -26,8 +26,8 @@ if $(PLATFORM) = *
 }
 else if $(CONFIG) != *  &&  [ Glob c:/python26/libs : $(libName).lib ]
 {
-	C.LinkFlags python : /DELAYLOAD:LuaPlus_1100.debug.dll : debug ;
-	C.LinkFlags python : /DELAYLOAD:LuaPlus_1100.dll : release ;
+	C.LinkFlags python : /DELAYLOAD:luaplus51-1200_debug.dll : debug ;
+	C.LinkFlags python : /DELAYLOAD:luaplus51-1200.dll : release ;
 	C.LinkPrebuiltLibraries python : DelayImp ;
 
 	Lua.CModule python : : $(SRCS) ;
