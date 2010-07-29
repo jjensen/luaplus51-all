@@ -30,10 +30,13 @@ local v_first
 local v_last= {}     -- { [channel]= num }
 local T2_first_round= true
 
+local caught= {}     -- { [T1]= bool, [T2]= bool }
+
 while true do
     io.stderr:write("waiting...\t")
     local v,channel= linda:receive( 6.0, T1,T2 )
     assert( channel==T1 or channel==T2 )
+    caught[channel]= true
 
     io.stderr:write( ((channel==T1) and "" or "\t\t").. string.format("%.3f",v),"\n" )
     assert( type(v)=="number" )
@@ -49,7 +52,7 @@ while true do
     
     if not v_first then
         v_first= v
-    elseif v-v_first > 5.0 and (not step[T2]) then
+    elseif v-v_first > 3.0 and (not step[T2]) then
         PRINT( "\n*** Adding timers every 5 second (synced to wall clock) ***\n" )
 
         -- The first event can be in the past (just cut seconds down to 5s)
@@ -60,12 +63,17 @@ while true do
         lanes.timer( linda, T2, date, 5.0 )
         step[T2]= 5.0
 
-    elseif v-v_first > 20 then    -- exit condition
+    elseif v-v_first > 10 then    -- exit condition
         break
     end
     v_last[channel]= v
 end  
 
+-- Windows version had a bug where T2 timers were not coming through, at all.
+-- AKa 24-Jan-2009
+--
+assert( caught[T1] )
+assert( caught[T2] )
 
 PRINT( "\n*** Clearing timers ***\n" )
 

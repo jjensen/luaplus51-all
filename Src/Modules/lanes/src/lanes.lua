@@ -381,7 +381,7 @@ if first_time then
     -- set_timer( linda_h, key [,wakeup_at_secs [,period_secs]] )
     --
     local function set_timer( linda, key, wakeup_at, period )
-    
+
         assert( wakeup_at==nil or wakeup_at>0.0 )
         assert( period==nil or period>0.0 )
 

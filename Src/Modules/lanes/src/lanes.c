@@ -1102,8 +1102,7 @@ LUAG_FUNC( _single ) {
 
 static int lane_error( lua_State *L ) {
     lua_Debug ar;
-	unsigned lev;
-	unsigned n;
+    unsigned lev,n;
 
     // [1]: error message (any type)
 
@@ -1164,11 +1163,9 @@ static int lane_error( lua_State *L ) {
 {
     struct s_lane *s= (struct s_lane *)vs;
     int rc, rc2;
-	lua_State *L;
+    lua_State *L= s->L;
 
     s->status= RUNNING;  // PENDING -> RUNNING
-
-    L= s->L;
 
     // Tie "set_finalizer()" to the state
     //

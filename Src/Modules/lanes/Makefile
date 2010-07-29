@@ -205,6 +205,7 @@ else
 		    --exclude="*.obj" --exclude="*.dll" --exclude=timeit.dat \
 	   | (cd $(MODULE)-$(VERSION) && tar x)
 	tar czvf $(MODULE)-$(VERSION).tgz $(MODULE)-$(VERSION)
+	rm -rf $(MODULE)-$(VERSION)
 	md5sum $(MODULE)-$(VERSION).tgz
 endif
 	

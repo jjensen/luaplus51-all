@@ -105,8 +105,6 @@ time_d now_secs(void) {
         st.wMonth= 1;   // Jan
         st.wDay= 1;
         st.wHour= st.wMinute= st.wSecond= st.wMilliseconds= 0;
-        //
-        st.wDayOfWeek= 0;  // ignored
 
         if (!SystemTimeToFileTime( &st, &ft ))
             FAIL( "SystemTimeToFileTime", GetLastError() );
@@ -127,11 +125,19 @@ time_d now_secs(void) {
      * of the 100ns class but just 1ms (Windows XP).
      */
 # if 1
-    // > 2.0.3 code; fix from Kriss Daniels, see: http://luaforge.net/forum/forum.php?thread_id=22704&forum_id=1781
+    // >= 2.0.3 code
+    return (double) ((uli.QuadPart - uli_epoch.QuadPart)/10000) / 1000.0;
+# elif 0
+    // fix from Kriss Daniels, see: 
+    // <http://luaforge.net/forum/forum.php?thread_id=22704&forum_id=1781>
+    //
     // "seem to be getting negative numbers from the old version, probably number
     // conversion clipping, this fixes it and maintains ms resolution"
     //
- 	return ((double)((signed)((uli.QuadPart/10000) - (uli_epoch.QuadPart/10000)))) / 1000.0; 
+    // This was a bad fix, and caused timer test 5 sec timers to disappear.
+    // --AKa 25-Jan-2009
+    //
+    return ((double)((signed)((uli.QuadPart/10000) - (uli_epoch.QuadPart/10000)))) / 1000.0;
 # else
     // <= 2.0.2 code
     return (double)(uli.QuadPart - uli_epoch.QuadPart) / 10000000.0;

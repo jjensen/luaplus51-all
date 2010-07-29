@@ -3,6 +3,12 @@ CHANGES:
 
 CHANGE X:
 
+CHANGE 13 (bug fix) BGe 09-Jul-2010:
+    Fixed lane status to be correctly returned as "waiting" when it should.
+
+CHANGE 12 (bug fix on Windows, 2.0.3) AKa 25-Jan-2009:
+    Did CHANGE 9 the way it should be done.
+
 CHANGE 11 (new feature, 2.0.3) AKa 23-Jan-2009:
     Finalizers ('set_finalizer()') for being able to do cleanup of a lane's 
     resources, whether it returned succesfully or via an error.
