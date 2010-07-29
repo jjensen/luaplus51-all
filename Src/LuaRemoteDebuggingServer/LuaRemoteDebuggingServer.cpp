@@ -1514,7 +1514,7 @@ void LuaRemoteDebuggingServer::Initialize( const char* networkConnectionFileName
 	}
 
 	// Make the Lua state we'll use for network communications.
-	m_networkLuaState = LuaState::Create();
+	m_networkLuaState = lua_State_To_LuaState(lua_open());
 
 	// Register all the callback functions.
 	LuaObject globalsObj = m_networkLuaState->GetGlobals();
@@ -1604,7 +1604,7 @@ void LuaRemoteDebuggingServer::Shutdown()
 
 	if (m_networkLuaState)
 	{
-		LuaState::Destroy( m_networkLuaState );
+		lua_close( LuaState_to_lua_State( m_networkLuaState ) );
 		m_networkLuaState = NULL;
 	}
 
