@@ -58,7 +58,7 @@ C.IncludeDirectories lanes : $(LOCATE_TARGET) ;
 
 if $(PLATFORM) = linux32
 {
-	C.LinkFlags lanes : -lpthread ;
+	C.LinkPrebuiltLibraries lanes : pthread ;
 }
 
 Lua.CModule lanes : lua51-lanes lanes : $(SRCS) ;

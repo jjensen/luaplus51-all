@@ -14,7 +14,7 @@ if $(NT)
 }
 else if $(OS) = LINUX
 {
-	C.LinkFlags uuid : -luuid ;
+	C.LinkPrebuiltLibraries uuid : uuid ;
 }
 
 Lua.CModule uuid : : $(SRCS) ;
