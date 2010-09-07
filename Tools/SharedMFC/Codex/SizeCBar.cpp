@@ -927,8 +927,9 @@ BOOL CSizingControlBar::NegotiateSpace(int nLengthTotal, BOOL bHorz)
     int nLengthMin = 2;
     int nWidthMax = 0;
     CSizingControlBar* pBar;
+    int i;
 
-    for (int i = nFirst; i <= nLast; i++)
+    for (i = nFirst; i <= nLast; i++)
     {
         pBar = (CSizingControlBar*) m_pDockBar->m_arrBars[i];
         if (HIWORD(pBar) == 0) continue; // placeholder
@@ -1006,7 +1007,7 @@ BOOL CSizingControlBar::NegotiateSpace(int nLengthTotal, BOOL bHorz)
     }
 
     // make all the bars the same width
-    for (int i = 0; i < nNumBars; i++)
+    for (i = 0; i < nNumBars; i++)
         if (bHorz)
             arrSCBars[i]->m_szHorz.cy = nWidthMax;
         else

@@ -81,7 +81,11 @@ rule Lua.CModule TARGET : OUTPUT_NAME : SOURCES : MODULES_SUBDIR {
 	C.IncludeDirectories $(TARGET) : "$(LUAPLUS)/Src/LuaPlus/src" ;
 
 	if $(OS) != MACOSX  &&  $(OS) != LINUX {
-		C.LinkLibraries $(TARGET) : lua5.1 ;
+		if $(COMPILER.$(PLATFORM)) != vc6 {
+			C.LinkLibraries $(TARGET) : lua5.1 ;
+		} else {
+			C.LinkLibraries $(TARGET) : LuaPlusShared ;
+		}
 	}
 
 	OUTPUT_NAME ?= $(TARGET) ;

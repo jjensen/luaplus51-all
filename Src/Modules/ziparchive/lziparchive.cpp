@@ -25,6 +25,24 @@ extern "C" {
 
 #include <time.h>
 
+#if _MSC_VER  &&  _MSC_VER <= 1300
+double ui64ToDouble(unsigned __int64 ui64)
+{
+  __int64 i64 = (ui64 & 0x7FFFFFFFFFFFFFF);
+  double dbl = (double) i64;
+  if (ui64 & 0x8000000000000000)
+    dbl += (double) 0x8000000000000000;
+  return dbl;
+
+}
+#else
+double ui64ToDouble(unsigned __int64 ui64)
+{
+	return (double)ui64;
+}
+#endif
+
+
 using namespace Misc;
 
 static void BuildFileEntry(lua_State* L, ZipEntryInfo* entry)
@@ -252,7 +270,7 @@ int lziparchive_filegetfilename(lua_State* L) {
 int lziparchive_filegetposition(lua_State* L) {
 	ZipArchive* archive = lziparchive_check(L, 1);
 	ZipEntryFileHandle* fileHandle = filehandle_check(L, 2);
-	lua_pushnumber(L, (lua_Number)archive->FileGetPosition(*fileHandle));
+	lua_pushnumber(L, (lua_Number)ui64ToDouble(archive->FileGetPosition(*fileHandle)));
 	return 1;
 }
 
@@ -269,7 +287,7 @@ int lziparchive_filesetlength(lua_State* L) {
 int lziparchive_filegetlength(lua_State* L) {
 	ZipArchive* archive = lziparchive_check(L, 1);
 	ZipEntryFileHandle* fileHandle = filehandle_check(L, 2);
-	lua_pushnumber(L, (lua_Number)archive->FileGetLength(*fileHandle));
+	lua_pushnumber(L, (lua_Number)ui64ToDouble(archive->FileGetLength(*fileHandle)));
 	return 1;
 }
 
@@ -295,7 +313,7 @@ int lziparchive_filewrite(lua_State* L) {
 	size_t len;
     const char* buffer = luaL_checklstring(L, 3, &len);
 	len = luaL_optlong(L, 4, len);
-	lua_pushnumber(L, (lua_Number)archive->FileWrite(*fileHandle, buffer, len));
+	lua_pushnumber(L, (lua_Number)ui64ToDouble(archive->FileWrite(*fileHandle, buffer, len)));
 	return 1;
 }
 

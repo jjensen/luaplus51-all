@@ -42,7 +42,7 @@ public:
 		Node(typename TTraits::INARGTYPE inElement) : m_element(inElement) {}
 
 	protected:
-		friend class ListNodeTraits;
+		friend class ListNodeTraits<T, TTraits, AllocatorPolicy>;
 		Node* m_previousNode;
 		Node* m_nextNode;
 		T m_element;

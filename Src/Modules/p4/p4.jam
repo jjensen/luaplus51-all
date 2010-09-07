@@ -1,4 +1,4 @@
-if $(NT)
+if $(NT)  &&  $(COMPILER.$(PLATFORM)) != vc6
 {
 
 local SRCS =

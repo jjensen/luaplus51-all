@@ -243,11 +243,14 @@ BOOL (WINAPI *fnTzSpecificLocalTimeToSystemTime)(LPTIME_ZONE_INFORMATION lpTimeZ
 void DiskFile::SetLastWriteTime(time_t lastWriteTime)
 {
 #if defined(PLATFORM_WINDOWS)
+#if _MSC_VER  &&  _MSC_VER <= 1300
+	assert(0);
+#else
 	FILETIME localFILETIME;
 	LONGLONG ll = Int32x32To64(lastWriteTime, 10000000) + 116444736000000000ULL;
 	localFILETIME.dwLowDateTime = (DWORD) ll;
 	localFILETIME.dwHighDateTime = (DWORD)(ll >>32);
-	
+
 	SYSTEMTIME localSystemTime;
 	FileTimeToSystemTime(&localFILETIME, &localSystemTime);
 
@@ -275,6 +278,7 @@ void DiskFile::SetLastWriteTime(time_t lastWriteTime)
 
 	if ( !::SetFileTime(m_fileHandle, NULL, NULL, &lastWriteTimeFILETIME) )
 		return;
+#endif
 #else
 	assert(0);
 #endif

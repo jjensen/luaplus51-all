@@ -49,13 +49,21 @@ template<> class TypeTraits<unsigned char> : public PrimitiveTypeTraits<unsigned
 template<> class TypeTraits<unsigned short> : public PrimitiveTypeTraits<unsigned short> {};
 template<> class TypeTraits<unsigned int> : public PrimitiveTypeTraits<unsigned int> {};
 template<> class TypeTraits<unsigned long> : public PrimitiveTypeTraits<unsigned long> {};
+#if _MSC_VER  &&  _MSC_VER <= 1300
+template<> class TypeTraits<unsigned __int64> : public PrimitiveTypeTraits<unsigned __int64> {};
+#else
 template<> class TypeTraits<unsigned long long> : public PrimitiveTypeTraits<unsigned long long> {};
+#endif
 template<> class TypeTraits<signed char> : public PrimitiveTypeTraits<signed char> {};
 template<> class TypeTraits<char> : public PrimitiveTypeTraits<char> {};
 template<> class TypeTraits<short> : public PrimitiveTypeTraits<short> {};
 template<> class TypeTraits<int> : public PrimitiveTypeTraits<int> {};
 template<> class TypeTraits<long> : public PrimitiveTypeTraits<long> {};
+#if _MSC_VER  &&  _MSC_VER <= 1300
+template<> class TypeTraits<__int64> : public PrimitiveTypeTraits<__int64> {};
+#else
 template<> class TypeTraits<long long> : public PrimitiveTypeTraits<long long> {};
+#endif
 template<> class TypeTraits<float> : public PrimitiveTypeTraits<float> {};
 template<> class TypeTraits<double> : public PrimitiveTypeTraits<double> {};
 template<> class TypeTraits<bool> : public PrimitiveTypeTraits<bool> {};

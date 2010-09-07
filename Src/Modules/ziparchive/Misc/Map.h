@@ -17,7 +17,7 @@ public:
 
 	class Node
 	{
-		friend class Map;
+		friend class Map<KEY, VALUE, KeyTraits, ValueTraits, Allocator>;
 
 		Node* m_next;
 		size_t m_hash;

@@ -922,7 +922,8 @@ LuaState* FindLuaStateToDebug(LuaState* state)
 static int LS_LuaClientConnect( LuaState* state )
 {
 	// Push all the files over.
-	for (void* pos = m_savedFileInfoMap.GetHeadPosition(); pos; m_savedFileInfoMap.GetNext(pos))
+	void* pos;
+	for (pos = m_savedFileInfoMap.GetHeadPosition(); pos; m_savedFileInfoMap.GetNext(pos))
 	{
 		SavedFileInfo* fileInfo = m_savedFileInfoMap.GetAt(pos);
 		const SimpleString& fileName = fileInfo->m_fileName;
@@ -932,7 +933,7 @@ static int LS_LuaClientConnect( LuaState* state )
 		SendFileHelper( fileName );
 	}
 
-	for (void* pos = luaStateInfoList.GetHeadPosition(); pos; luaStateInfoList.GetNext(pos))
+	for (pos = luaStateInfoList.GetHeadPosition(); pos; luaStateInfoList.GetNext(pos))
 	{
 		LuaStateInfo& info = luaStateInfoList.GetAt(pos);
 		SendCommand("LuaDebuggerConnect(\"" + info.stateName + "\")");

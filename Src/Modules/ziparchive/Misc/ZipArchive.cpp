@@ -700,7 +700,9 @@ bool ZipArchive::Open(File& parentFile, const char* filename, bool readOnly, DWO
         m_fileEntryOffsets = new size_t[m_fileEntryCount];
 	this->fileNameMap.SetBlockSize(m_fileEntryCount + 1);
 	this->fileNameMap.SetHashTableSize(m_fileEntryCount / 5);
-	for (size_t i = 0; i < m_fileEntryCount; ++i) {
+
+	size_t i;
+	for (i = 0; i < m_fileEntryCount; ++i) {
 		ZipFileHeader* zipFileHeader = (ZipFileHeader*)zipDirPtr;
 
 		if (m_swap) {
@@ -741,7 +743,7 @@ bool ZipArchive::Open(File& parentFile, const char* filename, bool readOnly, DWO
 
     BYTE* fileEntryPtr = m_fileEntries;
 
-	for (size_t i = 0; i < zipDirHeader.number_entry_CD; ++i) {
+	for (i = 0; i < zipDirHeader.number_entry_CD; ++i) {
 		ZipFileHeader* zipFileHeader = (ZipFileHeader*)zipDirPtr;
 
 		ZipEntryInfo& fileEntry = *(ZipEntryInfo*)fileEntryPtr;
@@ -1863,7 +1865,8 @@ bool ZipArchive::FileErase(const char* fileName)
 	if (index < m_fileEntryCount - 1)
 	{
 		// Reinsert all following entries into the map.
-		for (size_t i = index + 1; i < m_fileEntryCount; ++i)
+		size_t i;
+		for (i = index + 1; i < m_fileEntryCount; ++i)
 		{
 			this->fileNameMap.Remove(PtrString(this, i));
 		}
@@ -1874,7 +1877,7 @@ bool ZipArchive::FileErase(const char* fileName)
 		m_fileEntryCount--;
 
 		// Reinsert all following entries into the map.
-		for (size_t i = index; i < m_fileEntryCount; ++i)
+		for (i = index; i < m_fileEntryCount; ++i)
 		{
 			m_fileEntryOffsets[i] -= sizeToRemove;
 			this->fileNameMap[PtrString(this, i)] = i;
@@ -2740,8 +2743,9 @@ bool ZipArchive::ProcessFileList(ZipArchive::FileOrderList& fileOrderList, Proce
 	PFL_OpenZipArchiveMap openArchives;
 
 	// The lists of files and directories we need.
-	for (FileOrderList::Node* node = fileOrderList.Head(); node; node = fileOrderList.Next(node)) {
-		FileOrderInfo& fileOrderInfo = fileOrderList.Value(node);
+	FileOrderList::Node* fileOrderListNode;
+	for (fileOrderListNode = fileOrderList.Head(); fileOrderListNode; fileOrderListNode = fileOrderList.Next(fileOrderListNode)) {
+		FileOrderInfo& fileOrderInfo = fileOrderList.Value(fileOrderListNode);
 
 		HeapString lowerEntryName = fileOrderInfo.entryName.Lower();
 		FileNameMap::Node* fileNameNode = fileNameMap.Find(lowerEntryName);
@@ -2876,9 +2880,10 @@ bool ZipArchive::ProcessFileList(ZipArchive::FileOrderList& fileOrderList, Proce
 	bool needsUpdate = false;
 	bool someDontNeedUpdate = false;
 	bool orderChanged = false;
-	for (FileOrderList::Node* node = fileOrderList.Head(); node; node = fileOrderList.Next(node), ++index)
+
+	for (fileOrderListNode = fileOrderList.Head(); fileOrderListNode; fileOrderListNode = fileOrderList.Next(fileOrderListNode), ++index)
 	{
-		FileOrderInfo* info = &fileOrderList.Value(node);
+		FileOrderInfo* info = &fileOrderList.Value(fileOrderListNode);
 		if (!info->used) {
 			--index;
 			continue;
@@ -2938,21 +2943,21 @@ bool ZipArchive::ProcessFileList(ZipArchive::FileOrderList& fileOrderList, Proce
 		info->needUpdate |= timestampChanged;
 
 		// If the file size changed, it is a dead giveaway the files are different.
-		info->needUpdate |= info->size != entry->GetUncompressedSize();
+		info->needUpdate |= (info->size != entry->GetUncompressedSize());
 
 		// If the compression method is different (generally uncompressed->compressed or vice versa),
 		// the file needs to be re-transferred into the zip.
-	    info->needUpdate |= info->compressionMethod != entry->GetCompressionMethod();
+	    info->needUpdate |= (info->compressionMethod != entry->GetCompressionMethod());
 
 		// If a CRC was provided, test for differences.
 		if (info->crc != 0)
-			info->needUpdate |= info->crc != entry->GetCRC();
+			info->needUpdate |= (info->crc != entry->GetCRC());
 
 		// If we're expected to have MD5s and the MD5 hasn't been set or doesn't match, update the file.
 		if (m_flags & SUPPORT_MD5) {
-			info->needUpdate |= memcmp(entry->GetMD5(), emptyMD5, sizeof(emptyMD5)) == 0;
+			info->needUpdate |= (memcmp(entry->GetMD5(), emptyMD5, sizeof(emptyMD5)) == 0);
 			if (memcmp(info->md5, emptyMD5, sizeof(emptyMD5)) != 0)
-				info->needUpdate |= memcmp(entry->GetMD5(), info->md5, sizeof(info->md5)) != 0;
+				info->needUpdate |= (memcmp(entry->GetMD5(), info->md5, sizeof(info->md5)) != 0);
 		}
 
         // After all the checks, do we need to update the file?
@@ -2984,11 +2989,11 @@ bool ZipArchive::ProcessFileList(ZipArchive::FileOrderList& fileOrderList, Proce
 			// Now that we have the extra information about the CRC and potential MD5,
 			// see if there is anything still needing to be done.
 			bool different = false;
-			different |= info->compressionMethod != entry->GetCompressionMethod();
-			different |= info->crc != entry->GetCRC();
+			different |= (info->compressionMethod != entry->GetCompressionMethod());
+			different |= (info->crc != entry->GetCRC());
 			if (m_flags & SUPPORT_MD5) {
 				if (memcmp(info->md5, emptyMD5, sizeof(emptyMD5)) != 0)
-					different |= memcmp(entry->GetMD5(), info->md5, sizeof(info->md5)) != 0;
+					different |= (memcmp(entry->GetMD5(), info->md5, sizeof(info->md5)) != 0);
 			}
 		    if (!different)
 		    {
@@ -3014,7 +3019,7 @@ bool ZipArchive::ProcessFileList(ZipArchive::FileOrderList& fileOrderList, Proce
 
 	// If there is anything left in the archiveFileEntryMap, that means the file order didn't
 	// specify the file, and it needs to be removed.
-	for (ArchiveFileEntryMap::Node* node = archiveFileEntryMap.Head(); node; node = archiveFileEntryMap.Next(node)) {
+	for (ArchiveFileEntryMap::Node* archiveFileEntryNode = archiveFileEntryMap.Head(); archiveFileEntryNode; archiveFileEntryNode = archiveFileEntryMap.Next(archiveFileEntryNode)) {
 		// Inform the caller of the update.
 		if (!filenameShown) {
 			if (options->statusUpdateCallback)
@@ -3022,11 +3027,11 @@ bool ZipArchive::ProcessFileList(ZipArchive::FileOrderList& fileOrderList, Proce
 			filenameShown = true;
 		}
 		if (options->statusUpdateCallback)
-			options->statusUpdateCallback(DELETING_ENTRY, archiveFileEntryMap.Key(node), options->statusUpdateUserData);
+			options->statusUpdateCallback(DELETING_ENTRY, archiveFileEntryMap.Key(archiveFileEntryNode), options->statusUpdateUserData);
 
 		if (!options->requiresPack) {
 			// Erase the file.
-			FileErase(archiveFileEntryMap.Key(node));
+			FileErase(archiveFileEntryMap.Key(archiveFileEntryNode));
 			needsPack = true;
 		}
 	}

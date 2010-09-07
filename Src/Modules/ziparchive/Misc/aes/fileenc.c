@@ -99,8 +99,12 @@ static void encr_data_offset(unsigned char data[], unsigned long d_len, fcrypt_c
 	unsigned long pos = offset % BLOCK_SIZE;  //cx->encr_pos;
 	unsigned char flipnonce[BLOCK_SIZE];
 	int x = 1;
-	
+
+#if _MSC_VER  &&  _MSC_VER <= 1300
+	*(unsigned __int64*)cx->nonce = 1 + (offset / BLOCK_SIZE);
+#else
 	*(unsigned long long*)cx->nonce = 1 + (offset / BLOCK_SIZE);
+#endif
 
 	/* endian check */
 	if (*(unsigned char*)&x == 0)

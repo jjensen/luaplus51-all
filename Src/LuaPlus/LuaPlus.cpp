@@ -192,6 +192,8 @@ LuaException::~LuaException()
 #pragma warning(disable: 4702)
 #endif /* _MSC_VER */
 
+LUA_EXTERN_C_BEGIN
+
 /**
 **/
 static int FatalError( lua_State* state )
@@ -211,6 +213,8 @@ static int FatalError( lua_State* state )
 
 	return -1;
 }
+
+LUA_EXTERN_C_END
 
 #if defined(_MSC_VER)
 #pragma warning(pop)

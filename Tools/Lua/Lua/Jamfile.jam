@@ -15,7 +15,7 @@ local SRCS =
 		Lua.cpp
 ;
 
-if $(NT)
+if $(NT)  &&  $(COMPILER.$(PLATFORM)) != vc6
 {
 	SRCS += $(NETWORK_SRCS) ;
 }
@@ -26,7 +26,7 @@ rule LuaApplication TARGET : OPTIONS
 
 	SubInclude LUAPLUS Src LuaPlus SharedLib : LuaPlusSharedLib ;
 
-	if $(NT)
+	if $(NT)  &&  $(COMPILER.$(PLATFORM)) != vc6
 	{
 		C.Defines : REMOTE_DEBUGGER ;
 	}
@@ -43,7 +43,7 @@ rule LuaApplication TARGET : OPTIONS
 		C.LinkFlags : -Wl,-E -lreadline ;
 		C.LinkFlags : -Wl,--rpath=\\$ORIGIN -z origin ;
 	}
-	LuaPlusFixUpTarget $(TARGET) ;	
+	LuaPlusFixUpTarget $(TARGET) ;
 	C.Application : $(SRCS) : $(OPTIONS) ;
 }
 

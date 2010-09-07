@@ -784,7 +784,8 @@ static int p4_connection_run( lua_State *L ) {
 		argstart = 2;
 
 		int origargc = argc;
-		for ( int i = argstart; i < argstart + argc; ++i ) {
+		int i;
+		for ( i = argstart; i < argstart + argc; ++i ) {
 			lua_rawgeti( L, -2, i );
 			if ( lua_istable( L, -1 ) )
 				argc += lua_objlen( L, -1 ) - 1;
@@ -793,7 +794,7 @@ static int p4_connection_run( lua_State *L ) {
 
 		argv = (char**)malloc( sizeof(char*) * argc );
 		argc = 0;
-		for ( int i = argstart; i < argstart + origargc; ++i ) {
+		for ( i = argstart; i < argstart + origargc; ++i ) {
 			lua_rawgeti( L, -2, i );
 			if ( lua_isstring( L, -1 ) || lua_isnumber( L, -1 ) ) {
 				unsigned int len = lua_objlen( L, -1 );
@@ -825,7 +826,8 @@ static int p4_connection_run( lua_State *L ) {
 		argstart = 3;
 
 		int origargc = argc;
-		for ( int i = argstart; i < argstart + origargc; ++i ) {
+		int i;
+		for ( i = argstart; i < argstart + origargc; ++i ) {
 			if ( lua_isnil( L, i ) ) {
 				origargc = i - argstart;
 				break;
@@ -847,7 +849,7 @@ static int p4_connection_run( lua_State *L ) {
 
 		argv = (char**)malloc( sizeof(char*) * argc );
 		argc = 0;
-		for ( int i = argstart; i < argstart + origargc; ++i ) {
+		for ( i = argstart; i < argstart + origargc; ++i ) {
 			if ( lua_isstring( L, i )  ||  lua_isnumber( L, i ) ) {
 				unsigned int len = lua_objlen( L, i );
 				argv[ argc ] = (char*)malloc( len + 1 );

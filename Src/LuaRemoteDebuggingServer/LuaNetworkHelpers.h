@@ -12,7 +12,11 @@
 
 #undef SetPort
 
+#if _MSC_VER  &&  _MSC_VER < 1300
+typedef unsigned int           SOCKET;
+#else
 typedef UINT_PTR SOCKET;
+#endif
 
 struct sockaddr_in;
 struct sockaddr;
@@ -309,7 +313,11 @@ protected:
 class LuaNetworkSocket
 {
 public:
+#if _MSC_VER  &&  _MSC_VER < 1300
+	static enum { INVALID = -1 };
+#else
 	static const SOCKET INVALID = (SOCKET)(~0);
+#endif
 
 	LuaNetworkSocket( SOCKET socket = INVALID );
 	~LuaNetworkSocket();

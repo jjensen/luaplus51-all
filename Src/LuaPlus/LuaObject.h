@@ -380,13 +380,13 @@ namespace LPCD
 {
 	using namespace LuaPlus;
 
-	LUAPLUS_CLASS_API void Push(lua_State* L, LuaObject& value);
-	inline bool	Match(TypeWrapper<LuaObject>, lua_State* L, int idx)
+	LUAPLUS_CLASS_API void Push(lua_State* L, LuaPlus::LuaObject& value);
+	inline bool	Match(TypeWrapper<LuaPlus::LuaObject>, lua_State* L, int idx)
 		{  (void)L, (void)idx;  return true;  }
-	LUAPLUS_CLASS_API LuaObject		Get(TypeWrapper<LuaObject>, lua_State* L, int idx);
+	LUAPLUS_CLASS_API LuaPlus::LuaObject Get(TypeWrapper<LuaPlus::LuaObject>, lua_State* L, int idx);
 
 	template <typename Object, typename VarType>
-	inline void PropertyCreate(LuaObject& metaTableObj, const char* varName, VarType Object::* var, bool read = true, bool write = true) {
+	inline void PropertyCreate(LuaPlus::LuaObject& metaTableObj, const char* varName, VarType Object::* var, bool read = true, bool write = true) {
 		LuaObject propsObj = metaTableObj["__props"];
 		if (propsObj.IsNil()) {
 			propsObj = metaTableObj.CreateTable("__props");
@@ -414,7 +414,7 @@ namespace LPCD
 	}
 
 
-	inline void MetaTable_IntegratePropertySupport(LuaObject& metaTableObj)
+	inline void MetaTable_IntegratePropertySupport(LuaPlus::LuaObject& metaTableObj)
 	{
 		metaTableObj.Register("__index", PropertyMetaTable_index);
 		metaTableObj.Register("__newindex", PropertyMetaTable_newindex);
@@ -422,7 +422,7 @@ namespace LPCD
 
 
 	template <typename Object, typename VarType>
-	void Register_MemberPropertyGetFunction(LuaObject& obj, const char* funcName, VarType Object::* var)
+	void Register_MemberPropertyGetFunction(LuaPlus::LuaObject& obj, const char* funcName, VarType Object::* var)
 	{
 		obj.Push();
 
@@ -435,7 +435,7 @@ namespace LPCD
 	}
 
 	template <typename Object, typename VarType>
-	void Register_MemberPropertySetFunction(LuaObject& obj, const char* funcName, VarType Object::* var)
+	void Register_MemberPropertySetFunction(LuaPlus::LuaObject& obj, const char* funcName, VarType Object::* var)
 	{
 		obj.Push();
 
@@ -449,7 +449,7 @@ namespace LPCD
 
 
 	template <typename VarType>
-	void Register_GlobalPropertyGetFunction(const LuaObject& obj, const char* funcName, VarType* var)
+	void Register_GlobalPropertyGetFunction(const LuaPlus::LuaObject& obj, const char* funcName, VarType* var)
 	{
 		obj.Push();
 
@@ -462,7 +462,7 @@ namespace LPCD
 	}
 
 	template <typename VarType>
-	void Register_GlobalPropertySetFunction(const LuaObject& obj, const char* funcName, VarType* var)
+	void Register_GlobalPropertySetFunction(const LuaPlus::LuaObject& obj, const char* funcName, VarType* var)
 	{
 		obj.Push();
 

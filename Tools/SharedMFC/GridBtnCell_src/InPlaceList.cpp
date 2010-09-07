@@ -138,6 +138,8 @@ CInPlaceList::CInPlaceList(CWnd* pParent, CRect& rect, DWORD dwStyle, UINT nID,
 						   CStringArray& Items, CString sInitText,
 						   UINT nFirstChar)
 {
+	int i;
+
 	m_nNumLines = 4;
 	m_sInitText = sInitText;
  	m_nRow		= nRow;
@@ -153,7 +155,7 @@ CInPlaceList::CInPlaceList(CWnd* pParent, CRect& rect, DWORD dwStyle, UINT nID,
 	if (!Create(dwComboStyle, rect, pParent, nID)) return;
 
 	// Add the strings
-	for (int i = 0; i < Items.GetSize(); i++)
+	for (i = 0; i < Items.GetSize(); i++)
 		AddString(Items[i]);
 
 	// Get the maximum width of the text strings
@@ -161,7 +163,7 @@ CInPlaceList::CInPlaceList(CWnd* pParent, CRect& rect, DWORD dwStyle, UINT nID,
 	CClientDC dc(GetParent());
 	CFont* pOldFont = dc.SelectObject(pParent->GetFont());
 
-	for (int i = 0; i < Items.GetSize(); i++)
+	for (i = 0; i < Items.GetSize(); i++)
 		nMaxLength = max(nMaxLength, dc.GetTextExtent(Items[i]).cx);
 
 	nMaxLength += (::GetSystemMetrics(SM_CXVSCROLL) + dc.GetTextExtent(_T(" ")).cx*2);
@@ -311,13 +313,13 @@ drop down list.   This function sets the input focus to its parent thus
 terminating the item selection.
 
 *****************************************************************************/
-void CInPlaceList::OnSelEndOK() 
-{	
+void CInPlaceList::OnSelEndOK()
+{
     int iIndex = GetCurSel();
     if( iIndex != CB_ERR)
     {
         CString strLbText;
-        GetLBText( iIndex, strLbText); 
+        GetLBText( iIndex, strLbText);
 
         m_edit.SetWindowText( strLbText);
     }

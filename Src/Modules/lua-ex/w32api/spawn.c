@@ -13,8 +13,13 @@
 #include "spawn.h"
 #include "pusherror.h"
 
+#if _MSC_VER  &&  _MSC_VER <= 1300
+#define debug() /* fprintf(stderr, __VA_ARGS__) */
+#define debug_stack(L) /* #include "../lds.c" */
+#else
 #define debug(...) /* fprintf(stderr, __VA_ARGS__) */
 #define debug_stack(L) /* #include "../lds.c" */
+#endif
 
 #define file_handle(fp) (HANDLE)_get_osfhandle(fileno(fp))
 

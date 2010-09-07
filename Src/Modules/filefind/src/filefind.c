@@ -14,6 +14,24 @@
 #include "fileglob.h"
 
 
+#if _MSC_VER  &&  _MSC_VER <= 1300
+double ui64ToDouble(unsigned __int64 ui64)
+{
+  __int64 i64 = (ui64 & 0x7FFFFFFFFFFFFFF);
+  double dbl = (double) i64;
+  if (ui64 & 0x8000000000000000)
+    dbl += (double) 0x8000000000000000;
+  return dbl;
+
+}
+#else
+double ui64ToDouble(unsigned __int64 ui64)
+{
+	return (double)ui64;
+}
+#endif
+
+
 #if defined(WIN32)
 
 static int _filefind_push_FILETIME(lua_State* L, FILETIME* filetime) {
@@ -265,7 +283,7 @@ static int filefind_index_write_FILETIME(lua_State* L) {
 
 static int filefind_index_size_helper(lua_State* L, struct FileFindInfo* info) {
 #if defined(WIN32)
-	lua_pushnumber(L, (lua_Number)((unsigned __int64)info->fd.nFileSizeLow + ((unsigned __int64)info->fd.nFileSizeHigh << 32)));
+	lua_pushnumber(L, (lua_Number)ui64ToDouble((unsigned __int64)info->fd.nFileSizeLow + ((unsigned __int64)info->fd.nFileSizeHigh << 32)));
 #else
 	lua_pushnumber(L, info->attr.st_size);
 #endif
@@ -564,9 +582,9 @@ static const struct luaL_reg glob_index_functions[] = {
 
 static int _glob_push_FILETIME(lua_State* L, fileglob_uint64 filetime) {
 	lua_newtable(L);
-	lua_pushnumber(L, (lua_Number)(filetime & 0xffffffff));
+	lua_pushnumber(L, (lua_Number)ui64ToDouble(filetime & 0xffffffff));
 	lua_rawseti(L, -2, 1);
-	lua_pushnumber(L, (lua_Number)(filetime >> 32));
+	lua_pushnumber(L, (lua_Number)ui64ToDouble(filetime >> 32));
 	lua_rawseti(L, -2, 2);
 	return 1;
 }
@@ -584,7 +602,7 @@ static int glob_index_filename(lua_State* L) {
 
 
 static int glob_index_creation_time_helper(lua_State* L, struct _fileglob* glob) {
-	lua_pushnumber(L, (lua_Number)fileglob_CreationTime(glob));
+	lua_pushnumber(L, (lua_Number)ui64ToDouble(fileglob_CreationTime(glob)));
 	return 1;
 }
 
@@ -595,7 +613,7 @@ static int glob_index_creation_time(lua_State* L) {
 
 
 static int glob_index_access_time_helper(lua_State* L, struct _fileglob* glob) {
-	lua_pushnumber(L, (lua_Number)fileglob_AccessTime(glob));
+	lua_pushnumber(L, (lua_Number)ui64ToDouble(fileglob_AccessTime(glob)));
 	return 1;
 }
 
@@ -606,7 +624,7 @@ static int glob_index_access_time(lua_State* L) {
 
 
 static int glob_index_write_time_helper(lua_State* L, struct _fileglob* glob) {
-	lua_pushnumber(L, (lua_Number)fileglob_WriteTime(glob));
+	lua_pushnumber(L, (lua_Number)ui64ToDouble(fileglob_WriteTime(glob)));
 	return 1;
 }
 
@@ -632,7 +650,7 @@ static int glob_index_write_FILETIME(lua_State* L) {
 
 
 static int glob_index_size_helper(lua_State* L, struct _fileglob* glob) {
-	lua_pushnumber(L, (lua_Number)fileglob_FileSize(glob));
+	lua_pushnumber(L, (lua_Number)ui64ToDouble(fileglob_FileSize(glob)));
 	return 1;
 }
 
