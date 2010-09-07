@@ -13,12 +13,12 @@
 #include "p4mapmaker.h"
 #include <new>
 
-static Ident ident = { 
+static Ident ident = {
 	IdentMagic "P4Lua" " (0.9)", "08/12/10"
 };
-//static Ident ident = { 
+//static Ident ident = {
 //	IdentMagic "P4Lua" "/" ID_OS "/" ID_REL "/" ID_PATCH  " (" ID_API " API)",
-//	 ID_Y "/" ID_M "/" ID_D 
+//	 ID_Y "/" ID_M "/" ID_D
 //};
 
 #define	M_TAGGED		0x01
@@ -281,7 +281,7 @@ static int p4_map_rhs(lua_State* L) {
 }
 
 
-// 
+//
 // P4::Map#translate( string, fwd=true )
 //
 static int p4_map_translate(lua_State* L) {
@@ -297,7 +297,7 @@ static int p4_map_translate(lua_State* L) {
 			"the forward direction." );
 
 	optboolean = 1;
-	if (lua_type(L, 3) == LUA_TBOOLEAN) 
+	if (lua_type(L, 3) == LUA_TBOOLEAN)
 		optboolean = lua_toboolean(L, 3);
 	m->Translate(2, optboolean);
 	return 1;
@@ -316,7 +316,7 @@ static int p4_map_new(lua_State* L) {
 		while (lua_next(L, 1) != 0) {
 			m->Insert(-1);
 			lua_pop(L, 1);
-		}		
+		}
 	}
 
 	return 1;

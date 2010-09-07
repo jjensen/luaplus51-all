@@ -430,7 +430,7 @@ namespace LPCD
 		lua_pushstring(L, funcName);
 		lpcd_pushmemberpropertygetclosure(L, var);
 		lua_rawset(L, -3);
-		
+
 		lua_pop(L, 1);
 	}
 
@@ -443,7 +443,7 @@ namespace LPCD
 		lua_pushstring(L, funcName);
 		lpcd_pushmemberpropertysetclosure(L, var);
 		lua_rawset(L, -3);
-		
+
 		lua_pop(L, 1);
 	}
 
@@ -457,7 +457,7 @@ namespace LPCD
 		lua_pushstring(L, funcName);
 		lpcd_pushglobalpropertygetclosure(L, var);
 		lua_rawset(L, -3);
-		
+
 		lua_pop(L, 1);
 	}
 
@@ -470,7 +470,7 @@ namespace LPCD
 		lua_pushstring(L, funcName);
 		lpcd_pushglobalpropertysetclosure(L, var);
 		lua_rawset(L, -3);
-		
+
 		lua_pop(L, 1);
 	}
 } // namespace LPCD

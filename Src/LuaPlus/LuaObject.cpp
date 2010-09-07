@@ -634,7 +634,7 @@ void LuaObject::DeepClone(LuaObject& outObj)
 	}
 }
 
-	
+
 static inline int InternalGetTop(lua_State* L)
 {
   return (L->top - L->base);
@@ -738,8 +738,8 @@ void LuaObject::SetMetaTable(const LuaObject& valueObj)
 			G(L)->mt[ttype(obj)] = mt;
 			break;
 		}
-	}	
-	
+	}
+
 	//jj	luaT_setmetatable(L, &m_object, hvalue(&valueObj.m_object));
     lua_unlock(L);
 }
@@ -2311,12 +2311,12 @@ LuaObject GetTable( LuaObject& obj, const char* key, bool require )
 
 namespace LPCD
 {
-	void Push(lua_State* L, LuaObject& value)
+	void Push(lua_State* L, LuaPlus::LuaObject& value)
 	{
 		(void)L; value.Push();
 	}
 
-	LuaObject Get(TypeWrapper<LuaObject>, lua_State* L, int idx)
+	LuaPlus::LuaObject Get(TypeWrapper<LuaPlus::LuaObject>, lua_State* L, int idx)
 	{
 		return LuaObject(lua_State_To_LuaState(L), idx);
 	}

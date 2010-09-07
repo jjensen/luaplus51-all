@@ -148,12 +148,12 @@ public:
 		m_pTail = NULL;
 		m_numElements = 0;
 	}
-	
+
 	size_t GetCount() const throw()
 	{
 		return m_numElements;
 	}
-	
+
 	void* GetHeadPosition() const throw()
 	{
 		return m_pHead;
@@ -302,7 +302,7 @@ protected:
 	but it had something to do with a RawSocketServerWorker class.
 
 	Added code includes:
-	
+
 		- automatic WinSock initialization.
 		-
 **/

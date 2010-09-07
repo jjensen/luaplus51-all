@@ -117,19 +117,19 @@ bool DiskFile::Open(const char* fileName, UINT openFlags)
 		if (openFlags & MODE_WRITEONLY)
 			flags |= O_WRONLY;
 	}
-	
+
     if (openFlags & MODE_CREATE)
     {
 		flags |= O_CREAT;
         if (openFlags & MODE_TRUNCATE)
-			flags |= O_TRUNC; 
+			flags |= O_TRUNC;
     }
-	
+
     m_fileHandle = open(fileName, flags, 0666);
     if (m_fileHandle == -1)
         return false;
 #endif
-	
+
     return true;
 }
 
@@ -183,7 +183,7 @@ LONGLONG DiskFile::Seek(LONGLONG offset, SeekFlags seekFlags)
 		case SEEKFLAG_CURRENT:	moveMethod = SEEK_CUR;			break;
 		case SEEKFLAG_END:		moveMethod = SEEK_END;			break;
 	}
-	
+
 	return lseek(m_fileHandle, offset, moveMethod);
 #endif
 }

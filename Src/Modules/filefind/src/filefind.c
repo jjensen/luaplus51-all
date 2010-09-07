@@ -86,7 +86,7 @@ static int FileFindNextMatch(struct FileFindInfo* info) {
 			stat(info->path, &info->attr);
 			if ((info->attr.st_mode & S_IFDIR) != 0) {
 				if (strcmp(info->dp->d_name, ".") == 0  ||  strcmp(info->dp->d_name, "..") == 0)
-					continue;				
+					continue;
 			}
 			*info->pathEnd = 0;
 			return 1;
@@ -174,7 +174,7 @@ static int filefind_index_filename(lua_State* L) {
 static int filefind_index_creation_time_helper(lua_State* L, struct FileFindInfo* info) {
 #if defined(WIN32)
 	lua_pushnumber(L, (lua_Number)fileglob_ConvertToTime_t(&info->fd.ftCreationTime));
-#else 
+#else
 	lua_pushnumber(L, info->attr.st_ctime);
 #endif
 	return 1;
@@ -189,7 +189,7 @@ static int filefind_index_creation_time(lua_State* L) {
 static int filefind_index_access_time_helper(lua_State* L, struct FileFindInfo* info) {
 #if defined(WIN32)
 	lua_pushnumber(L, (lua_Number)fileglob_ConvertToTime_t(&info->fd.ftLastAccessTime));
-#else 
+#else
 	lua_pushnumber(L, info->attr.st_atime);
 #endif
 	return 1;
@@ -204,7 +204,7 @@ static int filefind_index_access_time(lua_State* L) {
 static int filefind_index_write_time_helper(lua_State* L, struct FileFindInfo* info) {
 #if defined(WIN32)
 	lua_pushnumber(L, (lua_Number)fileglob_ConvertToTime_t(&info->fd.ftLastWriteTime));
-#else 
+#else
 	lua_pushnumber(L, info->attr.st_mtime);
 #endif
 	return 1;

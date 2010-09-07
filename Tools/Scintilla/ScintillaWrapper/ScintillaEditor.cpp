@@ -29,8 +29,8 @@ void ScintillaEditor::Create(HWND parent, const CRect& editorRect)
 		s_editorModule = LoadLibrary(_T("SciLexer.DLL"));
 		if (s_editorModule == NULL)
 		{
-			::MessageBox(NULL, _T("The Scintilla DLL could not be loaded."), 
-				_T("Error loading Scintilla"), 
+			::MessageBox(NULL, _T("The Scintilla DLL could not be loaded."),
+				_T("Error loading Scintilla"),
 				MB_OK | MB_ICONERROR);
 		}
 	}
@@ -176,7 +176,7 @@ bool ScintillaEditor::ReadProperties(const CString& fileName, const CString& for
 	CStringA modulePath = moduleFileNameBuffer;
 	int slashPos = modulePath.ReverseFind('\\');
 	modulePath = modulePath.Left(slashPos + 1);
-	
+
 	m_props = new ScintillaPropertiesFile;
 
 

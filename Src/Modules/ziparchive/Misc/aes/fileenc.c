@@ -30,8 +30,8 @@
  -------------------------------------------------------------------------
  Issue Date: 26/08/2003
 
- This file implements password based file encryption and authentication 
- using AES in CTR mode, HMAC-SHA1 authentication and RFC2898 password 
+ This file implements password based file encryption and authentication
+ using AES in CTR mode, HMAC-SHA1 authentication and RFC2898 password
  based key derivation.
 
 */
@@ -81,7 +81,7 @@ static void SwapEndian128(unsigned char* src, unsigned char* dest)
 	dest[5] = src[2];
 	dest[6] = src[1];
 	dest[7] = src[0];
-	
+
 	dest[8] = src[15];
 	dest[9] = src[14];
 	dest[10] = src[13];
