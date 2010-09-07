@@ -72,6 +72,10 @@ C.UseMFC RemoteLuaDebugger : shared link ;
 
 LuaPlusFixUpTarget RemoteLuaDebugger ;
 
+if $(COMPILER.$(PLATFORM)) = vs2010 {
+	C.Defines RemoteLuaDebugger : WINVER=0x0501 _WIN32_WINNT=0x0501 ;
+}
+
 C.Defines RemoteLuaDebugger : _UNICODE UNICODE LUAPLUS_DLL ;
 
 C.IncludeDirectories RemoteLuaDebugger :
