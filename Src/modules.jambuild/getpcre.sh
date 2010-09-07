@@ -1,3 +1,4 @@
+cd ../Modules/lrexlib
 if [ -f pcre-8.02.tar.bz2 ]
 then
 	rm pcre-8.02.tar.bz2

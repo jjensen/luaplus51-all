@@ -36,7 +36,7 @@ double ui64ToDouble(unsigned __int64 ui64)
 
 }
 #else
-double ui64ToDouble(unsigned __int64 ui64)
+double ui64ToDouble(unsigned long long ui64)
 {
 	return (double)ui64;
 }
