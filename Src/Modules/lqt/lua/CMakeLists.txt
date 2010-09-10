@@ -42,11 +42,15 @@ else()
 endif()
 set(LIBRARY_TYPE SHARED)
 
+set(CMAKE_C_FLAGS_DEBUG -DLUA_USE_APICHECK)
+set(CMAKE_CXX_FLAGS_DEBUG -DLUA_USE_APICHECK)
+
 
 add_library (lua ${LIBRARY_TYPE} ${LUA_LIB_SRCS} ${LUA_CORE_SRCS})
 
 if(UNIX)
-	target_link_libraries (lua readline)
+   # "debug" is not a library, just a keyword, but does not work uppercase... CMake magic
+	target_link_libraries (lua readline debug pthread)
 	if(NOT APPLE)
 		target_link_libraries (lua dl m history ncurses)
 	endif()

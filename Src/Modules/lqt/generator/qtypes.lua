@@ -29,6 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 local qt_types = (...) or {}
 
+--[[
 qt_types['QSizeF'] = {
 	get = function(i) return 'QSizeF(lua_tonumber(L, '..i..'), lua_tonumber(L, '..i..'+1))', 2, 'QSizeF' end,
 	push = function(i) return 'lua_pushnumber(L, '..i..'.width()), lua_pushnumber(L, '..i..'.height())', 2 end,
@@ -76,7 +77,8 @@ qt_types['QRectF'] = {
 	onstack = 'number,number,number,number,',
 }
 qt_types['QRectF const&'] = qt_types['QRectF']
-
+]]
+	
 qt_types['QByteArray'] = {
 	get = function(i) return 'QByteArray(lua_tostring(L, '..i..'), lua_objlen(L, '..i..'))', 1, 'QByteArray' end,
 	push = function(i) return 'lua_pushlstring(L, '..i..'.constData(), '..i..'.size())', 1 end,

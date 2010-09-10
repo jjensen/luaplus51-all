@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2007-2008 Mauro Iazzi
- * 
+ *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
  * files (the "Software"), to deal in the Software without
@@ -9,10 +9,10 @@
  * copies of the Software, and to permit persons to whom the
  * Software is furnished to do so, subject to the following
  * conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
  * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -133,7 +133,7 @@ char ** lqtL_toarguments (lua_State *L, int index) {
     return ret;
 }
 
-static int lqtL_createenum (lua_State *L, lqt_Enum e[], const char *n) {
+int lqtL_createenum (lua_State *L, lqt_Enum e[], const char *n) {
     luaL_Reg empty[] = { { 0, 0 } };
     lqt_Enum *l = e;
     lqtL_getenumtable(L); // (1)
@@ -209,6 +209,7 @@ static int lqtL_newindexfunc (lua_State *L) {
 }
 
 int lqtL_getoverload (lua_State *L, int index, const char *name) {
+    luaL_checkstack(L, 2, "no space to grow");
     if (lua_isuserdata(L, index) && !lua_islightuserdata(L, index)) {
         lua_getfenv(L, index); // (1)
         lua_getfield(L, -1, name); // (2)
@@ -299,6 +300,8 @@ int lqtL_createclass (lua_State *L, const char *name, luaL_Reg *mt, lqt_Base *ba
     lua_setfield(L, -2, "__newindex"); // (1)
     lua_pushcfunction(L, lqtL_gcfunc); // (2)
     lua_setfield(L, -2, "__gc"); // (1)
+    lua_pushstring(L, name);
+    lua_setfield(L, -2, "__type");
 
     // set it as its own metatable
     lua_pushvalue(L, -1); // (2)
@@ -430,8 +433,8 @@ void lqtL_pushudata (lua_State *L, const void *p, const char *name) {
 void lqtL_passudata (lua_State *L, const void *p, const char *name) {
     lqtL_pushudata(L, p, name);
     // FIXME: these should be added, but it is not safe for now
-    lua_getfield(L, -1, "delete");
-    lua_setfield(L, -2, "__gc");
+    //lua_getfield(L, -1, "delete");
+    //lua_setfield(L, -2, "__gc");
     return;
 }
 
@@ -492,6 +495,14 @@ bool lqtL_testudata (lua_State *L, int index, const char *name) {
     }
     lua_pop(L, 1);
     return true;
+}
+
+const char * lqtL_pushtrace(lua_State *L) {
+    lua_getglobal(L, "debug");
+    lua_getfield(L, -1, "traceback");
+    lua_remove(L, -2);
+    lua_call(L, 0, 1);
+    return lua_tostring(L, -1);
 }
 
 void lqtL_pushenum (lua_State *L, int value, const char *name) {
@@ -645,5 +656,59 @@ int lqtL_pcall_debug (lua_State *L, int narg, int nres, int err) {
     return status;
 }
 
+void lqtL_pushudatatype (lua_State *L, int index) {
+    if (!lua_isuserdata(L, index) || lua_islightuserdata(L, index)) {
+        lua_pushstring(L, luaL_typename(L, index));
+    } else {
+        lua_getfield(L, index, "__type");
+        if (lua_isnil(L, -1)) {
+            lua_pop(L, 1);
+            lua_pushstring(L, luaL_typename(L, index));
+        }
+    }
+}
 
+const char * lqtL_getarglist (lua_State *L) {
+    int args = lua_gettop(L);
+    lua_checkstack(L, args * 2);
+    lua_pushliteral(L, "");
+    for(int i = 1; i <= args; i++) {
+        lqtL_pushudatatype(L, i);
+        if (i<args)
+            lua_pushliteral(L, ", ");
+    }
+    lua_concat(L, 2*args - 1);
+    return lua_tostring(L, -1);
+}
 
+const char * lqtL_source(lua_State *L, int idx) {
+    static char buf[1024]; // TODO: try something better
+    lua_Debug ar = {0};
+    lua_pushvalue(L, idx);
+    lua_getinfo(L, ">S", &ar);
+    if (ar.source[0] != '@') {
+        sprintf(buf, "%s", ar.source);
+    } else {
+        sprintf(buf, "%s %s:%d", ar.name, ar.source, ar.linedefined);
+    }
+    return buf;
+}
+
+bool lqtL_is_super(lua_State *L, int idx) {
+    lua_getfield(L, LUA_GLOBALSINDEX, LQT_SUPER);
+    void *super = lua_touserdata(L, -1);
+    void *comp = lua_touserdata(L, idx);
+    bool ret = lua_equal(L, -1, idx);
+    lua_pop(L, 1);
+    return ret;
+}
+
+void lqtL_register_super(lua_State *L) {
+    lua_getfield(L, LUA_GLOBALSINDEX, LQT_SUPER);
+    if (lua_isnil(L, -1)) {
+        void *ud = lua_newuserdata(L, sizeof(int));
+        lua_setfield(L, LUA_GLOBALSINDEX, LQT_SUPER);
+    } else {
+        lua_pop(L, -1);
+    }
+}

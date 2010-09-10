@@ -25,7 +25,7 @@
 #include <QBitArray>
 
 int lqtL_qt_metacall (lua_State *, QObject *, QObject *, QMetaObject::Call, const char *, int, void **);
-void lqtL_pushaddmethod (lua_State *);
+void lqtL_qobject_custom (lua_State *L);
 
 
 #endif // __LQT_QT_HPP

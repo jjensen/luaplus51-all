@@ -1,6 +1,6 @@
 
-local classes, enums = ...
-local ret1, ret2 = {}, {}
+local classes = ...
+local ret1 = {}
 
 -- don't bind this Qt internals/unsupported classes
 -- if there are linker errors, or errors when laoding the .so 
@@ -27,16 +27,10 @@ for c in pairs(classes) do
 			or c.xarg.fullname=='QTextCodec' -- private/protected destcrutor
 			or c.xarg.fullname=='QTextBlockGroup' -- private/protected destcrutor
 			or c.xarg.fullname=='QSessionManager' -- private/protected destcrutor
-			or c.xarg.fullname=='QAccessibleWidget' -- private/protected destcrutor
-			or c.xarg.fullname=='QAccessibleObjectEx' -- private/protected destcrutor
 			or c.xarg.fullname=='QClipboard' -- private/protected destcrutor
-			or c.xarg.fullname=='QAccessibleWidgetEx' -- private/protected destcrutor
 			or c.xarg.fullname=='QWebFrame' -- private/protected destcrutor
 			or c.xarg.fullname=='QWebHistory' -- private/private/protected destcrutor
 			or c.xarg.fullname=='QWebSettings' -- private/protected destcrutor
-			or c.xarg.fullname=='QAccessibleObject' -- private/protected destcrutor
-			or c.xarg.fullname=='QAccessibleObject' -- private/protected destcrutor
-			or c.xarg.fullname=='QAccessibleObject' -- private/protected destcrutor
 			or c.xarg.fullname=='QtConcurrent::ThreadEngineBarrier' -- linker error
 			
 			-- platform specific, TODO
@@ -67,23 +61,15 @@ for c in pairs(classes) do
 			-- binding bugs
 			or c.xarg.fullname=='QThreadStorageData' -- binding error (function pointer)
 			or c.xarg.fullname=='QForeachContainerBase' -- "was not declared in this scope"
-			or c.xarg.fullname=='QtConcurrent::Exception'                 -- GCC throw() in destructor base declaration
-			or c.xarg.fullname=='QtConcurrent::UnhandledException'        -- GCC throw() in destructor base declaration
+			or c.xarg.fullname=='QFutureWatcherBase' -- const virtual method causes it to be abstract
 			or c.xarg.fullname=='QEasingCurve'        -- wrapper for function: function pointer parsing problem
 			or c.xarg.fullname=='QHashData'        -- not in the docs at all. free_helper is not present during compilation
-			--or string.match(c.xarg.fullname, '^QtConcurrent') -- does not make sense anyway, because we should duplicate the lua_State
-
+			or string.match(c.xarg.fullname, '^QtConcurrent') -- does not make sense anyway, because we should duplicate the lua_State
+			or string.match(c.xarg.fullname, '^QAccessible') -- causes a lot of headaches, and not necessarry anyway (yet)
 			) then
 		ret1[c] = true
 	end
 end
 
-for e in pairs(enums) do
-	local n = e.xarg.name
-	if n~=string.lower(n) and not string.match(n, '_') then
-		ret2[e] = true
-	end
-end
-
-return ret1, ret2
+return ret1
 

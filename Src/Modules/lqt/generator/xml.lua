@@ -82,7 +82,7 @@ function collect(s)
 				error("trying to close "..toclose.label.." with "..label)
 			end
 			table.insert(top, toclose)
-			toclose.parent = top
+			-- toclose.parent = top
 			toclose.index = #top
 			index[toclose] = true
 		end
@@ -93,7 +93,7 @@ function collect(s)
 		table.insert(stack[#stack], text)
 	end
 	if #stack > 1 then
-		error("unclosed "..stack[stack.n].label)
+		error("unclosed "..stack[#stack].label)
 	end
 	return stack[1], index
 end

@@ -489,7 +489,14 @@ int main (int argc, char **argv) {
 			if (separed)
 				i++;
 		} else {
+#ifdef Q_OS_MAC
+			if (sourceName.isEmpty())
+				sourceName = QString::fromLatin1(argv[i]);
+			else
+				qtdir = QString::fromLatin1(argv[i]);
+#else
 			sourceName = QString::fromLatin1(argv[i]);
+#endif
 		}
 	}
 	

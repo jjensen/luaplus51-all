@@ -151,7 +151,8 @@ TypeInfo TypeInfo::resolveType (TypeInfo const &__type, CodeModelItem __scope)
     }
 
     if (TypeAliasModelItem __alias = model_dynamic_cast<TypeAliasModelItem> (__item))
-        return resolveType (TypeInfo::combine (__alias->type (), otherType), __scope);
+        if (__alias->type().qualifiedName() != otherType.qualifiedName())
+            return resolveType (TypeInfo::combine (__alias->type (), otherType), __scope);
 
     return otherType;
 }

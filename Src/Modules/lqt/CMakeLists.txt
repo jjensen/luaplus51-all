@@ -33,6 +33,7 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY  ${CMAKE_BINARY_DIR}/lib)
 
 #set(CMAKE_VERBOSE_MAKEFILE TRUE)
 
+option(SYSTEM_LUA "Use installed Lua" TRUE) 
 
 find_package(Qt4 REQUIRED)
 set(QT_USE_QTCORE 1)
@@ -42,8 +43,9 @@ set(QT_USE_QTWEBKIT 1)
 set(QT_USE_QTOPENGL 1)
 set(QT_USE_QTSCRIPT 1)
 set(QT_USE_QTSVG 1)
+set(QT_USE_QTUITOOLS 1) 
 set(QT_USE_QTXML 1)
-#set(QT_USE_QTSQL 1)
+set(QT_USE_QTSQL 1)
 set(QT_USE_QTXMLPATTERNS 1)
 include(${QT_USE_FILE})
 
@@ -202,6 +204,7 @@ function(build_qt_lib_binding BINDING_HEADER)
 											${${COMMON}_MOC})
 											
 	target_link_libraries(${BINDING_NAME} ${QT_LIBRARIES} ${LUA_LIBRARIES})		
+	set_target_properties(${BINDING_NAME} PROPERTIES PREFIX "")
 
 	if(LQT_BUILDIN_CPPTOXML)
 		add_dependencies(generate_${BINDING_NAME}_xml  cpptoxml)
@@ -226,9 +229,10 @@ else()
 	build_qt_lib_binding(QtSvg QtScript QtGui QtNetwork QtCore)
 	build_qt_lib_binding(QtXml QtSvg QtScript QtGui QtNetwork QtCore)
 	build_qt_lib_binding(QtXmlPatterns QtCore QtXml)
+	build_qt_lib_binding(QtUiTools QtCore QtGui QtXml) 
 	build_qt_lib_binding(QtWebKit QtXmlPatterns QtSvg QtScript QtOpenGL QtGui QtNetwork QtCore QtXml)
+	build_qt_lib_binding(QtSql QtCore)
 	# TODO
-	#build_qt_lib_binding(QtSql)
 	#build_qt_lib_binding(QtScriptTools) # 4.5 only
 	#build_qt_lib_binding(Phonon)
 endif()

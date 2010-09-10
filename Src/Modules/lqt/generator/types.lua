@@ -130,6 +130,18 @@ base_types['int&'] = {
 	end,
 	onstack = 'integer,',
 }
+base_types['int*'] = {
+	get = function(j)
+		return 'lqtL_tointref(L, '..j..')', 1
+	end,
+	push = function(j) -- must handle arguments (e.g. in virtual callbacks) and return values
+		return 'lua_pushinteger(L, *'..tostring(j)..')', 1
+	end,
+	test = function(j) -- must handle arguments (e.g. in virtual callbacks) and return values
+		return 'lqtL_isinteger(L, '..tostring(j)..')', 1
+	end,
+	onstack = 'integer,',
+}
 base_types['char**'] = {
 	get = function(j)
 		return 'lqtL_toarguments(L, '..tostring(j)..')', 1

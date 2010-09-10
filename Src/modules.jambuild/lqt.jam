@@ -70,7 +70,9 @@ rule build_qt_lib_binding BINDING_HEADER : DEPENDENCIES {
 	BINDING_HEADER on $(GEN_XML) = $(BINDING_HEADER) ;
 	PP_CONFIG on $(GEN_XML) = $(PP_CONFIG) ;
 
-	cpptoxml $(GEN_XML) ;
+	if ! $(TARGETINFO_LOCATE) {
+		cpptoxml $(GEN_XML) ;
+	}
 
 	local bindingname_enum.cpp = @($(BINDING_NAME)_enum.cpp:G=$(BINDING_NAME)) ;
 	local bindingname_merged_build.cpp = @($(BINDING_NAME)_merged_build.cpp:G=$(BINDING_NAME)) ;
@@ -107,7 +109,9 @@ rule build_qt_lib_binding BINDING_HEADER : DEPENDENCIES {
 	GENERATOR on $(targets) = $(generator.lua) ;
 	QTYPES on $(targets) = $(SUBDIR)/generator/qtypes.lua ;
 	QT_INTERNAL on $(targets) = $(SUBDIR)/generator/qt_internal.lua ;
-	qt_generatebinding $(targets) : $(GEN_XML) ;
+	if ! $(TARGETINFO_LOCATE) {
+		qt_generatebinding $(targets) : $(GEN_XML) ;
+	}
 
 	Depends $(BINDING_NAME) : $(targets) ;
 	Depends $(targets) : $(generator.lua) $(classes.lua) $(qtypes.lua) $(qt_internal.lua) $(types.lua) ;
@@ -149,9 +153,11 @@ build_qt_lib_binding QtGui : QtNetwork QtCore ;
 build_qt_lib_binding QtScript : QtGui QtNetwork QtCore ;
 build_qt_lib_binding QtOpenGL : QtGui QtNetwork QtCore ;
 build_qt_lib_binding QtSvg : QtScript QtGui QtNetwork QtCore ;
+build_qt_lib_binding QtUiTools : QtCore QtGui QtXml ;
 build_qt_lib_binding QtXml : QtSvg QtScript QtGui QtNetwork QtCore ;
 build_qt_lib_binding QtXmlPatterns : QtCore QtXml ;
 build_qt_lib_binding QtWebKit : QtXmlPatterns QtSvg QtScript QtOpenGL QtGui QtNetwork QtCore QtXml ;
+build_qt_lib_binding QtSql : QtCore ;
 
 } # if $(QT_FOUND)
 
