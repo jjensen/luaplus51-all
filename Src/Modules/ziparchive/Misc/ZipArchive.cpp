@@ -2822,6 +2822,28 @@ bool ZipArchive::ProcessFileList(ZipArchive::FileOrderList& fileOrderList, Proce
 				this->errorString = "Unable to open file [" + fileOrderInfo.srcPath + "].";
 				return false;
 			}
+#else
+			struct stat sb;
+
+			// If the file time was already provided by the file order entry, then assign it
+			// to tentatively need updating.
+			if (fileOrderInfo.fileTime != 0) {
+				fileOrderInfo.lastWriteTime = fileOrderInfo.fileTime;
+				fileOrderInfo.needUpdate = true;
+			}
+			// Otherwise, grab the information from the file on disk and assign it to tentatively
+			// need updating.
+			else if (stat(fileOrderInfo.srcPath, &sb) != -1) {
+				fileOrderInfo.lastWriteTime = sb.st_mtime;
+				fileOrderInfo.size = sb.st_size;
+				fileOrderInfo.needUpdate = true;
+				fileNameMap[fileOrderInfo.entryName.Lower()] = &fileOrderInfo;
+			}
+			// If we get here, the file doesn't exist.  Fail.
+			else {
+				this->errorString = "Unable to open file [" + fileOrderInfo.srcPath + "].";
+				return false;
+			}
 #endif // WIN32
 		}
 	}
