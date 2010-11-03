@@ -279,6 +279,72 @@ static int ex_dir(lua_State *L)
 }
 
 
+static int ex_copyfile(lua_State *L)
+{
+	int inputFile;
+	int outputFile;
+
+	// Operate in 64k buffers.
+	const size_t BUFFER_SIZE = 64 * 1024;
+	unsigned char* buffer;
+	
+	const char *srcfilename = luaL_checkstring(L, 1);
+	const char *destfilename = luaL_checkstring(L, 2);
+	
+	ssize_t fileSize;
+
+    inputFile = open(srcfilename, O_RDONLY);
+	if (inputFile == -1) {
+		lua_pushboolean(L, 0);
+		return 1;
+	}
+    outputFile = open(destfilename, O_CREAT | O_TRUNC | O_WRONLY, 0666);
+	if (outputFile == -1) {
+		close(inputFile);
+		lua_pushboolean(L, 0);
+		return 1;
+	}
+
+	// Allocate the buffer space.
+	buffer = malloc(BUFFER_SIZE);
+	
+	// Get the source file's size.
+	fileSize = lseek(inputFile, 0, SEEK_END);
+	lseek(inputFile, 0, SEEK_SET);
+	
+	// Keep copying until there is no more file left to copy.
+	int ret = 1;
+	while (fileSize > 0)
+	{
+		// Copy the minimum of BUFFER_SIZE or the fileSize.
+        ssize_t readSize = BUFFER_SIZE < fileSize ? BUFFER_SIZE : fileSize;
+		if (read(inputFile, buffer, readSize) != readSize) {
+			ret = 0;
+			break;
+		}
+		if (write(outputFile, buffer, readSize) != readSize) {
+			ret = 0;
+			break;
+		}
+		fileSize -= readSize;
+	}
+	
+	close(outputFile);
+	close(inputFile);
+
+	lua_pushboolean(L, ret);
+	return 1;
+}
+
+
+static int ex_movefile(lua_State *L)
+{
+	const char *srcfilename = luaL_checkstring(L, 1);
+	const char *destfilename = luaL_checkstring(L, 2);
+	return 0;
+}
+
+
 static int file_lock(lua_State *L,
                      FILE *f, const char *mode, long offset, long length)
 {
@@ -548,6 +614,8 @@ int luaopen_ex_core(lua_State *L)
     {"remove",     ex_remove},
     {"dir",        ex_dir},
     {"dirent",     ex_dirent},
+    {"copyfile",   ex_copyfile},
+    {"movefile",   ex_movefile},
     {"touch",      ex_touch},
     /* process control */
     {"sleep",      ex_sleep},
