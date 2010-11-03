@@ -106,7 +106,7 @@ C.Defines LuaPlusShared : LUAPLUS_BUILDDLL LUAPLUS_DLL ;
 if $(UNIX)
 {
 	C.LinkPrebuiltLibraries LuaPlusShared : stdc++ dl ;
-	if $(OS) != MACOSX {
+	if ! $(OS) in MACOS MACOSX {
 		C.LinkFlags LuaPlusShared : -Wl,-soname,luaplus51-1200.so ;
 	}
 }
