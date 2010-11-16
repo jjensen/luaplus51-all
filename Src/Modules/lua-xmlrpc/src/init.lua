@@ -1,24 +1,26 @@
 ---------------------------------------------------------------------
 -- XML-RPC implementation for Lua.
 -- See Copyright Notice in license.html
--- $Id: xmlrpc.lua,v 1.13 2004/11/03 12:49:16 tomas Exp $
 ---------------------------------------------------------------------
 
-require "lxp"
-require "lxp.lom"
+local lxp = require "lxp"
+local lom = require "lxp.lom"
 
-module ('xmlrpc', package.seeall)
-
-local assert, error, ipairs, pairs, type, tonumber, unpack = assert, error, ipairs, pairs, type, tonumber, unpack
+local assert, error, ipairs, pairs, select, type, tonumber, unpack = assert, error, ipairs, pairs, select, type, tonumber, unpack
 local format, gsub, strfind, strsub = string.format, string.gsub, string.find, string.sub
-local concat, getn, tinsert = table.concat, table.getn, table.insert
+local concat, tinsert = table.concat, table.insert
 local ceil = math.ceil
 local parse = lxp.lom.parse
 
-_COPYRIGHT = "Copyright (C) 2003-2004 Kepler Project"
+module (...)
+
+_COPYRIGHT = "Copyright (C) 2003-2010 Kepler Project"
 _DESCRIPTION = "LuaXMLRPC is a library to make remote procedure calls using XML-RPC"
-_NAME = "LuaXMLRPC"
-_VERSION = "1.0b"
+_PKGNAME = "LuaXMLRPC"
+_VERSION_MAJOR = 1
+_VERSION_MINOR = 2
+_VERSION_MICRO = 1
+_VERSION = _VERSION_MAJOR .. "." .. _VERSION_MINOR .. "." .. _VERSION_MICRO
 
 ---------------------------------------------------------------------
 -- XML-RPC Parser
@@ -77,13 +79,13 @@ end
 local function x2boolean (tab)
 	if tab.tag == "boolean" then
 		local v = next_nonspace (tab, 1)
-		return v == true or v == "true" or false
+		return v == true or v == "true" or tonumber (v) == 1 or false
 	end
 end
 
 ---------------------------------------------------------------------
 local function x2string (tab)
-	return tab.tag == "string" and tab[1]
+	return tab.tag == "string" and (tab[1] or "")
 end
 
 ---------------------------------------------------------------------
@@ -123,7 +125,7 @@ end
 local function x2struct (tab)
 	if tab.tag == "struct" then
 		local res = {}
-		for i = 1, getn (tab) do
+		for i = 1, #tab do
 			if not is_space (tab[i]) then
 				local name, val = x2member (tab[i])
 				res[name] = val
@@ -142,7 +144,7 @@ local function x2array (tab)
 	if tab.tag == "array" then
 		local d = next_tag (tab, "data")
 		local res = {}
-		for i = 1, getn (d) do
+		for i = 1, #d do
 			if not is_space (d[i]) then
 				tinsert (res, x2value (d[i]))
 			end
@@ -204,6 +206,10 @@ x2value = function (tab)
 		local get = xmlrpc_types[t]
 		if not get then error ("Invalid <"..t.."> element") end
 		return get (next_nonspace (tab))
+        elseif type(n) == "nil" then
+                -- the next best thing is to assume it's an empty string
+               return ""
+
 	end
 end
 
@@ -367,7 +373,14 @@ function toxml.array (val, typ)
 	local et = typ.elemtype
 	local f = format_func (et)
 	for i,v in ipairs (val) do
-		tinsert (ret, format (formats.value, f (v, et)))
+		if et and et ~= "array" then
+			tinsert (ret, format (formats.value, f (v, et)))
+		else
+			local ct,cv = type_val(v)
+			local cf = format_func(ct)
+			tinsert (ret, format (formats.value, cf(cv, ct)))
+		end
+
 	end
 	return format (formats.array, concat (ret, '\n'))
 end
@@ -400,7 +413,7 @@ end
 ---------------------------------------------------------------------
 -- Get type and value of object.
 ---------------------------------------------------------------------
-local function type_val (obj)
+function type_val (obj)
 	local t = type (obj)
 	local v = obj
 	if t == "table" then
@@ -425,27 +438,28 @@ function toxml.value (obj)
 end
 
 ---------------------------------------------------------------------
--- @param params_list Table with list of parameters.
+-- @param ... List of parameters.
 -- @return String representing the `params' XML-RPC element.
 ---------------------------------------------------------------------
-function toxml.params (params_list)
-	for i = 1, getn (params_list) do
-		params_list[i] = format (formats.param, toxml.value (params_list[i]))
+function toxml.params (...)
+	local params_list = {}
+	for i = 1, select ("#", ...) do
+		params_list[i] = format (formats.param, toxml.value (select (i, ...)))
 	end
 	return format (formats.params, concat (params_list, '\n      '))
 end
 
 ---------------------------------------------------------------------
 -- @param method String with method's name.
--- @param params_list Table with list of parameters.
+-- @param ... List of parameters.
 -- @return String representing the `methodCall' XML-RPC element.
 ---------------------------------------------------------------------
-function toxml.methodCall (method, params_list)
+function toxml.methodCall (method, ...)
 	local idx = strfind (method, "[^A-Za-z_.:/0-9]")
 	if idx then
 		error (format ("Invalid character `%s'", strsub (method, idx, idx)))
 	end
-	return format (formats.methodCall, method, toxml.params (params_list))
+	return format (formats.methodCall, method, toxml.params (...))
 end
 
 ---------------------------------------------------------------------
@@ -474,7 +488,7 @@ end
 function toxml.methodResponse (ok, params)
 	local resp
 	if ok then
-		resp = toxml.params { params }
+		resp = toxml.params (params)
 	else
 		resp = toxml.fault (params)
 	end
@@ -516,7 +530,7 @@ end
 -- @return String with the XML string/document.
 ---------------------------------------------------------------------
 function clEncode (method, ...)
-	return toxml.methodCall (method, arg)
+	return toxml.methodCall (method, ...)
 end
 
 ---------------------------------------------------------------------
@@ -578,8 +592,12 @@ function srvMethods (tab_or_func)
 			if not ok then
 				return tab_or_func[name]
 			else
-				return function (...)
-					return tab_or_func[obj][method] (obj, unpack (arg))
+				if tab_or_func[obj] and tab_or_func[obj][method] then
+					return function (...)
+						return tab_or_func[obj][method] (obj, ...)
+					end
+				else
+					return nil
 				end
 			end
 		end

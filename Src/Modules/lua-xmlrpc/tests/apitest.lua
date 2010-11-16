@@ -1,5 +1,9 @@
-#!/usr/local/bin/lua.5.0
+#!/usr/local/bin/lua50
+---------------------------------------------------------------------
+-- XML-RPC Overall API test script
 -- See Copyright Notice in license.html
+---------------------------------------------------------------------
+
 
 require "xmlrpc"
 
