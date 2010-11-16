@@ -2,7 +2,8 @@ CC=gcc
 CFLAGS=-g -pedantic -Wall -O2 -shared -fpic -I /usr/include/lua5.1 -I /usr/include/mysql -I /usr/include/postgresql/ -I /opt/ibm/db2exc/V9.5/include/ -I /usr/lib/oracle/xe/app/oracle/product/10.2.0/client/rdbms/public/ -I .
 AR=ar rcu
 RANLIB=ranlib
-RM=rm -f
+RM=rm -rf
+MKDIR=mkdir -p
 
 COMMON_LDFLAGS=
 MYSQL_LDFLAGS=$(COMMON_LDFLAGS) -lmysqlclient
@@ -10,6 +11,8 @@ PSQL_LDFLAGS=$(COMMON_LDFLAGS) -lpq
 SQLITE3_LDFLAGS=$(COMMON_LDFLAGS) -lsqlite3 
 DB2_LDFLAGS=$(COMMON_LDFLAGS) -L/opt/ibm/db2exc/V9.5/lib64 -L/opt/ibm/db2exc/V9.5/lib32 -ldb2 
 ORACLE_LDFLAGS=$(COMMON_LDFLAGS) -L/usr/lib/oracle/xe/app/oracle/product/10.2.0/client/lib/ -locixe 
+
+BUILDDIR=build
 
 DBDMYSQL=dbdmysql.so
 DBDPSQL=dbdpostgresql.so
@@ -28,23 +31,23 @@ free: mysql psql sqlite3
 
 all:  mysql psql sqlite3 db2 oracle
 
-mysql: $(MYSQL_OBJS)
+mysql: $(BUILDDIR) $(MYSQL_OBJS)
 	$(CC) $(CFLAGS) $(MYSQL_OBJS) -o $(DBDMYSQL) $(MYSQL_LDFLAGS)
 
-psql: $(PSQL_OBJS)
+psql: $(BUILDDIR) $(PSQL_OBJS)
 	$(CC) $(CFLAGS) $(PSQL_OBJS) -o $(DBDPSQL) $(PSQL_LDFLAGS)
 
-sqlite3: $(SQLITE3_OBJS)
+sqlite3: $(BUILDDIR) $(SQLITE3_OBJS)
 	$(CC) $(CFLAGS) $(SQLITE3_OBJS) -o $(DBDSQLITE3) $(SQLITE3_LDFLAGS)
 
-db2: $(DB2_OBJS)
+db2: $(BUILDDIR) $(DB2_OBJS)
 	$(CC) $(CFLAGS) $(DB2_OBJS) -o $(DBDDB2) $(DB2_LDFLAGS)
 
-oracle: $(ORACLE_OBJS)
+oracle: $(BUILDDIR) $(ORACLE_OBJS)
 	$(CC) $(CFLAGS) $(ORACLE_OBJS) -o $(DBDORACLE) $(ORACLE_LDFLAGS)
 
 clean:
-	$(RM) $(MYSQL_OBJS) $(PSQL_OBJS) $(SQLITE3_OBJS) $(DB2_OBJS) $(ORACLE_OBJS) $(DBDMYSQL) $(DBDPSQL) $(DBDSQLITE3) $(DBDDB2) $(DBDORACLE) 
+	$(RM) $(BUILDDIR) $(MYSQL_OBJS) $(PSQL_OBJS) $(SQLITE3_OBJS) $(DB2_OBJS) $(ORACLE_OBJS) $(DBDMYSQL) $(DBDPSQL) $(DBDSQLITE3) $(DBDDB2) $(DBDORACLE) 
 
 build/dbd_common.o: dbd/common.c dbd/common.h
 	$(CC) -c -o $@ $< $(CFLAGS)
@@ -83,4 +86,7 @@ build/dbd_oracle_main.o: dbd/oracle/main.c dbd/oracle/dbd_oracle.h dbd/common.h
 	$(CC) -c -o $@ $< $(CFLAGS)
 build/dbd_oracle_statement.o: dbd/oracle/statement.c dbd/oracle/dbd_oracle.h dbd/common.h
 	$(CC) -c -o $@ $< $(CFLAGS)
+
+build:
+	$(MKDIR) ${BUILDDIR}
 

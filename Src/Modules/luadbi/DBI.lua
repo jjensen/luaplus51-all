@@ -28,10 +28,10 @@ local function available_drivers()
 
     -- no drivers available
     if table.maxn(available) < 1 then
-	return '(None)'
+	available = {'(None)'}
     end
 
-    return table.concat(available, ',')
+    return available
 end
 
  -- High level DB connection function
@@ -40,14 +40,16 @@ function Connect(driver, ...)
     local modulefile = name_to_module[driver]
 
     if not modulefile then
-	error(string.format("Driver '%s' not found. Available drivers are: %s", driver, available_drivers()))
+        local available = table.concat(available_drivers(), ',')
+	error(string.format("Driver '%s' not found. Available drivers are: %s", driver, available))
     end
 
     local m, err = pcall(require, modulefile)
 
     if not m then
 	-- cannot load the module, we cannot continue
-	error(string.format('Cannot load driver %s. Available drivers are: %s', driver, available_drivers()))
+        local available = table.concat(available_drivers(), ',')
+	error(string.format('Cannot load driver %s. Available drivers are: %s', driver, available))
     end
 
     local class_str = string.format('DBD.%s.Connection', driver)
@@ -74,4 +76,9 @@ function Do(dbh, sql, ...)
     end
 
     return sth:affected()
+end
+
+-- Lit drivers available on this system
+function Drivers()
+    return available_drivers() 
 end

@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;C:\Program Files\PostgreSQL\8.3\include\internal&quot;;&quot;C:\Program Files\PostgreSQL\8.3\include&quot;;&quot;C:\Program Files\Lua\5.1\include&quot;;../../"
+				AdditionalIncludeDirectories="&quot;C:\Program Files\PostgreSQL\8.3\include\server\port\win32&quot;;&quot;C:\Program Files\PostgreSQL\8.3\include\server\port\win32_msvc&quot;;&quot;C:\Program Files\PostgreSQL\8.3\include\internal&quot;;&quot;C:\Program Files\PostgreSQL\8.3\include&quot;;&quot;C:\Program Files\Lua\5.1\include&quot;;../../"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;DBDPOSTGRESQL_EXPORTS;_USE_32BIT_TIME_T;HAVE_INET_ATON"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -117,7 +117,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="&quot;C:\Program Files\PostgreSQL\8.3\include\internal&quot;;&quot;C:\Program Files\PostgreSQL\8.3\include&quot;;&quot;C:\Program Files\Lua\5.1\include&quot;;../../"
+				AdditionalIncludeDirectories="&quot;C:\Program Files\PostgreSQL\8.3\include\server\port\win32&quot;;&quot;C:\Program Files\PostgreSQL\8.3\include\server\port\win32_msvc&quot;;&quot;C:\Program Files\PostgreSQL\8.3\include\internal&quot;;&quot;C:\Program Files\PostgreSQL\8.3\include&quot;;&quot;C:\Program Files\Lua\5.1\include&quot;;../../"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;DBDPOSTGRESQL_EXPORTS;_USE_32BIT_TIME_T;HAVE_INET_ATON"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"

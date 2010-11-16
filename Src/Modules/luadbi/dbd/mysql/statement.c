@@ -33,11 +33,11 @@ static size_t mysql_buffer_size(MYSQL_FIELD *field) {
     
     switch (mysql_type) {
 	case MYSQL_TYPE_TINY:
-	    size = 4;
+	    size = 1;
 	    break;
 	case MYSQL_TYPE_YEAR:
 	case MYSQL_TYPE_SHORT:
-	    size = 4;
+	    size = 2;
 	    break;
 	case MYSQL_TYPE_INT24:
 	    size = 4;
@@ -150,6 +150,14 @@ static int statement_execute(lua_State *L) {
     char *errstr = NULL;
 
     int p;
+
+    if (statement->metadata) {
+	/*
+	 * free existing metadata from any previous executions
+         */
+	mysql_free_result(statement->metadata);
+	statement->metadata = NULL;
+    }
 
     if (!statement->stmt) {
 	lua_pushboolean(L, 0);
@@ -333,10 +341,24 @@ static int statement_fetch_impl(lua_State *L, statement_t *statement, int named_
 			LUA_PUSH_ARRAY_NIL(d);
 		    }
 		} else if (lua_push == LUA_PUSH_INTEGER) {
-		    if (named_columns) {
-			LUA_PUSH_ATTRIB_INT(name, *(int *)(bind[i].buffer)); 
+		    if (fields[i].type == MYSQL_TYPE_YEAR || fields[i].type == MYSQL_TYPE_SHORT) {
+			if (named_columns) {
+			    LUA_PUSH_ATTRIB_INT(name, *(short *)(bind[i].buffer)); 
+			} else {
+			    LUA_PUSH_ARRAY_INT(d, *(short *)(bind[i].buffer)); 
+			}
+		    } else if (fields[i].type == MYSQL_TYPE_TINY) {
+			if (named_columns) {
+			    LUA_PUSH_ATTRIB_INT(name, (int)*(char *)(bind[i].buffer)); 
+			} else {
+			    LUA_PUSH_ARRAY_INT(d, (int)*(char *)(bind[i].buffer)); 
+			}
 		    } else {
-			LUA_PUSH_ARRAY_INT(d, *(int *)(bind[i].buffer)); 
+			if (named_columns) {
+			    LUA_PUSH_ATTRIB_INT(name, *(int *)(bind[i].buffer)); 
+			} else {
+			    LUA_PUSH_ARRAY_INT(d, *(int *)(bind[i].buffer)); 
+			}
 		    }
 		} else if (lua_push == LUA_PUSH_NUMBER) {
 		    if (named_columns) {

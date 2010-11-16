@@ -34,11 +34,11 @@ static lua_push_type_t postgresql_to_lua_push(unsigned int postgresql_type) {
 }
 
 static int deallocate(statement_t *statement) {
-    char command[IDLEN+11];
+    char command[IDLEN+13];
 	PGresult *result;
 	ExecStatusType status;
 
-	snprintf(command, IDLEN+11, "DEALLOCATE %s", statement->name);    
+	snprintf(command, IDLEN+13, "DEALLOCATE \"%s\"", statement->name);    
     result = PQexec(statement->postgresql, command);
 
     if (!result)
