@@ -34,7 +34,8 @@ local bootstrap = [[
 -- Returns the CGILua handler
 -------------------------------------------------------------------------------
 function makeHandler (diskpath, params)
-   params = setmetatable({ modname = params.modname or "wsapi.sapi", bootstrap = bootstrap }, { __index = params or {} })
+   params = setmetatable(params or {}, { __index = { modname = "wsapi.sapi",
+      bootstrap = bootstrap } })
    local sapi_loader = wsapi.common.make_isolated_launcher(params)
    return wsapi.xavante.makeHandler(sapi_loader, nil, diskpath)
 end

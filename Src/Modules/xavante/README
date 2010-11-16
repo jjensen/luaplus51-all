@@ -1,4 +1,4 @@
-Xavante 2.2.0
+Xavante 2.2.1
 http://keplerproject.org/xavante/
 
 Xavante is a Lua HTTP 1.1 Web server that uses a modular architecture based on
@@ -33,6 +33,10 @@ The portability of Xavante is determined by its binary components
 in Lua and are as portable as Lua itself.
 
 History
+
+Xavante 2.2.1 [21/Oct/2010]
+        * allow 0 as a port value, so the OS assigns one dynamically (contributed by Tim Niemueller
+        * bugfixes in CGILua handler
 
 Xavante 2.2.0 [18/Mar/2010]
         * xavante.cgiluahandler now works with WSAPI 1.2/1.3 without needing kepler_init

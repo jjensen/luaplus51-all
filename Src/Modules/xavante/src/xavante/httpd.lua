@@ -368,7 +368,8 @@ end
 function register (host, port, serversoftware)
 	local _server = assert(socket.bind(host, port))
 	_serversoftware = serversoftware
-	_serverports[port] = true
+	local _ip, _port = _server:getsockname()
+	_serverports[_port] = true
 	copas.addserver(_server, connection)
 end
 
