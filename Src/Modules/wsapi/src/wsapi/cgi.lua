@@ -17,5 +17,5 @@ module(...)
 -- Runs an WSAPI application for this CGI request
 function run(app_run)
    common.run(app_run, { input = io.stdin, output = io.stdout,
-		 error = io.stderr, env = os.getenv })
+     error = io.stderr, env = os.getenv })
 end

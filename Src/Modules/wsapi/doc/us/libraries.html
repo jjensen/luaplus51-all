@@ -65,7 +65,7 @@ extra arguments to the link builder of the route</p>
 <p><strong>req:link_&lt;route&gt;(<em>tab</em>, ...)</strong> - same as <strong>req:route_link(<em>route</em>, <em>tab</em>, ...)</strong></p>
 
 <p><strong>req:link(<em>uri</em>, <em>tab</em>)</strong> - makes an internal application link to the specified resource <em>uri</em>, with <em>tab</em> encoded as
-a query string. For example, if the app is addresed by /foo/bar.lua then <strong>req:link("/baz", { id = 2 })</strong> returns
+a query string. For example, if the app is addressed by /foo/bar.lua then <strong>req:link("/baz", { id = 2 })</strong> returns
 "/foo/bar.lua/baz?id=2"</p>
 
 <p><strong>req:static_link(<em>uri</em>, <em>tab</em>)</strong> - as <strong>req:link</strong>, but builds a link external to the application. In the previous
@@ -82,7 +82,7 @@ links</p>
 
 <p><strong>req.POST</strong> - table with POST parameters of request</p>
 
-<p><strong>req.method</strong> - request method (usually "GET" or "POST") </p>
+<p><strong>req.method</strong> - request method (usually "GET" or "POST")</p>
 
 <p><strong>req.path_info</strong> - PATH_INFO metavariable</p>
 
@@ -154,6 +154,25 @@ environment that lets you process the POST data more than once. This new
 environment's input object has a <em>rewind</em> method that you can call to allow you to read
 the POST data again.</p>
 
+<h2>Mock</h2>
+
+<p><strong>make_handler(<em>wsapi_app</em>)</strong> - Creates a mock handler for testing the WSAPI application you pass in.</p>
+
+<p>The resulting handler will be a table with three fields:</p>
+
+<p><strong>app</strong> - The app itself.</p>
+
+<p><strong>get</strong> - A function to perform GET requests.</p>
+
+<p><strong>post</strong> - A function to perform POST requests.</p>
+
+<p>The <code>get</code> and <code>post</code> functions both accept the following arguments:</p>
+
+<p><strong>path</strong> (required) - The path to request. Do not include the query string, this is specified in <code>params</code>.</p>
+
+<p><strong>params</strong> (optional) - A table of query or form data parameters.</p>
+
+<p><strong>headers</strong> (optional) - Any request headers you wish to specify.</p>
 
 
 </div> <!-- id="content" -->

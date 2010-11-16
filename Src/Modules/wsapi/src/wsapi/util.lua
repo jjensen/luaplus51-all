@@ -134,8 +134,8 @@ function make_env_get(qs)
     error = {
       messages = {},
       write = function (self, msg)
-		self.messages[#self.messages+1] = msg
-	      end
+        self.messages[#self.messages+1] = msg
+      end
     }
   }
 end
@@ -157,17 +157,17 @@ function make_env_post(pd, type, qs)
       post_data = pd,
       current = 1,
       read = function (self, len)
-	       if self.current > #self.post_data then return nil end
-	       local s = self.post_data:sub(self.current, len)
-	       self.current = self.current + len
-	       return s
-	     end
+        if self.current > #self.post_data then return nil end
+        local s = self.post_data:sub(self.current, len)
+        self.current = self.current + len
+        return s
+      end
     },
     error = {
       messages = {},
       write = function (self, msg)
-		self.messages[#self.messages+1] = msg
-	      end
+        self.messages[#self.messages+1] = msg
+      end
     }
   }
 end

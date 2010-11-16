@@ -51,7 +51,7 @@ support you need to have the <a href="http://www.fastcgi.com/#TheDevKit">FastCGI
 installed, and use the <code>wsapi-fcgi</code> LuaRocks package. If you want Xavante support
 installed use the <code>wsapi-xavante</code> LuaRocks package.</p>
 
-<p>The WSAPI rock copies samples, docs and support files to it's path inside your
+<p>The WSAPI rock copies samples, docs and support files to its path inside your
 local Rocks repository.</p>
 
 <p>There is an all-in-one installer script that installs Lua, LuaRocks, and <code>wsapi-xavante</code> in
@@ -61,11 +61,12 @@ installation options.</p>
 
 <h3>About web servers</h3>
 
-<p>To run WSAPI applications you will also need a web server such as Apache, Lighttpd,
-or IIS (available only for Windows).
-If you want to use the Xavante connector you will need to have Xavante installed; the
-easiest way to do that is to install the "wsapi-xavante" rock (it is already installed
-if you used the <code>wsapi-install</code> script).</p>
+<p>To run WSAPI applications you will also need a web server such as
+<a href="http://keplerproject.github.com/xavante/">Xavante</a>,
+<a href="http://www.apache.org/">Apache</a>, <a href="http://www.lighttpd.net/">Lighttpd</a>, or
+<a href="http://www.iis.net/">IIS</a> (available only for Windows). Xavante is a webserver
+written in pure Lua. To use the Xavante connector, install the "wsapi-xavante"
+rock (it is already installed if you used the <code>wsapi-install</code> script).</p>
 
 <h2>A Simple WSAPI Application</h2>
 
@@ -98,7 +99,7 @@ inside Lua modules with a <code>run</code> function that is the entry point for 
 is then passed to your server's WSAPI connector. The generic application launchers
 provided with WSAPI respect this pattern.</p>
 
-<p>This is how the above example would look package this way (for example, in a <em>hello.lua</em> file:</p>
+<p>This is how the above example would look packaged this way (for example, in a <em>hello.lua</em> file):</p>
 
 
 <pre class="example">
@@ -264,6 +265,38 @@ pattern matching over the PATH_INFO, easy serving of static content, easy access
 to databases, and easy page caching, and <strong>SAPI</strong>, included in the WSAPI package as the
 <em>wsapi.sapi</em> application, for running <strong><a href="http://www.keplerproject.org/cgilua/">CGILua</a></strong>
 scripts and Lua pages.</p>
+
+<h2>Testing WSAPI applications</h2>
+
+<p>WSAPI comes with a mock connector that can be used for testing. It provides
+methods to send requests to your application and format responses. Functionality
+such as assertions and validations is left entirely to the testing framework you
+choose to use. Here's a simple example of how to use the mock connector:</p>
+
+
+<pre class="example">
+local connector = require "wsapi.mock"
+
+function hello(wsapi_env)
+  local headers = { ["Content-type"] = "text/html" }
+  local function hello_text()
+    coroutine.yield("hello world!")
+  end
+  return 200, headers, coroutine.wrap(hello_text)
+end
+
+local app = connector.make_handler(hello)
+
+do
+  local response, request = app:get("/", {hello = "world"})
+  assert(response.code                    == 200)
+  assert(request.request_method           == "GET")
+  assert(request.query_string             == "?hello=world")
+  assert(response.headers["Content-type"] == "text/html")
+  assert(response.body                    == "hello world!")
+end
+</pre>
+
 
 
 </div> <!-- id="content" -->

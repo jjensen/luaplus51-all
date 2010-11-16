@@ -17,6 +17,50 @@ _G.wsapi._COPYRIGHT   = "Copyright (C) 2007-2010 Kepler Project"
 _G.wsapi._DESCRIPTION = "WSAPI - the Lua Web Server API"
 _G.wsapi._VERSION     = "WSAPI 1.3.4"
 
+-- HTTP status codes
+status_codes = {
+   [100] = "Continue",
+   [101] = "Switching Protocols",
+   [200] = "OK",
+   [201] = "Created",
+   [202] = "Accepted",
+   [203] = "Non-Authoritative Information",
+   [204] = "No Content",
+   [205] = "Reset Content",
+   [206] = "Partial Content",
+   [300] = "Multiple Choices",
+   [301] = "Moved Permanently",
+   [302] = "Found",
+   [303] = "See Other",
+   [304] = "Not Modified",
+   [305] = "Use Proxy",
+   [307] = "Temporary Redirect",
+   [400] = "Bad Request",
+   [401] = "Unauthorized",
+   [402] = "Payment Required",
+   [403] = "Forbidden",
+   [404] = "Not Found",
+   [405] = "Method Not Allowed",
+   [406] = "Not Acceptable",
+   [407] = "Proxy Authentication Required",
+   [408] = "Request Time-out",
+   [409] = "Conflict",
+   [410] = "Gone",
+   [411] = "Length Required",
+   [412] = "Precondition Failed",
+   [413] = "Request Entity Too Large",
+   [414] = "Request-URI Too Large",
+   [415] = "Unsupported Media Type",
+   [416] = "Requested range not satisfiable",
+   [417] = "Expectation Failed",
+   [500] = "Internal Server Error",
+   [501] = "Not Implemented",
+   [502] = "Bad Gateway",
+   [503] = "Service Unavailable",
+   [504] = "Gateway Time-out",
+   [505] = "HTTP Version not supported",
+}
+
 -- Makes an index metamethod for the environment, from
 -- a function that returns the value of a server variable
 -- a metamethod lets us do "on-demand" loading of the WSAPI
@@ -84,66 +128,25 @@ end
 -- response iterator
 function send_content(out, res_iter, write_method)
    local write = out[write_method or "write"]
+   local flush = out.flush
    local ok, res = xpcall(res_iter, debug.traceback)
    while ok and res do
       write(out, res)
+      if flush then flush(out) end
       ok, res = xpcall(res_iter, debug.traceback)
    end
    if not ok then
-      write(out, 
+      write(out,
             "======== WSAPI ERROR DURING RESPONSE PROCESSING: \n<pre>" ..
               tostring(res) .. "\n</pre>")
    end
 end
 
-local status_codes = {
-   [100] = "Continue",
-   [101] = "Switching Protocols",
-   [200] = "OK",
-   [201] = "Created",
-   [202] = "Accepted",
-   [203] = "Non-Authoritative Information",
-   [204] = "No Content",
-   [205] = "Reset Content",
-   [206] = "Partial Content",
-   [300] = "Multiple Choices",
-   [301] = "Moved Permanently",
-   [302] = "Found",
-   [303] = "See Other",
-   [304] = "Not Modified",
-   [305] = "Use Proxy",
-   [307] = "Temporary Redirect",
-   [400] = "Bad Request",
-   [401] = "Unauthorized",
-   [402] = "Payment Required",
-   [403] = "Forbidden",
-   [404] = "Not Found",
-   [405] = "Method Not Allowed",
-   [406] = "Not Acceptable",
-   [407] = "Proxy Authentication Required",
-   [408] = "Request Time-out",
-   [409] = "Conflict",
-   [410] = "Gone",
-   [411] = "Length Required",
-   [412] = "Precondition Failed",
-   [413] = "Request Entity Too Large",
-   [414] = "Request-URI Too Large",
-   [415] = "Unsupported Media Type",
-   [416] = "Requested range not satisfiable",
-   [417] = "Expectation Failed",
-   [500] = "Internal Server Error",
-   [501] = "Not Implemented",
-   [502] = "Bad Gateway",
-   [503] = "Service Unavailable",
-   [504] = "Gateway Time-out",
-   [505] = "HTTP Version not supported",
-}
-
--- Sends the complete response through the "out" pipe, 
+-- Sends the complete response through the "out" pipe,
 -- using the provided write method
 function send_output(out, status, headers, res_iter, write_method, res_line)
    local write = out[write_method or "write"]
-   if type(status) == "number" or status:match("^%d+$") then 
+   if type(status) == "number" or status:match("^%d+$") then
      status = status .. " " .. status_codes[tonumber(status)]
    end
    if res_line then
@@ -153,12 +156,12 @@ function send_output(out, status, headers, res_iter, write_method, res_line)
    end
    for h, v in pairs(headers or {}) do
       if type(v) ~= "table" then
-         write(out, h .. ": " .. tostring(v) .. "\r\n") 
+         write(out, h .. ": " .. tostring(v) .. "\r\n")
       else
          for _, v in ipairs(v) do
             write(out, h .. ": " .. tostring(v) .. "\r\n")
          end
-      end 
+      end
    end
    write(out, "\r\n")
    send_content(out, res_iter, write_method)
@@ -255,7 +258,7 @@ function run_app(app, env)
                  function (msg)
                     if type(msg) == "table" then
                        env.STATUS = msg[1]
-                       return _M["status_" .. msg[1] .. "_html"](msg[2]) 
+                       return _M["status_" .. msg[1] .. "_html"](msg[2])
                     else
                        return debug.traceback(msg, 2)
                     end
@@ -276,8 +279,8 @@ end
 -- Runs an application with data from the configuration table "t",
 -- sending the WSAPI error/not found responses in case of errors
 function run(app, t)
-   local env = wsapi_env(t) 
-   local ok, status, headers, res_iter = 
+   local env = wsapi_env(t)
+   local ok, status, headers, res_iter =
       run_app(app, env)
    if ok then
      if not headers["Content-Length"] then
@@ -300,7 +303,7 @@ function run(app, t)
        return send_error(t.output, t.error, status, t.write_method, t.err_method, t.http_response)
      end
    end
-   return status, headers 
+   return status, headers
 end
 
 function splitpath(filename)
@@ -340,15 +343,15 @@ end
 -- IIS appends the PATH_INFO to PATH_TRANSLATED, this function
 -- corrects for that
 function adjust_iis_path(wsapi_env, filename)
-   local script_name, ext = 
+   local script_name, ext =
       wsapi_env.SCRIPT_NAME:match("([^/%.]+)%.([^%.]+)$")
    if script_name then
-      local path = 
+      local path =
          filename:match("^(.+)" .. script_name .. "%." .. ext .. "[/\\]")
-      if path then 
-         return path .. script_name .. "." .. ext 
-      else 
-         return filename 
+      if path then
+         return path .. script_name .. "." .. ext
+      else
+         return filename
       end
    else
       return filename
@@ -374,7 +377,7 @@ end
 -- /cgi-bin/wsapi.cgi/bar/baz.lua and PATH_INFO will be /foo
 -- for the previous example
 function adjust_non_wrapped(wsapi_env, filename, launcher)
-  if filename == "" or not_compatible(wsapi_env, filename) or 
+  if filename == "" or not_compatible(wsapi_env, filename) or
     (launcher and filename:match(launcher:gsub("%.", "%.") .. "$")) then
     local path_info = wsapi_env.PATH_INFO
     local docroot = wsapi_env.DOCUMENT_ROOT
@@ -396,7 +399,7 @@ function adjust_non_wrapped(wsapi_env, filename, launcher)
                  .. " not found!" }, 0)
       elseif lfs.attributes(filename, "mode") == "file" then
         wsapi_env.PATH_INFO = path_info:sub(e + 1)
-        if wsapi_env.PATH_INFO == "" then wsapi_env.PATH_INFO = "/" end    
+        if wsapi_env.PATH_INFO == "" then wsapi_env.PATH_INFO = "/" end
         wsapi_env.SCRIPT_NAME = wsapi_env.SCRIPT_NAME .. "/" .. filepath
         return filename
       end
@@ -427,7 +430,7 @@ function normalize_paths(wsapi_env, filename, launcher, vars)
    local s, e = wsapi_env.PATH_INFO:find(wsapi_env.SCRIPT_NAME, 1, true)
    if s == 1 then
      wsapi_env.PATH_INFO = wsapi_env.PATH_INFO:sub(e+1)
-     if wsapi_env.PATH_INFO == "" then wsapi_env.PATH_INFO = "/" end    
+     if wsapi_env.PATH_INFO == "" then wsapi_env.PATH_INFO = "/" end
    end
 end
 
@@ -500,10 +503,10 @@ do
                  table.insert(new_states, state)
               else
                  if not rawget(state.data, "status") then
-		   state.app("close")
+                   state.app("close")
                  else
-		   rawset(state.data, "cleanup", true)
-		 end
+                   rawset(state.data, "cleanup", true)
+                 end
               end
            end
            app_state.states = new_states
@@ -516,7 +519,7 @@ do
   -- loads it in an isolated Lua state (reusing an existing state if one is free)
   -- and runs the application in the provided WSAPI environment
   local function wsapi_loader_isolated_helper(wsapi_env, params)
-     local path, file, modname, ext, mtime = 
+     local path, file, modname, ext, mtime =
         find_module(wsapi_env, params.filename, params.launcher, params.vars)
      if params.reload then mtime = nil end
      if not path then
@@ -544,15 +547,15 @@ do
       table.insert(app_state.states, { app = app, data = data })
     else
       for _, state in ipairs(app_state.states) do
-	if not rawget(state.data, "status") then
-	  state.app("close")
-	else
-	  rawset(state.data, "cleanup", true)
-	end
+        if not rawget(state.data, "status") then
+          state.app("close")
+        else
+          rawset(state.data, "cleanup", true)
+        end
       end
       app, data = bootstrap_app(path, file, modname, ext)
       if mtime then
-        app_states[filename] = { states = { { app = app, data = data } }, 
+        app_states[filename] = { states = { { app = app, data = data } },
                                  mtime = mtime }
       end
     end
@@ -572,11 +575,11 @@ do
 
   function wsapi_loader_isolated(wsapi_env)
      return wsapi_loader_isolated_helper(wsapi_env, {})
-  end 
-  
+  end
+
   function wsapi_loader_isolated_reload(wsapi_env)
      return wsapi_loader_isolated_helper(wsapi_env, { reload = true })
-  end 
+  end
 
 end
 
@@ -597,13 +600,13 @@ do
            local new_states = {}
            for _, state in ipairs(app_state.states) do
               if ttl and (rawget(state.data, "created_at") + ttl > os.time()) then
-		table.insert(new_states, state)
+                table.insert(new_states, state)
               else
-		if not rawget(state.data, "status") then
-		  state.app("close")
-		else
-		  rawset(state.data, "cleanup", true)
-		end
+                if not rawget(state.data, "status") then
+                  state.app("close")
+                else
+                  rawset(state.data, "cleanup", true)
+                end
               end
            end
            app_state.states = new_states
@@ -641,14 +644,14 @@ do
        table.insert(app_state.states, { app = app, data = data })
     else
        for _, state in ipairs(app_state.states) do
-	 if not rawget(state.data, "status") then
-	   state.app("close")
-	 else
-	   rawset(state.data, "cleanup", true)
-	 end
+         if not rawget(state.data, "status") then
+           state.app("close")
+         else
+           rawset(state.data, "cleanup", true)
+         end
        end
        app, data = bootstrap_app(path, app_modname, bootstrap)
-       app_states[filename] = { states = { { app = app, data = data } }, 
+       app_states[filename] = { states = { { app = app, data = data } },
                                 mtime = mtime }
     end
     return app
@@ -664,7 +667,7 @@ do
                normalize_paths(wsapi_env, params.filename, params.launcher, params.vars)
                local app = load_isolated_launcher(wsapi_env.PATH_TRANSLATED, params.modname, params.bootstrap, params.reload)
                return app(wsapi_env)
-            end 
+            end
   end
 end
 
@@ -674,13 +677,13 @@ do
   local apps = {}
   local last_collection = os.time()
   setmetatable(apps, { __index = function (tab, app)
-                                          tab[app] = { created_at = os.time() }
-                                          return tab[app]
-                                       end })
+                                   tab[app] = { created_at = os.time() }
+                                   return tab[app]
+                                 end })
 
   -- Bootstraps a Lua state (using rings) with the provided WSAPI application
   local function bootstrap_app(path, file, modname, ext)
-     return load_wsapi(path, file, modname, ext) 
+     return load_wsapi(path, file, modname, ext)
   end
 
   -- "Garbage-collect" stale Lua states
@@ -719,7 +722,7 @@ do
   -- Helper for the persistent launchers: find the application path and script,
   -- loads and runs the application in the provided WSAPI environment
   local function wsapi_loader_persistent_helper(wsapi_env, params)
-     local path, file, modname, ext, mtime = 
+     local path, file, modname, ext, mtime =
         find_module(wsapi_env, params.filename, params.launcher, params.vars)
      if params.reload then mtime = nil end
      if not path then

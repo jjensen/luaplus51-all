@@ -28,10 +28,10 @@ end
 function methods:finish()
   self.headers["Content-Length"] = self.length
   return self.status, self.headers, coroutine.wrap(function ()
-						     for _, s in ipairs(self.body) do
-						       coroutine.yield(s)
-						     end
-						   end)
+    for _, s in ipairs(self.body) do
+     coroutine.yield(s)
+    end
+  end)
 end
 
 local function optional (what, name)

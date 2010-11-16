@@ -20,7 +20,7 @@ extra arguments to the link builder of the route
 **req:link\_&lt;route&gt;(*tab*, ...)** - same as **req:route\_link(*route*, *tab*, ...)**
 
 **req:link(*uri*, *tab*)** - makes an internal application link to the specified resource *uri*, with *tab* encoded as
-a query string. For example, if the app is addresed by /foo/bar.lua then **req:link("/baz", { id = 2 })** returns
+a query string. For example, if the app is addressed by /foo/bar.lua then **req:link("/baz", { id = 2 })** returns
 "/foo/bar.lua/baz?id=2"
 
 **req:static\_link(*uri*, *tab*)** - as **req:link**, but builds a link external to the application. In the previous
@@ -37,7 +37,7 @@ links
 
 **req.POST** - table with POST parameters of request
 
-**req.method** - request method (usually "GET" or "POST") 
+**req.method** - request method (usually "GET" or "POST")
 
 **req.path\_info** - PATH\_INFO metavariable
 
@@ -108,3 +108,23 @@ have been passed and their values
 environment that lets you process the POST data more than once. This new
 environment's input object has a *rewind* method that you can call to allow you to read
 the POST data again.
+
+## Mock
+
+**make\_handler(*wsapi\_app*)** - Creates a mock handler for testing the WSAPI application you pass in.
+
+The resulting handler will be a table with three fields:
+
+**app** - The app itself.
+
+**get** - A function to perform GET requests.
+
+**post** - A function to perform POST requests.
+
+The `get` and `post` functions both accept the following arguments:
+
+**path** (required) - The path to request. Do not include the query string, this is specified in `params`.
+
+**params** (optional) - A table of query or form data parameters.
+
+**headers** (optional) - Any request headers you wish to specify.

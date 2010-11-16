@@ -25,19 +25,21 @@ function run(app_run)
      local headers
      local function getenv(n)
        if n == "headers" then
-	 if headers then return headers end
-	 local env_vars = lfcgi.environ()
-	 headers = {}
-	 for _, s in ipairs(env_vars) do
-	   local name, val = s:match("^([^=]+)=(.*)$")
-	   headers[name] = val
-	 end
-	 return headers
+         if headers then return headers end
+         local env_vars = lfcgi.environ()
+         headers = {}
+         for _, s in ipairs(env_vars) do
+           local name, val = s:match("^([^=]+)=(.*)$")
+           headers[name] = val
+         end
+         return headers
        else
-	 return lfcgi.getenv(n) or os.getenv(n)
+         return lfcgi.getenv(n) or os.getenv(n)
        end
      end
-     common.run(app_run, { input = lfcgi.stdin, output = lfcgi.stdout,
-			   error = lfcgi.stderr, env = getenv })
+     common.run(app_run, { input = lfcgi.stdin,
+                           output = lfcgi.stdout,
+                           error = lfcgi.stderr,
+                           env = getenv })
    end
 end
