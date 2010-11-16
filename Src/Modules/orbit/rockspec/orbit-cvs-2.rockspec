@@ -16,7 +16,6 @@ dependencies = { 'luafilesystem >= 1.5.0', 'lpeg >= 0.9', 'wsapi >= 1.3.4', 'mk'
 
 source = {
   url = "git://github.com/keplerproject/orbit.git",
-  branch = "origin/mk"
 }
 
 build = {
