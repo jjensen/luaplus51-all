@@ -118,8 +118,9 @@ rule build_qt_lib_binding BINDING_HEADER : DEPENDENCIES {
 	Depends $(targets) : $(GEN_XML) : $(CPPTOXML_EXE) ;
 	NotFile $(BINDING_NAME) ;
 
-	C.UseQt $(BINDING_NAME) : core gui network opengl script svg xml xmlpatterns webkit : link ;
+	C.UseQt $(BINDING_NAME) : core gui network opengl script sql svg uitools xml xmlpatterns webkit : link ;
 	C.IncludeDirectories $(BINDING_NAME) : $(SUBDIR)/common ;
+	C.C++Flags $(BINDING_NAME) : /bigobj ;
 	ActiveTarget $(BINDING_NAME) ;
 	Lua.CModule $(BINDING_NAME) : $(BINDING_NAME) :
 			[ C.Qt.Moc $(BINDING_NAME) : $(bindingname_slot.hpp) ]
@@ -149,7 +150,7 @@ rule build_qt_lib_binding BINDING_HEADER : DEPENDENCIES {
 
 build_qt_lib_binding QtCore ;
 build_qt_lib_binding QtNetwork : QtCore ;
-build_qt_lib_binding QtGui : QtNetwork QtCore ;
+build_qt_lib_binding QtGui : QtNetwork QtCore : bigobj ;
 build_qt_lib_binding QtScript : QtGui QtNetwork QtCore ;
 build_qt_lib_binding QtOpenGL : QtGui QtNetwork QtCore ;
 build_qt_lib_binding QtSvg : QtScript QtGui QtNetwork QtCore ;
