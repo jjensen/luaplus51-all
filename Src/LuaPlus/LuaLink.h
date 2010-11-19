@@ -69,7 +69,8 @@
 	#endif
 #endif // _MSC_VER
 
-#if defined(__APPLE__)  ||  defined(macintosh)
+#if defined(PLATFORM_IPAD)
+#elif defined(__APPLE__)  ||  defined(macintosh)
 #define LUA_USE_MACOSX
 #endif
 
