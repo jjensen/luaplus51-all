@@ -1610,9 +1610,9 @@ STDMETHODIMP tLuaControl::Draw(DWORD dwDrawAspect, LONG lIndex, void *pvAspect,
 
 //	SendMessage(WindowFromDC(hdcDraw), WM_PAINT, NULL, NULL);
 
-	LRESULT wndProc = GetWindowLong(m_hwnd, GWL_WNDPROC);
+	LRESULT wndProc = GetWindowLongPtr(m_hwnd, GWLP_WNDPROC);
 	if(!wndProc)
-		wndProc = GetWindowLong(m_hwnd, DWL_DLGPROC);
+		wndProc = GetWindowLongPtr(m_hwnd, DWLP_DLGPROC);
     CallWindowProc((WNDPROC)wndProc, m_hwnd, WM_PAINT, (WPARAM)hdcDraw, 0);
 
     return S_OK;
