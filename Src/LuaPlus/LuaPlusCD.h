@@ -1228,7 +1228,7 @@ inline void lua_pushdirectclosure(lua_State* L, Func func, unsigned int nupvalue
 {
 	unsigned char* buffer = (unsigned char*)lua_newuserdata(L, sizeof(func));
 	memcpy(buffer, &func, sizeof(func));
-	lua_insert(L, -1 - nupvalues);
+	lua_insert(L, -1 - (int)nupvalues);
 	lua_pushcclosure(L, LPCD::DirectCallFunctionDispatchHelper<Func>::DirectCallFunctionDispatcher, nupvalues + 1);
 }
 
@@ -1240,7 +1240,7 @@ inline void lua_pushdirectclosure(lua_State* L, const Callee& callee, Func func,
 	const void* pCallee = &callee;
 	memcpy(buffer, &pCallee, sizeof(Callee*));
 	memcpy(buffer + sizeof(Callee*), &func, sizeof(func));
-	lua_insert(L, -1 - nupvalues);
+	lua_insert(L, -1 - (int)nupvalues);
 	lua_pushcclosure(L, LPCD::DirectCallMemberDispatcherHelper<Callee, Func>::DirectCallMemberDispatcher, nupvalues + 1);
 }
 
@@ -1249,7 +1249,7 @@ inline void lua_pushfunctorclosure(lua_State* L, int (*func)(lua_State*), unsign
 {
 	unsigned char* buffer = (unsigned char*)lua_newuserdata(L, sizeof(func));
 	memcpy(buffer, &func, sizeof(func));
-	lua_insert(L, -1 - nupvalues);
+	lua_insert(L, -1 - (int)nupvalues);
 	lua_pushcclosure(L, LPCD::lua_StateFunctionDispatcher, nupvalues + 1);
 }
 
@@ -1261,7 +1261,7 @@ inline void lua_pushfunctorclosureex(lua_State* L, const Callee& callee, int (Ca
 	const void* pCallee = &callee;
 	memcpy(buffer, &pCallee, sizeof(Callee*));
 	memcpy(buffer + sizeof(Callee*), &func, sizeof(func));
-	lua_insert(L, -1 - nupvalues);
+	lua_insert(L, -1 - (int)nupvalues);
 	lua_pushcclosure(L, LPCD::lua_StateMemberDispatcherHelper<Callee>::lua_StateMemberDispatcher, nupvalues + 1);
 }
 
