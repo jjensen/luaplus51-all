@@ -132,7 +132,6 @@ if $(MSVCNT) {
 
 		C.LinkFlags $(TARGET) :
 				/NOENTRY
-				/MACHINE:X86
 				/INCREMENTAL:NO
 				/NODEFAULTLIB
 		;
