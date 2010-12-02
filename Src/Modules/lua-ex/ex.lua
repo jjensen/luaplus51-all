@@ -33,6 +33,17 @@ function ex.lines(args)
 	end
 end
 
+-- ex.lines
+function ex.rawlines(args)
+	local proc, input = popen(args)
+	return function()
+		local line = input:read(100)
+		if line then return line end
+		input:close()
+		args.errorcode = proc:wait()
+	end
+end
+
 -- ex.popen2()
 function ex.popen2(args)
 	local in_rd, in_wr = io.pipe()
