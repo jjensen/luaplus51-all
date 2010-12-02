@@ -5,6 +5,7 @@
 
 local lxp = require "lxp"
 local lom = require "lxp.lom"
+local mime = require "mime"
 
 local assert, error, ipairs, pairs, select, type, tonumber, unpack = assert, error, ipairs, pairs, select, type, tonumber, unpack
 local format, gsub, strfind, strsub = string.format, string.gsub, string.find, string.sub
@@ -277,6 +278,7 @@ local formats = {
 	boolean = "<boolean>%d</boolean>",
 	number = "<double>%d</double>",
 	string = "<string>%s</string>",
+	base64 = "<base64>%s</base64>",
 
 	array = "<array><data>\n%s\n</data></array>",
 	double = "<double>%s</double>",
@@ -318,6 +320,16 @@ local toxml = {}
 toxml.double = function (v,t) return format (formats.double, v) end
 toxml.int = function (v,t) return format (formats.int, v) end
 toxml.string = function (v,t) return format (formats.string, v) end
+
+---------------------------------------------------------------------
+-- Build a XML-RPC representation of a binary (base64).
+-- @param v Object.
+-- @return String.
+---------------------------------------------------------------------
+function toxml.base64(v)
+	local enc = mime.b64( v )
+	return format( formats.base64, enc )
+end
 
 ---------------------------------------------------------------------
 -- Build a XML-RPC representation of a boolean.
