@@ -6,7 +6,7 @@ require 'ex.core'
 function ex.parsecommandline(commandline)
 	require 'lpeg'
 	local field = lpeg.C('\"' * (lpeg.P(1) - '\"')^0 * '\"' + (1 - lpeg.P' ')^0)
-	return lpeg.Ct(field * (lpeg.P(' ')^1 * field)^0 * -1)			
+	return lpeg.Ct(field * (lpeg.P(' ')^1 * field)^0 * -1):match(commandline)
 end
 
 -- ex.popen
