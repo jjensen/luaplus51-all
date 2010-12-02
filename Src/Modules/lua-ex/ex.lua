@@ -77,13 +77,13 @@ local function copy_directory_helper(srcPath, destPath, callback, deleteExtra)
 	local destDirs = {}
 	local destFiles = {}
 	for destHandle in filefind.match(destPath .. "*.*") do
-		local fileName = destHandle:GetFileName()
-		if destHandle:IsDirectory() then
+		local fileName = destHandle.filename
+		if destHandle.is_directory then
 			if fileName ~= '.'  and  fileName ~= '..' then
 				destDirs[fileName:lower()] = true
 			end
 		else
-			destFiles[fileName:lower()] = destHandle:GetLastWriteTime()
+			destFiles[fileName:lower()] = destHandle.write_time
 		end
 	end
 
@@ -91,15 +91,15 @@ local function copy_directory_helper(srcPath, destPath, callback, deleteExtra)
 	local srcDirs = {}
 	local srcFiles = {}
 	for srcHandle in filefind.match(srcPath .. "*.*") do
-		local fileName = srcHandle:GetFileName()
-		if srcHandle:IsDirectory() then
+		local fileName = srcHandle.filename
+		if srcHandle.is_directory then
 			if fileName ~= '.'  and  fileName ~= '..' then
 				srcDirs[#srcDirs + 1] = fileName
 				destDirs[fileName:lower()] = nil
 			end
 		else
 			local lowerFileName = fileName:lower()
-			if srcHandle:GetLastWriteTime() ~= destFiles[lowerFileName] then
+			if srcHandle.write_time ~= destFiles[lowerFileName] then
 				srcFiles[#srcFiles + 1] = fileName
 			end
 			destFiles[lowerFileName] = nil
@@ -110,7 +110,7 @@ local function copy_directory_helper(srcPath, destPath, callback, deleteExtra)
 	if deleteExtra then
 		for fileName in pairs(destFiles) do
 			local destFullPath = destPath .. fileName
-			print('del ' .. destFullPath)
+			if callback then callback('del', destFullPath) end
 			os.remove(destFullPath)
 		end
 	end
@@ -120,6 +120,7 @@ local function copy_directory_helper(srcPath, destPath, callback, deleteExtra)
 		local srcFileName = srcPath .. fileName
 		local destFileName = destPath .. fileName
 		if callback then callback('copy', srcFileName, destFileName) end
+		os.chmod(destFileName, 'w')				-- Make sure we can overwrite the file
 		os.copyfile(srcFileName, destFileName)
 	end
 
