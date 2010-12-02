@@ -29,7 +29,7 @@ function ex.lines(args)
 		local line = input:read("*l")
 		if line then return line end
 		input:close()
-		proc:wait()
+		args.errorcode = proc:wait()
 	end
 end
 
