@@ -236,6 +236,7 @@ int process_wait(lua_State *L)
       return windows_pushlasterror(L);
     p->status = exitcode;
   }
+  process_close(L);
   lua_pushnumber(L, p->status);
   return 1;
 }
@@ -247,6 +248,24 @@ int process_tostring(lua_State *L)
   char buf[40];
   lua_pushlstring(L, buf,
     sprintf(buf, "process (%lu, %s)", (unsigned long)p->dwProcessId,
-      p->status==-1 ? "running" : "terminated"));
+        p->dwProcessId ? (p->status==-1 ? "running" : "terminated") : "terminated"));
   return 1;
 }
+
+/* proc -- exitcode/nil error */
+int process_close(lua_State *L)
+{
+  struct process *p = luaL_checkudata(L, 1, PROCESS_HANDLE);
+  if (p->hProcess != INVALID_HANDLE_VALUE) {
+    if (p->status == -1) {
+      DWORD exitcode;
+      GetExitCodeProcess(p->hProcess, &exitcode);
+      p->status = exitcode;
+	}
+
+    CloseHandle(p->hProcess);
+    p->hProcess = INVALID_HANDLE_VALUE;
+  }
+  return 0;
+}
+
