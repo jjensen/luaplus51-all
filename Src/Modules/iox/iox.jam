@@ -1,6 +1,0 @@
-if $(OS) = NT  &&  $(COMPILER.$(PLATFORM)) != vc6
-{
-
-LuaPlus.CModule iox : : iox.cpp ;
-
-}
