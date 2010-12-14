@@ -10,21 +10,24 @@ local SRCS =
 		src/pythoninlua.h
 ;
 
-C.IncludeDirectories python : c:/python26/include ;
-C.LinkDirectories python : c:/python26/libs ;
+PYTHON_ROOT = c:/python27 ;
+PYTHON_LIB = python27 ;
+
+C.IncludeDirectories python : $(PYTHON_ROOT)/include ;
+C.LinkDirectories python : $(PYTHON_ROOT)/libs ;
 
 local libName ;
 switch $(CONFIG) {
-	case debug :		libName = python26_d ;
-	case release :		libName = python26 ;
-	case releaseltcg :	libName = python26 ;
+	case debug :		libName = $(PYTHON_LIB)_d ;
+	case release :		libName = $(PYTHON_LIB) ;
+	case releaseltcg :	libName = $(PYTHON_LIB) ;
 }
 
 if $(PLATFORM) = *
 {
 	Project python : $(SRCS) ;
 }
-else if $(CONFIG) != *  &&  [ Glob c:/python26/libs : $(libName).lib ]
+else if $(CONFIG) != *  &&  [ Glob $(PYTHON_ROOT)/libs : $(libName).lib ]
 {
 	C.LinkFlags python : /DELAYLOAD:luaplus51-1200_debug.dll : debug ;
 	C.LinkFlags python : /DELAYLOAD:luaplus51-1200.dll : release ;
