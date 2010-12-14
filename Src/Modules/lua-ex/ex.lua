@@ -29,18 +29,18 @@ function ex.lines(args)
 		local line = input:read("*l")
 		if line then return line end
 		input:close()
-		args.errorcode = proc:wait()
+		args.exitcode = proc:wait()
 	end
 end
 
--- ex.lines
+-- ex.rawlines
 function ex.rawlines(args)
 	local proc, input = popen(args)
 	return function()
 		local line = input:read(100)
 		if line then return line end
 		input:close()
-		args.errorcode = proc:wait()
+		args.exitcode = proc:wait()
 	end
 end
 
@@ -65,6 +65,7 @@ function ex.collectlines(args)
 	for line in ex.lines(args) do
 		lines[#lines + 1] = line
 	end
+	args.lines = lines
 	return lines
 end
 
@@ -159,3 +160,35 @@ function ex.mirrordirectory(srcPath, destPath, callback)
 	copy_directory_helper(srcPath, destPath, callback, true)
 end
 
+
+function ex.removeemptydirectories(path)
+	require 'filefind'
+	require 'ex'
+	
+	local dirs = {}
+	local remove = true
+	
+	for handle in filefind.match(path .. "*.*") do
+		if handle.is_directory then
+			local fileName = handle.filename
+			
+			if fileName ~= '.'  and  fileName ~= '..' then
+				dirs[#dirs + 1] = fileName
+			end
+		else
+			remove = false
+		end
+	end
+	
+	for _, dirName in ipairs(dirs) do
+		if not ex.removeemptydirectories(path .. dirName .. '\\') then 
+			remove = false 
+		end
+	end
+	
+	if remove then 
+		os.remove(path) 
+	end
+
+	return remove
+end
