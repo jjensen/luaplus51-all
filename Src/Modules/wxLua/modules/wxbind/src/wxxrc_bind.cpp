@@ -365,31 +365,6 @@ static int LUACALL wxLua_wxXmlResource_LoadMenuBar(lua_State *L)
 
 #endif // (wxLUA_USE_wxMenu && wxUSE_MENUS) && (wxLUA_USE_wxXRC && wxUSE_XRC)
 
-#if (wxLUA_USE_wxObject) && (wxLUA_USE_wxXRC && wxUSE_XRC)
-static wxLuaArgType s_wxluatypeArray_wxLua_wxXmlResource_LoadObject[] = { &wxluatype_wxXmlResource, &wxluatype_wxWindow, &wxluatype_TSTRING, &wxluatype_TSTRING, NULL };
-static int LUACALL wxLua_wxXmlResource_LoadObject(lua_State *L);
-static wxLuaBindCFunc s_wxluafunc_wxLua_wxXmlResource_LoadObject[1] = {{ wxLua_wxXmlResource_LoadObject, WXLUAMETHOD_METHOD, 4, 4, s_wxluatypeArray_wxLua_wxXmlResource_LoadObject }};
-//     wxObject *LoadObject(wxWindow *parent, const wxString& name, const wxString& classname);
-static int LUACALL wxLua_wxXmlResource_LoadObject(lua_State *L)
-{
-    // const wxString classname
-    const wxString classname = wxlua_getwxStringtype(L, 4);
-    // const wxString name
-    const wxString name = wxlua_getwxStringtype(L, 3);
-    // wxWindow parent
-    wxWindow * parent = (wxWindow *)wxluaT_getuserdatatype(L, 2, wxluatype_wxWindow);
-    // get this
-    wxXmlResource * self = (wxXmlResource *)wxluaT_getuserdatatype(L, 1, wxluatype_wxXmlResource);
-    // call LoadObject
-    wxObject* returns = (wxObject*)self->LoadObject(parent, name, classname);
-    // push the result datatype
-    wxluaT_pushuserdatatype(L, returns, wxluatype_wxObject);
-
-    return 1;
-}
-
-#endif // (wxLUA_USE_wxObject) && (wxLUA_USE_wxXRC && wxUSE_XRC)
-
 static wxLuaArgType s_wxluatypeArray_wxLua_wxXmlResource_LoadPanel1[] = { &wxluatype_wxXmlResource, &wxluatype_wxPanel, &wxluatype_wxWindow, &wxluatype_TSTRING, NULL };
 static int LUACALL wxLua_wxXmlResource_LoadPanel1(lua_State *L);
 // static wxLuaBindCFunc s_wxluafunc_wxLua_wxXmlResource_LoadPanel1[1] = {{ wxLua_wxXmlResource_LoadPanel1, WXLUAMETHOD_METHOD, 4, 4, s_wxluatypeArray_wxLua_wxXmlResource_LoadPanel1 }};
@@ -670,10 +645,6 @@ wxLuaBindMethod wxXmlResource_methods[] = {
 #if ((wxLUA_USE_wxMenu && wxUSE_MENUS) && (wxLUA_USE_wxXRC && wxUSE_XRC))
     { "LoadMenuBar", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxXmlResource_LoadMenuBar_overload, s_wxluafunc_wxLua_wxXmlResource_LoadMenuBar_overload_count, 0 },
 #endif // ((wxLUA_USE_wxMenu && wxUSE_MENUS) && (wxLUA_USE_wxXRC && wxUSE_XRC))
-
-#if (wxLUA_USE_wxObject) && (wxLUA_USE_wxXRC && wxUSE_XRC)
-    { "LoadObject", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxXmlResource_LoadObject, 1, NULL },
-#endif // (wxLUA_USE_wxObject) && (wxLUA_USE_wxXRC && wxUSE_XRC)
 
 #if (wxLUA_USE_wxXRC && wxUSE_XRC)
     { "LoadPanel", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxXmlResource_LoadPanel_overload, s_wxluafunc_wxLua_wxXmlResource_LoadPanel_overload_count, 0 },

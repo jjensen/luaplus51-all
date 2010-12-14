@@ -34,7 +34,7 @@ struct WXDLLIMPEXP_WXLUA wxLuaBindClass;
 // Note that WXLUA_TUNKNOWN is used as an initialiser for class types
 //   and is used as an end marker for the wxLuaArgType array that
 //   represents function prototype argument types in the wxLuaBindCFunc struct
-//   and it must always be 0. The Lua type LUA_TNONE starts at 1 since 
+//   and it must always be 0. The Lua type LUA_TNONE starts at 1 since
 //   Lua arrays start at 1.
 
 // wxLua types for Lua types
@@ -104,7 +104,7 @@ extern WXDLLIMPEXP_DATA_WXLUA(wxLuaBindClass) wxLuaBindClass_NULL; // for NULL p
 // Copies of wxLua types that are used very often, point to wxluatype_TUNKNOWN if unset.
 // Note that we do not use the original since we may not be linked
 // to the binding library that defines them.
-// Their values are set at compile time if linked to library, 
+// Their values are set at compile time if linked to library,
 //   see wxbase_rules.lua and wxcore_rules.lua
 extern WXDLLIMPEXP_DATA_WXLUA(int*) p_wxluatype_wxEvent;       // wxLua type for wxEvent
 extern WXDLLIMPEXP_DATA_WXLUA(int*) p_wxluatype_wxWindow;      // wxLua type for wxWindow
@@ -246,7 +246,7 @@ struct WXDLLIMPEXP_WXLUA wxLuaBindClass
 
     wxLuaBindNumber* enums;          // Class member enums or NULL if none
     int              enums_n;        // number of enums
-    
+
     wxlua_delete_function delete_fn; // Function that will cast the void* pointer
                                      // to the class type and then call delete on it.
 };
@@ -287,6 +287,10 @@ WXDLLIMPEXP_WXLUA wxString wxlua_getBindMethodArgsMsg(lua_State* L, struct wxLua
 //   wxObject-derived class so that a Lua object can be used for userdata.
 // Also with a simple extension by a proxy member value it can be used
 //   to provide pointers to the wxValidator classes.
+// Note that all functions take a lua_State since we may be called from a
+//   coroutine with a different lua_State pointer and we want to make sure
+//   that we push/pull our object from the right lua_State. The registry
+//   where we store our object is shared by coroutine states.
 // ----------------------------------------------------------------------------
 
 enum wxLuaObject_Type
@@ -304,18 +308,25 @@ public:
     // Wrap the item at the lua_State's stack index and create a reference to it
     // in the wxlua_lreg_refs_key registy table
     wxLuaObject(const wxLuaState& wxlState, int stack_idx);
+    wxLuaObject(lua_State* L, int stack_idx);
 
     virtual ~wxLuaObject();
+
+    // YOU MUST ALWAYS CALL THIS before deleting this object!
+    // This is because we do not store a pointer to the lua_State in the
+    // constructor since we may be used in coroutines and we need to
+    // make sure that we push the data into the correct lua_State.
+    void RemoveReference(lua_State* L);
 
     // Get the value of the reference object and push it onto the stack.
     // (or a proxy if the object has been aliased for a wxValidator class.)
     // returns true if the object is valid and has a reference, returns false
     // on failure and nothing is pushed on the stack.
-    bool GetObject();
+    bool GetObject(lua_State* L);
     // Remove any existing reference and allocate another.
     // You cannot call this after calling GetXXXPtr(), but only if this wraps a
     // stack item.
-    void SetObject(int stack_idx);
+    void SetObject(lua_State* L, int stack_idx);
 
     // The following methods are used by the wxValidator interface
     // Call GetObject() so that it's on the stack then try to get the value of
@@ -323,16 +334,17 @@ public:
     // and return a pointer to member variable to a function that wants
     // a pointer to read/write from/to.
     // You may only call only one of these per instance of a wxLuaObject class.
-    bool       *GetBoolPtr();
-    int        *GetIntPtr();
-    wxString   *GetStringPtr();
-    wxArrayInt *GetArrayPtr();
+    bool       *GetBoolPtr(lua_State* L);
+    int        *GetIntPtr(lua_State* L);
+    wxString   *GetStringPtr(lua_State* L);
+    wxArrayInt *GetArrayPtr(lua_State* L);
 
-    // Return a flag value that indicated whether the
-    // object is being used by a wxValidator class (else wxLUAOBJECT_NONE).
+    // Return a flag value that indicated which GetXXXPrt() function was called
+    // else wxLUAOBJECT_NONE. This is for using this object with a wxValidator class
     wxLuaObject_Type GetAllocationFlag() const { return m_alloc_flag; }
-
-    wxLuaState GetwxLuaState() const;
+    // Returns the reference number in the wxlua_lreg_refs_key Lua Registry table
+    // or LUA_NOREF if not setup.
+    int GetReference() const { return m_reference; }
 
 protected:
     wxLuaState* m_wxlState;   // a pointer due to #include recursion.
@@ -610,7 +622,7 @@ public:
 protected:
 
     // Call only once after subclassed version is created to sort the bindings appropriately
-    void InitBinding(); 
+    void InitBinding();
 
     // Register the classes, defines, strings, events, objects, and functions
     // stored in the binding arrays. The Lua table to install them into

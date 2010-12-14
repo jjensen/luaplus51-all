@@ -10,62 +10,62 @@
 # Some targets that we may like to build
 
 Lua:
-	@(cd $(WXLUA_DIR)/modules/lua && make $(LUA_PLAT))
+	@(cd $(WXLUA_DIR)/modules/lua && $(MAKE) $(LUA_PLAT))
 
 wxLuaLib:
-	@(cd $(WXLUA_DIR)/modules/wxlua/src && make)
+	@(cd $(WXLUA_DIR)/modules/wxlua/src && $(MAKE))
 
 wxLuaDebugLib:
-	@(cd $(WXLUA_DIR)/modules/wxluadebug/src && make)
+	@(cd $(WXLUA_DIR)/modules/wxluadebug/src && $(MAKE))
 
 wxLuaSocketLib:
-	@(cd $(WXLUA_DIR)/modules/wxluasocket/src && make)
+	@(cd $(WXLUA_DIR)/modules/wxluasocket/src && $(MAKE))
 
 LuaModule:
-	@(cd $(WXLUA_DIR)/modules/luamodule/src && make)
+	@(cd $(WXLUA_DIR)/modules/luamodule/src && $(MAKE))
 
 # ----------------------------------------------------------------------------
 
 wxLuaBindAdvLib:
-	@(cd $(WXLUA_DIR)/modules/wxbind/src && make -f Makefile_wxadv)
+	@(cd $(WXLUA_DIR)/modules/wxbind/src && $(MAKE) -f Makefile_wxadv)
 
 wxLuaBindAUILib:
-	@(cd $(WXLUA_DIR)/modules/wxbind/src && make -f Makefile_wxaui)
+	@(cd $(WXLUA_DIR)/modules/wxbind/src && $(MAKE) -f Makefile_wxaui)
 
 wxLuaBindBaseLib:
-	@(cd $(WXLUA_DIR)/modules/wxbind/src && make -f Makefile_wxbase)
+	@(cd $(WXLUA_DIR)/modules/wxbind/src && $(MAKE) -f Makefile_wxbase)
 
 wxLuaBindCoreLib:
-	@(cd $(WXLUA_DIR)/modules/wxbind/src && make -f Makefile_wxcore)
+	@(cd $(WXLUA_DIR)/modules/wxbind/src && $(MAKE) -f Makefile_wxcore)
 
 wxLuaBindGLLib:
-	@(cd $(WXLUA_DIR)/modules/wxbind/src && make -f Makefile_wxgl)
+	@(cd $(WXLUA_DIR)/modules/wxbind/src && $(MAKE) -f Makefile_wxgl)
 
 wxLuaBindHTMLLib:
-	@(cd $(WXLUA_DIR)/modules/wxbind/src && make -f Makefile_wxhtml)
+	@(cd $(WXLUA_DIR)/modules/wxbind/src && $(MAKE) -f Makefile_wxhtml)
 
 wxLuaBindMediaLib:
-	@(cd $(WXLUA_DIR)/modules/wxbind/src && make -f Makefile_wxmedia)
+	@(cd $(WXLUA_DIR)/modules/wxbind/src && $(MAKE) -f Makefile_wxmedia)
 
 wxLuaBindNetLib:
-	@(cd $(WXLUA_DIR)/modules/wxbind/src && make -f Makefile_wxnet)
+	@(cd $(WXLUA_DIR)/modules/wxbind/src && $(MAKE) -f Makefile_wxnet)
 
 wxLuaBindRichTextLib:
-	@(cd $(WXLUA_DIR)/modules/wxbind/src && make -f Makefile_wxrichtext)
+	@(cd $(WXLUA_DIR)/modules/wxbind/src && $(MAKE) -f Makefile_wxrichtext)
 
 wxLuaBindSTCLib:
-	@(cd $(WXLUA_DIR)/modules/wxbind/src && make -f Makefile_wxstc)
+	@(cd $(WXLUA_DIR)/modules/wxbind/src && $(MAKE) -f Makefile_wxstc)
 
 wxLuaBindXMLLib:
-	@(cd $(WXLUA_DIR)/modules/wxbind/src && make -f Makefile_wxxml)
+	@(cd $(WXLUA_DIR)/modules/wxbind/src && $(MAKE) -f Makefile_wxxml)
 
 wxLuaBindXRCLib:
-	@(cd $(WXLUA_DIR)/modules/wxbind/src && make -f Makefile_wxxrc)
+	@(cd $(WXLUA_DIR)/modules/wxbind/src && $(MAKE) -f Makefile_wxxrc)
 
 # ----------------------------------------------------------------------------
 
 wxStEdit:
-	@(cd $(WXSTEDIT_DIR)/src && make)
+	@(cd $(WXSTEDIT_DIR)/src && $(MAKE))
 
 # ----------------------------------------------------------------------------
 # These are the targets when building the libs
@@ -91,10 +91,10 @@ cleanlib:
               $(WXLUA_TARGET_LIBDIR)/$(WXLUA_TARGET_LIB_LINK2)
 
 cleanall:
-	@(cd $(WXLUA_DIR)/modules/lua && make clean)
-	@(cd $(WXLUA_DIR)/modules/wxlua/src && make clean)
-	@(cd $(WXLUA_DIR)/modules/wxluadebug/src && make clean)
-	@(cd $(WXLUA_DIR)/modules/wxluasocket/src && make clean)
-	@(cd $(WXLUA_DIR)/modules/luamodule/src && make clean)
+	@(cd $(WXLUA_DIR)/modules/lua && $(MAKE) clean)
+	@(cd $(WXLUA_DIR)/modules/wxlua/src && $(MAKE) clean)
+	@(cd $(WXLUA_DIR)/modules/wxluadebug/src && $(MAKE) clean)
+	@(cd $(WXLUA_DIR)/modules/wxluasocket/src && $(MAKE) clean)
+	@(cd $(WXLUA_DIR)/modules/luamodule/src && $(MAKE) clean)
 
-	@(cd $(WXLUA_DIR)/modules/wxbind/src && make -f Makefile cleanwxbind)
+	@(cd $(WXLUA_DIR)/modules/wxbind/src && $(MAKE) -f Makefile cleanwxbind)

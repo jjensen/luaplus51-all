@@ -2,7 +2,7 @@
 // Purpose:     Implements the client end of wxLua debugging session
 // Author:      J. Winwood, John Labenski, Ray Gilbert
 // Created:     May 2002
-// RCS-ID:      $Id: wxldtarg.cpp,v 1.49 2009/11/15 17:56:04 jrl1 Exp $
+// RCS-ID:      $Id: wxldtarg.cpp,v 1.50 2010/08/27 20:23:30 jrl1 Exp $
 // Copyright:   (c) 2002 Lomtick Software. All rights reserved.
 // Licence:     wxWidgets licence
 /////////////////////////////////////////////////////////////////////////////
@@ -352,8 +352,10 @@ bool wxLuaDebugTarget::AtBreakPoint(const wxString &fileName, int lineNumber) co
 
 bool wxLuaDebugTarget::AddBreakPoint(const wxString &fileName, int lineNumber)
 {
+    wxString breakPoint = CreateBreakPoint(fileName, lineNumber);
     wxCriticalSectionLocker locker(m_breakPointListCriticalSection);
-    m_breakPointList.Add(CreateBreakPoint(fileName, lineNumber));
+    if (m_breakPointList.Index(breakPoint) == wxNOT_FOUND)
+        m_breakPointList.Add(breakPoint);
     return true;
 }
 
@@ -668,6 +670,8 @@ bool wxLuaDebugTarget::DebugHook(int event)
         lua_getinfo(m_wxlState.GetLuaState(), "Sln", &luaDebug);
         lineNumber = luaDebug.currentline - 1;
         fileName = lua2wx(luaDebug.source);
+        if (!fileName.IsEmpty() && (fileName[0] == wxT('@')))
+            fileName = fileName.Mid(1);
     }
 
     if (m_forceBreak)

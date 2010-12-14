@@ -19,6 +19,16 @@
 
     wxString GetData() const
 
+    wxString AfterFirst(wxChar ch) const
+    wxString AfterLast(wxChar ch) const
+    wxString BeforeFirst(wxChar ch) const
+    wxString BeforeLast(wxChar ch) const
+
+    size_t Len() const
+
+    const wxCharBuffer ToUTF8() const
+    static wxString FromUTF8(const char* s)
+
 %endclass
 
 // ---------------------------------------------------------------------------

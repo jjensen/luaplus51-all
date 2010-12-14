@@ -85,7 +85,7 @@ static int LUACALL wxLua_wxLuaObject_GetObject(lua_State *L)
     // get this
     wxLuaObject *self = (wxLuaObject *)wxluaT_getuserdatatype(L, 1, wxluatype_wxLuaObject);
     // call GetObject that push the item onto the stack, or nil
-    if (self->GetObject())
+    if (self->GetObject(L))
         return 1;
 
     return 0;
@@ -102,7 +102,7 @@ static int LUACALL wxLua_wxLuaObject_SetObject(lua_State *L)
     // get this
     wxLuaObject *self = (wxLuaObject *)wxluaT_getuserdatatype(L, 1, wxluatype_wxLuaObject);
     // call SetObject
-    self->SetObject(1);
+    self->SetObject(L, 1);
     // return the number of parameters
     return 0;
 }
@@ -117,11 +117,9 @@ static wxLuaBindCFunc s_wxluafunc_wxLua_wxLuaObject_constructor[1] = {{ wxLua_wx
 // wxLuaObject(void *object)
 static int LUACALL wxLua_wxLuaObject_constructor(lua_State *L)
 {
-    wxLuaState wxlState(L);
-
     wxLuaObject *returns;
     // call constructor
-    returns = new wxLuaObject(wxlState, 1);
+    returns = new wxLuaObject(L, 1);
     // add to tracked memory list
     wxluaO_addgcobject(L, returns, wxluatype_wxLuaObject);
     // push the constructed class pointer

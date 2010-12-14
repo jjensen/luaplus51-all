@@ -118,6 +118,8 @@ public:
         Create(title, pos, size, frame_style);
     }
 
+    virtual ~wxLuaEditorFrame() {}
+
     bool Create(const wxString& title, const wxPoint& pos, const wxSize& size,
                 long frame_style = wxDEFAULT_FRAME_STYLE);
 

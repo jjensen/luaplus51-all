@@ -974,7 +974,14 @@ function SaveFileAs(editor)
     if fileDialog:ShowModal() == wx.wxID_OK then
         local filePath = fileDialog:GetPath()
 
-        if SaveFile(editor, filePath) then
+        local save_file = true
+
+        if wx.wxFileExists(filePath) then
+            save_file = (wx.wxYES == wx.wxMessageBox(string.format("Replace file:\n%s", filePath), "wxLua Overwrite File",
+                                                     wx.wxYES_NO + wx.wxICON_QUESTION, frame))
+        end
+
+        if save_file and SaveFile(editor, filePath) then
             SetupKeywords(editor, IsLuaFile(filePath))
             saved = true
         end
@@ -1724,6 +1731,12 @@ frame:Connect(ID_TOGGLEBREAKPOINT, wx.wxEVT_UPDATE_UI, OnUpdateUIEditMenu)
 
 function CompileProgram(editor)
     local editorText = editor:GetText()
+
+    -- Ignore the shebang at the beginning, if it's there.
+    if string.sub(editorText, 1, 2) == "#!" then
+        editorText = "--"..editorText
+    end
+
     local id         = editor:GetId()
     local filePath   = MakeDebugFileName(editor, openDocuments[id].filePath)
     local ret, errMsg, line_num = wxlua.CompileLuaScript(editorText, filePath)

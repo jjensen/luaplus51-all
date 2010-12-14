@@ -52,6 +52,17 @@ wxString wxLuaEventCallback::Connect(const wxLuaState& wxlState, int lua_func_st
     wxCHECK_MSG((m_evtHandler == NULL) && (m_luafunc_ref == 0), wxT("Attempting to reconnect a wxLuaEventCallback"), wxT("Attempting to reconnect a wxLuaEventCallback"));
     wxCHECK_MSG(wxlState.Ok(), wxT("Invalid wxLuaState"), wxT("Invalid wxLuaState"));
 
+    // We must always be installed into the main lua_State, never a coroutine
+    // 1) It will be called only when the lua_State is suspended or dead
+    // 2) We have no way of tracking when the coroutine state is garbage collected/dead
+    if (lua_pushthread(wxlState.GetLuaState()) != 1)
+    {
+        wxlState.lua_Pop(1);
+        return wxT("wxLua: Creating a callback function in a coroutine is not allowed since it will only be called when the thread is either suspended or dead.");
+    }
+
+    wxlState.lua_Pop(1);
+
     m_wxlState   = wxlState;
     m_evtHandler = evtHandler;
     m_id         = win_id;
@@ -93,10 +104,10 @@ void wxLuaEventCallback::ClearwxLuaState()
 wxString wxLuaEventCallback::GetInfo() const
 {
     return wxString::Format(wxT("%s(%d) -> wxLuaEventCallback(%p, ids %d, %d)|wxEvtHandler(%p) -> %s : %s"),
-                lua2wx(m_wxlBindEvent ? m_wxlBindEvent->name : "?NULL?").c_str(), 
+                lua2wx(m_wxlBindEvent ? m_wxlBindEvent->name : "?NULL?").c_str(),
                 (int)GetEventType(),
                 this, m_id, m_last_id,
-                m_evtHandler, 
+                m_evtHandler,
                 m_evtHandler ? m_evtHandler->GetClassInfo()->GetClassName() : wxT("?NULL?"),
                 m_wxlState.GetwxLuaTypeName(m_wxlBindEvent ? *m_wxlBindEvent->wxluatype : WXLUA_TUNKNOWN).c_str());
 }
@@ -187,10 +198,10 @@ void wxLuaEventCallback::OnEvent(wxEvent *event)
             wxlState.LuaPCall(1, 0); // one input no returns
         }
         else
-            wxlState.wxlua_Error("wxLua: wxEvtHandler::Connect() in wxLuaEventCallback::OnEvent(), function is not a Lua function.");
+            wxlState.wxlua_Error("wxLua: wxEvtHandler::Connect() in wxLuaEventCallback::OnEvent(), callback function is not a Lua function.");
     }
     else
-        wxlState.wxlua_Error("wxLua: wxEvtHandler::Connect() in wxLuaEventCallback::OnEvent(), function to call is not refed.");
+        wxlState.wxlua_Error("wxLua: wxEvtHandler::Connect() in wxLuaEventCallback::OnEvent(), callback function to call is not refed.");
 
     wxlState.lua_SetTop(oldTop); // pop function and error message from the stack (if they're there)
 }

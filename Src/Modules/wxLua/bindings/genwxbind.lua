@@ -272,6 +272,7 @@ function InitDataTypes()
     AllocDataType("LuaFunction",           "special", true)
     AllocDataType("LuaTable",              "special", true)
     AllocDataType("wxString",              "special", true)
+    AllocDataType("wxCharBuffer",          "special", true)
     --AllocDataType("wxArrayString",         "special", true) -- special, but we only convert input, not output
     --AllocDataType("wxSortedArrayString",   "special", true) -- special, but we only convert input, not output
     --AllocDataType("wxArrayInt",            "special", true) -- special, but we only convert input, not output
@@ -2371,7 +2372,7 @@ function ParseData(interfaceData)
                         elseif (lineState.Action == "action_define_object") or (lineState.Action == "action_define_pointer") then
                             lineState.Name = tag
                             lineState.DataType = parseState.ObjectStack[1].Name
-                            
+
                             -- If we're at the globals level they should have declared this as
                             -- %define_object wxPoint wxDefaultPosition
                             if (lineState.DataType == "globals") then
@@ -2379,7 +2380,7 @@ function ParseData(interfaceData)
                                 lineState.Name = lineTags[t+1]
                                 t = t + 1
                             end
-                            
+
                             lineState.Action = nil
                             lineState.ActionMandatory = false
 
@@ -3882,6 +3883,12 @@ function GenerateLuaLanguageBinding(interface)
                         if memberType == "wxString" then
                             CommentBindingTable(codeList, "    // push the result string\n")
                             table.insert(codeList, "    wxlua_pushwxString(L, "..returnPtr.."returns);\n")
+                        elseif (memberType == "char") and (returnPtr == "*") then
+                            CommentBindingTable(codeList, "    // push the result string\n")
+                            table.insert(codeList, "    lua_pushstring(L, (const char *)returns);\n")
+                        elseif memberType == "wxCharBuffer" then
+                            CommentBindingTable(codeList, "    // push the result string\n")
+                            table.insert(codeList, "    lua_pushstring(L, returns.data());\n")
                         elseif not numeric then
                             CommentBindingTable(codeList, "    // push the result datatype\n")
                             table.insert(codeList, "    wxluaT_pushuserdatatype(L, returns, wxluatype_"..MakeClassVar(memberType)..");\n")
@@ -4047,7 +4054,7 @@ function GenerateLuaLanguageBinding(interface)
             end
 
             local wxlua_delete_function_name = "wxLua_"..MakeVar(parseObject.Name).."_delete_function"
-            
+
             -- Extern Class Tag Declaration
             local tagcondition = FixCondition(parseObject.Condition)
             local classTypeBinding =
@@ -4122,7 +4129,7 @@ function GenerateLuaLanguageBinding(interface)
 
                 table.insert(interface.objectData[o].BindTable, delMethodBinding)
             end
-         
+
 
             local classcondition = FixCondition(parseObject.Condition)
             local classBinding =
@@ -4477,7 +4484,7 @@ function GenerateHookClassFileTable(fileData)
                 table.insert(fileData, indent.."static wxLuaArgType wxluabaseclass_wxluatypes_"..classTypeBinding.LuaName.."[] = "..classTypeBinding.BaseClassTypes.."\n")
                 table.insert(fileData, indent.."static int wxluabaseclass_vtable_offsets_"..classTypeBinding.LuaName.."[] = "..classTypeBinding.BaseClassVtableOffsets.."\n")
             end
-            
+
             table.insert(fileData, indent..classTypeBinding.ExternDeleteFunction)
         end
 
@@ -4930,7 +4937,7 @@ function GenerateBindingFileTable(interface, fileData, add_includes)
                 overrideTableUsed[wxlua_delete_function_name] = true
                 wxlua_delete_function_code = table.concat(overrideTable[wxlua_delete_function_name])
             else
-                wxlua_delete_function_code = 
+                wxlua_delete_function_code =
                     "void "..wxlua_delete_function_name.."(void** p)\n{\n"..
                     "    "..ObjectName.."* o = ("..ObjectName.."*)(*p);\n"..
                     "    delete o;\n}\n\n"

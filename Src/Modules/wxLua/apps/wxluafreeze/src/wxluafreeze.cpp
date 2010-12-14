@@ -33,6 +33,9 @@
 #include "wxlua/include/wxlua.h"
 #include "wxlua/include/wxlstate.h"
 
+// implemented below
+wxFileName wxFindAppFullName(const wxString& argv0, const wxString& cwd, const wxString& appVariableName);
+
 // Declare the binding initialization functions
 // Note : We could also do this "extern bool wxLuaBinding_XXX_init();" and
 //        later call "wxLuaBinding_XXX_init();" to initialize it.
@@ -95,7 +98,7 @@ bool wxLuaFreezeApp::OnInit()
     // It doesn't work to put os.setlocale('c', 'numeric') in the Lua file that
     // you want to use decimal points in. That's because the file has been lexed
     // and compiler before the locale has changed, so the lexer - the part that
-    // recognises numbers - will use the old locale.
+    // recognizes numbers - will use the old locale.
     setlocale(LC_NUMERIC, "C");
 #endif
 
@@ -106,7 +109,17 @@ bool wxLuaFreezeApp::OnInit()
     // See notes for WXLUA_DECLARE_BIND_ALL above.
     WXLUA_IMPLEMENT_BIND_ALL
 
-    m_fileName = argv[0]; // the filename of 'this' program
+    // Find the full path this this executable
+    wxFileName appFile = wxFindAppFullName(argv[0], wxGetCwd(), wxEmptyString);
+
+    if (appFile.FileExists() == false)
+    {
+        m_fileName = argv[0]; // the filename of 'this' program
+        //OutputPrint(wxString::Format(wxT("Unable to find the path for '%s'\n"), argv[0]));
+    }
+    else
+        m_fileName = appFile.GetFullPath();
+
 
     // When this function returns wxApp:MainLoop() will be called by wxWidgets
     // and so we want the Lua code wx.wxGetApp:MailLoop() to not
@@ -117,7 +130,7 @@ bool wxLuaFreezeApp::OnInit()
     if (!m_wxlState.Ok())
         return false;
 
-    // if no script attached try to run a the program on the command line
+    // if no script attached try to run the program on the command line
     if (LoadScript(m_fileName, true) == LOADSCRIPT_MISSING)
     {
         if (argc > 1)
@@ -157,6 +170,9 @@ bool wxLuaFreezeApp::OnInit()
 
 int wxLuaFreezeApp::OnExit()
 {
+    if (m_wxlState.Ok())
+        m_wxlState.CloseLuaState(true);
+
     return wxApp::OnExit();
 }
 
@@ -247,4 +263,61 @@ void wxLuaFreezeApp::OutputPrint(const wxString& str)
 #else
     wxPrintf(wxT("%s\n"), str.c_str());
 #endif // __WXMSW__
+}
+
+// --------------------------------------------------------------------------
+// Find the absolute path where this application has been run from. (Julian Smart)
+// argv0 is wxTheApp->argv[0]
+// cwd is the current working directory (at startup)
+// appVariableName is the name of a variable containing the directory for this app, e.g.
+// MYAPPDIR. This is checked first.
+// --------------------------------------------------------------------------
+
+wxFileName wxFindAppFullName(const wxString& argv0, const wxString& cwd, const wxString& appVariableName)
+{
+    wxFileName fileName(argv0);
+    wxString str;
+    wxString path;
+
+#if defined(__WXMSW__)
+    if (!fileName.HasExt())
+        fileName.SetExt(wxT("exe"));
+#endif
+
+    // Try appVariableName
+    if (!appVariableName.IsEmpty())
+        path = wxGetenv(appVariableName);
+
+#if defined(__WXMAC__) && !defined(__DARWIN__)
+    // On Mac, the current directory is the relevant one when
+    // the application starts.
+    if (path.IsEmpty())
+        path = cwd;
+#endif
+
+    if (path.IsEmpty())
+    {
+        if (wxIsAbsolutePath(fileName.GetFullPath()))
+            path = fileName.GetFullPath();
+        else
+        {
+            // Is it a relative path?
+            wxString currentDir(cwd);
+            if (currentDir.Last() != wxFILE_SEP_PATH)
+                currentDir += wxFILE_SEP_PATH;
+            if (wxFileExists(currentDir + fileName.GetFullName()))
+                path = currentDir;
+        }
+    }
+
+    if (path.IsEmpty())
+    {
+        // OK, it's neither an absolute path nor a relative path.
+        // Search PATH.
+        wxPathList pathList;
+        pathList.AddEnvList(wxT("PATH"));
+        path = wxFileName(pathList.FindAbsoluteValidPath(fileName.GetFullName())).GetPath();
+    }
+    fileName.SetPath(path);
+    return fileName;
 }

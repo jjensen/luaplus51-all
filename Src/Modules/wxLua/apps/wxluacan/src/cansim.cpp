@@ -5,7 +5,7 @@
 
     Licence: wxWidgets Licence
 
-    RCS-ID: $Id: cansim.cpp,v 1.16 2008/01/15 01:04:04 jrl1 Exp $
+    RCS-ID: $Id: cansim.cpp,v 1.17 2010/08/12 23:40:33 jrl1 Exp $
 */
 
 #include "wx/wxprec.h"
@@ -27,7 +27,7 @@
 #endif
 
 // Declare the binding initialization functions
-// Note : We could also do this "extern bool wxLuaBinding_XXX_init();" and
+// Note : We could also do this "extern wxLuaBinding* wxLuaBinding_XXX_init();" and
 //        later call "wxLuaBinding_XXX_init();" to initialize it.
 //        However we use the macros that include #if conditions to have a
 //        better chance of determining what libs are available.
@@ -35,7 +35,7 @@
 
 #include "wxbind/include/wxbinddefs.h"
 WXLUA_DECLARE_BIND_STD
-extern bool wxLuaBinding_wxluacan_init();
+extern wxLuaBinding* wxLuaBinding_wxluacan_init();
 
 // WDR: class implementations
 

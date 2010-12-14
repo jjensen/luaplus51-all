@@ -64,8 +64,8 @@ bool wxLuaShell::Create(wxWindow *parent, wxWindowID id,
     if (!wxSTEditorShell::Create(parent, id, pos, size, style, name))
         return false;
 
-    SetFileName(name, false);
-    SetLanguage(wxT("a.lua")); // use the lua lexer
+    SetFileName(wxFileName(name), false);
+    SetLanguage(wxFileName(wxT("a.lua"))); // use the lua lexer
 
     return true;
 }
@@ -283,8 +283,8 @@ bool wxLuaEditor::Create(wxWindow *parent, int id,
     SetMarginWidth(marginError, STC_DEF_MARGIN_WIDTH);
     //SetMarginMask(marginError, (1<<markerError)|(1<<markerBreak)|(1<<STE_BOOKMARK_MARKER));
 
-    SetFileName(wxT("untitled.lua"));
-    SetLanguage(wxT("untitled.lua"));
+    SetFileName(wxFileName(wxT("untitled.lua")));
+    SetLanguage(wxFileName(wxT("untitled.lua")));
     return true;
 }
 
@@ -478,7 +478,7 @@ bool wxLuaIDE::Create( wxWindow *parent, int id,
     m_luaOutput->MarkerDeleteAll(wxLuaShell::markerPrompt);
     m_luaOutput->SetwxLuaState(m_wxlState, true);
     m_luaOutput->SetWrapMode(wxSTC_WRAP_NONE);
-    m_luaOutput->SetFileName(wxT("Output"));
+    m_luaOutput->SetFileName(wxFileName(wxT("Output")));
 
 
     m_msgNotebook->InsertEditorSplitter(-1, steSplitter, false);
@@ -665,12 +665,11 @@ bool wxLuaIDE::HandleMenuEvent(wxCommandEvent& event)
     {
         case ID_WXLUAIDE_LOAD_LUA :
         {
-            wxString filename = editor->GetFileName();
-            wxString path;
+            wxFileName fn = editor->GetFileName();
+            wxString filename, path;
 
-            if (!filename.IsEmpty())
+            if (fn.IsOk())
             {
-                wxFileName fn(filename);
                 path = fn.GetPath();
                 filename = fn.GetFullName();
             }
@@ -726,7 +725,7 @@ bool wxLuaIDE::HandleMenuEvent(wxCommandEvent& event)
 
             wxSafeYield(); // allow tools to adjust (sometimes necessary?)
 
-            if (!editor->GetFileName().IsEmpty())
+            if (editor->GetFileName().IsOk())
             {
                 wxFileName fn(editor->GetFileName());
                 if (fn.FileExists())

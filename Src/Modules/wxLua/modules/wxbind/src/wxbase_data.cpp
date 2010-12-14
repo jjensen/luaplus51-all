@@ -32,6 +32,94 @@
 // Lua MetaTable Tag for Class 'wxString'
 int wxluatype_wxString = WXLUA_TUNKNOWN;
 
+static wxLuaArgType s_wxluatypeArray_wxLua_wxString_AfterFirst[] = { &wxluatype_wxString, &wxluatype_TNUMBER, NULL };
+static int LUACALL wxLua_wxString_AfterFirst(lua_State *L);
+static wxLuaBindCFunc s_wxluafunc_wxLua_wxString_AfterFirst[1] = {{ wxLua_wxString_AfterFirst, WXLUAMETHOD_METHOD, 2, 2, s_wxluatypeArray_wxLua_wxString_AfterFirst }};
+//     wxString AfterFirst(wxChar ch) const
+static int LUACALL wxLua_wxString_AfterFirst(lua_State *L)
+{
+    // wxChar ch
+    wxChar ch = (wxChar)wxlua_getnumbertype(L, 2);
+    // get this
+    wxString * self = (wxString *)wxluaT_getuserdatatype(L, 1, wxluatype_wxString);
+    // call AfterFirst
+    wxString returns = (self->AfterFirst(ch));
+    // push the result string
+    wxlua_pushwxString(L, returns);
+
+    return 1;
+}
+
+static wxLuaArgType s_wxluatypeArray_wxLua_wxString_AfterLast[] = { &wxluatype_wxString, &wxluatype_TNUMBER, NULL };
+static int LUACALL wxLua_wxString_AfterLast(lua_State *L);
+static wxLuaBindCFunc s_wxluafunc_wxLua_wxString_AfterLast[1] = {{ wxLua_wxString_AfterLast, WXLUAMETHOD_METHOD, 2, 2, s_wxluatypeArray_wxLua_wxString_AfterLast }};
+//     wxString AfterLast(wxChar ch) const
+static int LUACALL wxLua_wxString_AfterLast(lua_State *L)
+{
+    // wxChar ch
+    wxChar ch = (wxChar)wxlua_getnumbertype(L, 2);
+    // get this
+    wxString * self = (wxString *)wxluaT_getuserdatatype(L, 1, wxluatype_wxString);
+    // call AfterLast
+    wxString returns = (self->AfterLast(ch));
+    // push the result string
+    wxlua_pushwxString(L, returns);
+
+    return 1;
+}
+
+static wxLuaArgType s_wxluatypeArray_wxLua_wxString_BeforeFirst[] = { &wxluatype_wxString, &wxluatype_TNUMBER, NULL };
+static int LUACALL wxLua_wxString_BeforeFirst(lua_State *L);
+static wxLuaBindCFunc s_wxluafunc_wxLua_wxString_BeforeFirst[1] = {{ wxLua_wxString_BeforeFirst, WXLUAMETHOD_METHOD, 2, 2, s_wxluatypeArray_wxLua_wxString_BeforeFirst }};
+//     wxString BeforeFirst(wxChar ch) const
+static int LUACALL wxLua_wxString_BeforeFirst(lua_State *L)
+{
+    // wxChar ch
+    wxChar ch = (wxChar)wxlua_getnumbertype(L, 2);
+    // get this
+    wxString * self = (wxString *)wxluaT_getuserdatatype(L, 1, wxluatype_wxString);
+    // call BeforeFirst
+    wxString returns = (self->BeforeFirst(ch));
+    // push the result string
+    wxlua_pushwxString(L, returns);
+
+    return 1;
+}
+
+static wxLuaArgType s_wxluatypeArray_wxLua_wxString_BeforeLast[] = { &wxluatype_wxString, &wxluatype_TNUMBER, NULL };
+static int LUACALL wxLua_wxString_BeforeLast(lua_State *L);
+static wxLuaBindCFunc s_wxluafunc_wxLua_wxString_BeforeLast[1] = {{ wxLua_wxString_BeforeLast, WXLUAMETHOD_METHOD, 2, 2, s_wxluatypeArray_wxLua_wxString_BeforeLast }};
+//     wxString BeforeLast(wxChar ch) const
+static int LUACALL wxLua_wxString_BeforeLast(lua_State *L)
+{
+    // wxChar ch
+    wxChar ch = (wxChar)wxlua_getnumbertype(L, 2);
+    // get this
+    wxString * self = (wxString *)wxluaT_getuserdatatype(L, 1, wxluatype_wxString);
+    // call BeforeLast
+    wxString returns = (self->BeforeLast(ch));
+    // push the result string
+    wxlua_pushwxString(L, returns);
+
+    return 1;
+}
+
+static wxLuaArgType s_wxluatypeArray_wxLua_wxString_FromUTF8[] = { &wxluatype_TSTRING, NULL };
+static int LUACALL wxLua_wxString_FromUTF8(lua_State *L);
+static wxLuaBindCFunc s_wxluafunc_wxLua_wxString_FromUTF8[1] = {{ wxLua_wxString_FromUTF8, WXLUAMETHOD_METHOD|WXLUAMETHOD_STATIC, 1, 1, s_wxluatypeArray_wxLua_wxString_FromUTF8 }};
+//     static wxString FromUTF8(const char* s)
+static int LUACALL wxLua_wxString_FromUTF8(lua_State *L)
+{
+    // const char s
+    wxCharBuffer s = wxlua_getstringtype(L, 1);
+    // call FromUTF8
+    wxString returns = (wxString::FromUTF8((const char*)s));
+    // push the result string
+    wxlua_pushwxString(L, returns);
+
+    return 1;
+}
+
 static wxLuaArgType s_wxluatypeArray_wxLua_wxString_GetData[] = { &wxluatype_wxString, NULL };
 static int LUACALL wxLua_wxString_GetData(lua_State *L);
 static wxLuaBindCFunc s_wxluafunc_wxLua_wxString_GetData[1] = {{ wxLua_wxString_GetData, WXLUAMETHOD_METHOD, 1, 1, s_wxluatypeArray_wxLua_wxString_GetData }};
@@ -44,6 +132,38 @@ static int LUACALL wxLua_wxString_GetData(lua_State *L)
     wxString returns = (self->GetData());
     // push the result string
     wxlua_pushwxString(L, returns);
+
+    return 1;
+}
+
+static wxLuaArgType s_wxluatypeArray_wxLua_wxString_Len[] = { &wxluatype_wxString, NULL };
+static int LUACALL wxLua_wxString_Len(lua_State *L);
+static wxLuaBindCFunc s_wxluafunc_wxLua_wxString_Len[1] = {{ wxLua_wxString_Len, WXLUAMETHOD_METHOD, 1, 1, s_wxluatypeArray_wxLua_wxString_Len }};
+//     size_t Len() const
+static int LUACALL wxLua_wxString_Len(lua_State *L)
+{
+    // get this
+    wxString * self = (wxString *)wxluaT_getuserdatatype(L, 1, wxluatype_wxString);
+    // call Len
+    size_t returns = (self->Len());
+    // push the result number
+    lua_pushnumber(L, returns);
+
+    return 1;
+}
+
+static wxLuaArgType s_wxluatypeArray_wxLua_wxString_ToUTF8[] = { &wxluatype_wxString, NULL };
+static int LUACALL wxLua_wxString_ToUTF8(lua_State *L);
+static wxLuaBindCFunc s_wxluafunc_wxLua_wxString_ToUTF8[1] = {{ wxLua_wxString_ToUTF8, WXLUAMETHOD_METHOD, 1, 1, s_wxluatypeArray_wxLua_wxString_ToUTF8 }};
+//     const wxCharBuffer ToUTF8() const
+static int LUACALL wxLua_wxString_ToUTF8(lua_State *L)
+{
+    // get this
+    wxString * self = (wxString *)wxluaT_getuserdatatype(L, 1, wxluatype_wxString);
+    // call ToUTF8
+    wxCharBuffer returns = (self->ToUTF8());
+    // push the result string
+    lua_pushstring(L, returns.data());
 
     return 1;
 }
@@ -83,7 +203,14 @@ void wxLua_wxString_delete_function(void** p)
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxString_methods[] = {
+    { "AfterFirst", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxString_AfterFirst, 1, NULL },
+    { "AfterLast", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxString_AfterLast, 1, NULL },
+    { "BeforeFirst", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxString_BeforeFirst, 1, NULL },
+    { "BeforeLast", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxString_BeforeLast, 1, NULL },
+    { "FromUTF8", WXLUAMETHOD_METHOD|WXLUAMETHOD_STATIC, s_wxluafunc_wxLua_wxString_FromUTF8, 1, NULL },
     { "GetData", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxString_GetData, 1, NULL },
+    { "Len", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxString_Len, 1, NULL },
+    { "ToUTF8", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxString_ToUTF8, 1, NULL },
     { "delete", WXLUAMETHOD_METHOD|WXLUAMETHOD_DELETE, s_wxluafunc_wxLua_wxString_delete, 1, NULL },
     { "wxString", WXLUAMETHOD_CONSTRUCTOR, s_wxluafunc_wxLua_wxString_constructor, 1, NULL },
     { 0, 0, 0, 0 },

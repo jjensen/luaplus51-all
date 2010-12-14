@@ -207,7 +207,7 @@ function FillListCtrl(listCtrl)
 
     AddListItem({"", ""})
     AddListItem({"wx.wxGetCwd()", wx.wxGetCwd()})
-    AddListItem({"wx.wxGetFreeMemory():ToLong()", wx.wxGetFreeMemory():ToLong()})
+    AddListItem({"wx.wxGetFreeMemory():ToString()", wx.wxGetFreeMemory():ToString()})
     AddListItem({"wx.wxGetHostName()", wx.wxGetHostName()})
     AddListItem({"wx.wxGetFullHostName()", wx.wxGetFullHostName()})
     AddListItem({"wx.wxGetHomeDir()", wx.wxGetHomeDir()})

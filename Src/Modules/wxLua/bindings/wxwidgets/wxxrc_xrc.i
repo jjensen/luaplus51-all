@@ -50,7 +50,6 @@
     wxMenu* LoadMenu(const wxString& name);
     wxMenuBar* LoadMenuBar(wxWindow* parent, const wxString& name);
     wxMenuBar* LoadMenuBar(const wxString& name);
-    wxObject *LoadObject(wxWindow *parent, const wxString& name, const wxString& classname);
     wxPanel* LoadPanel(wxWindow* parent, const wxString &name);
     bool LoadPanel(wxPanel *panel, wxWindow *parent, const wxString &name);
     wxToolBar* LoadToolBar(wxWindow *parent, const wxString& name);

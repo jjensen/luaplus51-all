@@ -1302,11 +1302,11 @@ function sudoku.DoSolveBruteForce(sudokuTable, backwards, simpleTable, guesses, 
             local possible = sudoku.GetCellPossible(s, cell)
 
             --for k, v in pairs(possible) do -- use for loop to ensure direction
-            
+
             local start_n = iff(backwards, 9,  1)
             local end_n   = iff(backwards, 1,  9)
             local dir_n   = iff(backwards, -1, 1)
-            
+
             for n = start_n, end_n, dir_n do
                 if possible[n] then
                     -- try a number and remove it as a possibility
@@ -2755,7 +2755,7 @@ function sudokuGUI.PrintSetup() -- FIXME DEPRICATED IN WXWIDGETS?
     printerDialog:GetPrintDialogData():SetSetupDialog(true)
     printerDialog:ShowModal()
     sudokuGUI.printData = printerDialog:GetPrintDialogData():GetPrintData():Copy()
-	--printerDialog:Destroy()
+    --printerDialog:Destroy()
 end
 
 function sudokuGUI.PageSetup()
@@ -2764,7 +2764,7 @@ function sudokuGUI.PageSetup()
     pageSetupDialog:ShowModal()
     sudokuGUI.printData     = pageSetupDialog:GetPageSetupDialogData():GetPrintData():Copy()
     sudokuGUI.pageSetupData = pageSetupDialog:GetPageSetupDialogData():Copy()
-	--pageSetupDialog:Destroy()
+    --pageSetupDialog:Destroy()
 end
 
 -- ----------------------------------------------------------------------------

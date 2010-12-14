@@ -415,16 +415,16 @@ int wxLuaDebugData::EnumerateTable(lua_State* L, int tableRef, int nIndex, wxArr
                     {
                         wxWindow* win = (wxWindow*)lua_touserdata(L, -2);
                         name += wxT(" ") + wxString(win->GetClassInfo()->GetClassName());
-                    }                    
+                    }
                     else if (lightuserdata_reg_key == &wxlua_lreg_gcobjects_key)
                     {
                         int wxl_type_ = (int)lua_tonumber(L, -1);
-                        name.Printf(wxT("%s(%s)"), wxluaT_typename(L, wxl_type_).c_str(), name.c_str());
+                        name = wxString::Format(wxT("%s(%s)"), wxluaT_typename(L, wxl_type_).c_str(), name.c_str());
                     }
                     else if (lightuserdata_reg_key == &wxlua_lreg_weakobjects_key)
                     {
                         wxString names_weak;
-                    
+
                         // iterate the table of userdata
                         lua_pushnil(L);
                         while (lua_next(L, -2) != 0)
@@ -435,8 +435,8 @@ int wxLuaDebugData::EnumerateTable(lua_State* L, int tableRef, int nIndex, wxArr
                             names_weak += wxString::Format(wxT("%s(%d)"), wxluaT_typename(L, wxl_type_weak).c_str(), wxl_type_weak);
                             lua_pop(L, 1); // pop value, lua_next will pop key at end
                         }
-                    
-                        name.Printf(wxT("%s (%s)"), names_weak.c_str(), name.c_str());
+
+                        name = wxString::Format(wxT("%s (%s)"), names_weak.c_str(), name.c_str());
                     }
                 }
 

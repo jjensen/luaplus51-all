@@ -651,7 +651,7 @@ static int LUACALL wxLua_wxTextValidator_constructor(lua_State *L)
     if (argCount >= 2)
     {
         wxLuaObject *valPtr = (wxLuaObject *)wxluaT_getuserdatatype(L, 2, wxluatype_wxLuaObject);
-        returns = new wxTextValidator(style, valPtr->GetStringPtr());
+        returns = new wxTextValidator(style, valPtr->GetStringPtr(L));
     }
     else
         returns = new wxTextValidator(style);
@@ -670,7 +670,7 @@ static int LUACALL wxLua_wxGenericValidatorBool_constructor(lua_State *L)
     // wxLuaObject *boolPtr
     wxLuaObject *boolPtr = (wxLuaObject *)wxluaT_getuserdatatype(L, 1, wxluatype_wxLuaObject);
     // call constructor
-    wxGenericValidator *returns = new wxGenericValidator(boolPtr->GetBoolPtr());
+    wxGenericValidator *returns = new wxGenericValidator(boolPtr->GetBoolPtr(L));
     // add to tracked memory list
     wxluaO_addgcobject(L, returns, wxluatype_wxGenericValidator);
     // push the constructed class pointer
@@ -687,7 +687,7 @@ static int LUACALL wxLua_wxGenericValidatorString_constructor(lua_State *L)
     // wxLuaObject *valPtr
     wxLuaObject *valPtr = (wxLuaObject *)wxluaT_getuserdatatype(L, 1, wxluatype_wxLuaObject);
     // call constructor
-    wxGenericValidator *returns = new wxGenericValidator(valPtr->GetStringPtr());
+    wxGenericValidator *returns = new wxGenericValidator(valPtr->GetStringPtr(L));
     // add to tracked memory list
     wxluaO_addgcobject(L, returns, wxluatype_wxGenericValidator);
     // push the constructed class pointer
@@ -704,7 +704,7 @@ static int LUACALL wxLua_wxGenericValidatorInt_constructor(lua_State *L)
     // wxLuaObject *valPtr
     wxLuaObject *valPtr = (wxLuaObject *)wxluaT_getuserdatatype(L, 1, wxluatype_wxLuaObject);
     // call constructor
-    wxGenericValidator *returns = new wxGenericValidator(valPtr->GetIntPtr());
+    wxGenericValidator *returns = new wxGenericValidator(valPtr->GetIntPtr(L));
     // add to tracked memory list
     wxluaO_addgcobject(L, returns, wxluatype_wxGenericValidator);
     // push the constructed class pointer
@@ -721,7 +721,7 @@ static int LUACALL wxLua_wxGenericValidatorArrayInt_constructor(lua_State *L)
     // wxLuaObject *valPtr
     wxLuaObject *valPtr = (wxLuaObject *)wxluaT_getuserdatatype(L, 1, wxluatype_wxLuaObject);
     // call constructor
-    wxGenericValidator *returns = new wxGenericValidator(valPtr->GetArrayPtr());
+    wxGenericValidator *returns = new wxGenericValidator(valPtr->GetArrayPtr(L));
     // add to tracked memory list
     wxluaO_addgcobject(L, returns, wxluatype_wxGenericValidator);
     // push the constructed class pointer

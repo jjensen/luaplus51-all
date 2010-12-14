@@ -558,7 +558,7 @@ bool LUACALL wxluaO_deletegcobject(lua_State *L, int stack_idx, int flags)
             lua_rawset(L, -3);                 // set t[key] = value, pops key and value
 
             lua_pop(L, 1); // pop delobj table
-    
+
             // delete the object using the function stored in the wxLuaBindClass
             if (obj_ptr)
                 wxlClass->delete_fn(&obj_ptr);
@@ -1941,6 +1941,7 @@ bool LUACALL wxlua_setderivedmethod(lua_State* L, void *obj_ptr, const char *met
         {
             // already have a method, delete it before replacing it
             wxLuaObject* o = (wxLuaObject*)lua_touserdata( L, -1 );
+            o->RemoveReference(L);
             delete o;
         }
 
@@ -1983,7 +1984,7 @@ bool LUACALL wxlua_hasderivedmethod(lua_State* L, void *obj_ptr, const char *met
     if (wxlObj != NULL)
     {
         // if we've got the object, put it on top of the stack
-        if (push_method && wxlObj->GetObject())
+        if (push_method && wxlObj->GetObject(L))
             found = true;
         else if (!push_method)
             found = true;
@@ -2013,6 +2014,7 @@ bool LUACALL wxlua_removederivedmethods(lua_State* L, void *obj_ptr)
             if (lua_islightuserdata(L, -1))
             {
                 wxLuaObject* o = (wxLuaObject*)lua_touserdata(L, -1);
+                o->RemoveReference(L);
                 delete o;
             }
 
@@ -2641,7 +2643,7 @@ wxLuaState wxLuaState::GetwxLuaState(lua_State* L) // static function
     if ( lua_islightuserdata(L, -1) )
         wxlState = (wxLuaState*)lua_touserdata( L, -1 );
 
-    lua_pop(L, 1); // pop the wxLuaStateRefData or nil on failure
+    lua_pop(L, 1); // pop the wxLuaState or nil on failure
 
     if (wxlState && (wxlState->GetLuaState() != L))
     {
@@ -3431,7 +3433,7 @@ void wxLuaState::lua_Remove(int index)
     wxCHECK_RET(Ok(), wxT("Invalid wxLuaState"));
     lua_remove(M_WXLSTATEDATA->m_lua_State, index);
 }
-void wxLuaState::lua_Pop(int count)
+void wxLuaState::lua_Pop(int count) const
 {
     wxCHECK_RET(Ok(), wxT("Invalid wxLuaState"));
     lua_pop(M_WXLSTATEDATA->m_lua_State, count);

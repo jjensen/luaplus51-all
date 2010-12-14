@@ -658,7 +658,8 @@ public:
 // wxLuaState - a ref counted class to interface between C++ and Lua's C lua_State
 //----------------------------------------------------------------------------
 
-// enum wxLuaState_Type is for the function
+// enum wxLuaState_Type is for the functions
+//  wxLuaState(lua_State* L, int state_type = wxLUASTATE_GETSTATE)
 //  wxLuaState::Create(lua_State* L, int state_type = wxLUASTATE_GETSTATE);
 enum wxLuaState_Type
 {
@@ -1060,7 +1061,7 @@ public:
     void lua_SetTop(int index);
     void lua_PushValue(int index);
     void lua_Remove(int index);
-    void lua_Pop(int count);
+    void lua_Pop(int count) const;
     void lua_Insert(int index);
     void lua_Replace(int index);
     int  lua_CheckStack(int size);
