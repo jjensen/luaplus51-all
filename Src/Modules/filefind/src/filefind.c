@@ -836,10 +836,164 @@ static int l_fileglob_glob(lua_State* L) {
 }
 
 
+#ifdef WIN32
+
+static int l_filefind_unix_time_to_FILETIME_UTC(lua_State* L) {
+	FILETIME fileTime;
+
+	if (lua_isnumber(L, 1)  &&  lua_isnumber(L, 2)) {
+		fileTime.dwLowDateTime = (DWORD)lua_tonumber(L, 1);
+		fileTime.dwHighDateTime = (DWORD)lua_tonumber(L, 2);
+	} else if (lua_isstring(L, 1)) {
+        ULARGE_INTEGER largeInteger;
+		const char* fileTimeStr = lua_tostring(L, 1);
+
+        if (sscanf( fileTimeStr, "%I64u", &largeInteger) != 1)
+		{
+			return 0;
+		}
+
+        fileTime.dwLowDateTime = largeInteger.LowPart;
+        fileTime.dwHighDateTime = largeInteger.HighPart;
+	} else {
+	    luaL_argerror(L, 1, "Expected two integers or a string");
+	}
+
+	{
+#if _MSC_VER
+		__int64 ll; // 64 bit value
+#else
+		signed long long ll;
+#endif
+		ll = (((LONGLONG)(fileTime.dwHighDateTime)) << 32) + fileTime.dwLowDateTime;
+		lua_pushnumber(L, (lua_Number)((ll - 116444736000000000ui64)/10000000ui64));
+	}
+
+	return 1;
+}
+
+
+static int l_filefind_FILETIME_to_unix_time_UTC(lua_State* L) {
+	time_t unixTime = (time_t)luaL_checknumber(L, 1);
+#if _MSC_VER
+		__int64 ll; // 64 bit value
+#else
+		signed long long ll;
+#endif
+	ll = Int32x32To64(unixTime, 10000000) + 116444736000000000ui64;
+	lua_pushnumber(L, (DWORD)ll);
+	lua_pushnumber(L, (DWORD)(ll >> 32));
+	return 2;
+}
+
+
+
+#include <windows.h>
+
+static int l_filefind_FILETIME_to_time_t(lua_State* L) {
+	FILETIME fileTime;
+	FILETIME localTime;
+	SYSTEMTIME sysTime;
+	struct tm atm;
+
+	if (lua_isnumber(L, 1)  &&  lua_isnumber(L, 2)) {
+		fileTime.dwLowDateTime = (DWORD)lua_tonumber(L, 1);
+		fileTime.dwHighDateTime = (DWORD)lua_tonumber(L, 2);
+	} else if (lua_isstring(L, 1)) {
+#if _MSC_VER
+		unsigned __int64 largeInteger;
+#else
+		unsigned long long largeInteger;
+#endif
+		const char* fileTimeStr = lua_tostring(L, 1);
+
+        if (sscanf( fileTimeStr, "%I64u", &largeInteger) != 1)
+		{
+			return 0;
+		}
+
+        fileTime.dwLowDateTime = (largeInteger & 0xffffffff);
+        fileTime.dwHighDateTime = (largeInteger >> 32);
+	} else {
+	    luaL_argerror(L, 1, "Expected two integers or a string");
+	}
+
+	/* first convert file time (UTC time) to local time */
+	if (!FileTimeToLocalFileTime(&fileTime, &localTime)) {
+		return 0;
+	}
+
+	/* then convert that time to system time */
+	if (!FileTimeToSystemTime(&localTime, &sysTime)) {
+		return 0;
+	}
+
+	/* then convert the system time to a time_t (C-runtime local time) */
+	if (sysTime.wYear < 1900) {
+		return 0;
+	}
+
+	atm.tm_sec = sysTime.wSecond;
+	atm.tm_min = sysTime.wMinute;
+	atm.tm_hour = sysTime.wHour;
+	atm.tm_mday = sysTime.wDay;
+	atm.tm_mon = sysTime.wMonth - 1;        /* tm_mon is 0 based */
+	atm.tm_year = sysTime.wYear - 1900;     /* tm_year is 1900 based */
+	atm.tm_isdst = -1;
+	lua_pushnumber(L, (lua_Number)mktime(&atm));
+	return 1;
+}
+
+
+static BOOL (WINAPI *fnTzSpecificLocalTimeToSystemTime)(LPTIME_ZONE_INFORMATION lpTimeZoneInformation, LPSYSTEMTIME lpLocalTime, LPSYSTEMTIME lpUniversalTime);
+
+static int l_filefind_time_t_to_FILETIME(lua_State* L) {
+	FILETIME localFILETIME;
+	SYSTEMTIME localSystemTime;
+	FILETIME theFILETIME;
+	SYSTEMTIME universalSystemTime;
+
+	time_t theTime = (time_t)luaL_checknumber(L, 1);
+
+	LONGLONG ll = Int32x32To64(theTime, 10000000) + 116444736000000000;
+	localFILETIME.dwLowDateTime = (DWORD) ll;
+	localFILETIME.dwHighDateTime = (DWORD)(ll >>32);
+
+	LocalFileTimeToFileTime(&localFILETIME, &theFILETIME);
+	FileTimeToSystemTime(&theFILETIME, &localSystemTime);
+
+	if (!fnTzSpecificLocalTimeToSystemTime)
+	{
+		HMODULE aLib = LoadLibraryA("kernel32.dll");
+		if (aLib == NULL)
+			return 0;
+
+		*(void**)&fnTzSpecificLocalTimeToSystemTime = (void*)GetProcAddress(aLib, "TzSpecificLocalTimeToSystemTime");
+	}
+	fnTzSpecificLocalTimeToSystemTime(NULL, &localSystemTime, &universalSystemTime);
+
+	SystemTimeToFileTime(&localSystemTime, &theFILETIME);
+
+	lua_pushnumber(L, theFILETIME.dwLowDateTime);
+	lua_pushnumber(L, theFILETIME.dwHighDateTime);
+
+	return 2;
+}
+
+
+#endif // WIN32
+
+
 static const struct luaL_reg filefind_lib[] = {
 	{ "first", l_filefind_first },
 	{ "match", l_filefind_match },
 	{ "glob", l_fileglob_glob },
+#ifdef WIN32
+	{ "unix_time_to_FILETIME_UTC", l_filefind_unix_time_to_FILETIME_UTC },
+	{ "FILETIME_to_unix_time_UTC", l_filefind_FILETIME_to_unix_time_UTC },
+	{ "FILETIME_to_time_t", l_filefind_FILETIME_to_time_t },
+	{ "time_t_to_FILETIME",	l_filefind_time_t_to_FILETIME },
+#endif // WIN32
 	{NULL, NULL},
 };
 
