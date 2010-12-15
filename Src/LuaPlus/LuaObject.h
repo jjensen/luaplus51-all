@@ -234,6 +234,42 @@ public:
 	LUAPLUS_CLASS_API LuaObject& AssignNewTable(LuaState* state, int narray = 0, int nrec = 0);
 	LUAPLUS_CLASS_API void AssignTObject(LuaState* state, const lua_TValue* value);
 
+	void AssignCFunction(lua_CFunction func, int nupvalues = 0);
+	void AssignCFunction(int (*func)(LuaState*), int nupvalues = 0);
+
+	template <class Callee>
+	void AssignCFunction(const Callee& callee, int (Callee::*func)(LuaState*), int nupvalues = 0)
+	{
+		const void* pCallee = &callee;
+		AssignCFunctionHelper(LPCD::LuaStateMemberDispatcherHelper<Callee>::LuaStateMemberDispatcher, nupvalues, &pCallee, sizeof(Callee*), &func, sizeof(func));
+	}
+
+	template <class Callee>
+	void AssignCFunctionObjectFunctor(const char* funcName, int (Callee::*func)(LuaState*), int nupvalues = 0)
+	{
+		AssignCFunctionHelper(LPCD::Object_MemberDispatcher_to_LuaStateHelper<Callee>::Object_MemberDispatcher_to_LuaState, nupvalues, NULL, 0, &func, sizeof(func));
+	}
+
+	template <typename Func>
+	inline void AssignCFunctionDirect(Func func, unsigned int nupvalues = 0)
+	{
+		AssignCFunctionHelper(LPCD::DirectCallFunctionDispatchHelper<Func>::DirectCallFunctionDispatcher, nupvalues, NULL, 0, &func, sizeof(func));
+	}
+
+	template <typename Callee, typename Func>
+	inline void AssignCFunctionDirect(const Callee& callee, Func func, unsigned int nupvalues = 0)
+	{
+		const void* pCallee = &callee;
+		AssignCFunctionHelper(LPCD::DirectCallMemberDispatcherHelper<Callee, Func>::DirectCallMemberDispatcher, nupvalues, &pCallee, sizeof(Callee*), &func, sizeof(func));
+	}
+
+	template <typename Callee, typename Func>
+	inline void AssignCFunctionObjectDirect(const Callee* callee, Func func, unsigned int nupvalues = 0)
+	{
+		AssignCFunctionHelper(LPCD::DirectCallObjectMemberDispatcherHelper<Callee, Func, 2>::DirectCallMemberDispatcher, nupvalues, NULL, 0, &func, sizeof(func));
+	}
+
+
 	LUAPLUS_CLASS_API LuaObject GetByName(const char* name);
 	LUAPLUS_CLASS_API LuaObject GetByIndex(int index);
 	LUAPLUS_CLASS_API LuaObject GetByObject(const LuaStackObject& obj);
@@ -292,6 +328,7 @@ public:
 protected:
 	void SetNilHelper(lua_TValue& obj);
 	LUAPLUS_CLASS_API void RegisterHelper(const char* funcName, lua_CFunction function, int nupvalues, const void* callee, unsigned int sizeofCallee, void* func, unsigned int sizeofFunc);
+	LUAPLUS_CLASS_API void AssignCFunctionHelper(lua_CFunction function, int nupvalues, const void* callee, unsigned int sizeofCallee, void* func, unsigned int sizeofFunc);
 
 	LUAPLUS_CLASS_API LuaObject& SetTableHelper(const char* key, lua_TValue* valueObj);
 	LUAPLUS_CLASS_API LuaObject& SetTableHelper(int key, lua_TValue* valueObj);

@@ -56,6 +56,22 @@ inline lua_TValue* LuaObject::GetTObject() const
 }
 
 
+/**
+**/
+inline void LuaObject::AssignCFunction(NAMESPACE_LUA_PREFIX lua_CFunction function, int nupvalues)
+{
+	AssignCFunctionHelper(function, nupvalues, NULL, 0, NULL, 0);
+}
+
+
+/**
+**/
+inline void LuaObject::AssignCFunction(int (*func)(LuaState*), int nupvalues)
+{
+	AssignCFunctionHelper(LPCD::LuaStateFunctionDispatcher, nupvalues, NULL, 0, &func, sizeof(func));
+}
+
+
 } // namespace LuaPlus
 
 #endif // LUAPLUS_EXTENSIONS

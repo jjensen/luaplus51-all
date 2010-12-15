@@ -1999,6 +1999,44 @@ void LuaObject::RegisterHelper(const char* funcName, NAMESPACE_LUA_PREFIX lua_CF
 }
 
 
+void LuaObject::AssignCFunctionHelper(NAMESPACE_LUA_PREFIX lua_CFunction function, int nupvalues, const void* callee, unsigned int sizeofCallee, void* func, unsigned int sizeofFunc)
+{
+	luaplus_assert(L);
+	lua_lock(L);
+	luaC_checkGC(L);
+
+	if (sizeofFunc != 0)
+	{
+		unsigned char* buffer = (unsigned char*)lua_newuserdata(L, sizeofCallee + sizeofFunc);
+		unsigned int pos = 0;
+		if (sizeofCallee > 0)
+		{
+			memcpy(buffer, callee, sizeofCallee);
+			pos += sizeofCallee;
+		}
+
+		memcpy(buffer + pos, func, sizeofFunc);
+
+		nupvalues++;
+	}
+
+	Closure* cl = luaF_newCclosure(L, nupvalues, getcurrenv(L));
+	cl->c.f = function;
+
+	L->top -= nupvalues;
+	while (nupvalues--)
+	{
+		setobj2n(L, &cl->c.upvalue[nupvalues], L->top+nupvalues);
+//		setnilvalue(L->top+nupvalues);
+	}
+
+	setclvalue(L, &m_object, cl);
+	lua_assert(iswhite(obj2gco(cl)));
+
+	lua_unlock(L);
+}
+
+
 /**
 	Assuming the current object is a table, unregisters the function called
 	[funcName].
