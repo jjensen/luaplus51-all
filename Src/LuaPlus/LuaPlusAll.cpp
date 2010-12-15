@@ -42,6 +42,8 @@ LUA_EXTERN_C_END
 #include "LuaState.cpp"
 #include "LuaStateOutFile.cpp"
 #include "LuaState_DumpObject.cpp"
+#include "LuaObject.cpp"
+#include "LuaTableIterator.cpp"
 LUA_EXTERN_C_BEGIN
 #include "src/loadlib.c"
 #if defined(LUA_WIN)

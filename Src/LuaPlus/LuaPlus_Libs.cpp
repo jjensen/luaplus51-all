@@ -48,36 +48,6 @@ LUA_EXTERN_C_END
 
 namespace LuaPlus {
 
-/*static*/ LuaState* LuaState::Create(bool initStandardLibrary)
-{
-	LuaState* state = LuaState::Create();
-	if (initStandardLibrary)
-		state->OpenLibs();
-	return state;
-}
-
-#if LUAPLUS_EXTENSIONS
-
-LuaObject LuaState::CreateThread(LuaState* parentState)
-{
-    lua_State* L1 = lua_newthread(LuaState_to_lua_State(parentState));
-    lua_TValue tobject;
-#if LUA_REFCOUNT
-    setnilvalue2n(L1, &tobject);
-#else
-    setnilvalue(&tobject);
-#endif /* LUA_REFCOUNT */
-    setthvalue(parentState->GetCState(), &tobject, L1);
-
-	LuaObject retObj = LuaObject(lua_State_To_LuaState(L1), &tobject);
-    setnilvalue(&tobject);
-    lua_pop(LuaState_to_lua_State(parentState), 1);
-    return retObj;
-}
-
-#endif // LUAPLUS_EXTENSIONS
-
-
 class LuaStateOutString : public LuaStateOutFile
 {
 public:
@@ -225,18 +195,54 @@ protected:
 
 #endif
 
+} // namespace LuaPlus
 
 #if LUAPLUS_DUMPOBJECT
 
 LUA_EXTERN_C void luaplus_dumptable(lua_State* L, int index)
 {
-	LuaState* state = lua_State_To_LuaState(L);
-	LuaObject valueObj(state, index);
-	LuaStateOutString stringFile;
-	state->DumpObject(stringFile, NULL, valueObj, LuaState::DUMP_ALPHABETICAL | LuaState::DUMP_WRITEALL, 0, -1);
+	LuaPlus::LuaState* state = lua_State_To_LuaState(L);
+	LuaPlus::LuaObject valueObj(state, index);
+	LuaPlus::LuaStateOutString stringFile;
+	state->DumpObject(stringFile, NULL, valueObj, LuaPlus::LuaState::DUMP_ALPHABETICAL | LuaPlus::LuaState::DUMP_WRITEALL, 0, -1);
 	state->PushString(stringFile.GetBuffer());
 }
 
+#endif // LUAPLUS_DUMPOBJECT
+
+namespace LuaPlus {
+
+/*static*/ LuaState* LuaState::Create(bool initStandardLibrary)
+{
+	LuaState* state = LuaState::Create();
+	if (initStandardLibrary)
+		state->OpenLibs();
+	return state;
+}
+
+#if LUAPLUS_EXTENSIONS
+
+LuaObject LuaState::CreateThread(LuaState* parentState)
+{
+    lua_State* L1 = lua_newthread(LuaState_to_lua_State(parentState));
+    lua_TValue tobject;
+#if LUA_REFCOUNT
+    setnilvalue2n(L1, &tobject);
+#else
+    setnilvalue(&tobject);
+#endif /* LUA_REFCOUNT */
+    setthvalue(parentState->GetCState(), &tobject, L1);
+
+	LuaObject retObj = LuaObject(lua_State_To_LuaState(L1), &tobject);
+    setnilvalue(&tobject);
+    lua_pop(LuaState_to_lua_State(parentState), 1);
+    return retObj;
+}
+
+#endif // LUAPLUS_EXTENSIONS
+
+
+#if LUAPLUS_DUMPOBJECT
 
 // LuaDumpObject(file, key, value, alphabetical, indentLevel, maxIndentLevel, writeAll)
 int LS_LuaDumpObject( LuaState* state )
