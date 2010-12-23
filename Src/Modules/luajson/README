@@ -3,9 +3,16 @@ LuaJSON
 
 Author:	Thomas Harning Jr. <harningt@gmail.com>
 
+Source code:
+    http://repo.or.cz/luajson
+
+Bug reports:
+    http://github.com/harningt/luajson
+    harningt@gmail.com
+
 Requirements
 	Lua 5.1
-	LPeg (Tested with 0.7, 0.8 ... 0.6 should work)
+	LPeg (Tested with 0.7, 0.8, 0.9 ... 0.6 mostly works)
 	For regressionTest:
 		lfs (Tested with 1.4.1)
 	For lunit-tests:
