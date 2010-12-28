@@ -5,7 +5,6 @@ local SRCS =
 		array2d.lua
 		class.lua
 		classx.lua
-		compat52.lua
 		comprehension.lua
 		config.lua
 		data.lua
