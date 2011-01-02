@@ -184,7 +184,6 @@ int spawn_param_execute(struct spawn_params *p)
   lua_State *L = p->L;
   char *c, *e;
   const char* comspec;
-  int isCmd;
   PROCESS_INFORMATION pi;
   BOOL ret;
   struct process *proc = lua_newuserdata(L, sizeof *proc);
@@ -196,17 +195,14 @@ int spawn_param_execute(struct spawn_params *p)
     comspec = getenv("COMSPEC");
     if (!comspec)
       comspec = "cmd.exe";
-    isCmd = strstr(comspec, "cmd.exe") != NULL;
 
     c = (char*)malloc(1 + strlen(comspec) + 1 + 4 + strlen(p->cmdline) + 2 + 1);
     strcpy(c, "\"");
     strcat(c, comspec);
     strcat(c, "\" /C ");
-    if (isCmd)
-      strcat(c, "\"");
+    strcat(c, "\"");
     strcat(c, p->cmdline);
-    if (isCmd)
-      strcat(c, "\"");
+    strcat(c, "\"");
   } else {
     c = strdup(p->cmdline);
   }
