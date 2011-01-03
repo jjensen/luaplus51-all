@@ -143,9 +143,11 @@ rule build_qt_lib_binding BINDING_HEADER : DEPENDENCIES {
 			$(bindingname_slot.hpp)
 			$(bindingname_types.lua)
 	;
+	Always clean:$(BINDING_NAME) ;
 
 	Depends clean:lqt : clean:$(BINDING_NAME) ;
 	NotFile clean:lqt ;
+	Always clean:lqt ;
 }
 
 build_qt_lib_binding QtCore ;
