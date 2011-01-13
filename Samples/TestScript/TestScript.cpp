@@ -7,6 +7,7 @@ using namespace LuaPlus;
 #include <string>
 #include <time.h>
 #include <crtdbg.h>
+#include <vector>
 
 class Foo
 {
@@ -2670,12 +2671,105 @@ void TestGCLuaScript()
 }
 
 
+void RefTest()
+{
+	LuaStateOwner state(true);
+	lua_State *L = *state;
+
+	for (int loop = 0; loop < 3; ++loop)
+	{
+		std::vector<LuaObject> refs;
+		DWORD time = GetTickCount();
+		refs.reserve(1000000);
+		for (int index = 1; index < 1000000; ++index)
+		{
+			LuaObject obj = state->GetGlobal("table");
+			refs.push_back(obj);
+		}
+		for (int index = 1; index < 1000000; ++index)
+		{
+			refs[index - 1].Type();
+		}
+		for (int index = 1; index < 1000000; ++index)
+		{
+			refs.pop_back();
+		}
+		time = GetTickCount() - time;
+		printf("LuaObject(%d): %d\n", loop, time);
+	}
+
+	for (int loop = 0; loop < 3; ++loop)
+	{
+		std::vector<int> refs;
+		DWORD time = GetTickCount();
+		refs.reserve(1000000);
+		for (int index = 1; index < 1000000; ++index)
+		{
+			lua_getglobal(L, "table");
+			refs.push_back(luaL_ref(L, LUA_REGISTRYINDEX));
+		}
+		for (int index = 1; index < 1000000; ++index)
+		{
+			lua_rawgeti(L, LUA_REGISTRYINDEX, refs[index - 1]);
+			lua_type(L, -1);
+			lua_pop(L, 1);
+		}
+		for (int index = 1; index < 1000000; ++index)
+		{
+			luaL_unref(L, LUA_REGISTRYINDEX, refs[index - 1]);
+		}
+		time = GetTickCount() - time;
+		printf("luaref(%d): %d\n", loop, time);
+	}
+
+	for (int loop = 0; loop < 3; ++loop)
+	{
+		DWORD time = GetTickCount();
+		for (int index = 1; index < 1000000; ++index)
+		{
+			LuaObject obj = state->GetGlobal_Stack("table");
+			obj.Type();
+			state->Pop(1);
+		}
+		time = GetTickCount() - time;
+		printf("LuaObject-oneloop(%d): %d\n", loop, time);
+	}
+
+	for (int loop = 0; loop < 3; ++loop)
+	{
+		DWORD time = GetTickCount();
+		for (int index = 1; index < 1000000; ++index)
+		{
+			int ref;
+			lua_getglobal(L, "table");
+			ref = luaL_ref(L, LUA_REGISTRYINDEX);
+
+			lua_rawgeti(L, LUA_REGISTRYINDEX, ref);
+			lua_type(L, -1);
+			lua_pop(L, 1);
+
+			luaL_unref(L, LUA_REGISTRYINDEX, ref);
+		}
+		time = GetTickCount() - time;
+		printf("luaref-oneloop(%d): %d\n", loop, time);
+	}
+
+	{
+		LuaObject tableObj = state->GetGlobal("table");
+		LuaObject stringObj = state->GetGlobal("string");
+	}
+	assert(_CrtCheckMemory());
+}
+
+
 #if _WIN32_WCE
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow)
 #else // _WIN32_WCE
 int __cdecl main(int argc, char* argv[])
 #endif // _WIN32_WCE
 {
+	RefTest();
+
 	TestState();
 	TestGCLuaScript();
 	TableTest();
