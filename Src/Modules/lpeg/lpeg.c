@@ -445,7 +445,7 @@ static const char *match (lua_State *L,
   stack->p = &giveup; stack->s = s; stack->caplevel = 0; stack++;
   lua_pushlightuserdata(L, stackbase);
   for (;;) {
-#if defined(DEBUG)
+#if 0  &&  defined(DEBUG)
       printf("s: |%s| stck: %d c: %d  ",
              s, stack - getstackbase(L, ptop), captop);
       printinst(op, p);
