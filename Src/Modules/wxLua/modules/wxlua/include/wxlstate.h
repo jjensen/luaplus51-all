@@ -760,7 +760,7 @@ public:
     //       its wxLuaStateRefData is finally deleted.
     // Note: The coroutine lua_States are not hashed since we cannot know when
     //       they are created or deleted. We must create wxLuaStates for them on the fly.
-    static wxHashMapLuaState s_wxHashMapLuaState;
+    static wxHashMapLuaState* s_wxHashMapLuaState;
 
     // -----------------------------------------------------------------------
 
