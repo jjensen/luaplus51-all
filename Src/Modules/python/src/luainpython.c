@@ -71,7 +71,7 @@ PyObject *LuaConvert(lua_State *L, int n)
 				ret = Py_False;
 			}
 			break;
-
+/*
 		case LUA_TUSERDATA: {
 			py_object *obj = (py_object*)
 					 luaL_checkudata(L, n, POBJECT);
@@ -82,9 +82,9 @@ PyObject *LuaConvert(lua_State *L, int n)
 				break;
 			}
 
-			/* Otherwise go on and handle as custom. */
+			*//* Otherwise go on and handle as custom. *//*
 		}
-
+*/
 		default:
 			ret = LuaObject_New(n);
 			break;
