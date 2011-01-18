@@ -43,6 +43,10 @@ rule LuaApplication TARGET : OPTIONS
 		C.LinkFlags : -Wl,-E -lreadline ;
 		C.LinkFlags : -Wl,--rpath=\\$ORIGIN -z origin ;
 	}
+	else if $(OS) = MACOSX
+	{
+		C.LinkFlags : -Wl,-rpath,@loader_path/ ;
+	}
 	LuaPlusFixUpTarget $(TARGET) ;
 	C.Application : $(SRCS) : $(OPTIONS) ;
 }
