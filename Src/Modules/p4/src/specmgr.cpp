@@ -579,8 +579,15 @@ static int p4_spec_newindex(lua_State *L) {
 		luaL_argerror( L, 2, "Illegal field" );
 	size_t keyLen = strlen( key + 1 );
 	char* lowerKey = new char[ keyLen + 1 ];
+	char* ptr;
+	char* end;
 	strcpy( lowerKey, key + 1 );
-	strlwr( lowerKey );
+	ptr = lowerKey;
+	end = ptr + keyLen;
+	while ( ptr != end ) {
+		*ptr = (char)tolower( *ptr );
+		++ptr;
+	}
 	lua_pushstring( L, lowerKey );
 	lua_rawget( L, lua_upvalueindex( 1 ) );
 	if ( lua_isnil( L, -1 ) )
