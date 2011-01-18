@@ -13,6 +13,9 @@ end
 function ex.popen(args)
 	local out_rd, out_wr = io.pipe()
 	args.stdout = out_wr
+	if args.stderr_to_stdout then
+		args.stderr = out_wr
+	end
 	local proc, err = os.spawn(args)
 	out_wr:close()
 	if not proc then
