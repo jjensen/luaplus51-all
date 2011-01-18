@@ -1,4 +1,4 @@
-if $(NT)  &&  $(COMPILER.$(PLATFORM)) != vc6
+if ( ! $(NT)  ||  $(COMPILER.$(PLATFORM)) != vc6 )
 {
 
 local SRCS =
@@ -22,19 +22,30 @@ local SRCS =
 
 CopyFile p4 : $(LUA_LDIR)/p4.lua : $(SUBDIR)/src/p4.lua ;
 
-if $(NT)
-{
+local P4API = p4api ;
+
+if $(NT) {
+	P4API = p4api/$(CONFIG) ;
 	C.DefFile p4 : src/p4lua.def ;
 	C.Defines p4 : OS_NT ;
 	C.LinkPrebuiltLibraries p4 : advapi32 ws2_32 ;
 	#LinkFlags p4 : /NODEFAULTLIB:msvcr80.lib ;
+	C.LinkPrebuiltLibraries p4 : libclient librpc libsupp ;
+} else {
+	C.LinkPrebuiltLibraries p4 : client rpc supp ;
 }
 
-local P4API = p4api/$(CONFIG) ;
+if $(OS) = MACOSX {
+	C.LinkFrameworks p4 : CoreFoundation ;
+}
+
 C.IncludeDirectories p4 : $(P4API)/include ;
 C.LinkDirectories p4 : $(P4API)/lib ;
-C.LinkPrebuiltLibraries p4 : libclient librpc libsupp ;
 
-Lua.CModule p4 : p4 p4_p4api : $(SRCS) ;
+if [ Glob $(SUBDIR)/$(P4API)/include/p4 : clientapi.h ] {
+	Lua.CModule p4 : p4 p4_p4api : $(SRCS) ;
+} else {
+	Echo * Not building p4, because the p4api/ directory does not exist. ;
+}
 
 }
