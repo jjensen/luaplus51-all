@@ -115,98 +115,11 @@ Node {
 }
 
 LuaPlus::LuaObject {
-	children (
-		#switch(((lua_TValue*)&$c.m_object)->tt)
-		#case 2 (							; LUA_TLIGHTUSERDATA
-			#(
-				[raw members]: [$c,!],
-				ptr: #((const char*)(((lua_TValue*)&$c.m_object)->value.p))
-			)
-		)
-		#case 5 ( 							; LUA_TTABLE
-			#(
-				[raw members]: [$c,!],
-				array size: ((lua_TValue*)&$c.m_object)->value.gc->h.sizearray,
-				#array (
-					expr: $e.value.gc->h.metatable,
-					size: $e.value.gc->h.metatable != 0,
-				): #( metatable: $e ),
-
-				#array (
-					expr: ((lua_TValue*)&$c.m_object)->value.gc->h.array[$i],
-					size: ((lua_TValue*)&$c.m_object)->value.gc->h.sizearray,
-					base: 1
-				),
-				#array (
-					expr: #( ((lua_TValue*)&$c.m_object)->value.gc->h.node[$i], 2 ),
-					size: (1<<((lua_TValue*)&$c.m_object)->value.gc->h.lsizenode),
-					base: 1
-				): #( hash: $e )
-			)
-		)
-		#case 6 (							; LUA_TFUNCTION
-			#if (((lua_TValue*)&$c.m_object)->value.gc->cl.c.isC) (
-				#(
-					[raw members]: [$c,!],
-					env: ((lua_TValue*)&$c.m_object)->value.gc->cl.c.env,
-					#array (
-						expr: $e.value.gc->cl.c.upvalue[$i],
-						size: $e.value.gc->cl.c.nupvalues,
-					): #( upvalues: $e )
-				)
-			) #else (
-				#(
-					[raw members]: [$c,!],
-					((lua_TValue*)&$c.m_object)->value.gc->cl.l
-				)
-			)
-
-		)
-		#case 7 (							; LUA_TUSERDATA
-			#(
-				[raw members]: [$c,!],
-				#array (
-					expr: $e.value.gc->u.uv.metatable,
-					size: $e.value.gc->u.uv.metatable != 0,
-				): #( metatable: $e ),
-				env: ((lua_TValue*)&$c.m_object)->value.gc->u.uv.env,
-				ptr: #((const char*)(&(((lua_TValue*)&$c.m_object)->value.gc->u)+1)),
-				size: ((lua_TValue*)&$c.m_object)->value.gc->u.uv.len
-			)
-		)
-		#case 8 ( #(
-			[raw members]: [$c,!],
-			((lua_TValue*)&$c.m_object)->value.gc->th)
-			)		; LUA_TTHREAD
-
-	)
-
 	preview (
-		#switch(((lua_TValue*)&$e.m_object)->tt)
-		#case 0 ( "nil" )					; LUA_TNIL
-		#case 1 (
-			#if (((lua_TValue*)&$e.m_object)->value.b == 0) (
-				"false"
-			) #else (
-				"true"
-			)
-		)
-		#case 2 (							; LUA_TLIGHTUSERDATA
-		  #(((lua_TValue*)&$e.m_object)->value.p, " lightuserdata") )
-		#case 3 (							; LUA_TNUMBER
-		  #("number=", ((lua_TValue*)&$e.m_object)->value.n) )
-		#case 4 (							; LUA_TSTRING
-		  #( ((lua_TValue*)&$e.m_object)->value.gc->ts) )
-		#case 5 ( 	; LUA_TTABLE
-			#( ((lua_TValue*)&$e.m_object)->value.gc->h )
-		)
-
-		#case 6 ( #(((lua_TValue*)&$e.m_object)->value.gc->cl) )		; LUA_TFUNCTION
-		#case 7 ( #(((lua_TValue*)&$e.m_object)->value.gc->u) )		; LUA_TUSERDATA
-		#case 8 ( #(((lua_TValue*)&$e.m_object)->value.gc->th) )		; LUA_TTHREAD
-		#case 9 (							; LUA_TWSTRING
-		  #( ((lua_TValue*)&$e.m_object)->value.gc->ts) )
-		#default ( "empty" )
+		#if (-$e.ref + -1999999 - 1 < $e.L->l_G->l_refs->sizearray) (
+			#( $e.L->l_G->l_refs[-$e.ref + -1999999 - 1].o )
+		) #else (
+			"In hash part"
 		)
 	)
 }
