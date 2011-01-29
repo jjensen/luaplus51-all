@@ -96,6 +96,24 @@ static int lziparchive_gc(lua_State* L) {
 }
 
 
+static int _lziparchive_tostring(lua_State *L) {
+	ZipArchive* archive = lziparchive_check(L, 1);
+
+	char buffer[100];
+
+	int top = lua_gettop(L);
+	lua_pushstring(L, "[ziparchive object]: filename = \"");
+	lua_pushstring(L, archive->GetFilename());
+	lua_pushstring(L, "\", ");
+	lua_pushstring(L, archive->IsReadOnly() ? "read-only" : "writable");
+	sprintf(buffer, ", %u files", archive->GetFileEntryCount());
+	lua_pushstring(L, buffer);
+	lua_concat(L, lua_gettop(L) - top);
+	return 1;
+}
+
+
+
 static int lziparchive_index(lua_State* L) {
 	const char* key;
 	ZipArchive* archive = lziparchive_check(L, 1);
@@ -856,8 +874,8 @@ static int _zafe_index_contents(lua_State* L, fileentry_info* info, ZipEntryInfo
 
 typedef int (*_zafe_index_property_func)(lua_State*, fileentry_info*, ZipEntryInfo* entry);
 typedef struct _zafe_index_properties_reg {
-  const char *name;
-  _zafe_index_property_func func;;
+	const char *name;
+	_zafe_index_property_func func;
 } _zafe_index_properties_reg;
 
 
@@ -893,15 +911,52 @@ static int _zafe_index(lua_State *L) {
 }
 
 
+static int _lziparchive_fileentry_tostring(lua_State* L) {
+	char buffer[100];
+
+	int top = lua_gettop(L);
+	lua_pushstring(L, "[ziparchive.fileentry object]: ");
+
+	fileentry_info* info = (fileentry_info*)luaL_checkudata(L, 1, ZIPARCHIVE_FILEENTRY_METATABLE);
+	ZipEntryInfo* entry = info->archive->GetFileEntry(info->entryIndex);
+	if (!entry) {
+		sprintf(buffer, "index %u is invalid", info->entryIndex);
+		lua_pushstring(L, buffer);
+	} else {
+		lua_pushstring(L, "filename = \"");
+		lua_pushstring(L, entry->GetFilename());
+		sprintf(buffer, "\", compressed_size = %u", entry->GetCompressedSize());
+		lua_pushstring(L, buffer);
+		sprintf(buffer, ", compression_method = %u", entry->GetCompressionMethod());
+		lua_pushstring(L, buffer);
+		sprintf(buffer, ", crc = %u", entry->GetCRC());
+		lua_pushstring(L, buffer);
+		sprintf(buffer, ", md5 = %u", entry->GetMD5());
+		lua_pushstring(L, buffer);
+		sprintf(buffer, ", offset = %u", entry->GetOffset());
+		lua_pushstring(L, buffer);
+		sprintf(buffer, ", timestamp = %u", entry->GetTimeStamp());
+		lua_pushstring(L, buffer);
+		sprintf(buffer, ", uncompressed_size = %u", entry->GetUncompressedSize());
+		lua_pushstring(L, buffer);
+	}
+
+	lua_concat(L, lua_gettop(L) - top);
+	return 1;
+}
+
+
+
 static int ziparchive_fileentry_create_metatable(lua_State *L) {
 	luaL_newmetatable(L, ZIPARCHIVE_FILEENTRY_METATABLE);	// metatable
 	lua_pushliteral(L, "__gc");								// metatable __gc
 	lua_pushcfunction(L, _lziparchive_fileentry_gc);		// metatable __gc function
 	lua_settable(L, -3);									// metatable
-/*	lua_pushliteral(L, "__tostring");						// metatable __tostring
-	lua_pushcfunction(L, filefind_tostring);				// metatable __tostring function
+
+	lua_pushliteral(L, "__tostring");						// metatable __tostring
+	lua_pushcfunction(L, _lziparchive_fileentry_tostring);	// metatable __tostring function
 	lua_settable(L, -3);									// metatable
-*/
+
 	lua_pushliteral(L, "__index");							// metatable __index
 	lua_newtable(L);										// metatable __index table table
 
@@ -1116,7 +1171,7 @@ int LS_Help(lua_State* L)
 "    bool ret = archive:fileerase(fileName)\n"
 "    bool ret = archive:filerename(oldFileName, newFileName)\n"
 "    bool ret = archive:fileinsert(srcFileName, destFileName, compressionMethod:0,8{compressed}, time_t fileTime)\n"
-"    bool ret = archive:extract(srcFileName, destFileName)\n"
+"    bool ret = archive:fileextract(srcFileName, destFileName)\n"
 "\n"
 "    FileOrderTable = {\n"
 "        string EntryName,\n"
@@ -1162,6 +1217,9 @@ int LS_Help(lua_State* L)
 "        }\n"
 "    int entryIndex = archive:fileentryindex(fileName)\n"
 "\n"
+"Files Iterator:\n"
+"    for entry in archive:files() do print(entry) end\n"
+"\n"
 "File commands:\n"
 "\n"
 "    string fileName = archive:filegetfilename(vfile)\n"
@@ -1174,7 +1232,7 @@ int LS_Help(lua_State* L)
 "\n"
 "FileListStatus Enumerations:\n"
 "\n"
-"	 ziparchive.UPDATING_ARCHIVE\n"
+"    ziparchive.UPDATING_ARCHIVE\n"
 "    ziparchive.UPDATING_ARCHIVE\n"
 "    ziparchive.DELETING_ENTRY\n"
 "    ziparchive.DIRECT_COPY_FROM_ANOTHER_ARCHIVE\n"
@@ -1270,6 +1328,10 @@ static void lziparchive_createmetatables(lua_State* L)
 	lua_pushliteral(L, "__len");							// metatable __len
 	lua_pushcclosure( L, lziparchive_fileentrycount, 0 );
 	lua_rawset(L, -3);										// metatable
+
+	lua_pushliteral(L, "__tostring");						// metatable __tostring
+	lua_pushcfunction(L, _lziparchive_tostring);			// metatable __tostring function
+	lua_settable(L, -3);									// metatable
 
 	lua_pushliteral(L, "__gc");								// metatable __gc
 	lua_pushcclosure( L, lziparchive_gc, 0 );
