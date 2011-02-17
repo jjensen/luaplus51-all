@@ -1346,8 +1346,6 @@ bool ZipArchive::FileOpenIndex(size_t index, ZipEntryFileHandle& fileHandle)
 		inflateInit2(&fileHandle.detail->stream, -MAX_WBITS);
     }
 
-	fileHandle.detail->headerSize = sizeof(ZipLocalHeader) + strlen(fileEntry.GetFilename()) + 0;
-
 #if ZIPARCHIVE_ENCRYPTION
 	if (this->defaultPassword.Length() > 0)
 	{
