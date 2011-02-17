@@ -380,12 +380,20 @@ int lziparchive_fileinsert(lua_State* L) {
 }
 
 
+namespace Misc {
+	int PathCreate(const char* inPath);
+}
+
+
 bool Copy(File& srcFile, const char* destFilename)
 {
 	// Operate in 16k buffers.
 	const DWORD BUFFER_SIZE = 16 * 1024;
 
 	DWORD fileSize = (DWORD)srcFile.GetLength();
+
+	if (!Misc::PathCreate(destFilename))
+		return false;
 
 	// See if the destination file exists.
 	DiskFile destFile;
