@@ -24,6 +24,7 @@ rule LuaPlusFixUpTarget TARGET
 	LuaPlusDefines $(TARGET) ;
 	C.OutputPostfix $(TARGET) : .debug : debug ;
 	C.OutputPostfix $(TARGET) : : release ;
+	C.OutputPostfix $(TARGET) : : releaseltcg ;
 	C.OutputPath $(TARGET) : $(LUAPLUS_OUTPUT_DIRECTORY) ;
 }
 ###############################################################################
@@ -64,6 +65,7 @@ rule LuaPlus.CModule TARGET : OUTPUT_NAME : SOURCES : MODULES_SUBDIR {
 	C.OutputName $(TARGET) : $(OUTPUT_NAME[1]) ;
 	C.OutputPostfix $(TARGET) : .debug : debug ;
 	C.OutputPostfix $(TARGET) : : release ;
+	C.OutputPostfix $(TARGET) : : releaseltcg ;
 	C.OutputPath $(TARGET) : $(LUA_CDIR)/$(MODULES_SUBDIR:E=) ;
 	C.Library $(TARGET) : $(SOURCES) : module ;
 
@@ -105,7 +107,7 @@ rule Lua.CModule TARGET : OUTPUT_NAME : SOURCES : MODULES_SUBDIR {
 
 	C.OutputName $(TARGET) : $(OUTPUT_NAME[1]) ;
 	C.OutputPostfix $(TARGET) : .debug : debug ;
-	C.OutputPostfix $(TARGET) : : release ;
+	C.OutputPostfix $(TARGET) : : release releaseltcg ;
 	C.OutputPath $(TARGET) : $(LUA_CDIR)/$(MODULES_SUBDIR:E=) ;
 	C.Library $(TARGET) : $(SOURCES) : module ;
 
