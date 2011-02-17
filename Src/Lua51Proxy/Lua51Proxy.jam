@@ -148,6 +148,7 @@ if $(MSVCNT) {
 		}
 
 		C.OutputPostfix $(TARGET) : : release ;
+		C.OutputPostfix $(TARGET) : : releaseltcg ;
 		C.OutputPath $(TARGET) : $(LUAPLUS_OUTPUT_DIRECTORY) ;
 
 		UseCommandLine $(TARGET) : $(symbols) ;
