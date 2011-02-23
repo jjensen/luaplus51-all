@@ -46,6 +46,12 @@ NAMESPACE_LUA_END
 namespace LuaPlus
 {
 
+#if defined(BUILDING_LUAPLUS)
+	typedef TValue lua_TValue;
+#else
+	typedef LP_lua_TValue lua_TValue;
+#endif
+
 USING_NAMESPACE_LUA;
 
 /**
@@ -347,11 +353,7 @@ private:
 
 	LuaObject* m_next;		   // only valid when in free list
 	LuaObject* m_prev;		   // only valid when in used list
-#if defined(BUILDING_LUAPLUS)
 	lua_TValue m_object;
-#else
-	LP_lua_TValue m_object;
-#endif
 	lua_State* L;
 };
 

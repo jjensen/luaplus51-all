@@ -13,9 +13,9 @@ NAMESPACE_LUA_BEGIN
 
 #define gnode(t,i)	(&(t)->node[i])
 #if LUAPLUS_EXTENSIONS
-#define gkey(n)		((TValue*)(&(n)->i_key.nk))
+#define gkey(n)		((TValue*)(&(n)->i_key.tvk))
 #else
-#define gkey(n)		(&(n)->i_key.nk)
+#define gkey(n)		(&(n)->i_key.tvk)
 #endif /* LUAPLUS_EXTENSIONS */
 #define gval(n)		(&(n)->i_val)
 #define gnext(n)	((n)->i_key.nk.next)

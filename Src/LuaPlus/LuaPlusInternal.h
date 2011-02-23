@@ -13,7 +13,11 @@
 #include "src/lua.h"
 
 NAMESPACE_LUA_BEGIN
+#if LUA_PACK_VALUE
+union lua_TValue;
+#else
 struct lua_TValue;
+#endif // LUA_PACK_VALUE
 NAMESPACE_LUA_END
 
 #define LUAPLUS_ENABLE_INLINES
