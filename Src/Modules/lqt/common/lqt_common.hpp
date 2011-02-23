@@ -90,6 +90,13 @@ void * lqtL_checkudata (lua_State *, int, const char *);
 void lqtL_eraseudata (lua_State *, int, const char *);
 #define lqtL_isudata lqtL_testudata
 
+
+bool lqtL_canconvert(lua_State *L, int n, const char *to_type);
+void *lqtL_convert(lua_State *L, int n, const char *to_type);
+typedef bool  (*lqt_testfunc) (lua_State *L, int n);
+typedef void* (*lqt_convertfunc) (lua_State *L, int n);
+
+
 void lqtL_pushenum (lua_State *, int, const char *);
 bool lqtL_isenum (lua_State *, int, const char *);
 int lqtL_toenum (lua_State *, int, const char *);
@@ -130,7 +137,7 @@ typedef struct {
     const char * name;
 } lqt_Class;
 
-int lqtL_createclass (lua_State *, const char *, luaL_Reg *, lqt_Base *);
+int lqtL_createclass (lua_State *, const char *, luaL_Reg *, luaL_Reg *, luaL_Reg *, lqt_Base *);
 
 /* functions to get/push special types */
 
@@ -158,6 +165,8 @@ void lqtL_register_super(lua_State *L);
 const char * lqtL_pushtrace(lua_State *L);
 void lqtL_pushudatatype(lua_State *L, int index);
 const char * lqtL_getarglist(lua_State *L);
+
+void lqtL_selfcheck(lua_State *L, void *self, const char *name);
 
 #endif // __LQT_COMMON_HPP
 

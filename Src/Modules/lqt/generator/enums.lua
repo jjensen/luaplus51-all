@@ -69,6 +69,7 @@ function fill_typesystem(types)
 				return 'lqtL_isenum(L, '..n..', "'..string.gsub(en, '::', '.')..'")', 1
 			end,
 			onstack = string.gsub(en, '::', '.')..',',
+			defect = 10, -- check these last
 		}
 	end
 	for _,e in pairs(enum_list) do

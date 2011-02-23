@@ -3,7 +3,7 @@
 --[[
 
 Copyright (c) 2007-2009 Mauro Iazzi
-Copyright (c)      2008 Peter K�mmel
+Copyright (c)      2008 Peter K?mmel
 Copyright (c)      2010 Michal Kottman
 
 Permission is hereby granted, free of charge, to any person
@@ -141,7 +141,7 @@ require('class_types')
 
 ----------------------------------------------------------------------------------
 
-local typesystem = dofile(path..'types.lua')
+typesystem = dofile(path..'types.lua')
 do
 	local ts = {}
 	for i, ft in ipairs(typefiles) do
@@ -180,7 +180,7 @@ for e in pairs(idindex) do
 		local id = assert(tonumber(e.xarg.id:match("_(%d+)")))
 		if id > gen_id then gen_id = id + 1 end
 	end
-end
+end	
 
 function next_id() gen_id = gen_id + 1; return "_" .. gen_id end
 
@@ -188,11 +188,11 @@ function next_id() gen_id = gen_id + 1; return "_" .. gen_id end
 --- Constructs the code that pushes arguments to the Lua stack.
 -- Returns the code as a string, and stack increment. In case that an unknown
 -- type is encountered, nil and the unknown type is returned.
-function make_pushlines(args, types)
+function make_pushlines(args)
 	local pushlines, stack = '', 0
 	for i, a in ipairs(args) do
-		if not types[a.xarg.type_name] then return nil, a.xarg.type_name end
-		local apush, an = types[a.xarg.type_name].push('arg'..i)
+		if not typesystem[a.xarg.type_name] then return nil, a.xarg.type_name end
+		local apush, an = typesystem[a.xarg.type_name].push('arg'..i)
 		pushlines = pushlines .. '    ' .. apush .. ';\n'
 		stack = stack + an
 	end

@@ -174,7 +174,7 @@ int lqtL_createenumlist (lua_State *L, lqt_Enumlist list[]) {
 }
 
 static int lqtL_gcfunc (lua_State *L) {
-    if (!lua_isuserdata(L, 1) && lua_islightuserdata(L, 1)) return 0;
+    if (!lua_isuserdata(L, 1) || lua_islightuserdata(L, 1)) return 0;
     lua_getfenv(L, 1); // (1)
     if (!lua_istable(L, -1)) {
         lua_pop(L, 1); // (0)
@@ -195,8 +195,20 @@ static int lqtL_gcfunc (lua_State *L) {
 }
 
 static int lqtL_newindexfunc (lua_State *L) {
-    lua_settop(L, 3); // (=3)
     if (!lua_isuserdata(L, 1) && lua_islightuserdata(L, 1)) return 0;
+    lua_getmetatable(L, 1);
+    lua_pushliteral(L, "__set");
+    lua_rawget(L, -2);
+    if (lua_istable(L, -1)) {
+        lua_pushvalue(L, 2);
+        lua_gettable(L, -2);
+        if (lua_isfunction(L, -1)) {
+            lua_CFunction setter = lua_tocfunction(L, -1);
+            if (!setter) return luaL_error(L, "Invalid setter %s", lua_tostring(L, 2));
+            return setter(L);
+        }
+    }
+    lua_settop(L, 3); // (=3)
     lua_getfenv(L, 1); // (+1)
     if (!lua_istable(L, -1)) {
         lua_pop(L, 1); // (+0)
@@ -223,6 +235,19 @@ int lqtL_getoverload (lua_State *L, int index, const char *name) {
 static int lqtL_indexfunc (lua_State *L) {
     int i = 1;
     if (lua_isuserdata(L, 1) && !lua_islightuserdata(L, 1)) {
+        lua_getmetatable(L, 1);
+        lua_pushliteral(L, "__get");
+        lua_rawget(L, -2);
+        if (lua_istable(L, -1)) {
+            lua_pushvalue(L, 2);
+            lua_gettable(L, -2);
+            if (lua_isfunction(L, -1)) {
+                lua_CFunction getter = lua_tocfunction(L, -1);
+                if (!getter) return luaL_error(L, "Invalid getter %s", lua_tostring(L, 2));
+                return getter(L);
+            }
+        }
+        lua_settop(L, 2);
         lua_getfenv(L, 1); // (1)
         lua_pushvalue(L, 2); // (2)
         lua_gettable(L, -2); // (2)
@@ -277,7 +302,7 @@ static int lqtL_local_ctor(lua_State*L) {
     return lua_gettop(L);
 }
 
-int lqtL_createclass (lua_State *L, const char *name, luaL_Reg *mt, lqt_Base *bases) {
+int lqtL_createclass (lua_State *L, const char *name, luaL_Reg *mt, luaL_Reg *getters, luaL_Reg *setters, lqt_Base *bases) {
     int len = 0;
     char *new_name = NULL;
     lqt_Base *bi = bases;
@@ -293,6 +318,18 @@ int lqtL_createclass (lua_State *L, const char *name, luaL_Reg *mt, lqt_Base *ba
         lua_settable(L, -3); // (1) FIXME: remove
         bi++;
     }
+    
+    if (getters) {
+        lua_newtable(L);
+        luaL_register(L, NULL, getters);
+        lua_setfield(L, -2, "__get");
+    }
+    if (setters) {
+        lua_newtable(L);
+        luaL_register(L, NULL, setters);
+        lua_setfield(L, -2, "__set");
+    }
+    
     // set metafunctions
     lqtL_pushindexfunc(L, name, bases); // (2)
     lua_setfield(L, -2, "__index"); // (1)
@@ -432,9 +469,9 @@ void lqtL_pushudata (lua_State *L, const void *p, const char *name) {
 
 void lqtL_passudata (lua_State *L, const void *p, const char *name) {
     lqtL_pushudata(L, p, name);
-    // FIXME: these should be added, but it is not safe for now
-    //lua_getfield(L, -1, "delete");
-    //lua_setfield(L, -2, "__gc");
+    // used only when passing temporaries - should be deleted afterwards
+    lua_getfield(L, -1, "delete");
+    lua_setfield(L, -2, "__gc");
     return;
 }
 
@@ -711,4 +748,45 @@ void lqtL_register_super(lua_State *L) {
     } else {
         lua_pop(L, -1);
     }
+}
+
+// returns true if the value at index `n` can be converted to `to_type`
+bool lqtL_canconvert(lua_State *L, int n, const char *to_type) {
+    if (lqtL_testudata(L, n, to_type))
+        return true;
+    int oldtop = lua_gettop(L);
+    luaL_getmetatable(L, to_type);
+    lua_getfield(L, -1, "__test");
+    if (lua_isnil(L, -1)) {
+        lua_settop(L, oldtop);
+        return false;
+    }
+    lqt_testfunc func = (lqt_testfunc) lua_touserdata(L, -1);
+    lua_settop(L, oldtop);
+    return func(L, n);
+}
+
+// converts the value at index `n` to `to_type` and returns a pointer to it
+void *lqtL_convert(lua_State *L, int n, const char *to_type) {
+    if (lqtL_testudata(L, n, to_type))
+        return lqtL_toudata(L, n, to_type);
+    int oldtop = lua_gettop(L);
+    luaL_getmetatable(L, to_type);
+    lua_getfield(L, -1, "__convert");
+    if (lua_isnil(L, -1)) {
+        lua_settop(L, oldtop);
+        return false;
+    }
+    lqt_convertfunc func = (lqt_convertfunc) lua_touserdata(L, -1);
+    lua_settop(L, oldtop);
+    return func(L, n);
+}
+
+void lqtL_selfcheck(lua_State *L, void *self, const char *name) {
+  if (NULL==self) {
+    lua_pushfstring(L, "Instance of %s has already been deleted in:\n", name);
+    lqtL_pushtrace(L);
+    lua_concat(L, 2);
+    lua_error(L);
+  }
 }

@@ -82,10 +82,17 @@ qt_types['QRectF const&'] = qt_types['QRectF']
 qt_types['QByteArray'] = {
 	get = function(i) return 'QByteArray(lua_tostring(L, '..i..'), lua_objlen(L, '..i..'))', 1, 'QByteArray' end,
 	push = function(i) return 'lua_pushlstring(L, '..i..'.constData(), '..i..'.size())', 1 end,
-	test = function(i) return 'lua_isstring(L, '..i..')', 1 end,
+	test = function(i) return 'lqtL_isstring(L, '..i..')', 1 end,
 	onstack = 'string,',
 }
 qt_types['QByteArray const&'] = qt_types['QByteArray']
+
+qt_types['QList<QByteArray>'] = {
+	get = function(i) return 'lqtL_getStringList(L, '..i..')', 1, 'QList<QByteArray>' end,
+	push = function(i) return 'lqtL_pushStringList(L, '..i..')', 1 end,
+	test = function(i) return 'lua_istable(L, '..i..')', 1 end,
+	onstack = 'table,',
+}
 
 if not getmetatable(qt_types) then
 	setmetatable(qt_types, {
