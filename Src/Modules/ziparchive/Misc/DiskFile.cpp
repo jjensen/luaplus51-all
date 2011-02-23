@@ -280,7 +280,13 @@ void DiskFile::SetLastWriteTime(time_t lastWriteTime)
 		return;
 #endif
 #else
-	assert(0);
+	timeval tv[2];
+	tv[0].tv_sec = lastWriteTime;
+	tv[0].tv_usec = 0;
+	tv[1].tv_sec = lastWriteTime;
+	tv[1].tv_usec = 0;
+	if (futimes(m_fileHandle, (const timeval*)&tv) != 0)
+		return;
 #endif
 
 }
