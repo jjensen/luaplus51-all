@@ -51,6 +51,7 @@ LUA_EXTERN_C_BEGIN
 #define LUA_ERRERR	5
 #if LUA_EXT_RESUMABLEVM
 #define LUA_ERREXC	6
+#define LUA_ERRFORCECO  7
 #endif /* LUA_EXT_RESUMABLEVM */
 
 typedef struct lua_State lua_State;
