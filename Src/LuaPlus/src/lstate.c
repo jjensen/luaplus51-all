@@ -84,6 +84,9 @@ static void stack_init (lua_State *L1, lua_State *L) {
 #endif /* LUA_REFCOUNT */
   L1->base = L1->ci->base = L1->top;
   L1->ci->top = L1->top + LUA_MINSTACK;
+#if LUA_EXT_RESUMABLEVM
+  L1->ci->errfunc = 0;
+#endif /* LUA_EXT_RESUMABLEVM */
 #if LUA_MEMORY_STATS
   luaM_setname(L, 0);
 #endif /* LUA_MEMORY_STATS */
@@ -99,7 +102,11 @@ static void freestack (lua_State *L, lua_State *L1) {
 /*
 ** open parts that may cause memory-allocation errors
 */
+#if LUA_EXT_RESUMABLEVM
+static int f_luaopen (lua_State *L, void *ud) {
+#else
 static void f_luaopen (lua_State *L, void *ud) {
+#endif /* LUA_EXT_RESUMABLEVM */
   global_State *g = G(L);
   UNUSED(ud);
   stack_init(L, L);  /* init stack */
@@ -116,6 +123,9 @@ static void f_luaopen (lua_State *L, void *ud) {
   luaX_init(L);
   luaS_fix(luaS_newliteral(L, MEMERRMSG));
   g->GCthreshold = 4*g->totalbytes;
+#if LUA_EXT_RESUMABLEVM
+  return 0;
+#endif /* LUA_EXT_RESUMABLEVM */
 }
 
 
@@ -127,15 +137,25 @@ static void preinit_state (lua_State *L, global_State *g) {
   L->hook = NULL;
   L->hookmask = 0;
   L->basehookcount = 0;
+#if !LUA_EXT_RESUMABLEVM
   L->allowhook = 1;
+#endif /* LUA_EXT_RESUMABLEVM */
   resethookcount(L);
   L->openupval = NULL;
   L->size_ci = 0;
+#if LUA_EXT_RESUMABLEVM
+  L->nCcalls = LUA_NOYIELD | LUA_NOVPCALL;
+#else
   L->nCcalls = L->baseCcalls = 0;
+#endif /* LUA_EXT_RESUMABLEVM */
   L->status = 0;
   L->base_ci = L->ci = NULL;
+#if LUA_EXT_RESUMABLEVM
+  L->ctx = NULL;
+#else
   L->savedpc = NULL;
   L->errfunc = 0;
+#endif /* LUA_EXT_RESUMABLEVM */
 #if LUA_REFCOUNT    
   L->ref = 0;
   setnilvalue2n(L, gt(L));
@@ -258,10 +278,18 @@ LUA_API lua_State *lua_newstate (lua_Alloc f, void *ud) {
 }
 
 
+#if LUA_EXT_RESUMABLEVM
+static int callallgcTM (lua_State *L, void *ud) {
+  UNUSED(ud);
+  luaC_callGCTM(L);  /* call GC metamethods for all udata */
+  return 0;
+}
+#else
 static void callallgcTM (lua_State *L, void *ud) {
   UNUSED(ud);
   luaC_callGCTM(L);  /* call GC metamethods for all udata */
 }
+#endif /* LUA_EXT_RESUMABLEVM */
 
 
 LUA_API void lua_close (lua_State *L) {
@@ -269,11 +297,20 @@ LUA_API void lua_close (lua_State *L) {
   lua_lock(L);
   luaF_close(L, L->stack);  /* close all upvalues for this thread */
   luaC_separateudata(L, 1);  /* separate udata that have GC metamethods */
+#if !LUA_EXT_RESUMABLEVM
   L->errfunc = 0;  /* no error function during GC metamethods */
+#endif /* LUA_EXT_RESUMABLEVM */
   do {  /* repeat until no more errors */
     L->ci = L->base_ci;
+#if LUA_EXT_RESUMABLEVM
+    L->ci->errfunc = 0;  /* no error function during GC metamethods */
+#endif /* LUA_EXT_RESUMABLEVM */
     L->base = L->top = L->ci->base;
+#if LUA_EXT_RESUMABLEVM
+    L->nCcalls = 0;
+#else
     L->nCcalls = L->baseCcalls = 0;
+#endif /* LUA_EXT_RESUMABLEVM */
   } while (luaD_rawrunprotected(L, callallgcTM, NULL) != 0);
   lua_assert(G(L)->tmudata == NULL);
   luai_userstateclose(L);
