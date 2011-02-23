@@ -618,6 +618,12 @@ static int f_costart (lua_State *L, void *ud) {
  }
 
 
+static int f_coerror (lua_State *L, void *ud) {
+  lua_pushstring(L, "*error");
+  lua_error(L);
+  return 0;
+ }
+
 #else
 
 void luaD_call (lua_State *L, StkId func, int nResults) {
@@ -676,6 +682,10 @@ LUA_API int lua_resume (lua_State *L, int nargs) {
   int status;
   lua_lock(L);
   switch (L->status) {
+  case LUA_ERRFORCECO:
+    pf = f_coerror;
+    ud = 0;
+    break;
   case LUA_YIELD:
     pf = f_coresume;
     ud = L->top - nargs;

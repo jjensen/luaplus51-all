@@ -19,6 +19,9 @@
 #include "lauxlib.h"
 #include "lualib.h"
 
+#if LUA_EXT_RESUMABLEVM
+#include "lstate.h"
+#endif /* LUA_EXT_RESUMABLEVM */
 
 NAMESPACE_LUA_BEGIN
 
@@ -742,6 +745,9 @@ static const char *const statnames[] =
 static int costatus (lua_State *L, lua_State *co) {
   if (L == co) return CO_RUN;
   switch (lua_status(co)) {
+#if LUA_EXT_RESUMABLEVM
+    case LUA_ERRFORCECO:
+#endif /* LUA_EXT_RESUMABLEVM */
     case LUA_YIELD:
       return CO_SUS;
     case 0: {
@@ -827,6 +833,19 @@ static int luaB_coresume (lua_State *L) {
 }
 
 
+#if LUA_EXT_RESUMABLEVM
+
+static int luaB_coerror (lua_State *L) {
+  lua_State *co = lua_tothread(L, 1);
+  luaL_argcheck(L, co, 1, "coroutine expected");
+  co->status = LUA_ERRFORCECO;
+  luaB_coresume(L);
+  return 0;
+}
+
+#endif /* LUA_EXT_RESUMABLEVM */
+
+
 static int luaB_auxwrap (lua_State *L) {
   lua_State *co = lua_tothread(L, lua_upvalueindex(1));
   int r = auxresume(L, co, lua_gettop(L));
@@ -877,6 +896,9 @@ static int luaB_corunning (lua_State *L) {
 
 static const luaL_Reg co_funcs[] = {
   {"create", luaB_cocreate},
+#if LUA_EXT_RESUMABLEVM
+  {"error", luaB_coerror},
+#endif /* LUA_EXT_RESUMABLEVM */
   {"resume", luaB_coresume},
   {"running", luaB_corunning},
   {"status", luaB_costatus},
