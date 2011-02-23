@@ -22,10 +22,6 @@ local PCH_SRCS =
 		Misc_InternalPch.h
 		OwnedPtr.h
 		TypeTraits.h
-		VirtualDrive.cpp
-		VirtualDrive.h
-		VirtualFile.cpp
-		VirtualFile.h
 ;
 
 local AES_SRCS =
