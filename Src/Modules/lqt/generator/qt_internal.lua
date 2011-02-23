@@ -23,14 +23,6 @@ for c in pairs(classes) do
 			or c.xarg.fullname=='QUpdateLaterEvent' -- compiles
 			or c.xarg.fullname=='QTextStreamManipulator' -- compiles
 			or c.xarg.fullname=='QtConcurrent::ThreadEngineSemaphore' -- compiles
-			or c.xarg.fullname=='QTextObject' -- private/protected destcrutor
-			or c.xarg.fullname=='QTextCodec' -- private/protected destcrutor
-			or c.xarg.fullname=='QTextBlockGroup' -- private/protected destcrutor
-			or c.xarg.fullname=='QSessionManager' -- private/protected destcrutor
-			or c.xarg.fullname=='QClipboard' -- private/protected destcrutor
-			or c.xarg.fullname=='QWebFrame' -- private/protected destcrutor
-			or c.xarg.fullname=='QWebHistory' -- private/private/protected destcrutor
-			or c.xarg.fullname=='QWebSettings' -- private/protected destcrutor
 			or c.xarg.fullname=='QtConcurrent::ThreadEngineBarrier' -- linker error
 			
 			-- platform specific, TODO
@@ -66,8 +58,11 @@ for c in pairs(classes) do
 			or c.xarg.fullname=='QHashData'        -- not in the docs at all. free_helper is not present during compilation
 			or string.match(c.xarg.fullname, '^QtConcurrent') -- does not make sense anyway, because we should duplicate the lua_State
 			or string.match(c.xarg.fullname, '^QAccessible') -- causes a lot of headaches, and not necessarry anyway (yet)
+			or string.match(c.xarg.fullname, 'Private$') -- should not bind these
 			) then
 		ret1[c] = true
+	else
+		ignore(c.xarg.fullname, "blacklisted", "filter")
 	end
 end
 

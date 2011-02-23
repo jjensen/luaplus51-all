@@ -27,6 +27,10 @@
 int lqtL_qt_metacall (lua_State *, QObject *, QObject *, QMetaObject::Call, const char *, int, void **);
 void lqtL_qobject_custom (lua_State *L);
 
+// custom type handlers
+
+QList<QByteArray> lqtL_getStringList(lua_State *L, int i);
+void lqtL_pushStringList(lua_State *L, const QList<QByteArray> &table);
 
 #endif // __LQT_QT_HPP
 

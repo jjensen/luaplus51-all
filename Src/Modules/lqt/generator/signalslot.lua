@@ -14,7 +14,7 @@ function copy_signals(functions)
 	end
 end
 
-function slots_for_signals(types)
+function slots_for_signals()
 	for sig in pairs(signals) do
 		local args, comma = '(', ''
 		for i, a in ipairs(sig.arguments) do
@@ -22,7 +22,7 @@ function slots_for_signals(types)
 			comma = ', '
 		end
 		args = args .. ')'
-		local pushlines, stack = make_pushlines(sig.arguments, types)
+		local pushlines, stack = make_pushlines(sig.arguments)
 		if pushlines then
 			if not slots['void __slot '..args] then
 				slots['void __slot '..args] = 'void LqtSlotAcceptor::__slot '..args..[[ {
@@ -73,9 +73,9 @@ end
 
 -------------------------------------------------------------------------------
 
-function process(functions, typesystem)
+function process(functions)
 	copy_signals(functions)
-	slots_for_signals(typesystem)
+	slots_for_signals()
 end
 
 function output()
@@ -83,9 +83,9 @@ function output()
 	print_slot_h('#define LQT_SLOT_'..module_name)
 	print_slot_h(output_includes)
 	print_slot_c('#include "'..module_name..'_slot.hpp'..'"\n\n')
-
+	
 	print_slots(slots)
-
+	
 	print_slot_h('#endif')
 end
 

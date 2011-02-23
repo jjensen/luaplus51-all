@@ -70,7 +70,7 @@ function create(class, ret)
 			-- TODO: handle multiple template parameters
 			local copy = deepcopy(class)
 			template_repare(copy, oparams, tparams)
-			copy.xarg.safename = copy.xarg.fullname:gsub('[<*>]', '_')
+			copy.xarg.cname = copy.xarg.fullname:gsub('[<>*]', '_'):gsub('::', '_LQT_')
 			ret[copy] = true
 		else
 			ignore(name, 'template not bound')

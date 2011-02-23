@@ -231,3 +231,26 @@ void lqtL_qobject_custom (lua_State *L) {
     lua_pushcfunction(L, lqtL_connect);
     lua_setfield(L, -2, "connect");
 }
+
+
+QList<QByteArray> lqtL_getStringList(lua_State *L, int i) {
+    QList<QByteArray> ret;
+    int n = lua_objlen(L, i);
+    for (int i=0; i<n; i++) {
+        lua_pushnumber(L, i+1);
+        lua_gettable(L, i);
+        ret[i] = QByteArray(lua_tostring(L, -1));
+        lua_pop(L, 1);
+    }
+    return ret;
+}
+
+void lqtL_pushStringList(lua_State *L, const QList<QByteArray> &table) {
+    const int n = table.size();
+    lua_createtable(L, n, 0);
+    for (int i=0; i<n; i++) {
+        lua_pushnumber(L, i+1);
+        lua_pushstring(L, table[i].data());
+        lua_settable(L, -3);
+    }
+}

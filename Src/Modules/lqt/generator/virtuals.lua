@@ -7,7 +7,7 @@ function fill_virtuals(classes)
 	for c in pairs(classes) do
 		byname[c.xarg.fullname] = c
 	end
-	local function get_virtuals(c)
+	local function get_virtuals(c, includePrivate)
 		local ret = {}
 		for _, f in ipairs(c) do
 			if f.label=='Function' and f.xarg.virtual=='1' then
@@ -18,7 +18,7 @@ function fill_virtuals(classes)
 		for b in string.gmatch(c.xarg.bases or '', '([^;]+);') do
 			local base = byname[b]
 			if type(base)=='table' then
-				local bv = get_virtuals(base)
+				local bv = get_virtuals(base, true)
 				for n, f in pairs(bv) do
 					if not ret[n] then ret[n] = f end
 				end
@@ -26,7 +26,7 @@ function fill_virtuals(classes)
 		end
 		for _, f in ipairs(c) do
 			if f.label=='Function'
-				and f.xarg.access~='private'
+				and (includePrivate or f.xarg.access~='private')
 				and (ret[string.match(f.xarg.name, '~') or f.xarg.name]) then
 				f.xarg.virtual = '1'
 				local n = string.match(f.xarg.name, '~')or f.xarg.name
@@ -45,19 +45,19 @@ end
 -- Returns nil if a parameter or return type is of unknown/ignored type. Normal
 -- virtual methods call original virtual method if no corresponding Lua function is
 -- found, pure virtual (abstract) methods throw Lua error.
-function virtual_overload(v, types)
+function virtual_overload(v)
 	local ret = ''
 	if v.virtual_overload then return v end
 	-- make return type
-	if v.return_type and not types[v.return_type] then
+	if v.return_type and not typesystem[v.return_type] then
 		ignore(v.xarg.fullname, 'unknown return type', v.return_type)
 		return nil, 'return: '..v.return_type
 	end
 	local rget, rn, ret_as = '', 0
-	if v.return_type then rget, rn, ret_as = types[v.return_type].get'oldtop+2' end
+	if v.return_type then rget, rn, ret_as = typesystem[v.return_type].get'oldtop+2' end
 	local retget = ''
 	if v.return_type then
-		local atest, an = types[v.return_type].test('oldtop+2')
+		local atest, an = typesystem[v.return_type].test('oldtop+2')
 		retget = [[if (!(]]..atest..[[)) {
         luaL_error(L, "Unexpected virtual method return type: %s; expecting %s\nin: %s",
           luaL_typename(L,oldtop+2), "]]..v.return_type..[[", lqtL_source(L,oldtop+1));
@@ -67,7 +67,7 @@ function virtual_overload(v, types)
 	end
 	retget = retget .. 'lua_settop(L, oldtop);\n      return' .. (v.return_type and ' ret' or '')
 	-- make argument push
-	local pushlines, stack = make_pushlines(v.arguments, types)
+	local pushlines, stack = make_pushlines(v.arguments)
 	if not pushlines then
 		ignore(v.xarg.fullname, 'unknown argument type', stack)
 		return nil, 'argument: '..stack
@@ -101,7 +101,7 @@ function virtual_overload(v, types)
     } else {
       if (lqtL_is_super(L, lua_gettop(L))) {
         lua_settop(L, oldtop);
-        ]]..fallback..[[
+        ]]..fallback..[[ 
       } else
         lua_error(L);
     }
@@ -115,12 +115,12 @@ end
 
 
 
-function fill_virtual_overloads(classes, types)
+function fill_virtual_overloads(classes)
 	for c in pairs(classes) do
 		if c.virtuals then
 			for i, v in pairs(c.virtuals) do
 				if v.xarg.access~='private' then
-					local vret, err = virtual_overload(v, types)
+					local vret, err = virtual_overload(v)
 					if not vret and v.xarg.abstract then
 						-- cannot create instance without implementation of an abstract method
 						c.abstract = true
@@ -133,8 +133,8 @@ end
 
 
 
-function fill_shell_class(c, types)
-	local shellname = 'lqt_shell_'..string.gsub(c.xarg.safename, '::', '_LQT_')
+function fill_shell_class(c)
+	local shellname = 'lqt_shell_'..c.xarg.cname
 	local shell = 'class LQT_EXPORT ' .. shellname .. ' : public ' .. c.xarg.fullname .. ' {\npublic:\n'
 	shell = shell .. '  lua_State *L;\n'
 	for _, constr in ipairs(c.constructors) do
@@ -187,10 +187,10 @@ function fill_shell_class(c, types)
 end
 
 
-function fill_shell_classes(classes, types)
+function fill_shell_classes(classes)
 	for c in pairs(classes) do
 		if c.shell then
-			local nc = fill_shell_class(c, types)
+			local nc = fill_shell_class(c)
 			if not nc then
 				 -- FIXME: useless, but may change
 				ignore(c.xarg.fullname, 'failed to generate shell class')
@@ -203,11 +203,9 @@ end
 ----------------------------------------------------------------------
 
 function print_shell_classes(classes)
-	local fhead = nil
 	for c in pairs(classes) do
-		if fhead then fhead:close() end
-		local n = string.gsub(c.xarg.safename, '::', '_LQT_')
-		fhead = assert(io.open(output_path..module_name..'_head_'..n..'.hpp', 'w'))
+		local n = c.xarg.cname
+		local fhead = assert(io.open(output_path..module_name..'_head_'..n..'.hpp', 'w'))
 		local print_head = function(...)
 			fhead:write(...)
 			fhead:write'\n'
@@ -225,9 +223,11 @@ function print_shell_classes(classes)
 				dump(c)
 			end
 		end
-		print_head('#endif // LQT_HEAD_'..n)
+		
+		print_head('extern "C" LQT_EXPORT int luaopen_'..n..' (lua_State *);')
+		print_head('\n\n#endif // LQT_HEAD_'..n)
+		fhead:close()
 	end
-	if fhead then fhead:close() end
 	return classes
 end
 
@@ -235,7 +235,7 @@ function print_virtual_overloads(classes)
 	for c in pairs(classes) do
 		if c.shell then
 			local vo = ''
-			local shellname = 'lqt_shell_'..string.gsub(c.xarg.safename, '::', '_LQT_')
+			local shellname = 'lqt_shell_'..c.xarg.cname
 			for _,v in pairs(c.virtuals) do
 				if v.virtual_overload then
 					vo = vo .. string.gsub(v.virtual_overload, ';;', shellname..'::', 1)
