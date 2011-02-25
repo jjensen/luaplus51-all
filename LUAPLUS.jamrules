@@ -11,6 +11,8 @@ LUAPLUS_OUTPUT_DIRECTORY ?= $(LUAPLUS)/bin.$(COMPILER.$(PLATFORM)).$(PLATFORM) ;
 
 IncludeModule copyfile ;
 
+C.CompileOptions outputastree ;
+
 rule LuaPlusDefines TARGET
 {
 	if $(OS) = LINUX
