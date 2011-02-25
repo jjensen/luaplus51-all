@@ -1,6 +1,7 @@
 {
 
 local SRCS =
+		c.lua
 		csv.lua
 		ini.lua
 ;
