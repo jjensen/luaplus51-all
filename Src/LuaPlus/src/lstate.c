@@ -184,7 +184,11 @@ static void close_state (lua_State *L) {
 
 
 lua_State *luaE_newthread (lua_State *L) {
-  lua_State *L1 = tostate(luaM_malloc(L, state_size(lua_State)));
+  lua_State *L1;
+#if LUA_MEMORY_STATS
+  luaM_setname(L, "lua_State");
+#endif /* LUA_MEMORY_STATS */
+  L1 = tostate(luaM_malloc(L, state_size(lua_State)));
   luaC_link(L, obj2gco(L1), LUA_TTHREAD);
   preinit_state(L1, G(L));
   stack_init(L1, L);  /* init stack */
