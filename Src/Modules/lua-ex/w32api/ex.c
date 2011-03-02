@@ -605,6 +605,16 @@ static void newfenv (lua_State *L, lua_CFunction cls) {
   lua_setfield(L, -2, "__close");
 }
 
+static int ex_stdin_binary(lua_State *L) {
+  _setmode(fileno(stdin), O_BINARY);
+  return 0;
+}
+
+static int ex_stdout_binary(lua_State *L) {
+  _setmode(fileno(stdout), O_BINARY);
+  return 0;
+}
+
 extern int luaopen_windows_hkey(lua_State *L);
 
 LUAMODULE_API int luaopen_ex_core(lua_State *L)
@@ -634,6 +644,8 @@ LUAMODULE_API int luaopen_ex_core(lua_State *L)
     {"copyfile",   ex_copyfile},
     {"movefile",   ex_movefile},
     {"touch",   ex_touch},
+    {"stdin_binary", ex_stdin_binary},
+    {"stdout_binary", ex_stdout_binary},
     /* process control */
     {"sleep",      ex_sleep},
     {"spawn",      ex_spawn},
