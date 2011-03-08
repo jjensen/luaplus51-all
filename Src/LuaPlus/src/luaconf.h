@@ -59,6 +59,10 @@
 #define LUA_EXT_CONTINUE 1
 #endif /* LUA_EXT_CONTINUE */
 
+#ifndef LUA_EXT_RESUMABLEVM
+#define LUA_EXT_RESUMABLEVM 0
+#endif /* LUA_EXT_RESUMABLEVM */
+
 /* Still has bugs... */
 #ifndef LUA_REFCOUNT
 #define LUA_REFCOUNT 0
@@ -714,8 +718,13 @@ union luai_Cast { double l_d; long l_l; };
 #if !defined(LUA_FORCE_USE_LONGJMP)  &&  defined(__cplusplus)
 /* C++ exceptions */
 #define LUAI_THROW(L,c)	throw(c)
+#if LUA_EXT_RESUMABLEVM
+#define LUAI_TRY(L,c,a)	try { a } catch(...) \
+	{ if ((c)->status == 0) (c)->status = LUA_ERREXC; }
+#else
 #define LUAI_TRY(L,c,a)	try { a } catch(...) \
 	{ if ((c)->status == 0) (c)->status = -1; }
+#endif /* LUA_EXT_RESUMABLEVM */
 #define luai_jmpbuf	int  /* dummy variable */
 
 #elif defined(LUA_USE_ULONGJMP)

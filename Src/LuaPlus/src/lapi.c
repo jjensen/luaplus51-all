@@ -337,7 +337,13 @@ LUA_API int lua_equal (lua_State *L, int index1, int index2) {
   lua_lock(L);  /* may call tag method */
   o1 = index2adr(L, index1);
   o2 = index2adr(L, index2);
+#if LUA_EXT_RESUMABLEVM
+  notresumable(L,
+    i = (o1 == luaO_nilobject || o2 == luaO_nilobject) ? 0 : equalobj(L, o1, o2);
+  )
+#else
   i = (o1 == luaO_nilobject || o2 == luaO_nilobject) ? 0 : equalobj(L, o1, o2);
+#endif /* LUA_EXT_RESUMABLEVM */
   lua_unlock(L);
   return i;
 }
@@ -349,8 +355,15 @@ LUA_API int lua_lessthan (lua_State *L, int index1, int index2) {
   lua_lock(L);  /* may call tag method */
   o1 = index2adr(L, index1);
   o2 = index2adr(L, index2);
+#if LUA_EXT_RESUMABLEVM
+  notresumable(L,
+    i = (o1 == luaO_nilobject || o2 == luaO_nilobject) ? 0
+         : luaV_lessthan(L, o1, o2);
+  )
+#else
   i = (o1 == luaO_nilobject || o2 == luaO_nilobject) ? 0
        : luaV_lessthan(L, o1, o2);
+#endif /* LUA_EXT_RESUMABLEVM */
   lua_unlock(L);
   return i;
 }
@@ -599,7 +612,13 @@ LUA_API void lua_gettable (lua_State *L, int idx) {
   lua_lock(L);
   t = index2adr(L, idx);
   api_checkvalidindex(L, t);
+#if LUA_EXT_RESUMABLEVM
+  notresumable(L,
+    luaV_gettable(L, t, L->top - 1, L->top - 1);
+  )
+#else
   luaV_gettable(L, t, L->top - 1, L->top - 1);
+#endif /* LUA_EXT_RESUMABLEVM */
   lua_unlock(L);
 }
 
@@ -616,7 +635,13 @@ LUA_API void lua_getfield (lua_State *L, int idx, const char *k) {
   setnilvalue(&key);
 #else
   setsvalue(L, &key, luaS_new(L, k));
+#if LUA_EXT_RESUMABLEVM
+  notresumable(L,
+    luaV_gettable(L, t, &key, L->top);
+  )
+#else
   luaV_gettable(L, t, &key, L->top);
+#endif /* LUA_EXT_RESUMABLEVM */
 #endif /* LUA_REFCOUNT */
   api_incr_top(L);
   lua_unlock(L);
@@ -717,7 +742,13 @@ LUA_API void lua_settable (lua_State *L, int idx) {
   api_checknelems(L, 2);
   t = index2adr(L, idx);
   api_checkvalidindex(L, t);
+#if LUA_EXT_RESUMABLEVM
+  notresumable(L,
+    luaV_settable(L, t, L->top - 2, L->top - 1);
+  )
+#else
   luaV_settable(L, t, L->top - 2, L->top - 1);
+#endif /* LUA_EXT_RESUMABLEVM */
   L->top -= 2;  /* pop index and value */
 #if LUA_REFCOUNT
   luarc_cleanvalue(L->top);
@@ -739,7 +770,13 @@ LUA_API void lua_setfield (lua_State *L, int idx, const char *k) {
 #else
   setsvalue(L, &key, luaS_new(L, k));
 #endif /* LUA_REFCOUNT */
+#if LUA_EXT_RESUMABLEVM
+  notresumable(L,
+    luaV_settable(L, t, &key, L->top - 1);
+  )
+#else
   luaV_settable(L, t, &key, L->top - 1);
+#endif /* LUA_EXT_RESUMABLEVM */
   L->top--;  /* pop value */
 #if LUA_REFCOUNT
   setnilvalue(&key);
@@ -899,13 +936,40 @@ LUA_API int lua_setfenv (lua_State *L, int idx) {
 */
 
 
+#if !LUA_EXT_RESUMABLEVM
 #define adjustresults(L,nres) \
     { if (nres == LUA_MULTRET && L->top >= L->ci->top) L->ci->top = L->top; }
-
+#endif /* !LUA_EXT_RESUMABLEVM */
 
 #define checkresults(L,na,nr) \
      api_check(L, (nr) == LUA_MULTRET || (L->ci->top - L->top >= (nr) - (na)))
 
+
+#if LUA_EXT_RESUMABLEVM
+
+LUA_API void *lua_vcontext (lua_State *L) {
+  return L->ctx;
+}
+
+
+LUA_API void lua_vcall (lua_State *L, int nargs, int nresults, void *ctx) {
+  int flags;
+  lua_lock(L);
+  api_checknelems(L, nargs+1);
+  checkresults(L, nargs, nresults);
+  if (ctx == NULL)
+    flags = LUA_NOYIELD | LUA_NOVPCALL;
+  else {
+    lua_assert(iscfunction(L->ci->func));
+    L->ctx = ctx;
+    flags = 0;
+  }
+  luaD_call(L, L->top - (nargs+1), nresults, flags);
+  if (L->top > L->ci->top) L->ci->top = L->top;
+  lua_unlock(L);
+}
+
+#else
 
 LUA_API void lua_call (lua_State *L, int nargs, int nresults) {
   StkId func;
@@ -918,6 +982,7 @@ LUA_API void lua_call (lua_State *L, int nargs, int nresults) {
   lua_unlock(L);
 }
 
+#endif /* LUA_EXT_RESUMABLEVM */
 
 
 /*
@@ -928,6 +993,44 @@ struct CallS {  /* data to `f_call' */
   int nresults;
 };
 
+
+#if LUA_EXT_RESUMABLEVM
+
+static int f_call (lua_State *L, void *ud) {
+  struct CallS *c = cast(struct CallS *, ud);
+  luaD_call(L, c->func, c->nresults, LUA_NOYIELD);
+  return 0;
+}
+
+
+LUA_API int lua_vpcall (lua_State *L, int nargs, int nresults,
+                        int errfunc, void *ctx) {
+  int status;
+  lua_lock(L);
+  api_checknelems(L, nargs+1);
+  checkresults(L, nargs, nresults);
+  if (errfunc < 0) errfunc = (L->top - L->base) + errfunc + 1;
+  api_check(L, L->base + errfunc <= L->top - (nargs+1));
+  if (ctx == NULL || novpcall(L)) {  /* use classic pcall */
+    struct CallS c;
+    c.func = L->top - (nargs+1);  /* function to be called */
+    c.nresults = nresults;
+    status = luaD_pcall(L, f_call, &c, savestack(L, c.func),
+                        errfunc, ~LUA_NOVPCALL);
+  }
+  else {  /* else use vpcall */
+    luaD_catch(L, errfunc);
+    L->ctx = ctx;
+    luaD_call(L, L->top - (nargs+1), nresults, 0);
+    L->ci->errfunc = 0;
+    status = 0;
+  }
+  if (L->top > L->ci->top) L->ci->top = L->top;
+  lua_unlock(L);
+  return status;
+}
+
+#else
 
 static void f_call (lua_State *L, void *ud) {
   struct CallS *c = cast(struct CallS *, ud);
@@ -958,6 +1061,7 @@ LUA_API int lua_pcall (lua_State *L, int nargs, int nresults, int errfunc) {
   return status;
 }
 
+#endif /* LUA_EXT_RESUMABLEVM */
 
 /*
 ** Execute a protected C call.
@@ -968,7 +1072,11 @@ struct CCallS {  /* data to `f_Ccall' */
 };
 
 
+#if LUA_EXT_RESUMABLEVM
+static int f_Ccall (lua_State *L, void *ud) {
+#else
 static void f_Ccall (lua_State *L, void *ud) {
+#endif /* LUA_EXT_RESUMABLEVM */
   struct CCallS *c = cast(struct CCallS *, ud);
   Closure *cl;
   cl = luaF_newCclosure(L, 0, getcurrenv(L));
@@ -977,7 +1085,12 @@ static void f_Ccall (lua_State *L, void *ud) {
   api_incr_top(L);
   setpvalue(L->top, c->ud);  /* push only argument */
   api_incr_top(L);
+#if LUA_EXT_RESUMABLEVM
+  luaD_call(L, L->top - 2, 0, LUA_NOYIELD);
+  return 0;
+#else
   luaD_call(L, L->top - 2, 0);
+#endif /* LUA_EXT_RESUMABLEVM */
 }
 
 
@@ -987,7 +1100,11 @@ LUA_API int lua_cpcall (lua_State *L, lua_CFunction func, void *ud) {
   lua_lock(L);
   c.func = func;
   c.ud = ud;
+#if LUA_EXT_RESUMABLEVM
+  status = luaD_pcall(L, f_Ccall, &c, savestack(L, L->top), 0, ~LUA_NOVPCALL);
+#else
   status = luaD_pcall(L, f_Ccall, &c, savestack(L, L->top), 0);
+#endif /* LUA_EXT_RESUMABLEVM */
   lua_unlock(L);
   return status;
 }
@@ -1119,7 +1236,11 @@ LUA_API int lua_gc (lua_State *L, int what, int data) {
 LUA_API int lua_error (lua_State *L) {
   lua_lock(L);
   api_checknelems(L, 1);
+#if LUA_EXT_RESUMABLEVM
+  luaD_throw(L, LUA_ERRRUN);
+#else
   luaG_errormsg(L);
+#endif /* LUA_EXT_RESUMABLEVM */
   lua_unlock(L);
   return 0;  /* to avoid warnings */
 }
@@ -1154,7 +1275,13 @@ LUA_API void lua_concat (lua_State *L, int n) {
   api_checknelems(L, n);
   if (n >= 2) {
     luaC_checkGC(L);
+#if LUA_EXT_RESUMABLEVM
+    notresumable(L, 
+      luaV_concat(L, n, cast_int(L->top - L->base) - 1);
+    )
+#else
     luaV_concat(L, n, cast_int(L->top - L->base) - 1);
+#endif /* LUA_EXT_RESUMABLEVM */
     L->top -= (n-1);
   }
   else if (n == 0) {  /* push empty string */

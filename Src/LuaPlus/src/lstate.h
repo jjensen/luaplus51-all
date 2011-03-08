@@ -48,10 +48,19 @@ typedef struct stringtable {
 typedef struct CallInfo {
   StkId base;  /* base for this function */
   StkId func;  /* function index in the stack */
+#if LUA_EXT_RESUMABLEVM
+  StkId top;  /* top for this function */
+  void *ctx;  /* saved pc for Lua functions or vcontext for C functions */
+  int tailcalls;  /* number of tail calls lost under this entry */
+  short nresults;  /* expected number of results from this function */
+  lu_byte hookmask;  /* restore on catch: hookmask */
+  lu_byte errfunc;  /* 0: no catch, 1: catch, >=2: catch with errfunc */
+#else
   StkId	top;  /* top for this function */
   const Instruction *savedpc;
   int nresults;  /* expected number of results from this function */
   int tailcalls;  /* number of tail calls lost under this entry */
+#endif /* LUA_EXT_RESUMABLEVM */
 } CallInfo;
 
 
@@ -107,15 +116,27 @@ typedef struct global_State {
 struct lua_State {
   CommonHeader;
   lu_byte status;
+#if LUA_EXT_RESUMABLEVM
+  lu_byte hookmask;
+  int stacksize;
+#endif /* LUA_EXT_RESUMABLEVM */
   StkId top;  /* first free slot in the stack */
   StkId base;  /* base of current function */
   global_State *l_G;
   CallInfo *ci;  /* call info for current function */
+#if LUA_EXT_RESUMABLEVM
+  void *ctx;  /* ctx for current function */
+#else
   const Instruction *savedpc;  /* `savedpc' of current function */
+#endif /* LUA_EXT_RESUMABLEVM */
   StkId stack_last;  /* last free slot in the stack */
   StkId stack;  /* stack base */
   CallInfo *end_ci;  /* points after end of ci array*/
   CallInfo *base_ci;  /* array of CallInfo's */
+#if LUA_EXT_RESUMABLEVM
+  int size_ci;  /* size of array `base_ci' */
+  unsigned short nCcalls;  /* number of nested C calls + callflags */
+#else
   int stacksize;
   int size_ci;  /* size of array `base_ci' */
   unsigned short nCcalls;  /* number of nested C calls */
@@ -123,6 +144,7 @@ struct lua_State {
   lu_byte hookmask;
   lu_byte allowhook;
   int basehookcount;
+#endif /* LUA_EXT_RESUMABLEVM */
   int hookcount;
   lua_Hook hook;
   TValue l_gt;  /* table of globals */
@@ -130,7 +152,11 @@ struct lua_State {
   GCObject *openupval;  /* list of open upvalues in this stack */
   GCObject *gclist;
   struct lua_longjmp *errorJmp;  /* current error recover point */
+#if LUA_EXT_RESUMABLEVM
+  int basehookcount;
+#else
   ptrdiff_t errfunc;  /* current error handling function (stack index) */
+#endif /* LUA_EXT_RESUMABLEVM */
 #if LUA_MEMORY_STATS
 #ifdef _DEBUG
   const char* allocName;

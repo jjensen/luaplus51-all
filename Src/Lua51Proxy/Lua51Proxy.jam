@@ -114,6 +114,10 @@ if $(MSVCNT) {
 			lua_touserdata
 			lua_type
 			lua_typename
+			lua_vcall
+			lua_vcontext
+			lua_vpcall
+			lua_vyield
 			lua_xmove
 			lua_yield
 			luaopen_base

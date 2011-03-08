@@ -522,9 +522,13 @@ static void GCTM (lua_State *L) {
   makewhite(g, o);
   tm = fasttm(L, udata->uv.metatable, TM_GC);
   if (tm != NULL) {
+#if !LUA_EXT_RESUMABLEVM
     lu_byte oldah = L->allowhook;
+#endif /* LUA_EXT_RESUMABLEVM */
     lu_mem oldt = g->GCthreshold;
+#if !LUA_EXT_RESUMABLEVM
     L->allowhook = 0;  /* stop debug hooks during GC tag method */
+#endif /* LUA_EXT_RESUMABLEVM */
     g->GCthreshold = 2*g->totalbytes;  /* avoid GC steps */
 #if LUA_REFCOUNT
     /* We could be in the middle of a stack set, so call the __gc metamethod on
@@ -545,9 +549,15 @@ static void GCTM (lua_State *L) {
     setobj2s(L, L->top, tm);
     setuvalue(L, L->top+1, udata);
     L->top += 2;
+#if LUA_EXT_RESUMABLEVM
+    luaD_call(L, L->top - 2, 0, LUA_NOYIELD | LUA_NOVPCALL | LUA_NOHOOKS);
+#else
     luaD_call(L, L->top - 2, 0);
+#endif /* LUA_EXT_RESUMABLEVM */
 #endif /* LUA_REFCOUNT */
+#if !LUA_EXT_RESUMABLEVM
     L->allowhook = oldah;  /* restore hooks */
+#endif /* LUA_EXT_RESUMABLEVM */
     g->GCthreshold = oldt;  /* restore threshold */
   }
 }
