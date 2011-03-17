@@ -136,7 +136,15 @@ static int getfield (lua_State *L, const char *key, int d) {
 
 static int os_date (lua_State *L) {
   const char *s = luaL_optstring(L, 1, "%c");
+#if LNUM_PATCH
+#ifdef LNUM_FLOAT
+  time_t t = luaL_opt(L, (time_t)luaL_checkinteger, 2, time(NULL));
+#else
   time_t t = luaL_opt(L, (time_t)luaL_checknumber, 2, time(NULL));
+#endif
+#else
+  time_t t = luaL_opt(L, (time_t)luaL_checknumber, 2, time(NULL));
+#endif /* LNUM_PATCH */
   struct tm *stm;
   if (*s == '!') {  /* UTC? */
     stm = gmtime(&t);
@@ -199,15 +207,40 @@ static int os_time (lua_State *L) {
   }
   if (t == (time_t)(-1))
     lua_pushnil(L);
+#if LNUM_PATCH
+  else {
+     /* On float systems the pushed value must be an integer, NOT a number.
+      * Otherwise, accuracy is lost in the time_t->float conversion.
+      */
+#ifdef LNUM_FLOAT
+     lua_pushinteger(L, (lua_Integer) t);
+#else
+     lua_pushnumber(L, (lua_Number) t);
+#endif
+     }
+#else
   else
     lua_pushnumber(L, (lua_Number)t);
+#endif /* LNUM_PATCH */
   return 1;
 }
 
 
 static int os_difftime (lua_State *L) {
+#if LNUM_PATCH
+#ifdef LNUM_FLOAT
+  lua_Integer i= (lua_Integer)
+    difftime( (time_t)(luaL_checkinteger(L, 1)),
+              (time_t)(luaL_optinteger(L, 2, 0)));
+  lua_pushinteger(L, i);
+#else
   lua_pushnumber(L, difftime((time_t)(luaL_checknumber(L, 1)),
                              (time_t)(luaL_optnumber(L, 2, 0))));
+#endif
+#else
+  lua_pushnumber(L, difftime((time_t)(luaL_checknumber(L, 1)),
+                             (time_t)(luaL_optnumber(L, 2, 0))));
+#endif /* LNUM_PATCH */
   return 1;
 }
 

@@ -2914,7 +2914,7 @@ int __cdecl main(int argc, char* argv[])
 //		char s[80];
 //		sprintf(s, "%d", i);
 //		lua_pushstring(*state, s);
-		lua_pushnumber(*state, i);
+		lua_pushnumber(*state, (lua_Number)i);
 		lua_call(*state, 1, 1);
 		lua_pop(*state, 1);
 	}

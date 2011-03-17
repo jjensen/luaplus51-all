@@ -4,7 +4,7 @@ SubDir LUAPLUS Tools Lua LuaC ;
 
 local SRCS =
 		luac.c
-		print.c
+		../../../Src/LuaPlus/src/print.c
 ;
 
 rule LuaCApplication TARGET

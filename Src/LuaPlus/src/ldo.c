@@ -374,10 +374,17 @@ static StkId adjust_varargs (lua_State *L, Proto *p, int actual) {
     lua_assert(p->is_vararg & VARARG_HASARG);
     luaC_checkGC(L);
     htab = luaH_new(L, nvar, 1);  /* create `arg' table */
+#if LNUM_PATCH
+    for (i=0; i<nvar; i++)  /* put extra arguments into `arg' table */
+      setobj2n(L, luaH_setint(L, htab, i+1), L->top - nvar + i);
+    /* store counter in field `n' */
+    setivalue(luaH_setstr(L, htab, luaS_newliteral(L, "n")), nvar);
+#else
     for (i=0; i<nvar; i++)  /* put extra arguments into `arg' table */
       setobj2n(L, luaH_setnum(L, htab, i+1), L->top - nvar + i);
     /* store counter in field `n' */
     setnvalue(luaH_setstr(L, htab, luaS_newliteral(L, "n")), cast_num(nvar));
+#endif /* LNUM_PATCH */
   }
 #endif
   /* move fixed parameters to final position */

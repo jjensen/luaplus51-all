@@ -244,12 +244,8 @@ LUAPLUS_INLINE LuaStackObject LuaStackObject::CreateTable( const char* name, int
 **/
 LUAPLUS_INLINE LuaStackObject LuaStackObject::CreateTable(int index, int narray, int lnhash )
 {
-	(void)narray;
-	(void)lnhash;
-
-//jj		lua_newtablesize(L, narray, lnhash);			// T
-	lua_newtable( GetCState() );								// T
-	lua_pushnumber( GetCState(), index );						// T name
+	lua_createtable( GetCState(), narray, lnhash );					// T
+	lua_pushnumber( GetCState(), (lua_Number)index );				// T name
 	lua_pushvalue( GetCState(), lua_gettop( GetCState() ) - 1 );	// T name T
 	lua_settable( GetCState(), m_stackIndex );
 
@@ -275,7 +271,7 @@ LUAPLUS_INLINE void LuaStackObject::SetNil( const char* name )
 **/
 LUAPLUS_INLINE void LuaStackObject::SetNil( int index )
 {
-	lua_pushnumber( GetCState(), index );
+	lua_pushnumber( GetCState(), (lua_Number)index );
 	lua_pushnil( GetCState() );
 	lua_settable( GetCState(), m_stackIndex );
 }
@@ -301,7 +297,7 @@ LUAPLUS_INLINE void LuaStackObject::SetBoolean( const char* name, bool value )
 **/
 LUAPLUS_INLINE void LuaStackObject::SetBoolean( int index, bool value )
 {
-	lua_pushnumber( GetCState(), index );
+	lua_pushnumber( GetCState(), (lua_Number)index );
 	lua_pushboolean( GetCState(), value );
 	lua_settable( GetCState(), m_stackIndex );
 }
@@ -315,7 +311,7 @@ LUAPLUS_INLINE void LuaStackObject::SetBoolean( int index, bool value )
 LUAPLUS_INLINE void LuaStackObject::SetInteger( const char* name, int value )
 {
 	lua_pushstring( GetCState(), name );
-	lua_pushnumber( GetCState(), value );
+	lua_pushnumber( GetCState(), (lua_Number)value );
 	lua_settable( GetCState(), m_stackIndex );
 }
 
@@ -327,8 +323,8 @@ LUAPLUS_INLINE void LuaStackObject::SetInteger( const char* name, int value )
 **/
 LUAPLUS_INLINE void LuaStackObject::SetInteger( int index, int value )
 {
-	lua_pushnumber( GetCState(), index );
-	lua_pushnumber( GetCState(), value );
+	lua_pushnumber( GetCState(), (lua_Number)index );
+	lua_pushnumber( GetCState(), (lua_Number)value );
 	lua_settable( GetCState(), m_stackIndex );
 }
 
@@ -353,8 +349,8 @@ LUAPLUS_INLINE void LuaStackObject::SetNumber( const char* name, lua_Number valu
 **/
 LUAPLUS_INLINE void LuaStackObject::SetNumber( int index, lua_Number value )
 {
-	lua_pushnumber( GetCState(), index );
-	lua_pushnumber( GetCState(), value );
+	lua_pushnumber( GetCState(), (lua_Number)index );
+	lua_pushnumber( GetCState(), (lua_Number)value );
 	lua_settable( GetCState(), m_stackIndex );
 }
 
@@ -379,7 +375,7 @@ LUAPLUS_INLINE void LuaStackObject::SetString( const char* name, const char* val
 **/
 LUAPLUS_INLINE void LuaStackObject::SetString( int index, const char* value )
 {
-	lua_pushnumber( GetCState(), index );
+	lua_pushnumber( GetCState(), (lua_Number)index );
 	lua_pushstring( GetCState(), value );
 	lua_settable( GetCState(), m_stackIndex );
 }
@@ -408,7 +404,7 @@ LUAPLUS_INLINE void LuaStackObject::SetWString( const char* name, const lua_WCha
 #if LUA_WIDESTRING
 LUAPLUS_INLINE void LuaStackObject::SetWString( int index, const lua_WChar* value )
 {
-	lua_pushnumber( GetCState(), index );
+	lua_pushnumber( GetCState(), (lua_Number)index );
 	lua_pushwstring( GetCState(), value );
 	lua_settable( GetCState(), m_stackIndex );
 }
@@ -435,7 +431,7 @@ LUAPLUS_INLINE void LuaStackObject::SetUserData( const char* name, void* value )
 **/
 LUAPLUS_INLINE void LuaStackObject::SetUserData( int index, void* value )
 {
-	lua_pushnumber( GetCState(), index );
+	lua_pushnumber( GetCState(), (lua_Number)index );
 	(*(void **)(lua_newuserdata(GetCState(), sizeof(void *))) = (value));
 	lua_settable( GetCState(), m_stackIndex );
 }
@@ -448,7 +444,7 @@ LUAPLUS_INLINE void LuaStackObject::SetUserData( int index, void* value )
 **/
 LUAPLUS_INLINE void LuaStackObject::SetLightUserData( int index, void* value )
 {
-	lua_pushnumber( GetCState(), index );
+	lua_pushnumber( GetCState(), (lua_Number)index );
 	lua_pushlightuserdata( GetCState(), value );
 	lua_settable( GetCState(), m_stackIndex );
 }
@@ -487,7 +483,7 @@ LUAPLUS_INLINE void LuaStackObject::SetObject( const char* name, LuaStackObject&
 **/
 LUAPLUS_INLINE void LuaStackObject::SetObject( int index, LuaStackObject& value )
 {
-	lua_pushnumber( GetCState(), index );
+	lua_pushnumber( GetCState(), (lua_Number)index );
 	lua_pushvalue( GetCState(), value );
 	lua_settable( GetCState(), m_stackIndex );
 }

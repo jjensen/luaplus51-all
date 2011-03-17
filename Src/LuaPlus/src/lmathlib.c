@@ -16,114 +16,301 @@
 #include "lauxlib.h"
 #include "lualib.h"
 
+#if LNUM_PATCH
+/* 'luai_vectpow()' as a replacement for 'cpow()'. Defined in the header; we
+ * don't intrude the code libs internal functions.
+ */
+#ifdef LNUM_COMPLEX
+# include "lnum.h"    
+#endif
+#endif /* LNUM_PATCH */
+
 NAMESPACE_LUA_BEGIN
 
 #undef PI
+#if LNUM_PATCH
+#ifdef LNUM_FLOAT
+# define PI (3.14159265358979323846F)
+#elif defined(M_PI)
+# define PI M_PI
+#else
+# define PI (3.14159265358979323846264338327950288)
+#endif
+#define RADIANS_PER_DEGREE (PI/180)
+
+#undef HUGE
+#ifdef LNUM_FLOAT
+# define HUGE HUGE_VALF
+#elif defined(LNUM_LDOUBLE)
+# define HUGE HUGE_VALL
+#else
+# define HUGE HUGE_VAL
+#endif
+#else
 #define PI (3.14159265358979323846)
 #define RADIANS_PER_DEGREE (PI/180.0)
-
+#endif /* LNUM_PATCH */
 
 
 static int math_abs (lua_State *L) {
+#if LNUM_PATCH
+#ifdef LNUM_COMPLEX
+  lua_pushnumber(L, _LF(cabs) (luaL_checkcomplex(L,1)));
+#else
+  lua_pushnumber(L, _LF(fabs) (luaL_checknumber(L, 1)));
+#endif
+#else
   lua_pushnumber(L, fabs(luaL_checknumber(L, 1)));
+#endif /* LNUM_PATCH */
   return 1;
 }
 
 static int math_sin (lua_State *L) {
+#if LNUM_PATCH
+#ifdef LNUM_COMPLEX
+  lua_pushcomplex(L, _LF(csin) (luaL_checkcomplex(L,1)));
+#else
+  lua_pushnumber(L, _LF(sin) (luaL_checknumber(L, 1)));
+#endif
+#else
   lua_pushnumber(L, sin(luaL_checknumber(L, 1)));
+#endif /* LNUM_PATCH */
   return 1;
 }
 
 static int math_sinh (lua_State *L) {
+#if LNUM_PATCH
+#ifdef LNUM_COMPLEX
+  lua_pushcomplex(L, _LF(csinh) (luaL_checkcomplex(L,1)));
+#else
+  lua_pushnumber(L, _LF(sinh) (luaL_checknumber(L, 1)));
+#endif
+#else
   lua_pushnumber(L, sinh(luaL_checknumber(L, 1)));
+#endif /* LNUM_PATCH */
   return 1;
 }
 
 static int math_cos (lua_State *L) {
+#if LNUM_PATCH
+#ifdef LNUM_COMPLEX
+  lua_pushcomplex(L, _LF(ccos) (luaL_checkcomplex(L,1)));
+#else
+  lua_pushnumber(L, _LF(cos) (luaL_checknumber(L, 1)));
+#endif
+#else
   lua_pushnumber(L, cos(luaL_checknumber(L, 1)));
+#endif /* LNUM_PATCH */
   return 1;
 }
 
 static int math_cosh (lua_State *L) {
+#if LNUM_PATCH
+#ifdef LNUM_COMPLEX
+  lua_pushcomplex(L, _LF(ccosh) (luaL_checkcomplex(L,1)));
+#else
+  lua_pushnumber(L, _LF(cosh) (luaL_checknumber(L, 1)));
+#endif
+#else
   lua_pushnumber(L, cosh(luaL_checknumber(L, 1)));
+#endif /* LNUM_PATCH */
   return 1;
 }
 
 static int math_tan (lua_State *L) {
+#if LNUM_PATCH
+#ifdef LNUM_COMPLEX
+  lua_pushcomplex(L, _LF(ctan) (luaL_checkcomplex(L,1)));
+#else
+  lua_pushnumber(L, _LF(tan) (luaL_checknumber(L, 1)));
+#endif
+#else
   lua_pushnumber(L, tan(luaL_checknumber(L, 1)));
+#endif /* LNUM_PATCH */
   return 1;
 }
 
 static int math_tanh (lua_State *L) {
+#if LNUM_PATCH
+#ifdef LNUM_COMPLEX
+  lua_pushcomplex(L, _LF(ctanh) (luaL_checkcomplex(L,1)));
+#else
+  lua_pushnumber(L, _LF(tanh) (luaL_checknumber(L, 1)));
+#endif
+#else
   lua_pushnumber(L, tanh(luaL_checknumber(L, 1)));
+#endif /* LNUM_PATCH */
   return 1;
 }
 
 static int math_asin (lua_State *L) {
+#if LNUM_PATCH
+#ifdef LNUM_COMPLEX
+  lua_pushcomplex(L, _LF(casin) (luaL_checkcomplex(L,1)));
+#else
+  lua_pushnumber(L, _LF(asin) (luaL_checknumber(L, 1)));
+#endif
+#else
   lua_pushnumber(L, asin(luaL_checknumber(L, 1)));
+#endif /* LNUM_PATCH */
   return 1;
 }
 
 static int math_acos (lua_State *L) {
+#if LNUM_PATCH
+#ifdef LNUM_COMPLEX
+  lua_pushcomplex(L, _LF(cacos) (luaL_checkcomplex(L,1)));
+#else
+  lua_pushnumber(L, _LF(acos) (luaL_checknumber(L, 1)));
+#endif
+#else
   lua_pushnumber(L, acos(luaL_checknumber(L, 1)));
+#endif /* LNUM_PATCH */
   return 1;
 }
 
 static int math_atan (lua_State *L) {
+#if LNUM_PATCH
+#ifdef LNUM_COMPLEX
+  lua_pushcomplex(L, _LF(catan) (luaL_checkcomplex(L,1)));
+#else
+  lua_pushnumber(L, _LF(atan) (luaL_checknumber(L, 1)));
+#endif
+#else
   lua_pushnumber(L, atan(luaL_checknumber(L, 1)));
+#endif /* LNUM_PATCH */
   return 1;
 }
 
 static int math_atan2 (lua_State *L) {
+#if LNUM_PATCH
+  /* scalars only */
+  lua_pushnumber(L, _LF(atan2) (luaL_checknumber(L, 1), luaL_checknumber(L, 2)));
+#else
   lua_pushnumber(L, atan2(luaL_checknumber(L, 1), luaL_checknumber(L, 2)));
+#endif /* LNUM_PATCH */
   return 1;
 }
 
 static int math_ceil (lua_State *L) {
+#if LNUM_PATCH
+#ifdef LNUM_COMPLEX
+  lua_Complex v= luaL_checkcomplex(L, 1);
+  lua_pushcomplex(L, _LF(ceil) (_LF(creal)(v)) + _LF(ceil) (_LF(cimag)(v))*I);
+#else
+  lua_pushnumber(L, _LF(ceil) (luaL_checknumber(L, 1)));
+#endif
+#else
   lua_pushnumber(L, ceil(luaL_checknumber(L, 1)));
+#endif /* LNUM_PATCH */
   return 1;
 }
 
 static int math_floor (lua_State *L) {
+#if LNUM_PATCH
+#ifdef LNUM_COMPLEX
+  lua_Complex v= luaL_checkcomplex(L, 1);
+  lua_pushcomplex(L, _LF(floor) (_LF(creal)(v)) + _LF(floor) (_LF(cimag)(v))*I);
+#else
+  lua_pushnumber(L, _LF(floor) (luaL_checknumber(L, 1)));
+#endif
+#else
   lua_pushnumber(L, floor(luaL_checknumber(L, 1)));
+#endif /* LNUM_PATCH */
   return 1;
 }
 
 static int math_fmod (lua_State *L) {
+#if LNUM_PATCH
+  /* scalars only */
+  lua_pushnumber(L, _LF(fmod) (luaL_checknumber(L, 1), luaL_checknumber(L, 2)));
+#else
   lua_pushnumber(L, fmod(luaL_checknumber(L, 1), luaL_checknumber(L, 2)));
+#endif /* LNUM_PATCH */
   return 1;
 }
 
 static int math_modf (lua_State *L) {
+#if LNUM_PATCH
+  /* scalars only */
+  lua_Number ip;
+  lua_Number fp = _LF(modf) (luaL_checknumber(L, 1), &ip);
+#else
   double ip;
   double fp = modf(luaL_checknumber(L, 1), &ip);
+#endif /* LNUM_PATCH */
   lua_pushnumber(L, ip);
   lua_pushnumber(L, fp);
   return 2;
 }
 
 static int math_sqrt (lua_State *L) {
+#if LNUM_PATCH
+#ifdef LNUM_COMPLEX
+  lua_pushcomplex(L, _LF(csqrt) (luaL_checkcomplex(L,1)));
+#else
+  lua_pushnumber(L, _LF(sqrt) (luaL_checknumber(L, 1)));
+#endif
+#else
   lua_pushnumber(L, sqrt(luaL_checknumber(L, 1)));
+#endif /* LNUM_PATCH */
   return 1;
 }
 
 static int math_pow (lua_State *L) {
+#if LNUM_PATCH
+#ifdef LNUM_COMPLEX
+  /* C99 'cpow' gives somewhat inaccurate results (i.e. (-1)^2 = -1+1.2246467991474e-16i). 
+  * 'luai_vectpow' smoothens such, reusing it is the reason we need to #include "lnum.h".
+  */
+  lua_pushcomplex(L, luai_vectpow(luaL_checkcomplex(L,1), luaL_checkcomplex(L,2)));
+#else
+  lua_pushnumber(L, _LF(pow) (luaL_checknumber(L, 1), luaL_checknumber(L, 2)));
+#endif
+#else
   lua_pushnumber(L, pow(luaL_checknumber(L, 1), luaL_checknumber(L, 2)));
+#endif /* LNUM_PATCH */
   return 1;
 }
 
 static int math_log (lua_State *L) {
+#if LNUM_PATCH
+#ifdef LNUM_COMPLEX
+  lua_pushcomplex(L, _LF(clog) (luaL_checkcomplex(L,1)));
+#else
+  lua_pushnumber(L, _LF(log) (luaL_checknumber(L, 1)));
+#endif
+#else
   lua_pushnumber(L, log(luaL_checknumber(L, 1)));
+#endif /* LNUM_PATCH */
   return 1;
 }
 
 static int math_log10 (lua_State *L) {
+#if LNUM_PATCH
+#ifdef LNUM_COMPLEX
+  /* Not in standard <complex.h> , but easy to calculate: log_a(x) = log_b(x) / log_b(a) 
+  */
+  lua_pushcomplex(L, _LF(clog) (luaL_checkcomplex(L,1)) / _LF(log) (10));
+#else
+  lua_pushnumber(L, _LF(log10) (luaL_checknumber(L, 1)));
+#endif
+#else
   lua_pushnumber(L, log10(luaL_checknumber(L, 1)));
+#endif /* LNUM_PATCH */
   return 1;
 }
 
 static int math_exp (lua_State *L) {
+#if LNUM_PATCH
+#ifdef LNUM_COMPLEX
+  lua_pushcomplex(L, _LF(cexp) (luaL_checkcomplex(L,1)));
+#else
+  lua_pushnumber(L, _LF(exp) (luaL_checknumber(L, 1)));
+#endif
+#else
   lua_pushnumber(L, exp(luaL_checknumber(L, 1)));
+#endif /* LNUM_PATCH */
   return 1;
 }
 
@@ -139,19 +326,30 @@ static int math_rad (lua_State *L) {
 
 static int math_frexp (lua_State *L) {
   int e;
+#if LNUM_PATCH
+  lua_pushnumber(L, _LF(frexp) (luaL_checknumber(L, 1), &e));
+#else
   lua_pushnumber(L, frexp(luaL_checknumber(L, 1), &e));
+#endif /* LNUM_PATCH */
   lua_pushinteger(L, e);
   return 2;
 }
 
 static int math_ldexp (lua_State *L) {
+#if LNUM_PATCH
+  lua_pushnumber(L, _LF(ldexp) (luaL_checknumber(L, 1), luaL_checkint(L, 2)));
+#else
   lua_pushnumber(L, ldexp(luaL_checknumber(L, 1), luaL_checkint(L, 2)));
+#endif /* LNUM_PATCH */
   return 1;
 }
 
 
 
 static int math_min (lua_State *L) {
+#if LNUM_PATCH
+  /* scalars only */
+#endif /* LNUM_PATCH */
   int n = lua_gettop(L);  /* number of arguments */
   lua_Number dmin = luaL_checknumber(L, 1);
   int i;
@@ -166,6 +364,9 @@ static int math_min (lua_State *L) {
 
 
 static int math_max (lua_State *L) {
+#if LNUM_PATCH
+  /* scalars only */
+#endif /* LNUM_PATCH */
   int n = lua_gettop(L);  /* number of arguments */
   lua_Number dmax = luaL_checknumber(L, 1);
   int i;
@@ -183,6 +384,23 @@ static int math_random (lua_State *L) {
   /* the `%' avoids the (rare) case of r==1, and is needed also because on
      some systems (SunOS!) `rand()' may return a value larger than RAND_MAX */
   lua_Number r = (lua_Number)(rand()%RAND_MAX) / (lua_Number)RAND_MAX;
+#if LNUM_PATCH
+  int n= lua_gettop(L);  /* number of arguments */
+  if (n==0) {	/* no arguments: range [0,1) */
+    lua_pushnumber(L, r);
+  } else if (n<=2) {	/* int range [1,u] or [l,u] */
+    int l= n==1 ? 1 : luaL_checkint(L, 1);
+    int u = luaL_checkint(L, n);
+    int tmp;
+    lua_Number d;
+    luaL_argcheck(L, l<=u, n, "interval is empty");
+    d= _LF(floor)(r*(u-l+1));
+    lua_number2int(tmp,d);
+    lua_pushinteger(L, l+tmp);
+  } else {
+    return luaL_error(L, "wrong number of arguments");
+  }
+#else
   switch (lua_gettop(L)) {  /* check number of arguments */
     case 0: {  /* no arguments */
       lua_pushnumber(L, r);  /* Number between 0 and 1 */
@@ -203,6 +421,7 @@ static int math_random (lua_State *L) {
     }
     default: return luaL_error(L, "wrong number of arguments");
   }
+#endif /* LNUM_PATCH */
   return 1;
 }
 
@@ -211,6 +430,68 @@ static int math_randomseed (lua_State *L) {
   srand(luaL_checkint(L, 1));
   return 0;
 }
+
+#if LNUM_PATCH
+/* 
+* Lua 5.1 does not have acosh, asinh, atanh for scalars (not ANSI C)
+*/
+#if __STDC_VERSION__ >= 199901L
+static int math_acosh (lua_State *L) {
+# ifdef LNUM_COMPLEX
+  lua_pushcomplex(L, _LF(cacosh) (luaL_checkcomplex(L,1)));
+# else
+  lua_pushnumber(L, _LF(acosh) (luaL_checknumber(L,1)));
+# endif
+  return 1;
+}
+static int math_asinh (lua_State *L) {
+# ifdef LNUM_COMPLEX
+  lua_pushcomplex(L, _LF(casinh) (luaL_checkcomplex(L,1)));
+# else
+  lua_pushnumber(L, _LF(asinh) (luaL_checknumber(L,1)));
+# endif
+  return 1;
+}
+static int math_atanh (lua_State *L) {
+# ifdef LNUM_COMPLEX
+  lua_pushcomplex(L, _LF(catanh) (luaL_checkcomplex(L,1)));
+# else
+  lua_pushnumber(L, _LF(atanh) (luaL_checknumber(L,1)));
+# endif
+  return 1;
+}
+#endif
+
+/* 
+ * C99 complex functions, not covered above.
+*/
+#ifdef LNUM_COMPLEX
+static int math_arg (lua_State *L) {
+  lua_pushnumber(L, _LF(carg) (luaL_checkcomplex(L,1)));
+  return 1;
+}
+
+static int math_imag (lua_State *L) {
+  lua_pushnumber(L, _LF(cimag) (luaL_checkcomplex(L,1)));
+  return 1;
+}
+
+static int math_real (lua_State *L) {
+  lua_pushnumber(L, _LF(creal) (luaL_checkcomplex(L,1)));
+  return 1;
+}
+
+static int math_conj (lua_State *L) {
+  lua_pushcomplex(L, _LF(conj) (luaL_checkcomplex(L,1)));
+  return 1;
+}
+
+static int math_proj (lua_State *L) {
+  lua_pushcomplex(L, _LF(cproj) (luaL_checkcomplex(L,1)));
+  return 1;
+}
+#endif
+#endif /* LNUM_PATCH */
 
 
 static const luaL_Reg mathlib[] = {
@@ -242,6 +523,21 @@ static const luaL_Reg mathlib[] = {
   {"sqrt",  math_sqrt},
   {"tanh",   math_tanh},
   {"tan",   math_tan},
+#if LNUM_PATCH
+#if __STDC_VERSION__ >= 199901L
+  {"acosh",  math_acosh},
+  {"asinh",  math_asinh},
+  {"atanh",  math_atanh},
+#endif
+#ifdef LNUM_COMPLEX
+  {"arg",   math_arg},
+  {"imag",  math_imag},
+  {"real",  math_real},
+  {"conj",  math_conj},
+  {"proj",  math_proj},
+#endif
+#else
+#endif /* LNUM_PATCH */
   {NULL, NULL}
 };
 
@@ -253,8 +549,16 @@ LUALIB_API int luaopen_math (lua_State *L) {
   luaL_register(L, LUA_MATHLIBNAME, mathlib);
   lua_pushnumber(L, PI);
   lua_setfield(L, -2, "pi");
+#if LNUM_PATCH
   lua_pushnumber(L, HUGE_VAL);
+#else
+  lua_pushnumber(L, HUGE_VAL);
+#endif /* LNUM_PATCH */
   lua_setfield(L, -2, "huge");
+#if LNUM_PATCH
+  lua_pushinteger(L, LUA_INTEGER_MAX );
+  lua_setfield(L, -2, "hugeint");
+#endif /* LNUM_PATCH */
 #if defined(LUA_COMPAT_MOD)
   lua_getfield(L, -1, "fmod");
   lua_setfield(L, -2, "mod");

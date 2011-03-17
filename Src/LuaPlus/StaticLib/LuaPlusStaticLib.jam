@@ -92,6 +92,8 @@ local LUAPLUS_SRCS =
 		../src/lzio.c
 		../src/lzio.h
 		../src/print.c
+		../src/lnum.c
+		../src/lnum.h
 ;
 
 LUAPLUS_SRCS += ../popen.c ;

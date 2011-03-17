@@ -858,6 +858,20 @@ static void simpleexp (LexState *ls, expdesc *v) {
       v->u.nval = ls->t.seminfo.r;
       break;
     }
+#if LNUM_PATCH
+    case TK_INT: {
+      init_exp(v, VKINT, 0);
+      v->u.ival = ls->t.seminfo.i;
+      break;
+    }
+#ifdef LNUM_COMPLEX
+    case TK_NUMBER2: {
+      init_exp(v, VKNUM2, 0);
+      v->u.nval = ls->t.seminfo.r;
+      break;
+    }
+#endif
+#endif /* LNUM_PATCH */
     case TK_STRING: {
       codestring(ls, v, ls->t.seminfo.ts);
       break;
@@ -1298,7 +1312,11 @@ static void fornum (LexState *ls, TString *varname, int line) {
   if (testnext(ls, ','))
     exp1(ls);  /* optional step */
   else {  /* default step = 1 */
+#if LNUM_PATCH
+    luaK_codeABx(fs, OP_LOADK, fs->freereg, luaK_integerK(fs, 1));
+#else
     luaK_codeABx(fs, OP_LOADK, fs->freereg, luaK_numberK(fs, 1));
+#endif /* LNUM_PATCH */
     luaK_reserveregs(fs, 1);
   }
   forbody(ls, base, line, 1, 1);

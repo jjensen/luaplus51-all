@@ -49,14 +49,14 @@ namespace LPCD
 	};
 
 	inline void Push(lua_State* L, bool value)				{  lua_pushboolean(L, value);  }
-	inline void Push(lua_State* L, char value)				{  lua_pushnumber(L, value);  }
-	inline void Push(lua_State* L, unsigned char value)		{  lua_pushnumber(L, value);  }
-	inline void Push(lua_State* L, short value)				{  lua_pushnumber(L, value);  }
-	inline void Push(lua_State* L, unsigned short value)	{  lua_pushnumber(L, value);  }
-	inline void Push(lua_State* L, int value)				{  lua_pushnumber(L, value);  }
-	inline void Push(lua_State* L, unsigned int value)		{  lua_pushnumber(L, value);  }
-	inline void Push(lua_State* L, long value)				{  lua_pushnumber(L, value);  }
-	inline void Push(lua_State* L, unsigned long value)		{  lua_pushnumber(L, value);  }
+	inline void Push(lua_State* L, char value)				{  lua_pushnumber(L, (lua_Number)value);  }
+	inline void Push(lua_State* L, unsigned char value)		{  lua_pushnumber(L, (lua_Number)value);  }
+	inline void Push(lua_State* L, short value)				{  lua_pushnumber(L, (lua_Number)value);  }
+	inline void Push(lua_State* L, unsigned short value)	{  lua_pushnumber(L, (lua_Number)value);  }
+	inline void Push(lua_State* L, int value)				{  lua_pushnumber(L, (lua_Number)value);  }
+	inline void Push(lua_State* L, unsigned int value)		{  lua_pushnumber(L, (lua_Number)value);  }
+	inline void Push(lua_State* L, long value)				{  lua_pushnumber(L, (lua_Number)value);  }
+	inline void Push(lua_State* L, unsigned long value)		{  lua_pushnumber(L, (lua_Number)value);  }
 	inline void Push(lua_State* L, double value)			{  lua_pushnumber(L, (lua_Number)value);  }
 	inline void Push(lua_State* L, float value)				{  lua_pushnumber(L, (lua_Number)value);  }
 	inline void Push(lua_State* L, const char* value)		{  lua_pushstring(L, value);  }

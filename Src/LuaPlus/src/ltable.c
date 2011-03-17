@@ -20,6 +20,10 @@
 
 #include <math.h>
 #include <string.h>
+#if LNUM_PATCH
+#include <stdio.h>  
+  /* debug */
+#endif /* LNUM_PATCH */
 
 #define ltable_c
 #define LUA_CORE
@@ -33,6 +37,9 @@
 #include "lobject.h"
 #include "lstate.h"
 #include "ltable.h"
+#if LNUM_PATCH
+#include "lnum.h"
+#endif /* LNUM_PATCH */
 
 NAMESPACE_LUA_BEGIN
 
@@ -53,6 +60,11 @@ NAMESPACE_LUA_BEGIN
 #define hashstr(t,str)  hashpow2(t, (str)->tsv.hash)
 #define hashboolean(t,p)        hashpow2(t, p)
 
+#if LNUM_PATCH
+#ifdef LUA_TINT
+# define hashint(t,i)    hashpow2(t,i)
+#endif
+#endif /* LNUM_PATCH */
 
 /*
 ** for some types, it is better to avoid modulus by power of 2, as
@@ -64,6 +76,7 @@ NAMESPACE_LUA_BEGIN
 #define hashpointer(t,p)	hashmod(t, IntPoint(p))
 
 
+#if !LNUM_PATCH
 /*
 ** number of ints inside a lua_Number
 */
@@ -71,6 +84,7 @@ NAMESPACE_LUA_BEGIN
 
 
 
+#endif /* !LNUM_PATCH */
 #define dummynode		(&dummynode_)
 
 static const Node dummynode_ = {
@@ -79,6 +93,88 @@ static const Node dummynode_ = {
 };
 
 
+#if LNUM_PATCH
+/*
+** number of ints of lua_Number used for hashing
+*
+* OS X Intel (1.5.6): 
+*   'sizeof(long double)'==16 but gives "Bus error" if NUM_INTS is 4.
+*   The error does not seem to happen exactly at the read, but is most
+*   likely caused by random trailing bits that cause inconsistent hashes.
+*   To avoid this, fix NUM_INTS to 3 (12 bytes).
+*
+* Linux x86 (2.6.24, gcc 4.2.4):
+*   'sizeof(long double)' is 12, which works apart from LNUM_COMPLEX
+*   (and LNUM_LDOUBLE) mode (if optimized >= -O2). There, bytes 11 and 12 
+*   seem to have random bits and cause inconsistent hashes. The x87 FPU 
+*   long double is 10 bytes (80 bits). We set NUM_INTS to 2 and don't use
+*   the last 2 bytes for hashing, at all.
+*
+* Linux x86_64 (2.6.28, gcc 4.3.3):
+*   'sizeof(long double)' is 16, but only 3 ints seem to be stable (with
+*   LNUM_COMPLEX and LNUM_LDOUBLE together only 80 bits are stable).
+*
+* NOTE: We could simplify this by simply using always 2 ints or
+*   '(sizeof(lua_Number)/sizeof(int))-1' for hashing the 'long double's
+*/
+#ifndef LNUM_LDOUBLE
+/* Anything not LNUM_LDOUBLE */
+# define NUM_INTS (sizeof(lua_Number)/sizeof(int))
+#else
+# if defined(__x86_64) || defined(__i386__)
+/* Linux x86_64 or x86 */
+#  ifdef LNUM_COMPLEX
+#   define NUM_INTS 2
+#  else
+#   define NUM_INTS 3
+#  endif
+# else
+/* Default (some systems will need the -1, some won't) */
+#  define NUM_INTS ((sizeof(lua_Number)/sizeof(int))-1)
+# endif
+#endif
+
+
+/*
+** hash for lua_Numbers
+**
+** for non-complex modes, never called with 'lua_Integer' value range (s.a. 0)
+*
+* Note: Linux x86(_64) gcc 4.x, -O2/O3 and no '-fno-strict-aliasing' will 
+*       optimize out essential stuff from here, unless 'union' is used.
+*       There is no automatic way to sniff whether compiler is having strict
+*       aliasing optimizations on (use '-DNO_STRICT_ALIASING' to enable the
+*       potentially faster code path that expects they are not on).
+*/
+static Node *hashnum (const Table *t, const lua_Number v) {
+  unsigned int i,sum;
+#ifdef NO_STRICT_ALIASING
+    /* For compilers not using "strict aliasing" optimizations (or when compiling
+    * with '-fno-strict-aliasing').
+    */
+  const unsigned int *a= cast(const unsigned int*, &v);
+  sum= a[0]; for (i = 1; i < NUM_INTS; i++) sum += a[i];
+#else
+  /*
+  * This code is "strict aliasing" safe (to be used with gcc 4.x -O2 or above, 
+  * if no '-fno-strict-aliasing' is specified). Otherwise you'll be screwed. 
+  * Casting via 'char*' or 'void*' should do the same, but doesn't.
+  *
+  * Seems gcc enables strict aliasing even if '--std=c99' is not used.
+  * There is no predefined macro to detect, whether the compiler is doing
+  * strict aliasing optimizations or not. Bohoo...  --AKa 7-Apr-2009
+  */
+  union {
+    lua_Number v;
+    unsigned int a[NUM_INTS];
+  } u;
+  lua_assert( sizeof(u)==sizeof(v) );
+  u.v= v;
+  sum= u.a[0]; for (i = 1; i < NUM_INTS; i++) sum += u.a[i];
+#endif
+  return hashmod(t, sum);
+}
+#else
 /*
 ** hash for lua_Numbers
 */
@@ -91,17 +187,51 @@ static Node *hashnum (const Table *t, lua_Number n) {
   for (i = 1; i < numints; i++) a[0] += a[i];
   return hashmod(t, a[0]);
 }
+#endif /* LNUM_PATCH */
 
 
-
+#if LNUM_PATCH
+/*
+** returns the `main' position of an element in a table (that is, the index
+** of its hash value)
+**
+** Floating point numbers with integer value give the hash position of the
+** integer (so they use the same table position).
+*/
+#else
 /*
 ** returns the `main' position of an element in a table (that is, the index
 ** of its hash value)
 */
+#endif /* LNUM_PATCH */
 static Node *mainposition (const Table *t, const TValue *key) {
   switch (ttype(key)) {
+#if LNUM_PATCH
+#ifdef LUA_TINT
+    case LUA_TINT:
+      return hashint(t,ivalue(key));
+#endif
+    case LUA_TNUMBER: {
+#ifdef LUA_TINT
+      lua_Integer i;
+      if (tt_integer_valued(key,&i)) 
+        return hashint(t, i);
+# ifdef LNUM_COMPLEX
+      /* Complex numbers are hashed by their scalar part. Pure imaginary values
+       * with scalar 0 or -0 should give same hash.
+       */
+      if (nvalue_img_fast(key)!=0 && luai_numeq(nvalue_fast(key),0))
+        return gnode(t, 0);  /* 0 and -0 to give same hash */
+# endif
+#else
+      if (luai_numeq(nvalue(key),0)) return gnode(t, 0);  /* 0 and -0 to give same hash */
+#endif
+      return hashnum(t,nvalue_fast(key));
+    }
+#else
     case LUA_TNUMBER:
       return hashnum(t, nvalue(key));
+#endif /* LNUM_PATCH */
     case LUA_TSTRING:
       return hashstr(t, rawtsvalue(key));
 #if LUA_WIDESTRING
@@ -118,6 +248,25 @@ static Node *mainposition (const Table *t, const TValue *key) {
 }
 
 
+#if LNUM_PATCH
+/*
+** returns the index for `key' if `key' is an appropriate key to live in
+** the array part of the table, -1 otherwise.
+**
+** Anything <=0 is taken as not being in the array part.
+*/
+static int arrayindex (const TValue *key, int max) {
+  lua_Integer i;
+  switch( ttype(key) ) {
+#ifdef LUA_TINT
+    case LUA_TINT:      i= ivalue(key); break;
+#endif
+    case LUA_TNUMBER:   if (tt_integer_valued(key,&i)) break;
+    default:            return -1;  /* not to be used as array index */
+  }
+  return (i <= max) ? cast_int(i) : -1;
+}
+#else
 /*
 ** returns the index for `key' if `key' is an appropriate key to live in
 ** the array part of the table, -1 otherwise.
@@ -132,6 +281,7 @@ static int arrayindex (const TValue *key) {
   }
   return -1;  /* `key' did not match some condition */
 }
+#endif /* LNUM_PATCH */
 
 
 /*
@@ -146,8 +296,13 @@ static int findindex (lua_State *L, Table *t, StkId key) {
 #endif /* LUAPLUS_EXTENSIONS */
   int i;
   if (ttisnil(key)) return -1;  /* first iteration */
+#if LNUM_PATCH
+  i = arrayindex(key, t->sizearray);
+  if (i>0)  /* inside array part? */
+#else
   i = arrayindex(key);
   if (0 < i && i <= t->sizearray)  /* is `key' inside array part? */
+#endif /* LNUM_PATCH */
     return i-1;  /* yes; that's the index (corrected to C) */
   else {
     Node *n = mainposition(t, key);
@@ -176,7 +331,11 @@ int luaH_next (lua_State *L, Table *t, StkId key) {
 #endif /* LUAPLUS_EXTENSIONS */
   for (i++; i < t->sizearray; i++) {  /* try first array part */
     if (!ttisnil(&t->array[i])) {  /* a non-nil value? */
+#if LNUM_PATCH
+      setivalue(key, i+1);
+#else
       setnvalue(key, cast_num(i+1));
+#endif /* LNUM_PATCH */
       setobj2s(L, key+1, &t->array[i]);
       return 1;
     }
@@ -222,9 +381,15 @@ static int computesizes (int nums[], int *narray) {
 
 
 static int countint (const TValue *key, int *nums) {
+#if LNUM_PATCH
+  int k = arrayindex(key,MAXASIZE);
+  if (k>0) {  /* appropriate array index? */
+    nums[ceillog2( cast(unsigned int,k) )]++;  /* count as such */
+#else
   int k = arrayindex(key);
   if (0 < k && k <= MAXASIZE) {  /* is `key' an appropriate array index? */
     nums[ceillog2(k)]++;  /* count as such */
+#endif /* LNUM_PATCH */
     return 1;
   }
   else
@@ -349,7 +514,11 @@ static void resize (lua_State *L, Table *t, int nasize, int nhsize) {
       }
 #else
       if (!ttisnil(&t->array[i]))
+#if LNUM_PATCH
+        setobjt2t(L, luaH_setint(L, t, i+1), &t->array[i]);
+#else
         setobjt2t(L, luaH_setnum(L, t, i+1), &t->array[i]);
+#endif /* LNUM_PATCH */
 #endif /* LUA_REFCOUNT */
     }
     /* shrink array */
@@ -513,7 +682,14 @@ static TValue *newkey (lua_State *L, Table *t, const TValue *key) {
     othern = mainposition(t, key2tval(mp));
     if (othern != mp) {  /* is colliding node out of its main position? */
       /* yes; move colliding node into free position */
+#if LNUM_PATCH
+      while (gnext(othern) != mp) {
+        othern = gnext(othern);  /* find previous */
+        lua_assert(othern);   /* LNUM: caught if hashing is inconsistent */ 
+      }
+#else
       while (gnext(othern) != mp) othern = gnext(othern);  /* find previous */
+#endif /* LNUM_PATCH */
       gnext(othern) = n;  /* redo the chain with `n' in place of `mp' */
       *n = *mp;  /* copy colliding node into free pos. (mp->next also goes) */
       gnext(mp) = NULL;  /* now `mp' is free */
@@ -606,6 +782,37 @@ Node *luaH_getkey (Table *t, const TValue *key) {
 
 #endif /* LUA_REFCOUNT */
 
+#if LNUM_PATCH
+/*
+** search function for integers
+*
+* Optimize fetches to the array portion of a table (but do provide matches
+* to other 32-bit integer keys as well). The 'key' parameter is 'int' (and not 
+* 'lua_Integer') by purpose; values not fitting in an int will be fetched using
+* the generic approach (array part won't ever have them).
+*/
+const TValue *luaH_getint (Table *t, int key) {
+  /* (1 <= key && key <= t->sizearray) */
+  if (cast(unsigned int, key-1) < cast(unsigned int, t->sizearray))
+    return &t->array[key-1];
+  else {
+#ifdef LUA_TINT
+    Node *n = hashint(t, key);
+    do {  /* check whether `key' is somewhere in the chain */
+      if (ttisint(gkey(n)) && (ivalue(gkey(n)) == key))
+#else
+    lua_Number key_d= cast_num(key);
+    Node *n = hashnum(t, key_d);
+    do {  /* check whether `key' is somewhere in the chain */
+      if (ttisnumber(gkey(n)) && luai_numeq(nvalue(gkey(n)), key_d))
+#endif
+        return gval(n);  /* that's it */
+      n = gnext(n);
+    } while (n);
+    return luaO_nilobject;
+  }
+}
+#else
 /*
 ** search function for integers
 */
@@ -624,6 +831,7 @@ const TValue *luaH_getnum (Table *t, int key) {
     return luaO_nilobject;
   }
 }
+#endif /* LNUM_PATCH */
 
 
 /*
@@ -657,12 +865,44 @@ const TValue *luaH_getwstr (Table *t, TString *key) {
 ** main search function
 */
 const TValue *luaH_get (Table *t, const TValue *key) {
+#if LNUM_PATCH
+  Node *n;
+#endif /* LNUM_PATCH */
   switch (ttype(key)) {
     case LUA_TNIL: return luaO_nilobject;
     case LUA_TSTRING: return luaH_getstr(t, rawtsvalue(key));
 #if LUA_WIDESTRING
     case LUA_TWSTRING: return luaH_getstr(t, rawtwsvalue(key));
 #endif /* LUA_WIDESTRING */
+#if LNUM_PATCH
+#ifdef LUA_TINT
+    case LUA_TINT: {
+      int i= cast_int( ivalue(key) );
+# ifdef LNUM_INT64
+      if (i != ivalue(key)) break;   /* handle non-32 bit separately */
+# endif
+      return luaH_getint(t,i);
+    }
+#endif
+    case LUA_TNUMBER: {
+      lua_Integer j;
+      if (!tt_integer_valued(key,&j)) break;
+# ifdef LNUM_INT64
+      if (cast_int(j) != j) break;   /* handle non-32 bit separately */
+# endif
+      return luaH_getint(t,cast_int(j));
+    }
+  }
+  /* general (FP numbers, >32-bit integers, tables etc.) 
+  */
+  n = mainposition(t, key);
+  do {  /* check whether `key' is somewhere in the chain */
+    if (luaO_rawequalObj(key2tval(n), key))
+      return gval(n);  /* that's it */
+    else n = gnext(n);
+  } while (n);
+  return luaO_nilobject;
+#else
     case LUA_TNUMBER: {
       int k;
       lua_Number n = nvalue(key);
@@ -681,6 +921,7 @@ const TValue *luaH_get (Table *t, const TValue *key) {
       return luaO_nilobject;
     }
   }
+#endif /* LNUM_PATCH */
 }
 
 
@@ -691,13 +932,46 @@ TValue *luaH_set (lua_State *L, Table *t, const TValue *key) {
     return cast(TValue *, p);
   else {
     if (ttisnil(key)) luaG_runerror(L, "table index is nil");
+#if LNUM_PATCH
+    else if (ttype(key)==LUA_TNUMBER) {
+#ifdef LUA_TINT
+      /* [3.0] must use the same index slot as [3] */
+      lua_Integer i;
+      if (tt_integer_valued(key,&i)) {
+# ifdef LNUM_INT64
+        if (cast_int(i) != i) {  /* does not fit in 32 bits */
+          TValue k;
+          setivalue(&k, i);
+          return newkey(L, t, &k);
+        }
+# endif
+        return luaH_setint(L, t, cast_int(i));
+      }
+#endif
+      if (luai_numisnan(nvalue_fast(key)))
+        luaG_runerror(L, "table index is NaN");
+    }
+#else
     else if (ttisnumber(key) && luai_numisnan(nvalue(key)))
       luaG_runerror(L, "table index is NaN");
+#endif /* LNUM_PATCH */
     return newkey(L, t, key);
   }
 }
 
 
+#if LNUM_PATCH
+TValue *luaH_setint (lua_State *L, Table *t, int key) {
+  const TValue *p = luaH_getint(t, key);
+  if (p != luaO_nilobject)
+    return cast(TValue *, p);
+  else {
+    TValue k;
+    setivalue(&k, key);
+    return newkey(L, t, &k);
+  }
+}
+#else
 TValue *luaH_setnum (lua_State *L, Table *t, int key) {
   const TValue *p = luaH_getnum(t, key);
   if (p != luaO_nilobject)
@@ -716,6 +990,7 @@ TValue *luaH_setnum (lua_State *L, Table *t, int key) {
 #endif /* LUA_REFCOUNT */
   }
 }
+#endif /* LNUM_PATCH */
 
 
 TValue *luaH_setstr (lua_State *L, Table *t, TString *key) {
@@ -765,20 +1040,32 @@ static int unbound_search (Table *t, unsigned int j) {
   unsigned int i = j;  /* i is zero or a present index */
   j++;
   /* find `i' and `j' such that i is present and j is not */
+#if LNUM_PATCH
+  while (!ttisnil(luaH_getint(t, j))) {
+#else
   while (!ttisnil(luaH_getnum(t, j))) {
+#endif /* LNUM_PATCH */
     i = j;
     j *= 2;
     if (j > cast(unsigned int, MAX_INT)) {  /* overflow? */
       /* table was built with bad purposes: resort to linear search */
       i = 1;
+#if LNUM_PATCH
+      while (!ttisnil(luaH_getint(t, i))) i++;
+#else
       while (!ttisnil(luaH_getnum(t, i))) i++;
+#endif /* LNUM_PATCH */
       return i - 1;
     }
   }
   /* now do a binary search between them */
   while (j - i > 1) {
     unsigned int m = (i+j)/2;
+#if LNUM_PATCH
+    if (ttisnil(luaH_getint(t, m))) j = m;
+#else
     if (ttisnil(luaH_getnum(t, m))) j = m;
+#endif /* LNUM_PATCH */
     else i = m;
   }
   return i;

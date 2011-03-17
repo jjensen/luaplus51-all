@@ -39,7 +39,7 @@ LUAPLUS_INLINE LuaCall& operator<<(LuaCall& call, float value) {
 }
 
 LUAPLUS_INLINE LuaCall& operator<<(LuaCall& call, double value) {
-	lua_pushnumber(call.L, value);
+	lua_pushnumber(call.L, (lua_Number)value);
 	++call.numArgs;
 	return call;
 }
