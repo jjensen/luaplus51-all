@@ -22,6 +22,9 @@
 #include "lstring.h"
 #include "ltable.h"
 #include "lzio.h"
+#if LNUM_PATCH
+#include "lnum.h"
+#endif /* LNUM_PATCH */
 
 NAMESPACE_LUA_BEGIN
 
@@ -79,9 +82,21 @@ const char *const luaX_tokens [] = {
 #if LUA_BITFIELD_OPS
     "<<", ">>", "^^",
 #endif /* LUA_BITFIELD_OPS */
+#if LNUM_PATCH
+    "<integer>",
+#ifdef LNUM_COMPLEX
+    "<number2>",
+#endif
+#endif /* LNUM_PATCH */
     "<eof>",
 #else
     "<number>", "<name>", "<string>", "<eof>",
+#if LNUM_PATCH
+    "<integer>",
+#ifdef LNUM_COMPLEX
+    "<number2>",
+#endif
+#endif /* LNUM_PATCH */
 #endif /* LUA_BITFIELD_OPS || LUA_WIDESTRING */
 #if LUA_MUTATION_OPERATORS
     "+=", "-=", "*=", "/=", "%=", "^=",
@@ -155,6 +170,12 @@ static const char *txtToken (LexState *ls, int token) {
     case TK_NAME:
     case TK_STRING:
     case TK_NUMBER:
+#if LNUM_PATCH
+    case TK_INT:
+#ifdef LNUM_COMPLEX
+    case TK_NUMBER2:
+#endif
+#endif /* LNUM_PATCH */
       save(ls, '\0');
       return luaZ_buffer(ls->buff);
     default:
@@ -249,23 +270,44 @@ static void buffreplace (LexState *ls, char from, char to) {
     if (p[n] == from) p[n] = to;
 }
 
-
+#if LNUM_PATCH
+/* TK_NUMBER (/ TK_NUMBER2) */
+static int trydecpoint (LexState *ls, SemInfo *seminfo) {
+#else
 static void trydecpoint (LexState *ls, SemInfo *seminfo) {
+#endif /* LNUM_PATCH */
   /* format error: try to update decimal point separator */
   struct lconv *cv = localeconv();
   char old = ls->decpoint;
+#if LNUM_PATCH
+  int ret;
+#endif /* LNUM_PATCH */
   ls->decpoint = (cv ? cv->decimal_point[0] : '.');
   buffreplace(ls, old, ls->decpoint);  /* try updated decimal separator */
+#if LNUM_PATCH
+  ret= luaO_str2d(luaZ_buffer(ls->buff), &seminfo->r, NULL);
+  if (!ret) {
+#else
   if (!luaO_str2d(luaZ_buffer(ls->buff), &seminfo->r)) {
+#endif /* LNUM_PATCH */
     /* format error with correct decimal point: no more options */
     buffreplace(ls, ls->decpoint, '.');  /* undo change (for error message) */
     luaX_lexerror(ls, "malformed number", TK_NUMBER);
   }
+#if LNUM_PATCH
+  return ret;
+#endif /* LNUM_PATCH */
 }
 
 
+#if LNUM_PATCH
+/* TK_NUMBER / TK_INT (/TK_NUMBER2) */
+static int read_numeral (LexState *ls, SemInfo *seminfo) {
+  int ret;
+#else
 /* LUA_NUMBER */
 static void read_numeral (LexState *ls, SemInfo *seminfo) {
+#endif /* LNUM_PATCH */
   lua_assert(isdigit(ls->current));
 #if LUA_EXT_HEXADECIMAL
   if (ls->current == '0') {
@@ -286,8 +328,13 @@ static void read_numeral (LexState *ls, SemInfo *seminfo) {
         next(ls);
         ch = tolower(ls->current);
       } while (++i<numDigits && (isdigit(ch) || (ch >= 'a' && ch <= 'f')));
+#if LNUM_PATCH
+      seminfo->i = c;
+      return TK_INT;
+#else
       seminfo->r = c;
       return;
+#endif /* LNUM_PATCH */
     }
   }
 
@@ -305,8 +352,14 @@ static void read_numeral (LexState *ls, SemInfo *seminfo) {
     save_and_next(ls);
   save(ls, '\0');
   buffreplace(ls, '.', ls->decpoint);  /* follow locale for decimal point */
+#if LNUM_PATCH
+  ret= luaO_str2d(luaZ_buffer(ls->buff), &seminfo->r, &seminfo->i );
+  if (!ret) return trydecpoint(ls, seminfo); /* try to update decimal point separator */
+  return ret;
+#else
   if (!luaO_str2d(luaZ_buffer(ls->buff), &seminfo->r))  /* format error? */
     trydecpoint(ls, seminfo); /* try to update decimal point separator */
+#endif /* LNUM_PATCH */
 }
 
 
@@ -532,6 +585,9 @@ static void read_wstring (LexState *ls, int del, SemInfo *seminfo) {
 }
 #endif /* LUA_WIDESTRING */
 
+#if LNUM_PATCH
+/* char / TK_* */
+#endif /* LNUM_PATCH */
 static int llex (LexState *ls, SemInfo *seminfo) {
   luaZ_resetbuffer(ls->buff);
   for (;;) {
@@ -659,8 +715,12 @@ static int llex (LexState *ls, SemInfo *seminfo) {
         }
         else if (!isdigit(ls->current)) return '.';
         else {
+#if LNUM_PATCH
+          return read_numeral(ls, seminfo);
+#else
           read_numeral(ls, seminfo);
           return TK_NUMBER;
+#endif /* LNUM_PATCH */
         }
       }
       case EOZ: {
@@ -680,8 +740,12 @@ static int llex (LexState *ls, SemInfo *seminfo) {
           continue;
         }
         else if (isdigit(ls->current)) {
+#if LNUM_PATCH
+          return read_numeral(ls, seminfo);
+#else
           read_numeral(ls, seminfo);
           return TK_NUMBER;
+#endif /* LNUM_PATCH */
         }
         else if (isalpha(ls->current) || ls->current == '_') {
 #if LUA_WIDESTRING

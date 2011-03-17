@@ -14,6 +14,12 @@ NAMESPACE_LUA_BEGIN
 
 LUAI_FUNC void luaA_pushobject (lua_State *L, const TValue *o);
 
+#if LNUM_PATCH
+#ifdef LUA_TINT
+  int lua_pushvalue_as_number (lua_State *L, int idx);
+#endif
+#endif /* LNUM_PATCH */
+
 NAMESPACE_LUA_END
 
 #endif

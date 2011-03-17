@@ -375,10 +375,17 @@ static StkId adjust_varargs (lua_State *L, Proto *p, int actual) {
     luaC_checkGC(L);
     luaD_checkstack(L, p->maxstacksize);
     htab = luaH_new(L, nvar, 1);  /* create `arg' table */
+#if LNUM_PATCH
+    for (i=0; i<nvar; i++)  /* put extra arguments into `arg' table */
+      setobj2n(L, luaH_setint(L, htab, i+1), L->top - nvar + i);
+    /* store counter in field `n' */
+    setivalue(luaH_setstr(L, htab, luaS_newliteral(L, "n")), nvar);
+#else
     for (i=0; i<nvar; i++)  /* put extra arguments into `arg' table */
       setobj2n(L, luaH_setnum(L, htab, i+1), L->top - nvar + i);
     /* store counter in field `n' */
     setnvalue(luaH_setstr(L, htab, luaS_newliteral(L, "n")), cast_num(nvar));
+#endif /* LNUM_PATCH */
   }
 #endif
   /* move fixed parameters to final position */

@@ -27,8 +27,13 @@ NAMESPACE_LUA_BEGIN
 Node *luaH_getkey (Table *t, const TValue *key);
 void luaH_removekey (lua_State *L, Table *t, Node *n);
 #endif /* LUA_REFCOUNT */
+#if LNUM_PATCH
+LUAI_FUNC const TValue *luaH_getint (Table *t, int key);
+LUAI_FUNC TValue *luaH_setint (lua_State *L, Table *t, int key);
+#else
 LUAI_FUNC const TValue *luaH_getnum (Table *t, int key);
 LUAI_FUNC TValue *luaH_setnum (lua_State *L, Table *t, int key);
+#endif /* LNUM_PATCH */
 LUAI_FUNC const TValue *luaH_getstr (Table *t, TString *key);
 LUAI_FUNC TValue *luaH_setstr (lua_State *L, Table *t, TString *key);
 #if LUA_WIDESTRING

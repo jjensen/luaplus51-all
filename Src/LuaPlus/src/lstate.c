@@ -7,6 +7,12 @@
 
 #include <stddef.h>
 
+#if LNUM_PATCH
+#include <stdlib.h>
+#include <stdio.h>
+   /* for nan check */
+#endif /* LNUM_PATCH */
+
 #define lstate_c
 #define LUA_CORE
 
@@ -22,6 +28,9 @@
 #include "lstring.h"
 #include "ltable.h"
 #include "ltm.h"
+#if LNUM_PATCH
+#include "lnum.h"
+#endif /* LNUM_PATCH */
 
 NAMESPACE_LUA_BEGIN
 
@@ -124,7 +133,11 @@ static void f_luaopen (lua_State *L, void *ud) {
 
     sethvalue(L, &G(L)->l_refs, luaH_new(L, 0, 2));  /* refs */
 	setnvalue(&n, 0);
+#if LNUM_PATCH
+    setobj2t(L, luaH_setint(L, hvalue(&G(L)->l_refs), LUA_RIDX_FASTREF_FREELIST), &n);
+#else
     setobj2t(L, luaH_setnum(L, hvalue(&G(L)->l_refs), LUA_RIDX_FASTREF_FREELIST), &n);
+#endif /* LNUM_PATCH */
 
     setnilvalue(&g->fastrefNilValue);
   }

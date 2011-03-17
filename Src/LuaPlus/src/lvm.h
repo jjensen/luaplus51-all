@@ -22,13 +22,21 @@ NAMESPACE_LUA_BEGIN
 #if LUA_REFCOUNT        
 #define tonumber(o,n)	(ttype(o) == LUA_TNUMBER || \
                          (((o) = luaV_tonumber(L,o,n)) != NULL))
-#else
+#else /* LUA_REFCOUNT */
+#if LNUM_PATCH
+#define tonumber(o,n) (ttisnumber(o) || (((o) = luaV_tonumber(o,n)) != NULL))
+#else /* LNUM_PATCH */
 #define tonumber(o,n)	(ttype(o) == LUA_TNUMBER || \
                          (((o) = luaV_tonumber(o,n)) != NULL))
+#endif /* LNUM_PATCH */
 #endif /* LUA_REFCOUNT */
 
+#if LNUM_PATCH
+#define equalobj(L,o1,o2) ((ttype_ext(o1)==ttype_ext(o2)) && luaV_equalval(L, o1, o2))
+#else
 #define equalobj(L,o1,o2) \
 	(ttype(o1) == ttype(o2) && luaV_equalval(L, o1, o2))
+#endif /* LNUM_PATCH */
 
 #if LUA_EXT_RESUMABLEVM
 #define GETPC(L)	(cast(const Instruction *, L->ctx))

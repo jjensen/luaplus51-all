@@ -44,8 +44,13 @@ static ptrdiff_t posrelat (ptrdiff_t pos, size_t len) {
 static int str_sub (lua_State *L) {
   size_t l;
   const char *s = luaL_checklstring(L, 1, &l);
+#if LNUM_PATCH
+  ptrdiff_t start = posrelat(luaL_checkint32(L, 2), l);
+  ptrdiff_t end = posrelat(luaL_optint32(L, 3, -1), l);
+#else
   ptrdiff_t start = posrelat(luaL_checkinteger(L, 2), l);
   ptrdiff_t end = posrelat(luaL_optinteger(L, 3, -1), l);
+#endif /* LNUM_PATCH */
   if (start < 1) start = 1;
   if (end > (ptrdiff_t)l) end = (ptrdiff_t)l;
   if (start <= end)
@@ -107,8 +112,13 @@ static int str_rep (lua_State *L) {
 static int str_byte (lua_State *L) {
   size_t l;
   const char *s = luaL_checklstring(L, 1, &l);
+#if LNUM_PATCH
+  ptrdiff_t posi = posrelat(luaL_optint32(L, 2, 1), l);
+  ptrdiff_t pose = posrelat(luaL_optint32(L, 3, posi), l);
+#else
   ptrdiff_t posi = posrelat(luaL_optinteger(L, 2, 1), l);
   ptrdiff_t pose = posrelat(luaL_optinteger(L, 3, posi), l);
+#endif /* LNUM_PATCH */
   int n, i;
   if (posi <= 0) posi = 1;
   if ((size_t)pose > l) pose = l;
@@ -516,7 +526,11 @@ static int str_find_aux (lua_State *L, int find) {
   size_t l1, l2;
   const char *s = luaL_checklstring(L, 1, &l1);
   const char *p = luaL_checklstring(L, 2, &l2);
+#if LNUM_PATCH
+  ptrdiff_t init = posrelat(luaL_optint32(L, 3, 1), l1) - 1;
+#else
   ptrdiff_t init = posrelat(luaL_optinteger(L, 3, 1), l1) - 1;
+#endif /* LNUM_PATCH */
   if (init < 0) init = 0;
   else if ((size_t)(init) > l1) init = (ptrdiff_t)l1;
   if (find && (lua_toboolean(L, 4) ||  /* explicit request? */
@@ -710,7 +724,12 @@ static int str_gsub (lua_State *L) {
 ** maximum size of each format specification (such as '%-099.99d')
 ** (+10 accounts for %99.99x plus margin of error)
 */
+#if LNUM_PATCH
+#define MAX_FORMAT	(sizeof(FLAGS) + sizeof(LUA_INTEGER_FMT)-2 + 10)
+#else
 #define MAX_FORMAT	(sizeof(FLAGS) + sizeof(LUA_INTFRMLEN) + 10)
+#endif /* LNUM_PATCH */
+
 
 #if LUAPLUS_EXTENSIONS
 void luaI_addquoted (lua_State *L, luaL_Buffer *b, int arg) {
@@ -839,9 +858,15 @@ static const char *scanformat (lua_State *L, const char *strfrmt, char *form) {
 static void addintlen (char *form) {
   size_t l = strlen(form);
   char spec = form[l - 1];
+#if LNUM_PATCH
+  const char *tmp= LUA_INTEGER_FMT;   /* "%lld" or "%ld" */
+  strcpy(form + l - 1, tmp+1);
+  form[l + sizeof(LUA_INTEGER_FMT)-4] = spec;
+#else
   strcpy(form + l - 1, LUA_INTFRMLEN);
   form[l + sizeof(LUA_INTFRMLEN) - 2] = spec;
   form[l + sizeof(LUA_INTFRMLEN) - 1] = '\0';
+#endif /* LNUM_PATCH */
 }
 
 #if LUAPLUS_EXTENSIONS
@@ -867,12 +892,20 @@ int str_format_helper (luaL_Buffer *b, lua_State *L, int arg) {
         }
         case 'd':  case 'i': {
           addintlen(form);
+#if LNUM_PATCH
+          sprintf(buff, form, luaL_checkinteger(L, arg));
+#else
           sprintf(buff, form, (LUA_INTFRM_T)luaL_checknumber(L, arg));
+#endif /* LNUM_PATCH */
           break;
         }
         case 'o':  case 'u':  case 'x':  case 'X': {
           addintlen(form);
+#if LNUM_PATCH
+          sprintf(buff, form, (unsigned LUA_INTEGER)luaL_checkinteger(L, arg));
+#else
           sprintf(buff, form, (unsigned LUA_INTFRM_T)luaL_checknumber(L, arg));
+#endif /* LNUM_PATCH */
           break;
         }
         case 'e':  case 'E': case 'f':
@@ -958,12 +991,20 @@ static int str_format (lua_State *L) {
         }
         case 'd':  case 'i': {
           addintlen(form);
+#if LNUM_PATCH
+          sprintf(buff, form, luaL_checkinteger(L, arg));
+#else
           sprintf(buff, form, (LUA_INTFRM_T)luaL_checknumber(L, arg));
+#endif /* LNUM_PATCH */
           break;
         }
         case 'o':  case 'u':  case 'x':  case 'X': {
           addintlen(form);
+#if LNUM_PATCH
+          sprintf(buff, form, (unsigned LUA_INTEGER)luaL_checkinteger(L, arg));
+#else
           sprintf(buff, form, (unsigned LUA_INTFRM_T)luaL_checknumber(L, arg));
+#endif /* LNUM_PATCH */
           break;
         }
         case 'e':  case 'E': case 'f':

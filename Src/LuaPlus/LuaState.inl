@@ -258,7 +258,7 @@ LUAPLUS_INLINE LuaStackObject LuaState::PushNumber(lua_Number n)
 
 LUAPLUS_INLINE LuaStackObject LuaState::PushInteger(int n)
 {
-	lua_pushnumber(LuaState_to_lua_State(this), n);
+	lua_pushnumber(LuaState_to_lua_State(this), (lua_Number)n);
 	return LuaStackObject(this, lua_gettop(LuaState_to_lua_State(this)));
 }
 

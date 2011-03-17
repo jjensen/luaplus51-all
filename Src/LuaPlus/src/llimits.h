@@ -50,6 +50,9 @@ typedef LUAI_USER_ALIGNMENT_T L_Umaxalign;
 
 /* result of a `usual argument conversion' over lua_Number */
 typedef LUAI_UACNUMBER l_uacNumber;
+#if LNUM_PATCH
+typedef LUAI_UACINTEGER l_uacInteger;
+#endif /* LNUM_PATCH */
 
 
 /* internal assertions for in-house debugging */

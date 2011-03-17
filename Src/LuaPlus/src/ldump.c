@@ -90,6 +90,15 @@ static void DumpNumber(lua_Number x, DumpState* D)
  DumpVar(x,D);
 }
 
+#if LNUM_PATCH
+#ifdef LUA_TINT
+static void DumpInteger(lua_Integer x, DumpState* D)
+{
+ DumpVar(x,D);
+}
+#endif
+#endif /* LNUM_PATCH */
+
 static void DumpVector(const void* b, size_t n, size_t size, DumpState* D)
 {
  DumpInt((int)n,D);
@@ -175,8 +184,19 @@ static void DumpConstants(const Proto* f, DumpState* D)
    case LUA_TBOOLEAN:
 	DumpChar(bvalue(o),D);
 	break;
+#if LNUM_PATCH
+#ifdef LUA_TINT
+   case LUA_TINT:
+	DumpInteger(ivalue(o),D);
+    break;
+#endif
+#endif /* LNUM_PATCH */
    case LUA_TNUMBER:
+#if LNUM_PATCH
+	DumpNumber(nvalue_fast(o),D);
+#else
 	DumpNumber(nvalue(o),D);
+#endif /* LNUM_PATCH */
 	break;
    case LUA_TSTRING:
 	DumpString(rawtsvalue(o),D);

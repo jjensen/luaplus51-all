@@ -18,10 +18,26 @@
 NAMESPACE_LUA_BEGIN
 
 /* tags for values visible from Lua */
-#if LUA_WIDESTRING
-#define LAST_TAG	LUA_TWSTRING
+#if !LUA_WIDESTRING
+#if LNUM_PATCH
+#if defined(LUA_TINT) && (LUA_TINT > LUA_TTHREAD)
+# define LAST_TAG   LUA_TINT
 #else
+# define LAST_TAG	LUA_TTHREAD
+#endif
+#else /* LNUM_PATCH */
 #define LAST_TAG	LUA_TTHREAD
+#endif /* LNUM_PATCH */
+#else /* LUA_WIDESTRING */
+#if LNUM_PATCH
+#if defined(LUA_TINT) && (LUA_TINT > LUA_TTHREAD)
+# define LAST_TAG   LUA_TINT
+#else
+#define LAST_TAG	LUA_TWSTRING
+#endif
+#else /* LNUM_PATCH */
+#define LAST_TAG	LUA_TWSTRING
+#endif /* LNUM_PATCH */
 #endif /* LUA_WIDESTRING */
 
 #define NUM_TAGS	(LAST_TAG+1)
@@ -103,7 +119,18 @@ typedef struct GCheader {
 typedef union {
   GCObject *gc;
   void *p;
+#if LNUM_PATCH
+#ifdef LNUM_COMPLEX
+  lua_Complex n;
+#else
   lua_Number n;
+#endif
+#ifdef LUA_TINT
+  lua_Integer i;
+#endif
+#else
+  lua_Number n;
+#endif /* LNUM_PATCH */
   int b;
 } Value;
 
@@ -121,7 +148,24 @@ typedef struct lua_TValue {
 
 /* Macros to test type */
 #define ttisnil(o)	(ttype(o) == LUA_TNIL)
+#if LNUM_PATCH
+#ifdef LUA_TINT
+# if (LUA_TINT & 0x0f) == LUA_TNUMBER
+#  define ttisnumber(o) ((ttype(o) & 0x0f) == LUA_TNUMBER)
+# else
+#  define ttisnumber(o) ((ttype(o) == LUA_TINT) || (ttype(o) == LUA_TNUMBER))
+# endif
+# define ttisint(o) (ttype(o) == LUA_TINT)
+#else
+# define ttisnumber(o) (ttype(o) == LUA_TNUMBER)
+#endif
+
+#ifdef LNUM_COMPLEX
+# define ttiscomplex(o) ((ttype(o) == LUA_TNUMBER) && (nvalue_img_fast(o)!=0))
+#endif
+#else
 #define ttisnumber(o)	(ttype(o) == LUA_TNUMBER)
+#endif /* LNUM_PATCH */
 #define ttisstring(o)	(ttype(o) == LUA_TSTRING)
 #define ttistable(o)	(ttype(o) == LUA_TTABLE)
 #define ttisfunction(o)	(ttype(o) == LUA_TFUNCTION)
@@ -137,7 +181,43 @@ typedef struct lua_TValue {
 #define ttype(o)	((o)->tt)
 #define gcvalue(o)	check_exp(iscollectable(o), (o)->value.gc)
 #define pvalue(o)	check_exp(ttislightuserdata(o), (o)->value.p)
+#if LNUM_PATCH
+#if defined(LUA_TINT) && (LUA_TINT&0x0f == LUA_TNUMBER)
+/* expects never to be called on <0 (LUA_TNONE) */
+# define ttype_ext(o) ( ttype(o) & 0x0f )
+#elif defined(LUA_TINT)
+# define ttype_ext(o) ( ttype(o) == LUA_TINT ? LUA_TNUMBER : ttype(o) )
+#else
+# define ttype_ext(o) ttype(o)
+#endif
+
+/* '_fast' variants are for cases where 'ttype(o)' is known to be LUA_TNUMBER
+ */
+#ifdef LNUM_COMPLEX
+# ifndef LUA_TINT
+#  error "LNUM_COMPLEX only allowed with LNUM_INTxx defined (can be changed)"
+# endif
+# define nvalue_complex_fast(o) check_exp( ttype(o)==LUA_TNUMBER, (o)->value.n )   
+# define nvalue_fast(o)     ( _LF(creal) ( nvalue_complex_fast(o) ) )
+# define nvalue_img_fast(o) ( _LF(cimag) ( nvalue_complex_fast(o) ) )
+# define nvalue_complex(o) check_exp( ttisnumber(o), (ttype(o)==LUA_TINT) ? (o)->value.i : (o)->value.n )
+# define nvalue_img(o) check_exp( ttisnumber(o), (ttype(o)==LUA_TINT) ? 0 : _LF(cimag)( (o)->value.n ) ) 
+# define nvalue(o) check_exp( ttisnumber(o), (ttype(o)==LUA_TINT) ? cast_num((o)->value.i) : _LF(creal)((o)->value.n) ) 
+/* */
+#elif defined(LUA_TINT)
+# define nvalue(o)	check_exp( ttisnumber(o), (ttype(o)==LUA_TINT) ? cast_num((o)->value.i) : (o)->value.n )
+# define nvalue_fast(o) check_exp( ttype(o)==LUA_TNUMBER, (o)->value.n )   
+#else
+# define nvalue(o)	check_exp( ttisnumber(o), (o)->value.n )
+# define nvalue_fast(o) nvalue(o)
+#endif
+
+#ifdef LUA_TINT
+# define ivalue(o)	check_exp( ttype(o)==LUA_TINT, (o)->value.i )
+#endif
+#else
 #define nvalue(o)	check_exp(ttisnumber(o), (o)->value.n)
+#endif /* LNUM_PATCH */
 #define rawtsvalue(o)	check_exp(ttisstring(o), &(o)->value.gc->ts)
 #define tsvalue(o)	(&rawtsvalue(o)->tsv)
 #define rawuvalue(o)	check_exp(ttisuserdata(o), &(o)->value.gc->u)
@@ -301,8 +381,33 @@ typedef struct lua_TValue {
 
 #define setnilvalue(obj) ((obj)->tt=LUA_TNIL)
 
+#if LNUM_PATCH
+/* Must not have side effects, 'x' may be expression.
+*/
+#define setnvalue(obj,x) { TValue *i_o=(obj); i_o->value.n= (x); i_o->tt=LUA_TNUMBER; }
+
+#ifdef LUA_TINT
+# define setivalue(obj,x) { TValue *i_o=(obj); i_o->value.i=(x); i_o->tt=LUA_TINT; }
+#else
+# define setivalue(obj,x) setnvalue(obj,cast_num(x))
+#endif
+
+/* Note: Complex always has "inline", both are C99.
+*/
+#ifdef LNUM_COMPLEX
+  static inline void setnvalue_complex_fast( TValue *obj, lua_Complex x ) {
+    lua_assert( _LF(cimag)(x) != 0 );
+    obj->value.n= x; obj->tt= LUA_TNUMBER;
+  }
+  static inline void setnvalue_complex( TValue *obj, lua_Complex x ) {
+    if (_LF(cimag)(x) == 0) { setnvalue(obj, _LF(creal)(x)); }
+    else { obj->value.n= x; obj->tt= LUA_TNUMBER; }
+  }
+#endif
+#else
 #define setnvalue(obj,x) \
   { TValue *i_o=(obj); i_o->value.n=(x); i_o->tt=LUA_TNUMBER; }
+#endif /* LNUM_PATCH */
 
 #define setpvalue(obj,x) \
   { TValue *i_o=(obj); i_o->value.p=(x); i_o->tt=LUA_TLIGHTUSERDATA; }
@@ -389,7 +494,16 @@ typedef struct lua_TValue {
 #define setttype(obj, tt) (ttype(obj) = (tt))
 
 
+
+#if LNUM_PATCH
+#if defined(LUA_TINT) && (LUA_TINT >= LUA_TSTRING)
+# define iscollectable(o)	((ttype(o) >= LUA_TSTRING) && (ttype(o) != LUA_TINT))
+#else
+# define iscollectable(o)	(ttype(o) >= LUA_TSTRING)
+#endif
+#else
 #define iscollectable(o)	(ttype(o) >= LUA_TSTRING)
+#endif /* LNUM_PATCH */
 
 
 
@@ -577,7 +691,9 @@ LUAI_FUNC int luaO_log2 (unsigned int x);
 LUAI_FUNC int luaO_int2fb (unsigned int x);
 LUAI_FUNC int luaO_fb2int (int x);
 LUAI_FUNC int luaO_rawequalObj (const TValue *t1, const TValue *t2);
+#if !LNUM_PATCH
 LUAI_FUNC int luaO_str2d (const char *s, lua_Number *result);
+#endif /* !LNUM_PATCH */
 #if LUA_WIDESTRING
 LUAI_FUNC int luaO_wstr2d (const lua_WChar *s, lua_Number *result);
 #endif /* LUA_WIDESTRING */
