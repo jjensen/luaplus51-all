@@ -9,6 +9,7 @@ if $(MSVCNT) {
 			luaL_buffinit
 			luaL_callmeta
 			luaL_checkany
+			luaL_checkboolean
 			luaL_checkinteger
 			luaL_checklstring
 			luaL_checknumber
