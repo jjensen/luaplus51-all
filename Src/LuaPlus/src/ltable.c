@@ -310,7 +310,7 @@ static void setnodevector (lua_State *L, Table *t, int size) {
 #endif /* LUA_MEMORY_STATS */
     t->node = luaM_newvector(L, size, Node);
 #if LUA_MEMORY_STATS
-	luaM_setname(L, 0);
+    luaM_setname(L, 0);
 #endif /* LUA_MEMORY_STATS */
     for (i=0; i<size; i++) {
       Node *n = gnode(t, i);
@@ -473,16 +473,16 @@ void luaH_removekey (lua_State *L, Table *t, Node *e) {
   }
   else {
     /* It is in its main position.  Copy some stuff around and relink */
-	if (gnext(e) != NULL) {
-	  Node* nold = gnext(e);
+    if (gnext(e) != NULL) {
+      Node* nold = gnext(e);
       setnilvalue(gkey(e));  /* clear node `e' */
-	  *mp = *gnext(e);
+      *mp = *gnext(e);
       gnext(nold) = NULL;  /* now `mp' is free */
-	  setnilvalue2n(L, gval(nold));
-	  luarc_newvalue(gkey(nold));
+      setnilvalue2n(L, gval(nold));
+      luarc_newvalue(gkey(nold));
       if (nold > t->lastfree)
         t->lastfree = nold;
-	} else {
+    } else {
       setnilvalue(gkey(e));  /* clear node `e' */
       if (e > t->lastfree)
         t->lastfree = e;
@@ -705,11 +705,11 @@ TValue *luaH_setnum (lua_State *L, Table *t, int key) {
   else {
     TValue k;
 #if LUA_REFCOUNT
-	TValue *ret;
+    TValue *ret;
     setnvalue2n(&k, cast_num(key));
     ret = newkey(L, t, &k);
-	setnilvalue(&k);
-	return ret;
+    setnilvalue(&k);
+    return ret;
 #else
     setnvalue(&k, cast_num(key));
     return newkey(L, t, &k);
@@ -725,11 +725,11 @@ TValue *luaH_setstr (lua_State *L, Table *t, TString *key) {
   else {
     TValue k;
 #if LUA_REFCOUNT
-	TValue *ret;
+    TValue *ret;
     setsvalue2n(L, &k, key);
     ret = newkey(L, t, &k);
-	setnilvalue(&k);
-	return ret;
+    setnilvalue(&k);
+    return ret;
 #else
     setsvalue(L, &k, key);
     return newkey(L, t, &k);
@@ -747,11 +747,11 @@ TValue *luaH_setwstr (lua_State *L, Table *t, TString *key) {
   else {
     TValue k;
 #if LUA_REFCOUNT
-	TValue *ret;
+    TValue *ret;
     setwsvalue2n(L, &k, key);
     ret = newkey(L, t, &k);
-	setnilvalue(&k);
-	return ret;
+    setnilvalue(&k);
+    return ret;
 #else
     setwsvalue(L, &k, key);
     return newkey(L, t, &k);

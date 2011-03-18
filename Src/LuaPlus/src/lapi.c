@@ -1446,10 +1446,10 @@ LUA_API int lua_fastrefindex (lua_State *L, int idx) {
   if (idx <= LUA_FASTREFNIL) {
     if (idx == LUA_FASTREFNIL) {
       value = &G(L)->fastrefNilValue;
-	} else {
+    } else {
       idx = -idx + LUA_FASTREFNIL - 1;
       value = (TValue*)luaH_getinthelper(hvalue(&G(L)->l_refs), idx);
-	}
+    }
   } else {
     value = index2adr(L, idx);
   }
@@ -1475,7 +1475,7 @@ LUA_API int lua_fastref (lua_State *L) {
 LUA_API void lua_fastunref (lua_State *L, int ref) {
   ref = -ref + LUA_FASTREFNIL - 1;
   if (ref >= 0) {
-	TValue refObj;
+    TValue refObj;
     StkId to = &G(L)->l_refs;
     const TValue *firstfree = luaH_getinthelper(hvalue(to), LUA_RIDX_FASTREF_FREELIST);
     setobj2t(L, luaH_setinthelper(L, hvalue(to), ref), firstfree);
