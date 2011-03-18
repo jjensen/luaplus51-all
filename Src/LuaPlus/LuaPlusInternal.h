@@ -12,10 +12,6 @@
 
 #include "src/lua.h"
 
-NAMESPACE_LUA_BEGIN
-struct lua_TValue;
-NAMESPACE_LUA_END
-
 #define LUAPLUS_ENABLE_INLINES
 #ifdef LUAPLUS_ENABLE_INLINES
 #define LUAPLUS_INLINE inline

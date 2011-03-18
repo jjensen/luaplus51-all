@@ -88,8 +88,8 @@ NAMESPACE_LUA_BEGIN
 #define dummynode		(&dummynode_)
 
 static const Node dummynode_ = {
-  {{NULL}, LUA_TNIL},  /* value */
-  {{{NULL}, LUA_TNIL, NULL}}  /* key */
+  {LUA_TVALUE_NIL},  /* value */
+  {LUA_TKEY_NIL}     /* key */
 };
 
 
@@ -707,7 +707,7 @@ static TValue *newkey (lua_State *L, Table *t, const TValue *key) {
       mp = n;
     }
   }
-  gkey(mp)->value = key->value; gkey(mp)->tt = key->tt;
+  setobj2t(L, gkey(mp), key);
 #if LUA_REFCOUNT    
   luarc_addref(gkey(mp));
 #endif /* LUA_REFCOUNT */

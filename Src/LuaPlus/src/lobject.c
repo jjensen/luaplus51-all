@@ -188,7 +188,7 @@ static double triow_to_double(const lua_WChar *source, lua_WChar **endp)
 }
 #endif /* LUA_WIDESTRING */
 
-const TValue luaO_nilobject_ = {{NULL}, LUA_TNIL};
+const TValue luaO_nilobject_ = {LUA_TVALUE_NIL};
 
 
 /*
