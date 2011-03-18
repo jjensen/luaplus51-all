@@ -134,19 +134,44 @@ typedef union {
   int b;
 } Value;
 
-
 /*
 ** Tagged Values
 */
 
+#if LUA_PACK_VALUE == 0
+
 #define TValuefields	Value value; int tt
+#define LUA_TVALUE_NIL  {NULL}, LUA_TNIL
 
 typedef struct lua_TValue {
   TValuefields;
 } TValue;
 
+#else
+
+#define TValuefields	union { \
+  struct { \
+    int _pad0; \
+    int tt_sig; \
+  } _ts; \
+  struct { \
+    int _pad; \
+    short tt; \
+    short sig; \
+  } _t; \
+  Value value; \
+}
+#define LUA_NOTNUMBER_SIG (-1)
+#define add_sig(tt) ( 0xffff0000 | (tt) )
+#define LUA_TVALUE_NIL {0, add_sig(LUA_TNIL)}
+
+typedef TValuefields TValue;
+
+#endif
 
 /* Macros to test type */
+#if LUA_PACK_VALUE == 0
+
 #define ttisnil(o)	(ttype(o) == LUA_TNIL)
 #if LNUM_PATCH
 #ifdef LUA_TINT
@@ -177,8 +202,31 @@ typedef struct lua_TValue {
 #define ttiswstring(o)	(ttype(o) == LUA_TWSTRING)
 #endif /* LUA_WIDESTRING */
 
+#else
+
+#define ttisnil(o)	(ttype_sig(o) == add_sig(LUA_TNIL))
+#define ttisnumber(o)	((o)->_t.sig != LUA_NOTNUMBER_SIG)
+#define ttisstring(o)	(ttype_sig(o) == add_sig(LUA_TSTRING))
+#define ttistable(o)	(ttype_sig(o) == add_sig(LUA_TTABLE))
+#define ttisfunction(o)	(ttype_sig(o) == add_sig(LUA_TFUNCTION))
+#define ttisboolean(o)	(ttype_sig(o) == add_sig(LUA_TBOOLEAN))
+#define ttisuserdata(o)	(ttype_sig(o) == add_sig(LUA_TUSERDATA))
+#define ttisthread(o)	(ttype_sig(o) == add_sig(LUA_TTHREAD))
+#define ttislightuserdata(o)	(ttype_sig(o) == add_sig(LUA_TLIGHTUSERDATA))
+#if LUA_WIDESTRING
+#define ttiswstring(o)	(ttype_sig(o) == add_sig(LUA_TWSTRING))
+#endif /* LUA_WIDESTRING */
+
+#endif
+
+
 /* Macros to access values */
+#if LUA_PACK_VALUE == 0
 #define ttype(o)	((o)->tt)
+#else
+#define ttype(o)	((o)->_t.sig == LUA_NOTNUMBER_SIG ? (o)->_t.tt : LUA_TNUMBER)
+#define ttype_sig(o)	((o)->_ts.tt_sig)
+#endif
 #define gcvalue(o)	check_exp(iscollectable(o), (o)->value.gc)
 #define pvalue(o)	check_exp(ttislightuserdata(o), (o)->value.p)
 #if LNUM_PATCH
@@ -236,13 +284,21 @@ typedef struct lua_TValue {
 /*
 ** for internal debug only
 */
+#if LUA_PACK_VALUE == 0
 #define checkconsistency(obj) \
   lua_assert(!iscollectable(obj) || (ttype(obj) == (obj)->value.gc->gch.tt))
 
 #define checkliveness(g,obj) \
   lua_assert(!iscollectable(obj) || \
   ((ttype(obj) == (obj)->value.gc->gch.tt) && !isdead(g, (obj)->value.gc)))
+#else
+#define checkconsistency(obj) \
+  lua_assert(!iscollectable(obj) || (ttype(obj) == (obj)->value.gc->gch.tt))
 
+#define checkliveness(g,obj) \
+  lua_assert(!iscollectable(obj) || \
+  ((ttype(obj) == (obj)->value.gc->gch.tt) && !isdead(g, (obj)->value.gc)))
+#endif
 
 /* Macros to set values */
 #if LUA_REFCOUNT
@@ -379,6 +435,8 @@ typedef struct lua_TValue {
 
 #else /* !LUA_REFCOUNT */
 
+#if LUA_PACK_VALUE == 0
+
 #define setnilvalue(obj) ((obj)->tt=LUA_TNIL)
 
 #if LNUM_PATCH
@@ -460,6 +518,66 @@ typedef struct lua_TValue {
     checkliveness(G(L),i_o); }
 #endif /* LUA_WIDESTRING */
 
+#else /* LUA_PACK_VALUE != 0 */
+
+#define setnilvalue(obj) ( ttype_sig(obj) = add_sig(LUA_TNIL) )
+
+#define setnvalue(obj,x) \
+  { TValue *i_o=(obj); i_o->value.n=(x); }
+
+#define setpvalue(obj,x) \
+  { TValue *i_o=(obj); i_o->value.p=(x); i_o->_ts.tt_sig=add_sig(LUA_TLIGHTUSERDATA);}
+
+#define setbvalue(obj,x) \
+  { TValue *i_o=(obj); i_o->value.b=(x); i_o->_ts.tt_sig=add_sig(LUA_TBOOLEAN);}
+
+#define setsvalue(L,obj,x) \
+  { TValue *i_o=(obj); \
+    i_o->value.gc=cast(GCObject *, (x)); i_o->_ts.tt_sig=add_sig(LUA_TSTRING); \
+    checkliveness(G(L),i_o); }
+
+#define setuvalue(L,obj,x) \
+  { TValue *i_o=(obj); \
+    i_o->value.gc=cast(GCObject *, (x)); i_o->_ts.tt_sig=add_sig(LUA_TUSERDATA); \
+    checkliveness(G(L),i_o); }
+
+#define setthvalue(L,obj,x) \
+  { TValue *i_o=(obj); \
+    i_o->value.gc=cast(GCObject *, (x)); i_o->_ts.tt_sig=add_sig(LUA_TTHREAD); \
+    checkliveness(G(L),i_o); }
+
+#define setclvalue(L,obj,x) \
+  { TValue *i_o=(obj); \
+    i_o->value.gc=cast(GCObject *, (x)); i_o->_ts.tt_sig=add_sig(LUA_TFUNCTION); \
+    checkliveness(G(L),i_o); }
+
+#define sethvalue(L,obj,x) \
+  { TValue *i_o=(obj); \
+    i_o->value.gc=cast(GCObject *, (x)); i_o->_ts.tt_sig=add_sig(LUA_TTABLE); \
+    checkliveness(G(L),i_o); }
+
+#define setptvalue(L,obj,x) \
+  { TValue *i_o=(obj); \
+    i_o->value.gc=cast(GCObject *, (x)); i_o->_ts.tt_sig=add_sig(LUA_TPROTO); \
+    checkliveness(G(L),i_o); }
+
+
+
+
+#define setobj(L,obj1,obj2) \
+  { const TValue *o2=(obj2); TValue *o1=(obj1); \
+    o1->value = o2->value; \
+    checkliveness(G(L),o1); }
+
+#if LUA_WIDESTRING
+#define setwsvalue(L,obj,x) \
+  { TValue *i_o=(obj); \
+    i_o->value.gc=cast(GCObject *, (x)); i_o->_ts.tt_sig=add_sig(LUA_TWSTRING); \
+    checkliveness(G(L),i_o); }
+#endif /* LUA_WIDESTRING */
+
+#endif
+
 #endif /* LUA_REFCOUNT */
 
 /*
@@ -491,8 +609,13 @@ typedef struct lua_TValue {
 #endif /* LUA_WIDESTRING */
 #endif /* LUA_REFCOUNT */
 
+#if LUA_PACK_VALUE == 0
 #define setttype(obj, tt) (ttype(obj) = (tt))
-
+#else
+/* considering it used only in lgc to set LUA_TDEADKEY */
+/* we could define it this way */
+#define setttype(obj, _tt) ( ttype_sig(obj) = add_sig(_tt) )
+#endif
 
 
 #if LNUM_PATCH
@@ -641,6 +764,8 @@ typedef union Closure {
 ** Tables
 */
 
+#if LUA_PACK_VALUE == 0 
+
 typedef union TKey {
   struct {
     TValuefields;
@@ -649,6 +774,20 @@ typedef union TKey {
   TValue tvk;
 } TKey;
 
+#define LUA_TKEY_NIL {LUA_TVALUE_NIL, NULL}
+
+#else
+
+typedef struct TKey {
+  TValue tvk;
+  struct {
+     struct Node *next; /* for chaining */
+  } nk;
+} TKey;
+
+#define LUA_TKEY_NIL {LUA_TVALUE_NIL}, {NULL}
+
+#endif
 
 typedef struct Node {
   TValue i_val;
