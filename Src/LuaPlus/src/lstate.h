@@ -102,10 +102,6 @@ typedef struct global_State {
   TString *tmname[TM_N];  /* array with tag-method names */
 #if LUAPLUS_EXTENSIONS
   void (*userGCFunction)(void*);
-  void* gchead_next;		   // only valid when in free list
-  void* gchead_prev;		   // only valid when in used list
-  void* gctail_next;		   // only valid when in free list
-  void* gctail_prev;		   // only valid when in used list
   void (*loadNotifyFunction)(lua_State *L, const char *);
 #endif /* LUAPLUS_EXTENSIONS */
 #if LUA_FASTREF_SUPPORT

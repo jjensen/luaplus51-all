@@ -579,7 +579,7 @@ static void lua_WChar_ncpy(lua_WChar* dest, const lua_WChar* src, size_t count)
 #endif
 
 
-size_t lua_WChar_len(const lua_WChar* str)
+LUA_API size_t lua_WChar_len(const lua_WChar* str)
 {
 	const lua_WChar* ptr = str;
 	while (*ptr != 0)

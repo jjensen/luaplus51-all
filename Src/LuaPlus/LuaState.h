@@ -77,12 +77,12 @@ public:
 
 	int Equal(int index1, int index2);
 #if LUAPLUS_EXTENSIONS
- 	LUAPLUS_CLASS_API int Equal(const LuaObject& o1, const LuaObject& o2);
+ 	int Equal(const LuaObject& o1, const LuaObject& o2);
 #endif // LUAPLUS_EXTENSIONS
 	int RawEqual(int index1, int index2);
 	int LessThan(int index1, int index2);
 #if LUAPLUS_EXTENSIONS
-	LUAPLUS_CLASS_API int LessThan(const LuaObject& o1, const LuaObject& o2);
+	int LessThan(const LuaObject& o1, const LuaObject& o2);
 #endif // LUAPLUS_EXTENSIONS
 
 	lua_Number ToNumber(int index);
@@ -112,9 +112,9 @@ public:
 	LuaStackObject PushLWString(const lua_WChar* s, size_t len);
 	LuaStackObject PushWString(const lua_WChar* s);
 #endif /* LUA_WIDESTRING */
-	
+
 	LuaStackObject PushCClosure(lua_CFunction fn, int n);
-	LUAPLUS_CLASS_API LuaStackObject PushCClosure(int (*f)(LuaState*), int n);
+	LuaStackObject PushCClosure(int (*f)(LuaState*), int n);
 
 	LuaStackObject PushCFunction(lua_CFunction f);
 	LuaStackObject PushBoolean(bool value);
@@ -133,9 +133,9 @@ public:
 
 	// LuaPlus ---->
 #if LUAPLUS_EXTENSIONS
-	LUAPLUS_CLASS_API LuaObject GetGlobals() throw();
-	LUAPLUS_CLASS_API LuaObject GetRegistry();
-	LUAPLUS_CLASS_API LuaObject GetGlobal(const char *name);
+	LuaObject GetGlobals() throw();
+	LuaObject GetRegistry();
+	LuaObject GetGlobal(const char *name);
 #endif // LUAPLUS_EXTENSIONS
 	LuaStackObject GetGlobals_Stack();					// Backward compatible.
 	LuaStackObject GetRegistry_Stack();
@@ -209,7 +209,7 @@ public:
 
 	lua_Alloc GetAllocF(void **ud);
 	void SetAllocF(lua_Alloc f, void *ud);
-	
+
 	// Helper functions
 	void Pop();
 	void Pop(int amount);
@@ -272,7 +272,7 @@ public:
 
 	int Ref(int t);
 	void Unref(int t, int ref);
-	
+
 	int LoadFile(const char* filename);
 	int LoadBuffer(const char* buff, size_t size, const char* name);
 	int LoadString(const char* str);
@@ -293,9 +293,9 @@ public:
 	int DoString(const char *str);
 	int DoBuffer(const char *buff, size_t size, const char *name);
 #if LUAPLUS_EXTENSIONS
-	LUAPLUS_CLASS_API int DoFile(const char *filename, LuaObject& fenvObj);
-	LUAPLUS_CLASS_API int DoString(const char *str, LuaObject& fenvObj);
-	LUAPLUS_CLASS_API int DoBuffer(const char *buff, size_t size, const char *name, LuaObject& fenvObj);
+	int DoFile(const char *filename, LuaObject& fenvObj);
+	int DoString(const char *str, LuaObject& fenvObj);
+	int DoBuffer(const char *buff, size_t size, const char *name, LuaObject& fenvObj);
 #endif // LUAPLUS_EXTENSIONS
 
 #if LUA_WIDESTRING
@@ -310,7 +310,7 @@ public:
 	void GetMetaTable(const char* metatableName);
 
 #if LUAPLUS_EXTENSIONS
-	LUAPLUS_CLASS_API LuaObject NewUserDataBox(void* u);
+	LuaObject NewUserDataBox(void* u);
 #endif // LUAPLUS_EXTENSIONS
 
 #if LUAPLUS_DUMPOBJECT

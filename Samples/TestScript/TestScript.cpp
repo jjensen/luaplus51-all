@@ -29,7 +29,7 @@ void NewUserDataBoxTest()
 	meta.RegisterObjectDirect("bar", (Foo*)0, &Foo::bar);
 	obj.SetMetaTable(meta);
 
-	lua->GetGlobals().SetObject("f", obj);
+	lua->GetGlobals().Set("f", obj);
 
 	f.bar();   // OK
 	lua->DoString("f:bar()");   // ASSERT
@@ -528,7 +528,7 @@ void TestGCObject()
 
 /*	{
 		LuaObject stringObj(state);
-		stringObj.AssignString("Hello, world!");
+		stringObj.Assign("Hello, world!");
 		LuaObject globalsObj = state->GetGlobals();
 	}
 
@@ -600,7 +600,7 @@ void CloneTest()
 	lua_setdefaultallocfunction(NULL, NULL);
 
 	LuaObject valueObj(state);
-	valueObj.AssignBoolean(state, true);
+	valueObj.Assign(state, true);
 
 	LuaObject cloneObj = valueObj.Clone();
 
@@ -658,11 +658,11 @@ void TestThreeThreads()
 	obj.AssignNewTable(state);
 
 	LuaObject obj2(thread2);
-	obj2.AssignString(state, "Hi");
+	obj2.Assign(state, "Hi");
 
 #if LUA_WIDESTRING
 	LuaObject obj3(thread2);
-	obj3.AssignWString(state, (const lua_WChar*)L"Hello");
+	obj3.Assign(state, (const lua_WChar*)L"Hello");
 #endif /* LUA_WIDESTRING */
 
 	state->GetGlobals().Register("CallbackA", CallbackA);
@@ -691,7 +691,7 @@ void DumpTest()
 {
 	LuaStateOwner state(false);
 	LuaObject complexObj = state->GetGlobals().CreateTable("Complex");
-	complexObj.SetString("d:\\Test\\Stuff\\\xff\xfe", "An entry");
+	complexObj.Set("d:\\Test\\Stuff\\\xff\xfe", "An entry");
 	state->DumpObject("test.lua", "Complex", complexObj);
 }
 
@@ -699,7 +699,7 @@ void DumpTest()
 void TestANSIFile()
 {
 	LuaStateOwner state(true);
-	state->DoFile("TestANSI.lua");
+	int ret = state->DoFile("TestANSI.lua");
 
 	LuaObject sObj = state->GetGlobal("s");
 	const char* str = sObj.GetString();
@@ -793,19 +793,19 @@ void MultiObjectTest()
 	LuaStateOwner state;
 
 	LuaObject metaTableObj = state->GetGlobals().CreateTable("MultiObjectMetaTable");
-	metaTableObj.SetObject("__index", metaTableObj);
+	metaTableObj.Set("__index", metaTableObj);
 	metaTableObj.RegisterObjectFunctor("Print", &MultiObject::Print);
 	metaTableObj.RegisterObjectDirect("Print2", (MultiObject*)0, &MultiObject::Print2);
 
 	MultiObject obj1(10);
 	LuaObject obj1Obj = state->BoxPointer(&obj1);
 	obj1Obj.SetMetaTable(metaTableObj);
-	state->GetGlobals().SetObject("obj1", obj1Obj);
+	state->GetGlobals().Set("obj1", obj1Obj);
 
 	MultiObject obj2(20);
 	LuaObject obj2Obj = state->BoxPointer(&obj2);
 	obj2Obj.SetMetaTable(metaTableObj);
-	state->GetGlobals().SetObject("obj2", obj2Obj);
+	state->GetGlobals().Set("obj2", obj2Obj);
 
 	state->DoString("obj1:Print()");
 	state->DoString("obj2:Print()");
@@ -813,11 +813,11 @@ void MultiObjectTest()
 	state->DoString("obj2:Print2(15)");
 
 	LuaObject table1Obj = state->GetGlobals().CreateTable("table1");
-	table1Obj.SetLightUserData("__object", &obj1);
+	table1Obj.Set("__object", &obj1);
 	table1Obj.SetMetaTable(metaTableObj);
 
 	LuaObject table2Obj = state->GetGlobals().CreateTable("table2");
-	table2Obj.SetLightUserData("__object", &obj2);
+	table2Obj.Set("__object", &obj2);
 	table2Obj.SetMetaTable(metaTableObj);
 
 	state->DoString("table1:Print()");
@@ -900,9 +900,9 @@ void RCTest()
 {
 	LuaStateOwner state(false);
 	LuaObject stringObj(state);
-	stringObj.AssignString(state, "Test");
+	stringObj.Assign(state, "Test");
 #if LUA_WIDESTRING
-	stringObj.AssignWString(state, (const lua_WChar*)L"Wide String");
+	stringObj.Assign(state, (const lua_WChar*)L"Wide String");
 #endif /* LUA_WIDESTRING */
 }
 
@@ -973,7 +973,7 @@ void PropertyTest()
 	metaTableObj.RegisterObjectDirect("SetVar", (MyPropertyTest*)0, &MyPropertyTest::SetVar);
 
 	LuaObject table1Obj = state->GetGlobals().CreateTable("table1");
-	table1Obj.SetLightUserData("__object", &test);
+	table1Obj.Set("__object", &test);
 	table1Obj.SetMetaTable(metaTableObj);
 
 	LPCD::PropertyCreate(metaTableObj, "var", &MyPropertyTest::m_var);
@@ -1180,7 +1180,7 @@ void VectorMonsterMetatableTest()
 	MONSTER monster;
 
 	LuaObject monsterObj = state->GetGlobals().CreateTable("Monster");
-	monsterObj.SetLightUserData("__object", &monster);
+	monsterObj.Set("__object", &monster);
 	monsterObj.SetMetaTable(monsterMetaTableObj);
 
 	state->DoString("Monster.alive = 1");
@@ -1244,7 +1244,7 @@ void TestClass()
     state->PushString("Golden Retriever");
     state->PCall(1, 1, 0);
     LuaObject myObject(state, -1);
-    state->GetGlobals().SetObject("GoldenRetriever", myObject);
+    state->GetGlobals().Set("GoldenRetriever", myObject);
 
     state->DoString("print(GoldenRetriever)");
 }
@@ -1306,40 +1306,40 @@ void MemoryKeyTest()
 		LuaObject string6_1;
 		LuaObject string7_1;
 		LuaObject string8_1;
-		string1.AssignString(state, "String1");
-		string2.AssignString(state, "String2");
-		string3.AssignString(state, "String3");
-		string4.AssignString(state, "String4");
-		string5.AssignString(state, "String5");
-		string6.AssignString(state, "String6");
-		string7.AssignString(state, "String7");
-		string8.AssignString(state, "String8");
-		string1_1.AssignString(state, "String1_1");
-		string2_1.AssignString(state, "String2_1");
-		string3_1.AssignString(state, "String3_1");
-		string4_1.AssignString(state, "String4_1");
-		string5_1.AssignString(state, "String5_1");
-		string6_1.AssignString(state, "String6_1");
-		string7_1.AssignString(state, "String7_1");
-		string8_1.AssignString(state, "String8_1");
+		string1.Assign(state, "String1");
+		string2.Assign(state, "String2");
+		string3.Assign(state, "String3");
+		string4.Assign(state, "String4");
+		string5.Assign(state, "String5");
+		string6.Assign(state, "String6");
+		string7.Assign(state, "String7");
+		string8.Assign(state, "String8");
+		string1_1.Assign(state, "String1_1");
+		string2_1.Assign(state, "String2_1");
+		string3_1.Assign(state, "String3_1");
+		string4_1.Assign(state, "String4_1");
+		string5_1.Assign(state, "String5_1");
+		string6_1.Assign(state, "String6_1");
+		string7_1.Assign(state, "String7_1");
+		string8_1.Assign(state, "String8_1");
 
 		LuaObject globalsObj = state->GetGlobals();
-		globalsObj.SetString(string1, "Stuff1");
-		globalsObj.SetString(string2, "Stuff2");
-		globalsObj.SetString(string3, "Stuff3");
-		globalsObj.SetString(string4, "Stuff4");
-		globalsObj.SetString(string5, "Stuff5");
-		globalsObj.SetString(string6, "Stuff6");
-		globalsObj.SetString(string7, "Stuff7");
-		globalsObj.SetString(string8, "Stuff8");
-		globalsObj.SetString(string1_1, "Stuff1_1");
-		globalsObj.SetString(string2_1, "Stuff2_1");
-		globalsObj.SetString(string3_1, "Stuff3_1");
-		globalsObj.SetString(string4_1, "Stuff4_1");
-		globalsObj.SetString(string5_1, "Stuff5_1");
-		globalsObj.SetString(string6_1, "Stuff6_1");
-		globalsObj.SetString(string7_1, "Stuff7_1");
-		globalsObj.SetString(string8_1, "Stuff8_1");
+		globalsObj.Set(string1, "Stuff1");
+		globalsObj.Set(string2, "Stuff2");
+		globalsObj.Set(string3, "Stuff3");
+		globalsObj.Set(string4, "Stuff4");
+		globalsObj.Set(string5, "Stuff5");
+		globalsObj.Set(string6, "Stuff6");
+		globalsObj.Set(string7, "Stuff7");
+		globalsObj.Set(string8, "Stuff8");
+		globalsObj.Set(string1_1, "Stuff1_1");
+		globalsObj.Set(string2_1, "Stuff2_1");
+		globalsObj.Set(string3_1, "Stuff3_1");
+		globalsObj.Set(string4_1, "Stuff4_1");
+		globalsObj.Set(string5_1, "Stuff5_1");
+		globalsObj.Set(string6_1, "Stuff6_1");
+		globalsObj.Set(string7_1, "Stuff7_1");
+		globalsObj.Set(string8_1, "Stuff8_1");
 
 		globalsObj.SetNil(string8_1);
 		globalsObj.SetNil(string7_1);
@@ -1358,22 +1358,22 @@ void MemoryKeyTest()
 		globalsObj.SetNil(string2);
 		globalsObj.SetNil(string1);
 
-		globalsObj.SetString(string1, "Stuff1");
-		globalsObj.SetString(string2, "Stuff2");
-		globalsObj.SetString(string3, "Stuff3");
-		globalsObj.SetString(string4, "Stuff4");
-		globalsObj.SetString(string5, "Stuff5");
-		globalsObj.SetString(string6, "Stuff6");
-		globalsObj.SetString(string7, "Stuff7");
-		globalsObj.SetString(string8, "Stuff8");
-		globalsObj.SetString(string1_1, "Stuff1_1");
-		globalsObj.SetString(string2_1, "Stuff2_1");
-		globalsObj.SetString(string3_1, "Stuff3_1");
-		globalsObj.SetString(string4_1, "Stuff4_1");
-		globalsObj.SetString(string5_1, "Stuff5_1");
-		globalsObj.SetString(string6_1, "Stuff6_1");
-		globalsObj.SetString(string7_1, "Stuff7_1");
-		globalsObj.SetString(string8_1, "Stuff8_1");
+		globalsObj.Set(string1, "Stuff1");
+		globalsObj.Set(string2, "Stuff2");
+		globalsObj.Set(string3, "Stuff3");
+		globalsObj.Set(string4, "Stuff4");
+		globalsObj.Set(string5, "Stuff5");
+		globalsObj.Set(string6, "Stuff6");
+		globalsObj.Set(string7, "Stuff7");
+		globalsObj.Set(string8, "Stuff8");
+		globalsObj.Set(string1_1, "Stuff1_1");
+		globalsObj.Set(string2_1, "Stuff2_1");
+		globalsObj.Set(string3_1, "Stuff3_1");
+		globalsObj.Set(string4_1, "Stuff4_1");
+		globalsObj.Set(string5_1, "Stuff5_1");
+		globalsObj.Set(string6_1, "Stuff6_1");
+		globalsObj.Set(string7_1, "Stuff7_1");
+		globalsObj.Set(string8_1, "Stuff8_1");
 
 		globalsObj.SetNil(string8_1);
 		globalsObj.SetNil(string7_1);
@@ -1440,12 +1440,12 @@ void MiniTest()
 	ret = state->DoString("a = L'Hello'");
 	obj = state->GetGlobals()["a"];
 
-	obj.AssignLightUserData(state, (void*)0x12345678);
+	obj.Assign(state, (void*)0x12345678);
 
 	ret = state->DoString("a = function() end");
 	obj = state->GetGlobals()["a"];
 
-	obj.AssignUserData(state, (void*)0x12345678);
+	obj.Assign(state, (void*)0x12345678);
 
 	ret = state->DoString("a = { { 'hello', 'hi', 10 }, { { key = 'value', me = true, }, 'one more', [1000] = 'stuff' } }");
 	obj = state->GetGlobals()["a"];
@@ -1510,7 +1510,7 @@ void TestGC()
 
     state->GC(LUA_GCRESTART, 1);
     LuaObject strObj;
-    strObj.AssignString(state, "Hello");
+    strObj.Assign(state, "Hello");
     while (state->GC(LUA_GCSTEP, 1) != 1)
     {
     }

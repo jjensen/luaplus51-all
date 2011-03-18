@@ -46,16 +46,6 @@ LUA_EXTERN_C_END
 
 namespace LuaPlus {
 
-#if LUAPLUS_EXTENSIONS
-
-LuaObject LuaState::GetGlobals() throw()
-{
-	return LuaObject( this, gt(LuaState_to_lua_State(this)) );
-}
-
-#endif // LUAPLUS_EXTENSIONS
-
-
 LuaStackObject LuaState::PushVFString(const char *fmt, va_list argp) {
 	lua_State* L = LuaState_to_lua_State(this);
 	lua_lock(L);
@@ -81,28 +71,6 @@ LuaStackObject LuaState::PushFString(const char *fmt, ...) {
 
 #if LUAPLUS_EXTENSIONS
 
-int LuaState::Equal(const LuaObject& o1, const LuaObject& o2)
-{
-	int i = equalobj(o1.GetCState(), o1.GetTObject(), o2.GetTObject());
-	return i;
-}
-
-
-int LuaState::LessThan(const LuaObject& o1, const LuaObject& o2)
-{
-	int i = luaV_lessthan(o1.GetCState(), o1.GetTObject(), o2.GetTObject());
-	return i;
-}
-
-
-LuaObject LuaState::NewUserDataBox(void* u)
-{
-	LuaObject obj(this);
-	obj.AssignUserData(this, u);
-	return obj;
-}
-
-
 LuaObject LuaState::GetLocalByName( int level, const char* name )
 {
 	lua_State * L = GetCState();
@@ -122,68 +90,6 @@ LuaObject LuaState::GetLocalByName( int level, const char* name )
 		lua_pop(L, 1);  /* remove variable value */
 	}
 	return LuaObject(this);
-}
-
-#endif // LUAPLUS_EXTENSIONS
-
-
-LuaStackObject LuaState::PushCClosure(int (*f)(LuaState*), int n)
-{
-	unsigned char* buffer = (unsigned char*)lua_newuserdata(LuaState_to_lua_State(this), sizeof(f));
-	memcpy(buffer, &f, sizeof(f));
-	Insert(-n-1);
-	lua_pushcclosure(LuaState_to_lua_State(this), LPCD::LuaStateFunctionDispatcher, n + 1);
-	return LuaStackObject(this, lua_gettop(LuaState_to_lua_State(this)));
-}
-
-
-#if LUAPLUS_EXTENSIONS
-
-int LuaState::DoString( const char *str, LuaObject& fenvObj )
-{
-	lua_State* L = LuaState_to_lua_State(this);
-	int status = luaL_loadbuffer(L, str, strlen(str), str);
-	if (status != 0)
-		return status;
-	fenvObj.Push();
-	SetFEnv(-2);
-	return lua_pcall(L, 0, LUA_MULTRET, 0);
-}
-
-
-LuaObject LuaState::GetGlobal(const char *name)
-{
-	return GetGlobals()[name];
-}
-
-
-LuaObject LuaState::GetRegistry()
-{
-	return LuaObject(this, LUA_REGISTRYINDEX);  //{  lua_getregistry(LuaState_to_lua_State(this));
-}
-
-
-int LuaState::DoFile( const char *filename, LuaObject& fenvObj )
-{
-	lua_State* L = LuaState_to_lua_State(this);
-	int status = luaL_loadfile(L, filename);
-	if (status != 0)
-		return status;
-	fenvObj.Push();
-	SetFEnv(-2);
-	return lua_pcall(L, 0, LUA_MULTRET, 0);
-}
-
-
-int LuaState::DoBuffer( const char *buff, size_t size, const char *name, LuaObject& fenvObj )
-{
-	lua_State* L = LuaState_to_lua_State(this);
-	int status = luaL_loadbuffer(L, buff, size, name);
-	if (status != 0)
-		return status;
-	fenvObj.Push();
-	SetFEnv(-2);
-	return lua_pcall(L, 0, LUA_MULTRET, 0);
 }
 
 
@@ -206,7 +112,7 @@ LUAPLUS_API void MergeObjects(LuaObject& mergeTo, LuaObject& mergeFrom, bool rep
 			}
 			else if (toNodeKeyObj.IsNil()  ||  replaceDuplicates)
 			{
-				mergeTo.SetObject(it.GetKey(), it.GetValue());
+				mergeTo.Set(it.GetKey(), it.GetValue());
 			}
 		}
 	}
@@ -217,11 +123,11 @@ LUAPLUS_API void MergeObjects(LuaObject& mergeTo, LuaObject& mergeFrom, bool rep
 			LuaObject obj;
 			switch (it.GetKey().Type())
 			{
-				case LUA_TBOOLEAN:	obj.AssignBoolean(mergeTo.GetState(), it.GetKey().GetBoolean());		break;
-				case LUA_TNUMBER:	obj.AssignNumber(mergeTo.GetState(), it.GetKey().GetNumber());			break;
-				case LUA_TSTRING:	obj.AssignString(mergeTo.GetState(), it.GetKey().GetString());			break;
+				case LUA_TBOOLEAN:	obj.Assign(mergeTo.GetState(), it.GetKey().GetBoolean());		break;
+				case LUA_TNUMBER:	obj.Assign(mergeTo.GetState(), it.GetKey().GetNumber());			break;
+				case LUA_TSTRING:	obj.Assign(mergeTo.GetState(), it.GetKey().GetString());			break;
 #if LUA_WIDESTRING
-				case LUA_TWSTRING:	obj.AssignWString(mergeTo.GetState(), it.GetKey().GetWString());		break;
+				case LUA_TWSTRING:	obj.Assign(mergeTo.GetState(), it.GetKey().GetWString());		break;
 #endif /* LUA_WIDESTRING */
 			}
 
@@ -240,21 +146,21 @@ LUAPLUS_API void MergeObjects(LuaObject& mergeTo, LuaObject& mergeFrom, bool rep
 				LuaObject toKeyObj;
 				switch (it.GetKey().Type())
 				{
-					case LUA_TBOOLEAN:	toKeyObj.AssignBoolean(mergeTo.GetState(), it.GetKey().GetBoolean());		break;
-					case LUA_TNUMBER:	toKeyObj.AssignNumber(mergeTo.GetState(), it.GetKey().GetNumber());			break;
-					case LUA_TSTRING:	toKeyObj.AssignString(mergeTo.GetState(), it.GetKey().GetString());			break;
+					case LUA_TBOOLEAN:	toKeyObj.Assign(mergeTo.GetState(), it.GetKey().GetBoolean());		break;
+					case LUA_TNUMBER:	toKeyObj.Assign(mergeTo.GetState(), it.GetKey().GetNumber());			break;
+					case LUA_TSTRING:	toKeyObj.Assign(mergeTo.GetState(), it.GetKey().GetString());			break;
 #if LUA_WIDESTRING
-					case LUA_TWSTRING:	toKeyObj.AssignWString(mergeTo.GetState(), it.GetKey().GetWString());		break;
+					case LUA_TWSTRING:	toKeyObj.Assign(mergeTo.GetState(), it.GetKey().GetWString());		break;
 #endif /* LUA_WIDESTRING */
 				}
 
 				switch (it.GetValue().Type())
 				{
-					case LUA_TBOOLEAN:	mergeTo.SetBoolean(toKeyObj, it.GetValue().GetBoolean());	break;
-					case LUA_TNUMBER:	mergeTo.SetNumber(toKeyObj, it.GetValue().GetNumber());		break;
-					case LUA_TSTRING:	mergeTo.SetString(toKeyObj, it.GetValue().GetString());		break;
+					case LUA_TBOOLEAN:	mergeTo.Set(toKeyObj, it.GetValue().GetBoolean());	break;
+					case LUA_TNUMBER:	mergeTo.Set(toKeyObj, it.GetValue().GetNumber());		break;
+					case LUA_TSTRING:	mergeTo.Set(toKeyObj, it.GetValue().GetString());		break;
 #if LUA_WIDESTRING
-					case LUA_TWSTRING:	mergeTo.SetWString(toKeyObj, it.GetValue().GetWString());	break;
+					case LUA_TWSTRING:	mergeTo.Set(toKeyObj, it.GetValue().GetWString());	break;
 #endif /* LUA_WIDESTRING */
 				}
 			}
@@ -269,11 +175,3 @@ LUAPLUS_API void MergeObjects(LuaObject& mergeTo, LuaObject& mergeFrom, bool rep
 } // namespace LuaPlus
 
 
-namespace LPCD
-{
-	void Push(lua_State* L, int (*value)(LuaState*))
-	{
-		LuaState* state = lua_State_To_LuaState(L);
-		state->PushCClosure(value, 0);
-	}
-}

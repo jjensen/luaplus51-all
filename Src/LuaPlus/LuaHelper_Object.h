@@ -38,8 +38,8 @@ namespace LuaHelper
 			of the right type.
 		\return Returns the value found or the defaultValue.
 	**/
-	LUAPLUS_API bool GetBoolean( LuaObject& obj, int key, bool require = true, bool defaultValue = false );
-	LUAPLUS_API bool GetBoolean( LuaObject& obj, const char* key, bool require = true, bool defaultValue = false );
+	inline bool GetBoolean( LuaObject& obj, int key, bool require = true, bool defaultValue = false );
+	inline bool GetBoolean( LuaObject& obj, const char* key, bool require = true, bool defaultValue = false );
 
 
 	/**
@@ -58,8 +58,8 @@ namespace LuaHelper
 			of the right type.
 		\return Returns the value found or the defaultValue.
 	**/
-	LUAPLUS_API int GetInteger( LuaObject& obj, int key, bool require = true, int defaultValue = -1 );
-	LUAPLUS_API int GetInteger( LuaObject& obj, const char* key, bool require = true, int defaultValue = -1 );
+	inline int GetInteger( LuaObject& obj, int key, bool require = true, int defaultValue = -1 );
+	inline int GetInteger( LuaObject& obj, const char* key, bool require = true, int defaultValue = -1 );
 
 
 	/**
@@ -78,8 +78,8 @@ namespace LuaHelper
 			of the right type.
 		\return Returns the value found or the defaultValue.
 	**/
-	LUAPLUS_API float GetFloat( LuaObject& obj, int key, bool require = true, float defaultValue = -1.0f );
-	LUAPLUS_API float GetFloat( LuaObject& obj, const char* key, bool require = true, float defaultValue = -1.0f );
+	inline float GetFloat( LuaObject& obj, int key, bool require = true, float defaultValue = -1.0f );
+	inline float GetFloat( LuaObject& obj, const char* key, bool require = true, float defaultValue = -1.0f );
 
 
 	/**
@@ -98,8 +98,8 @@ namespace LuaHelper
 			of the right type.
 		\return Returns the value found or the defaultValue.
 	**/
-	LUAPLUS_API void* GetLightUserData( LuaObject& obj, int key, bool require = true, void* defaultValue = NULL );
-	LUAPLUS_API void* GetLightUserData( LuaObject& obj, const char* key, bool require = true, void* defaultValue = NULL );
+	inline void* GetLightUserData( LuaObject& obj, int key, bool require = true, void* defaultValue = NULL );
+	inline void* GetLightUserData( LuaObject& obj, const char* key, bool require = true, void* defaultValue = NULL );
 
 
 	/**
@@ -118,8 +118,8 @@ namespace LuaHelper
 			of the right type.
 		\return Returns the value found or the defaultValue.
 	**/
-	LUAPLUS_API const char* GetString( LuaObject& obj, int key, bool require = true, const char* defaultValue = "" );
-	LUAPLUS_API const char* GetString( LuaObject& obj, const char* key, bool require = true, const char* defaultValue = "" );
+	inline const char* GetString( LuaObject& obj, int key, bool require = true, const char* defaultValue = "" );
+	inline const char* GetString( LuaObject& obj, const char* key, bool require = true, const char* defaultValue = "" );
 
 
 	/**
@@ -135,8 +135,8 @@ namespace LuaHelper
 			returned.
 		\return Returns the object found.
 	**/
-	LUAPLUS_API LuaObject GetTable( LuaObject& obj, int key, bool require = true );
-	LUAPLUS_API LuaObject GetTable( LuaObject& obj, const char* key, bool require = true );
+	inline LuaObject GetTable( LuaObject& obj, int key, bool require = true );
+	inline LuaObject GetTable( LuaObject& obj, const char* key, bool require = true );
 } // namespace LuaHelper
 
 } // namespace LuaPlus
