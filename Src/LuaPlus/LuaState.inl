@@ -12,6 +12,7 @@
 
 #include <string.h>
 #include <assert.h>
+#include "LuaStateCD.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // namespace LuaPlus
@@ -82,7 +83,17 @@ LUAPLUS_INLINE void LuaState::XMove(LuaState* to, int n)
 	lua_xmove(LuaState_to_lua_State(this), LuaState_to_lua_State(to), n);
 }
 
-	
+
+LUAPLUS_INLINE int LuaState::Equal(const LuaObject& o1, const LuaObject& o2) {
+	return lua_equal(o1.L, o1.ref, o2.ref);
+}
+
+
+LUAPLUS_INLINE int LuaState::LessThan(const LuaObject& o1, const LuaObject& o2) {
+	return lua_lessthan(o1.L, o1.ref, o2.ref);
+}
+
+
 // access functions (stack -> C)
 LUAPLUS_INLINE int LuaState::IsNumber(int index) const {
 	return lua_isnumber(LuaState_to_lua_State(this), index);
@@ -361,6 +372,23 @@ LUAPLUS_INLINE LuaStackObject LuaState::GetFEnv(int index) {
 	lua_getfenv(LuaState_to_lua_State(this), index);
 	return LuaStackObject(this, lua_gettop(LuaState_to_lua_State(this)));
 }
+
+LUAPLUS_INLINE LuaObject LuaState::GetGlobal(const char *name) {
+	lua_State* L = LuaState_to_lua_State(this);
+	lua_getglobal(L, name);
+	return LuaObject(L, true);
+}
+
+
+LUAPLUS_INLINE LuaObject LuaState::GetGlobals() throw() {
+	return LuaObject( this, LUA_GLOBALSINDEX );
+}
+
+
+LUAPLUS_INLINE LuaObject LuaState::GetRegistry() {
+	return LuaObject(this, LUA_REGISTRYINDEX);  //{  lua_getregistry(LuaState_to_lua_State(this));
+}
+
 
 LUAPLUS_INLINE LuaStackObject LuaState::GetGlobals_Stack()
 {
@@ -865,7 +893,7 @@ LUAPLUS_INLINE LuaStackObject LuaState::NewMetaTable(const char* tname)
 	return LuaStackObject(this, GetTop());
 }
 
-	
+
 LUAPLUS_INLINE void* LuaState::CheckUData(int ud, const char* tname)
 {
 	return luaL_checkudata(LuaState_to_lua_State(this), ud, tname);
@@ -878,7 +906,7 @@ LUAPLUS_INLINE int LuaState::Where(int lvl)
 	return LuaStackObject(this, GetTop());
 }
 
-	
+
 LUAPLUS_INLINE int LuaState::Ref(int t)
 {
 	return luaL_ref(LuaState_to_lua_State(this), t);
@@ -906,6 +934,16 @@ LUAPLUS_INLINE const char* LuaState::GSub(const char *s, const char *p, const ch
 LUAPLUS_INLINE const char* LuaState::FindTable(int idx, const char *fname, int szhint)
 {
 	return luaL_findtable(LuaState_to_lua_State(this), idx, fname, szhint);
+}
+
+
+LUAPLUS_INLINE LuaStackObject LuaState::PushCClosure(int (*f)(LuaState*), int n)
+{
+	unsigned char* buffer = (unsigned char*)lua_newuserdata(LuaState_to_lua_State(this), sizeof(f));
+	memcpy(buffer, &f, sizeof(f));
+	Insert(-n-1);
+	lua_pushcclosure(LuaState_to_lua_State(this), LPCD::LuaStateFunctionDispatcher, n + 1);
+	return LuaStackObject(this, lua_gettop(LuaState_to_lua_State(this)));
 }
 
 
@@ -949,7 +987,48 @@ LUAPLUS_INLINE void* LuaState::UnBoxPointer(int stackIndex)
 	return (*(void **)(lua_touserdata(LuaState_to_lua_State(this), stackIndex)));
 }
 
+#if LUAPLUS_EXTENSIONS
 
+LUAPLUS_INLINE LuaObject LuaState::NewUserDataBox(void* u) {
+	LuaObject obj(this);
+	obj.Assign(this, u);
+	return obj;
+}
+
+
+LUAPLUS_INLINE int LuaState::DoString( const char *str, LuaObject& fenvObj ) {
+	lua_State* L = LuaState_to_lua_State(this);
+	int status = luaL_loadbuffer(L, str, strlen(str), str);
+	if (status != 0)
+		return status;
+	fenvObj.Push();
+	SetFEnv(-2);
+	return lua_pcall(L, 0, LUA_MULTRET, 0);
+}
+
+
+LUAPLUS_INLINE int LuaState::DoFile( const char *filename, LuaObject& fenvObj ) {
+	lua_State* L = LuaState_to_lua_State(this);
+	int status = luaL_loadfile(L, filename);
+	if (status != 0)
+		return status;
+	fenvObj.Push();
+	SetFEnv(-2);
+	return lua_pcall(L, 0, LUA_MULTRET, 0);
+}
+
+
+LUAPLUS_INLINE int LuaState::DoBuffer( const char *buff, size_t size, const char *name, LuaObject& fenvObj ) {
+	lua_State* L = LuaState_to_lua_State(this);
+	int status = luaL_loadbuffer(L, buff, size, name);
+	if (status != 0)
+		return status;
+	fenvObj.Push();
+	SetFEnv(-2);
+	return lua_pcall(L, 0, LUA_MULTRET, 0);
+}
+
+#endif // LUAPLUS_EXTENSIONS
 
 
 } // namespace LuaPlus

@@ -519,6 +519,7 @@ LUA_EXTERN_C_BEGIN
 #define LUA_NUMBER_WFMT_LOCAL const lua_WChar LUA_NUMBER_WFMT[] = { '%', '.', '1', '6', 'g', 0 }
 #endif
 
+LUA_API size_t lua_WChar_len(const lua_WChar* str);
 LUA_API int             lua_iswstring (lua_State *L, int index);
 LUA_API const lua_WChar  *lua_towstring (lua_State *L, int index);
 LUA_API void  lua_pushlwstring (lua_State *L, const lua_WChar *s, size_t len);

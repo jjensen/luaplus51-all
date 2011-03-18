@@ -28,16 +28,16 @@ namespace LuaPlus
 class LuaTableIterator
 {
 public:
-	LUAPLUS_CLASS_API LuaTableIterator(const LuaObject& tableObj, bool doReset = true);
-	LUAPLUS_CLASS_API ~LuaTableIterator();
-	LUAPLUS_CLASS_API void Reset();
-	LUAPLUS_CLASS_API void Invalidate();
-	LUAPLUS_CLASS_API bool Next();
-	LUAPLUS_CLASS_API bool IsValid() const;
-	LUAPLUS_CLASS_API LuaTableIterator& operator++();
-	LUAPLUS_CLASS_API operator bool() const;
-	LUAPLUS_CLASS_API LuaObject& GetKey();
-	LUAPLUS_CLASS_API LuaObject& GetValue();
+	LuaTableIterator(const LuaObject& tableObj, bool doReset = true);
+	~LuaTableIterator();
+	void Reset();
+	void Invalidate();
+	bool Next();
+	bool IsValid() const;
+	LuaTableIterator& operator++();
+	operator bool() const;
+	LuaObject& GetKey();
+	LuaObject& GetValue();
 
 protected:
 
@@ -53,6 +53,144 @@ private:
 	LuaObject m_tableObj;				///< The table object being iterated.
 	bool m_isDone;
 };
+
+
+/**
+	\param tableObj The table to iterate the contents of.
+	\param doReset If true, the Reset() function is called at constructor
+		initialization time, allowing the iterator to be used immediately.
+		If false, then Reset() must be called before iterating.
+**/
+inline LuaTableIterator::LuaTableIterator( const LuaObject& tableObj, bool doReset ) :
+	m_keyObj(tableObj.GetState()),
+	m_valueObj(tableObj.GetState()),
+	m_tableObj(tableObj),
+	m_isDone(false) {
+	luaplus_assert(tableObj.IsTable());
+
+	// If the user requested it, perform the automatic reset.
+	if ( doReset )
+		Reset();
+}
+
+
+/**
+	The destructor.
+**/
+inline LuaTableIterator::~LuaTableIterator() {
+}
+
+
+/**
+	Start iteration at the beginning of the table.
+**/
+inline void LuaTableIterator::Reset() {
+	// Start afresh...
+	LuaState* state = m_tableObj.GetState();
+
+	// Start at the beginning.
+	m_keyObj.AssignNil(state);
+
+	// Start the iteration.  If the return value is 0, then the iterator
+	// will be invalid.
+//	m_isDone = !LuaPlusH_next(state, &m_tableObj, &m_keyObj, &m_valueObj);
+	m_keyObj.Push();
+	m_isDone = lua_next(m_tableObj.GetCState(), m_tableObj.GetRef()) == 0;
+	if (m_isDone) {
+		m_keyObj.Reset();
+		m_valueObj.Reset();
+	} else {
+		m_keyObj = LuaObject(m_tableObj.GetCState(), -2);
+		m_valueObj = LuaObject(m_tableObj.GetCState(), -1);
+		lua_pop(m_tableObj.GetCState(), 2);
+	}
+}
+
+
+/**
+	Invalidates the iterator.  Call this function if you early abort from
+	an iteration loop (such as before it hits the end).
+**/
+inline void LuaTableIterator::Invalidate() {
+	// This is a local helper variable so we don't waste space in the class
+	// definition.
+	LuaState* state = m_tableObj.GetState();
+	m_keyObj.AssignNil(state);
+	m_valueObj.AssignNil(state);
+}
+
+/**
+	Go to the next entry in the table.
+
+	\return Returns true if the iteration is done.
+**/
+inline bool LuaTableIterator::Next() {
+	// This function is only active if Reset() has been called head.
+	luaplus_assert( IsValid() );
+
+	// This is a local helper variable so we don't waste space in the class
+	// definition.
+	LuaState* state = m_tableObj.GetState();
+
+	// Do the Lua table iteration.
+	m_keyObj.Push();
+	m_isDone = lua_next(m_tableObj.GetCState(), m_tableObj.GetRef()) == 0;
+	if (!m_isDone) {
+		m_keyObj = LuaObject(m_tableObj.GetCState(), -2);
+		m_valueObj = LuaObject(m_tableObj.GetCState(), -1);
+		lua_pop(m_tableObj.GetCState(), 2);
+	}
+	return !m_isDone;
+}
+
+
+/**
+	\return Returns true if the iterator is valid (there is a current element).
+**/
+inline bool LuaTableIterator::IsValid() const {
+	return !m_isDone;
+}
+
+
+/**
+	We can easily allow a prefix operator++.  Postfix would be a stack
+	management nightmare.
+**/
+inline LuaTableIterator& LuaTableIterator::operator++() {
+	Next();
+	return *this;
+}
+
+
+/**
+	\return Returns true if the iterator is valid (there is a current element).
+**/
+inline LuaTableIterator::operator bool() const {
+	// If the iterator is valid, then we're good.
+	return IsValid();
+}
+
+
+/**
+	\return Returns a LuaObject describing the current key.
+**/
+inline LuaObject& LuaTableIterator::GetKey() {
+	// This function is only active if Reset() has been called head.
+	luaplus_assert( IsValid() );
+
+	return m_keyObj;
+}
+
+
+/**
+	\return Returns a LuaObject describing the current value.
+**/
+inline LuaObject& LuaTableIterator::GetValue() {
+	// This function is only active if Reset() has been called head.
+	luaplus_assert( IsValid() );
+
+	return m_valueObj;
+}
 
 } // namespace LuaPlus
 

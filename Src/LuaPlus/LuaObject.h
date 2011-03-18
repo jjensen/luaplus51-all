@@ -10,35 +10,9 @@
 #ifndef LUAOBJECT_H
 #define LUAOBJECT_H
 
-#include "LuaStateCD.h"
-
-#if LUAPLUS_EXTENSIONS
-
-NAMESPACE_LUA_BEGIN
-
-/*
-** Union of all Lua values
-*/
-typedef union GCObject GCObject;
-typedef union {
-  GCObject *gc;
-  void *p;
-  lua_Number n;
-  int b;
-} LP_Value;
-
-
-/*
-** Tagged Values
-*/
-
-#define LP_TValuefields	LP_Value value; int tt
-
-typedef struct LP_lua_TValue {
-  LP_TValuefields;
-} LP_TValue;
-
-NAMESPACE_LUA_END
+#include "LuaPlusInternal.h"
+#include "LuaPlusCD.h"
+#include "src/lstate.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // namespace LuaPlus
@@ -55,17 +29,17 @@ class LuaObject
 {
 	friend class LuaState;
 public:
-	LUAPLUS_CLASS_API LuaObject();
-	LUAPLUS_CLASS_API LuaObject(lua_State* L) throw();
-	LUAPLUS_CLASS_API LuaObject(LuaState* state) throw();
-	LUAPLUS_CLASS_API LuaObject(lua_State* L, int stackIndex) throw();
-	LUAPLUS_CLASS_API LuaObject(LuaState* state, int stackIndex) throw();
-	LUAPLUS_CLASS_API LuaObject(lua_State* L, const lua_TValue* obj);
-	LUAPLUS_CLASS_API LuaObject(LuaState* state, const lua_TValue* obj);
-	LUAPLUS_CLASS_API LuaObject(const LuaObject& src) throw();
-	LUAPLUS_CLASS_API LuaObject(const LuaStackObject& src) throw();
-	LUAPLUS_CLASS_API LuaObject& operator=(const LuaObject& src) throw();
-	LUAPLUS_CLASS_API LuaObject& operator=(const LuaStackObject& src) throw();
+	LuaObject();
+	LuaObject(lua_State* L) throw();
+	LuaObject(LuaState* state) throw();
+	LuaObject(lua_State* L, int stackIndex) throw();
+	LuaObject(LuaState* state, int stackIndex) throw();
+	LuaObject(lua_State* L, int _ref, bool directAssign) throw();
+	LuaObject(lua_State* L, bool popTop) throw();
+	LuaObject(const LuaObject& src) throw();
+	LuaObject(const LuaStackObject& src) throw();
+	LuaObject& operator=(const LuaObject& src) throw();
+	LuaObject& operator=(const LuaStackObject& src) throw();
 
 /*	template <typename T>
 	LuaObject& operator=(const T& value)
@@ -75,164 +49,178 @@ public:
 		return *this;
 	}*/
 
-	LUAPLUS_CLASS_API ~LuaObject();
+	~LuaObject();
 
-	LUAPLUS_CLASS_API void Reset();
+	void Reset();
 
 	/**
 		Retrieves the LuaState object associated with this LuaObject.
 	**/
 	LuaState* GetState() const;
 	lua_State* GetCState() const;
-	lua_TValue* GetTObject() const;
+	int GetRef() const;
 
 	bool operator==(const LuaObject& right) const;
 	bool operator<(const LuaObject& right) const;
 
-	LUAPLUS_CLASS_API const char* TypeName() const;
-	LUAPLUS_CLASS_API int Type() const;
+	const char* TypeName() const;
+	int Type() const;
 
-	LUAPLUS_CLASS_API bool IsNil() const;
-	LUAPLUS_CLASS_API bool IsTable() const;
-	LUAPLUS_CLASS_API bool IsUserData() const;
-	LUAPLUS_CLASS_API bool IsCFunction() const;
-	LUAPLUS_CLASS_API bool IsInteger() const;
-	LUAPLUS_CLASS_API bool IsNumber() const;
-	LUAPLUS_CLASS_API bool IsString() const;
-	LUAPLUS_CLASS_API bool IsConvertibleToInteger() const;
-	LUAPLUS_CLASS_API bool IsConvertibleToNumber() const;
-	LUAPLUS_CLASS_API bool IsConvertibleToString() const;
+	bool IsNil() const;
+	bool IsTable() const;
+	bool IsUserData() const;
+	bool IsCFunction() const;
+	bool IsInteger() const;
+	bool IsNumber() const;
+	bool IsString() const;
+	bool IsConvertibleToInteger() const;
+	bool IsConvertibleToNumber() const;
+	bool IsConvertibleToString() const;
 #if LUA_WIDESTRING
-	LUAPLUS_CLASS_API bool IsWString() const;
-	LUAPLUS_CLASS_API bool IsConvertibleToWString() const;
+	bool IsWString() const;
+	bool IsConvertibleToWString() const;
 #endif /* LUA_WIDESTRING */
-	LUAPLUS_CLASS_API bool IsFunction() const;
-	LUAPLUS_CLASS_API bool IsNone() const;
-	LUAPLUS_CLASS_API bool IsLightUserData() const;
-	LUAPLUS_CLASS_API bool IsBoolean() const;
+	bool IsFunction() const;
+	bool IsNone() const;
+	bool IsLightUserData() const;
+	bool IsBoolean() const;
 
-	LUAPLUS_CLASS_API int ToInteger();
-	LUAPLUS_CLASS_API lua_Number ToNumber();
-	LUAPLUS_CLASS_API const char* ToString();
+	int ToInteger();
+	lua_Number ToNumber();
+	const char* ToString();
 #if LUA_WIDESTRING
-	LUAPLUS_CLASS_API const lua_WChar* ToWString();
+	const lua_WChar* ToWString();
 #endif /* LUA_WIDESTRING */
-	LUAPLUS_CLASS_API size_t ToStrLen();
+	size_t ObjLen();
 
-	LUAPLUS_CLASS_API int GetInteger() const;
-	LUAPLUS_CLASS_API float GetFloat() const;
-	LUAPLUS_CLASS_API double GetDouble() const;
-	LUAPLUS_CLASS_API lua_Number GetNumber() const;
-	LUAPLUS_CLASS_API const char* GetString() const;
+	int GetInteger() const;
+	float GetFloat() const;
+	double GetDouble() const;
+	lua_Number GetNumber() const;
+	const char* GetString() const;
 #if LUA_WIDESTRING
-	LUAPLUS_CLASS_API const lua_WChar* GetWString() const;
+	const lua_WChar* GetWString() const;
 #endif /* LUA_WIDESTRING */
-	LUAPLUS_CLASS_API size_t StrLen();
-	LUAPLUS_CLASS_API lua_CFunction GetCFunction() const;
-	LUAPLUS_CLASS_API void* GetUserData();
-	LUAPLUS_CLASS_API const void* GetLuaPointer();
-	LUAPLUS_CLASS_API void* GetLightUserData() const;
-	LUAPLUS_CLASS_API bool GetBoolean() const;
+	size_t StrLen() const;
+	lua_CFunction GetCFunction() const;
+	void* GetUserData() const;
+	const void* GetLuaPointer() const;
+	void* GetLightUserData() const;
+	bool GetBoolean() const;
 
-	LUAPLUS_CLASS_API LuaStackObject Push() const;
+	LuaStackObject Push() const;
 
-	LUAPLUS_CLASS_API LuaObject GetMetaTable() const;
-	LUAPLUS_CLASS_API void SetMetaTable(const LuaObject& valueObj);
+	LuaObject GetMetaTable() const;
+	void SetMetaTable(const LuaObject& valueObj);
 
-	LUAPLUS_CLASS_API int GetN() const;
-	LUAPLUS_CLASS_API void SetN(int n);
+	void Insert(LuaObject& obj);
+	void Insert(int index, LuaObject& obj);
+	void Remove(int index = -1);
+	void Sort();
 
-	LUAPLUS_CLASS_API void Insert(LuaObject& obj);
-	LUAPLUS_CLASS_API void Insert(int index, LuaObject& obj);
-	LUAPLUS_CLASS_API void Remove(int index = -1);
-	LUAPLUS_CLASS_API void Sort();
+	size_t GetCount() const;
+	size_t GetTableCount() const;
 
-	LUAPLUS_CLASS_API size_t GetCount() const;
-	LUAPLUS_CLASS_API size_t GetTableCount() const;
+	LuaObject Clone() const;
+	void DeepClone(LuaObject& outObj) const;
 
-	LUAPLUS_CLASS_API LuaObject Clone() const;
-	LUAPLUS_CLASS_API void DeepClone(LuaObject& outObj) const;
-
-	LUAPLUS_CLASS_API LuaObject CreateTable(const char* key, int narray = 0, int lnhash = 0);
-	LUAPLUS_CLASS_API LuaObject CreateTable(int key, int narray = 0, int lnhash = 0);
-	LUAPLUS_CLASS_API LuaObject CreateTable(LuaObject& key, int narray = 0, int lnhash = 0);
+	LuaObject CreateTable(const char* key, int narray = 0, int nrec = 0);
+	LuaObject CreateTable(int key, int narray = 0, int nrec = 0);
+	LuaObject CreateTable(LuaObject& key, int narray = 0, int nrec = 0);
 
 	template <typename KeyT, typename ValueT> LuaObject& Set(const KeyT& key, const ValueT& value);
+	template <typename KeyT, typename ValueT> LuaObject& Set(const KeyT& key, const ValueT& value, int len);
 	template <typename KeyT> LuaObject& SetNil(const KeyT& key);
 
-	LUAPLUS_CLASS_API LuaObject& SetNil(const char* key);
-	LUAPLUS_CLASS_API LuaObject& SetNil(int key);
-	LUAPLUS_CLASS_API LuaObject& SetNil(LuaObject& key);
-	LUAPLUS_CLASS_API LuaObject& SetBoolean(const char* key, bool value);
-	LUAPLUS_CLASS_API LuaObject& SetBoolean(int key, bool value);
-	LUAPLUS_CLASS_API LuaObject& SetBoolean(LuaObject& key, bool value);
-	LUAPLUS_CLASS_API LuaObject& SetInteger(const char* key, int value);
-	LUAPLUS_CLASS_API LuaObject& SetInteger(int key, int value);
-	LUAPLUS_CLASS_API LuaObject& SetInteger(LuaObject& key, int value);
-	LUAPLUS_CLASS_API LuaObject& SetNumber(const char* key, lua_Number value);
-	LUAPLUS_CLASS_API LuaObject& SetNumber(int key, lua_Number value);
-	LUAPLUS_CLASS_API LuaObject& SetNumber(LuaObject& key, lua_Number value);
-	LUAPLUS_CLASS_API LuaObject& SetString(const char* key, const char* value, int len = -1);
-	LUAPLUS_CLASS_API LuaObject& SetString(int key, const char* value, int len = -1);
-	LUAPLUS_CLASS_API LuaObject& SetString(LuaObject& key, const char* value, int len = -1);
-#if LUA_WIDESTRING
-	LUAPLUS_CLASS_API LuaObject& SetWString(const char* key, const lua_WChar* value, int len = -1);
-	LUAPLUS_CLASS_API LuaObject& SetWString(int key, const lua_WChar* value, int len = -1);
-	LUAPLUS_CLASS_API LuaObject& SetWString(LuaObject& key, const lua_WChar* value, int len = -1);
-#endif /* LUA_WIDESTRING */
-	LUAPLUS_CLASS_API LuaObject& SetUserData(const char* key, void* value);
-	LUAPLUS_CLASS_API LuaObject& SetUserData(int key, void* value);
-	LUAPLUS_CLASS_API LuaObject& SetUserData(LuaObject& key, void* value);
-	LUAPLUS_CLASS_API LuaObject& SetLightUserData(const char* key, void* value);
-	LUAPLUS_CLASS_API LuaObject& SetLightUserData(int key, void* value);
-	LUAPLUS_CLASS_API LuaObject& SetLightUserData(LuaObject& key, void* value);
-	LUAPLUS_CLASS_API LuaObject& SetObject(const char* key, LuaObject& value);
-	LUAPLUS_CLASS_API LuaObject& SetObject(int key, LuaObject& value);
-	LUAPLUS_CLASS_API LuaObject& SetObject(LuaObject& key, LuaObject& value);
+	template <typename KeyT, typename ValueT> LuaObject& RawSet(const KeyT& key, const ValueT& value);
+	template <typename KeyT, typename ValueT> LuaObject& RawSet(const KeyT& key, const ValueT& value, int len);
+	template <typename KeyT> LuaObject& RawSetNil(const KeyT& key);
 
-	LUAPLUS_CLASS_API LuaObject& RawSetNil(const char* key);
-	LUAPLUS_CLASS_API LuaObject& RawSetNil(int key);
-	LUAPLUS_CLASS_API LuaObject& RawSetNil(LuaObject& key);
-	LUAPLUS_CLASS_API LuaObject& RawSetBoolean(const char* key, bool value);
-	LUAPLUS_CLASS_API LuaObject& RawSetBoolean(int key, bool value);
-	LUAPLUS_CLASS_API LuaObject& RawSetBoolean(LuaObject& key, bool value);
-	LUAPLUS_CLASS_API LuaObject& RawSetInteger(const char* key, int value);
-	LUAPLUS_CLASS_API LuaObject& RawSetInteger(int key, int value);
-	LUAPLUS_CLASS_API LuaObject& RawSetInteger(LuaObject& key, int value);
-	LUAPLUS_CLASS_API LuaObject& RawSetNumber(const char* key, lua_Number value);
-	LUAPLUS_CLASS_API LuaObject& RawSetNumber(int key, lua_Number value);
-	LUAPLUS_CLASS_API LuaObject& RawSetNumber(LuaObject& key, lua_Number value);
-	LUAPLUS_CLASS_API LuaObject& RawSetString(const char* key, const char* value, int len = -1);
-	LUAPLUS_CLASS_API LuaObject& RawSetString(int key, const char* value, int len = -1);
-	LUAPLUS_CLASS_API LuaObject& RawSetString(LuaObject& key, const char* value, int len = -1);
+	void AssignNil();
+	void AssignNil(lua_State* L);
+	void AssignNil(LuaState* state);
+	template <typename ValueT> void Assign(const ValueT& value);
+	void Assign(lua_State* L, const char* value, int len);
+	void Assign(LuaState* state, const char* value, int len);
+	template <typename ValueT> void Assign(lua_State* L, const ValueT& value);
+	template <typename ValueT> void Assign(LuaState* state, const ValueT& value);
+	template <typename ValueT> void Assign(lua_State* L, const ValueT& value, int len);
+	template <typename ValueT> void Assign(LuaState* state, const ValueT& value, int len);
 #if LUA_WIDESTRING
-	LUAPLUS_CLASS_API LuaObject& RawSetWString(const char* key, const lua_WChar* value, int len = -1);
-	LUAPLUS_CLASS_API LuaObject& RawSetWString(int key, const lua_WChar* value, int len = -1);
-	LUAPLUS_CLASS_API LuaObject& RawSetWString(LuaObject& key, const lua_WChar* value, int len = -1);
-#endif /* LUA_WIDESTRING */
-	LUAPLUS_CLASS_API LuaObject& RawSetUserData(const char* key, void* value);
-	LUAPLUS_CLASS_API LuaObject& RawSetUserData(int key, void* value);
-	LUAPLUS_CLASS_API LuaObject& RawSetUserData(LuaObject& key, void* value);
-	LUAPLUS_CLASS_API LuaObject& RawSetLightUserData(const char* key, void* value);
-	LUAPLUS_CLASS_API LuaObject& RawSetLightUserData(int key, void* value);
-	LUAPLUS_CLASS_API LuaObject& RawSetLightUserData(LuaObject& key, void* value);
-	LUAPLUS_CLASS_API LuaObject& RawSetObject(const char* key, LuaObject& value);
-	LUAPLUS_CLASS_API LuaObject& RawSetObject(int key, LuaObject& value);
-	LUAPLUS_CLASS_API LuaObject& RawSetObject(LuaObject& key, LuaObject& value);
+	void Assign(lua_State* L, const lua_WChar* value, int len);
+	void Assign(LuaState* state, const lua_WChar* value, int len);
+#endif // LUA_WIDESTRING
+	void AssignNewTable(int narray = 0, int nrec = 0);
+	void AssignNewTable(lua_State* L, int narray = 0, int nrec = 0);
+	void AssignNewTable(LuaState* state, int narray = 0, int nrec = 0);
 
-	LUAPLUS_CLASS_API void AssignNil(LuaState* state);
-	LUAPLUS_CLASS_API void AssignBoolean(LuaState* state, bool value);
-	LUAPLUS_CLASS_API void AssignInteger(LuaState* state, int value);
-	LUAPLUS_CLASS_API void AssignNumber(LuaState* state, lua_Number value);
-	LUAPLUS_CLASS_API void AssignString(LuaState* state, const char* value, int len = -1);
+	LuaObject& SetBoolean(const char* key, bool value);
+	LuaObject& SetBoolean(int key, bool value);
+	LuaObject& SetBoolean(LuaObject& key, bool value);
+	LuaObject& SetInteger(const char* key, int value);
+	LuaObject& SetInteger(int key, int value);
+	LuaObject& SetInteger(LuaObject& key, int value);
+	LuaObject& SetNumber(const char* key, lua_Number value);
+	LuaObject& SetNumber(int key, lua_Number value);
+	LuaObject& SetNumber(LuaObject& key, lua_Number value);
+	LuaObject& SetString(const char* key, const char* value, int len = -1);
+	LuaObject& SetString(int key, const char* value, int len = -1);
+	LuaObject& SetString(LuaObject& key, const char* value, int len = -1);
 #if LUA_WIDESTRING
-	LUAPLUS_CLASS_API void AssignWString(LuaState* state, const lua_WChar* value, int len = -1);
+	LuaObject& SetWString(const char* key, const lua_WChar* value, int len = -1);
+	LuaObject& SetWString(int key, const lua_WChar* value, int len = -1);
+	LuaObject& SetWString(LuaObject& key, const lua_WChar* value, int len = -1);
 #endif /* LUA_WIDESTRING */
-	LUAPLUS_CLASS_API void AssignUserData(LuaState* state, void* value);
-	LUAPLUS_CLASS_API void AssignLightUserData(LuaState* state, void* value);
-	LUAPLUS_CLASS_API void AssignObject(LuaObject& value);		// Should this function be removed??
-	LUAPLUS_CLASS_API LuaObject& AssignNewTable(LuaState* state, int narray = 0, int nrec = 0);
-	LUAPLUS_CLASS_API void AssignTObject(LuaState* state, const lua_TValue* value);
+	LuaObject& SetUserData(const char* key, void* value);
+	LuaObject& SetUserData(int key, void* value);
+	LuaObject& SetUserData(LuaObject& key, void* value);
+	LuaObject& SetLightUserData(const char* key, void* value);
+	LuaObject& SetLightUserData(int key, void* value);
+	LuaObject& SetLightUserData(LuaObject& key, void* value);
+	LuaObject& SetObject(const char* key, LuaObject& value);
+	LuaObject& SetObject(int key, LuaObject& value);
+	LuaObject& SetObject(LuaObject& key, LuaObject& value);
+
+	LuaObject& RawSetNil(const char* key);
+	LuaObject& RawSetNil(int key);
+	LuaObject& RawSetNil(LuaObject& key);
+	LuaObject& RawSetBoolean(const char* key, bool value);
+	LuaObject& RawSetBoolean(int key, bool value);
+	LuaObject& RawSetBoolean(LuaObject& key, bool value);
+	LuaObject& RawSetInteger(const char* key, int value);
+	LuaObject& RawSetInteger(int key, int value);
+	LuaObject& RawSetInteger(LuaObject& key, int value);
+	LuaObject& RawSetNumber(const char* key, lua_Number value);
+	LuaObject& RawSetNumber(int key, lua_Number value);
+	LuaObject& RawSetNumber(LuaObject& key, lua_Number value);
+	LuaObject& RawSetString(const char* key, const char* value, int len = -1);
+	LuaObject& RawSetString(int key, const char* value, int len = -1);
+	LuaObject& RawSetString(LuaObject& key, const char* value, int len = -1);
+#if LUA_WIDESTRING
+	LuaObject& RawSetWString(const char* key, const lua_WChar* value, int len = -1);
+	LuaObject& RawSetWString(int key, const lua_WChar* value, int len = -1);
+	LuaObject& RawSetWString(LuaObject& key, const lua_WChar* value, int len = -1);
+#endif /* LUA_WIDESTRING */
+	LuaObject& RawSetUserData(const char* key, void* value);
+	LuaObject& RawSetUserData(int key, void* value);
+	LuaObject& RawSetUserData(LuaObject& key, void* value);
+	LuaObject& RawSetLightUserData(const char* key, void* value);
+	LuaObject& RawSetLightUserData(int key, void* value);
+	LuaObject& RawSetLightUserData(LuaObject& key, void* value);
+	LuaObject& RawSetObject(const char* key, LuaObject& value);
+	LuaObject& RawSetObject(int key, LuaObject& value);
+	LuaObject& RawSetObject(LuaObject& key, LuaObject& value);
+
+	void AssignBoolean(LuaState* state, bool value);
+	void AssignInteger(LuaState* state, int value);
+	void AssignNumber(LuaState* state, lua_Number value);
+	void AssignString(LuaState* state, const char* value, int len = -1);
+#if LUA_WIDESTRING
+	void AssignWString(LuaState* state, const lua_WChar* value, int len = -1);
+#endif /* LUA_WIDESTRING */
+	void AssignUserData(LuaState* state, void* value);
+	void AssignLightUserData(LuaState* state, void* value);
+	void AssignObject(LuaObject& value);		// Should this function be removed??
 
 	void AssignCFunction(lua_CFunction func, int nupvalues = 0);
 	void AssignCFunction(int (*func)(LuaState*), int nupvalues = 0);
@@ -270,37 +258,36 @@ public:
 	}
 
 
-	LUAPLUS_CLASS_API LuaObject operator[](const char* name) const;
-	LUAPLUS_CLASS_API LuaObject operator[](int index) const;
-	LUAPLUS_CLASS_API LuaObject operator[](const LuaStackObject& obj) const;
-	LUAPLUS_CLASS_API LuaObject operator[](const LuaObject& obj) const;
-	LUAPLUS_CLASS_API LuaObject Get(const char* name) const;
-	LUAPLUS_CLASS_API LuaObject Get(int index) const;
-	LUAPLUS_CLASS_API LuaObject Get(const LuaStackObject& obj) const;
-	LUAPLUS_CLASS_API LuaObject Get(const LuaObject& obj) const;
-	LUAPLUS_CLASS_API LuaObject GetByName(const char* name) const;
-	LUAPLUS_CLASS_API LuaObject GetByIndex(int index) const;
-	LUAPLUS_CLASS_API LuaObject GetByObject(const LuaStackObject& obj) const;
-	LUAPLUS_CLASS_API LuaObject GetByObject(const LuaObject& obj) const;
+	LuaObject operator[](const char* name) const;
+	LuaObject operator[](int index) const;
+	LuaObject operator[](const LuaStackObject& obj) const;
+	LuaObject operator[](const LuaObject& obj) const;
+	LuaObject Get(const char* name) const;
+	LuaObject Get(int index) const;
+	LuaObject Get(const LuaStackObject& obj) const;
+	LuaObject Get(const LuaObject& obj) const;
+	LuaObject GetByName(const char* name) const;
+	LuaObject GetByIndex(int index) const;
+	LuaObject GetByObject(const LuaStackObject& obj) const;
+	LuaObject GetByObject(const LuaObject& obj) const;
 
-	LUAPLUS_CLASS_API LuaObject RawGet(const char* name) const;
-	LUAPLUS_CLASS_API LuaObject RawGet(int index) const;
-	LUAPLUS_CLASS_API LuaObject RawGet(const LuaStackObject& obj) const;
-	LUAPLUS_CLASS_API LuaObject RawGet(const LuaObject& obj) const;
-	LUAPLUS_CLASS_API LuaObject RawGetByName(const char* name) const;
-	LUAPLUS_CLASS_API LuaObject RawGetByIndex(int index) const;
-	LUAPLUS_CLASS_API LuaObject RawGetByObject(const LuaStackObject& obj) const;
-	LUAPLUS_CLASS_API LuaObject RawGetByObject(const LuaObject& obj) const;
+	LuaObject RawGet(const char* name) const;
+	LuaObject RawGet(int index) const;
+	LuaObject RawGet(const LuaStackObject& obj) const;
+	LuaObject RawGet(const LuaObject& obj) const;
+	LuaObject RawGetByName(const char* name) const;
+	LuaObject RawGetByIndex(int index) const;
+	LuaObject RawGetByObject(const LuaStackObject& obj) const;
+	LuaObject RawGetByObject(const LuaObject& obj) const;
 
-	LUAPLUS_CLASS_API LuaObject Lookup(const char* key) const;
+	LuaObject Lookup(const char* key) const;
 
-	LUAPLUS_CLASS_API void Register(const char* funcName, lua_CFunction func, int nupvalues = 0);
+	void Register(const char* funcName, lua_CFunction func, int nupvalues = 0);
 
-	LUAPLUS_CLASS_API void Register(const char* funcName, int (*func)(LuaState*), int nupvalues = 0);
+	void Register(const char* funcName, int (*func)(LuaState*), int nupvalues = 0);
 
 	template <class Callee>
-	void Register(const char* funcName, const Callee& callee, int (Callee::*func)(LuaState*), int nupvalues = 0)
-	{
+	void Register(const char* funcName, const Callee& callee, int (Callee::*func)(LuaState*), int nupvalues = 0) {
 		const void* pCallee = &callee;
 		RegisterHelper(funcName, LPCD::LuaStateMemberDispatcherHelper<Callee>::LuaStateMemberDispatcher, nupvalues, &pCallee, sizeof(Callee*), &func, sizeof(func));
 	}
@@ -312,122 +299,47 @@ public:
 	}
 
 	template <typename Func>
-	inline void RegisterDirect(const char* funcName, Func func, unsigned int nupvalues = 0)
-	{
+	inline void RegisterDirect(const char* funcName, Func func, unsigned int nupvalues = 0) {
 		RegisterHelper(funcName, LPCD::DirectCallFunctionDispatchHelper<Func>::DirectCallFunctionDispatcher, nupvalues, NULL, 0, &func, sizeof(func));
 	}
 
 	template <typename Callee, typename Func>
-	inline void RegisterDirect(const char* funcName, const Callee& callee, Func func, unsigned int nupvalues = 0)
-	{
+	inline void RegisterDirect(const char* funcName, const Callee& callee, Func func, unsigned int nupvalues = 0) {
 		const void* pCallee = &callee;
 		RegisterHelper(funcName, LPCD::DirectCallMemberDispatcherHelper<Callee, Func>::DirectCallMemberDispatcher, nupvalues, &pCallee, sizeof(Callee*), &func, sizeof(func));
 	}
 
 	template <typename Callee, typename Func>
-	inline void RegisterObjectDirect(const char* funcName, const Callee* callee, Func func, unsigned int nupvalues = 0)
-	{
+	inline void RegisterObjectDirect(const char* funcName, const Callee* callee, Func func, unsigned int nupvalues = 0) {
 		RegisterHelper(funcName, LPCD::DirectCallObjectMemberDispatcherHelper<Callee, Func, 2>::DirectCallMemberDispatcher, nupvalues, NULL, 0, &func, sizeof(func));
 	}
 
-	LUAPLUS_CLASS_API void Unregister(const char* funcName);
+	void Unregister(const char* funcName);
 
 protected:
-	void SetNilHelper(lua_TValue& obj);
-	LUAPLUS_CLASS_API void RegisterHelper(const char* funcName, lua_CFunction function, int nupvalues, const void* callee, unsigned int sizeofCallee, void* func, unsigned int sizeofFunc);
+	void RegisterHelper(const char* funcName, lua_CFunction function, int nupvalues, const void* callee, unsigned int sizeofCallee, void* func, unsigned int sizeofFunc);
 	LUAPLUS_CLASS_API void AssignCFunctionHelper(lua_CFunction function, int nupvalues, const void* callee, unsigned int sizeofCallee, void* func, unsigned int sizeofFunc);
 
-	LUAPLUS_CLASS_API LuaObject& SetTableHelper(const char* key, lua_TValue* valueObj);
-	LUAPLUS_CLASS_API LuaObject& SetTableHelper(int key, lua_TValue* valueObj);
-	LUAPLUS_CLASS_API LuaObject& SetTableHelper(const lua_TValue* keyObj, const lua_TValue* valueObj);
-	LUAPLUS_CLASS_API LuaObject& SetTableHelper(const LuaObject& key, lua_TValue* valueObj);
-	LUAPLUS_CLASS_API LuaObject& RawSetTableHelper(const char* key, lua_TValue* valueObj);
-	LUAPLUS_CLASS_API LuaObject& RawSetTableHelper(int key, lua_TValue* valueObj);
-	LUAPLUS_CLASS_API LuaObject& RawSetTableHelper(const lua_TValue* keyObj, const lua_TValue* valueObj);
-	LUAPLUS_CLASS_API LuaObject& RawSetTableHelper(const LuaObject& key, lua_TValue* valueObj);
-
 private:
-	// Private functions and data
-	void AddToUsedList(lua_State* L);
-	void AddToUsedList(lua_State* L, const lua_TValue& obj);
-	void RemoveFromUsedList();
-
-	LuaObject* m_next;		   // only valid when in free list
-	LuaObject* m_prev;		   // only valid when in used list
-#if defined(BUILDING_LUAPLUS)
-	lua_TValue m_object;
-#else
-	LP_lua_TValue m_object;
-#endif
 	lua_State* L;
+	int ref;
 };
 
 
-namespace detail
-{
-	LUAPLUS_CLASS_API void AssignNewTObject(lua_State* L, lua_TValue* obj, const LuaArgNil&);
-	LUAPLUS_CLASS_API void AssignNewTObject(lua_State* L, lua_TValue* obj, bool value);
-	LUAPLUS_CLASS_API void AssignNewTObject(lua_State* L, lua_TValue* obj, char value);
-	LUAPLUS_CLASS_API void AssignNewTObject(lua_State* L, lua_TValue* obj, unsigned char value);
-	LUAPLUS_CLASS_API void AssignNewTObject(lua_State* L, lua_TValue* obj, short value);
-	LUAPLUS_CLASS_API void AssignNewTObject(lua_State* L, lua_TValue* obj, unsigned short value);
-	LUAPLUS_CLASS_API void AssignNewTObject(lua_State* L, lua_TValue* obj, int value);
-	LUAPLUS_CLASS_API void AssignNewTObject(lua_State* L, lua_TValue* obj, unsigned int value);
-	LUAPLUS_CLASS_API void AssignNewTObject(lua_State* L, lua_TValue* obj, float value);
-	LUAPLUS_CLASS_API void AssignNewTObject(lua_State* L, lua_TValue* obj, double value);
-	LUAPLUS_CLASS_API void AssignNewTObject(lua_State* L, lua_TValue* obj, const char* value);
-#if LUA_WIDESTRING
-	LUAPLUS_CLASS_API void AssignNewTObject(lua_State* L, lua_TValue* obj, const lua_WChar* value);
-#endif /* LUA_WIDESTRING */
-	LUAPLUS_CLASS_API void AssignNewTObject(lua_State* L, lua_TValue* obj, const LuaObject& value);
-	LUAPLUS_CLASS_API void AssignNewTObject(lua_State* L, lua_TValue* obj, void* value);
-
-	LUAPLUS_CLASS_API void SetNilValue(lua_State* L, lua_TValue* obj);
-}
-
-template <typename T>
-inline LuaObject& LuaObject::SetNil(const T& key)
-{
-	luaplus_assert(L  &&  IsTable());
-	LP_lua_TValue keyObj;
-	LuaArgNil argNil;
-	detail::AssignNewTObject(L, (lua_TValue*)&keyObj, argNil);
-	detail::AssignNewTObject(L, (lua_TValue*)&keyObj, key);
-	LP_lua_TValue valueObj;
-	detail::AssignNewTObject(L, (lua_TValue*)&valueObj, LuaArgNil());
-	detail::AssignNewTObject(L, (lua_TValue*)&valueObj, LuaArgNil());
-	SetTableHelper((lua_TValue*)&keyObj, (lua_TValue*)&valueObj);
-	detail::SetNilValue(L, (lua_TValue*)&keyObj);
-	return *this;
-}
-
-
-template <typename KeyT, typename ValueT>
-LuaObject& LuaObject::Set(const KeyT& key, const ValueT& value)
-{
-	luaplus_assert(L  &&  IsTable());
-	LP_lua_TValue keyObj;
-	detail::AssignNewTObject(L, (lua_TValue*)&keyObj, LuaArgNil());
-	detail::AssignNewTObject(L, (lua_TValue*)&keyObj, key);
-	LP_lua_TValue valueObj;
-	detail::AssignNewTObject(L, (lua_TValue*)&valueObj, LuaArgNil());
-	detail::AssignNewTObject(L, (lua_TValue*)&valueObj, value);
-	SetTableHelper((lua_TValue*)&keyObj, (lua_TValue*)&valueObj);
-	detail::SetNilValue(L, (lua_TValue*)&valueObj);
-	detail::SetNilValue(L, (lua_TValue*)&keyObj);
-	return *this;
-}
-
 } // namespace LuaPlus
 
-namespace LPCD
-{
+
+namespace LPCD {
 	using namespace LuaPlus;
 
-	LUAPLUS_CLASS_API void Push(lua_State* L, LuaPlus::LuaObject& value);
-	inline bool	Match(TypeWrapper<LuaPlus::LuaObject>, lua_State* L, int idx)
+	inline void Push(lua_State* L, const LuaPlus::LuaObject& value)
+		{  value.Push();  }
+	inline void Push(lua_State* L, LuaPlus::LuaObject& value)
+		{  value.Push();  }
+	inline bool	Match(TypeWrapper<LuaObject>, lua_State* L, int idx)
 		{  (void)L, (void)idx;  return true;  }
-	LUAPLUS_CLASS_API LuaPlus::LuaObject Get(TypeWrapper<LuaPlus::LuaObject>, lua_State* L, int idx);
+	inline LuaPlus::LuaObject Get(TypeWrapper<LuaPlus::LuaObject>, lua_State* L, int idx)
+		{  return LuaObject(lua_State_To_LuaState(L), idx);  }
 
 	template <typename Object, typename VarType>
 	inline void PropertyCreate(LuaPlus::LuaObject& metaTableObj, const char* varName, VarType Object::* var, bool read = true, bool write = true) {
@@ -458,16 +370,14 @@ namespace LPCD
 	}
 
 
-	inline void MetaTable_IntegratePropertySupport(LuaPlus::LuaObject& metaTableObj)
-	{
+	inline void MetaTable_IntegratePropertySupport(LuaPlus::LuaObject& metaTableObj) {
 		metaTableObj.Register("__index", PropertyMetaTable_index);
 		metaTableObj.Register("__newindex", PropertyMetaTable_newindex);
 	}
 
 
 	template <typename Object, typename VarType>
-	void Register_MemberPropertyGetFunction(LuaPlus::LuaObject& obj, const char* funcName, VarType Object::* var)
-	{
+	inline void Register_MemberPropertyGetFunction(LuaPlus::LuaObject& obj, const char* funcName, VarType Object::* var) {
 		obj.Push();
 
 		lua_State* L = obj.GetCState();
@@ -479,8 +389,7 @@ namespace LPCD
 	}
 
 	template <typename Object, typename VarType>
-	void Register_MemberPropertySetFunction(LuaPlus::LuaObject& obj, const char* funcName, VarType Object::* var)
-	{
+	void Register_MemberPropertySetFunction(LuaPlus::LuaObject& obj, const char* funcName, VarType Object::* var) {
 		obj.Push();
 
 		lua_State* L = obj.GetCState();
@@ -493,8 +402,7 @@ namespace LPCD
 
 
 	template <typename VarType>
-	void Register_GlobalPropertyGetFunction(const LuaPlus::LuaObject& obj, const char* funcName, VarType* var)
-	{
+	void Register_GlobalPropertyGetFunction(const LuaPlus::LuaObject& obj, const char* funcName, VarType* var) {
 		obj.Push();
 
 		lua_State* L = obj.GetCState();
@@ -506,8 +414,7 @@ namespace LPCD
 	}
 
 	template <typename VarType>
-	void Register_GlobalPropertySetFunction(const LuaPlus::LuaObject& obj, const char* funcName, VarType* var)
-	{
+	void Register_GlobalPropertySetFunction(const LuaPlus::LuaObject& obj, const char* funcName, VarType* var) {
 		obj.Push();
 
 		lua_State* L = obj.GetCState();
@@ -519,6 +426,150 @@ namespace LPCD
 	}
 } // namespace LPCD
 
-#endif // LUAPLUS_EXTENSIONS
+
+namespace LuaPlus {
+
+template <typename T>
+inline LuaObject& LuaObject::SetNil(const T& key) {
+	luaplus_assert(L  &&  IsTable());
+	LPCD::Push(L, key);
+	lua_pushnil(L);
+	lua_settable(L, ref);
+	return *this;
+}
+
+
+template <typename KeyT, typename ValueT>
+LuaObject& LuaObject::Set(const KeyT& key, const ValueT& value) {
+	luaplus_assert(L  &&  IsTable());
+	LPCD::Push(L, key);
+	LPCD::Push(L, value);
+	lua_settable(L, ref);
+	return *this;
+}
+
+
+template <typename KeyT, typename ValueT>
+LuaObject& LuaObject::Set(const KeyT& key, const ValueT& value, int len) {
+	luaplus_assert(L  &&  IsTable());
+	LPCD::Push(L, key);
+	LPCD::Push(L, value, len);
+	lua_settable(L, ref);
+	return *this;
+}
+
+
+template <typename T>
+inline LuaObject& LuaObject::RawSetNil(const T& key) {
+	luaplus_assert(L  &&  IsTable());
+	LPCD::Push(L, key);
+	lua_pushnil(L);
+	lua_rawset(L, ref);
+	return *this;
+}
+
+
+template <typename KeyT, typename ValueT>
+LuaObject& LuaObject::RawSet(const KeyT& key, const ValueT& value) {
+	luaplus_assert(L  &&  IsTable());
+	LPCD::Push(L, key);
+	LPCD::Push(L, value);
+	lua_rawset(L, ref);
+	return *this;
+}
+
+
+template <typename KeyT, typename ValueT>
+LuaObject& LuaObject::RawSet(const KeyT& key, const ValueT& value, int len) {
+	luaplus_assert(L  &&  IsTable());
+	LPCD::Push(L, key);
+	LPCD::Push(L, value, len);
+	lua_rawset(L, ref);
+	return *this;
+}
+
+
+template <typename ValueT>
+void LuaObject::Assign(const ValueT& value) {
+	luaplus_assert(L);
+	lua_fastunref(L, ref);
+	LPCD::Push(L, value);
+	ref = lua_fastref(L);
+}
+
+
+inline void LuaObject::Assign(lua_State* _L, const char* value, int len) {
+	luaplus_assert(_L);
+	if (L)
+		lua_fastunref(L, ref);
+	L = _L;
+	LPCD::Push(L, value, len == -1 ? strlen(value) : len);
+	ref = lua_fastref(L);
+}
+
+
+inline void LuaObject::Assign(LuaState* state, const char* value, int len) {
+	Assign(LuaState_to_lua_State(state), value, len);
+}
+
+#if LUA_WIDESTRING
+
+inline void LuaObject::Assign(lua_State* _L, const lua_WChar* value, int len) {
+	luaplus_assert(_L);
+	if (L)
+		lua_fastunref(L, ref);
+	L = _L;
+	LPCD::Push(L, value, len == -1 ? lua_WChar_len(value) : len);
+	ref = lua_fastref(L);
+}
+
+inline void LuaObject::Assign(LuaState* state, const lua_WChar* value, int len) {
+	Assign(LuaState_to_lua_State(state), value, len);
+}
+
+#endif // LUA_WIDESTRING
+
+
+template <typename ValueT>
+void LuaObject::Assign(LuaState* state, const ValueT& value, int len) {
+	if (L)
+		lua_fastunref(L, ref);
+	L = LuaState_to_lua_State(state);
+	LPCD::Push(L, value, len);
+	ref = lua_fastref(L);
+}
+
+
+template <typename ValueT>
+void LuaObject::Assign(lua_State* _L, const ValueT& value) {
+	if (L)
+		lua_fastunref(L, ref);
+	L = _L;
+	LPCD::Push(L, value);
+	ref = lua_fastref(L);
+}
+
+
+template <typename ValueT>
+void LuaObject::Assign(LuaState* state, const ValueT& value) {
+	if (L)
+		lua_fastunref(L, ref);
+	L = LuaState_to_lua_State(state);
+	LPCD::Push(L, value);
+	ref = lua_fastref(L);
+}
+
+
+template <typename ValueT>
+void LuaObject::Assign(lua_State* _L, const ValueT& value, int len) {
+	if (L)
+		lua_fastunref(L, ref);
+	L = _L;
+	LPCD::Push(L, value, len);
+	ref = lua_fastref(L);
+}
+
+
+} // namespace LuaPlus
 
 #endif // LUAOBJECT_H

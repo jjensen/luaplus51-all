@@ -13,7 +13,6 @@
 #include "LuaLink.h"
 LUA_EXTERN_C_BEGIN
 #include "src/lobject.h"
-#include "src/lgc.h"
 LUA_EXTERN_C_END
 #include "LuaPlus.h"
 #include "LuaState.h"
@@ -47,7 +46,6 @@ LUA_EXTERN_C_BEGIN
 #include "src/lstate.h"
 #include "src/lualib.h"
 #include "src/lfunc.h"
-#include "src/lgc.h"
 #include "src/lstate.h"
 #include "src/lua.h"
 #include "src/lauxlib.h"
@@ -88,40 +86,10 @@ void lua_setdefaultallocfunction(lua_Alloc allocFunc, void* ud)
 	luaHelper_ud = ud;
 }
 
-void reallymarkobject (global_State *g, GCObject *o);
-
-#if LUAPLUS_EXTENSIONS
-#define markvalue(g,o) { checkconsistency(o); \
-  if (iscollectable(o) && iswhite(gcvalue(o))) reallymarkobject(g,gcvalue(o)); }
-
-#define markobject(g,t) { if (iswhite(obj2gco(t))) \
-		reallymarkobject(g, obj2gco(t)); }
-
-void LuaPlusGCFunction(void* s)
-{
-	lua_State* L = (lua_State*)s;
-	LuaPlus::LuaState* state = lua_State_To_LuaState(L);
-	if (!state)
-		return;
-
-    global_State* g = G(L);
-
-	LuaPlus::LuaObject* curObj = (LuaPlus::LuaObject*)G(L)->gchead_next;
-	while (curObj != (LuaPlus::LuaObject*)&G(L)->gctail_next)
-	{
-		markvalue(g, curObj->GetTObject());
-		curObj = *(LuaPlus::LuaObject**)curObj;
-	}
-}
-#endif /* LUAPLUS_EXTENSIONS */
-
 static int FatalError( lua_State* state );
 
 void LuaState_UserStateOpen(lua_State* L)
 {
-#if LUAPLUS_EXTENSIONS
-	lua_setusergcfunction(L, LuaPlusGCFunction);
-#endif /* LUAPLUS_EXTENSIONS */
 	lua_atpanic(L, FatalError);
 }
 

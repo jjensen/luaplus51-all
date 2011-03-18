@@ -10,7 +10,6 @@ local LUAPLUS_SRCS =
 		../LuaHelper_Object.h
 		../LuaHelper_StackObject.h
 		../LuaLink.h
-		../LuaObject.cpp
 		../LuaObject.h
 		../LuaObject.inl
 		../LuaPlus.cpp
@@ -30,7 +29,6 @@ local LUAPLUS_SRCS =
 		../LuaStateOutFile.cpp
 		../LuaStateOutFile.h
 		../LuaState_DumpObject.cpp
-		../LuaTableIterator.cpp
 		../LuaTableIterator.h
 		../luathread.c
 		../luathread.h

@@ -217,7 +217,7 @@ TEST(LuaState_Equal)
 {
 	LuaStateOwner state(false);
 	LuaObject stringObj;
-	stringObj.AssignString(state, "Hello");
+	stringObj.Assign(state, "Hello");
 	state->DoString("MyString = 'Hello'; MyString2 = 'Hi'");
 	LuaObject string2Obj = state->GetGlobal("MyString");
 	CHECK(state->Equal(stringObj, string2Obj));
@@ -257,7 +257,7 @@ TEST(LuaState_LessThan)
 {
 	LuaStateOwner state(false);
 	LuaObject stringObj;
-	stringObj.AssignString(state, "Hello");
+	stringObj.Assign(state, "Hello");
 	state->DoString("MyString = 'Hello'; MyString2 = 'Hi'");
 	LuaObject string2Obj = state->GetGlobal("MyString");
 	CHECK(!state->LessThan(stringObj, string2Obj));
@@ -1044,27 +1044,27 @@ TEST(LuaObject_Assign)
 	CHECK(obj.IsNil());
 	CHECK(strcmp(obj.TypeName(), "nil") == 0);
 
-	obj.AssignBoolean(state, true);
+	obj.Assign(state, true);
 	CHECK(obj.Type() == LUA_TBOOLEAN);
 	CHECK(obj.IsBoolean());
 	CHECK(obj.GetBoolean() == true);
 	CHECK(strcmp(obj.TypeName(), "boolean") == 0);
 
-	obj.AssignNumber(state, 5.5);
+	obj.Assign(state, 5.5);
 	CHECK(obj.Type() == LUA_TNUMBER);
 	CHECK(obj.IsNumber());
 	CHECK(obj.GetNumber() == 5.5);
 	CHECK(obj.GetInteger() == 5);		// Should downcast.
 	CHECK(strcmp(obj.TypeName(), "number") == 0);
 
-	obj.AssignString(state, "Hello");
+	obj.Assign(state, "Hello");
 	CHECK(obj.Type() == LUA_TSTRING);
 	CHECK(obj.IsString());
 	CHECK(strcmp(obj.GetString(), "Hello") == 0);
 	CHECK(strcmp(obj.TypeName(), "string") == 0);
 
 	lua_WChar helloStr[] = { 'H', 'e', 'l', 'l', 'o', 0 };
-	obj.AssignWString(state, helloStr);
+	obj.Assign(state, helloStr);
 	CHECK(obj.Type() == LUA_TWSTRING);
 	CHECK(obj.IsWString());
 	CHECK(lp_wcscmp(obj.GetWString(), helloStr) == 0);
@@ -1077,7 +1077,7 @@ TEST(LuaObject_Assign)
 	CHECK(obj.GetUserData() == (void*)0x12345678);
 	CHECK(strcmp(obj.TypeName(), "userdata") == 0);
 */
-	obj.AssignLightUserData(state, (void*)0x12345678);
+	obj.Assign(state, (void*)0x12345678);
 	CHECK(obj.Type() == LUA_TLIGHTUSERDATA);
 	CHECK(obj.IsUserData());
 	CHECK(obj.IsLightUserData());
@@ -1086,10 +1086,10 @@ TEST(LuaObject_Assign)
 
 	// AssignObject test
 	LuaObject obj2(state);
-	obj2.AssignNumber(state, 6.0);
+	obj2.Assign(state, 6.0);
 	CHECK(obj2.IsNumber()  &&  obj2.GetNumber() == 6.0);
 
-	obj.AssignObject(obj2);
+	obj.Assign(obj2);
 	CHECK(obj.Type() == LUA_TNUMBER);
 	CHECK(obj.IsNumber());
 	CHECK(obj.GetNumber() == 6.0);
@@ -1118,7 +1118,7 @@ TEST(LuaObject_SetTable_Array)
 
 	for (int i = 0; i < 500; ++i)
 	{
-		obj.SetNumber(i, i * 2);
+		obj.Set(i, i * 2);
 	}
 
 	CHECK(obj.GetTableCount() == 500);	// This is slow, because it has to count all items.
@@ -1183,7 +1183,7 @@ TEST(LuaObject_SetTable_Array_With_Sort)
 
 	for (int i = 1; i <= 500; ++i)
 	{
-		obj.SetNumber(i, 500 - i * 2);
+		obj.Set(i, 500 - i * 2);
 	}
 
 //	obj.SetN(500);
@@ -1208,21 +1208,21 @@ TEST(LuaObject_SetNil)
 	CHECK(obj.IsTable());
 
 	// SetNil(number)
-	obj.SetNumber(1, 5);
+	obj.Set(1, 5);
 	CHECK(obj[1].GetNumber() == 5);
 	obj.SetNil(1);
 	CHECK(obj[1].IsNil());
 
 	// SetNil(string)
-	obj.SetNumber("Hello", 6);
+	obj.Set("Hello", 6);
 	CHECK(obj["Hello"].GetNumber() == 6);
 	obj.SetNil("Hello");
 	CHECK(obj["Hello"].IsNil());
 
 	// SetNil(object)
 	LuaObject stringObj(state);
-	stringObj.AssignString(state, "Test");
-	obj.SetNumber(stringObj, 7);
+	stringObj.Assign(state, "Test");
+	obj.Set(stringObj, 7);
 	CHECK(obj[stringObj].GetNumber() == 7);
 	obj.SetNil(stringObj);
 	CHECK(obj[stringObj].IsNil());
@@ -1238,17 +1238,17 @@ TEST(LuaObject_SetBoolean)
 	CHECK(obj.IsTable());
 
 	// number
-	obj.SetBoolean(1, true);
+	obj.Set(1, true);
 	CHECK(obj[1].GetBoolean() == true);
 
 	// string
-	obj.SetBoolean("Hello", false);
+	obj.Set("Hello", false);
 	CHECK(obj["Hello"].GetBoolean() == false);
 
 	// object
 	LuaObject stringObj(state);
-	stringObj.AssignString(state, "Test");
-	obj.SetBoolean(stringObj, true);
+	stringObj.Assign(state, "Test");
+	obj.Set(stringObj, true);
 	CHECK(obj[stringObj].GetBoolean() == true);
 }
 
@@ -1262,17 +1262,17 @@ TEST(LuaObject_SetNumber)
 	CHECK(obj.IsTable());
 
 	// number
-	obj.SetNumber(1, 5);
+	obj.Set(1, 5);
 	CHECK(obj[1].GetNumber() == 5);
 
 	// string
-	obj.SetNumber("Hello", 6);
+	obj.Set("Hello", 6);
 	CHECK(obj["Hello"].GetNumber() == 6);
 
 	// object
 	LuaObject stringObj(state);
-	stringObj.AssignString(state, "Test");
-	obj.SetNumber(stringObj, 7);
+	stringObj.Assign(state, "Test");
+	obj.Set(stringObj, 7);
 	CHECK(obj[stringObj].GetNumber() == 7);
 }
 
@@ -1286,17 +1286,17 @@ TEST(LuaObject_SetString)
 	CHECK(obj.IsTable());
 
 	// number
-	obj.SetString(1, "Test1");
+	obj.Set(1, "Test1");
 	CHECK(strcmp(obj[1].GetString(), "Test1") == 0);
 
 	// string
-	obj.SetString("Hello", "Test2");
+	obj.Set("Hello", "Test2");
 	CHECK(strcmp(obj["Hello"].GetString(), "Test2") == 0);
 
 	// object
 	LuaObject stringObj(state);
-	stringObj.AssignString(state, "Test");
-	obj.SetString(stringObj, "Test3");
+	stringObj.Assign(state, "Test");
+	obj.Set(stringObj, "Test3");
 	CHECK(strcmp(obj[stringObj].GetString(), "Test3") == 0);
 }
 
@@ -1311,20 +1311,20 @@ TEST(LuaObject_SetWString)
 
 	// number
 	lua_WChar test1Str[] = { 'T', 'e', 's', 't', '1', 0 };
-	obj.SetWString(1, test1Str);
+	obj.Set(1, test1Str);
 	CHECK(lp_wcscmp(obj[1].GetWString(), test1Str) == 0);
 
 	// string
 	lua_WChar test2Str[] = { 'T', 'e', 's', 't', '2', 0 };
-	obj.SetWString("Hello", test2Str);
+	obj.Set("Hello", test2Str);
 	CHECK(lp_wcscmp(obj["Hello"].GetWString(), test2Str) == 0);
 
 	// object
 	LuaObject stringObj(state);
-	stringObj.AssignString(state, "Test");
+	stringObj.Assign(state, "Test");
 
 	lua_WChar test3Str[] = { 'T', 'e', 's', 't', '3', 0 };
-	obj.SetWString(stringObj, test3Str);
+	obj.Set(stringObj, test3Str);
 	CHECK(lp_wcscmp(obj[stringObj].GetWString(), test3Str) == 0);
 }
 
@@ -1347,7 +1347,7 @@ TEST(LuaObject_SetUserData)
 
 	// object
 	LuaObject stringObj(state);
-	stringObj.AssignString(state, "Test");
+	stringObj.Assign(state, "Test");
 	obj.SetUserData(stringObj, (void*)0x02468024);
 	CHECK(obj[stringObj].GetUserData() == (void*)0x02468024);
 */
@@ -1363,17 +1363,17 @@ TEST(LuaObject_SetLightUserData)
 	CHECK(obj.IsTable());
 
 	// number
-	obj.SetLightUserData(1, (void*)0x12345678);
+	obj.Set(1, (void*)0x12345678);
 	CHECK(obj[1].GetUserData() == (void*)0x12345678);
 
 	// string
-	obj.SetLightUserData("Hello", (void*)0x87654321);
+	obj.Set("Hello", (void*)0x87654321);
 	CHECK(obj["Hello"].GetUserData() == (void*)0x87654321);
 
 	// object
 	LuaObject stringObj(state);
-	stringObj.AssignString(state, "Test");
-	obj.SetLightUserData(stringObj, (void*)0x02468024);
+	stringObj.Assign(state, "Test");
+	obj.Set(stringObj, (void*)0x02468024);
 	CHECK(obj[stringObj].GetUserData() == (void*)0x02468024);
 }
 
@@ -1389,20 +1389,20 @@ TEST(LuaObject_SetObject)
 	LuaObject testObj(state);
 
 	// number
-	testObj.AssignBoolean(state, true);
-	obj.SetObject(1, testObj);
+	testObj.Assign(state, true);
+	obj.Set(1, testObj);
 	CHECK(obj[1] == testObj);
 
 	// string
-	testObj.AssignNumber(state, 5);
-	obj.SetObject("Hello", testObj);
+	testObj.Assign(state, 5);
+	obj.Set("Hello", testObj);
 	CHECK(obj["Hello"] == testObj);
 
 	// object
 	LuaObject stringObj(state);
-	stringObj.AssignString(state, "Test");
-	testObj.AssignString(state, "Stuff");
-	obj.SetObject(stringObj, testObj);
+	stringObj.Assign(state, "Test");
+	testObj.Assign(state, "Stuff");
+	obj.Set(stringObj, testObj);
 	CHECK(obj[stringObj] == testObj);
 }
 
@@ -1416,24 +1416,24 @@ TEST(LuaObject_CreateTable)
 
 	// number
 	LuaObject obj = globalsObj.CreateTable(1);
-	obj.SetNumber(500, 50);
+	obj.Set(500, 50);
 	CHECK(globalsObj[1].IsTable());
 	CHECK(globalsObj[1][500].IsNumber());
 	CHECK(globalsObj[1][500].GetNumber() == 50);
 
 	// string
 	obj = globalsObj.CreateTable("Hello");
-	obj.SetBoolean("MyStuff", true);
+	obj.Set("MyStuff", true);
 	CHECK(globalsObj["Hello"].IsTable());
 	CHECK(globalsObj["Hello"]["MyStuff"].IsBoolean());
 	CHECK(globalsObj["Hello"]["MyStuff"].GetBoolean() == true);
 
 	// object
 	LuaObject stringObj(state);
-	stringObj.AssignString(state, "Test");
+	stringObj.Assign(state, "Test");
 
 	obj = globalsObj.CreateTable(stringObj);
-	obj.SetBoolean("OtherStuff", false);
+	obj.Set("OtherStuff", false);
 	CHECK(globalsObj[stringObj].IsTable());
 	CHECK(globalsObj[stringObj]["OtherStuff"].IsBoolean());
 	CHECK(globalsObj[stringObj]["OtherStuff"].GetBoolean() == false);
@@ -1452,11 +1452,11 @@ TEST(LuaObject_GetByFuncs)
     LuaStackObject stackObj = state->StackTop();
 
 	LuaObject stringObj(state);
-	stringObj.AssignString(state, "Test");
+	stringObj.Assign(state, "Test");
 
-	obj.SetNumber(1, 5);
-	obj.SetNumber("Hello", 6);
-	obj.SetNumber(stringObj, 7);
+	obj.Set(1, 5);
+	obj.Set("Hello", 6);
+	obj.Set(stringObj, 7);
 
 	CHECK(obj[1].GetNumber() == 5);
 	CHECK(obj["Hello"].GetNumber() == 6);
@@ -1470,14 +1470,14 @@ TEST(LuaObject_GetByFuncs)
 	// Now add a metatable to simulate a hierarchy.
 	LuaObject baseObj;
 	baseObj.AssignNewTable(state);
-	baseObj.SetNumber(2, 8);
-	baseObj.SetNumber("Hello2", 9);
-	stringObj.AssignString(state, "Test2");
-	baseObj.SetNumber(stringObj, 10);
+	baseObj.Set(2, 8);
+	baseObj.Set("Hello2", 9);
+	stringObj.Assign(state, "Test2");
+	baseObj.Set(stringObj, 10);
 
 	LuaObject metaTableObj;
 	metaTableObj.AssignNewTable(state);
-	metaTableObj.SetObject("__index", baseObj);
+	metaTableObj.Set("__index", baseObj);
 	obj.SetMetaTable(metaTableObj);
 
 	// Now do the checks.
@@ -1501,11 +1501,11 @@ TEST(LuaObject_StrLen)
 {
 	LuaStateOwner state;
 	LuaObject stringObj(state);
-	stringObj.AssignString(state, "Test");
+	stringObj.Assign(state, "Test");
 	CHECK(stringObj.StrLen() == 4);
 
 	lua_WChar wideString[] = { 'W', 'i', 'd', 'e', ' ', 'S', 't', 'r', 'i', 'n', 'g', 0 };
-	stringObj.AssignWString(state, wideString);
+	stringObj.Assign(state, wideString);
 	CHECK(stringObj.StrLen() == 11);
 }
 
@@ -1515,7 +1515,7 @@ TEST(LuaObject_PushStack)
 {
 	LuaStateOwner state;
 	LuaObject stringObj(state);
-	stringObj.AssignString(state, "Test");
+	stringObj.Assign(state, "Test");
 	stringObj.Push();
     LuaStackObject stackObj = state->StackTop();
 	CHECK(state->GetTop() == 1);
@@ -1793,7 +1793,7 @@ inline size_t CalleeFuncSize(const Callee&, Func)
 static size_t LS_FuncSize(LuaState* state)
 {
 	LuaObject obj = LuaStackObject(state, lua_upvalueindex(1));
-	return obj.StrLen();
+	return obj.ObjLen();
 }
 
 
@@ -1807,7 +1807,7 @@ public:
 	size_t LS_CalleeFuncSize(LuaState* state)
 	{
 		LuaObject obj(state, lua_upvalueindex(1));
-		return obj.StrLen();
+		return obj.ObjLen();
 	}
 
 protected:
@@ -1840,7 +1840,7 @@ TEST(LuaObject_CheckConvertibleTypes)
 {
 	LuaStateOwner state;
 	LuaObject globalsObj = state->GetGlobals();
-	globalsObj.SetNumber("Number", 501);
+	globalsObj.Set("Number", 501);
 
 	LuaObject numObj = globalsObj["Number"];
 	CHECK(numObj.IsNumber());
@@ -1862,7 +1862,7 @@ TEST(LuaObject_CheckConvertibleTypes)
 	num = numObj.ToNumber();
 	CHECK(numObj.IsString());		// Once in string form, it stays there.
 
-	globalsObj.SetNumber("Number", 501);
+	globalsObj.Set("Number", 501);
 	numObj = globalsObj["Number"];
 
 	const lua_WChar* wstr = numObj.ToWString();
@@ -1875,10 +1875,10 @@ TEST(LuaObject_CheckConvertibleTypes)
 	num = numObj.ToNumber();
 	CHECK(numObj.IsWString());		// Again, once in string form, it stays there.
 
-	globalsObj.SetNumber("Number", 501);
+	globalsObj.Set("Number", 501);
 	numObj = globalsObj["Number"];
 
-	int len = numObj.ToStrLen();
+	int len = numObj.ObjLen();
 	CHECK(len == 3);
 	CHECK(numObj.IsString());
 }
@@ -1901,13 +1901,13 @@ TEST(LuaObject_MetaTable)
 	
 	// Set up the indexing.
 	LuaObject stringObj(state);
-	stringObj.AssignString(state, "Test");
-	metaTableObj.SetString(1, "MyLittleNumber");
-	metaTableObj.SetString("__name", "MyLittleMetaTable");
-	metaTableObj.SetString(stringObj, "MyLittleObject");
+	stringObj.Assign(state, "Test");
+	metaTableObj.Set(1, "MyLittleNumber");
+	metaTableObj.Set("__name", "MyLittleMetaTable");
+	metaTableObj.Set(stringObj, "MyLittleObject");
 	
 	// Make the metatable be the next lookup index.
-	metaTableObj.SetObject("__index", metaTableObj);
+	metaTableObj.Set("__index", metaTableObj);
 
 	// Create a global called MyTable and assign the metatable.
 	LuaObject myTableObj = state->GetGlobals().CreateTable("MyTable");
@@ -2198,7 +2198,7 @@ TEST(LuaObject_LotsOTables)
 	{
 		LuaObject tableObj;
 		tableObj.AssignNewTable(state);
-		tableObj.SetNumber("SomeNumber", i);  // Create newTable.SomeNumber = i;
+		tableObj.Set("SomeNumber", i);  // Create newTable.SomeNumber = i;
 		lotsOTables.push_back(tableObj);
 	}
 

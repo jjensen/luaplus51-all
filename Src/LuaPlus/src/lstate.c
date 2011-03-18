@@ -131,7 +131,7 @@ static void f_luaopen (lua_State *L, void *ud) {
   {
     TValue n;
 
-    sethvalue(L, &G(L)->l_refs, luaH_new(L, 0, 2));  /* refs */
+    sethvalue(L, &G(L)->l_refs, luaH_new(L, 1, 0));  /* refs */
 	setnvalue(&n, 0);
 #if LNUM_PATCH
     setobj2t(L, luaH_setint(L, hvalue(&G(L)->l_refs), LUA_RIDX_FASTREF_FREELIST), &n);
@@ -289,10 +289,6 @@ LUA_API lua_State *lua_newstate (lua_Alloc f, void *ud) {
 #if LUAPLUS_EXTENSIONS
   g->loadNotifyFunction = NULL;
   g->userGCFunction = NULL;
-  g->gchead_next = &g->gctail_next;
-  g->gchead_prev = NULL;
-  g->gctail_next = NULL;
-  g->gctail_prev = &g->gchead_next;
 #endif /* LUAPLUS_EXTENSIONS */
   for (i=0; i<NUM_TAGS; i++) g->mt[i] = NULL;
   if (luaD_rawrunprotected(L, f_luaopen, NULL) != 0) {
