@@ -225,9 +225,13 @@ int spawn_param_execute(struct spawn_params *p)
 int process_wait(lua_State *L)
 {
   struct process *p = luaL_checkudata(L, 1, PROCESS_HANDLE);
+  DWORD timeout = luaL_optinteger(L, 2, INFINITE);
   if (p->status == -1) {
     DWORD exitcode;
-    if (WAIT_FAILED == WaitForSingleObject(p->hProcess, INFINITE)
+	DWORD result = WaitForSingleObject(p->hProcess, timeout);
+	if (WAIT_TIMEOUT == result)
+		return 0;
+    if (WAIT_FAILED == result
         || !GetExitCodeProcess(p->hProcess, &exitcode))
       return windows_pushlasterror(L);
     p->status = exitcode;
