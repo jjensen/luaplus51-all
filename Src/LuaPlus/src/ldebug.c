@@ -153,6 +153,27 @@ LUA_API const char *lua_setlocal (lua_State *L, const lua_Debug *ar, int n) {
 }
 
 
+#if LUA_TILDE_DEBUGGER
+LUA_API int lua_getvararg (lua_State *L, const lua_Debug *ar, int n) {
+  CallInfo *ci = L->base_ci + ar->i_ci;
+  if(isLfunction(ci->func))
+  {
+    Closure *cl = (Closure *) clvalue(ci->func);
+    StkId firstVarArg = ci->func + cl->l.p->numparams + 1;
+    int numVarArg = (int) (ci->base - firstVarArg);
+    if(n <= numVarArg)
+    {
+      lua_lock(L);
+      luaA_pushobject(L, firstVarArg + n - 1);
+      lua_unlock(L);
+      return n;
+    }
+  }
+  return 0;
+}
+#endif /* LUA_TILDE_DEBUGGER */
+
+
 static void funcinfo (lua_Debug *ar, Closure *cl) {
   if (cl->c.isC) {
     ar->source = "=[C]";
@@ -644,6 +665,10 @@ void luaG_errormsg (lua_State *L) {
     incr_top(L);
     luaD_call(L, L->top - 2, 1);  /* call it */
   }
+#if LUA_TILDE_DEBUGGER
+  if (L->hookmask & LUA_MASKERROR)
+    luaD_callhook(L, LUA_HOOKERROR, -1);
+#endif /* LUA_TILDE_DEBUGGER */
   luaD_throw(L, LUA_ERRRUN);
 }
 

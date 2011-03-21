@@ -13,6 +13,17 @@ local NETWORK_SRCS =
 
 local SRCS =
 		Lua.cpp
+		../../../Src/tilde/HostConfig.cpp
+		../../../Src/tilde/HostConfig.h
+		../../../Src/tilde/LuaDebugger.cpp
+		../../../Src/tilde/LuaDebugger.h
+		../../../Src/tilde/LuaDebuggerComms.cpp
+		../../../Src/tilde/LuaDebuggerComms.h
+		../../../Src/tilde/LuaDebuggerProtocol.h
+		../../../Src/tilde/LuaHostWindows.cpp
+		../../../Src/tilde/LuaHostWindows.h
+		../../../Src/tilde/ReceiveMessageBuffer.h
+		../../../Src/tilde/ReceiveMessageBuffer.h
 ;
 
 if $(NT)  &&  $(COMPILER.$(PLATFORM)) != vc6
@@ -37,7 +48,7 @@ rule LuaApplication TARGET : OPTIONS
 		C.LinkFlags : /DELAYLOAD:luaplus51-1200.dll : releaseltcg ;
 		C.LinkPrebuiltLibraries : DelayImp ;
 	}
-	C.IncludeDirectories : $(LUAPLUS)/Src ; # [ FSubDirPath LUAPLUS Src ] ;
+	C.IncludeDirectories : $(LUAPLUS)/Src $(LUAPLUS)/Src/LuaPlus/Src ; # [ FSubDirPath LUAPLUS Src ] ;
 	C.LinkLibraries : LuaPlusShared ;
 	if $(OS) = LINUX
 	{

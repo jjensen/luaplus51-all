@@ -367,6 +367,9 @@ LUA_API void lua_setlevel	(lua_State *from, lua_State *to);
 #define LUA_HOOKLINE	2
 #define LUA_HOOKCOUNT	3
 #define LUA_HOOKTAILRET 4
+#if LUA_TILDE_DEBUGGER
+#define LUA_HOOKERROR	5
+#endif /* LUA_TILDE_DEBUGGER */
 
 
 /*
@@ -376,6 +379,9 @@ LUA_API void lua_setlevel	(lua_State *from, lua_State *to);
 #define LUA_MASKRET	(1 << LUA_HOOKRET)
 #define LUA_MASKLINE	(1 << LUA_HOOKLINE)
 #define LUA_MASKCOUNT	(1 << LUA_HOOKCOUNT)
+#if LUA_TILDE_DEBUGGER
+#define LUA_MASKERROR	(1 << LUA_HOOKERROR)
+#endif /* LUA_TILDE_DEBUGGER */
 
 typedef struct lua_Debug lua_Debug;  /* activation record */
 
@@ -390,6 +396,9 @@ LUA_API const char *lua_getlocal (lua_State *L, const lua_Debug *ar, int n);
 LUA_API const char *lua_setlocal (lua_State *L, const lua_Debug *ar, int n);
 LUA_API const char *lua_getupvalue (lua_State *L, int funcindex, int n);
 LUA_API const char *lua_setupvalue (lua_State *L, int funcindex, int n);
+#if LUA_TILDE_DEBUGGER
+LUA_API int lua_getvararg (lua_State *L, const lua_Debug *ar, int n);
+#endif /* LUA_TILDE_DEBUGGER */
 
 LUA_API int lua_sethook (lua_State *L, lua_Hook func, int mask, int count);
 LUA_API lua_Hook lua_gethook (lua_State *L);

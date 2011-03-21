@@ -20,6 +20,10 @@ extern "C" {
 
 #include "LuaRemoteDebuggingServer/LuaRemoteDebuggingServer.h"
 
+#if LUA_TILDE_DEBUGGER
+#include "tilde/LuaHostWindows.h"
+#endif /* LUA_TILDE_DEBUGGER */
+
 static int remoteDebuggingActive = 0;
 
 static lua_State *globalL = NULL;
@@ -316,6 +320,17 @@ static int collectargs (char **argv, int *pi, int *pv, int *pe) {
         }
         break;
       }
+#if LUA_TILDE_DEBUGGER
+      case 't': {
+        if (strcmp(argv[i], "-tilde") == 0) {
+          LuaHostWindows* host = new LuaHostWindows();
+          host->RegisterState("State", globalL);
+          host->WaitForDebuggerConnection();
+          remoteDebuggingActive = 1;
+        }
+        break;
+      }
+#endif /* LUA_TILDE_DEBUGGER */
       default: return -1;  /* invalid option */
     }
   }
