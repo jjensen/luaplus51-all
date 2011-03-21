@@ -263,17 +263,17 @@ static int handle_script (lua_State *L, char **argv, int n) {
 
 static void DebugLineHook( lua_State* inState, lua_Debug* ar )
 {
-	if ( ar->event == LUA_HOOKLINE )
-	{
-		lua_Debug debugInfo;
-		lua_getstack( inState, 0, &debugInfo );
-		lua_getinfo( inState, "Sl", &debugInfo );
+    if ( ar->event == LUA_HOOKLINE )
+    {
+        lua_Debug debugInfo;
+        lua_getstack( inState, 0, &debugInfo );
+        lua_getinfo( inState, "Sl", &debugInfo );
 
-		if ( debugInfo.source[0] == '@' )
-			debugInfo.source++;
+        if ( debugInfo.source[0] == '@' )
+            debugInfo.source++;
 
-		printf("%s[%d]\n", debugInfo.source, debugInfo.currentline - 1);
-	}
+        printf("%s[%d]\n", debugInfo.source, debugInfo.currentline - 1);
+    }
 }
 
 
@@ -491,8 +491,8 @@ int main (int argc, char **argv) {
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
-	main(__argc, __argv);
-	return 0;
+    main(__argc, __argv);
+    return 0;
 }
 
 #endif
