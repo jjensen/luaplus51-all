@@ -694,7 +694,7 @@ static void SendCallStack(LuaState* luaStateToDebug)
 				while (ar.short_src[start] != 0  &&  ar.short_src[start] == '[')
 					start++;
 
-				int end = strlen(ar.short_src);
+				size_t end = strlen(ar.short_src);
 				if (end > 0)
 				{
 					end--;

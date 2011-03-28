@@ -125,7 +125,7 @@ int SimpleString::Find(char ch)
 {
 	char* ptr = strchr(m_buffer, ch);
 	if (ptr)
-		return ptr - m_buffer;
+		return (int)(ptr - m_buffer);
 	return -1;
 }
 
@@ -134,7 +134,7 @@ int SimpleString::ReverseFind(char ch)
 {
 	char* ptr = strrchr(m_buffer, ch);
 	if (ptr)
-		return ptr - m_buffer;
+		return (int)(ptr - m_buffer);
 	return -1;
 }
 
@@ -814,10 +814,10 @@ bool LuaNetworkSocket::ReadBinary( unsigned char*& buffer, int& size )
 // Added.
 bool LuaNetworkSocket::WriteBinary( const void* data, size_t size )
 {
-	size = htonl(size);
+	size = htonl((u_long)size);
 	if ( Write( &size, sizeof( size_t ) ) != 0)
 		return false;
-	size = ntohl(size);
+	size = ntohl((u_long)size);
 	if ( Write( data, size ) != 0 )
 		return false;
 	return true;
