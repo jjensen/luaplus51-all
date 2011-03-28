@@ -1481,12 +1481,18 @@ TEST(LuaObject_GetByFuncs)
 	obj.SetMetaTable(metaTableObj);
 
 	// Now do the checks.
-	CHECK(obj[2].IsNil());
-	CHECK(obj["Hello2"].IsNil());
-	CHECK(obj[stringObj].IsNil());
+	CHECK(obj.RawGetByIndex(2).IsNil());
+	CHECK(obj.RawGetByName("Hello2").IsNil());
+	CHECK(obj.RawGetByObject(stringObj).IsNil());
 	CHECK(obj.GetByIndex(2).GetNumber() == 8);
 	CHECK(obj.GetByName("Hello2").GetNumber() == 9);
 	CHECK(obj.GetByObject(stringObj).GetNumber() == 10);
+	CHECK(obj[2].IsNumber());
+	CHECK(obj[2].GetNumber() == 8);
+	CHECK(obj["Hello2"].IsNumber());
+	CHECK(obj["Hello2"].GetNumber() == 9);
+	CHECK(obj[stringObj].IsNumber());
+	CHECK(obj[stringObj].GetNumber() == 10);
 }
 
 
@@ -1918,9 +1924,17 @@ TEST(LuaObject_MetaTable)
 	CHECK(testTableObj.GetByIndex(2).IsNil());
 
 	// Test operator functions
-	CHECK(testTableObj[1].IsNil());
-	CHECK(testTableObj["__name"].IsNil());
-	CHECK(testTableObj[stringObj].IsNil());
+	CHECK(testTableObj[1].IsString());
+	CHECK(strcmp(testTableObj[1].GetString(), "MyLittleNumber") == 0);
+	CHECK(testTableObj["__name"].IsString());
+	CHECK(strcmp(testTableObj["__name"].GetString(), "MyLittleMetaTable") == 0);
+	CHECK(testTableObj[stringObj].IsString());
+	CHECK(strcmp(testTableObj[stringObj].GetString(), "MyLittleObject") == 0);
+
+	// Test operator functions
+	CHECK(testTableObj.RawGet(1).IsNil());
+	CHECK(testTableObj.RawGet("__name").IsNil());
+	CHECK(testTableObj.RawGet(stringObj).IsNil());
 }
 
 
