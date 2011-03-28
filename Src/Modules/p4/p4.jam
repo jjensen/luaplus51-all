@@ -25,7 +25,11 @@ CopyFile p4 : $(LUA_LDIR)/p4.lua : $(SUBDIR)/src/p4.lua ;
 local P4API = p4api ;
 
 if $(NT) {
-	P4API = p4api/$(CONFIG) ;
+	if $(CONFIG) in debug release {
+		P4API = p4api/$(CONFIG) ;
+	} else if $(CONFIG) = releaseltcg {
+		P4API = p4api/release ;
+	}
 	C.DefFile p4 : src/p4lua.def ;
 	C.Defines p4 : OS_NT ;
 	C.LinkPrebuiltLibraries p4 : advapi32 ws2_32 ;
