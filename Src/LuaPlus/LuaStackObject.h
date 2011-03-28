@@ -99,7 +99,7 @@ public:
 #if LUA_WIDESTRING
 	const lua_WChar* GetWString() const;
 #endif /* LUA_WIDESTRING */
-	int StrLen() const;
+	size_t StrLen() const;
 	lua_CFunction GetCFunction() const;
 	void* GetUserData() const;
 	const void* GetLuaPointer() const;
@@ -117,7 +117,7 @@ public:
 	void SetMetaTable(LuaStackObject value);
 
 	void SetTable();
-	int GetCount();
+	size_t GetCount();
 
 	LuaStackObject CreateTable(const char* name, int narray = 0, int lnhash = 0);
 	LuaStackObject CreateTable(int index, int narray = 0, int lnhash = 0);

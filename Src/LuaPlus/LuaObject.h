@@ -127,7 +127,7 @@ public:
 #if LUA_WIDESTRING
 	LUAPLUS_CLASS_API const lua_WChar* GetWString() const;
 #endif /* LUA_WIDESTRING */
-	LUAPLUS_CLASS_API int StrLen();
+	LUAPLUS_CLASS_API size_t StrLen();
 	LUAPLUS_CLASS_API lua_CFunction GetCFunction() const;
 	LUAPLUS_CLASS_API void* GetUserData();
 	LUAPLUS_CLASS_API const void* GetLuaPointer();
@@ -147,8 +147,8 @@ public:
 	LUAPLUS_CLASS_API void Remove(int index = -1);
 	LUAPLUS_CLASS_API void Sort();
 
-	LUAPLUS_CLASS_API int GetCount();
-	LUAPLUS_CLASS_API int GetTableCount();
+	LUAPLUS_CLASS_API size_t GetCount();
+	LUAPLUS_CLASS_API size_t GetTableCount();
 
 	LUAPLUS_CLASS_API LuaObject Clone();
 	LUAPLUS_CLASS_API void DeepClone(LuaObject& outObj);

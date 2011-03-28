@@ -514,7 +514,7 @@ bool LuaState::DumpObject(LuaStateOutFile& file, LuaObject& key, LuaObject& valu
 	// Or if the object's value is a string, write it as a quoted string.
 	else if (value.IsWString())
 	{
-		luaI_addquotedwidebinary(file, value.GetWString(), value.StrLen());
+		luaI_addquotedwidebinary(file, value.GetWString(), (int)value.StrLen());
 	}
 #endif /* LUA_WIDESTRING */
 

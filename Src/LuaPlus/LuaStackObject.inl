@@ -178,7 +178,7 @@ LUAPLUS_INLINE const lua_WChar* LuaStackObject::GetWString() const
 	return str;
 }
 #endif /* LUA_WIDESTRING */
-LUAPLUS_INLINE int LuaStackObject::StrLen() const					{  return (int)lua_strlen( GetCState(), m_stackIndex );  }
+LUAPLUS_INLINE size_t LuaStackObject::StrLen() const				{  return lua_strlen( GetCState(), m_stackIndex );  }
 LUAPLUS_INLINE lua_CFunction LuaStackObject::GetCFunction() const	{  luaplus_assert( lua_iscfunction( GetCState(), m_stackIndex ) );  return lua_tocfunction( GetCState(), m_stackIndex );  }
 LUAPLUS_INLINE void* LuaStackObject::GetUserData() const			{  luaplus_assert( lua_isuserdata( GetCState(), m_stackIndex ) );  return lua_touserdata( GetCState(), m_stackIndex );  }
 LUAPLUS_INLINE const void* LuaStackObject::GetLuaPointer() const	{  return lua_topointer( GetCState(), m_stackIndex );  }
@@ -211,7 +211,7 @@ LUAPLUS_INLINE void LuaStackObject::SetMetaTable( LuaStackObject value )
 }
 
 LUAPLUS_INLINE void LuaStackObject::SetTable()						{  lua_settable( GetCState(), m_stackIndex );  }
-LUAPLUS_INLINE int LuaStackObject::GetCount()						{  return lua_objlen( GetCState(), m_stackIndex );  }
+LUAPLUS_INLINE size_t LuaStackObject::GetCount()					{  return lua_objlen( GetCState(), m_stackIndex );  }
 
 
 /**

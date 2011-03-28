@@ -473,7 +473,7 @@ const lua_WChar* LuaObject::GetWString()const
 #endif /* LUA_WIDESTRING */
 
 
-int LuaObject::StrLen()
+size_t LuaObject::StrLen()
 {
 	luaplus_assert(L);
 #if LUA_WIDESTRING
@@ -637,7 +637,7 @@ void LuaObject::DeepClone(LuaObject& outObj)
 
 static inline int InternalGetTop(lua_State* L)
 {
-  return (L->top - L->base);
+  return (int)(L->top - L->base);
 }
 
 
@@ -821,19 +821,19 @@ void LuaObject::Sort()
 }
 
 
-int LuaObject::GetCount()
+size_t LuaObject::GetCount()
 {
 	luaplus_assert(L);
 	Push();
-	int count = lua_objlen(L, -1);
+	size_t count = lua_objlen(L, -1);
 	lua_pop(L, 1);
 	return count;
 }
 
 
-int LuaObject::GetTableCount()
+size_t LuaObject::GetTableCount()
 {
-	int count = 0;
+	size_t count = 0;
 	for (LuaTableIterator it(*this); it; ++it)
 	{
 		count++;
@@ -1260,7 +1260,7 @@ LuaObject& LuaObject::SetString(const char* key, const char* value, int len)
 	else
 	{
 		if (len == -1)
-			len = strlen(value);
+			len = (int)strlen(value);
 		setsvalue2n(L, &valueObj, luaS_newlstr(LuaState_to_lua_State(L), value, len));
 	}
 	SetTableHelper(key, &valueObj);
@@ -1280,7 +1280,7 @@ LuaObject& LuaObject::SetString(int key, const char* value, int len)
 	else
 	{
 		if (len == -1)
-			len = strlen(value);
+			len = (int)strlen(value);
 		setsvalue2n(L, &valueObj, luaS_newlstr(LuaState_to_lua_State(L), value, len));
 	}
 	SetTableHelper(key, &valueObj);
@@ -1300,7 +1300,7 @@ LuaObject& LuaObject::SetString(LuaObject& key, const char* value, int len)
 	else
 	{
 		if (len == -1)
-			len = strlen(value);
+			len = (int)strlen(value);
 		setsvalue2n(L, &valueObj, luaS_newlstr(LuaState_to_lua_State(L), value, len));
 	}
 	SetTableHelper(key, &valueObj);
@@ -1321,7 +1321,7 @@ LuaObject& LuaObject::SetWString(const char* key, const lua_WChar* value, int le
 	else
 	{
 		if (len == -1)
-			len = lua_WChar_len(value);
+			len = (int)lua_WChar_len(value);
 		setwsvalue2n(L, &valueObj, luaS_newlwstr(LuaState_to_lua_State(L), value, len));
 	}
 	SetTableHelper(key, &valueObj);
@@ -1341,7 +1341,7 @@ LuaObject& LuaObject::SetWString(int key, const lua_WChar* value, int len)
 	else
 	{
 		if (len == -1)
-			len = lua_WChar_len(value);
+			len = (int)lua_WChar_len(value);
 		setwsvalue2n(L, &valueObj, luaS_newlwstr(LuaState_to_lua_State(L), value, len));
 	}
 	SetTableHelper(key, &valueObj);
@@ -1361,7 +1361,7 @@ LuaObject& LuaObject::SetWString(LuaObject& key, const lua_WChar* value, int len
 	else
 	{
 		if (len == -1)
-			len = lua_WChar_len(value);
+			len = (int)lua_WChar_len(value);
 		setwsvalue2n(L, &valueObj, luaS_newlwstr(LuaState_to_lua_State(L), value, len));
 	}
 	SetTableHelper(key, &valueObj);
@@ -1587,7 +1587,7 @@ LuaObject& LuaObject::RawSetString(const char* key, const char* value, int len)
 	else
 	{
 		if (len == -1)
-			len = strlen(value);
+			len = (int)strlen(value);
 		setsvalue2n(L, &valueObj, luaS_newlstr(LuaState_to_lua_State(L), value, len));
 	}
 	RawSetTableHelper(key, &valueObj);
@@ -1607,7 +1607,7 @@ LuaObject& LuaObject::RawSetString(int key, const char* value, int len)
 	else
 	{
 		if (len == -1)
-			len = strlen(value);
+			len = (int)strlen(value);
 		setsvalue2n(L, &valueObj, luaS_newlstr(LuaState_to_lua_State(L), value, len));
 	}
 	RawSetTableHelper(key, &valueObj);
@@ -1627,7 +1627,7 @@ LuaObject& LuaObject::RawSetString(LuaObject& key, const char* value, int len)
 	else
 	{
 		if (len == -1)
-			len = strlen(value);
+			len = (int)strlen(value);
 		setsvalue2n(L, &valueObj, luaS_newlstr(LuaState_to_lua_State(L), value, len));
 	}
 	RawSetTableHelper(key, &valueObj);
@@ -1648,7 +1648,7 @@ LuaObject& LuaObject::RawSetWString(const char* key, const lua_WChar* value, int
 	else
 	{
 		if (len == -1)
-			len = lua_WChar_len(value);
+			len = (int)lua_WChar_len(value);
 		setwsvalue2n(L, &valueObj, luaS_newlwstr(LuaState_to_lua_State(L), value, len));
 	}
 	RawSetTableHelper(key, &valueObj);
@@ -1668,7 +1668,7 @@ LuaObject& LuaObject::RawSetWString(int key, const lua_WChar* value, int len)
 	else
 	{
 		if (len == -1)
-			len = lua_WChar_len(value);
+			len = (int)lua_WChar_len(value);
 		setwsvalue2n(L, &valueObj, luaS_newlwstr(LuaState_to_lua_State(L), value, len));
 	}
 	RawSetTableHelper(key, &valueObj);
@@ -1688,7 +1688,7 @@ LuaObject& LuaObject::RawSetWString(LuaObject& key, const lua_WChar* value, int 
 	else
 	{
 		if (len == -1)
-			len = lua_WChar_len(value);
+			len = (int)lua_WChar_len(value);
 		setwsvalue2n(L, &valueObj, luaS_newlwstr(LuaState_to_lua_State(L), value, len));
 	}
 	RawSetTableHelper(key, &valueObj);
@@ -1853,7 +1853,7 @@ void LuaObject::AssignString(LuaState* state, const char* value, int len)
 	else
 	{
 		if (len == -1)
-			len = strlen(value);
+			len = (int)strlen(value);
 		setsvalue(L, &m_object, luaS_newlstr(L, value, len));
 	}
 }
@@ -1874,7 +1874,7 @@ void LuaObject::AssignWString(LuaState* state, const lua_WChar* value, int len)
 	else
 	{
 		if (len == -1)
-			len = lua_WChar_len(value);
+			len = (int)lua_WChar_len(value);
 		setwsvalue(L, &m_object, luaS_newlwstr(L, value, len));
 	}
 }
