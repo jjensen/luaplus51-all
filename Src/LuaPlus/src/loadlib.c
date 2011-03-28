@@ -893,7 +893,7 @@ LUALIB_API int luaopen_package (lua_State *L) {
   lua_pushvalue(L, LUA_GLOBALSINDEX);
   luaL_register(L, NULL, ll_funcs);  /* open lib into global table */
   lua_pop(L, 1);
-#if LUAPLUS_EXTENSIONS  
+#if LUAPLUS_EXTENSIONS && (defined(LUA_DL_DLOPEN) || defined(LUA_DL_DLL) || defined(LUA_DL_DYLD))
   lp_loadlocalconfig(L);
 #endif /* LUAPLUS_EXTENSIONS */
   return 1;  /* return 'package' table */
