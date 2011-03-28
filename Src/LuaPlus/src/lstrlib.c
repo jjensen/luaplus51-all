@@ -163,7 +163,7 @@ static int str_dump (lua_State *L) {
   }
   lua_settop(L, 1);
   luaL_buffinit(L,&b);
-  if (lua_dumpendian(L, writer, &b, strip, s[0]) != 0)
+  if (lua_dumpendian(L, writer, &b, (int)strip, s[0]) != 0)
 #else
   luaL_checktype(L, 1, LUA_TFUNCTION);
   lua_settop(L, 1);
@@ -1196,7 +1196,7 @@ static int l_unpack(lua_State *L) 		/** unpack(s,f,[init]) */
 	Mbuffer buff;
 	const char *s=luaL_checkstring(L,1);
 	const char *f=luaL_checkstring(L,2);
-	int i=(int)luaL_optnumber(L,3,1)-1;
+	size_t i=(size_t)luaL_optnumber(L,3,1)-1;
 	size_t len=lua_strlen(L,1);
 	int n=0;
 	int swap=0;
@@ -1317,7 +1317,7 @@ static int l_unpack(lua_State *L) 		/** unpack(s,f,[init]) */
 		}
 	}
 done:
-	lua_pushnumber(L,i+1);
+	lua_pushnumber(L,(lua_Number)(i+1));
 	lua_replace(L,-n-2);
 	luaZ_freebuffer(L, &buff);
 	return n+1;
@@ -1389,7 +1389,7 @@ static int l_pack(lua_State *L) 		/** pack(f,...) */
 	int i=2;
 	const char *f=luaL_checkstring(L,1);
 	int swap=0;
-	int padCount = 0;
+	size_t padCount = 0;
 	char padChar = 0;
 	size_t padStartPos = 0;
 	luaL_Buffer b;

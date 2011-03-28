@@ -92,7 +92,7 @@ static void DumpNumber(lua_Number x, DumpState* D)
 
 static void DumpVector(const void* b, size_t n, size_t size, DumpState* D)
 {
- DumpInt(n,D);
+ DumpInt((int)n,D);
 #if LUA_ENDIAN_SUPPORT
  if (D->status==0)
  {
@@ -102,7 +102,7 @@ static void DumpVector(const void* b, size_t n, size_t size, DumpState* D)
    char* origSwapBuffer=luaZ_openspace(D->L,&D->b,n*size);
    char* swapBuffer = origSwapBuffer;
    char* q=(char*) b;
-   int orign = n;
+   size_t orign = n;
    while (n--)
    {
     char* p =(char*) q+size-1;

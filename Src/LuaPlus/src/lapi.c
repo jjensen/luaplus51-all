@@ -914,7 +914,7 @@ LUA_API int lua_setfenv (lua_State *L, int idx) {
   api_checkvalidindex(L, o);
   api_check(L, ttistable(L->top - 1));
   switch (ttype(o)) {
-#if LUA_REFCOUNT  	
+#if LUA_REFCOUNT
     case LUA_TFUNCTION: {
       Table *bak = clvalue(o)->c.env;
       clvalue(o)->c.env = hvalue(L->top - 1);
@@ -1306,7 +1306,7 @@ LUA_API void lua_concat (lua_State *L, int n) {
   if (n >= 2) {
     luaC_checkGC(L);
 #if LUA_EXT_RESUMABLEVM
-    notresumable(L, 
+    notresumable(L,
       luaV_concat(L, n, cast_int(L->top - L->base) - 1);
     )
 #else
@@ -1399,7 +1399,7 @@ LUA_API const char *lua_setupvalue (lua_State *L, int funcindex, int n) {
     L->top--;
     setobj(L, val, L->top);
     luaC_barrier(L, clvalue(fi), L->top);
-#if LUA_REFCOUNT    
+#if LUA_REFCOUNT
     luarc_cleanvalue(L->top);
 #endif /* LUA_REFCOUNT */
   }
@@ -1419,7 +1419,7 @@ LUA_API int lua_fastrefindex (lua_State *L, int idx) {
   const TValue* firstfree;
   TValue* value;
   TValue* newKey;
-  int ref;
+  lua_Integer ref;
   StkId to = &G(L)->l_refs;
 
   lua_lock(L);
@@ -1436,13 +1436,13 @@ LUA_API int lua_fastrefindex (lua_State *L, int idx) {
 
   if (ref != 0) {  /* any free element? */
     /* remove it from list */
-    const TValue* refValue = luaH_getinthelper(hvalue(to), ref);
+    const TValue* refValue = luaH_getinthelper(hvalue(to), (int)ref);
     setobj2t(L, (TValue*)firstfree, refValue);
   }
   else  /* no free elements */
     ref = (int)luaH_getn(hvalue(to)) + 1;  /* get a new reference */
 
-  newKey = luaH_setinthelper(L, hvalue(to), ref);
+  newKey = luaH_setinthelper(L, hvalue(to), (int)ref);
   if (idx <= LUA_FASTREFNIL) {
     if (idx == LUA_FASTREFNIL) {
       value = &G(L)->fastrefNilValue;
@@ -1458,7 +1458,7 @@ LUA_API int lua_fastrefindex (lua_State *L, int idx) {
   luaC_barriert(L, hvalue(to), value);
 
   lua_unlock(L);
-  return LUA_FASTREFNIL - 1 - ref;
+  return LUA_FASTREFNIL - 1 - (int)ref;
 }
 
 

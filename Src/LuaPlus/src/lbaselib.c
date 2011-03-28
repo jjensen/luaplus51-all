@@ -528,7 +528,7 @@ static int luaB_xpcall (lua_State *L) {
 }
 
 #endif /* LUA_EXT_RESUMABLEVM */
- 
+
 #if LUAPLUS_DUMPOBJECT
 LUA_EXTERN_C void luaplus_dumptable(lua_State* L, int index);
 #endif
@@ -684,7 +684,7 @@ static int luaB_newproxy (lua_State *L) {
 #if LUAPLUS_EXTENSIONS
 
 static int luaB_createtable (lua_State *L) {
-  lua_createtable(L, luaL_optinteger(L, 1, 0), luaL_optinteger(L, 2, 0));
+  lua_createtable(L, (int)luaL_optinteger(L, 1, 0), (int)luaL_optinteger(L, 2, 0));
   return 1;
 }
 
