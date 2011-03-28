@@ -102,7 +102,7 @@ C.Defines LuaPlusShared : LUA_OPNAMES ;
 
 LuaPlusFixUpTarget LuaPlusStatic ;
 
-C.OutputName LuaPlusStatic : luaplusstatic51_1200 ;
+C.OutputName LuaPlusStatic : luaplusstatic51_1201 ;
 
 C.Library LuaPlusStatic : $(LUAPLUS_SRCS) ;
 

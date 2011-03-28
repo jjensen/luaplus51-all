@@ -107,11 +107,11 @@ if $(UNIX)
 {
 	C.LinkPrebuiltLibraries LuaPlusShared : stdc++ dl ;
 	if ! $(OS) in MACOS MACOSX {
-		C.LinkFlags LuaPlusShared : -Wl,-soname,luaplus51-1200.so ;
+		C.LinkFlags LuaPlusShared : -Wl,-soname,luaplus51-1201.so ;
 	}
 }
 
-C.OutputName LuaPlusShared : luaplus51-1200 ;
+C.OutputName LuaPlusShared : luaplus51-1201 ;
 LuaPlusFixUpTarget LuaPlusShared ;
 C.OutputPostfix LuaPlusShared : _debug : debug ;
 
