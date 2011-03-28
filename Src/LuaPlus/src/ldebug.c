@@ -678,6 +678,10 @@ void luaG_runerror (lua_State *L, const char *fmt, ...) {
   va_start(argp, fmt);
   addinfo(L, luaO_pushvfstring(L, fmt, argp));
   va_end(argp);
+#if LUA_TILDE_DEBUGGER
+  if (L->hookmask & LUA_MASKERROR)
+    luaD_callhook(L, LUA_HOOKERROR, -1);
+#endif /* LUA_TILDE_DEBUGGER */
 #if LUA_EXT_RESUMABLEVM
   luaD_throw(L, LUA_ERRRUN);
 #else
