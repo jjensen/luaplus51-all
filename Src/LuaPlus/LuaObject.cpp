@@ -553,7 +553,7 @@ bool LuaObject::GetBoolean() const
 
 /**
 **/
-LuaObject LuaObject::Clone()
+LuaObject LuaObject::Clone() const
 {
     lua_lock(L);
 	if (IsTable())
@@ -582,7 +582,7 @@ LuaObject LuaObject::Clone()
 }
 
 
-void LuaObject::DeepClone(LuaObject& outObj)
+void LuaObject::DeepClone(LuaObject& outObj) const
 {
 	if (IsTable())
 	{
@@ -663,7 +663,7 @@ LuaStackObject LuaObject::Push() const
 }
 
 
-LuaObject LuaObject::GetMetaTable()
+LuaObject LuaObject::GetMetaTable() const
 {
 	luaplus_assert(L);
     lua_lock(L);
@@ -821,7 +821,7 @@ void LuaObject::Sort()
 }
 
 
-size_t LuaObject::GetCount()
+size_t LuaObject::GetCount() const
 {
 	luaplus_assert(L);
 	Push();
@@ -831,7 +831,7 @@ size_t LuaObject::GetCount()
 }
 
 
-size_t LuaObject::GetTableCount()
+size_t LuaObject::GetTableCount() const
 {
 	size_t count = 0;
 	for (LuaTableIterator it(*this); it; ++it)
@@ -893,7 +893,7 @@ LuaObject LuaObject::CreateTable(LuaObject& key, int narray, int lnhash)
 }
 
 
-LuaObject LuaObject::GetByName(const char* key)
+LuaObject LuaObject::Get(const char* key) const
 {
 	luaplus_assert(L);
 
@@ -933,7 +933,7 @@ LuaObject LuaObject::GetByName(const char* key)
 	return LuaObject(L, &v);
 }
 
-LuaObject LuaObject::GetByIndex(int key)
+LuaObject LuaObject::Get(int key) const
 {
 	luaplus_assert(L);
 	api_check(L, ttistable(&m_object));
@@ -945,7 +945,7 @@ LuaObject LuaObject::GetByIndex(int key)
 	return LuaObject(L, &v);
 }
 
-LuaObject LuaObject::GetByObject(const LuaObject& key)
+LuaObject LuaObject::Get(const LuaObject& key) const
 {
 	luaplus_assert(L);
 	api_check(L, ttistable(&m_object));
@@ -956,7 +956,7 @@ LuaObject LuaObject::GetByObject(const LuaObject& key)
 }
 
 
-LuaObject LuaObject::GetByObject(const LuaStackObject& key)
+LuaObject LuaObject::Get(const LuaStackObject& key) const
 {
 	luaplus_assert(L);
 	api_check(L, ttistable(&m_object));
@@ -967,29 +967,40 @@ LuaObject LuaObject::GetByObject(const LuaStackObject& key)
 }
 
 
-LuaObject LuaObject::RawGetByName(const char* key)
+LuaObject LuaObject::GetByName(const char* key) const
 {
-	return (*this)[key];
+	return Get(key);
 }
 
-LuaObject LuaObject::RawGetByIndex(int key)
+LuaObject LuaObject::GetByIndex(int key) const
 {
-	return (*this)[key];
-}
-
-LuaObject LuaObject::RawGetByObject(const LuaObject& key)
-{
-	return (*this)[key];
+	return Get(key);
 }
 
 
-LuaObject LuaObject::RawGetByObject(const LuaStackObject& key)
+LuaObject LuaObject::GetByObject(const LuaObject& key) const
 {
-	return (*this)[key];
+	luaplus_assert(L);
+	api_check(L, ttistable(&m_object));
+
+	TValue v;
+	luaV_gettable(L, &m_object, (TValue*)&key.m_object, &v);
+	return LuaObject(L, &v);
 }
 
 
-LuaObject LuaObject::operator[](const char* name)
+LuaObject LuaObject::GetByObject(const LuaStackObject& key) const
+{
+	luaplus_assert(L);
+	api_check(L, ttistable(&m_object));
+
+	TValue v;
+	luaV_gettable(L, &m_object, index2adr(L, key.m_stackIndex), &v);
+	return LuaObject(L, &v);
+}
+
+
+LuaObject LuaObject::RawGet(const char* key) const
 {
 	luaplus_assert(L);
 	api_check(L, ttistable(&m_object));
@@ -998,19 +1009,19 @@ LuaObject LuaObject::operator[](const char* name)
 	setnilvalue2n(L, &str);
 
 	// It's safe to assume that if name is not in the hash table, this function can return nil.
-	size_t l = strlen(name);
+	size_t l = strlen(key);
 	GCObject *o;
 	unsigned int h = (unsigned int)l;  /* seed */
 	size_t step = (l>>5)+1;  /* if string is too long, don't hash all its chars */
 	size_t l1;
 	for (l1=l; l1>=step; l1-=step)  /* compute hash */
-		h = h ^ ((h<<5)+(h>>2)+(unsigned char)(name[l1-1]));
+		h = h ^ ((h<<5)+(h>>2)+(unsigned char)(key[l1-1]));
 	for (o = G(L)->strt.hash[lmod(h, G(L)->strt.size)];
 		o != NULL;
 		o = o->gch.next)
 	{
 		TString *ts = rawgco2ts(o);
-		if (ts->tsv.tt == LUA_TSTRING && ts->tsv.len == l && (memcmp(name, getstr(ts), l) == 0))
+		if (ts->tsv.tt == LUA_TSTRING && ts->tsv.len == l && (memcmp(key, getstr(ts), l) == 0))
 		{
 			/* string may be dead */
 			if (isdead(G(L), o)) changewhite(o);
@@ -1028,37 +1039,87 @@ LuaObject LuaObject::operator[](const char* name)
 	return LuaObject(L, v);
 }
 
-LuaObject LuaObject::operator[](int index)
+LuaObject LuaObject::RawGet(int key) const
 {
 	luaplus_assert(L);
 	api_check(L, ttistable(&m_object));
 
-	StkId o = &m_object;
+	const TValue* o = &m_object;
 	api_check(L, ttistable(o));
-	const TValue* v = luaH_getnum(hvalue(o), index);
+	const TValue* v = luaH_getnum(hvalue(o), key);
 	return LuaObject(L, v);
 }
 
-LuaObject LuaObject::operator[](const LuaObject& obj)
+
+LuaObject LuaObject::RawGet(const LuaObject& key) const
 {
 	luaplus_assert(L);
 	api_check(L, ttistable(&m_object));
 
-	const TValue* v = luaH_get(hvalue(&m_object), &obj.m_object);
+	const TValue* v = luaH_get(hvalue(&m_object), &key.m_object);
 	return LuaObject(L, v);
 }
 
-LuaObject LuaObject::operator[](const LuaStackObject& obj)
+
+LuaObject LuaObject::RawGet(const LuaStackObject& key) const
 {
 	luaplus_assert(L);
 	api_check(L, ttistable(&m_object));
 
-	const TValue* v = luaH_get(hvalue(&m_object), index2adr(L, obj.m_stackIndex));
+	const TValue* v = luaH_get(hvalue(&m_object), index2adr(L, key.m_stackIndex));
 	return LuaObject(L, v);
 }
 
 
-LuaObject LuaObject::Lookup(const char* key)
+LuaObject LuaObject::RawGetByName(const char* key) const
+{
+	return RawGet(key);
+}
+
+
+LuaObject LuaObject::RawGetByIndex(int key) const
+{
+	return RawGet(key);
+}
+
+
+LuaObject LuaObject::RawGetByObject(const LuaObject& key) const
+{
+	return RawGet(key);
+}
+
+
+LuaObject LuaObject::RawGetByObject(const LuaStackObject& key) const
+{
+	return RawGet(key);
+}
+
+
+LuaObject LuaObject::operator[](const char* name) const
+{
+	return Get(name);
+}
+
+
+LuaObject LuaObject::operator[](int index) const
+{
+	return Get(index);
+}
+
+
+LuaObject LuaObject::operator[](const LuaObject& key) const
+{
+	return Get(key);
+}
+
+
+LuaObject LuaObject::operator[](const LuaStackObject& key) const
+{
+	return Get(key);
+}
+
+
+LuaObject LuaObject::Lookup(const char* key) const
 {
 	LuaObject table = *this;
 

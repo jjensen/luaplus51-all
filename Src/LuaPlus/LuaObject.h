@@ -136,10 +136,10 @@ public:
 
 	LUAPLUS_CLASS_API LuaStackObject Push() const;
 
-	LUAPLUS_CLASS_API LuaObject GetMetaTable();
+	LUAPLUS_CLASS_API LuaObject GetMetaTable() const;
 	LUAPLUS_CLASS_API void SetMetaTable(const LuaObject& valueObj);
 
-	LUAPLUS_CLASS_API int GetN();
+	LUAPLUS_CLASS_API int GetN() const;
 	LUAPLUS_CLASS_API void SetN(int n);
 
 	LUAPLUS_CLASS_API void Insert(LuaObject& obj);
@@ -147,11 +147,11 @@ public:
 	LUAPLUS_CLASS_API void Remove(int index = -1);
 	LUAPLUS_CLASS_API void Sort();
 
-	LUAPLUS_CLASS_API size_t GetCount();
-	LUAPLUS_CLASS_API size_t GetTableCount();
+	LUAPLUS_CLASS_API size_t GetCount() const;
+	LUAPLUS_CLASS_API size_t GetTableCount() const;
 
-	LUAPLUS_CLASS_API LuaObject Clone();
-	LUAPLUS_CLASS_API void DeepClone(LuaObject& outObj);
+	LUAPLUS_CLASS_API LuaObject Clone() const;
+	LUAPLUS_CLASS_API void DeepClone(LuaObject& outObj) const;
 
 	LUAPLUS_CLASS_API LuaObject CreateTable(const char* key, int narray = 0, int lnhash = 0);
 	LUAPLUS_CLASS_API LuaObject CreateTable(int key, int narray = 0, int lnhash = 0);
@@ -270,22 +270,29 @@ public:
 	}
 
 
-	LUAPLUS_CLASS_API LuaObject GetByName(const char* name);
-	LUAPLUS_CLASS_API LuaObject GetByIndex(int index);
-	LUAPLUS_CLASS_API LuaObject GetByObject(const LuaStackObject& obj);
-	LUAPLUS_CLASS_API LuaObject GetByObject(const LuaObject& obj);
-	LUAPLUS_CLASS_API LuaObject RawGetByName(const char* name);
-	LUAPLUS_CLASS_API LuaObject RawGetByIndex(int index);
-	LUAPLUS_CLASS_API LuaObject RawGetByObject(const LuaStackObject& obj);
-	LUAPLUS_CLASS_API LuaObject RawGetByObject(const LuaObject& obj);
+	LUAPLUS_CLASS_API LuaObject operator[](const char* name) const;
+	LUAPLUS_CLASS_API LuaObject operator[](int index) const;
+	LUAPLUS_CLASS_API LuaObject operator[](const LuaStackObject& obj) const;
+	LUAPLUS_CLASS_API LuaObject operator[](const LuaObject& obj) const;
+	LUAPLUS_CLASS_API LuaObject Get(const char* name) const;
+	LUAPLUS_CLASS_API LuaObject Get(int index) const;
+	LUAPLUS_CLASS_API LuaObject Get(const LuaStackObject& obj) const;
+	LUAPLUS_CLASS_API LuaObject Get(const LuaObject& obj) const;
+	LUAPLUS_CLASS_API LuaObject GetByName(const char* name) const;
+	LUAPLUS_CLASS_API LuaObject GetByIndex(int index) const;
+	LUAPLUS_CLASS_API LuaObject GetByObject(const LuaStackObject& obj) const;
+	LUAPLUS_CLASS_API LuaObject GetByObject(const LuaObject& obj) const;
 
-	// Raw
-	LUAPLUS_CLASS_API LuaObject operator[](const char* name);
-	LUAPLUS_CLASS_API LuaObject operator[](int index);
-	LUAPLUS_CLASS_API LuaObject operator[](const LuaStackObject& obj);
-	LUAPLUS_CLASS_API LuaObject operator[](const LuaObject& obj);
+	LUAPLUS_CLASS_API LuaObject RawGet(const char* name) const;
+	LUAPLUS_CLASS_API LuaObject RawGet(int index) const;
+	LUAPLUS_CLASS_API LuaObject RawGet(const LuaStackObject& obj) const;
+	LUAPLUS_CLASS_API LuaObject RawGet(const LuaObject& obj) const;
+	LUAPLUS_CLASS_API LuaObject RawGetByName(const char* name) const;
+	LUAPLUS_CLASS_API LuaObject RawGetByIndex(int index) const;
+	LUAPLUS_CLASS_API LuaObject RawGetByObject(const LuaStackObject& obj) const;
+	LUAPLUS_CLASS_API LuaObject RawGetByObject(const LuaObject& obj) const;
 
-	LUAPLUS_CLASS_API LuaObject Lookup(const char* key);
+	LUAPLUS_CLASS_API LuaObject Lookup(const char* key) const;
 
 	LUAPLUS_CLASS_API void Register(const char* funcName, lua_CFunction func, int nupvalues = 0);
 

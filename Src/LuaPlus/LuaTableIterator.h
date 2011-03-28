@@ -28,7 +28,7 @@ namespace LuaPlus
 class LuaTableIterator
 {
 public:
-	LUAPLUS_CLASS_API LuaTableIterator(LuaObject& tableObj, bool doReset = true);
+	LUAPLUS_CLASS_API LuaTableIterator(const LuaObject& tableObj, bool doReset = true);
 	LUAPLUS_CLASS_API ~LuaTableIterator();
 	LUAPLUS_CLASS_API void Reset();
 	LUAPLUS_CLASS_API void Invalidate();

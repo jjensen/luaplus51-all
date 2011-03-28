@@ -78,7 +78,7 @@ LUAPLUS_API bool LuaPlusH_next(LuaState* state, LuaObject* table, LuaObject* key
 		initialization time, allowing the iterator to be used immediately.
 		If false, then Reset() must be called before iterating.
 **/
-LuaTableIterator::LuaTableIterator( LuaObject& tableObj, bool doReset ) :
+LuaTableIterator::LuaTableIterator( const LuaObject& tableObj, bool doReset ) :
 	m_keyObj(tableObj.GetState()),
 	m_valueObj(tableObj.GetState()),
 	m_tableObj(tableObj),
