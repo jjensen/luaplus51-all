@@ -6,13 +6,13 @@ local FW_BOLD = 700
 function example1(path)
 	local doc = xls.Workbook()
 
-    -- create sheet 1 and get the associated BasicExcelWorksheet pointer
+    -- create sheet 1 and get the associated worksheet
     doc:New(1)
 	local sheet = doc:GetWorksheet(0)
 
 	-- Create a table containing an header row in bold and four rows below.
 
-	font_bold = xls.ExcelFont()
+	font_bold = xls.Font()
 	font_bold._weight = FW_BOLD
 
 	fmt_bold = doc:CellFormat()
@@ -36,7 +36,7 @@ function example1(path)
 
 	row = row + 1
 
-	font_red_bold = xls.ExcelFont()
+	font_red_bold = xls.Font()
 	font_red_bold._weight = FW_BOLD
 	font_red_bold._color_index = xls.EGA_RED
 
@@ -44,7 +44,7 @@ function example1(path)
 	fmt_red_bold:set_color1(xls.COLOR1_PAT_SOLID);				-- solid background
 	fmt_red_bold:set_color2(xls.MAKE_COLOR2(xls.EGA_BLUE,0))	-- blue background
 
-	fmt_green = doc:CellFormat(xls.ExcelFont():set_color_index(xls.EGA_GREEN))
+	fmt_green = doc:CellFormat(xls.Font():set_color_index(xls.EGA_GREEN))
 
 	local col = 0
 	while col < 10 do
@@ -69,11 +69,11 @@ end
 function example2(path)
 	local doc = xls.Workbook()
 
-	-- create sheet 1 and get the associated BasicExcelWorksheet pointer
+	-- create sheet 1 and get the associated worksheet
 	doc:New(1)
 	local sheet = doc:GetWorksheet(0)
 
-	local font_header = xls.ExcelFont()
+	local font_header = xls.Font()
 	font_header:set_weight(FW_BOLD)
 	font_header:set_underline_type(xls.EXCEL_UNDERLINE_SINGLE)
 	font_header:set_font_name(xls.wchar("Times New Roman"))
@@ -108,7 +108,7 @@ end
 function example3(path)
 	local doc = xls.Workbook()
 
-	 -- create sheet 1 and get the associated BasicExcelWorksheet pointer
+	 -- create sheet 1 and get the associated worksheet
 	doc:New(1)
 	local sheet = doc:GetWorksheet(0)
 
@@ -127,7 +127,7 @@ function example3(path)
 	cell:SetFormat(fmt)
 
 	fmt:set_format_string(xls.XLS_FORMAT_DATE)
-	fmt:set_font(xls.ExcelFont():set_weight(FW_BOLD))
+	fmt:set_font(xls.Font():set_weight(FW_BOLD))
 	cell = sheet:Cell(0, 2)
 	cell:Set("03.03.2000")
 	cell:SetFormat(fmt)
@@ -135,7 +135,7 @@ function example3(path)
 
 	 -- row 2
 
-	fmt:set_font(xls.ExcelFont():set_weight(FW_NORMAL))
+	fmt:set_font(xls.Font():set_weight(FW_NORMAL))
 	fmt:set_format_string(xls.XLS_FORMAT_GENERAL)
 	cell = sheet:Cell(1, 0)
 	cell:Set("normal")
@@ -147,7 +147,7 @@ function example3(path)
 	cell:SetFormat(fmt)
 
 	fmt:set_format_string(xls.XLS_FORMAT_GENERAL)
-	fmt:set_font(xls.ExcelFont():set_weight(FW_BOLD))
+	fmt:set_font(xls.Font():set_weight(FW_BOLD))
 	cell = sheet:Cell(1, 2)
 	cell:Set("bold")
 	cell:SetFormat(fmt)
@@ -212,7 +212,7 @@ function example4(path)
 
 		local buffer = ("Times New Roman %d"):format(height / 20)
 
-		local font = xls.ExcelFont()
+		local font = xls.Font()
 		font:set_color_index(color)
 		font:set_height(height)
 		font:set_font_name(xls.wchar("Times New Roman"))
@@ -248,7 +248,7 @@ function write_big_sheet(path, row_max, col_max)
 
 	 -- Create a table containing header row and column in bold.
 
-	local font_bold = xls.ExcelFont()
+	local font_bold = xls.Font()
 	font_bold._weight = FW_BOLD; -- 700
 
 	local fmt_bold = doc:CellFormat()
@@ -287,20 +287,20 @@ function write_big_sheet(path, row_max, col_max)
 	doc:SaveAs(path)
 end
 
-	 -- call example1()
-	example1("example1.xls")
+-- call example1()
+example1("example1.xls")
 
-	 -- call example2()
-	example2("example2.xls")
+-- call example2()
+example2("example2.xls")
 
-	 -- call example3()
-	example3("example3.xls")
+-- call example3()
+example3("example3.xls")
 
-	 -- dump out cell contents of example3.xls and write modified to example3-out.xls
-	example_read_write("example3.xls", "example3-out.xls")
+-- dump out cell contents of example3.xls and write modified to example3-out.xls
+example_read_write("example3.xls", "example3-out.xls")
 
-	 -- call example4()
-	example4("example4.xls")
+-- call example4()
+example4("example4.xls")
 
-	 -- create a table containing 500 x 100 cells
-	write_big_sheet("big-example.xls", 500, 100)
+-- create a table containing 500 x 100 cells
+write_big_sheet("big-example.xls", 500, 100)

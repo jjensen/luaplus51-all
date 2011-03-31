@@ -1461,7 +1461,7 @@ static int lxls_wchar(lua_State* L) {
 
 static const struct luaL_reg lxlslib[] = {
 	{ "Workbook",			lxls_BasicExcel },
-	{ "ExcelFont",			lxls_ExcelFont },
+	{ "Font",				lxls_ExcelFont },
 	{ "MAKE_COLOR2",		lxls_MAKECOLOR2 },
 	{ "wchar",				lxls_wchar },
 	//{ "help",				LS_Help },
