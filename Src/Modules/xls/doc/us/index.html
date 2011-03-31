@@ -1,0 +1,235 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<title>xls</title>
+    <link rel="stylesheet" href="doc.css" type="text/css"/>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+</head>
+
+<body>
+
+<div id="container">
+
+<div id="product">
+
+	<div id="product_name"><big><strong>xls</strong></big></div>
+	<div id="product_description">Read/write xls files</div>
+</div> <!-- id="product" -->
+
+<div id="main">
+
+<div id="navigation">
+<h1>xls</h1>
+	<ul>
+
+		<li><strong>Home</strong>
+			<ul>
+                            
+			</ul>
+		</li>
+
+		<li><a href="license.html">License</a>
+			<ul>
+                            
+			</ul>
+		</li>
+
+	</ul>
+</div> <!-- id="navigation" -->
+
+<div id="content">
+
+
+<h2>Introduction</h2>
+
+<p>The module <em>xls</em> allows high performance read and write access to .xls files.</p>
+
+
+
+<h2>Example</h2>
+
+
+<pre>
+    require 'xls'
+
+    local doc = xls.BasicExcel()
+</pre>
+
+
+
+
+<hr/>
+<h2>xls Reference</h2>
+
+<h3>workbook = xls.Workbook([filename])</h3>
+
+<p>Creates or opens a Workbook object.  Returns a Workbook object.</p>
+
+<ul>
+    <li><code>filename</code> is the optional name of the .xls file to open.  If no <code>filename</code> is given, an empty Workbook is created.</li>
+</ul>
+
+
+
+
+<hr/>
+<h2>Workbook Reference</h2>
+
+<h3>workbook:New(sheets [ = 3])</h3>
+
+<p>Creates a new Excel workbook with a given number of worksheets.</p>
+
+<ul>
+    <li><code>sheets</code> is the number of worksheets to create within the workbook.  The minimum is 1.  The default is 3.</li>
+</ul>
+
+
+<h3>loaded = workbook:Load(filename)</h3>
+
+<p>Loads an Excel workbook from a file.</p>
+
+<p>Returns <code>true</code> if successful, <code>false</code> otherwise.</p>
+
+<ul>
+    <li><code>filename</code> is the path to the .xls file to open.</li>
+</ul>
+
+
+
+<h3>saved = workbook:Save()</h3>
+
+<p>Saves current Excel workbook to the opened file.</p>
+
+<p>Returns <code>true</code> if successful, <code>false</code> if unsuccessful.</p>
+
+
+
+
+<h3>saved = workbook:SaveAs(filename)</h3>
+
+<p>Loads an Excel workbook from a file.</p>
+
+<p>Returns <code>true</code> if successful, <code>false</code> otherwise.</p>
+
+<ul>
+    <li><code>filename</code> is the path to the .xls file to save.  <code>filename</code> may be a regular string or an <code>xls.wchar</code>.</li>
+</ul>
+
+
+
+<h3>workbook:Close()</h3>
+
+<p>Closes the current Excel workbook.</p>
+
+
+
+
+<h3>totalWorksheets = workbook:GetTotalWorksheets()</h3>
+
+<p>Returns the total number of Excel worksheets in the current Excel workbook.</p>
+
+
+
+
+<h3>worksheet = workbook:GetWorksheet(sheetIndex | name)</h3>
+
+<p>Returns an object representing the Excel worksheet specified by <code>sheetIndex</code> or <code>name</code>.  If no worksheet is found with the given <code>sheetIndex</code> or <code>name</code>, then <code>GetWorksheet</code> returns <code>nil</code>.</p>
+
+<ul>
+    <li><code>sheetIndex</code> is an index in the range of 0 &lt;= <code>sheetIndex</code> &lt; <code>GetTotalWorksheets()</code> representing the sheet to retrieve.</li>
+    <li><code>name</code> is either a string or an xls.wchar representing the sheet name to retrieve.</li>
+</ul>
+
+
+
+
+<h3>worksheet = workbook:AddWorksheet([sheetIndex] | [name [, sheetIndex]])</h3>
+
+<p>Adds a new worksheet to the workbook.  If no <code>sheetIndex</code> or <code>name</code> is specified, a new worksheet is added to the last position.  </p>
+
+<p>Returns an Excel worksheet specified by <code>sheetIndex</code> or <code>name</code>.</p>
+
+<ul>
+    <li><code>sheetIndex</code> is an index in the range of -1 &lt;= <code>sheetIndex</code> &lt; <code>GetTotalWorksheets()</code>.  If <code>-1</code> is specified, the new worksheet is added to the last position.  The name given to the new worksheet is <code>SheetX</code>, where <code>X</code> is a number which starts from 1.</li>
+    <li><code>name</code> is either a string or an xls.wchar that will become the name of the worksheet being added.</li>
+</ul>
+
+
+
+
+<h3>deleted = workbook:DeleteWorksheet(sheetIndex | name)</h3>
+
+<p>Deletes the specified Excel worksheet from the workbook.</p>
+
+<p>Returns <code>true</code> if the worksheet was deleted, <code>false</code> otherwise.</p>
+
+<ul>
+    <li><code>sheetIndex</code> is an index in the range of 0 &lt;= <code>sheetIndex</code> &lt; <code>GetTotalWorksheets()</code> representing the worksheet to delete.</li>
+    <li><code>name</code> is either a string or an xls.wchar representing the sheet name to delete.</li>
+</ul>
+
+
+
+
+<h3>ansiSheetName = workbook:GetAnsiSheetName(sheetIndex)</h3>
+
+<p>If possible, returns the ANSI name of the sheet.  Otherwise, returns <code>nil</code> if the name is Unicode.</p>
+
+<ul>
+    <li><code>sheetIndex</code> is an index in the range of 0 &lt;= <code>sheetIndex</code> &lt; <code>GetTotalWorksheets()</code> representing the worksheet to delete.</li>
+</ul>
+
+
+
+
+<h3>unicodeSheetName = workbook:GetUnicodeSheetName(sheetIndex)</h3>
+
+<p>If possible, returns the Unicode name of the sheet formatted as an <code>xls.wchar</code>.  Otherwise, returns <code>nil</code> if the name is Unicode.</p>
+
+
+
+
+<h3>sheetName = workbook:GetSheetName(sheetIndex)</h3>
+
+<p>Returns either the ANSI name of the sheet or the Unicode name of the sheet as an <code>xls.wchar</code>.</p>
+
+<ul>
+    <li><code>sheetIndex</code> is an index in the range of 0 &lt;= <code>sheetIndex</code> &lt; <code>GetTotalWorksheets()</code> representing the worksheet to delete.</li>
+</ul>
+
+
+
+
+<h3>renamed = workbook:RenameWorksheet(sheetIndex | from, to)</h3>
+
+<p>Renames an Excel worksheet at <code>sheetIndex</code> or <code>from</code> to the name specified by <code>to</code>.</p>
+
+<p>Returns <code>true</code> if the operation succeeded, <code>false</code> otherwise.</p>
+
+
+<ul>
+    <li><code>sheetIndex</code> is an index in the range of 0 &lt;= <code>sheetIndex</code> &lt; <code>GetTotalWorksheets()</code> representing the worksheet to delete.</li>
+    <li><code>from</code> is either a string or <code>xls.wchar</code> name of the worksheet to rename.</li>
+    <li><code>to</code> is either a string or <code>xls.wchar</code> name, where the type must match that of <code>from</code> if <code>from</code> is specified, of the worksheet to rename.</li>
+</ul>
+
+
+
+
+
+
+</div> <!-- id="content" -->
+
+</div> <!-- id="main" -->
+
+<div id="about">
+	<p><a href="http://validator.w3.org/check?uri=referer">Valid XHTML 1.0!</a></p>
+</div> <!-- id="about" -->
+
+</div> <!-- id="container" -->
+
+</body>
+</html>
+
