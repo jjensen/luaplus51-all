@@ -124,7 +124,9 @@ If possible, returns the ANSI name of the sheet.  Otherwise, returns `nil` if th
 
 ### unicodeSheetName = workbook:GetUnicodeSheetName(sheetIndex)
 
-If possible, returns the Unicode name of the sheet formatted as an `xls.wchar`.  Otherwise, returns `nil` if the name is Unicode.
+If possible, returns the Unicode name of the sheet formatted as an `xls.wchar`.  Otherwise, returns `nil` if the name is ANSI.
+
+* `sheetIndex` is an index in the range of 0 <= `sheetIndex` < `GetTotalWorksheets()` representing the worksheet to delete.
 
 
 
@@ -148,6 +150,270 @@ Returns `true` if the operation succeeded, `false` otherwise.
 * `sheetIndex` is an index in the range of 0 <= `sheetIndex` < `GetTotalWorksheets()` representing the worksheet to delete.
 * `from` is either a string or `xls.wchar` name of the worksheet to rename.
 * `to` is either a string or `xls.wchar` name, where the type must match that of `from` if `from` is specified, of the worksheet to rename.
+
+
+
+
+-------------------------
+## Worksheet Reference
+
+### ansiSheetName = worksheet:GetAnsiSheetName()
+
+If possible, returns the ANSI name of the sheet.  Otherwise, returns `nil` if the name is Unicode.
+
+
+
+
+### unicodeSheetName = worksheet:GetUnicodeSheetName()
+
+If possible, returns the Unicode name of the sheet formatted as an `xls.wchar`.  Otherwise, returns `nil` if the name is ANSI.
+
+
+
+
+### sheetName = worksheet:GetSheetName(sheetIndex)
+
+Returns either the ANSI name of the sheet or the Unicode name of the sheet as an `xls.wchar`.
+
+
+
+
+### renamed = worksheet:Rename(to)
+
+Renames the Excel worksheet to the name specified by `to`.
+
+Returns `true` if the operation succeeded, `false` otherwise.
+
+
+* `to` is either a string or `xls.wchar` name, where the type must match that of `from` if `from` is specified, of the worksheet to rename.
+
+
+
+
+### totalRows = worksheet:GetTotalRows()
+
+Returns the total number of rows in the Excel worksheet.
+
+
+
+
+### totalColumns = worksheet:GetTotalCols()
+
+Returns the total number of columns in the Excel worksheet.
+
+
+
+### cell = worksheet:Cell(row, col)
+
+Retrieves the contents of a cell from the Excel worksheet.
+
+Returns the cell if the operation succeeded, `nil` if either the row or column are not in range.
+
+* `row` is a value from 0 to 65535, representing the row in the Excel worksheet to retrieve.
+* `col` is a value from 0 to 255, representing the column in the Excel worksheet to retrieve.
+
+
+
+### erased = worksheet:EraseCell(row, col)
+
+Erases the contents of a cell from the Excel worksheet.
+
+Returns `true` if successful, `false` if either the row or column are not in range.
+
+* `row` is a value from 0 to 65535, representing a row in the Excel worksheet.
+* `col` is a value from 0 to 255, representing a column in the Excel worksheet.
+
+
+
+### worksheet:SetColWidth(col)
+
+Sets the width of the given column in the Excel worksheet.
+
+* `col` is a value from 0 to 255, representing the column in the Excel worksheet to retrieve.
+
+
+
+### columnWidth = worksheet:GetColWidth(col)
+
+Returns the width of the column in the Excel worksheet.
+
+* `col` is a value from 0 to 255, representing a column in the Excel worksheet.
+
+
+
+
+### worksheet:MergeCells(row, col, rowRange, colRange)
+
+Merges the cell specified by `row` and `col` into a single cell consisting in height of `rowRange` rows and `colRange` columns.
+
+* `row` is a value from 0 to 65535, representing a row in the Excel worksheet.
+* `col` is a value from 0 to 255, representing a column in the Excel worksheet.
+* `rowRange` is a value from 1 to (65535 - row - 1).
+* `colRange` is a value from 1 to (255 - row - 1).
+
+
+
+
+
+
+
+-------------------------
+## Cell Reference
+
+### cellType = cell:Type()
+
+Returns one of the following as the type of this Excel cell.
+
+* `cell.UNDEFINED`
+* `cell.INT`
+* `cell.DOUBLE`
+* `cell.STRING`
+* `cell.WSTRING`
+* `cell.FORMULA`
+
+
+
+### cellContent = cell:Get()
+
+If the type of the cell is `cell.INT` or `cell.DOUBLE`, the integer or double content of the cell is returned as a Lua number.  If the type of the cell is `cell.STRING`, the ANSI string content of the cell is returned as a Lua string.  If the type of the cell is `cell.WSTRING`, the Unicode string content of the cell are returned as an `xls.wchar`.  Otherwise, `nil` is returned.
+
+
+
+### cellContent = cell:GetInteger()
+
+If the type of the cell is `cell.INT`, the integer content of the cell is returned as a Lua number.  Otherwise, `nil` is returned.
+
+
+
+### cellContent = cell:GetDouble()
+
+If the type of the cell is `cell.DOUBLE`, the double content of the cell is returned as a Lua number.  Otherwise, `nil` is returned.
+
+
+
+### cellContent = cell:GetString()
+
+If the type of the cell is `cell.STRING`, the ANSI string content of the cell is returned as a Lua string.  Otherwise, `nil` is returned.
+
+
+
+### cellContent = cell:GetWString()
+
+If the type of the cell is `cell.WSTRING`, the Unicode string content of the cell is returned as an `xls.wchar`.  Otherwise, `nil` is returned.
+
+
+
+### cell:Set(value)
+
+Sets the content of the cell to `value`.
+
+* `value` represents the new content of the cell.
+** If `value` is a number, the number is assumed to be a double, and the cell type becomes `cell.DOUBLE`.
+** If `value` is a string, the cell type becomes `cell.STRING`.
+** If `value` is an `xls.wchar`, the cell type becomes `cell.WSTRING`.
+
+
+
+### cell:SetInteger(value)
+
+Sets the content of the cell to `value`.
+
+* `value` represents the new integer content of the cell.  The cell type becomes `cell.INT`.
+
+
+
+### cell:SetRKValue(value)
+
+To be documented.
+
+
+
+### cell:SetString(value)
+
+Sets the content of the cell to `value`.
+
+* `value` represents the new ANSI string content of the cell.  The cell type becomes `cell.STRING`.
+
+
+
+### cell:SetWString(value)
+
+Sets the content of the cell to `value`.
+
+* `value` represents the new Unicode string content of the cell.  The cell type becomes `cell.WSTRING`.
+
+
+
+### cell:SetFormula(value)
+
+NOT IMPLEMENTED.
+
+
+
+### cell:GetXFormatIdx()
+
+To be documented.
+
+
+
+### cell:SetXFormatIdx(value)
+
+To be documented.
+
+
+
+### cell:SetFormat(value)
+
+To be documented.
+
+
+
+### cell:EraseContents()
+
+Erase the content of the current Excel cell.  The cell type becomes `cell.UNDEFINED`.
+
+
+
+### numberOfMergedRows = cell:GetMergedRows()
+
+Return the number of merged rows in the current Excel cell.
+
+
+
+### numberOfMergedColumns = cell:GetMergedColumns()
+
+Return the number of merged columns in the current Excel cell.
+
+
+
+### cell:SetMergedRows(mergedRows)
+
+Sets the number of merged rows in the current Excel cell.
+
+
+
+### cell:SetMergedColumns(mergedColumns)
+
+Sets the number of merged columns in the current Excel cell.
+
+
+
+
+-------------------------
+## CellFormat Reference
+
+
+
+
+-------------------------
+## ExcelFont Reference
+
+### newFont = xls.Font()
+
+Creates or opens a Workbook object.  Returns a Workbook object.
+
+* `filename` is the optional name of the .xls file to open.  If no `filename` is given, an empty Workbook is created.
+
 
 
 
