@@ -17,7 +17,7 @@ namespace Misc {
 
 /**
 	ZipEntryFile is a File-derived class for providing access to a virtual file
-	within a virtual drive.
+	within a zip archive.
 **/
 class ZipEntryFile : public File
 {
@@ -25,8 +25,9 @@ public:
     ZipEntryFile();
 	virtual ~ZipEntryFile();
 
-    bool Create(ZipArchive& drive, const char* filename, UINT compressionMethod = ZipArchive::COMPRESSED, const time_t* fileTime = NULL);
-	bool Open(ZipArchive& drive, const char* filename);
+    bool Create(ZipArchive& archive, const char* filename, int compressionMethod = ZipArchive::DEFLATED,
+			int compressionLevel = Z_DEFAULT_COMPRESSION, const time_t* fileTime = NULL);
+	bool Open(ZipArchive& archive, const char* filename);
 
     virtual ULONGLONG GetPosition() const;
 	virtual void SetLength(ULONGLONG dwNewLen);

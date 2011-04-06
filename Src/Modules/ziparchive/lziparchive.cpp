@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-// This source file is Copyright 1997-2010 by Joshua C. Jensen.
+// This source file is Copyright 1997-2011 by Joshua C. Jensen.
 //
 // The lziparchive module is licensed under the MIT license.
 ///////////////////////////////////////////////////////////////////////////////
@@ -216,8 +216,9 @@ int lziparchive_flush(lua_State* L) {
 int lziparchive_filecreate(lua_State* L) {
 	ZipArchive* archive = lziparchive_check(L, 1);
 	const char* fileName = luaL_checkstring(L, 2);
-	UINT compressionLevel = (UINT)luaL_optnumber(L, 3, 8);
-	time_t fileTime = (UINT)luaL_optnumber(L, 4, (lua_Number)time(NULL));
+	int compressionMethod = (int)luaL_optnumber(L, 3, 8);
+	int compressionLevel = (int)luaL_optnumber(L, 4, Z_DEFAULT_COMPRESSION);
+	time_t fileTime = (UINT)luaL_optnumber(L, 5, (lua_Number)time(NULL));
 
 	ZipEntryFileHandle* fileHandle = (ZipEntryFileHandle*)lua_newuserdata(L, sizeof(ZipEntryFileHandle));
 	::new(fileHandle) ZipEntryFileHandle;
@@ -225,7 +226,7 @@ int lziparchive_filecreate(lua_State* L) {
 	luaL_getmetatable(L, ARCHIVEFILEHANDLE_METATABLE);
 	lua_setmetatable(L, -2);
 
-	if (!archive->FileCreate(fileName, *fileHandle, compressionLevel, &fileTime))
+	if (!archive->FileCreate(fileName, *fileHandle, compressionMethod, compressionLevel, &fileTime))
 		return 0;
 
 	return 1;
@@ -265,7 +266,7 @@ int lziparchive_fileopen(lua_State* L)
 int lziparchive_fileclose(lua_State* L) {
 	ZipArchive* archive = lziparchive_check(L, 1);
 	ZipEntryFileHandle* fileHandle = filehandle_check(L, 2);
-	lua_pushboolean(L, fileHandle->GetParentDrive()->FileClose(*fileHandle) != 0);
+	lua_pushboolean(L, fileHandle->GetParentArchive()->FileClose(*fileHandle) != 0);
 	return 1;
 }
 
@@ -365,7 +366,8 @@ int lziparchive_fileinsert(lua_State* L) {
 	ZipArchive* archive = lziparchive_check(L, 1);
 	const char* srcFileName = luaL_checkstring(L, 2);
 	const char* destFileName = luaL_checkstring(L, 3);
-    int compressionMethod = (UINT)luaL_optnumber(L, 4, ZipArchive::COMPRESSED);
+    int compressionMethod = (int)luaL_optnumber(L, 4, ZipArchive::DEFLATED);
+    int compressionLevel = (int)luaL_optnumber(L, 5, Z_DEFAULT_COMPRESSION);
 
 	DiskFile file;
     if (!file.Open(srcFileName, File::MODE_READONLY)) {
@@ -375,7 +377,7 @@ int lziparchive_fileinsert(lua_State* L) {
 
 	time_t fileTime = (UINT)luaL_optnumber(L, 5, (lua_Number)file.GetLastWriteTime());
 
-	lua_pushboolean(L, archive->FileCopy(file, destFileName, compressionMethod, &fileTime) != 0);
+	lua_pushboolean(L, archive->FileCopy(file, destFileName, compressionMethod, compressionLevel, &fileTime) != 0);
 	return 1;
 }
 
@@ -476,9 +478,20 @@ static bool _lziparchive_collectfilelist(lua_State* L, ZipArchive::FileOrderList
 			info.srcPath = lua_tostring(L, -1);
 			lua_pop(L, 1);
 
-			lua_getfield(L, -1, "Compressed");
-			if (lua_type(L, -1) == LUA_TBOOLEAN)
-				info.compressionMethod = lua_toboolean(L, -1) ? ZipArchive::COMPRESSED : ZipArchive::UNCOMPRESSED;
+			lua_getfield(L, -1, "CompressionMethod");
+			if (lua_type(L, -1) == LUA_TNUMBER)
+				info.compressionMethod = (int)lua_tonumber(L, -1);
+			lua_pop(L, 1);
+
+			lua_getfield(L, -1, "CompressionLevel");
+			if (lua_type(L, -1) == LUA_TNUMBER)
+			{
+				info.compressionLevel = (int)lua_tonumber(L, -1);
+				if (info.compressionLevel < -1)
+					info.compressionLevel = Z_DEFAULT_COMPRESSION;
+				else if (info.compressionLevel > Z_BEST_COMPRESSION)
+					info.compressionLevel = Z_DEFAULT_COMPRESSION;
+			}
 			lua_pop(L, 1);
 
 			lua_getfield(L, -1, "Timestamp");
@@ -1173,18 +1186,19 @@ int LS_Help(lua_State* L)
 "    archive:updatemd5s()\n"
 "    archive:flush(bool directoryAtBeginning)\n"
 "\n"
-"    vfile = archive:filecreate(fileName, compressionMethod:0,8{compressed}, time_t fileTime)\n"
+"    vfile = archive:filecreate(fileName, CompressionMethod, CompressionLevel, time_t fileTime)\n"
 "    vfile = archive:fileopen(fileName)\n"
 "    archive:filecloseall()\n"
 "    bool ret = archive:fileerase(fileName)\n"
 "    bool ret = archive:filerename(oldFileName, newFileName)\n"
-"    bool ret = archive:fileinsert(srcFileName, destFileName, compressionMethod:0,8{compressed}, time_t fileTime)\n"
+"    bool ret = archive:fileinsert(srcFileName, destFileName, CompressionMethod, CompressionLevel, time_t fileTime)\n"
 "    bool ret = archive:fileextract(srcFileName, destFileName)\n"
 "\n"
 "    FileOrderTable = {\n"
 "        string EntryName,\n"
 "        string SourcePath,\n"
-"        boolean Compressed,\n"
+"        CompressionMethod,\n"
+"        CompressionLevel,\n"
 "        time_t Timestamp,\n"
 "        integer Size,\n"
 "        uint32_t CRC,\n"
@@ -1238,15 +1252,28 @@ int LS_Help(lua_State* L)
 "    archive:filewrite(vfile, buffer [, optionalSize])\n"
 "    archive:close(vfile)\n"
 "\n"
+"CompressionMethod Enumerations:\n"
+"\n"
+"    ziparchive.UNCOMPRESSED\n"
+"    ziparchive.DEFLATED\n"
+"\n"
+"CompressionLevel Enumerations:\n"
+"\n"
+"   The compression level may range from 0 (uncompressed) to 9 (best compression).\n"
+"\n"
+"    ziparchive.NO_COMPRESSION = 0\n"
+"    ziparchive.BEST_SPEED = 1\n"
+"    ziparchive.BEST_COMPRESSION = 9\n"
+"    ziparchive.DEFAULT_COMPRESSION = -1 (defaults to 6)\n"
+"\n"
 "FileListStatus Enumerations:\n"
 "\n"
-"    ziparchive.UPDATING_ARCHIVE\n"
 "    ziparchive.UPDATING_ARCHIVE\n"
 "    ziparchive.DELETING_ENTRY\n"
 "    ziparchive.DIRECT_COPY_FROM_ANOTHER_ARCHIVE\n"
 "    ziparchive.COPYING_ENTRY_FROM_CACHE\n"
 "    ziparchive.COPYING_ENTRY_TO_CACHE\n"
-"    lziparchive.UPDATING_ENTRY\n"
+"    ziparchive.UPDATING_ENTRY\n"
 "    ziparchive.PACKING_ARCHIVE\n";
 
 	lua_pushstring(L, help);
@@ -1390,6 +1417,20 @@ static const struct luaL_reg lziparchivelib[] = {
 extern "C" int luaopen_ziparchive(lua_State* L)
 {
 	luaL_register(L, "ziparchive", lziparchivelib);
+
+	lua_pushnumber(L, ZipArchive::UNCOMPRESSED);
+	lua_setfield(L, -2, "UNCOMPRESSED");
+	lua_pushnumber(L, ZipArchive::DEFLATED);
+	lua_setfield(L, -2, "DEFLATED");
+
+	lua_pushnumber(L, Z_NO_COMPRESSION);
+	lua_setfield(L, -2, "NO_COMPRESSION");
+	lua_pushnumber(L, Z_BEST_SPEED);
+	lua_setfield(L, -2, "BEST_SPEED");
+	lua_pushnumber(L, Z_BEST_COMPRESSION);
+	lua_setfield(L, -2, "BEST_COMPRESSION");
+	lua_pushnumber(L, Z_DEFAULT_COMPRESSION);
+	lua_setfield(L, -2, "DEFAULT_COMPRESSION");
 
 	lua_pushnumber(L, ZipArchive::UPDATING_ARCHIVE);
 	lua_setfield(L, -2, "UPDATING_ARCHIVE");

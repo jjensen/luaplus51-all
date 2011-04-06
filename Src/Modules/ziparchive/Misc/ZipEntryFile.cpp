@@ -27,65 +27,65 @@ ZipEntryFile::~ZipEntryFile()
 }
 
 
-bool ZipEntryFile::Create(ZipArchive& drive, const char* fileName, UINT compressionMethod, const time_t* fileTime)
+bool ZipEntryFile::Create(ZipArchive& archive, const char* fileName, int compressionMethod, int compressionLevel, const time_t* fileTime)
 {
-    return drive.FileCreate(fileName, m_fileHandle, compressionMethod, fileTime);
+    return archive.FileCreate(fileName, m_fileHandle, compressionMethod, compressionLevel, fileTime);
 }
 
 
-bool ZipEntryFile::Open(ZipArchive& drive, const char* fileName)
+bool ZipEntryFile::Open(ZipArchive& archive, const char* fileName)
 {
-    return drive.FileOpen(fileName, m_fileHandle);
+    return archive.FileOpen(fileName, m_fileHandle);
 }
 
 
 ULONGLONG ZipEntryFile::GetPosition() const
 {
-    assert(m_fileHandle.GetParentDrive());
-    return m_fileHandle.GetParentDrive()->FileGetPosition(const_cast<ZipEntryFileHandle&>(m_fileHandle));
+    assert(m_fileHandle.GetParentArchive());
+    return m_fileHandle.GetParentArchive()->FileGetPosition(const_cast<ZipEntryFileHandle&>(m_fileHandle));
 }
 
 
 
 void ZipEntryFile::SetLength(ULONGLONG newSize)
 {
-    assert(m_fileHandle.GetParentDrive());
-    m_fileHandle.GetParentDrive()->FileSetLength(m_fileHandle, (UINT)newSize);
+    assert(m_fileHandle.GetParentArchive());
+    m_fileHandle.GetParentArchive()->FileSetLength(m_fileHandle, (UINT)newSize);
 }
 
     
 ULONGLONG ZipEntryFile::GetLength(void) const
 {
-    assert(m_fileHandle.GetParentDrive());
-    return m_fileHandle.GetParentDrive()->FileGetLength(const_cast<ZipEntryFileHandle&>(m_fileHandle));
+    assert(m_fileHandle.GetParentArchive());
+    return m_fileHandle.GetParentArchive()->FileGetLength(const_cast<ZipEntryFileHandle&>(m_fileHandle));
 }
 
 
 LONGLONG ZipEntryFile::Seek(LONGLONG offset, SeekFlags seekFlags)
 {
-	assert(m_fileHandle.GetParentDrive());
-	return m_fileHandle.GetParentDrive()->FileSeek(m_fileHandle, offset, seekFlags);
+	assert(m_fileHandle.GetParentArchive());
+	return m_fileHandle.GetParentArchive()->FileSeek(m_fileHandle, offset, seekFlags);
 }
 
 
 ULONGLONG ZipEntryFile::Read(void* buffer, ULONGLONG count)
 {
-    assert(m_fileHandle.GetParentDrive());
-    return m_fileHandle.GetParentDrive()->FileRead(m_fileHandle, buffer, count);
+    assert(m_fileHandle.GetParentArchive());
+    return m_fileHandle.GetParentArchive()->FileRead(m_fileHandle, buffer, count);
 }
 
 
 ULONGLONG ZipEntryFile::Write(const void* buffer, ULONGLONG count)
 {
-    assert(m_fileHandle.GetParentDrive());
-    return m_fileHandle.GetParentDrive()->FileWrite(m_fileHandle, buffer, count);
+    assert(m_fileHandle.GetParentArchive());
+    return m_fileHandle.GetParentArchive()->FileWrite(m_fileHandle, buffer, count);
 }
 
 
 void ZipEntryFile::Close()
 {
-	if (m_fileHandle.GetParentDrive())
-	    m_fileHandle.GetParentDrive()->FileClose(m_fileHandle);
+	if (m_fileHandle.GetParentArchive())
+	    m_fileHandle.GetParentArchive()->FileClose(m_fileHandle);
 }
 
 } // namespace Misc

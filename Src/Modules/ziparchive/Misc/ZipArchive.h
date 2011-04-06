@@ -29,6 +29,9 @@
 
 namespace Misc {
 
+//#define ZIPARCHIVE_DEFAULT_MD5 SUPPORT_MD5
+#define ZIPARCHIVE_DEFAULT_MD5 0
+
 class ZipArchive;
 
 class ZipEntryFileHandle
@@ -37,7 +40,7 @@ public:
     ZipEntryFileHandle();
     ~ZipEntryFileHandle();
 
-    ZipArchive* GetParentDrive() const;
+    ZipArchive* GetParentArchive() const;
 	bool IsValid() const;
 
 private:
@@ -94,7 +97,7 @@ class ZipArchive
 {
 public:
 	enum {  INVALID_FILE_ENTRY = (size_t)-1  };
-    enum {  UNCOMPRESSED = 0, COMPRESSED = 8  };
+    enum {  UNCOMPRESSED = 0, DEFLATED = 8  };
     enum {
 		SUPPORT_MD5 = 0x00000001,
 		EXTRA_DIRECTORY_AT_BEGINNING = 0x00000002,
@@ -102,7 +105,8 @@ public:
 
     struct FileOrderInfo {
 		FileOrderInfo()
-			: compressionMethod(COMPRESSED)
+			: compressionMethod(DEFLATED)
+			, compressionLevel(Z_DEFAULT_COMPRESSION)
 			, fileTime(0)
 			, size(0)
 			, crc(0)
@@ -112,10 +116,12 @@ public:
 			memset(md5, 0, sizeof(md5));
 		}
 
-		FileOrderInfo(const char* _entryName, const char* _srcPath, UINT _compressionMethod = ZipArchive::COMPRESSED)
+		FileOrderInfo(const char* _entryName, const char* _srcPath, int _compressionMethod = ZipArchive::DEFLATED,
+				int _compressionLevel = Z_DEFAULT_COMPRESSION)
 			: entryName(_entryName)
 			, srcPath(_srcPath)
 			, compressionMethod(_compressionMethod)
+			, compressionLevel(_compressionLevel)
 			, fileTime(0)
 			, size(0)
 			, crc(0)
@@ -128,7 +134,8 @@ public:
 
         HeapString entryName;
         HeapString srcPath;
-		UINT compressionMethod;
+		int compressionMethod;
+		int compressionLevel;
 		time_t fileTime;
 		size_t size;
 		DWORD crc;
@@ -151,10 +158,10 @@ public:
 	ZipArchive();
 	~ZipArchive();
 
-	bool Create(const char* filename, DWORD flags = SUPPORT_MD5, const char* defaultPassword = NULL);
-	bool Create(File& parentFile, const char* fileName, DWORD flags = SUPPORT_MD5, const char* defaultPassword = NULL);
-	bool Open(const char* filename, bool readOnly = true, DWORD flags = SUPPORT_MD5, const char* defaultPassword = NULL);
-	bool Open(File& parentFile, const char* fileName, bool readOnly = true, DWORD flags = SUPPORT_MD5, const char* defaultPassword = NULL);
+	bool Create(const char* filename, DWORD flags = ZIPARCHIVE_DEFAULT_MD5, const char* defaultPassword = NULL);
+	bool Create(File& parentFile, const char* fileName, DWORD flags = ZIPARCHIVE_DEFAULT_MD5, const char* defaultPassword = NULL);
+	bool Open(const char* filename, bool readOnly = true, DWORD flags = ZIPARCHIVE_DEFAULT_MD5, const char* defaultPassword = NULL);
+	bool Open(File& parentFile, const char* fileName, bool readOnly = true, DWORD flags = ZIPARCHIVE_DEFAULT_MD5, const char* defaultPassword = NULL);
 	bool Close(void);
 
 	void UpdateMD5s();
@@ -174,7 +181,8 @@ public:
 	bool IsReadOnly() const					{  return m_readOnly;  }
 	bool IsOpened() const					{  return m_parentFile != NULL;  }
 
-	bool FileCreate(const char* filename, ZipEntryFileHandle& fileHandle, UINT compressionMethod = COMPRESSED, const time_t* fileTime = NULL);
+	bool FileCreate(const char* filename, ZipEntryFileHandle& fileHandle, int compressionMethod = DEFLATED,
+			int compressionLevel = Z_DEFAULT_COMPRESSION, const time_t* fileTime = NULL);
 	bool FileOpen(const char* filename, ZipEntryFileHandle& fileHandle);
 	bool FileOpenIndex(size_t index, ZipEntryFileHandle& fileHandle);
 	bool FileClose(ZipEntryFileHandle& fileHandle);
@@ -193,11 +201,14 @@ public:
 	bool FileRename(const char* oldName, const char* newName);
 
 	bool FileCopy(ZipEntryFileHandle& srcFileHandle, const char* destFilename = NULL, const time_t* overrideFileTime = NULL);
-	bool FileCopy(File& srcFile, const char* destFilename, UINT compressionMethod = COMPRESSED, const time_t* fileTime = NULL);
-	bool FileCopy(const char* srcFileName, const char* destFilename, UINT compressionMethod = COMPRESSED, const time_t* fileTime = NULL);
+	bool FileCopy(File& srcFile, const char* destFilename, int compressionMethod = DEFLATED,
+			int compressionLevel = Z_DEFAULT_COMPRESSION, const time_t* fileTime = NULL);
+	bool FileCopy(const char* srcFileName, const char* destFilename, int compressionMethod = DEFLATED,
+			int compressionLevel = Z_DEFAULT_COMPRESSION, const time_t* fileTime = NULL);
 
 	bool BufferCopy(const void* buffer, ULONGLONG size, ZipEntryFileHandle& destFile);
-	bool BufferCopy(const void* buffer, ULONGLONG size, const char* destFilename, UINT compressionMethod = COMPRESSED, const time_t* fileTime = NULL);
+	bool BufferCopy(const void* buffer, ULONGLONG size, const char* destFilename, int compressionMethod = DEFLATED,
+			int compressionLevel = Z_DEFAULT_COMPRESSION, const time_t* fileTime = NULL);
 
 	struct PackOptions
 	{

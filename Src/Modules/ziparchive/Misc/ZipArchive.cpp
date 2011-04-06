@@ -379,7 +379,7 @@ ZipEntryFileHandle::~ZipEntryFileHandle()
 }
 
 
-ZipArchive* ZipEntryFileHandle::GetParentDrive() const
+ZipArchive* ZipEntryFileHandle::GetParentArchive() const
 {
 	return this->parentDrive;
 }
@@ -1121,7 +1121,7 @@ bool ZipArchive::Flush(const FlushOptions* flushOptions)
 		otherwise.
 **/
 bool ZipArchive::FileCreate(const char* fileName, ZipEntryFileHandle& fileHandle,
-							  UINT compressionMethod, const time_t* fileTime) {
+							  int compressionMethod, int compressionLevel, const time_t* fileTime) {
 	if (!IsOpened())
 		return false;
 
@@ -1193,7 +1193,7 @@ bool ZipArchive::FileCreate(const char* fileName, ZipEntryFileHandle& fileHandle
     fileEntry.m_compressedSize = 0;
     fileEntry.m_uncompressedSize = 0;
 	fileEntry.m_crc = 0;
-	fileEntry.m_compressionMethod = compressionMethod == UNCOMPRESSED ? 0 : Z_DEFLATED;
+	fileEntry.m_compressionMethod = compressionMethod;
     fileEntry.m_parentDrive = this;
 
 	// Assign the appropriate information to the file entry object.
@@ -1203,7 +1203,7 @@ bool ZipArchive::FileCreate(const char* fileName, ZipEntryFileHandle& fileHandle
     fileHandle.detail->curUncompressedFilePosition = 0;
     fileHandle.detail->curCompressedFilePosition = 0;
 
-	if (compressionMethod == COMPRESSED) {
+	if (compressionMethod == DEFLATED) {
 		fileHandle.detail->bufferedData = new BYTE[Z_BUFSIZE];
 		fileHandle.detail->posInBufferedData = 0;
 
@@ -1216,7 +1216,7 @@ bool ZipArchive::FileCreate(const char* fileName, ZipEntryFileHandle& fileHandle
 		fileHandle.detail->stream.zalloc = Z_NULL;
 		fileHandle.detail->stream.zfree = Z_NULL;
 
-		deflateInit2(&fileHandle.detail->stream, compressionMethod, Z_DEFLATED, -MAX_WBITS, MAX_MEM_LEVEL, 0);
+		deflateInit2(&fileHandle.detail->stream, compressionLevel, compressionMethod == UNCOMPRESSED ? 0 : Z_DEFLATED, -MAX_WBITS, MAX_MEM_LEVEL, 0);
 	}
 
 	fileHandle.detail->headerSize = sizeof(ZipLocalHeader) + strlen(fileEntry.GetFilename()) + 0;
@@ -1388,7 +1388,7 @@ bool ZipArchive::FileClose(ZipEntryFileHandle& fileHandle)
 	{
         ZipEntryInfo* fileEntry = GetFileEntry(fileHandle.detail->fileEntryIndex);
 
-		if (fileEntry->m_compressionMethod == COMPRESSED)
+		if (fileEntry->m_compressionMethod == DEFLATED)
 		{
 			int err;
 			do
@@ -1512,12 +1512,12 @@ void ZipArchive::FileCloseInternal(ZipEntryFileHandle& fileHandle)
 		// Turn off the current write file.
 		m_curWriteFile = NULL;
 
-    	if (fileEntry->m_compressionMethod == COMPRESSED)
+    	if (fileEntry->m_compressionMethod == DEFLATED)
 			deflateEnd(&fileHandle.detail->stream);
 	}
     else
     {
-    	if (fileEntry->m_compressionMethod == COMPRESSED)
+    	if (fileEntry->m_compressionMethod == DEFLATED)
     		inflateEnd(&fileHandle.detail->stream);
     }
 
@@ -1992,14 +1992,14 @@ bool ZipArchive::FileCopy(ZipEntryFileHandle& srcFileHandle, const char* destFil
 	// Operate in 64k buffers.
 	const UINT BUFFER_SIZE = 64 * 1024;
 
-    ZipEntryInfo* srcFileEntry = srcFileHandle.GetParentDrive()->GetFileEntry(srcFileHandle.detail->fileEntryIndex);
+    ZipEntryInfo* srcFileEntry = srcFileHandle.GetParentArchive()->GetFileEntry(srcFileHandle.detail->fileEntryIndex);
 
     // Get the source file's size.
 	UINT fileSize = srcFileEntry->m_compressedSize;
 
 	// Create the destination file entry.
 	ZipEntryFileHandle destFileHandle;
-	if (!FileCreate(destFilename ? destFilename : srcFileEntry->GetFilename(), destFileHandle, srcFileEntry->m_compressionMethod, overrideFileTime ? overrideFileTime : &srcFileEntry->m_fileTime))
+	if (!FileCreate(destFilename ? destFilename : srcFileEntry->GetFilename(), destFileHandle, srcFileEntry->m_compressionMethod, Z_DEFAULT_COMPRESSION, overrideFileTime ? overrideFileTime : &srcFileEntry->m_fileTime))
 		return false;
     ZipEntryInfo* destFileEntry = GetFileEntry(destFileHandle.detail->fileEntryIndex);
 
@@ -2058,14 +2058,14 @@ bool ZipArchive::FileCopy(ZipEntryFileHandle& srcFileHandle, const char* destFil
 } // FileCopy()
 
 
-bool ZipArchive::FileCopy(File& srcFile, const char* destFilename, UINT compressionMethod, const time_t* fileTime)
+bool ZipArchive::FileCopy(File& srcFile, const char* destFilename, int compressionMethod, int compressionLevel, const time_t* fileTime)
 {
 	if (m_readOnly)
 		return false;
 
 	// Create the destination file entry.
 	ZipEntryFileHandle destFileHandle;
-	if (!FileCreate(destFilename, destFileHandle, compressionMethod, fileTime))
+	if (!FileCreate(destFilename, destFileHandle, compressionMethod, compressionLevel, fileTime))
 		return false;
 
 	// Operate in 64k buffers.
@@ -2106,14 +2106,14 @@ bool ZipArchive::FileCopy(File& srcFile, const char* destFilename, UINT compress
 
 /**
 **/
-bool ZipArchive::FileCopy(const char* srcFileName, const char* destFileName, UINT compressionMethod, const time_t* inFileTime)
+bool ZipArchive::FileCopy(const char* srcFileName, const char* destFileName, int compressionMethod, int compressionLevel, const time_t* inFileTime)
 {
 	DiskFile file;
     if (!file.Open(srcFileName, File::MODE_READONLY))
 		return false;
 
 	time_t fileTime = inFileTime ? *inFileTime : file.GetLastWriteTime();
-	return FileCopy(file, destFileName, compressionMethod, &fileTime) != false;
+	return FileCopy(file, destFileName, compressionMethod, compressionLevel, &fileTime) != false;
 }
 
 
@@ -2215,7 +2215,7 @@ bool ZipArchive::BufferCopy(const void* buffer, ULONGLONG size, ZipEntryFileHand
 
 /**
 **/
-bool ZipArchive::BufferCopy(const void* buffer, ULONGLONG size, const char* destFilename, UINT compressionMethod, const time_t* inFileTime)
+bool ZipArchive::BufferCopy(const void* buffer, ULONGLONG size, const char* destFilename, int compressionMethod, int compressionLevel, const time_t* inFileTime)
 {
 	HeapString cacheFileName;
 
@@ -2289,7 +2289,7 @@ bool ZipArchive::BufferCopy(const void* buffer, ULONGLONG size, const char* dest
 	}
 
 	ZipEntryFileHandle fileHandle;
-	if (!FileCreate(destFilename, fileHandle, COMPRESSED, &fileTime))
+	if (!FileCreate(destFilename, fileHandle, DEFLATED, compressionLevel, &fileTime))
 		return false;
 
 	if (FileWrite(fileHandle, buffer, size) != size)
@@ -3198,7 +3198,7 @@ bool ZipArchive::ProcessFileList(ZipArchive::FileOrderList& fileOrderList, Proce
 						if (options->statusUpdateCallback)
 							options->statusUpdateCallback(UPDATING_ENTRY, info.entryName, options->statusUpdateUserData);
 
-						if (activeArchive->FileCopy(cacheFile, info.entryName, info.compressionMethod, &info.lastWriteTime)) {
+						if (activeArchive->FileCopy(cacheFile, info.entryName, info.compressionMethod, info.compressionLevel, &info.lastWriteTime)) {
 //BROKEN						FileRename(entryName, info.entryName);
 							continue;
 						} else {
@@ -3294,7 +3294,7 @@ bool ZipArchive::ProcessFileList(ZipArchive::FileOrderList& fileOrderList, Proce
 			options->statusUpdateCallback(UPDATING_ENTRY, info.entryName, options->statusUpdateUserData);
 
 		// Transfer the file from the disk into the archive compressing as we go per the file order info's specification.
-		if (!activeArchive->FileCopy(diskFile, info.entryName, info.compressionMethod, &info.lastWriteTime))
+		if (!activeArchive->FileCopy(diskFile, info.entryName, info.compressionMethod, info.compressionLevel, &info.lastWriteTime))
 			return false;
 
 		// We're done with the disk file.  Close it.

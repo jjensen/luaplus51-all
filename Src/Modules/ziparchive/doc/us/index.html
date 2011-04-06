@@ -64,6 +64,24 @@
 
 
 <hr/>
+<h2>Compression Methods and Levels</h2>
+
+<p>A number of <code>ziparchive</code> functions take parameters for <code>compressionMethod</code> and <code>compressionLevel</code>.</p>
+
+<p>The parameter named <code>compressionMethod</code> may be either <code>ziparchive.DEFLATED</code> (the default if not specified) or <code>ziparchive.UNCOMPRESSED</code>.  <code>ziparchive.DEFLATED</code> is a zlib compression term indicating the file should be compressed according to the specified <code>compressionLevel</code>.  <code>ziparchive.UNCOMPRESSED</code> will simply store the uncompressed contents of the file in the zip archive.</p>
+
+<p><code>compressionLevel</code> indicates how tightly compressed a <code>ziparchive.DEFLATED</code> file should be.  It is a value from <code>0</code> to <code>9</code> or a helper enumeration <code>ziparchive.NO_COMPRESSION</code> (0), <code>ziparchive.BEST_SPEED</code> (1), <code>ziparchive.BEST_COMPRESSION</code> (9), or <code>ziparchive.DEFAULT_COMPRESSION</code> (6).</p>
+
+<ul>
+    <li>A compression level of <code>0</code> means the file will not be compressed, but this does not mean the same thing as setting the <code>compressionMethod</code> to <code>ziparchive.UNCOMPRESSED</code> and will usually result in the 'compressed' file size being slightly larger than the uncompressed file size.</li>
+    <li>A compression level of <code>1</code> will result in the best compression speed but the worst compressed size (next to an uncompressed file).</li>
+    <li>A compression level of <code>9</code> will result in the best compressed size, but the time to compress will be longer.</li>
+</ul>
+
+
+
+
+<hr/>
 <h2>ziparchive Reference</h2>
 
 <h3>ziparchive.help()</h3>
@@ -72,7 +90,7 @@
 
 
 
-<h3>ziparchive.new() -> ziparchive object</h3>
+<h3>archive = ziparchive.new()</h3>
 
 <p>Returns an archive object.</p>
 
@@ -98,6 +116,7 @@
 
 
 
+<hr/>
 <h2>archive Reference</h2>
 
 <h3>opened = archive:open(fileName [, mode = 'r'] [, openflags = 0] [, defaultPassword])</h3>
@@ -127,13 +146,14 @@
 
 
 
-<h3>vfile = archive:filecreate(filename [, compressionMethod = 8] [, time_t fileTime])</h3>
+<h3>vfile = archive:filecreate(filename [, compressionMethod = ziparchive.DEFLATED] [, compressionLevel = ziparchive.DEFAULT<em>COMPRESSION] [, time</em>t fileTime])</h3>
 
 <p>Creates a file entry within the archive.  Returns a userdata representing the file in the archive.</p>
 
 <ul>
     <li><code>filename</code> is the name of the file to create within the archive.</li>
-    <li><code>compressionMethod</code> may be either <code>8</code> or <code>0</code>.  The default is <code>8</code>, meaning the file will be compressed.  <code>0</code> means the file is stored uncompressed.</li>
+    <li><code>compressionMethod</code>: See above.</li>
+    <li><code>compressionLevel</code>: See above.</li>
     <li><code>fileTime</code> is the time in time_t format to assign to the file within the archive.  Defaults to the current time.</li>
 </ul>
 
@@ -174,14 +194,15 @@
 
 
 
-<h3>bool ret = archive:fileinsert(srcFilename, destFilename [, compressionMethod = 8] [, time_t fileTime])</h3>
+<h3>bool ret = archive:fileinsert(srcFilename, destFilename [, compressionMethod = ziparchive.DEFLATED] [, compressionLevel = ziparchive.DEFAULT<em>COMPRESSION]  [, time</em>t fileTime])</h3>
 
 <p>Inserts a file from disk into the archive.  Returns <code>true</code> if the file was renamed successfully, <code>false</code> otherwise.</p>
 
 <ul>
     <li><code>srcFilename</code> is the path to a filename on disk.  This file will be transferred into the archive.</li>
     <li><code>destFilename</code> is the name of the file entry within the archive that <code>srcFilename</code> is copied into.</li>
-    <li><code>compressionMethod</code> may be either <code>8</code> or <code>0</code>.  The default is <code>8</code>, meaning the file will be compressed.  <code>0</code> means the file is stored uncompressed.</li>
+    <li><code>compressionMethod</code>: See above.</li>
+    <li><code>compressionLevel</code>: See above.</li>
     <li><code>fileTime</code> is the time in time_t format to assign to the file within the archive.  Defaults to the <code>srcFilename</code> time.</li>
 </ul>
 
@@ -216,6 +237,8 @@
 FileOrderInfo = {
     string EntryName,   -- The file entry name within the archive.  If a | (pipe) is specified, the left side is the full path to an archive, and the right side is the entry within the archive.
     string SourcePath,  -- The source path on disk of the file to insert into the archive
+    CompressionMethod,  -- See above.
+    CompressionLevel,   -- See above.
     boolean Compressed, -- true (default) if the file should be compressed, false for uncompressed
     time_t Timestamp,   -- The timestamp in time_t form.  0 (default) means the timestamp is retrieved from SourcePath
     integer Size,       -- The size of the file.  0 (default) means the size is retrieved from SourcePath
