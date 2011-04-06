@@ -1,25 +1,7 @@
-LuaPlus License
----------------
-
-LuaPlus, like Lua, is licensed under the terms of the MIT license and can be
-used unrestricted in any place where Lua could be used.
-
-LuaPlus is Copyright 2002-2010 Joshua C. Jensen.
+ziparchive License
+------------------
 
 ===============================================================================
-
-Lua License
------------
-
-Lua is licensed under the terms of the MIT license reproduced below.
-This means that Lua is free software and can be used for both academic
-and commercial purposes at absolutely no cost.
-
-For details and rationale, see http://www.lua.org/license.html .
-
-===============================================================================
-
-Copyright (C) 1994-2008 Lua.org, PUC-Rio.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
