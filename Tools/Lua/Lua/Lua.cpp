@@ -24,8 +24,6 @@ extern "C" {
 #include "tilde/LuaHostWindows.h"
 #endif /* LUA_TILDE_DEBUGGER */
 
-static int remoteDebuggingActive = 0;
-
 static lua_State *globalL = NULL;
 
 static const char *progname = LUA_PROGNAME;
@@ -251,6 +249,13 @@ static int handle_script (lua_State *L, char **argv, int n) {
   fname = argv[n];
   if (strcmp(fname, "-") == 0 && strcmp(argv[n-1], "--") != 0) 
     fname = NULL;  /* stdin */
+#if LUAPLUS_EXTENSIONS  &&  LUA_TILDE_DEBUGGER  &&  _MSC_VER
+  char buffer[MAX_PATH];
+  if (fname) {
+    _fullpath(buffer, fname, MAX_PATH);
+	fname = buffer;
+  }
+#endif // LUAPLUS_EXTENSIONS  &&  LUA_TILDE_DEBUGGER  && _MSC_VER
   status = luaL_loadfile(L, fname);
   lua_insert(L, -(narg+1));
   if (status == 0)
@@ -308,29 +313,28 @@ static int collectargs (char **argv, int *pi, int *pv, int *pe) {
         }
         break;
       case 'd': {
+#if LUA_TILDE_DEBUGGER
         if (strcmp(argv[i], "-debug") == 0) {
-#if defined(REMOTE_DEBUGGER)
-          LuaRemoteDebuggingServer::RegisterState("State", globalL);
-          LuaRemoteDebuggingServer::Initialize();
-          LuaRemoteDebuggingServer::WaitForDebuggerConnection();
-#endif
-          remoteDebuggingActive = 1;
-        } else if (strcmp(argv[i], "-dl") == 0) {
+          LuaHostWindows* host = new LuaHostWindows();
+          host->RegisterState("State", globalL);
+          host->WaitForDebuggerConnection();
+        } else
+#endif /* LUA_TILDE_DEBUGGER */
+        if (strcmp(argv[i], "-dl") == 0) {
           lua_sethook(globalL, DebugLineHook, LUA_MASKLINE, 0);
         }
         break;
       }
-#if LUA_TILDE_DEBUGGER
-      case 't': {
-        if (strcmp(argv[i], "-tilde") == 0) {
-          LuaHostWindows* host = new LuaHostWindows();
-          host->RegisterState("State", globalL);
-          host->WaitForDebuggerConnection();
-          remoteDebuggingActive = 1;
-        }
-        break;
+#if defined(REMOTE_DEBUGGER)
+      case 'r': {
+        if (strcmp(argv[i], "-rld") == 0) {
+          LuaRemoteDebuggingServer::RegisterState("State", globalL);
+          LuaRemoteDebuggingServer::Initialize();
+          LuaRemoteDebuggingServer::WaitForDebuggerConnection();
+		}
+		break;
       }
-#endif /* LUA_TILDE_DEBUGGER */
+#endif
       default: return -1;  /* invalid option */
     }
   }

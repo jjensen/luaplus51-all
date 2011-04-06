@@ -53,6 +53,7 @@ public:
 	LuaHostWindows(int port = 10000);
 	virtual ~LuaHostWindows();
 
+	bool	IsConnected() const;
 	void	WaitForDebuggerConnection();
 	void	Poll();
 

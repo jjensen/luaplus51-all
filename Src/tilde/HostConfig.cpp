@@ -76,6 +76,7 @@ namespace tilde
 
 	void print(const char * fmt, ...)
 	{
+		if (1) return;
 		va_list	ap;
 
 		va_start(ap, fmt);

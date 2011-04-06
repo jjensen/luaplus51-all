@@ -35,7 +35,8 @@ THE SOFTWARE.
 
 #define TILDE_ASSERT(exp)			((void)( (exp) != 0 || (tilde::assert_exp((const char *)#exp, __FILE__, __LINE__), 0) ))
 #define TILDE_ASSERT_MSG(exp, ...)	((void)( (exp) != 0 || (tilde::assert_msg(__FILE__, __LINE__, __VA_ARGS__), 0) ))
-#define TILDE_PRINT(...)			tilde::print(__VA_ARGS__)
+//#define TILDE_PRINT(...)			tilde::print(__VA_ARGS__)
+#define TILDE_PRINT(...)			((void)(0))
 
 #define TILDE_SEND_BUFFER_SIZE		(512 * 1024)
 #define TILDE_RECEIVE_BUFFER_SIZE	(4 * 1024)

@@ -61,6 +61,8 @@ char s_printBuffer[1024];
 
 void print(const char * format, ...)
 {
+	if (1) return;
+
 	va_list	ap;
 
 	va_start(ap,format);
@@ -73,6 +75,8 @@ void print(const char * format, ...)
 
 void warn(const char * format, ...)
 {
+	if (1) return;
+
 	va_list	ap;
 
 	print("WARNING: ");
@@ -89,6 +93,8 @@ void warn(const char * format, ...)
 
 void error(const char * format, ...)
 {
+	if (1) return;
+
 	va_list	ap;
 
 	print("FATAL ERROR: ");
@@ -166,7 +172,7 @@ void LuaHostWindows::InitialiseServerSocket()
 	if (listen( m_serverSocket, 1 ) == SOCKET_ERROR)
 		error("listen() failed (error %d)", WSAGetLastError());
 	else
-		print( "Listening for debugger connection on port %d...\n", m_serverPort);
+		fprintf(stderr, "Listening for debugger connection on port %d...\n", m_serverPort);
 }
 
 void LuaHostWindows::DestroyServerSocket()
@@ -178,9 +184,14 @@ void LuaHostWindows::DestroyServerSocket()
 	}
 }
 
+bool LuaHostWindows::IsConnected() const
+{
+	return m_debuggerComms->GetDebugger()->IsConnected();
+}
+
 void LuaHostWindows::WaitForDebuggerConnection()
 {
-	while (!m_debuggerComms->GetDebugger()->IsConnected())
+	while (!IsConnected())
 	{
 		Poll();
 		Sleep(50);
@@ -290,7 +301,7 @@ void LuaHostWindows::OnIdle()
 
 void LuaHostWindows::OnRun()
 {
-	// Do nothing
+	Poll();
 }
 
 const char * LuaHostWindows::GetFunctionName( lua_State * lvm, int funcIndex, lua_Debug * ar )
