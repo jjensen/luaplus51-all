@@ -47,10 +47,61 @@ function luaize(data)
 end
 
 
+---------------------------------------------------------------------------------
+-- Encoding routines stolen from Lua Element Tree.
+local mapping = { ['&']  = "&amp;"  ,
+                  ['<']  = "&lt;"   ,
+                  ['>']  = "&gt;"   ,
+                  ['"']  = "&quot;" ,
+                  ["'"]  = "&apos;" , -- not used
+                  ["\t"] = "&#9;"    ,
+                  ["\r"] = "&#13;"   ,
+                  ["\n"] = "&#10;"   }
+
+local function map(symbols)
+  local array = {}
+  for _, symbol in ipairs(symbols) do
+    table.insert(array, {symbol, mapping[symbol]})
+  end
+  return array
+end
+
+encoding = {}
+
+encoding[1] = { map{'&', '<'}      ,
+                map{'&', '<', '"'} }
+
+encoding[2] = { map{'&', '<', '>'}      ,
+                map{'&', '<', '>', '"'} }
+
+encoding[3] = { map{'&', '\r', '<', '>'}                  ,
+                map{'&', '\r', '\n', '\t', '<', '>', '"'} }
+
+encoding[4] = { map{'&', '\r', '\n', '\t', '<', '>', '"'} ,
+                map{'&', '\r', '\n', '\t', '<', '>', '"'} }
+
+encoding["minimal"]   = encoding[1]
+encoding["standard"]  = encoding[2]
+encoding["strict"]    = encoding[3]
+encoding["most"]      = encoding[4]
+
+local _encode = function(text, encoding)
+	for _, key_value in pairs(encoding) do
+		text = text:gsub(key_value[1], key_value[2])
+	end
+	return text
+end
+---------------------------------------------------------------------------------
+
 local srep = string.rep
 
-local function xmlsave_recurse(indent, luaTable, xmlTable, entryOrderValue)
-	local tabs = indent and srep('\t', indent) or ''
+local function xmlsave_recurse(indent, luaTable, xmlTable, maxIndentLevel)
+	local tabs = ''
+	if indent then
+		if not maxIndentLevel  or indent <= maxIndentLevel then
+			tabs = srep('\t', indent)
+		end
+	end
 	local keys = {}
 	local entryOrder
 	if luaTable[1] then
@@ -79,8 +130,16 @@ local function xmlsave_recurse(indent, luaTable, xmlTable, entryOrderValue)
 
 				local attributes = entry['@']
 				if attributes then
-					for _, attrKey in ipairs(attributes) do
-						xmlTable[#xmlTable + 1] = ' ' .. attrKey .. '="' .. attributes[attrKey] .. '"'
+					if not indent then
+						for _, attrKey in ipairs(attributes) do
+							xmlTable[#xmlTable + 1] = ' ' .. attrKey .. '="' .. attributes[attrKey] .. '"'
+						end
+					else
+						for attrKey, attrValue in pairs(attributes) do
+							if type(attrKey) == 'string' then
+								xmlTable[#xmlTable + 1] = ' ' .. attrKey .. '="' .. attrValue .. '"'
+							end
+						end
 					end
 				end
 
@@ -91,9 +150,9 @@ local function xmlsave_recurse(indent, luaTable, xmlTable, entryOrderValue)
 					if indent then
 						xmlTable[#xmlTable + 1] = '\n'
 					end
-					xmlsave_recurse(indent and (indent + 1) or nil, elements, xmlTable)
+					xmlsave_recurse(indent and (indent + 1) or nil, elements, xmlTable, maxIndentLevel)
 				else
-					xmlTable[#xmlTable + 1] = elements
+					xmlTable[#xmlTable + 1] = _encode(elements, encoding[4][1])
 				end
 
 				if indent and type(elements) == 'table' then
@@ -113,8 +172,16 @@ local function xmlsave_recurse(indent, luaTable, xmlTable, entryOrderValue)
 
 					local attributes = entry['@']
 					if attributes then
-						for _, attrKey in ipairs(attributes) do
-							xmlTable[#xmlTable + 1] = ' ' .. attrKey .. '="' .. attributes[attrKey] .. '"'
+						if not indent then
+							for _, attrKey in ipairs(attributes) do
+								xmlTable[#xmlTable + 1] = ' ' .. attrKey .. '="' .. attributes[attrKey] .. '"'
+							end
+						else
+							for attrKey, attrValue in pairs(attributes) do
+								if type(attrKey) == 'string' then
+									xmlTable[#xmlTable + 1] = ' ' .. attrKey .. '="' .. attrValue .. '"'
+								end
+							end
 						end
 					end
 
@@ -125,9 +192,9 @@ local function xmlsave_recurse(indent, luaTable, xmlTable, entryOrderValue)
 						if indent then
 							xmlTable[#xmlTable + 1] = '\n'
 						end
-						xmlsave_recurse(indent and (indent + 1) or nil, elements, xmlTable)
+						xmlsave_recurse(indent and (indent + 1) or nil, elements, xmlTable, maxIndentLevel)
 					else
-						xmlTable[#xmlTable + 1] = elements
+						xmlTable[#xmlTable + 1] = _encode(elements, encoding[4][1]) 
 					end
 
 					if indent and type(elements) == 'table' then
@@ -144,9 +211,9 @@ local function xmlsave_recurse(indent, luaTable, xmlTable, entryOrderValue)
 end
 
 
-function xmlize(outFilename, luaTable, indent)
+function xmlize(outFilename, luaTable, indent, maxIndentLevel)
 	local xmlTable = {}
-	xmlsave_recurse(indent, luaTable, xmlTable)
+	xmlsave_recurse(indent, luaTable, xmlTable, maxIndentLevel)
 	local outText = table.concat(xmlTable)
 	if outFilename == ':string' then
 		return outText
