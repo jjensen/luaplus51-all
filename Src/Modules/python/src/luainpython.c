@@ -603,9 +603,9 @@ initlua(void)
 
 					len = strlen(filename);
 #ifdef _DEBUG
-					strcpy(filename + len, "luaplus51-1200_debug.dll");
+					strcpy(filename + len, "luaplus51-1201_debug.dll");
 #else
-					strcpy(filename + len, "luaplus51-1200.dll");
+					strcpy(filename + len, "luaplus51-1201.dll");
 #endif
 					LoadLibrary(filename);
 
