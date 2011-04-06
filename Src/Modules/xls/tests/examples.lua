@@ -4,18 +4,18 @@ local FW_NORMAL = 400
 local FW_BOLD = 700
 
 function example1(path)
-	local doc = xls.Workbook()
+	local workbook = xls.Workbook()
 
     -- create sheet 1 and get the associated worksheet
-    doc:New(1)
-	local sheet = doc:GetWorksheet(0)
+    workbook:New(1)
+	local sheet = workbook:GetWorksheet(0)
 
 	-- Create a table containing an header row in bold and four rows below.
 
 	font_bold = xls.Font()
 	font_bold._weight = FW_BOLD
 
-	fmt_bold = doc:CellFormat()
+	fmt_bold = workbook:CellFormat()
 	fmt_bold:set_font(font_bold)
 
 	local col, row = 0, 0
@@ -40,11 +40,11 @@ function example1(path)
 	font_red_bold._weight = FW_BOLD
 	font_red_bold._color_index = xls.EGA_RED
 
-	fmt_red_bold = doc:CellFormat(font_red_bold)
+	fmt_red_bold = workbook:CellFormat(font_red_bold)
 	fmt_red_bold:set_color1(xls.COLOR1_PAT_SOLID);				-- solid background
 	fmt_red_bold:set_color2(xls.MAKE_COLOR2(xls.EGA_BLUE,0))	-- blue background
 
-	fmt_green = doc:CellFormat(xls.Font():set_color_index(xls.EGA_GREEN))
+	fmt_green = workbook:CellFormat(xls.Font():set_color_index(xls.EGA_GREEN))
 
 	local col = 0
 	while col < 10 do
@@ -62,16 +62,16 @@ function example1(path)
 	end
 
 
-	doc:SaveAs(path)
+	workbook:SaveAs(path)
 end
 
 
 function example2(path)
-	local doc = xls.Workbook()
+	local workbook = xls.Workbook()
 
 	-- create sheet 1 and get the associated worksheet
-	doc:New(1)
-	local sheet = doc:GetWorksheet(0)
+	workbook:New(1)
+	local sheet = workbook:GetWorksheet(0)
 
 	local font_header = xls.Font()
 	font_header:set_weight(FW_BOLD)
@@ -80,7 +80,7 @@ function example2(path)
 	font_header:set_color_index(xls.EGA_BLUE)
 	font_header._options = xls.EXCEL_FONT_STRUCK_OUT
 
-	local fmt_header = doc:CellFormat(font_header)
+	local fmt_header = workbook:CellFormat(font_header)
 	fmt_header:set_rotation(30); -- rotate the header cell text 30° to the left
 
 	local row = 0
@@ -102,17 +102,17 @@ function example2(path)
 		end
 	end
 
-	doc:SaveAs(path)
+	workbook:SaveAs(path)
 end
 
 function example3(path)
-	local doc = xls.Workbook()
+	local workbook = xls.Workbook()
 
 	 -- create sheet 1 and get the associated worksheet
-	doc:New(1)
-	local sheet = doc:GetWorksheet(0)
+	workbook:New(1)
+	local sheet = workbook:GetWorksheet(0)
 
-	local fmt = doc:CellFormat()
+	local fmt = workbook:CellFormat()
 
 	 -- row 1
 
@@ -153,19 +153,19 @@ function example3(path)
 	cell:SetFormat(fmt)
 
 
-	doc:SaveAs(path)
-	doc:Close()
+	workbook:SaveAs(path)
+	workbook:Close()
 end
 
 
 function example_read_write(from, to)
 	io.write("read: " .. from .. '\n')
 
-	local doc = xls.Workbook(from)
+	local workbook = xls.Workbook(from)
 
-	local sheet = doc:GetWorksheet(0)
+	local sheet = workbook:GetWorksheet(0)
 
-	local fmt_general = doc:CellFormat()
+	local fmt_general = workbook:CellFormat()
 
 	fmt_general:set_format_string("0.000")
 
@@ -175,7 +175,7 @@ function example_read_write(from, to)
 
 			local cell = sheet:Cell(y, x)
 
-			local fmt = doc:CellFormat(cell)
+			local fmt = workbook:CellFormat(cell)
 
 --			cout << " - xf_idx=" << cell:GetXFormatIdx()
 
@@ -193,15 +193,15 @@ function example_read_write(from, to)
 	end
 
 	io.write("write: " .. to .. '\n')
-	doc:SaveAs(to)
+	workbook:SaveAs(to)
 end
 
 
 function example4(path)
-	local doc = xls.Workbook()
-	doc:New(1)
+	local workbook = xls.Workbook()
+	workbook:New(1)
 
-	local sheet = doc:GetWorksheet(0)
+	local sheet = workbook:GetWorksheet(0)
 
 	local i = 0
 
@@ -217,7 +217,7 @@ function example4(path)
 		font:set_height(height)
 		font:set_font_name(xls.wchar("Times New Roman"))
 
-		local fmt = doc:CellFormat(font)
+		local fmt = workbook:CellFormat(font)
 		fmt:set_background(xls.MAKE_COLOR2(xls.EGA_MAGENTA,0))	-- solid magenta background
 
 		local cell = sheet:Cell(row, 0)
@@ -225,25 +225,25 @@ function example4(path)
 		cell:SetFormat(fmt)
 	end
 
-	doc:SaveAs(path)
+	workbook:SaveAs(path)
 end
 
 
 function copy_sheet(from, to)
-	local doc = xls.Workbook()
+	local workbook = xls.Workbook()
 
-	doc:Load(from)
-	doc:SaveAs(to)
+	workbook:Load(from)
+	workbook:SaveAs(to)
 end
 
 
 function write_big_sheet(path, row_max, col_max)
-	local doc = xls.Workbook()
+	local workbook = xls.Workbook()
 	local buffer
 
 	 -- create sheet 1 and get the associated BasicExcelWorksheet pointer
-	doc:New(1)
-	local sheet = doc:GetWorksheet(0)
+	workbook:New(1)
+	local sheet = workbook:GetWorksheet(0)
 
 
 	 -- Create a table containing header row and column in bold.
@@ -251,7 +251,7 @@ function write_big_sheet(path, row_max, col_max)
 	local font_bold = xls.Font()
 	font_bold._weight = FW_BOLD; -- 700
 
-	local fmt_bold = doc:CellFormat()
+	local fmt_bold = workbook:CellFormat()
 	fmt_bold:set_font(font_bold)
 
 	local col, row
@@ -284,7 +284,7 @@ function write_big_sheet(path, row_max, col_max)
 		end
 	end
 
-	doc:SaveAs(path)
+	workbook:SaveAs(path)
 end
 
 -- call example1()
