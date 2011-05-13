@@ -12,11 +12,13 @@
 #include <stddef.h>
 
 #ifndef LUA_TILDE_DEBUGGER
+#if defined(_MSC_VER)
 #define LUA_TILDE_DEBUGGER 1
+#endif
 #endif /* LUA_TILDE_DEBUGGER */
 
 #ifndef LUA_FASTREF_SUPPORT
-#define LUA_FASTREF_SUPPORT 1
+#define LUA_FASTREF_SUPPORT 0
 #endif /* LUA_FASTREF_SUPPORT */
 
 #ifndef LUA_WIDESTRING

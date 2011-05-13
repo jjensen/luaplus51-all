@@ -11,8 +11,7 @@ local NETWORK_SRCS =
 		../../../Src/LuaRemoteDebuggingServer/LuaRemoteDebuggingServer.h
 ;
 
-local SRCS =
-		Lua.cpp
+local TILDE_SRCS =
 		../../../Src/tilde/HostConfig.cpp
 		../../../Src/tilde/HostConfig.h
 		../../../Src/tilde/LuaDebugger.cpp
@@ -23,12 +22,15 @@ local SRCS =
 		../../../Src/tilde/LuaHostWindows.cpp
 		../../../Src/tilde/LuaHostWindows.h
 		../../../Src/tilde/ReceiveMessageBuffer.h
-		../../../Src/tilde/ReceiveMessageBuffer.h
+;
+
+local SRCS =
+		Lua.cpp
 ;
 
 if $(NT)  &&  $(COMPILER.$(PLATFORM)) != vc6
 {
-	SRCS += $(NETWORK_SRCS) ;
+	SRCS += $(NETWORK_SRCS) $(TILDE_SRCS) ;
 }
 
 rule LuaApplication TARGET : OPTIONS
