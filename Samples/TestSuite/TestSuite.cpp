@@ -1889,6 +1889,12 @@ TEST(LuaObject_MetaTable)
 {
 	LuaStateOwner state;
 
+	// Make a base object.
+	LuaObject baseObj;
+	baseObj.AssignNewTable(state);
+	baseObj.SetString("base", "the base");
+	baseObj.SetObject("__index", baseObj);
+
 	// Make a table for the metatable.
 	LuaObject metaTableObj(state);
 	metaTableObj.AssignNewTable(state);
@@ -1922,6 +1928,12 @@ TEST(LuaObject_MetaTable)
 	CHECK(testTableObj.GetByObject(stringObj).IsString());
 	CHECK(strcmp(testTableObj.GetByObject(stringObj).GetString(), "MyLittleObject") == 0);
 	CHECK(testTableObj.GetByIndex(2).IsNil());
+
+	// Test Get() functions reaching the baseObj.
+	CHECK(testTableObj.Get("base").IsNil());
+	metaTableObj.SetMetaTable(baseObj);
+	CHECK(testTableObj.Get("base").IsString());
+	CHECK(strcmp(testTableObj.GetByName("base").GetString(), "the base") == 0);
 
 	// Test operator functions
 	CHECK(testTableObj[1].IsString());
