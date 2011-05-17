@@ -900,32 +900,7 @@ LuaObject LuaObject::Get(const char* key) const
 	api_check(L, ttistable(&m_object));
 
 	TValue str;
-	setnilvalue2n(L, &str);
-
-	// It's safe to assume that if name is not in the hash table, this function can return nil.
-	size_t l = strlen(key);
-	GCObject *o;
-	unsigned int h = (unsigned int)l;  /* seed */
-	size_t step = (l>>5)+1;  /* if string is too long, don't hash all its chars */
-	size_t l1;
-	for (l1=l; l1>=step; l1-=step)  /* compute hash */
-		h = h ^ ((h<<5)+(h>>2)+(unsigned char)(key[l1-1]));
-	for (o = G(L)->strt.hash[lmod(h, G(L)->strt.size)];
-		o != NULL;
-		o = o->gch.next)
-	{
-		TString *ts = rawgco2ts(o);
-		if (ts->tsv.tt == LUA_TSTRING && ts->tsv.len == l && (memcmp(key, getstr(ts), l) == 0))
-		{
-			/* string may be dead */
-			if (isdead(G(L), o)) changewhite(o);
-			setsvalue2n(L, &str, ts);
-			break;
-		}
-	}
-
-	if (ttype(&str) == LUA_TNIL)
-		return LuaObject(L);
+	setsvalue(L, &str, luaS_newlstr(L, key, strlen(key)));
 
 	TValue v;
 	luaV_gettable(L, &m_object, &str, &v);
