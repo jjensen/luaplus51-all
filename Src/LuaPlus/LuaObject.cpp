@@ -2012,6 +2012,7 @@ void LuaObject::RegisterHelper(const char* funcName, NAMESPACE_LUA_PREFIX lua_CF
 
 		memcpy(buffer + pos, func, sizeofFunc);
 
+		lua_insert(L, -1 - (int)nupvalues);
 		nupvalues++;
 	}
 
@@ -2053,6 +2054,7 @@ void LuaObject::AssignCFunctionHelper(NAMESPACE_LUA_PREFIX lua_CFunction functio
 
 		memcpy(buffer + pos, func, sizeofFunc);
 
+		lua_insert(L, -1 - (int)nupvalues);
 		nupvalues++;
 	}
 
