@@ -37,7 +37,7 @@ local function test_library (libname, setfile, verbose)
 end
 
 local avail_tests = {
-  gnuregex  = { lib = "rex_gnuregex", "common_sets", "posix_sets"  },
+  gnu       = { lib = "rex_gnu",      "common_sets", "emacs_sets", "gnu_sets" },
   posix     = { lib = "rex_posix",    "common_sets", "posix_sets", },
   spencer   = { lib = "rex_spencer",  "common_sets", "posix_sets", "spencer_sets" },
   posix1    = { lib = "rex_posix1",   "common_sets", "posix_sets", "spencer_sets" },

@@ -44,7 +44,7 @@
 #  define ALG_EFLAGS_DFLT 0
 #endif
 
-#define ALG_NOMATCH        REG_NOMATCH
+#define ALG_NOMATCH(res)   ((res) == REG_NOMATCH)
 #define ALG_ISMATCH(res)   ((res) == 0)
 #define ALG_SUBBEG(ud,n)   ud->match[n].rm_so
 #define ALG_SUBEND(ud,n)   ud->match[n].rm_eo
@@ -193,8 +193,7 @@ static int Posix_gc (lua_State *L) {
   if (ud->freed == 0) {           /* precaution against "manual" __gc calling */
     ud->freed = 1;
     regfree (&ud->r);
-    if (ud->match)
-      free (ud->match);
+    free (ud->match);
   }
   return 0;
 }

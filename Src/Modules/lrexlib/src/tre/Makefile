@@ -1,4 +1,4 @@
-# makefile for rex_pcre library
+# makefile for rex_tre library
 
 include ../defaults.mak
 
@@ -7,32 +7,36 @@ include ../defaults.mak
 
 # These are default values.
 INC =
-LIB = -lpcre
+LIB = -ltre
 
 # If the default settings don't work for your system,
 # try to uncomment and edit the settings below.
-#INC =
-#LIB = -lpcre
+#INC = -I/usr/include
+#LIB = -lc
+
+# WARNING:
+#   Make sure you set both the INC and LIB variables correctly, as
+#   otherwise you risk using a header file and library that do not
+#   match, and you may well get segmentation faults (or worse).
 
 # Target name
-TRG = rex_pcre
+REGNAME = tre
 
 # ===========================================================================
 # === END OF USER SETTINGS ===
 
-OBJ    = lpcre.o lpcre_f.o ../common.o
+OBJ    = ltre.o ../common.o
 
 include ../common.mak
 
-# static PCRE regexp library binding
-ar_pcre: $(TRG_AR)
+# static TRE regexp library binding
+ar_tre: $(TRG_AR)
 
-# dynamic PCRE regexp library binding
-so_pcre: $(TRG_SO)
+# dynamic TRE regexp library binding
+so_tre: $(TRG_SO)
 
 # Dependencies
-lpcre.o: lpcre.c ../common.h ../algo.h
-lpcre_f.o: lpcre_f.c ../common.h
+ltre.o: ltre.c ../common.h ../algo.h
 ../common.o: ../common.c ../common.h
 
 # (End of Makefile)

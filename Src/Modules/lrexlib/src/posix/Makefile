@@ -26,7 +26,7 @@ LIB =
 #LIB = -lrxspencer
 
 # Target name
-TRG = rex_posix
+REGNAME = posix
 
 # ===========================================================================
 # === END OF USER SETTINGS ===

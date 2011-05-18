@@ -1,3 +1,27 @@
+2010-12-15  Release 2.5.3
+
+  * Bug fix to rex.split.
+  * Support for new flags in PCRE 8.11.
+
+2010-11-10  Release 2.5.2
+
+  * Important bug fix (thanks to Enrico Tassi for the report)
+    affecting platforms with certain alignment requirements.
+  * Improved build system for Windows.
+  * Minor improvements to the manual.
+
+2010-10-04  Release 2.5.1
+
+  * Minor improvements and fixes, no changes to library code.
+
+
+2010-10-03  Release 2.5.0
+
+  * Added bindings of the TRE and GNU regex APIs.
+
+  * Improved and simplified the build system.
+
+
 2008-08-04  Release 2.4.0
 
   * All functions receiving string-type regex accept a compiled regex too.

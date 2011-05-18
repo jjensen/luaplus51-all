@@ -8,6 +8,8 @@
 #include "lauxlib.h"
 #include "common.h"
 
+#define N_ALIGN sizeof(int)
+
 /* the table must be on Lua stack top */
 int get_int_field (lua_State *L, const char* field)
 {
@@ -153,7 +155,8 @@ void buffer_addlstring (TBuffer *buf, const void *src, size_t sz) {
     buf->arr = p;
     buf->size = 2 * newtop;
   }
-  memcpy (buf->arr + buf->top, src, sz);
+  if (src)
+    memcpy (buf->arr + buf->top, src, sz);
   buf->top = newtop;
 }
 
@@ -164,10 +167,13 @@ void buffer_addvalue (TBuffer *buf, int stackpos) {
 }
 
 static void bufferZ_addlstring (TBuffer *buf, const void *src, size_t len) {
+  int n;
   size_t header[2] = { ID_STRING };
   header[1] = len;
   buffer_addlstring (buf, header, sizeof (header));
   buffer_addlstring (buf, src, len);
+  n = len % N_ALIGN;
+  if (n) buffer_addlstring (buf, NULL, N_ALIGN - n);
 }
 
 static void bufferZ_addnum (TBuffer *buf, size_t num) {
@@ -230,8 +236,11 @@ int bufferZ_next (TBuffer *buf, size_t *iter, size_t *num, const char **str) {
     *iter += 2 * sizeof (size_t);
     *str = NULL;
     if (*ptr_header == ID_STRING) {
+      int n;
       *str = buf->arr + *iter;
       *iter += *num;
+      n = *iter % N_ALIGN;
+      if (n) *iter += (N_ALIGN - n);
     }
     return 1;
   }

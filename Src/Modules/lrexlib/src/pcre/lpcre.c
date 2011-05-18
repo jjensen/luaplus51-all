@@ -33,10 +33,10 @@ extern flag_pair pcre_error_flags[];
 static int getcflags (lua_State *L, int pos);
 #define ALG_GETCFLAGS(L,pos)  getcflags(L, pos)
 
-static void optlocale (TArgComp *argC, lua_State *L, int pos);
-#define ALG_OPTLOCALE(a,b,c)  optlocale(a,b,c)
+static void checkarg_compile (lua_State *L, int pos, TArgComp *argC);
+#define ALG_GETCARGS(a,b,c)  checkarg_compile(a,b,c)
 
-#define ALG_NOMATCH        PCRE_ERROR_NOMATCH
+#define ALG_NOMATCH(res)   ((res) == PCRE_ERROR_NOMATCH)
 #define ALG_ISMATCH(res)   ((res) >= 0)
 #define ALG_SUBBEG(ud,n)   ud->match[n+n]
 #define ALG_SUBEND(ud,n)   ud->match[n+n+1]
@@ -113,7 +113,7 @@ static int getcflags (lua_State *L, int pos) {
       return res;
     }
     default:
-      return luaL_typerror (L, pos, "number or string");
+      return luaL_typeerror (L, pos, "number or string");
   }
 }
 
@@ -169,7 +169,7 @@ static int chartables_gc (lua_State *L) {
   return 0;
 }
 
-static void optlocale (TArgComp *argC, lua_State *L, int pos) {
+static void checkarg_compile (lua_State *L, int pos, TArgComp *argC) {
   argC->locale = NULL;
   argC->tables = NULL;
   if (!lua_isnoneornil (L, pos)) {
@@ -282,7 +282,7 @@ static int Lpcre_dfa_exec (lua_State *L)
   }
   else {
     free (buf);
-    if (res == ALG_NOMATCH)
+    if (ALG_NOMATCH (res))
       return lua_pushnil (L), 1;
     else
       return generate_error (L, ud, res);
@@ -337,7 +337,7 @@ static int Lpcre_gc (lua_State *L) {
     if (ud->pr)      pcre_free (ud->pr);
     if (ud->extra)   pcre_free (ud->extra);
     if (ud->tables)  pcre_free ((void *)ud->tables);
-    if (ud->match)   free (ud->match);
+    free (ud->match);
   }
   return 0;
 }
@@ -436,4 +436,3 @@ REX_API int REX_OPENLIB (lua_State *L) {
 
   return 1;
 }
-

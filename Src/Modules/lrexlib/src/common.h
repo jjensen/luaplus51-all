@@ -6,6 +6,10 @@
 
 #include "lua.h"
 
+#if LUA_VERSION_NUM < 502
+#define luaL_typeerror luaL_typerror
+#endif
+
 /* REX_API can be overridden from the command line or Makefile */
 #ifndef REX_API
 #  define REX_API LUALIB_API
@@ -27,10 +31,12 @@ typedef struct {            /* compile arguments */
   size_t       patlen;
   void       * ud;
   int          cflags;
-  const char * locale;            /* PCRE, Oniguruma */
-  const unsigned char * tables;   /* PCRE */
-  int          tablespos;         /* PCRE */
-  void       * syntax;            /* Oniguruma */
+  const char * locale;             /* PCRE, Oniguruma */
+  const unsigned char * tables;    /* PCRE */
+  int          tablespos;          /* PCRE */
+  void       * syntax;             /* Oniguruma */
+  const unsigned char * translate; /* GNU */
+  int          gnusyn;             /* GNU */
 } TArgComp;
 
 typedef struct {            /* exec arguments */

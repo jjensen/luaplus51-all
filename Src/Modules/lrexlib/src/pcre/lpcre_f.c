@@ -32,6 +32,9 @@ static flag_pair pcre_flags[] = {
   { "AUTO_CALLOUT",                  PCRE_AUTO_CALLOUT },
   { "PARTIAL",                       PCRE_PARTIAL },
 #endif
+#ifdef PCRE_PARTIAL_SOFT
+  { "PARTIAL_SOFT",                  PCRE_PARTIAL_SOFT },
+#endif
 #if VERSION_PCRE >= 600
   { "DFA_SHORTEST",                  PCRE_DFA_SHORTEST },
   { "DFA_RESTART",                   PCRE_DFA_RESTART },
@@ -55,6 +58,21 @@ static flag_pair pcre_flags[] = {
 #endif
 #if VERSION_PCRE >= 707
   { "JAVASCRIPT_COMPAT",             PCRE_JAVASCRIPT_COMPAT },
+#endif
+#ifdef PCRE_NO_START_OPTIMIZE
+  { "NO_START_OPTIMIZE",             PCRE_NO_START_OPTIMIZE },
+#endif
+#ifdef PCRE_NO_START_OPTIMISE
+  { "NO_START_OPTIMISE",             PCRE_NO_START_OPTIMISE },
+#endif
+#ifdef PCRE_PARTIAL_HARD
+  { "PARTIAL_HARD",                  PCRE_PARTIAL_HARD },
+#endif
+#ifdef PCRE_NOTEMPTY_ATSTART
+  { "NOTEMPTY_ATSTART",              PCRE_NOTEMPTY_ATSTART },
+#endif
+#ifdef PCRE_UCP
+  { "UCP",                           PCRE_UCP },
 #endif
 /*---------------------------------------------------------------------------*/
   { "INFO_OPTIONS",                  PCRE_INFO_OPTIONS },
@@ -85,6 +103,9 @@ static flag_pair pcre_flags[] = {
 #ifdef PCRE_INFO_HASCRORLF
   { "INFO_HASCRORLF",                PCRE_INFO_HASCRORLF },
 #endif
+#ifdef PCRE_INFO_MINLENGTH
+  { "INFO_MINLENGTH",                PCRE_INFO_MINLENGTH },
+#endif
 /*---------------------------------------------------------------------------*/
 #if VERSION_PCRE >= 400
   { "EXTRA_STUDY_DATA",              PCRE_EXTRA_STUDY_DATA },
@@ -96,6 +117,9 @@ static flag_pair pcre_flags[] = {
 #endif
 #ifdef PCRE_EXTRA_MATCH_LIMIT_RECURSION
   { "EXTRA_MATCH_LIMIT_RECURSION",   PCRE_EXTRA_MATCH_LIMIT_RECURSION },
+#endif
+#ifdef PCRE_EXTRA_MARK
+  { "EXTRA_MARK",                    PCRE_EXTRA_MARK },
 #endif
 /*---------------------------------------------------------------------------*/
   { NULL, 0 }
@@ -139,6 +163,12 @@ flag_pair pcre_error_flags[] = {
 #endif
 #ifdef PCRE_ERROR_NULLWSLIMIT
   { "ERROR_NULLWSLIMIT",             PCRE_ERROR_NULLWSLIMIT },
+#endif
+#ifdef PCRE_ERROR_BADOFFSET
+  { "ERROR_BADOFFSET",               PCRE_ERROR_BADOFFSET },
+#endif
+#ifdef PCRE_ERROR_SHORTUTF8
+  { "ERROR_SHORTUTF8",               PCRE_ERROR_SHORTUTF8 },
 #endif
 /*---------------------------------------------------------------------------*/
   { NULL, 0 }
