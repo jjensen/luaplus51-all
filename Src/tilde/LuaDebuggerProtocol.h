@@ -71,6 +71,7 @@ namespace tilde
 		LuaType_FUNCTION		= LUA_TFUNCTION,
 		LuaType_USERDATA		= LUA_TUSERDATA,
 		LuaType_THREAD			= LUA_TTHREAD,
+		LuaType_WSTRING			= LUA_TWSTRING,
 
 		// Special Tilde types
 		LuaType_TILDE_METATABLE		= LUA_TNONE - 1,

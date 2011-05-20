@@ -27,70 +27,42 @@ THE SOFTWARE.
 
 #pragma once
 
-#include <stdio.h>
-#include <winsock2.h>
-
-#include "tilde/LuaDebugger.h"
+#include "tilde/LuaDebuggerHost.h"
 
 struct sockaddr_in;
-class LuaMachine;
 
 namespace tilde
 {
 	class LuaDebuggerComms;
-}
 
-extern const char * FormatAddress(sockaddr_in & address);
-extern void print(const char * format, ...);
-extern void warn(const char * format, ...);
-extern void error(const char * format, ...);
+	class LuaHostWindows : public tilde::LuaDebuggerHost
+	{
+	public:
+		LuaHostWindows(int port = 10000);
+		virtual ~LuaHostWindows();
 
-#define strcmp _stricmp
+		bool	IsConnected() const;
+		void	WaitForDebuggerConnection();
+		void	Poll();
 
-class LuaHostWindows : public tilde::LuaDebuggerHost
-{
-public:
-	LuaHostWindows(int port = 10000);
-	virtual ~LuaHostWindows();
-
-	bool	IsConnected() const;
-	void	WaitForDebuggerConnection();
-	void	Poll();
-
-	virtual void RegisterState(const char* stateName, lua_State* lvm);
-	virtual void SendDebuggerData(const void * data, int size);
-	virtual void CloseDebuggerConnection();
-	virtual bool AttachLuaHook(lua_State* lvm, lua_Hook hook, int mask, int count);
-	virtual void DetachLuaHook(lua_State* lvm, lua_Hook hook);
-	virtual void AttachPrintfHook( void (* hook)(const char *) );
-	virtual void DetachPrintfHook( void (* hook)(const char *) );
-	virtual void ReceiveExCommand(const char * command, int datalen, tilde::ReceiveMessageBuffer * data);
-	virtual void OnIdle();
-	virtual void OnRun();
-	virtual const char * GetFunctionName(lua_State * lvm, int funcIndex, lua_Debug * ar);
-	virtual const char *LookupSourceFile( const char *target );
-	virtual const char *LookupTargetFile( const char *source);
+		virtual void RegisterState(const char* stateName, lua_State* lvm);
+		virtual void SendDebuggerData(const void * data, int size);
+		virtual void CloseDebuggerConnection();
+		virtual bool AttachLuaHook(lua_State* lvm, lua_Hook hook, int mask, int count);
+		virtual void DetachLuaHook(lua_State* lvm, lua_Hook hook);
+		virtual void AttachPrintfHook( void (* hook)(const char *) );
+		virtual void DetachPrintfHook( void (* hook)(const char *) );
+		virtual void ReceiveExCommand(const char * command, int datalen, tilde::ReceiveMessageBuffer * data);
+		virtual void OnIdle();
+		virtual void OnRun();
+		virtual const char * GetFunctionName(lua_State * lvm, int funcIndex, lua_Debug * ar);
+		virtual const char *LookupSourceFile( const char *target );
+		virtual const char *LookupTargetFile( const char *source);
 
 
+	private:
+		class Detail;
+		Detail* m_detail;
+	};
 
-
-private:
-	void	InitialiseServerSocket();
-	void	DestroyServerSocket();
-	void	Close();
-
-private:
-
-	tilde::LuaDebuggerComms * m_debuggerComms;
-
-	int		m_serverPort;
-
-	SOCKET	m_serverSocket;
-	SOCKET	m_debuggerSocket;
-
-	tilde::u8		* m_netBuffer;
-	int				m_netBufferSize;
-
-	tilde::String	m_functionName;
-	tilde::String	m_targetFileName;
-};
+} // namespace tilde

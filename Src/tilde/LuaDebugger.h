@@ -36,76 +36,11 @@ THE SOFTWARE.
 
 #include "tilde/HostConfig.h"
 #include "tilde/LuaDebuggerProtocol.h"
+#include "tilde/LuaDebuggerHost.h"
 
 namespace tilde
 {
 	class LuaDebuggerComms;
-
-	// ---------------------------------------------------------------------------------------------------------------
-	// LuaDebuggerHost
-	// ---------------------------------------------------------------------------------------------------------------
-
-	class LuaDebuggerHost
-	{
-	public:
-		//! Transmits the specified buffer of data to the remote host.
-		virtual void SendDebuggerData(const void * data, int size) = 0;
-
-		//! Closes the connection to the remote host; usually caused by an internal error in the debugger.
-		virtual void CloseDebuggerConnection() = 0;
-
-		//! Attaches the hook function to the main thread, and any threads the client wants monitored.
-		virtual bool AttachLuaHook(lua_State* lvm, lua_Hook hook, int mask, int count) = 0;
-
-		//! Removes the hook function from all threads.
-		virtual void DetachLuaHook(lua_State* lvm, lua_Hook hook) = 0;
-
-		//! Attaches the hook function to capture printf()s
-		virtual void AttachPrintfHook( void (* hook)(const char *) ) = 0;
-
-		//! Removes the hook from capturing printf()s
-		virtual void DetachPrintfHook( void (* hook)(const char *) ) = 0;
-
-		//! Allows the client to process an extended command.
-		virtual void ReceiveExCommand(const char * command, int datalen, ReceiveMessageBuffer * data) = 0;
-
-		//! Called while the debugger is breaked.
-		/**
-		The client should at least check for incoming messages and forward them to the 
-		LuaDebuggerComms::Receive()	function.
-		*/
-		virtual void OnIdle() = 0;
-
-		//! Called while the debugger is running.
-		/**
-		The client might want to check for messages if it's been a while since the last breakpoint
-		was hit.
-		*/
-		virtual void OnRun() = 0;
-
-		//! Retrieves the name of the specified function.
-		/**
-		The ar structure is already filled with all the information required "Snl", and the
-		function is on the lvm stack at funcIndex.
-
-		The returned string should be a statically allocated buffer that remains valid until
-		the next time the function is called. The possible result formats are:
-		name [what]		
-		name (file:line) [what]
-		name (info) [what]
-		where
-		name = ar->name
-		what = ar->what
-		file = ar->source
-		line = ar->linedefined
-		info = any information the client might have about a C functions
-		*/
-		virtual const char * GetFunctionName(lua_State * lvm, int funcIndex, lua_Debug * ar) = 0;
-
-		virtual const char *LookupSourceFile( const char *pTarget ) = 0;
-		virtual const char *LookupTargetFile( const char *pSource ) = 0;
-
-	};
 
 	// ---------------------------------------------------------------------------------------------------------------
 	// LuaDebuggerValue
@@ -204,7 +139,7 @@ namespace tilde
 		{
 			bool operator() (const BreakpointKey & lhs, const BreakpointKey & rhs) const
 			{
-				int diff = stricmp(lhs.m_fileName, rhs.m_fileName);
+				int diff = strcmp(lhs.m_fileName, rhs.m_fileName);
 				if(diff < 0)
 					return true;
 				else if(diff > 0)
@@ -261,7 +196,11 @@ namespace tilde
 		{
 			bool operator() (const IgnoredErrorKey & lhs, const IgnoredErrorKey & rhs) const
 			{
+#if defined(_MSC_VER)
 				int diff = stricmp(lhs.m_fileName, rhs.m_fileName);
+#else
+				int diff = strcasecmp(lhs.m_fileName, rhs.m_fileName);
+#endif // _MSC_VER
 				if(diff < 0)
 					return true;
 				else if(diff > 0)
@@ -738,6 +677,8 @@ namespace tilde
 
 		const char *			ToString(lua_State * lvm, int index);
 
+		const char *			NormalizedFilename(const char* filenameToNormalize);
+
 	private:
 
 		lua_State			* m_mainlvm;
@@ -767,6 +708,9 @@ namespace tilde
 		LuaDebuggerObjectID		m_nextValueID;
 
 		void const *			m_chunkCallInProgress;
+
+		char *					m_normalizedFilename;
+		size_t					m_normalizedFilenameLength;
 
 	};
 

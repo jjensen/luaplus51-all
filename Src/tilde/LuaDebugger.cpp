@@ -29,6 +29,7 @@ THE SOFTWARE.
 
 #include <string.h>
 #include <stdlib.h>
+#include <ctype.h>
 
 #include "lauxlib.h"
 #include "lobject.h"
@@ -53,12 +54,15 @@ namespace tilde
 			m_stepNestedCalls(0),
 			m_localNestedCalls(0),
 			m_nextValueID(1),
-			m_chunkCallInProgress(NULL)
+			m_chunkCallInProgress(NULL),
+			m_normalizedFilename(NULL),
+			m_normalizedFilenameLength(0)
 	{
 	}
 
 	LuaDebugger::~LuaDebugger(void)
 	{
+		delete[] m_normalizedFilename;
 	}
 
 
@@ -197,7 +201,7 @@ namespace tilde
 
 		const char *pTarget = m_listener->GetHost()->LookupTargetFile(file);
 
-		BreakpointInfo * newinfo = new BreakpointInfo(bkptid, pTarget, line);
+		BreakpointInfo * newinfo = new BreakpointInfo(bkptid, NormalizedFilename(pTarget), line);
 		m_breakpoints.push_back(newinfo);
 		
 		m_breakpointMap.insert(std::make_pair(BreakpointKey(newinfo->m_fileName.c_str(), line), newinfo));
@@ -240,7 +244,7 @@ namespace tilde
 
 	int LuaDebugger::FindBreakpoint(const char * file, int line)
 	{
-		BreakpointMap::iterator iter = m_breakpointMap.find(BreakpointKey(file, line));
+		BreakpointMap::iterator iter = m_breakpointMap.find(BreakpointKey(NormalizedFilename(file), line));
 		if(iter == m_breakpointMap.end())
 			return 0;
 		else
@@ -1429,7 +1433,9 @@ namespace tilde
 		}
 		else
 		{
-			TILDE_ASSERT(type == LuaType_LIGHTUSERDATA || type == LuaType_STRING || type == LuaType_TABLE || type == LuaType_FUNCTION || type == LuaType_USERDATA || type == LuaType_THREAD);
+			TILDE_ASSERT(type == LuaType_LIGHTUSERDATA || type == LuaType_STRING || type == LuaType_TABLE || type == LuaType_FUNCTION || type == LuaType_USERDATA || type == LuaType_THREAD
+					|| type == LuaType_WSTRING
+					);
 
 			// Get the cache table
 			lua_pushstring(lvm, "LuaDebugger");
@@ -1586,8 +1592,18 @@ namespace tilde
 			m_executionMode = DebuggerExecutionMode_Break;
 		}
 
+		// Have we hit a string compiled as Lua code?  If so, step into it.
+		if (debugInfo.source[0] != '@')
+		{
+			if (m_executionMode == DebuggerExecutionMode_Break)
+			{
+				m_previousExecutionMode = DebuggerExecutionMode_Break;
+				m_executionMode = DebuggerExecutionMode_StepInto;
+			}
+		}
+
 		// Have we hit a breakpoint?
-		if(m_executionMode != DebuggerExecutionMode_Break && IsBreakpoint(debugInfo.source, debugInfo.currentline))
+		else if(m_executionMode != DebuggerExecutionMode_Break && IsBreakpoint(debugInfo.source, debugInfo.currentline))
 		{
 			m_previousExecutionMode = m_executionMode;
 			m_executionMode = DebuggerExecutionMode_Break;
@@ -1673,4 +1689,29 @@ namespace tilde
 			m_executionMode = DebuggerExecutionMode_Break;
 		}
 	}
+
+	const char *LuaDebugger::NormalizedFilename(const char* filenameToNormalize)
+	{
+		size_t filenameToNormalizeLength = strlen(filenameToNormalize);
+		if (filenameToNormalizeLength > m_normalizedFilenameLength)
+		{
+			delete[] m_normalizedFilename;
+			m_normalizedFilename = new char[filenameToNormalizeLength + 1];
+			m_normalizedFilenameLength = filenameToNormalizeLength;
+		}
+		char* dest = m_normalizedFilename;
+		const char* src = filenameToNormalize;
+		while (*src)
+		{
+			if (*src == '\\')
+				*dest = '/';
+			else
+				*dest = tolower(*src);
+			++dest;
+			++src;
+		}
+		*dest = 0;
+		return m_normalizedFilename;
+	}
+
 }	// namespace tilde
