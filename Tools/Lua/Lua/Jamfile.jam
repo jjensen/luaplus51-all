@@ -57,7 +57,7 @@ rule LuaApplication TARGET : OPTIONS
 		C.LinkFlags : -Wl,-E -lreadline ;
 		C.LinkFlags : -Wl,--rpath=\\$ORIGIN -z origin ;
 	}
-	else if $(OS) = MACOSX
+	else if $(OS) in MACOS MACOSX
 	{
 		C.LinkFlags : -Wl,-rpath,@loader_path/ ;
 	}
