@@ -25,6 +25,9 @@
 #include <sys/stat.h>
 #include <errno.h>
 #endif
+#if defined(macintosh)  ||  defined(__APPLE__)
+#include <copyfile.h>
+#endif
 #include "List.h"
 #include "Map.h"
 #if ZIPARCHIVE_ENCRYPTION
@@ -3346,13 +3349,17 @@ bool ZipArchive::ProcessFileList(ZipArchive::FileOrderList& fileOrderList, Proce
 		m_needsPack = false;
 		Close();
 
-#if defined(_MSC_VER)
+#if defined(WIN32)
 		// Copy the packed drive.
 		unlink(oldArchiveFileName);
 		if (!::MoveFile(newArchiveFileName, oldArchiveFileName))
 			::CopyFile(newArchiveFileName, oldArchiveFileName, false);
 
 		_unlink(newArchiveFileName);
+#elif defined(macintosh)  ||  defined(__APPLE__)
+		int ret = copyfile(newArchiveFileName, oldArchiveFileName, NULL, COPYFILE_ALL | COPYFILE_MOVE);
+		int err = errno;
+		unlink(newArchiveFileName);
 #else
 		assert(0);
 		unlink(newArchiveFileName);
