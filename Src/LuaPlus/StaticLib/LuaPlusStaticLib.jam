@@ -100,7 +100,7 @@ C.IncludeDirectories LuaPlusStatic : ../src ;
 
 C.Defines LuaPlusShared : LUA_OPNAMES ;
 
-LuaPlusFixUpTarget LuaPlusStatic ;
+LuaPlusDefines LuaPlusStatic ;
 
 C.OutputName LuaPlusStatic : luaplusstatic51_1201 ;
 
