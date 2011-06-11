@@ -250,9 +250,9 @@ static int handle_script (lua_State *L, char **argv, int n) {
   if (strcmp(fname, "-") == 0 && strcmp(argv[n-1], "--") != 0) 
     fname = NULL;  /* stdin */
 #if LUAPLUS_EXTENSIONS  &&  LUA_TILDE_DEBUGGER  &&  _MSC_VER
-  char buffer[MAX_PATH];
+  char buffer[4096];
   if (fname) {
-    _fullpath(buffer, fname, MAX_PATH);
+    _fullpath(buffer, fname, 4096);
 	fname = buffer;
   }
 #endif // LUAPLUS_EXTENSIONS  &&  LUA_TILDE_DEBUGGER  && _MSC_VER
@@ -315,7 +315,7 @@ static int collectargs (char **argv, int *pi, int *pv, int *pe) {
       case 'd': {
 #if LUA_TILDE_DEBUGGER
         if (strcmp(argv[i], "-debug") == 0) {
-          LuaHostWindows* host = new LuaHostWindows();
+          tilde::LuaHostWindows* host = new tilde::LuaHostWindows();
           host->RegisterState("State", globalL);
           host->WaitForDebuggerConnection();
         } else
