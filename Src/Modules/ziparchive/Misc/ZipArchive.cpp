@@ -323,20 +323,29 @@ inline int SwapEndian(int val)
 
 ///////////////////////////////////////////////////////////////////////////////
 void ZipEntryInfo::SetTimeStamp(time_t fileTime) {
-	m_fileTime = fileTime;
-	m_parentDrive->m_changed = true;
+	if (m_fileTime != fileTime)
+	{
+		m_fileTime = fileTime;
+		m_parentDrive->m_changed = true;
+	}
 }
 
 
 void ZipEntryInfo::SetCRC(DWORD crc) {
-	m_crc = crc;
-	m_parentDrive->m_changed = true;
+	if (m_crc != crc)
+	{
+		m_crc = crc;
+		m_parentDrive->m_changed = true;
+	}
 }
 
 
 void ZipEntryInfo::SetMD5(unsigned char* md5) {
-	for (int i = 0; i < 16; ++i) m_md5[i] = md5[i];
-	m_parentDrive->m_changed = true;
+	if (memcmp(m_md5, md5, 16) != 0)
+	{
+		for (int i = 0; i < 16; ++i) m_md5[i] = md5[i];
+		m_parentDrive->m_changed = true;
+	}
 }
 
 
