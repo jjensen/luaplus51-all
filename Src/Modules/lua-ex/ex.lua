@@ -10,8 +10,8 @@ function ex.parsecommandline(commandline)
 end
 
 -- ex.popen
-function ex.popen(args)
-	local out_rd, out_wr = io.pipe()
+function ex.popen(args, binary)
+	local out_rd, out_wr = io.pipe(not binary)
 	args.stdout = out_wr
 	if args.stderr_to_stdout then
 		args.stderr = out_wr
@@ -26,8 +26,8 @@ function ex.popen(args)
 end
 
 -- ex.lines
-function ex.lines(args)
-	local proc, input = popen(args)
+function ex.lines(args, binary)
+	local proc, input = popen(args, not binary)
 	return function()
 		local line = input:read("*l")
 		if line then return line end
@@ -37,8 +37,8 @@ function ex.lines(args)
 end
 
 -- ex.rawlines
-function ex.rawlines(args)
-	local proc, input = popen(args)
+function ex.rawlines(args, binary)
+	local proc, input = popen(args, not binary)
 	return function()
 		local line = input:read(100)
 		if line then return line end
@@ -48,11 +48,14 @@ function ex.rawlines(args)
 end
 
 -- ex.popen2()
-function ex.popen2(args)
-	local in_rd, in_wr = io.pipe()
-	local out_rd, out_wr = io.pipe()
+function ex.popen2(args, binary)
+	local in_rd, in_wr = io.pipe(not binary)
+	local out_rd, out_wr = io.pipe(not binary)
 	args.stdin = in_rd
 	args.stdout = out_wr
+	if args.stderr_to_stdout then
+		args.stderr = out_wr
+	end
 	local proc, err = os.spawn(args)
 	in_rd:close(); out_wr:close()
 	if not proc then
@@ -146,7 +149,7 @@ end
 
 function ex.copydirectory(srcPath, destPath, callback)
 	require 'filefind'
-	
+
 	srcPath = os.path.add_slash(os.path.make_slash(srcPath))
 	destPath = os.path.add_slash(os.path.make_slash(destPath))
 
@@ -167,14 +170,14 @@ end
 function ex.removeemptydirectories(path)
 	require 'filefind'
 	require 'ex'
-	
+
 	local dirs = {}
 	local remove = true
-	
+
 	for handle in filefind.match(path .. "*.*") do
 		if handle.is_directory then
 			local fileName = handle.filename
-			
+
 			if fileName ~= '.'  and  fileName ~= '..' then
 				dirs[#dirs + 1] = fileName
 			end
@@ -182,15 +185,15 @@ function ex.removeemptydirectories(path)
 			remove = false
 		end
 	end
-	
+
 	for _, dirName in ipairs(dirs) do
-		if not ex.removeemptydirectories(path .. dirName .. '\\') then 
-			remove = false 
+		if not ex.removeemptydirectories(path .. dirName .. '\\') then
+			remove = false
 		end
 	end
-	
-	if remove then 
-		os.remove(path) 
+
+	if remove then
+		os.remove(path)
 	end
 
 	return remove
