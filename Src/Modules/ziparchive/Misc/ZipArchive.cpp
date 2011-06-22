@@ -2699,13 +2699,13 @@ extern "C" DWORD ZipArchive_GetFileCRC(FILE* file, UINT startOffset, unsigned ch
 
 typedef Map<HeapString, ZipArchive> PFL_OpenZipArchiveMap;
 
-static ZipArchive* PFL_OpenArchive(const HeapString& archiveFileName, PFL_OpenZipArchiveMap& openArchives) {
+static ZipArchive* PFL_OpenArchive(const HeapString& archiveFileName, PFL_OpenZipArchiveMap& openArchives, DWORD flags) {
 	HeapString lowerArchiveFileName = archiveFileName.Lower();
 	ZipArchive* openArchive;
 	PFL_OpenZipArchiveMap::Node* node = openArchives.Find(lowerArchiveFileName);
 	if (!node) {
 		openArchive = &openArchives.Value(openArchives.Insert(lowerArchiveFileName));
-		if (!openArchive->Open(archiveFileName, true))
+		if (!openArchive->Open(archiveFileName, true, flags))
 			openArchive->Close();
 	} else {
 		openArchive = &openArchives.Value(node);
@@ -2767,7 +2767,7 @@ bool ZipArchive::ProcessFileList(ZipArchive::FileOrderList& fileOrderList, Proce
 
 			if (fileOrderInfo.fileTime == 0  ||  fileOrderInfo.size == 0  ||  fileOrderInfo.crc == 0  ||
 					memcmp(fileOrderInfo.md5, emptyMD5, sizeof(emptyMD5)) == 0) {
-				ZipArchive* openArchive = PFL_OpenArchive(archiveFileName, openArchives);
+				ZipArchive* openArchive = PFL_OpenArchive(archiveFileName, openArchives, m_flags);
 				openArchiveFileEntry = openArchive->FindFileEntry(entryName);
 			}
 
@@ -3166,7 +3166,7 @@ bool ZipArchive::ProcessFileList(ZipArchive::FileOrderList& fileOrderList, Proce
 		if (pipePos != -1) {
 			HeapString archiveFileName = info.srcPath.Sub(0, pipePos);
 			HeapString entryName = info.srcPath.Sub(pipePos + 1);
-			ZipArchive* cacheDrive = PFL_OpenArchive(archiveFileName, openArchives);
+			ZipArchive* cacheDrive = PFL_OpenArchive(archiveFileName, openArchives, m_flags);
 			if (cacheDrive) {
 				ZipEntryInfo* cacheFileEntry = cacheDrive->FindFileEntry(entryName);
 				if (cacheFileEntry->GetCompressionMethod() == info.compressionMethod) {
