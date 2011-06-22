@@ -154,8 +154,10 @@ static int filefind_close(lua_State *L) {
 static int filefind_gc(lua_State *L) {
 	struct FileFindInfo* info = filefind_checkmetatable(L, 1);
 #if defined(WIN32)
-	if (info->handle != INVALID_HANDLE_VALUE)
+	if (info->handle) {
 		FindClose(info->handle);
+		info->handle = NULL;
+	}
 #else
 	if (info->dirp)
 		closedir(info->dirp);
