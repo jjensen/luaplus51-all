@@ -162,8 +162,8 @@ void luaV_gettable (lua_State *L, const TValue *t, TValue *key, StkId val) {
 
 
 void luaV_settable (lua_State *L, const TValue *t, TValue *key, StkId val) {
-  TValue tmp;
   int loop;
+  TValue temp;
   for (loop = 0; loop < MAXTAGLOOP; loop++) {
     const TValue *tm;
     if (ttistable(t)) {  /* `t' is a table? */
@@ -204,8 +204,9 @@ void luaV_settable (lua_State *L, const TValue *t, TValue *key, StkId val) {
 #endif /* LUA_REFCOUNT */
       return;
     }
-    setobj(L, &tmp, tm);
-    t = &tmp;  /* else repeat with copy of `tm' */
+    /* else repeat with `tm' */
+    setobj(L, &temp, tm);  /* avoid pointing inside table (may rehash) */
+    t = &temp;
   }
   luaG_runerror(L, "loop in settable");
 }
