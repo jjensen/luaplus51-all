@@ -53,6 +53,14 @@ const char *const luaP_opnames[NUM_OPCODES+1] = {
   "CLOSE",
   "CLOSURE",
   "VARARG",
+#if LUA_MUTATION_OPERATORS
+  "ADD_EQ",
+  "SUB_EQ",
+  "MUL_EQ",
+  "DIV_EQ",
+  "MOD_EQ",
+  "POW_EQ",
+#endif /* LUA_MUTATION_OPERATORS */
 #if LUA_BITFIELD_OPS
   "BAND",
   "BOR",
@@ -106,6 +114,15 @@ const lu_byte luaP_opmodes[NUM_OPCODES] = {
  ,opmode(0, 0, OpArgN, OpArgN, iABC)		/* OP_CLOSE */
  ,opmode(0, 1, OpArgU, OpArgN, iABx)		/* OP_CLOSURE */
  ,opmode(0, 1, OpArgU, OpArgN, iABC)		/* OP_VARARG */
+#if LUA_MUTATION_OPERATORS
+/* NEW: opcodes */
+ ,opmode(0, 1, OpArgK, OpArgN, iABC)		/* OP_ADD_EQ */
+ ,opmode(0, 1, OpArgK, OpArgN, iABC)		/* OP_SUB_EQ */
+ ,opmode(0, 1, OpArgK, OpArgN, iABC)		/* OP_MUL_EQ */
+ ,opmode(0, 1, OpArgK, OpArgN, iABC)		/* OP_DIV_EQ */
+ ,opmode(0, 1, OpArgK, OpArgN, iABC)		/* OP_MOD_EQ */
+ ,opmode(0, 1, OpArgK, OpArgN, iABC)		/* OP_POW_EQ */
+#endif /* LUA_MUTATION_OPERATORS */
 #if LUA_BITFIELD_OPS
  ,opmode(0, 1, OpArgK, OpArgK, iABC)		/* OP_BAND */
  ,opmode(0, 1, OpArgK, OpArgK, iABC)		/* OP_BOR */

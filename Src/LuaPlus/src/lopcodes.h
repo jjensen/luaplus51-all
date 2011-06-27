@@ -206,7 +206,14 @@ OP_CLOSE,/*	A 	close all variables in the stack up to (>=) R(A)*/
 OP_CLOSURE,/*	A Bx	R(A) := closure(KPROTO[Bx], R(A), ... ,R(A+n))	*/
 
 OP_VARARG/*	A B	R(A), R(A+1), ..., R(A+B-1) = vararg		*/
-
+#if LUA_MUTATION_OPERATORS
+,OP_ADD_EQ,/*	A B R(A) := R(A) + RK(B)				*/
+OP_SUB_EQ,/*	A B R(A) := R(A) - RK(B)				*/
+OP_MUL_EQ,/*	A B R(A) := R(A) * RK(B)				*/
+OP_DIV_EQ,/*	A B R(A) := R(A) / RK(B)				*/
+OP_MOD_EQ,/*	A B R(A) := R(A) % RK(B)				*/
+OP_POW_EQ/*	A B R(A) := R(A) ^ RK(B)				*/
+#endif /* LUA_MUTATION_OPERATORS */
 #if LUA_BITFIELD_OPS
 ,OP_BAND,/*	A B C	R(A) := RK(B) & RK(C)				*/
 OP_BOR,/*	A B C	R(A) := RK(B) | RK(C)				*/
@@ -217,11 +224,13 @@ OP_BSHR,/*	A B C	R(A) := RK(B) >> RK(C)				*/
 } OpCode;
 
 
-#if LUA_BITFIELD_OPS
+#if LUA_MUTATION_OPERATORS  &&  !LUA_BITFIELD_OPS
+#define NUM_OPCODES	(cast(int, OP_POW_EQ) + 1)
+#elif LUA_BITFIELD_OPS
 #define NUM_OPCODES	(cast(int, OP_BSHR) + 1)
 #else
 #define NUM_OPCODES	(cast(int, OP_VARARG) + 1)
-#endif /* LUA_BITFIELD_OPS */
+#endif /* LUA_MUTATION_OPERATORS  ||  LUA_BITFIELD_OPS */
 
 
 

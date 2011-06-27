@@ -83,6 +83,9 @@ const char *const luaX_tokens [] = {
 #else
     "<number>", "<name>", "<string>", "<eof>",
 #endif /* LUA_BITFIELD_OPS || LUA_WIDESTRING */
+#if LUA_MUTATION_OPERATORS
+    "+=", "-=", "*=", "/=", "%=", "^=",
+#endif /* LUA_MUTATION_OPERATORS */
     NULL
 };
 
@@ -540,6 +543,12 @@ static int llex (LexState *ls, SemInfo *seminfo) {
       }
       case '-': {
         next(ls);
+#if LUA_MUTATION_OPERATORS
+        if (ls->current == '=') {
+          next(ls);
+          return TK_SUB_EQ;
+        }
+#endif /* LUA_MUTATION_OPERATORS */
         if (ls->current != '-') return '-';
         /* else is a comment */
         next(ls);
@@ -592,13 +601,50 @@ static int llex (LexState *ls, SemInfo *seminfo) {
         if (ls->current != '=') return '~';
         else { next(ls); return TK_NE; }
       }
-#if LUA_BITFIELD_OPS
+#if LUA_MUTATION_OPERATORS
+      case '+': {
+        next(ls);
+        if (ls->current != '=') return '+';
+        else { next(ls); return TK_ADD_EQ; }
+      }
+      case '*': {
+        next(ls);
+        if (ls->current != '=') return '*';
+        else { next(ls); return TK_MUL_EQ; }
+      }
+      case '/': {
+        next(ls);
+        if (ls->current != '=') return '/';
+        else { next(ls); return TK_DIV_EQ; }
+      }
+      case '%': {
+        next(ls);
+        if (ls->current != '=') return '%';
+        else { next(ls); return TK_MOD_EQ; }
+      }
+#endif /* LUA_MUTATION_OPERATORS */
+#if LUA_MUTATION_OPERATORS  &&  !LUA_BITFIELD_OPS
+      case '^': {
+        next(ls);
+        if (ls->current != '=') return '^';
+        else { next(ls); return TK_POW_EQ; }
+      }
+#endif /* LUA_MUTATION_OPERATORS  &&  !LUA_BITFIELD_OPS */
+#if LUA_MUTATION_OPERATORS  &&  LUA_BITFIELD_OPS
+      case '^': {
+        next(ls);
+        if (ls->current == '=') { next(ls); return TK_POW_EQ; }
+        if (ls->current != '^') return '^';
+        else { next(ls); return TK_XOR; }
+      }
+#endif /* LUA_MUTATION_OPERATORS  &&  !LUA_BITFIELD_OPS */
+#if LUA_BITFIELD_OPS  &&  !LUA_MUTATION_OPERATORS
       case '^': {
         next(ls);
         if (ls->current != '^') return '^';
         else { next(ls); return TK_XOR; }
       }
-#endif /* LUA_BITFIELD_OPS */
+#endif /* LUA_BITFIELD_OPS  &&  !LUA_MUTATION_OPERATORS */
       case '"':
       case '\'': {
         read_string(ls, ls->current, seminfo);
