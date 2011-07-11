@@ -56,6 +56,13 @@ if $(OS) = NT
 
 	local file ;
 	for file in [ Glob $(LUAPLUS)/Src/modules.jambuild : *.jam : 0 ] {
+		local isDownload = [ Match \!(download)\.jam : $(file) ] ;
+		if $(isDownload) = download {
+			local module = [ Match (.+)\!download\.jam : $(file) ] ;
+			SUBDIR = $(LUAPLUS)/Src/Modules/$(module) ;
+			include $(LUAPLUS)/Src/modules.jambuild/$(file) ;
+			continue ;
+		}
 		local module = [ Match (.+)\.jam : $(file) ] ;
 		if ! ( $(module) in $(modules) ) {
 			modules += $(module:L) ;
