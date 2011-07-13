@@ -70,7 +70,7 @@ Returns a copy of the environment as a Lua table of key-value pairs.
 
 ## File system (mostly borrowing from LuaFilesystem?)
 
-### io.access(path [ , mode ])
+### os.access(path [ , mode ])
 
 Determines if the file specified by `path` is read-only or not.  Returns
 
@@ -84,10 +84,10 @@ Determines if the file specified by `path` is read-only or not.  Returns
 Returns true if the file matches the mode, false otherwise.
 
 <pre>
-    print(io.access('myfile.txt'))      -- Prints true if myfile.txt exists.
-    print(io.access('myfile.txt', 'w')  -- Prints true if myfile.txt is write-only.
-    print(io.access('myfile.txt', 'r')  -- Prints true if myfile.txt is read-only.
-    print(io.access('myfile.txt', 'rw') -- Prints true if myfile.txt is readable and writeable.
+    print(os.access('myfile.txt'))      -- Prints true if myfile.txt exists.
+    print(os.access('myfile.txt', 'w')  -- Prints true if myfile.txt is write-only.
+    print(os.access('myfile.txt', 'r')  -- Prints true if myfile.txt is read-only.
+    print(os.access('myfile.txt', 'rw') -- Prints true if myfile.txt is readable and writeable.
 </pre>
 
 
@@ -174,60 +174,36 @@ Removes the file or directory at `pathname`.  If `pathname` is a directory, all 
 
 
 
-### for entry in os.dir(pathname) do ; end
-
-Iterates over the entries in a directory. The pathname argument is optional; if missing the current directory is used.  Special directory entries such as "." and ".." are not returned.
-
-
-
-
-### entry = os.dirent(pathname)
-### entry = os.dirent(file)
-
-Gets information about a directory entry via pathname or open file
-
-Both the iterator function returned by os.dir() and the os.dirent() function return an 'entry' table. This table contains at least the following fields:
-
-    entry.name= the filename (Note that os.dirent() does need to set this field)
-    entry.type= "file" or "directory" (or an implementation-defined string)
-    entry.size= the file size in bytes
-
-Implementations may add other fields or even methods.
-
-
-
-
-
 ### os.copyfile(srcfilename, destfilename)
 
 Copies the file named `srcfilename` to `destfilename` preserving file attributes and timestamp.
 
 <pre>
-    os.copyfile('filea.txt', 'fileb.txt')    -- Copy filea.txt to fileb.txt
+    ex.copyfile('filea.txt', 'fileb.txt')    -- Copy filea.txt to fileb.txt
 </pre>
 
 
 
 
 
-### os.copydirectory(srcdirectory, destdirectory)
+### ex.copydirectory(srcdirectory, destdirectory)
 
 Copies the directory named `srcdirectory` into `destdirectory` preserving file attributes and timestamps.  This function differs from `os.mirrordirectory` in that the `srcdirectory` files and directories are overlayed onto `destdirectory`.  `os.mirrordirectory` removes extra files and directories.
 
 <pre>
-    os.copydirectory('/dira', '/dirb')
+    ex.copydirectory('/dira', '/dirb')
 </pre>
 
 
 
 
 
-### os.mirrordirectory(srcdirectory, destdirectory)
+### ex.mirrordirectory(srcdirectory, destdirectory)
 
 Mirrors the directory named `srcdirectory` to `destdirectory` preserving file attributes and timestamps.  `os.mirrordirectory` removes extra files and directories.
 
 <pre>
-    os.mirrordirectory('/dira', '/dirb')
+    ex.mirrordirectory('/dira', '/dirb')
 </pre>
 
 
