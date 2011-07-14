@@ -477,6 +477,8 @@ void fileglob_MatchPattern(fileglob* self, const char* inPattern) {
 		// Check for +
 		else if (ch == '+') {
 			self->filesAndFolders = 1;
+			if (srcPtr - 1 == lastSlashPtr)
+				++lastSlashPtr;
 		}
 
 		///////////////////////////////////////////////////////////////////////
@@ -1097,7 +1099,7 @@ DoRecursion:
 								break;
 						} else {
 							if ((!context->matchFiles  &&  context->pattern[0] == '/'  &&  context->pattern[1] == 0)
-									||  (self->filesAndFolders  &&  context->pattern[0] == 0))
+									||  (self->filesAndFolders))
 								break;
 						}
 					}
