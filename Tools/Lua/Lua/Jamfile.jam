@@ -2,15 +2,6 @@ SubDir LUAPLUS Tools Lua Lua ;
 
 {
 
-local NETWORK_SRCS =
-		../../../Src/LuaRemoteDebuggingServer/LuaNetworkHelpers.cpp
-		../../../Src/LuaRemoteDebuggingServer/LuaNetworkHelpers.h
-		../../../Src/LuaRemoteDebuggingServer/LuaNetworkServer.cpp
-		../../../Src/LuaRemoteDebuggingServer/LuaNetworkServer.h
-		../../../Src/LuaRemoteDebuggingServer/LuaRemoteDebuggingServer.cpp
-		../../../Src/LuaRemoteDebuggingServer/LuaRemoteDebuggingServer.h
-;
-
 local TILDE_SRCS =
 		../../../Src/tilde/HostConfig.cpp
 		../../../Src/tilde/HostConfig.h
@@ -30,7 +21,7 @@ local SRCS =
 
 if $(NT)  &&  $(COMPILER.$(PLATFORM)) != vc6
 {
-	SRCS += $(NETWORK_SRCS) $(TILDE_SRCS) ;
+	SRCS += $(TILDE_SRCS) ;
 }
 
 rule LuaApplication TARGET : OPTIONS
@@ -41,7 +32,7 @@ rule LuaApplication TARGET : OPTIONS
 
 	if $(NT)  &&  $(COMPILER.$(PLATFORM)) != vc6
 	{
-		C.Defines : REMOTE_DEBUGGER ;
+#		C.Defines : REMOTE_DEBUGGER ;
 	}
 	if $(MSVCNT)
 	{
