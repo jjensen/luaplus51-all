@@ -1,17 +1,34 @@
-if exist p4api rmdir /s /q p4api
-mkdir p4api
+if exist p4api\vs2010\bin.ntx86 rmdir /s /q p4api\vs2010\bin.ntx86
+mkdir p4api\vs2010\bin.ntx86
+cd p4api\vs2010\bin.ntx86
 if exist p4api_vs2010_dyn.zip del p4api_vs2010_dyn.zip
-if exist p4api-2010.1.265509-vs2010_dyn rmdir /s /q p4api-2010.1.265509-vs2010_dyn
-wget ftp://ftp.perforce.com/perforce/r10.1/bin.ntx86/p4api_vs2010_dyn.zip
+wget ftp://ftp.perforce.com/perforce/r10.2/bin.ntx86/p4api_vs2010_dyn.zip
 unzip p4api_vs2010_dyn.zip
-ren p4api-2010.1.265509-vs2010_dyn p4api\release
+ren p4api-2010.2.295040-vs2010_dyn release
 del p4api_vs2010_dyn.zip
 
 if exist p4api_vs2010_dyn_vsdebug.zip del p4api_vs2010_dyn_vsdebug.zip
-if exist p4api-2010.1.265509-vs2010_dyn_vsdebug rmdir /s /q p4api-2010.1.260003-vs2010_dyn_vsdebug
-wget ftp://ftp.perforce.com/perforce/r10.1/bin.ntx86/p4api_vs2010_dyn_vsdebug.zip
+wget ftp://ftp.perforce.com/perforce/r10.2/bin.ntx86/p4api_vs2010_dyn_vsdebug.zip
 unzip p4api_vs2010_dyn_vsdebug.zip
-if exist p4api-2010.1.265509-vs2010_dyn_vsdebug rmdir /s /q p4api-2010.1.259176-vs2010_dyn_vsdebug
-ren p4api-2010.1.265509-vs2010_dyn_vsdebug p4api\debug
+ren p4api-2010.2.295040-vs2010_dyn_vsdebug debug
 del p4api_vs2010_dyn_vsdebug.zip
+
+cd ..\..\..
+
+if exist p4api\vs2010\bin.ntx64 rmdir /s /q p4api\vs2010\bin.ntx64
+mkdir p4api\vs2010\bin.ntx64
+cd p4api\vs2010\bin.ntx64
+if exist p4api_vs2010_dyn.zip del p4api_vs2010_dyn.zip
+wget ftp://ftp.perforce.com/perforce/r10.2/bin.ntx64/p4api_vs2010_dyn.zip
+unzip p4api_vs2010_dyn.zip
+ren p4api-2010.2.295040-vs2010_dyn release
+del p4api_vs2010_dyn.zip
+
+if exist p4api_vs2010_dyn_vsdebug.zip del p4api_vs2010_dyn_vsdebug.zip
+wget ftp://ftp.perforce.com/perforce/r10.2/bin.ntx64/p4api_vs2010_dyn_vsdebug.zip
+unzip p4api_vs2010_dyn_vsdebug.zip
+ren p4api-2010.2.295040-vs2010_dyn_vsdebug debug
+del p4api_vs2010_dyn_vsdebug.zip
+
+cd ..\..\..
 

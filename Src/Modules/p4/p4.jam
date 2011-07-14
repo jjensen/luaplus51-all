@@ -25,10 +25,16 @@ CopyFile p4 : $(LUA_LDIR)/p4.lua : $(SUBDIR)/src/p4.lua ;
 local P4API = p4api ;
 
 if $(NT) {
+	local bin = $(COMPILER.$(PLATFORM)) ;
+	if $(PLATFORM) = win32 {
+		bin = $(bin)/bin.ntx86 ;
+	} else if $(PLATFORM) = win64 {
+		bin = $(bin)/bin.ntx64 ;
+	}
 	if $(CONFIG) in debug release {
-		P4API = p4api/$(CONFIG) ;
+		P4API = p4api/$(bin)/$(CONFIG) ;
 	} else if $(CONFIG) = releaseltcg {
-		P4API = p4api/release ;
+		P4API = p4api/$(bin)release ;
 	}
 	C.DefFile p4 : src/p4lua.def ;
 	C.Defines p4 : OS_NT ;
