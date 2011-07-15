@@ -257,7 +257,7 @@ public:
 	lua_Integer OptInteger(int nArg, lua_Integer def);
 #if LUAPLUS_EXTENSIONS
 	lua_Integer CheckBoolean(int narg);
-	lua_Integer OptBoolean(int narg, int def);
+	lua_Integer OptBoolean(int narg, lua_Integer def);
 #endif /* LUAPLUS_EXTENSIONS */
 	void CheckStack(int sz, const char* msg);
 	void CheckType(int narg, int t);
