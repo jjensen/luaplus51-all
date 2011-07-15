@@ -20,9 +20,10 @@ if $(OS) = NT
 	SubInclude LUAPLUS Src Lua51Proxy : Lua51Proxy ;
 	SubInclude LUAPLUS Tools LuaPlusDebuggerAddin ;
 
-	if $(COMPILER.$(PLATFORM)) != vc6 {
-		SubInclude LUAPLUS Tools RemoteLuaDebugger : RemoteLuaDebugger ;
-	}
+# Do not do this anymore.
+#	if $(COMPILER.$(PLATFORM)) != vc6 {
+#		SubInclude LUAPLUS Tools RemoteLuaDebugger : RemoteLuaDebugger ;
+#	}
 
 	Workspace LuaPlus :
 #			LuaPlusClrPure
