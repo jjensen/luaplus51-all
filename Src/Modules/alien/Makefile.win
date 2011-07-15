@@ -14,7 +14,9 @@ LIBFFI_OBJS=libffi\win32\ffi.obj libffi\win32\prep_cif.obj libffi\win32\types.ob
 	cl /c /MD /Fo$@ $(CFLAGS) /D_MSC_VER /DX86_WIN32 $<
 
 all: src\alien\core.dll src\alien\struct.dll tests\alientest.dll
-	del src\alien\*.dll.manifest tests\*.dll.manifest
+	IF EXIST src\alien\core.dll.manifest del src\alien\core.dll.manifest
+	IF EXIST src\alien\struct.dll.manifest del src\alien\struct.dll.manifest
+	IF EXIST tests\alientest.dll.manifest del tests\alientest.dll.manifest
 
 libffi\win32\ffi.lib: $(LIBFFI_OBJS)
 	lib /out:libffi\win32\ffi.lib $(LIBFFI_OBJS)

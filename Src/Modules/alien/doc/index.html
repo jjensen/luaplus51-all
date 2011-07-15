@@ -2,12 +2,24 @@
 
 <h2>Status</h2>
 
-<p>This is Alien version 0.5.0.</p>
+<p>This is Alien version 0.5.1.</p>
 
 <h2>Changelog</h2>
 
 <ul>
-<li>0.5.0
+<li><p>0.5.1</p>
+
+<ul>
+<li>bugfix release</li>
+<li>per-library function cache, instead of global (can load
+two functions with the same name from different libraries)</li>
+<li>unloading of libraries if they are not being used</li>
+<li>updated alien.struct to current struct.c from Roberto</li>
+<li>updated libffi version to 3.0.9</li>
+<li>updated Windows libffi to reflect ctypes 1.0.2, add Win64 support</li>
+</ul>
+</li>
+<li><p>0.5.0</p>
 
 <ul>
 <li>new functions alien.memcpy and alien.memset</li>
@@ -116,7 +128,7 @@ alien function puts, library defaults
 </code></pre>
 
 <p>To use a function you first have to tell Alien the function prototype,
-using <em>func:types(ret_type, arg_types&hellip;)</em>, where the types are one of
+using <em>func:types(ret<em>type, arg</em>types&hellip;)</em>, where the types are one of
 the following strings: &ldquo;void&rdquo;, &ldquo;int&rdquo;, &ldquo;uint&rdquo;, &ldquo;double&rdquo;, &ldquo;char&rdquo;, &ldquo;string&rdquo;,
 &ldquo;pointer&rdquo;, &ldquo;ref int&rdquo;, &ldquo;ref uint&rdquo;, &ldquo;ref double&rdquo;, &ldquo;ref char&rdquo;, &ldquo;callback&rdquo;, &ldquo;short&rdquo;, &ldquo;ushort&rdquo;,
 &ldquo;byte&rdquo;, &ldquo;long&rdquo;, &ldquo;ulong&rdquo;, and &ldquo;float&rdquo;. Most correspond directly to C types;

@@ -4,6 +4,4 @@
 ./libffi/configure
 ./libffi/depcomp
 ./libffi/install-sh
-./libffi/ltconfig
 ./libffi/missing
-./libffi/mkinstalldirs

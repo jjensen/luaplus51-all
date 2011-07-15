@@ -43,11 +43,12 @@ enum {
   FLAG_RETURNS_64BITS   = 1 << (31-28),
 
   FLAG_RETURNS_128BITS  = 1 << (31-27), /* cr6  */
+  FLAG_SYSV_SMST_R4     = 1 << (31-26), /* use r4 for FFI_SYSV 8 byte
+					   structs.  */
+  FLAG_SYSV_SMST_R3     = 1 << (31-25), /* use r3 for FFI_SYSV 4 byte
+					   structs.  */
+  /* Bits (31-24) through (31-19) store shift value for SMST */
 
-  FLAG_SYSV_SMST_R4     = 1 << (31-16), /* cr4, use r4 for FFI_SYSV 8 byte
-					   structs.  */
-  FLAG_SYSV_SMST_R3     = 1 << (31-15), /* cr3, use r3 for FFI_SYSV 4 byte
-					   structs.  */
   FLAG_ARG_NEEDS_COPY   = 1 << (31- 7),
   FLAG_FP_ARGUMENTS     = 1 << (31- 6), /* cr1.eq; specified by ABI */
   FLAG_4_GPR_ARGUMENTS  = 1 << (31- 5),
@@ -184,6 +185,7 @@ ffi_prep_args_SYSV (extended_cif *ecif, unsigned *const stack)
 	    {
 	      *next_arg.f = (float) double_tmp;
 	      next_arg.u += 1;
+	      intarg_count++;
 	    }
 	  else
 	    *fpr_base.d++ = double_tmp;
@@ -685,14 +687,14 @@ ffi_prep_cif_machdep (ffi_cif *cif)
 	      if (size <= 4)
 		{
 		  flags |= FLAG_SYSV_SMST_R3;
-		  flags |= 8 * (4 - size) << 4;
+		  flags |= 8 * (4 - size) << 8;
 		  break;
 		}
 	      /* These structs are returned in r3 and r4. See above.   */
 	      if  (size <= 8)
 		{
-		  flags |= FLAG_SYSV_SMST_R4;
-		  flags |= 8 * (8 - size) << 4;
+		  flags |= FLAG_SYSV_SMST_R3 | FLAG_SYSV_SMST_R4;
+		  flags |= 8 * (8 - size) << 8;
 		  break;
 		}
 	    }
@@ -1148,6 +1150,7 @@ ffi_closure_helper_SYSV (ffi_closure *closure, void *rvalue,
 		pst++;
 	      avalue[i] = pst;
 	      pst += 2;
+	      ng = 8;
 	    }
 	  break;
 
@@ -1221,6 +1224,7 @@ ffi_closure_helper_SYSV (ffi_closure *closure, void *rvalue,
 		{
 		  avalue[i] = pst;
 		  pst += 4;
+		  ng = 8;
 		}
 	      break;
 	    }

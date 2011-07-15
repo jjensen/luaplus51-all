@@ -4,10 +4,19 @@ Alien - Pure Lua extensions
 Status
 ------
 
-This is Alien version 0.5.0.
+This is Alien version 0.5.1.
 
 Changelog
 ---------
+
+* 0.5.1
+  * bugfix release
+  * per-library function cache, instead of global (can load
+    two functions with the same name from different libraries)
+  * unloading of libraries if they are not being used
+  * updated alien.struct to current struct.c from Roberto
+  * updated libffi version to 3.0.9
+  * updated Windows libffi to reflect ctypes 1.0.2, add Win64 support
 
 * 0.5.0
   * new functions alien.memcpy and alien.memset

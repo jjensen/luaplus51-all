@@ -1,7 +1,30 @@
+
+#include <assert.h>
+#include <ctype.h>
+#include <limits.h>
+#include <string.h>
+
+
+#include "lua.h"
+#include "lauxlib.h"
+
+#if LUA_VERSION_NUM == 502
+#undef luaL_register
+#define luaL_register(L, n, f) luaL_setfuncs(L, f, 0)
+#define luaL_putchar(B,c)	luaL_addchar(B,c)
+#endif
+
 /*
+** {======================================================
 ** Library for packing/unpacking structures.
-**
+** $Id: struct.c,v 1.2 2008/04/18 20:06:01 roberto Exp $
+** =======================================================
+*/
+/*
 ** Valid formats:
+** > - big endian
+** < - little endian
+** ![num] - alignment
 ** x - pading
 ** b/B - signed/unsigned byte
 ** h/H - signed/unsigned short
@@ -10,21 +33,17 @@
 ** cn - sequence of `n' chars (from/to a string); when packing, n==0 means
         the whole string; when unpacking, n==0 means use the previous
         read number as the string length
+** p - pointer: unpacks to a light_userdata, packs a light_userdata or userdata.
+                not affected by endiannes setting.
 ** s - zero-terminated string
 ** f - float
 ** d - doulbe
-** p - pointer: unpacks to a light_userdata, packs a light_userdata or userdata.
-		not affected by endiannes setting.
+** ' ' - ignored
 */
 
 
-#include <ctype.h>
-#include <string.h>
-
-
-#include "lua.h"
-#include "lauxlib.h"
-
+/* is 'x' a power of 2? */
+#define isp2(x)         ((x) > 0 && ((x) & ((x) - 1)) == 0)
 
 /* dummy structure to get alignment requirements */
 struct cD {
@@ -33,39 +52,32 @@ struct cD {
 };
 
 
-static int getmaxalign (void) {
-  int ma = sizeof(int);
-  int e = sizeof(struct cD) - sizeof(double);
-  if (ma < e) ma = e;
-  return ma;
-}
+#define PADDING         (sizeof(struct cD) - sizeof(double))
+#define MAXALIGN        (PADDING > sizeof(int) ? PADDING : sizeof(int))
 
 
-static int getendianess (const char **s, int *native_out) {
-  int endian;  /* 0 = little; 1 = big */
-  int native = 1;
-  if (*(char *)&native == 1)
-    native = 0;
-  if (**s == '>') {
-    endian = 1;
-    (*s)++;
-  }
-  else if (**s == '<') {
-    endian = 0;
-    (*s)++;
-  }
-  else
-    endian = native;
-  *native_out = native;
-  return endian;
-}
+/* endian options */
+#define BIG     0
+#define LITTLE  1
 
 
-static int getnum (const char **fmt, int df) {
-  if (!isdigit(**fmt))
-    return df;  /* no number */
+static union {
+  int dummy;
+  char endian;
+} const native = {1};
+
+
+typedef struct Header {
+  int endian;
+  int align;
+} Header;
+
+
+static size_t getnum (const char **fmt, size_t df) {
+  if (!isdigit(**fmt))  /* no number? */
+    return df;  /* return default value */
   else {
-    int a = 0;
+    size_t a = 0;
     do {
       a = a*10 + *((*fmt)++) - '0';
     } while (isdigit(**fmt));
@@ -74,178 +86,132 @@ static int getnum (const char **fmt, int df) {
 }
 
 
-static int optsize (char opt, const char **fmt) {
+#define defaultoptions(h)       ((h)->endian = native.endian, (h)->align = 1)
+
+
+
+static size_t optsize (lua_State *L, char opt, const char **fmt) {
   switch (opt) {
-    case 'B': case 'b': return 1;
-    case 'H': case 'h': return 2;
-    case 'L': case 'l': return 4;
+    case 'B': case 'b': return sizeof(char);
+    case 'H': case 'h': return sizeof(short);
+    case 'L': case 'l': return sizeof(long);
     case 'f':  return sizeof(float);
     case 'd':  return sizeof(double);
     case 'x': return 1;
-    case 'i': case 'I': return getnum(fmt, sizeof(int));
     case 'c': return getnum(fmt, 1);
-    case 's': return 0;
+    case 's': case ' ': case '<': case '>': case '!': return 0;
+    case 'i': case 'I': {
+      int sz = getnum(fmt, sizeof(int));
+      if (!isp2(sz))
+        luaL_error(L, "integral size %d is not a power of 2", sz);
+      return sz;
+    }
     case 'p': return sizeof(void*);
-    default: return 1;  /* invalid code */
+    default: {
+      const char *msg = lua_pushfstring(L, "invalid format option [%c]", opt);
+      return luaL_argerror(L, 1, msg);
+    }
   }
 }
 
 
-static int getalign (const char **fmt) {
-  if (**fmt != '!') return 1;  /* no alignment */
-  else {
-    (*fmt)++;
-    return getnum(fmt, getmaxalign());
-  }
+static int gettoalign (size_t len, Header *h, int opt, size_t size) {
+  if (size == 0 || opt == 'c') return 0;
+  if (size > (size_t)h->align) size = h->align;  /* respect max. alignment */
+  return  (size - (len & (size - 1))) & (size - 1);
 }
 
 
-static int gettoalign (lua_State *L, int align, int opt, int size) {
-  int toalign = (opt == 'c' || opt == 's') ? 1 : size;
-  if (toalign > align) toalign = align;
-  if (toalign == 0 || (toalign & (toalign - 1)) != 0)
-    luaL_error(L, "alignment must be power of 2");
-  return toalign;
+static void commoncases (lua_State *L, int opt, const char **fmt, Header *h) {
+  switch (opt) {
+    case  ' ': return;  /* ignore white spaces */
+    case '>': h->endian = BIG; return;
+    case '<': h->endian = LITTLE; return;
+    case '!': {
+      int a = getnum(fmt, MAXALIGN);
+      if (!isp2(a))
+        luaL_error(L, "alignment %d is not a power of 2", a);
+      h->align = a;
+      return;
+    }
+    default: assert(0);
+  }
 }
 
 
 static void putinteger (lua_State *L, luaL_Buffer *b, int arg, int endian,
                         int size) {
-  unsigned char buff[sizeof(long)];
   lua_Number n = luaL_checknumber(L, arg);
   unsigned long value;
-  unsigned char *s;
-  int inc, i;
-  if (n < 0) {
-    value = (unsigned long)(-n);
-    value = (~value) + 1;  /* 2's complement */
-  }
+  if (n < (lua_Number)LONG_MAX)
+    value = (long)n;
   else
     value = (unsigned long)n;
-  if (endian == 0) {
-    inc = 1;
-    s = buff;
+  if (endian == LITTLE) {
+    int i;
+    for (i = 0; i < size; i++)
+      luaL_addchar(b, (value >> 8*i) & 0xff);
   }
   else {
-    inc = -1;
-    s = buff+(size-1);
-  }
-  for (i=0; i<size; i++) {
-    *s = (unsigned char)(value & 0xff);
-    s += inc;
-    value >>= 8;
-  }
-  luaL_addlstring(b, (char *)buff, size);
-}
-
-
-static void invertbytes (char *b, int size) {
-  int i = 0;
-  while (i < --size) {
-    char temp = b[i];
-    b[i++] = b[size];
-    b[size] = temp;
+    int i;
+    for (i = size - 1; i >= 0; i--)
+      luaL_addchar(b, (value >> 8*i) & 0xff);
   }
 }
 
 
-static void invalidformat (lua_State *L, char c) {
-  const char *msg = lua_pushfstring(L, "invalid format option [%c]", c);
-  luaL_argerror(L, 1, msg);
-}
-
-
-static int b_size (lua_State *L) {
-  int native;
-  const char *fmt = luaL_checkstring(L, 1);
-  int align;
-  int totalsize = 0;
-  getendianess(&fmt, &native);
-  align = getalign(&fmt);
-  while (*fmt) {
-    int opt = *fmt++;
-    int size = optsize(opt, &fmt);
-    int toalign = gettoalign(L, align, opt, size);
-    if (size == 0)
-      luaL_error(L, "options `c0' - `s' have undefined sizes");
-    totalsize += toalign - 1;
-    totalsize -= totalsize&(toalign-1);
-    totalsize += size;
+static void correctbytes (char *b, int size, int endian) {
+  if (endian != native.endian) {
+    int i = 0;
+    while (i < --size) {
+      char temp = b[i];
+      b[i++] = b[size];
+      b[size] = temp;
+    }
   }
-  lua_pushnumber(L, totalsize);
-  return 1;
 }
 
-static int b_offset (lua_State *L) {
-  int native;
-  const char *fmt = luaL_checkstring(L, 1);
-  int offset = luaL_optint(L, 2, 1);
-  int optn = 1;
-  int align;
-  int totalsize = 0;
-  getendianess(&fmt, &native);
-  align = getalign(&fmt);
-  while (*fmt && optn < offset) {
-    int opt = *fmt++;
-    int size = optsize(opt, &fmt);
-    int toalign = gettoalign(L, align, opt, size);
-    if (size == 0)
-      luaL_error(L, "options `c0' - `s' have undefined sizes");
-    totalsize += toalign - 1;
-    totalsize -= totalsize&(toalign-1);
-    totalsize += size;
-    optn += 1;
-  }
-  lua_pushnumber(L, totalsize + 1);
-  return 1;
-}
 
 static int b_pack (lua_State *L) {
   luaL_Buffer b;
-  int native;
   const char *fmt = luaL_checkstring(L, 1);
-  int endian = getendianess(&fmt, &native);
-  int align = getalign(&fmt);
+  Header h;
   int arg = 2;
-  int totalsize = 0;
-  void *p;
+  size_t totalsize = 0;
+  defaultoptions(&h);
   lua_pushnil(L);  /* mark to separate arguments from string buffer */
   luaL_buffinit(L, &b);
-  for (; *fmt; arg++) {
+  while (*fmt != '\0') {
     int opt = *fmt++;
-    int size = optsize(opt, &fmt);
-    int toalign = gettoalign(L, align, opt, size);
-    while ((totalsize&(toalign-1)) != 0) {
-       luaL_putchar(&b, '\0');
-       totalsize++;
-    }
+    size_t size = optsize(L, opt, &fmt);
+    int toalign = gettoalign(totalsize, &h, opt, size);
+    totalsize += toalign;
+    while (toalign-- > 0) luaL_putchar(&b, '\0');
     switch (opt) {
-      case ' ': break;  /* ignore white spaces */
       case 'b': case 'B': case 'h': case 'H':
       case 'l': case 'L': case 'i': case 'I': {  /* integer types */
-        putinteger(L, &b, arg, endian, size);
+        putinteger(L, &b, arg++, h.endian, size);
         break;
       }
       case 'x': {
-        arg--;  /* undo increment */
         luaL_putchar(&b, '\0');
         break;
       }
       case 'f': {
-        float f = (float)luaL_checknumber(L, arg);
-        if (endian != native) invertbytes((char *)&f, size);
+        float f = (float)luaL_checknumber(L, arg++);
+        correctbytes((char *)&f, size, h.endian);
         luaL_addlstring(&b, (char *)&f, size);
         break;
       }
       case 'd': {
-        double d = luaL_checknumber(L, arg);
-        if (endian != native) invertbytes((char *)&d, size);
+        double d = luaL_checknumber(L, arg++);
+        correctbytes((char *)&d, size, h.endian);
         luaL_addlstring(&b, (char *)&d, size);
         break;
       }
       case 'c': case 's': {
         size_t l;
-        const char *s = luaL_checklstring(L, arg, &l);
+        const char *s = luaL_checklstring(L, arg++, &l);
         if (size == 0) size = l;
         luaL_argcheck(L, l >= (size_t)size, arg, "string too short");
         luaL_addlstring(&b, s, size);
@@ -256,12 +222,13 @@ static int b_pack (lua_State *L) {
         break;
       }
       case 'p': {
+        void *p;
         luaL_argcheck(L, lua_isuserdata(L, arg) || lua_isnil(L, arg), arg, "userdata, light userdata, or nil required");
-        p = lua_touserdata(L, arg);
+        p = lua_touserdata(L, arg++);
         luaL_addlstring(&b, (char*)&p, size);
         break;
       }
-      default: invalidformat(L, opt);
+      default: commoncases(L, opt, &fmt, &h);
     }
     totalsize += size;
   }
@@ -270,37 +237,99 @@ static int b_pack (lua_State *L) {
 }
 
 
-static void getinteger (lua_State *L, const char *buff, int endian,
-                        int withsign, int size) {
+static lua_Number getinteger (const char *buff, int endian,
+                        int issigned, int size) {
   unsigned long l = 0;
-  int i, inc;
-  if (endian == 1)
-    inc = 1;
+  if (endian == BIG) {
+    int i;
+    for (i = 0; i < size; i++)
+      l |= (unsigned long)(unsigned char)buff[size - i - 1] << (i*8);
+  }
   else {
-    inc = -1;
-    buff += size-1;
+    int i;
+    for (i = 0; i < size; i++)
+      l |= (unsigned long)(unsigned char)buff[i] << (i*8);
   }
-  for (i=0; i<size; i++) {
-    l = (l<<8) + (unsigned char)(*buff);
-    buff += inc;
-  }
-  if (withsign) {  /* signed format? */
+  if (!issigned)
+    return (lua_Number)l;
+  else {  /* signed format */
     unsigned long mask = ~(0UL) << (size*8 - 1);
-    if (l & mask) {  /* negative value? */
-      l = (l^~(mask<<1)) + 1;
-      lua_pushnumber(L, -(lua_Number)l);
-      return;
+    if (l & mask)  /* negative value? */
+      l |= mask;  /* signal extension */
+    return (lua_Number)(long)l;
+  }
+}
+
+static int b_size (lua_State *L) {
+  Header h;
+  const char *fmt = luaL_checkstring(L, 1);
+  size_t totalsize = 0;
+  defaultoptions(&h);
+  while (*fmt) {
+    int opt = *fmt++;
+    switch(opt) {
+      case  ' ': break;  /* ignore white spaces */
+      case '>': h.endian = BIG; break;
+      case '<': h.endian = LITTLE; break;
+      case '!': {
+        int a = getnum(&fmt, MAXALIGN);
+        if (!isp2(a))
+          luaL_error(L, "alignment %d is not a power of 2", a);
+        h.align = a;
+        break;
+      }
+      default: {
+        size_t size = optsize(L, opt, &fmt);
+        totalsize += gettoalign(totalsize, &h, opt, size);
+        if (size == 0)
+          luaL_error(L, "options `c0' - `s' have undefined sizes");
+        totalsize += size;
+      }
     }
   }
-  lua_pushnumber(L, l);
+  lua_pushnumber(L, totalsize);
+  return 1;
+}
+
+static int b_offset (lua_State *L) {
+  Header h;
+  const char *fmt = luaL_checkstring(L, 1);
+  int offset = luaL_optint(L, 2, 1);
+  int optn = 1;
+  size_t totalsize = 0;
+  defaultoptions(&h);
+  while (*fmt && optn < offset) {
+    int opt = *fmt++;
+    switch(opt) {
+      case  ' ': break;  /* ignore white spaces */
+      case '>': h.endian = BIG; break;
+      case '<': h.endian = LITTLE; break;
+      case '!': {
+        int a = getnum(&fmt, MAXALIGN);
+        if (!isp2(a))
+          luaL_error(L, "alignment %d is not a power of 2", a);
+        h.align = a;
+        break;
+      }
+      default: {
+        size_t size = optsize(L, opt, &fmt);
+        totalsize += gettoalign(totalsize, &h, opt, size);
+        if (size == 0)
+          luaL_error(L, "options `c0' - `s' have undefined sizes");
+        totalsize += size;
+        optn += 1;
+      }
+    }
+  }
+  lua_pushnumber(L, totalsize + 1);
+  return 1;
 }
 
 
 static int b_unpack (lua_State *L) {
-  int native;
+  Header h;
   const char *fmt = luaL_checkstring(L, 1);
-  size_t ld;
-  int pos, align, endian;
+  size_t ld, pos;
   const char *data;
   if(lua_isuserdata(L, 2)) {
     data = (const char*)lua_touserdata(L, 2);
@@ -310,22 +339,19 @@ static int b_unpack (lua_State *L) {
     data = luaL_checklstring(L, 2, &ld);
     pos = luaL_optint(L, 3, 1) - 1;
   }
-  endian = getendianess(&fmt, &native);
-  align = getalign(&fmt);
+  defaultoptions(&h);
   lua_settop(L, 2);
   while (*fmt) {
     int opt = *fmt++;
-    int size = optsize(opt, &fmt);
-    int toalign = gettoalign(L, align, opt, size);
-    pos += toalign - 1;
-    pos -= pos&(toalign-1);
-    luaL_argcheck(L, pos+size <= (int)ld, 2, "data string too short");
+    size_t size = optsize(L, opt, &fmt);
+    pos += gettoalign(pos, &h, opt, size);
+    luaL_argcheck(L, pos+size <= ld, 2, "data string too short");
     switch (opt) {
-      case ' ': break;  /* ignore white spaces */
       case 'b': case 'B': case 'h': case 'H':
       case 'l': case 'L': case 'i':  case 'I': {  /* integer types */
-        int withsign = islower(opt);
-        getinteger(L, data+pos, endian, withsign, size);
+        int issigned = islower(opt);
+        lua_Number res = getinteger(data+pos, h.endian, issigned, size);
+        lua_pushnumber(L, res);
         break;
       }
       case 'x': {
@@ -334,14 +360,14 @@ static int b_unpack (lua_State *L) {
       case 'f': {
         float f;
         memcpy(&f, data+pos, size);
-        if (endian != native) invertbytes((char *)&f, sizeof(f));
+        correctbytes((char *)&f, sizeof(f), h.endian);
         lua_pushnumber(L, f);
         break;
       }
       case 'd': {
         double d;
         memcpy(&d, data+pos, size);
-        if (endian != native) invertbytes((char *)&d, sizeof(d));
+        correctbytes((char *)&d, sizeof(d), h.endian);
         lua_pushnumber(L, d);
         break;
       }
@@ -351,7 +377,7 @@ static int b_unpack (lua_State *L) {
             luaL_error(L, "format `c0' needs a previous size");
           size = lua_tonumber(L, -1);
           lua_pop(L, 1);
-          luaL_argcheck(L, pos+size <= (int)ld, 2, "data string too short");
+          luaL_argcheck(L, pos+size <= ld, 2, "data string too short");
         }
         lua_pushlstring(L, data+pos, size);
         break;
@@ -365,20 +391,24 @@ static int b_unpack (lua_State *L) {
         break;
       }
       case 'p': {
-	void* p;
-	memcpy(&p, data+pos, size);
-	lua_pushlightuserdata(L, p);
-	break;
+        void* p;
+        memcpy(&p, data+pos, size);
+        lua_pushlightuserdata(L, p);
+        break;
       }
-      default: invalidformat(L, opt);
+      default: commoncases(L, opt, &fmt, &h);
     }
     pos += size;
   }
-  lua_pushnumber(L, pos + 1);
+  lua_pushinteger(L, pos + 1);
   return lua_gettop(L) - 2;
 }
 
-static const struct luaL_reg thislib[] = {
+/* }====================================================== */
+
+
+
+static const luaL_Reg thislib[] = {
   {"pack", b_pack},
   {"unpack", b_unpack},
   {"size", b_size},
@@ -400,3 +430,5 @@ LUALIB_API int luaopen_alien_struct (lua_State *L) {
   luaL_register(L, NULL, thislib);
   return 1;
 }
+
+
