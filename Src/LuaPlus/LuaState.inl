@@ -549,7 +549,7 @@ LUAPLUS_INLINE int LuaState::IYield(int nresults, int ctx) {
 #endif /* LUA_EXT_RESUMABLEVM */
 
 
-LUAPLUS_INLINE int LuaState::Yield(int nresults) {
+LUAPLUS_INLINE int LuaState::Yield_(int nresults) {
 	return lua_yield(LuaState_to_lua_State(this), nresults);
 }
 

@@ -183,8 +183,7 @@ public:
 #if LUA_EXT_RESUMABLEVM
 	int VYield(int nresults, void* ctx);
 #endif /* LUA_EXT_RESUMABLEVM */
-#undef Yield
-	int Yield(int nresults);
+	int Yield_(int nresults);
 	int Resume(int narg);
 	int Status();
 
