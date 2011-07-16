@@ -1277,9 +1277,8 @@ namespace LPCD
 			return *(void **)(lua_touserdata(L, 1));
 		else if (type == LUA_TTABLE)
 		{
-			lua_pushvalue(L, 1);
 			lua_pushstring(L, "__object");
-			lua_rawget(L, -2);
+			lua_rawget(L, 1);
 			if (!lua_isuserdata(L, -1))
 				luaL_error(L, "The table does not have a userdata member called __object.");
 			void* ret = lua_touserdata(L, -1);
