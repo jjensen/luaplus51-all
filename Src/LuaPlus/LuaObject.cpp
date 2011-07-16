@@ -1411,7 +1411,6 @@ LuaObject& LuaObject::SetUserData(const char* key, void* value)
 {
 	luaplus_assert(L  &&  IsTable());
 	Udata* u = luaS_newudata(LuaState_to_lua_State(L), 4, getcurrenv(L));
-	u->uv.len = 1;  // user data box bit is set.
 	*(void**)(u + 1) = value;
 
 	TValue valueObj;
@@ -1426,7 +1425,6 @@ LuaObject& LuaObject::SetUserData(int key, void* value)
 {
 	luaplus_assert(L  &&  IsTable());
 	Udata* u = luaS_newudata(LuaState_to_lua_State(L), 4, getcurrenv(L));
-	u->uv.len = 1;  // user data box bit is set.
 	*(void**)(u + 1) = value;
 
 	TValue valueObj;
@@ -1441,7 +1439,6 @@ LuaObject& LuaObject::SetUserData(LuaObject& key, void* value)
 {
 	luaplus_assert(L  &&  IsTable());
 	Udata* u = luaS_newudata(LuaState_to_lua_State(L), 4, getcurrenv(L));
-	u->uv.len = 1;  // user data box bit is set.
 	*(void**)(u + 1) = value;
 
 	TValue valueObj;
