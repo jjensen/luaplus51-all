@@ -1270,6 +1270,32 @@ inline void lua_pushfunctorclosureex(lua_State* L, const Callee& callee, int (Ca
 
 namespace LPCD
 {
+	inline void* CheckObject(lua_State* L, int index, const char* tname)
+	{
+		int type = lua_type(L, index);
+		if (type == LUA_TUSERDATA)
+			return *(void **)luaL_checkudata(L, index, tname);
+		else if (type == LUA_TTABLE) {
+			if (!lua_getmetatable(L, index))			/* does it have a metatable? */
+				luaL_typerror(L, index, tname);
+			lua_getfield(L, LUA_REGISTRYINDEX, tname);	/* get correct metatable */
+			if (!lua_rawequal(L, -1, -2))
+				luaL_typerror(L, index, tname);
+			lua_pop(L, 2);
+			lua_pushstring(L, "__object");
+			lua_rawget(L, index);
+			if (lua_type(L, -1) != LUA_TLIGHTUSERDATA)
+				luaL_error(L, "The table does not have a userdata member called __object.");
+			void* ret = lua_touserdata(L, -1);
+			lua_pop(L, 1);
+			return ret;
+		} else {
+			luaL_typerror(L, index, tname);
+		}
+
+		return NULL;
+	}
+	
 	inline void* GetObjectUserData(lua_State* L)
 	{
 		int type = lua_type(L, 1);
