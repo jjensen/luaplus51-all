@@ -90,8 +90,6 @@ local LUAPLUS_SRCS =
 		../src/lnum.h
 ;
 
-LUAPLUS_SRCS += ../popen.c ;
-
 C.IncludeDirectories LuaPlusShared : $(LUAPLUS)/Src/LuaPlus/src ;
 C.InstallNamePath LuaPlusShared : @rpath ;
 
