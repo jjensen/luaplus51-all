@@ -1469,6 +1469,80 @@ inline LuaObject GetTable( LuaObject& obj, const char* key, bool require ) {
 	return tableObj;
 }
 
+
+inline LUAPLUS_API void MergeObjects(LuaObject& mergeTo, LuaObject& mergeFrom, bool replaceDuplicates)
+{
+	if (mergeTo.GetState() == mergeFrom.GetState())
+	{
+		for (LuaTableIterator it(mergeFrom); it; ++it)
+		{
+			LuaObject toNodeKeyObj = mergeTo[it.GetKey()];
+			if (it.GetValue().IsTable())
+			{
+				if (toNodeKeyObj.IsNil()  ||  replaceDuplicates)
+				{
+					toNodeKeyObj = mergeTo.CreateTable(it.GetKey());
+				}
+				MergeObjects(toNodeKeyObj, it.GetValue(), replaceDuplicates);
+			}
+			else if (toNodeKeyObj.IsNil()  ||  replaceDuplicates)
+			{
+				mergeTo.Set(it.GetKey(), it.GetValue());
+			}
+		}
+	}
+	else
+	{
+		for (LuaTableIterator it(mergeFrom); it; ++it)
+		{
+			LuaObject obj;
+			switch (it.GetKey().Type())
+			{
+				case LUA_TBOOLEAN:	obj.Assign(mergeTo.GetState(), it.GetKey().GetBoolean());		break;
+				case LUA_TNUMBER:	obj.Assign(mergeTo.GetState(), it.GetKey().GetNumber());			break;
+				case LUA_TSTRING:	obj.Assign(mergeTo.GetState(), it.GetKey().GetString());			break;
+#if LUA_WIDESTRING
+				case LUA_TWSTRING:	obj.Assign(mergeTo.GetState(), it.GetKey().GetWString());		break;
+#endif /* LUA_WIDESTRING */
+			}
+
+			LuaObject toNodeKeyObj = mergeTo[obj];
+
+			if (it.GetValue().IsTable())
+			{
+				if (toNodeKeyObj.IsNil()  ||  replaceDuplicates)
+				{
+					toNodeKeyObj = mergeTo.CreateTable(it.GetKey());
+				}
+				MergeObjects(toNodeKeyObj, it.GetValue(), replaceDuplicates);
+			}
+			else if (toNodeKeyObj.IsNil()  ||  replaceDuplicates)
+			{
+				LuaObject toKeyObj;
+				switch (it.GetKey().Type())
+				{
+					case LUA_TBOOLEAN:	toKeyObj.Assign(mergeTo.GetState(), it.GetKey().GetBoolean());		break;
+					case LUA_TNUMBER:	toKeyObj.Assign(mergeTo.GetState(), it.GetKey().GetNumber());			break;
+					case LUA_TSTRING:	toKeyObj.Assign(mergeTo.GetState(), it.GetKey().GetString());			break;
+#if LUA_WIDESTRING
+					case LUA_TWSTRING:	toKeyObj.Assign(mergeTo.GetState(), it.GetKey().GetWString());		break;
+#endif /* LUA_WIDESTRING */
+				}
+
+				switch (it.GetValue().Type())
+				{
+					case LUA_TBOOLEAN:	mergeTo.Set(toKeyObj, it.GetValue().GetBoolean());	break;
+					case LUA_TNUMBER:	mergeTo.Set(toKeyObj, it.GetValue().GetNumber());		break;
+					case LUA_TSTRING:	mergeTo.Set(toKeyObj, it.GetValue().GetString());		break;
+#if LUA_WIDESTRING
+					case LUA_TWSTRING:	mergeTo.Set(toKeyObj, it.GetValue().GetWString());	break;
+#endif /* LUA_WIDESTRING */
+				}
+			}
+		}
+	}
+}
+
 } // namespace LuaHelper
 
 

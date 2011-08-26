@@ -137,6 +137,8 @@ namespace LuaHelper
 	**/
 	inline LuaObject GetTable( LuaObject& obj, int key, bool require = true );
 	inline LuaObject GetTable( LuaObject& obj, const char* key, bool require = true );
+
+	inline void MergeObjects( LuaObject& mergeTo, LuaObject& mergeFrom, bool replaceDuplicates );
 } // namespace LuaHelper
 
 } // namespace LuaPlus
