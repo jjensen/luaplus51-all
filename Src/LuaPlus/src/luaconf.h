@@ -57,9 +57,6 @@
 #define	LUA_STRING_FORMAT_EXTENSIONS 1
 #endif /* LUA_STRING_FORMAT_EXTENSIONS */
 
-#ifndef LUA_PT_POPEN
-#define LUA_PT_POPEN 1
-#endif /* LUA_PT_POPEN */
 
 #ifndef LUAPLUS_EXTENSIONS
 #define LUAPLUS_EXTENSIONS 1
@@ -1079,13 +1076,8 @@ union luai_Cast { double l_d; long l_l; };
 
 #elif defined(LUA_WIN) && !defined(_XBOX) && !defined(_XBOX_VER) && !defined(PLATFORM_PS3)
 
-#if LUA_PT_POPEN
-#define lua_popen(L,c,m) ((void)L, pt_popen(c,m))
-#define lua_pclose(L,file) ((void)L, (pt_pclose(file) != -1))
-#else
 #define lua_popen(L,c,m)	((void)L, _popen(c,m))
 #define lua_pclose(L,file)	((void)L, (_pclose(file) != -1))
-#endif /* LUA_PT_POPEN */
 
 #else
 

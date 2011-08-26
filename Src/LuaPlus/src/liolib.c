@@ -26,13 +26,6 @@
 #include "llex.h"
 #endif /* LNUM_PATCH */
 
-#if LUA_PT_POPEN
-#if defined(WIN32)
-FILE* pt_popen(const char *cmd, const char* mode);
-int pt_pclose(FILE *file);
-#endif
-#endif /* LUA_PT_POPEN */
-
 NAMESPACE_LUA_BEGIN
 
 #define IO_INPUT	1
