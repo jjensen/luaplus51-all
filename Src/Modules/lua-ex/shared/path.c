@@ -526,6 +526,18 @@ static int ex_path_get_extension(lua_State *L) {
 }
 
 
+static int ex_path_get_filename(lua_State *L) {
+  const char *path = luaL_checkstring(L, 1);
+  const char *pathEnd = path + strlen(path);
+
+  while (pathEnd > path  &&  *(pathEnd - 1) != '\\'  &&  *(pathEnd - 1) != '/'  &&  *(pathEnd - 1) != ':')
+    --pathEnd;
+
+  lua_pushstring(L, pathEnd);
+  return 1;
+}
+
+
 static int ex_path_is_directory(lua_State *L) {
   char *trimmedPath;
   struct stat sbuff;
@@ -616,6 +628,21 @@ static int ex_path_is_unc(lua_State *L) {
 }
 
 
+static int ex_path_is_writable(lua_State *L) {
+  struct stat sbuff;
+  const char *path = luaL_checkstring(L, 1);
+  if (path[0]  &&  stat(path, &sbuff) == 0)
+#if defined(WIN32)
+    lua_pushboolean(L, (sbuff.st_mode & _S_IWRITE) == _S_IWRITE);
+#else
+    lua_pushboolean(L, !S_IWRITE(sbuff.st_mode));
+#endif
+  else
+    lua_pushboolean(L, 0);
+  return 1;
+}
+
+
 static int ex_path_match(lua_State *L) {
   const char *path = luaL_checkstring(L, 1);
   const char *spec = luaL_checkstring(L, 2);
@@ -677,6 +704,26 @@ static int ex_path_make_slash(lua_State *L) {
 
   lua_pushstring(L, newPath);
   free(newPath);
+  return 1;
+}
+
+
+static int ex_path_make_writable(lua_State *L) {
+  const char *path = luaL_checkstring(L, 1);
+
+#if defined(WIN32)
+  const char *pathname = luaL_checkstring(L, 1);
+  int pmode = _S_IWRITE;
+  if (-1 == _chmod(pathname, pmode))
+    return push_error(L);
+  lua_pushboolean(L, 1);
+#else
+  const char *pathname = luaL_checkstring(L, 1);
+  int pmode = 0666;
+  if (-1 == chmod(pathname, pmode))
+    return push_error(L);
+  lua_pushboolean(L, 1);
+#endif
   return 1;
 }
 
@@ -834,14 +881,17 @@ int luaopen_os_path(lua_State *L) {
     {"find_extension",    ex_path_find_extension},
     {"find_filename",     ex_path_find_filename},
     {"get_extension",     ex_path_get_extension},
+    {"get_filename",      ex_path_get_filename},
     {"is_directory",      ex_path_is_directory},
     {"is_file",           ex_path_is_file},
     {"is_relative",       ex_path_is_relative},
     {"is_root",           ex_path_is_root},
     {"is_unc",            ex_path_is_unc},
+    {"is_writable",       ex_path_is_writable},
     {"make_absolute",     ex_path_make_absolute},
     {"make_backslash",    ex_path_make_backslash},
     {"make_slash",        ex_path_make_slash},
+    {"make_writable",     ex_path_make_writable},
     {"match",             ex_path_match},
     {"remove_directory",  ex_path_remove_directory},
     {"remove_extension",  ex_path_remove_extension},

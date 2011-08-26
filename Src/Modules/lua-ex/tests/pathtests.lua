@@ -87,6 +87,13 @@ test(os.path.get_extension('filename.ext'), '.ext')
 test(os.path.get_extension('filename.txt.ext'), '.ext')
 
 
+test(os.path.get_filename(''), '')
+test(os.path.get_filename('filename'), 'filename')
+test(os.path.get_filename('filename.ext'), 'filename.ext')
+test(os.path.get_filename('c:/directory/filename.ext'), 'filename.ext')
+test(os.path.get_filename('c:/directory/'), '')
+
+
 test(os.path.is_directory(''), false)
 test(os.path.is_directory(scriptPath .. 'pathtests.lua'), false)
 test(os.path.is_directory('.'), true)
@@ -142,6 +149,21 @@ test(os.path.make_slash(' '), ' ')
 test(os.path.make_slash('\\\\abc'), '//abc')
 test(os.path.make_slash('//abc'), '//abc')
 test(os.path.make_slash('c:\\abc\\def\\'), 'c:/abc/def/')
+
+
+do
+	os.remove('out.dat')
+
+	local file = io.open('out.dat', 'wb')
+	file:write('junk')
+	file:close()
+
+	test(os.path.is_writable('out.dat'), true)
+	os.chmod('out.dat', 'r')
+	test(os.path.is_writable('out.dat'), false)
+	os.path.make_writable('out.dat')
+	test(os.path.is_writable('out.dat'), true)
+end	
 
 
 test(os.path.match('', ''), true)
