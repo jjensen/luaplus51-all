@@ -1,0 +1,19 @@
+{
+
+local SRCS =
+		src/lualdap.c
+;
+
+if $(NT)
+{
+	C.Defines lualdap : WIN32 WINLDAP ;
+	C.LinkPrebuiltLibraries lualdap : wldap32 ;
+}
+else if $(OS) = LINUX
+{
+#	C.LinkPrebuiltLibraries lualdap : uuid ;
+}
+
+Lua.CModule lualdap : : $(SRCS) ;
+
+}

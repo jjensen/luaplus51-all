@@ -1,0 +1,78 @@
+Microsoft Developer Studio Workspace File, Format Version 6.00
+# WARNING: DO NOT EDIT OR DELETE THIS WORKSPACE FILE!
+
+###############################################################################
+
+Project: "liblber"="..\..\external-src\openldap-2.1.30\libraries\liblber\liblber.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "libldap"="..\..\external-src\openldap-2.1.30\libraries\libldap\libldap.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name liblber
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libsasl
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "libsasl"="..\..\external-src\cyrus-sasl-1.5.28\win32\libsasl\libsasl.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "lualdap_dll"=.\lualdap_dll.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+    begin source code control
+    lualdap_dll
+    ..
+    end source code control
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name libldap
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Global:
+
+Package=<5>
+{{{
+}}}
+
+Package=<3>
+{{{
+}}}
+
+###############################################################################
+

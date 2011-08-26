@@ -1,0 +1,6 @@
+LIBRARY lualdap.dll
+DESCRIPTION "LuaLDAP"
+VERSION 1.1.1
+EXPORTS
+luaopen_lualdap
+

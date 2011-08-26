@@ -1,0 +1,22 @@
+T= lualdap
+V= 1.1.0
+
+include config.win
+
+SRCS= src\$T.c
+OBJS= src\$T.obj
+
+lib: src\$(LIBNAME)
+
+.c.obj:
+	$(CC) /c /Fo$@ $(CFLAGS) $<
+
+src\$(LIBNAME): $(OBJS)
+	link /dll /def:src\$T.def /out:src\$(LIBNAME) $(OBJS) $(LUA_LIB) $(LDAP_LIB)
+
+install: src\$(LIBNAME)
+	IF NOT EXIST $(LUA_LIBDIR) mkdir $(LUA_LIBDIR)
+	copy src\$(LIBNAME) $(LUA_LIBDIR)
+
+clean:
+	del src\$(LIBNAME) $(OBJS) src\$T.lib src\$T.exp

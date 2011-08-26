@@ -1,0 +1,30 @@
+# Installation directories
+# System's libraries directory (where binary libraries are installed)
+LUA_LIBDIR= c:\lua5.1
+
+# Lua includes directory
+LUA_INC= c:\lua5.1\include
+
+# OpenLDAP requires extra include. Comment this line if using ADSI (WinLDAP)
+#LDAP_INC=/IC:\openldap-2.1.17_bin\include
+
+# Lua library
+LUA_LIB= c:\lua5.1\lua5.1.lib
+
+# LDAP library
+#LDAP_LIB= C:\openldap-2.1.17_bin\DLLRelease\openldap.lib
+LDAP_LIB= Wldap32.lib
+
+LIBNAME= $T.dll
+
+# Compilation directives
+WARN= /O2
+
+INCS= /I$(LUA_INC) $(LDAP_INC) 
+
+# CFLAGS should include -DWINLDAP to use native windows library instead of OpenLDAP
+#CFLAGS= $(WARN) $(INCS) -DWIN32
+CFLAGS= $(WARN) $(INCS) -DWIN32 -DWINLDAP
+
+CC= cl
+

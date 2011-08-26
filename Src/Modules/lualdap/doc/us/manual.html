@@ -1,0 +1,352 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+
+<head>
+    <title>LuaLDAP: A Lua interface to an LDAP library</title>
+    <link rel="stylesheet" href="http://www.keplerproject.org/doc.css" type="text/css"/>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+</head>
+
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"><a href="http://www.keplerproject.org">
+		<img alt="LuaLDAP logo" width="128" height="128" src="lualdap.png"/>
+	</a></div>
+	<div id="product_name"><big><strong>LuaLDAP</strong></big></div>
+	<div id="product_description">A Lua interface to an LDAP library</div>
+</div> <!-- id="product" -->
+
+<div id="main">
+
+<div id="navigation">
+<h1>LuaLDAP</h1>
+    <ul>
+        <li><a href="index.html">Home</a>
+            <ul>
+                <li><a href="index.html#over">Overview</a></li>
+                <li><a href="index.html#status">Status</a></li>
+                <li><a href="index.html#download">Download</a></li>
+                <li><a href="index.html#history">History</a></li>
+                <li><a href="index.html#credits">Credits</a></li>
+                <li><a href="index.html#contact">Contact us</a></li>
+            </ul>
+        </li>
+        <li><strong>Manual</strong>
+            <ul>
+                <li><a href="manual.html#introduction">Introduction</a></li>
+                <li><a href="manual.html#building">Building</a></li>
+                <li><a href="manual.html#installation">Installation</a></li>
+                <li><a href="manual.html#attributes">Attributes</a></li>
+                <li><a href="manual.html#dn">DN</a></li>
+                <li><a href="manual.html#initialization">Initialization</a></li>
+                <li><a href="manual.html#connection">Connection</a></li>
+                <li><a href="manual.html#examples">Examples</a></li>
+            </ul>
+        </li>
+        <li><a href="http://luaforge.net/projects/lualdap/">Project</a>
+            <ul>
+                <li><a href="http://luaforge.net/tracker/?group_id=14">Bug Tracker</a></li>
+                <li><a href="http://luaforge.net/scm/?group_id=14">CVS</a></li>
+            </ul>
+        </li>
+        <li><a href="license.html">License</a></li>
+    </ul>
+</div> <!-- id="navigation" -->
+
+<div id="content">
+
+<h2><a name="introduction"></a>Introduction</h2>
+
+<p>LuaLDAP is a simple interface from Lua to an LDAP client, in
+fact it is a bind to <a href="http://www.openldap.org">OpenLDAP</a>
+client or <a href="http://msdn2.microsoft.com/en-us/library/aa772161.aspx">ADSI</a> client</p>
+
+<p>LuaLDAP defines one single global variable: a table called
+<code>lualdap</code>. This table holds the functions used to create an
+LDAP connection object.</p>
+
+<p>A connection object offers methods to perform any operation on
+the directory such as comparing values, adding new entries,
+modifying attributes on existing entries, removing entries, and the
+most common of all: searching. Entries are represented as Lua
+tables; attributes are its fields. The attribute values can be
+strings or tables of strings (used to represent multiple
+values).</p>
+
+<p>LuaLDAP is a bind to the
+<a href="http://www.openldap.org">OpenLDAP</a> library or to <a href="http://msdn2.microsoft.com/en-us/library/aa772161.aspx">ADSI</a> library and it
+depends on a previous installation of any of this libraries. You can
+download OpenLDAP from the
+<a href="http://www.openldap.org/software/download">OpenLDAP download</a>
+page. ADSI is included on Windows 2000 or newer. Windows NT/Me/98/95
+requires an <a href="http://msdn2.microsoft.com/en-us/library/aa772161.aspx">Active Directory Client Extension</a></p>
+<h2><a name="building"></a>Building</h2>
+
+<p>
+LuaLDAP could be built to Lua 5.0 or to Lua 5.1.
+In both cases,
+the language library and headers files for the target version
+must be installed properly.
+</p>
+<p>
+LuaLDAP offers a Makefile and a separate configuration file,
+<code>config</code>,
+which should be edited to suit your installation before runnig
+<code>make</code>.
+The file has some definitions like paths to the external libraries,
+compiler options and the like.
+One important definition is the version of Lua language,
+which is not obtained from the installed software.
+</p>
+
+<h2><a name="installation"></a>Installation</h2>
+
+<p>The LuaLDAP compiled binary should be copied to a directory in your
+<a href="http://www.lua.org/manual/5.1/manual.html#pdf-package.cpath">C path</a>. 
+Lua 5.0 users should install <a href="http://www.keplerproject.org/compat">Compat-5.1</a> also.</p>
+
+<p>Windows users of ADSI can use the binary versions of LuaLDAP
+(<code>lualdap.dll</code>) available at
+<a href="http://luaforge.net/projects/lualdap/files">LuaForge</a>.</p>
+
+<h2><a name="attributes"></a>Representing attributes</h2>
+
+<p>Many LDAP operations manage sets of attributes and values.
+LuaLDAP provides a uniform way of representing them by using Lua
+tables. The table attributes can be Lua string, a binary string (a string of
+bits), or table of <em>n</em> values indexed from 1 to <em>n</em>.
+Some operations have different approaches that will be explained as necessary.</p>
+
+<p>Here is a simple example:</p>
+
+<pre class="example">
+entry = {
+    an_attribute = "a value",
+    other_attribute = {
+        "first value of other attribute",
+        "another value of other attribute",
+    },
+}
+</pre>
+
+Attribute names cannot contain the <code>'\0'</code> character.
+
+<h2><a name="dn"></a>Distinguished names</h2>
+
+<p>The distinguished name (DN) is the term used to identify an
+entry on the directory information tree. It is formed by the
+relative distinguished name (RDN) of the entry and the
+distinguished name of its parent. LuaLDAP will always use a string
+to represent the DN of any entry.</p>
+
+<p>A more precise definition can be found on the LDAP
+documentation. A list of some of these files can be found in
+<a href="#related_docs">Related documentation</a> section.</p>
+
+<h2><a name="initialization"></a>Initialization functions</h2>
+
+<p>LuaLDAP provides a single way to connect to an LDAP server:</p>
+
+<dl>
+    <dt><strong><code>lualdap.open_simple (hostname, who, password,
+    usetls)</code></strong></dt>
+    <dd>Initializes a session with an LDAP server. This function requires a
+    hostname, accordingly to the <a href="#related_docs">C LDAP API</a>
+    definition (<em>"hostname contains a space-separated list of
+    hostnames or dotted strings representing the IP address of hosts
+    running an LDAP server to connect to. Each hostname in the list MAY
+    include a port number which is separated from the host itself with
+    a colon (:) character."</em>). The argument <code>who</code> should be
+    the <a href="#dn">distinguished name</a> of the entry that has the
+    password to be checked against the third argument,
+    <code>password</code>. The optional argument <code>usetls</code> is a
+    Boolean flag indicating if Transport Layer Security (TLS) should be
+    used.<br/>
+    Returns a connection object if the operation was successful. In case of
+	error it returns <code>nil</code> followed by an error string.</dd>
+</dl>
+
+<h2><a name="connection"></a>Connection objects</h2>
+
+<p>A connection object offers methods which implement LDAP
+operations. Almost all of them need a
+<a href="#dn">distinguished name</a> to identify the entry on which the
+operation will be executed.</p>
+
+<p>These methods execute asynchronous operations and return a
+function that should be called to obtain the results. The called
+functions will return <code>true</code> indicating the success of the
+operation. The only exception is the <code>compare</code> function
+which can return either <code>true</code> or <code>false</code>
+(as the result of the comparison) on a successful operation.</p>
+
+<p>There are two types of errors: <em>API errors</em>, such as
+wrong parameters, absent connection etc.; and <em>LDAP errors</em>,
+such as malformed DN, unknown attribute etc. API errors will raise
+a Lua error, while LDAP errors will be reported by the
+function/method returning <code>nil</code> plus the error
+message provided by the OpenLDAP client.</p>
+
+<p>A connection object can be created by calling the <a href=
+"#initialization">Initialization function</a>.</p>
+
+<h4>Methods</h4>
+
+<dl>
+    <dt><strong><code>conn:add (distinguished_name,
+    table_of_attributes)</code></strong></dt>
+    <dd>Adds a new entry to the directory with the given attributes and
+    values. <a name="conn_close"></a></dd>
+	
+    <dt><strong><code>conn:close()</code></strong></dt>
+    <dd>Closes the connection <code>conn</code>.</dd>
+	
+    <dt><strong><code>conn:compare (distinguished_name, attribute,
+    value)</code></strong></dt>
+    <dd>Compares a value to an entry.</dd>
+	
+    <dt><strong><code>conn:delete (distinguished_name)</code></strong></dt>
+    <dd>Deletes an entry from the directory.</dd>
+	
+    <dt><strong><code>conn:modify (distinguished_name,
+    table_of_operations*)</code></strong></dt>
+    <dd>Changes the values of attributes in the given entry. The tables of
+    operations are <a href="#attributes">tables of attributes</a>
+    with the value on index <code>1</code> indicating the operation to be
+    performed. The valid operations are: 
+    <ul>
+        <li><strong><code>'+'</code></strong> to add the values to the attributes</li>
+        <li><strong><code>'-'</code></strong> to delete the values of the attributes</li>
+        <li><strong><code>'='</code></strong> to replace the values of the attributes</li>
+    </ul>
+    Any number of tables of operations will be used in a single LDAP modify
+	operation.</dd>
+
+    <dt><strong><code>conn:rename (distinguished_name, new_relative_dn,
+    new_parent)</code></strong></dt>
+    <dd>Changes an entry name (i.e. change its <a href="#dn">distinguished name</a>).</dd>
+	
+    <dt><strong><code>conn:search (table_of_search_parameters)</code></strong></dt>
+    <dd>Performs a search operation on the directory. The parameters are
+    described below:<br/><br/>
+    <dl>
+        <dt><strong><code>attrs</code></strong></dt>
+		<dd>a string or a list of attribute names to
+        be retrieved (default is to retrieve all attributes).</dd>
+		
+        <dt><strong><code>attrsonly</code></strong></dt>
+		<dd>a Boolean value that must be either
+        <em>false</em> (default) if both attribute names and values are to be
+        retrieved, or <em>true</em> if only names are wanted.</dd>
+		
+        <dt><strong><code>base</code></strong></dt>
+		<dd>The <a href="#dn">distinguished name</a>
+        of the entry at which to start the search.</dd>
+		
+        <dt><strong><code>filter</code></strong></dt>
+		<dd>A string representing the search filter
+        as described in <a href="http://www.ietf.org/rfc/rfc2254.txt">The
+        String Representation of LDAP Search Filters (RFC 2254)</a>.</dd>
+		
+        <dt><strong><code>scope</code></strong></dt>
+		<dd>A string indicating the scope of the
+        search. The valid strings are: "base", "onelevel" and "subtree".
+        The empty string ("") and <code>nil</code> will be treated as the
+        default scope.</dd>
+		
+        <dt><strong><code>sizelimit</code></strong></dt>
+		<dd>The maximum number of entries to
+        return (default is no limit).</dd>
+		
+        <dt><strong><code>timeout</code></strong></dt>
+		<dd>The timeout in seconds (default is no
+        timeout). The precision is microseconds.</dd>
+    </dl>
+	<br/>
+    The search method will return a <em>search iterator</em> which is a
+    function that requires no arguments. The search iterator is used to
+    get the search result and will return a string representing the <a
+    href="#dn">distinguished name</a> and a <a href="#attributes">table
+    of attributes</a> as returned by the search request.</dd>
+</dl>
+
+<h2><a name="examples"></a>Example</h2>
+
+<p>here is a some sample code that demonstrate the basic use of the library.</p>
+
+<pre class="example">
+require "lualdap"
+
+ld = assert (lualdap.open_simple ("ldap.server",
+                "mydn=manoeljoaquim,ou=people,dc=ldap,dc=world",
+                "mysecurepassword"))
+
+for dn, attribs in ld:search { base = "ou=people,dc=ldap,dc=world" } do
+    io.write (string.format ("\t[%s]\n", dn))
+    for name, values in pairs (attribs) do
+        io.write ("["..name.."] : ")
+        if type (values) == "string" then
+            io.write (values)
+        elseif type (values) == "table" then
+            local n = table.getn(values)
+            for i = 1, (n-1) do
+                io.write (values[i]..",")
+            end
+            io.write (values[n])
+        end
+        io.write ("\n")
+    end
+end
+
+ld:add ("mydn=newuser,ou=people,dc=ldap,dc=world", {
+    objectClass = { "", "", },
+    mydn = "newuser",
+    abc = "qwerty",
+    tel = { "123456758", "98765432", },
+    givenName = "New User",
+})()
+
+ld:modify {"mydn=newuser,ou=people,dc=ldp,dc=world",
+    { '=', givenName = "New", cn = "New", sn = "User", },
+    { '+', o = { "University", "College", },
+           mail = "newuser@university.edu", },
+    { '-', abc = true, tel = "123456758", },
+    { '+', tel = "13579113", },
+}()
+
+ld:delete ("mydn=newuser,ou=people,dc=ldp,dc=world")()
+
+</pre>
+
+<h2><a name="related_docs"></a>Related documentation</h2>
+
+<ul>
+    <li><a href="http://www.ietf.org/rfc/rfc2251.txt">Lightweight
+    Directory Access Protocol (v3)</a></li>
+    <li><a href="http://www.ietf.org/rfc/rfc3377.txt">LDAPv3 Technical
+    Specification</a></li>
+    <li><a href="http://www.ietf.org/rfc/rfc2254.txt">The String
+    Representation of LDAP Search Filters (RFC 2254)</a></li>
+    <li><a href=
+    "http://www.ietf.org/proceedings/01aug/I-D/draft-ietf-ldapext-ldap-c-api-05.txt">
+    The C LDAP Application Program Interface</a></li>
+</ul>
+
+</div> <!-- id="content" -->
+
+</div> <!-- id="main" -->
+
+<div id="about">
+	<p><a href="http://validator.w3.org/check?uri=referer">
+    <img src="http://www.w3.org/Icons/valid-xhtml10" alt="Valid XHTML 1.0!" height="31" width="88" /></a></p>
+	<p><small>$Id: manual.html,v 1.34 2007-12-14 16:46:15 carregal Exp $</small></p>
+</div> <!-- id="about" -->
+
+</div> <!-- id="container" -->
+</body>
+</html>
+
