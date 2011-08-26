@@ -571,6 +571,22 @@ For the given `path`, return the extension.
 
 
 
+### os.path.get_filename(path)
+
+For the given `path`, return just the filename without the directory.
+
+<pre>
+    assert(os.path.get_filename(''), '')
+    assert(os.path.get_filename('filename'), 'filename')
+    assert(os.path.get_filename('filename.ext'), 'filename.ext')
+    assert(os.path.get_filename('c:/directory/filename.ext'), 'filename.ext')
+    assert(os.path.get_filename('c:/directory/'), '')
+</pre>
+
+
+
+
+
 ### os.path.is_directory(path)
 
 Returns *true* if `path` is a directory, *false* otherwise.
@@ -655,6 +671,18 @@ Returns *true* if `path` is a UNC path, *false* otherwise.
 
 
 
+### os.path.is_writable(path)
+
+Returns *true* if `path` is writable, *false* if read-only.
+
+<pre>
+    local writable = os.path.is_writable('filename.dat')
+</pre>
+
+
+
+
+
 ### os.path.make_absolute(path)
 
 Converts `path` into an absolute path, simplifying the path as necessary.
@@ -705,6 +733,21 @@ Returns the new path.
     assert(os.path.make_slash('\\\\abc') == '//abc')
     assert(os.path.make_slash('//abc') == '//abc')
     assert(os.path.make_slash('c:\\abc\\def\\') == 'c:/abc/def/')
+</pre>
+
+
+
+
+
+
+### os.path.make_writable(path)
+
+Make the file *path* writable that is read-only.
+
+Returns *true* if the process succeeded.
+
+<pre>
+    os.path.make_writable('filename.dat')
 </pre>
 
 

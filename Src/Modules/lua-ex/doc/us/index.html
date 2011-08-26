@@ -667,6 +667,24 @@
 
 
 
+<h3>os.path.get_filename(path)</h3>
+
+<p>For the given <code>path</code>, return just the filename without the directory.</p>
+
+
+<pre>
+    assert(os.path.get_filename(''), '')
+    assert(os.path.get_filename('filename'), 'filename')
+    assert(os.path.get_filename('filename.ext'), 'filename.ext')
+    assert(os.path.get_filename('c:/directory/filename.ext'), 'filename.ext')
+    assert(os.path.get_filename('c:/directory/'), '')
+</pre>
+
+
+
+
+
+
 <h3>os.path.is_directory(path)</h3>
 
 <p>Returns <em>true</em> if <code>path</code> is a directory, <em>false</em> otherwise.</p>
@@ -761,6 +779,20 @@
 
 
 
+<h3>os.path.is_writable(path)</h3>
+
+<p>Returns <em>true</em> if <code>path</code> is writable, <em>false</em> if read-only.</p>
+
+
+<pre>
+    local writable = os.path.is_writable('filename.dat')
+</pre>
+
+
+
+
+
+
 <h3>os.path.make_absolute(path)</h3>
 
 <p>Converts <code>path</code> into an absolute path, simplifying the path as necessary.</p>
@@ -816,6 +848,23 @@
     assert(os.path.make_slash('\\\\abc') == '//abc')
     assert(os.path.make_slash('//abc') == '//abc')
     assert(os.path.make_slash('c:\\abc\\def\\') == 'c:/abc/def/')
+</pre>
+
+
+
+
+
+
+
+<h3>os.path.make_writable(path)</h3>
+
+<p>Make the file <em>path</em> writable that is read-only.</p>
+
+<p>Returns <em>true</em> if the process succeeded.</p>
+
+
+<pre>
+    os.path.make_writable('filename.dat')
 </pre>
 
 
