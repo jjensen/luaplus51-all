@@ -33,13 +33,7 @@ local LUAPLUS_SRCS =
 		../LuaState_DumpObject.cpp
 		../LuaTableIterator.cpp
 		../LuaTableIterator.h
-		../luathread.c
-		../luathread.h
 		../lwstrlib.c
-		../pt.c
-		../pt.h
-		../srm.c
-		../srm.h
 		../src/lapi.c
 		../src/lapi.h
 		../src/lauxlib.c
