@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // This source file is part of the LuaPlus source distribution and is Copyright
-// 2001-2010 by Joshua C. Jensen (jjensen@workspacewhiz.com).
+// 2001-2011 by Joshua C. Jensen (jjensen@workspacewhiz.com).
 //
 // The latest version may be obtained from http://luaplus.org/.
 //
@@ -31,39 +31,6 @@ LUA_EXTERN_C int str_format_helper (luaL_Buffer* b, lua_State *L, int arg);
 NAMESPACE_LUA_END
 
 namespace LuaPlus {
-
-class LuaStateOutputDebugStringFile : public LuaStateOutFile
-{
-public:
-	LuaStateOutputDebugStringFile() {}
-	virtual ~LuaStateOutputDebugStringFile() {}
-
-	virtual bool Open(const char* fileName) {
-		(void)fileName;
-		return true;
-	}
-
-	virtual void Close() {
-	}
-
-	virtual void Print(const char* str, ...) {
-		char message[800];
-		va_list arglist;
-
-		va_start(arglist, str);
-		vsprintf(message, str, arglist);
-		va_end(arglist);
-
-#if defined(WIN32) || defined(_XBOX) || defined(_XBOX_VER)
-		OutputDebugString(message);
-#else // !WIN32
-		puts(message);
-#endif // WIN32
-	}
-
-protected:
-};
-
 
 static void luaI_addquotedbinary (LuaStateOutFile& file, const char* s, size_t l) {
 	file.Print("%c", '"');
@@ -861,20 +828,10 @@ bool LuaState::DumpObject(const char* filename, LuaObject& key, LuaObject& value
 	{
 		// Open the text file to write the script state to.
 		LuaStateOutFile regFile;
-		LuaStateOutputDebugStringFile odsFile;
 
-		LuaStateOutFile* file;
-
-		if (strcmp(filename, "@") == 0)
-		{
-			file = &odsFile;
-		}
-		else
-		{
-			file = &regFile;
-			if (!file->Open(filename))
-				return false;
-		}
+		LuaStateOutFile* file = &regFile;
+		if (!file->Open(filename))
+			return false;
 
 		return DumpObject(*file, key, value, flags, indentLevel, maxIndentLevel);
 	}
@@ -893,20 +850,10 @@ bool LuaState::DumpObject(const char* filename, const char* name, LuaObject& val
 {
 	// Open the text file to write the script state to.
 	LuaStateOutFile regFile;
-	LuaStateOutputDebugStringFile odsFile;
 
-	LuaStateOutFile* file;
-
-	if (strcmp(filename, "@") == 0)
-	{
-		file = &odsFile;
-	}
-	else
-	{
-		file = &regFile;
-		if (!file->Open(filename))
-			return false;
-	}
+	LuaStateOutFile* file = &regFile;
+	if (!file->Open(filename))
+		return false;
 
 	// Yes, this is hack-ish.
 
