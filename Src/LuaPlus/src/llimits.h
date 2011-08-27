@@ -57,8 +57,7 @@ typedef LUAI_UACINTEGER l_uacInteger;
 /* internal assertions for in-house debugging */
 #ifdef lua_assert
 
-//#define check_exp(c,e)		(lua_assert(c), (e))
-#define check_exp(c,e)		(e)
+#define check_exp(c,e)		(lua_assert(c), (e))
 #define api_check(l,e)		lua_assert(e)
 
 #else
