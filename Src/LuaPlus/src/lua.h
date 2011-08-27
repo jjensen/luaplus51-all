@@ -73,11 +73,11 @@ typedef int (*lua_Writer) (lua_State *L, const void* p, size_t sz, void* ud);
 /*
 ** prototype for memory-allocation functions
 */
-#if LUAPLUS_EXTENSIONS
+#if LUA_MEMORY_STATS
 typedef void * (*lua_Alloc) (void *ud, void *ptr, size_t osize, size_t nsize, const char* name, unsigned int alloc_flags);
 #else
 typedef void * (*lua_Alloc) (void *ud, void *ptr, size_t osize, size_t nsize);
-#endif /* LUAPLUS_EXTENSIONS */
+#endif /* LUA_MEMORY_STATS */
 
 
 /*
