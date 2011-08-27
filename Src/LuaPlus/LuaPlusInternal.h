@@ -10,7 +10,10 @@
 #ifndef LUAPLUS__LUAPLUSINTERNAL_H
 #define LUAPLUS__LUAPLUSINTERNAL_H
 
+extern "C" {
 #include "src/lua.h"
+#include "src/lauxlib.h"
+}
 
 #define LUAPLUS_INLINE inline
 
