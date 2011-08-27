@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // This source file is part of the LuaPlus source distribution and is Copyright
-// 2001-2007 by Joshua C. Jensen (jjensen@workspacewhiz.com).
+// 2001-2011 by Joshua C. Jensen (jjensen@workspacewhiz.com).
 //
 // The latest version may be obtained from http://wwhiz.com/LuaPlus/.
 //
