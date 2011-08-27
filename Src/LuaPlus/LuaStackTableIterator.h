@@ -7,8 +7,8 @@
 // The code presented in this file may be used in any environment it is
 // acceptable to use Lua.
 ///////////////////////////////////////////////////////////////////////////////
-#ifndef LUASTACKTABLEITERATOR_H
-#define LUASTACKTABLEITERATOR_H
+#ifndef LUAPLUS__LUASTACKTABLEITERATOR_H
+#define LUAPLUS__LUASTACKTABLEITERATOR_H
 
 #include "LuaStackObject.h"
 
@@ -58,4 +58,4 @@ private:
 #include "LuaStackTableIterator.inl"
 #endif // LUAPLUS_ENABLE_INLINES
 
-#endif // LUASTACKTABLEITERATOR_H
+#endif // LUAPLUS__LUASTACKTABLEITERATOR_H

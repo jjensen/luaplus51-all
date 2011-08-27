@@ -7,8 +7,8 @@
 // The code presented in this file may be used in any environment it is
 // acceptable to use Lua.
 ///////////////////////////////////////////////////////////////////////////////
-#ifndef LUASTATEOUTFILE_H
-#define LUASTATEOUTFILE_H
+#ifndef LUAPLUS__LUASTATEOUTFILE_H
+#define LUAPLUS__LUASTATEOUTFILE_H
 
 #include "LuaPlusInternal.h"
 
@@ -117,4 +117,4 @@ inline bool LuaStateOutFile::Assign( FILE* file )
 
 } // namespace LuaPlus
 
-#endif // LUASTATEOUTFILE_H
+#endif // LUAPLUS__LUASTATEOUTFILE_H

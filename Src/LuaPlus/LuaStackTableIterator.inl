@@ -7,8 +7,8 @@
 // The code presented in this file may be used in any environment it is
 // acceptable to use Lua.
 ///////////////////////////////////////////////////////////////////////////////
-#ifndef LUASTACKTABLEITERATOR_INL
-#define LUASTACKTABLEITERATOR_INL
+#ifndef LUAPLUS__LUASTACKTABLEITERATOR_INL
+#define LUAPLUS__LUASTACKTABLEITERATOR_INL
 
 ///////////////////////////////////////////////////////////////////////////////
 // namespace LuaPlus
@@ -162,4 +162,4 @@ LUAPLUS_INLINE LuaStackObject LuaStackTableIterator::GetValue() {
 
 } // namespace LuaPlus
 
-#endif // LUASTACKTABLEITERATOR_INL
+#endif // LUAPLUS__LUASTACKTABLEITERATOR_INL

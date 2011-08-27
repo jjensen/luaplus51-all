@@ -7,8 +7,8 @@
 // The code presented in this file may be used in any environment it is
 // acceptable to use Lua.
 ///////////////////////////////////////////////////////////////////////////////
-#ifndef LUAPLUSINTERNAL_H
-#define LUAPLUSINTERNAL_H
+#ifndef LUAPLUS__LUAPLUSINTERNAL_H
+#define LUAPLUS__LUAPLUSINTERNAL_H
 
 #include "src/lua.h"
 
@@ -68,4 +68,4 @@ struct LuaArgNil {};
 #define LuaState_to_lua_State(state) ((lua_State*)(state))
 #define lua_State_To_LuaState(L) ((LuaPlus::LuaState*)L)
 
-#endif // LUAPLUSINTERNAL_H
+#endif // LUAPLUS__LUAPLUSINTERNAL_H

@@ -7,8 +7,8 @@
 // The code presented in this file may be used in any environment it is
 // acceptable to use Lua.
 ///////////////////////////////////////////////////////////////////////////////
-#ifndef LUASTACKOBJECT_INL
-#define LUASTACKOBJECT_INL
+#ifndef LUAPLUS__LUASTACKOBJECT_INL
+#define LUAPLUS__LUASTACKOBJECT_INL
 
 ///////////////////////////////////////////////////////////////////////////////
 // namespace LuaPlus
@@ -598,4 +598,4 @@ LUAPLUS_INLINE LuaStackObject LuaStack::operator[](int index)
 
 } // namespace LuaPlus
 
-#endif // LUASTACKOBJECT_INL
+#endif // LUAPLUS__LUASTACKOBJECT_INL

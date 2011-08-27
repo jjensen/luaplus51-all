@@ -7,8 +7,8 @@
 // The code presented in this file may be used in any environment it is
 // acceptable to use Lua.
 ///////////////////////////////////////////////////////////////////////////////
-#ifndef LUAPLUSCD_H
-#define LUAPLUSCD_H
+#ifndef LUAPLUS__LUAPLUSCD_H
+#define LUAPLUS__LUAPLUSCD_H
 
 LUA_EXTERN_C_BEGIN
 #include "src/lua.h"
@@ -1507,5 +1507,5 @@ inline void lpcd_pushglobalpropertysetclosure(lua_State* L, VarType* var)
 	lua_pushcclosure(L, &LPCD::PropertyGlobalHelper<VarType>::PropertySet, 1);
 }
 
-#endif // LUAPLUS_LPCD_H
+#endif // LUAPLUS__LUAPLUSCD_H
 

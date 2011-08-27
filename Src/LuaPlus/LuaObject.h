@@ -7,8 +7,8 @@
 // The code presented in this file may be used in any environment it is
 // acceptable to use Lua.
 ///////////////////////////////////////////////////////////////////////////////
-#ifndef LUAOBJECT_H
-#define LUAOBJECT_H
+#ifndef LUAPLUS__LUAOBJECT_H
+#define LUAPLUS__LUAOBJECT_H
 
 #include "LuaPlusInternal.h"
 #include "LuaPlusCD.h"
@@ -570,4 +570,4 @@ void LuaObject::Assign(lua_State* _L, const ValueT& value, int len) {
 
 } // namespace LuaPlus
 
-#endif // LUAOBJECT_H
+#endif // LUAPLUS__LUAOBJECT_H

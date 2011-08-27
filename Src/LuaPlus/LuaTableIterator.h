@@ -7,8 +7,8 @@
 // The code presented in this file may be used in any environment it is
 // acceptable to use Lua.
 ///////////////////////////////////////////////////////////////////////////////
-#ifndef LUATABLEITERATOR_H
-#define LUATABLEITERATOR_H
+#ifndef LUAPLUS__LUATABLEITERATOR_H
+#define LUAPLUS__LUATABLEITERATOR_H
 
 #include "LuaPlusInternal.h"
 #include "LuaObject.h"
@@ -196,4 +196,4 @@ inline LuaObject& LuaTableIterator::GetValue() {
 
 #endif // LUAPLUS_EXTENSIONS
 
-#endif // LUATABLEITERATOR_H
+#endif // LUAPLUS__LUATABLEITERATOR_H

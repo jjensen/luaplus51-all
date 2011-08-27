@@ -7,8 +7,8 @@
 // The code presented in this file may be used in any environment it is
 // acceptable to use Lua.
 ///////////////////////////////////////////////////////////////////////////////
-#ifndef LUAOBJECT_INL
-#define LUAOBJECT_INL
+#ifndef LUAPLUS__LUAOBJECT_INL
+#define LUAPLUS__LUAOBJECT_INL
 
 #include <ctype.h>
 
@@ -1565,4 +1565,4 @@ inline void LuaObject::AssignCFunction(int (*func)(LuaState*), int nupvalues)
 
 } // namespace LuaPlus
 
-#endif // LUAOBJECT_INL
+#endif // LUAPLUS__LUAOBJECT_INL

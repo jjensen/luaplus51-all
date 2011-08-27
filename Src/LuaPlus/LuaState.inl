@@ -7,8 +7,8 @@
 // The code presented in this file may be used in any environment it is
 // acceptable to use Lua.
 ///////////////////////////////////////////////////////////////////////////////
-#ifndef LUASTATE_INL
-#define LUASTATE_INL
+#ifndef LUAPLUS__LUASTATE_INL
+#define LUAPLUS__LUASTATE_INL
 
 #include <string.h>
 #include <assert.h>
@@ -1034,3 +1034,5 @@ LUAPLUS_INLINE int LuaState::DoBuffer( const char *buff, size_t size, const char
 } // namespace LuaPlus
 
 #endif // LUASTATE_INL
+
+#endif // LUAPLUS__LUASTATE_INL

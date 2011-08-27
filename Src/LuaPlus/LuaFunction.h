@@ -7,8 +7,8 @@
 // The code presented in this file may be used in any environment it is
 // acceptable to use Lua.
 ///////////////////////////////////////////////////////////////////////////////
-#ifndef LUAFUNCTION_H
-#define LUAFUNCTION_H
+#ifndef LUAPLUS__LUAFUNCTION_H
+#define LUAPLUS__LUAFUNCTION_H
 
 #include "LuaPlusInternal.h"
 #include "LuaAutoBlock.h"
@@ -236,4 +236,4 @@ protected:
 
 #endif // LUAPLUS_EXTENSIONS
 
-#endif // LUAFUNCTION_H
+#endif // LUAPLUS__LUAFUNCTION_H

@@ -7,8 +7,8 @@
 // The code presented in this file may be used in any environment it is
 // acceptable to use Lua.
 ///////////////////////////////////////////////////////////////////////////////
-#ifndef LUACALL_H
-#define LUACALL_H
+#ifndef LUAPLUS__LUACALL_H
+#define LUAPLUS__LUACALL_H
 
 #include "LuaPlusInternal.h"
 #include "LuaObject.h"
@@ -62,5 +62,5 @@ LUAPLUS_INLINE LuaCall& operator<<(LuaCall& call, LuaObject& value);
 #include "LuaCall.inl"
 #endif // LUAPLUS_ENABLE_INLINES
 
-#endif // LUACALL_H
+#endif // LUAPLUS__LUACALL_H
 

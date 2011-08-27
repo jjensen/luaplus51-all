@@ -7,8 +7,8 @@
 // The code presented in this file may be used in any environment it is
 // acceptable to use Lua.
 ///////////////////////////////////////////////////////////////////////////////
-#ifndef LUAPLUS_H
-#define LUAPLUS_H
+#ifndef LUAPLUS__LUAPLUS_H
+#define LUAPLUS__LUAPLUS_H
 
 #include "LuaPlusInternal.h"
 
@@ -30,4 +30,4 @@ LUA_EXTERN_C_END
 #include "LuaFunction.h"
 #include "LuaPlusCD.h"
 
-#endif // LUAPLUS_H
+#endif // LUAPLUS__LUAPLUS_H

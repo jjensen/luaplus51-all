@@ -7,8 +7,8 @@
 // The code presented in this file may be used in any environment it is
 // acceptable to use Lua.
 ///////////////////////////////////////////////////////////////////////////////
-#ifndef LUAAUTOBLOCK_H
-#define LUAAUTOBLOCK_H
+#ifndef LUAPLUS__LUAAUTOBLOCK_H
+#define LUAPLUS__LUAAUTOBLOCK_H
 
 #include "LuaPlusInternal.h"
 
@@ -55,4 +55,4 @@ private:
 
 } // namespace LuaPlus
 
-#endif // LUAAUTOBLOCK_H
+#endif // LUAPLUS__LUAAUTOBLOCK_H

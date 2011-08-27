@@ -7,8 +7,8 @@
 // The code presented in this file may be used in any environment it is
 // acceptable to use Lua.
 ///////////////////////////////////////////////////////////////////////////////
-#ifndef LUACALL_INL
-#define LUACALL_INL
+#ifndef LUAPLUS__LUACALL_INL
+#define LUAPLUS__LUACALL_INL
 
 #if LUAPLUS_EXTENSIONS
 
@@ -138,4 +138,4 @@ LUAPLUS_INLINE LuaCall& LuaCall::operator=(const LuaCall& src) {
 
 #endif // LUAPLUS_EXTENSIONS
 
-#endif // LUACALL_INL
+#endif // LUAPLUS__LUACALL_INL
