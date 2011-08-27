@@ -112,10 +112,10 @@
 #define LUA_LDIR	"!\\lua\\"
 #define LUA_CDIR	"!\\"
 #define LUA_PATH_DEFAULT  \
-        ".\\?.lua;"  LUA_LDIR"?.lua;"  LUA_LDIR"?\\init.lua;" \
-                     LUA_CDIR"?.lua;"  LUA_CDIR"?\\init.lua"
+		".\\?.lua;"  LUA_LDIR"?.lua;"  LUA_LDIR"?\\init.lua;" \
+		             LUA_CDIR"?.lua;"  LUA_CDIR"?\\init.lua"
 #define LUA_CPATH_DEFAULT \
-    ".\\?.dll;"  LUA_CDIR"?.dll;" LUA_CDIR"loadall.dll"
+	".\\?.dll;"  LUA_CDIR"?.dll;" LUA_CDIR"loadall.dll"
 #endif
 
 #else
@@ -136,10 +136,10 @@
 #define LUA_LDIR	LUA_ROOT "share/lua/5.1/"
 #define LUA_CDIR	LUA_ROOT "lib/lua/5.1/"
 #define LUA_PATH_DEFAULT  \
-        "./?.lua;"  LUA_LDIR"?.lua;"  LUA_LDIR"?/init.lua;" \
-                    LUA_CDIR"?.lua;"  LUA_CDIR"?/init.lua"
+		"./?.lua;"  LUA_LDIR"?.lua;"  LUA_LDIR"?/init.lua;" \
+		            LUA_CDIR"?.lua;"  LUA_CDIR"?/init.lua"
 #define LUA_CPATH_DEFAULT \
-    "./?.so;"  LUA_CDIR"?.so;" LUA_CDIR"loadall.so"
+	"./?.so;"  LUA_CDIR"?.so;" LUA_CDIR"loadall.so"
 #endif
 #endif
 
@@ -321,13 +321,13 @@
 #include <readline/history.h>
 #define lua_readline(L,b,p)	((void)L, ((b)=readline(p)) != NULL)
 #define lua_saveline(L,idx) \
-    if (lua_strlen(L,idx) > 0)  /* non-empty line? */ \
-      add_history(lua_tostring(L, idx));  /* add it to history */
+	if (lua_strlen(L,idx) > 0)  /* non-empty line? */ \
+	  add_history(lua_tostring(L, idx));  /* add it to history */
 #define lua_freeline(L,b)	((void)L, free(b))
 #else
 #define lua_readline(L,b,p)	\
-    ((void)L, fputs(p, stdout), fflush(stdout),  /* show prompt */ \
-    fgets(b, LUA_MAXINPUT, stdin) != NULL)  /* get line */
+	((void)L, fputs(p, stdout), fflush(stdout),  /* show prompt */ \
+	fgets(b, LUA_MAXINPUT, stdin) != NULL)  /* get line */
 #define lua_saveline(L,idx)	{ (void)L; (void)idx; }
 #define lua_freeline(L,b)	{ (void)L; (void)b; }
 #endif
@@ -573,6 +573,7 @@
 #define LUAI_MAXNUMBER2STR	32 /* 16 digits, sign, point, and \0 */
 #define lua_str2number(s,p)	strtod((s), (p))
 
+
 /*
 @@ The luai_num* macros define the primitive operations over numbers.
 */
@@ -611,7 +612,7 @@
 #if LUAPLUS_EXTENSIONS
 #define lua_number2int(i,d)   i = (int)d;
 #else
-#define lua_number2int(i,d)   __asm fld d;   __asm fistp i;
+#define lua_number2int(i,d)   __asm fld d   __asm fistp i
 #endif /* LUAPLUS_EXTENSIONS */
 #define lua_number2integer(i,n)		lua_number2int(i, n)
 
@@ -889,7 +890,6 @@ union luai_Cast { double l_d; long l_l; };
 /* }================================================================== */
 
 
-
 /*
 @@ LUAI_USER_ALIGNMENT_T is a type that requires maximum alignment.
 ** CHANGE it if your system requires alignments larger than double. (For
@@ -916,7 +916,7 @@ union luai_Cast { double l_d; long l_l; };
     { if ((c)->status == 0) (c)->status = LUA_ERREXC; }
 #else
 #define LUAI_TRY(L,c,a)	try { a } catch(...) \
-    { if ((c)->status == 0) (c)->status = -1; }
+	{ if ((c)->status == 0) (c)->status = -1; }
 #endif /* LUA_EXT_RESUMABLEVM */
 #define luai_jmpbuf	int  /* dummy variable */
 
@@ -957,10 +957,10 @@ union luai_Cast { double l_d; long l_l; };
 #include <unistd.h>
 #define LUA_TMPNAMBUFSIZE	32
 #define lua_tmpnam(b,e)	{ \
-    strcpy(b, "/tmp/lua_XXXXXX"); \
-    e = mkstemp(b); \
-    if (e != -1) close(e); \
-    e = (e == -1); }
+	strcpy(b, "/tmp/lua_XXXXXX"); \
+	e = mkstemp(b); \
+	if (e != -1) close(e); \
+	e = (e == -1); }
 
 #else
 #define LUA_TMPNAMBUFSIZE	L_tmpnam
@@ -988,7 +988,7 @@ union luai_Cast { double l_d; long l_l; };
 #else
 
 #define lua_popen(L,c,m)	((void)((void)c, m),  \
-        luaL_error(L, LUA_QL("popen") " not supported"), (FILE*)0)
+		luaL_error(L, LUA_QL("popen") " not supported"), (FILE*)0)
 #define lua_pclose(L,file)		((void)((void)L, file), 0)
 
 #endif
