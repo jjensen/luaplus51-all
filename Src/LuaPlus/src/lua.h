@@ -463,6 +463,8 @@ struct lua_Debug {
   int i_ci;  /* active function */
 };
 
+/* }====================================================================== */
+
 #if LUA_FASTREF_SUPPORT
 
 #define LUA_FASTREFNIL	(-1999999)
@@ -536,7 +538,6 @@ size_t lua_WChar_len(const lua_WChar* str);
 #define LUA_ALLOC_TEMP 1
 LUA_API void lua_getdefaultallocfunction(lua_Alloc* allocFunc, void** ud);
 LUA_API void lua_setdefaultallocfunction(lua_Alloc reallocFunc, void* ud);
-
 
 # define lua_boxpointer(L,u) \
         (*(void **)(lua_newuserdata(L, sizeof(void *))) = (u))
