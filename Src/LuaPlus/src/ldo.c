@@ -846,10 +846,6 @@ static void f_parser (lua_State *L, void *ud) {
     }
   }
 #endif /* LUA_WIDESTRING_FILE */
-#if LUAPLUS_EXTENSIONS
-  if (G(L)->loadNotifyFunction)
-    G(L)->loadNotifyFunction(L, p->name);
-#endif
   tf = ((c == LUA_SIGNATURE[0]) ? luaU_undump : luaY_parser)(L, p->z,
                                                              &p->buff, p->name);
   cl = luaF_newLclosure(L, tf->nups, hvalue(gt(L)));

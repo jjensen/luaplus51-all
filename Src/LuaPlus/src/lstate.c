@@ -45,15 +45,6 @@ typedef struct LG {
   global_State g;
 } LG;
   
-#if LUAPLUS_EXTENSIONS
-
-LUA_API void lua_setloadnotifyfunction(lua_State *L, void (*loadNotifyFunction)(lua_State *L, const char *))
-{
-  G(L)->loadNotifyFunction = loadNotifyFunction;
-}
-
-
-#endif /* LUAPLUS_EXTENSIONS */
 
 
 static void stack_init (lua_State *L1, lua_State *L) {
@@ -280,9 +271,6 @@ LUA_API lua_State *lua_newstate (lua_Alloc f, void *ud) {
   g->gcpause = LUAI_GCPAUSE;
   g->gcstepmul = LUAI_GCMUL;
   g->gcdept = 0;
-#if LUAPLUS_EXTENSIONS
-  g->loadNotifyFunction = NULL;
-#endif /* LUAPLUS_EXTENSIONS */
   for (i=0; i<NUM_TAGS; i++) g->mt[i] = NULL;
   if (luaD_rawrunprotected(L, f_luaopen, NULL) != 0) {
     /* memory allocation error: free partial state */
