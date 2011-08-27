@@ -222,9 +222,7 @@ protected:
 
 } // namespace LuaPlus
 
-#ifdef LUAPLUS_ENABLE_INLINES
 #include "LuaStackObject.inl"
-#endif // LUAPLUS_ENABLE_INLINES
 
 namespace LPCD {
 	using namespace LuaPlus;
