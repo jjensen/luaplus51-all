@@ -32,8 +32,6 @@
 #include "lnum.h"
 #endif /* LNUM_PATCH */
 
-NAMESPACE_LUA_BEGIN
-
 const char lua_ident[] =
   "$Lua: " LUA_RELEASE " " LUA_COPYRIGHT " $\n"
   "$Authors: " LUA_AUTHORS " $\n"
@@ -1664,5 +1662,3 @@ LUA_API void lua_getfastref (lua_State *L, int ref) {
 /* }====================================================== */
 
 #endif /* LUA_FASTREF_SUPPORT */
-
-NAMESPACE_LUA_END

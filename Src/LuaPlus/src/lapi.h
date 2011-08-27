@@ -10,7 +10,6 @@
 
 #include "lobject.h"
 
-NAMESPACE_LUA_BEGIN
 
 LUAI_FUNC void luaA_pushobject (lua_State *L, const TValue *o);
 
@@ -19,7 +18,5 @@ LUAI_FUNC void luaA_pushobject (lua_State *L, const TValue *o);
   int lua_pushvalue_as_number (lua_State *L, int idx);
 #endif
 #endif /* LNUM_PATCH */
-
-NAMESPACE_LUA_END
 
 #endif

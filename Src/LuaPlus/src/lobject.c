@@ -36,8 +36,6 @@
 #include <assert.h>
 #endif /* LUA_WIDESTRING */
 
-NAMESPACE_LUA_BEGIN
-
 #if LUA_WIDESTRING
 static int triow_to_upper(int source)
 {
@@ -686,5 +684,3 @@ void luarc_releaseobject(lua_State *L, GCObject* o)
 }
 
 #endif /* LUA_REFCOUNT */
-
-NAMESPACE_LUA_END

@@ -13,7 +13,7 @@
 #include "ltm.h"
 #include "lzio.h"
 
-NAMESPACE_LUA_BEGIN
+
 
 struct lua_longjmp;  /* defined in ldo.c */
 
@@ -204,8 +204,6 @@ union GCObject {
 
 LUAI_FUNC lua_State *luaE_newthread (lua_State *L);
 LUAI_FUNC void luaE_freethread (lua_State *L, lua_State *L1);
-
-NAMESPACE_LUA_END
 
 #endif
 

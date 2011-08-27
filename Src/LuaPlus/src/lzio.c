@@ -17,7 +17,6 @@
 #include "lstate.h"
 #include "lzio.h"
 
-NAMESPACE_LUA_BEGIN
 
 int luaZ_fill (ZIO *z) {
   size_t size;
@@ -113,5 +112,3 @@ void luaZ_resizebuffer(lua_State *L, Mbuffer *buff, size_t size)
   buff->buffsize = size;
 }
 #endif /* LUA_MEMORY_STATS */
-
-NAMESPACE_LUA_END

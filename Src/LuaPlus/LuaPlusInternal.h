@@ -25,8 +25,6 @@
 namespace LuaPlus
 {
 
-USING_NAMESPACE_LUA;
-
 class LuaException
 {
 public:

@@ -12,7 +12,6 @@
 #include "lobject.h"
 #include "ltm.h"
 
-NAMESPACE_LUA_BEGIN
 
 #define tostring(L,o) ((ttype(o) == LUA_TSTRING) || (luaV_tostring(L, o)))
 #if LUA_WIDESTRING
@@ -66,7 +65,5 @@ LUAI_FUNC void luaV_resume (lua_State *L);
 LUAI_FUNC void luaV_execute (lua_State *L, int nexeccalls);
 #endif /* LUA_EXT_RESUMABLEVM */
 LUAI_FUNC void luaV_concat (lua_State *L, int total, int last);
-
-NAMESPACE_LUA_END
 
 #endif

@@ -26,8 +26,6 @@
 #include "llex.h"
 #endif /* LNUM_PATCH */
 
-NAMESPACE_LUA_BEGIN
-
 #define IO_INPUT	1
 #define IO_OUTPUT	2
 
@@ -675,4 +673,3 @@ LUALIB_API int luaopen_io (lua_State *L) {
   return 1;
 }
 
-NAMESPACE_LUA_END

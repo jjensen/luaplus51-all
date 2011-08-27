@@ -32,7 +32,6 @@
 
 
 
-NAMESPACE_LUA_BEGIN
 
 /*
 ** {======================================================
@@ -885,4 +884,4 @@ int luaD_protectedparser (lua_State *L, ZIO *z, const char *name) {
   return status;
 }
 
-NAMESPACE_LUA_END
+

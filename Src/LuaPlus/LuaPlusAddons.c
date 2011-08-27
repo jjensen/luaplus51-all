@@ -16,8 +16,6 @@
 #include "src/ldo.h"
 #include <assert.h>
 
-NAMESPACE_LUA_BEGIN
-
 // lvm.c
 
 #ifndef lua_number2wstr
@@ -201,4 +199,3 @@ LUA_API void lua_pushwstring (lua_State *L, const lua_WChar *s) {
 
 #endif /* LUA_WIDESTRING */
 
-NAMESPACE_LUA_END

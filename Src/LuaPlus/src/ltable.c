@@ -41,8 +41,6 @@
 #include "lnum.h"
 #endif /* LNUM_PATCH */
 
-NAMESPACE_LUA_BEGIN
-
 /*
 ** max size of array part is 2^MAXBITS
 */
@@ -1105,5 +1103,3 @@ Node *luaH_mainposition (const Table *t, const TValue *key) {
 int luaH_isdummy (Node *n) { return n == dummynode; }
 
 #endif
-
-NAMESPACE_LUA_END

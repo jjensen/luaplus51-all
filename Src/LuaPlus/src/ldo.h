@@ -12,7 +12,6 @@
 #include "lstate.h"
 #include "lzio.h"
 
-NAMESPACE_LUA_BEGIN
 
 #define luaD_checkstack(L,n)	\
   if ((char *)L->stack_last - (char *)L->top <= (n)*(int)sizeof(TValue)) \
@@ -89,8 +88,6 @@ LUAI_FUNC int luaD_pcall (lua_State *L, Pfunc func, void *ud,
 #endif /* LUA_EXT_RESUMABLEVM */
 
 LUAI_FUNC void luaD_seterrorobj (lua_State *L, int errcode, StkId oldtop);
-
-NAMESPACE_LUA_END
 
 #endif
 

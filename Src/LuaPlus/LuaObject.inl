@@ -354,7 +354,7 @@ inline size_t LuaObject::StrLen() const {
 }
 
 
-inline NAMESPACE_LUA_PREFIX lua_CFunction LuaObject::GetCFunction() const {
+inline lua_CFunction LuaObject::GetCFunction() const {
 	luaplus_assert(L  &&  IsCFunction());
 	return lua_tocfunction(L, ref);
 }
@@ -1091,7 +1091,7 @@ inline void LuaObject::AssignNewTable(LuaState* state, int narray, int nrec) {
 	@param funcName The name of the function to register.
 	@param function A pointer to the C function to register.
 **/
-inline void LuaObject::Register(const char* funcName, NAMESPACE_LUA_PREFIX lua_CFunction function, int nupvalues) {
+inline void LuaObject::Register(const char* funcName, lua_CFunction function, int nupvalues) {
 	luaplus_assert(L);
 	lua_pushcclosure(L, function, nupvalues);
 	lua_setfield(L, ref, funcName);
@@ -1105,7 +1105,7 @@ inline void LuaObject::Register(const char* funcName, int (*function)(LuaState*)
 }
 
 
-inline void LuaObject::RegisterHelper(const char* funcName, NAMESPACE_LUA_PREFIX lua_CFunction function, int nupvalues, const void* callee, unsigned int sizeofCallee, void* func, unsigned int sizeofFunc) {
+inline void LuaObject::RegisterHelper(const char* funcName, lua_CFunction function, int nupvalues, const void* callee, unsigned int sizeofCallee, void* func, unsigned int sizeofFunc) {
 	luaplus_assert(L);
 
 	if (sizeofFunc != 0)
@@ -1549,7 +1549,7 @@ inline LUAPLUS_API void MergeObjects(LuaObject& mergeTo, LuaObject& mergeFrom, b
 
 /**
 **/
-inline void LuaObject::AssignCFunction(NAMESPACE_LUA_PREFIX lua_CFunction function, int nupvalues)
+inline void LuaObject::AssignCFunction(lua_CFunction function, int nupvalues)
 {
 	AssignCFunctionHelper(function, nupvalues, NULL, 0, NULL, 0);
 }

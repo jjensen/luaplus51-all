@@ -19,7 +19,6 @@
 #include "lauxlib.h"
 #include "lualib.h"
 
-NAMESPACE_LUA_BEGIN
 
 /* macro to `unsign' a character */
 #define uchar(c)        ((unsigned char)(c))
@@ -1577,4 +1576,3 @@ LUALIB_API int luaopen_string (lua_State *L) {
   return 1;
 }
 
-NAMESPACE_LUA_END

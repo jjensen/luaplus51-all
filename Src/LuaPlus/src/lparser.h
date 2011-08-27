@@ -11,7 +11,6 @@
 #include "lobject.h"
 #include "lzio.h"
 
-NAMESPACE_LUA_BEGIN
 
 /*
 ** Expression descriptor
@@ -91,6 +90,5 @@ typedef struct FuncState {
 LUAI_FUNC Proto *luaY_parser (lua_State *L, ZIO *z, Mbuffer *buff,
                                             const char *name);
 
-NAMESPACE_LUA_END
 
 #endif

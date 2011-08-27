@@ -21,7 +21,6 @@
 #include "lauxlib.h"
 #include "lualib.h"
 
-NAMESPACE_LUA_BEGIN
 
 /* prefix for open functions in C libraries */
 #define LUA_POF		"luaopen_"
@@ -899,4 +898,3 @@ LUALIB_API int luaopen_package (lua_State *L) {
   return 1;  /* return 'package' table */
 }
 
-NAMESPACE_LUA_END

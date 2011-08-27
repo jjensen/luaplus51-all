@@ -15,7 +15,6 @@
 #include "llimits.h"
 #include "lua.h"
 
-NAMESPACE_LUA_BEGIN
 
 /* tags for values visible from Lua */
 #if !LUA_WIDESTRING
@@ -841,7 +840,6 @@ LUAI_FUNC const char *luaO_pushvfstring (lua_State *L, const char *fmt,
 LUAI_FUNC const char *luaO_pushfstring (lua_State *L, const char *fmt, ...);
 LUAI_FUNC void luaO_chunkid (char *out, const char *source, size_t len);
 
-NAMESPACE_LUA_END
 
 #endif
 
