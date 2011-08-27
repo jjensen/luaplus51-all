@@ -697,7 +697,11 @@ static TValue *newkey (lua_State *L, Table *t, const TValue *key) {
       mp = n;
     }
   }
+#if LUA_PACK_VALUE
   setobj2t(L, gkey(mp), key);
+#else
+  gkey(mp)->value = key->value; gkey(mp)->tt = key->tt;
+#endif /* LUA_PACK_VALUE */
 #if LUA_REFCOUNT    
   luarc_addref(gkey(mp));
 #endif /* LUA_REFCOUNT */
