@@ -163,6 +163,8 @@ do
 	test(os.path.is_writable('out.dat'), false)
 	os.path.make_writable('out.dat')
 	test(os.path.is_writable('out.dat'), true)
+
+	os.remove('out.dat')
 end	
 
 
