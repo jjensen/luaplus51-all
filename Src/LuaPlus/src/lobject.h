@@ -1,5 +1,5 @@
 /*
-** $Id: lobject.h,v 2.20.1.1 2007/12/27 13:02:25 roberto Exp $
+** $Id: lobject.h,v 2.20.1.2 2008/08/06 13:29:48 roberto Exp $
 ** Type definitions for Lua objects
 ** See Copyright Notice in lua.h
 */
@@ -132,6 +132,7 @@ typedef union {
 #endif /* LNUM_PATCH */
   int b;
 } Value;
+
 
 /*
 ** Tagged Values

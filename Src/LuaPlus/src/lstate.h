@@ -70,6 +70,7 @@ typedef struct CallInfo {
 #define f_isLua(ci)	(!ci_func(ci)->c.isC)
 #define isLua(ci)	(ttisfunction((ci)->func) && f_isLua(ci))
 
+
 /*
 ** `global state', shared by all threads of this state
 */
