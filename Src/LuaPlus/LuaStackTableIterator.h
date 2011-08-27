@@ -54,8 +54,6 @@ private:
 
 } // namespace LuaPlus
 
-#ifdef LUAPLUS_ENABLE_INLINES
 #include "LuaStackTableIterator.inl"
-#endif // LUAPLUS_ENABLE_INLINES
 
 #endif // LUAPLUS__LUASTACKTABLEITERATOR_H

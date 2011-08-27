@@ -12,12 +12,7 @@
 
 #include "src/lua.h"
 
-#define LUAPLUS_ENABLE_INLINES
-#ifdef LUAPLUS_ENABLE_INLINES
 #define LUAPLUS_INLINE inline
-#else // !LUAPLUS_ENABLE_INLINES
-#define LUAPLUS_INLINE
-#endif // LUAPLUS_ENABLE_INLINES
 
 ///////////////////////////////////////////////////////////////////////////////
 // namespace LuaPlus

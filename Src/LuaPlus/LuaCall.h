@@ -58,9 +58,7 @@ LUAPLUS_INLINE LuaCall& operator<<(LuaCall& call, LuaObject& value);
 
 } // namespace LuaPlus
 
-#ifdef LUAPLUS_ENABLE_INLINES
 #include "LuaCall.inl"
-#endif // LUAPLUS_ENABLE_INLINES
 
 #endif // LUAPLUS__LUACALL_H
 
