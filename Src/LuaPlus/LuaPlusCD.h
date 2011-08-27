@@ -10,8 +10,6 @@
 #ifndef LUAPLUSCD_H
 #define LUAPLUSCD_H
 
-#include "LuaLink.h"
-
 LUA_EXTERN_C_BEGIN
 #include "src/lua.h"
 #include "src/lauxlib.h"
