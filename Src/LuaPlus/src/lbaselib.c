@@ -679,29 +679,16 @@ static int luaB_newproxy (lua_State *L) {
   return 1;
 }
 
-#if LUAPLUS_EXTENSIONS
-
-static int luaB_createtable (lua_State *L) {
-  lua_createtable(L, (int)luaL_optinteger(L, 1, 0), (int)luaL_optinteger(L, 2, 0));
-  return 1;
-}
-
-#endif /* LUAPLUS_EXTENSIONS */
 
 #if LUAPLUS_DUMPOBJECT
 
-int LS_LuaDumpObject( lua_State* L );
-int LS_LuaDumpFile( lua_State* L );
-int LS_LuaDumpGlobals(lua_State* L );
+int luaplus_ls_LuaDumpObject(lua_State*);
 
-#endif /* LUAPLUS_DUMPOBJECT */
+#endif // LUAPLUS_DUMPOBJECT
 
 static const luaL_Reg base_funcs[] = {
   {"assert", luaB_assert},
   {"collectgarbage", luaB_collectgarbage},
-#if LUAPLUS_EXTENSIONS
-  {"createtable", luaB_createtable},
-#endif /* LUAPLUS_EXTENSIONS */
   {"dofile", luaB_dofile},
   {"error", luaB_error},
   {"gcinfo", luaB_gcinfo},
@@ -731,12 +718,8 @@ static const luaL_Reg base_funcs[] = {
 #endif /* LUA_EXT_RESUMABLEVM */
   {"xpcall", luaB_xpcall},
 #if LUAPLUS_DUMPOBJECT
-  {"LuaDumpObject", LS_LuaDumpObject},
-  {"LuaDumpFile", LS_LuaDumpFile},
-  {"LuaDumpGlobals", LS_LuaDumpGlobals},
-  {"dumpobject", LS_LuaDumpObject},
-  {"dumpfile", LS_LuaDumpFile},
-  {"dumpglobals", LS_LuaDumpGlobals},
+  {"LuaDumpObject", luaplus_ls_LuaDumpObject},
+  {"dumpobject", luaplus_ls_LuaDumpObject},
 #endif /* LUAPLUS_DUMPOBJECT */
   {NULL, NULL}
 };

@@ -12,6 +12,9 @@
 
 #include "LuaPlusInternal.h"
 
+LUALIB_API lua_Integer (luaL_checkboolean) (lua_State *L, int narg);
+LUALIB_API lua_Integer (luaL_optboolean) (lua_State *L, int narg, int def);
+
 ///////////////////////////////////////////////////////////////////////////////
 // namespace LuaPlus
 ///////////////////////////////////////////////////////////////////////////////
@@ -38,7 +41,7 @@ public:
 
 	lua_CFunction AtPanic(lua_CFunction panicf);
 
-	LUAPLUS_CLASS_API void OpenLibs();
+	void OpenLibs();
 
 	// Basic stack manipulation.
 	LuaStackObject Stack(int index);
@@ -129,6 +132,7 @@ public:
 	LuaObject GetGlobals() throw();
 	LuaObject GetRegistry();
 	LuaObject GetGlobal(const char *name);
+
 	LuaStackObject GetGlobals_Stack();					// Backward compatible.
 	LuaStackObject GetRegistry_Stack();
 	LuaStackObject GetGlobal_Stack(const char *name);
@@ -310,9 +314,6 @@ public:
 					int indentLevel = 0, unsigned int maxIndentLevel = 0xffffffff);
 	LUAPLUS_CLASS_API bool DumpObject(LuaStateOutFile& file, LuaObject& key, LuaObject& value, unsigned int flags = DUMP_ALPHABETICAL,
 					int indentLevel = 0, unsigned int maxIndentLevel = 0xffffffff);
-
-	LUAPLUS_CLASS_API bool DumpGlobals(const char* filename, unsigned int flags = DUMP_ALPHABETICAL, unsigned int maxIndentLevel = 0xFFFFFFFF);
-	LUAPLUS_CLASS_API bool DumpGlobals(LuaStateOutFile& file, unsigned int flags = DUMP_ALPHABETICAL, unsigned int maxIndentLevel = 0xFFFFFFFF);
 #endif // LUAPLUS_DUMPOBJECT
 
 	operator lua_State*()						{  return (lua_State*)this;  }

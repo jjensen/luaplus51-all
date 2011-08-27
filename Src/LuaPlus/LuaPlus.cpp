@@ -7,15 +7,7 @@
 // The code presented in this file may be used in any environment it is
 // acceptable to use Lua.
 ///////////////////////////////////////////////////////////////////////////////
-#ifndef BUILDING_LUAPLUS
-#define BUILDING_LUAPLUS
-#endif
-LUA_EXTERN_C_BEGIN
-#include "src/lobject.h"
-LUA_EXTERN_C_END
 #include "LuaPlus.h"
-#include "LuaState.h"
-//#include "LuaCall.h"
 #include <string.h>
 #ifdef WIN32
 #if defined(WIN32) && !defined(_XBOX) && !defined(_XBOX_VER) && !defined(_WIN32_WCE)
@@ -23,39 +15,18 @@ LUA_EXTERN_C_END
 #elif defined(_XBOX) || defined(_XBOX_VER)
 #include <xtl.h>
 #endif // WIN32
-#undef GetObject
 #endif // WIN32
-#if defined(__GNUC__)
-	#include <new>
-#else
-	#include <new.h>
-#endif
-
-#include <stdlib.h>
-#include <wchar.h>
-#include <assert.h>
-
-#ifdef _MSC_VER
-#pragma warning(disable: 4100)
-#endif // _MSC_VER
 
 //-----------------------------------------------------------------------------
 LUA_EXTERN_C_BEGIN
-#include "src/lualib.h"
-#include "src/lstate.h"
-#include "src/lualib.h"
-#include "src/lfunc.h"
-#include "src/lstate.h"
-#include "src/lua.h"
-#include "src/lauxlib.h"
 
-#if LUAPLUS_EXTENSIONS
+#if LUA_MEMORY_STATS
 static void *luaplus_alloc (void *ud, void *ptr, size_t osize, size_t nsize, const char* allocName, unsigned int flags) {
   (void)allocName;
   (void)flags;
 #else
 static void *luaplus_alloc (void *ud, void *ptr, size_t osize, size_t nsize) {
-#endif /* LUAPLUS_EXTENSIONS */
+#endif /* LUA_MEMORY_STATS */
   (void)osize;
   (void)ud;
   if (nsize == 0) {
@@ -83,14 +54,8 @@ void lua_setdefaultallocfunction(lua_Alloc allocFunc, void* ud)
 	luaHelper_ud = ud;
 }
 
-static int FatalError( lua_State* state );
 
-void LuaState_UserStateOpen(lua_State* L)
-{
-	lua_atpanic(L, FatalError);
-}
-
-
+int LuaState_FatalError( lua_State* );
 
 LUA_EXTERN_C_END
 
@@ -136,31 +101,58 @@ LuaException::~LuaException()
 
 /*static*/ LuaState* LuaState::Create()
 {
-	return lua_State_To_LuaState(lua_newstate(luaHelper_defaultAlloc, luaHelper_ud));
+	lua_State* L = lua_newstate(luaHelper_defaultAlloc, luaHelper_ud);
+	lua_atpanic(L, LuaState_FatalError);
+	return lua_State_To_LuaState(L);
 }
 
 
 /*static*/ void LuaState::Destroy( LuaState* state )
 {
 	lua_State* L = LuaState_to_lua_State(state);
-	if (G(L)->mainthread == L)
-		lua_close(L);
+	lua_close(L);
+}
+
+
+#if 0
+
+namespace LuaPlus {
+
+LuaStackObject LuaState::PushVFString(const char *fmt, va_list argp) {
+	lua_State* L = LuaState_to_lua_State(this);
+	lua_lock(L);
+	luaC_checkGC(L);
+	luaO_pushvfstring(L, fmt, argp);
+	lua_unlock(L);
+	return LuaStackObject(this, lua_gettop(LuaState_to_lua_State(this)));
+}
+
+
+LuaStackObject LuaState::PushFString(const char *fmt, ...) {
+	lua_State* L = LuaState_to_lua_State(this);
+	va_list argp;
+	lua_lock(L);
+	luaC_checkGC(L);
+	va_start(argp, fmt);
+	luaO_pushvfstring(L, fmt, argp);
+	va_end(argp);
+	lua_unlock(L);
+	return LuaStackObject(this, lua_gettop(LuaState_to_lua_State(this)));
 }
 
 } // namespace LuaPlus
 
-#if defined(_MSC_VER)
-#pragma warning(push)
-#pragma warning(disable: 4702)
-#endif /* _MSC_VER */
+#endif
+
+} // namespace LuaPlus
 
 LUA_EXTERN_C_BEGIN
 
 /**
 **/
-static int FatalError( lua_State* state )
+int LuaState_FatalError( lua_State* L )
 {
-	const char* err = lua_tostring(state, 1);
+	const char* err = lua_tostring(L, 1);
 #ifdef WIN32
 	if (err)
 		OutputDebugString(err);
@@ -177,7 +169,3 @@ static int FatalError( lua_State* state )
 }
 
 LUA_EXTERN_C_END
-
-#if defined(_MSC_VER)
-#pragma warning(pop)
-#endif /* _MSC_VER */

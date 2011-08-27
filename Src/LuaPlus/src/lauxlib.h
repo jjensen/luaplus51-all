@@ -57,10 +57,6 @@ LUALIB_API lua_Number (luaL_optnumber) (lua_State *L, int nArg, lua_Number def);
 LUALIB_API lua_Integer (luaL_checkinteger) (lua_State *L, int numArg);
 LUALIB_API lua_Integer (luaL_optinteger) (lua_State *L, int nArg,
                                           lua_Integer def);
-#if LUAPLUS_EXTENSIONS
-LUALIB_API lua_Integer (luaL_checkboolean) (lua_State *L, int narg);
-LUALIB_API lua_Integer (luaL_optboolean) (lua_State *L, int narg, int def);
-#endif /* LUAPLUS_EXTENSIONS */
 #if LNUM_PATCH
 #define luaL_checkint32(L,narg) ((int)luaL_checkinteger(L,narg))
 #define luaL_optint32(L,narg,def) ((int)luaL_optinteger(L,narg,def))

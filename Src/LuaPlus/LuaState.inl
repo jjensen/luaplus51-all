@@ -20,6 +20,25 @@
 namespace LuaPlus
 {
 
+LUAPLUS_INLINE /*static*/ LuaState* LuaState::Create(bool initStandardLibrary)
+{
+	LuaState* state = LuaState::Create();
+	if (initStandardLibrary)
+		state->OpenLibs();
+	return state;
+}
+
+LUAPLUS_INLINE LuaObject LuaState::CreateThread(LuaState* parentState)
+{
+	lua_State* L = LuaState_to_lua_State(parentState);
+    lua_State* L1 = lua_newthread(L);
+	lua_xmove(L, L1, 1);
+	LuaObject ret(L1, -1);
+	lua_pop(L1, 1);
+	return ret;
+}
+
+
 LUAPLUS_INLINE lua_CFunction LuaState::AtPanic(lua_CFunction panicf)
 {
 	return lua_atpanic(LuaState_to_lua_State(this), panicf);
@@ -1024,9 +1043,55 @@ LUAPLUS_INLINE int LuaState::DoBuffer( const char *buff, size_t size, const char
 }
 
 
+inline LuaObject LuaState::GetLocalByName( int level, const char* name )
+{
+	lua_State * L = GetCState();
+	lua_Debug ar;
+	int i;
+	const char *localName;
+	if (lua_getstack(L, level, &ar) == 0)
+		return LuaObject(this);  /* failure: no such level in the stack */
+	i = 1;
+	while ((localName = lua_getlocal(L, &ar, i++)) != NULL) {
+		if (strcmp(name, localName) == 0)
+		{
+			LuaObject obj(this, -1);
+			lua_pop(L, 1);
+			return obj;
+		}
+		lua_pop(L, 1);  /* remove variable value */
+	}
+	return LuaObject(this);
+}
 
 } // namespace LuaPlus
 
-#endif // LUASTATE_INL
+extern "C" {
+#include "src/lualib.h"
+}
+
+namespace LuaPlus {
+
+inline int pmain (lua_State *L)
+{
+	luaL_openlibs(L);
+	return 0;
+}
+
+
+/**
+**/
+inline void LuaState::OpenLibs()
+{
+#if LUAPLUS_INCLUDE_STANDARD_LIBRARY
+	lua_State* L = LuaState_to_lua_State(this);
+	int top = lua_gettop(L);
+	lua_cpcall(LuaState_to_lua_State(this), &pmain, NULL);
+	lua_settop(L, top);
+#endif // LUAPLUS_INCLUDE_STANDARD_LIBRARY
+}
+
+} // namespace LuaPlus
+
 
 #endif // LUAPLUS__LUASTATE_INL

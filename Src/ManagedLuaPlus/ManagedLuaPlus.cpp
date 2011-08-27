@@ -2636,16 +2636,6 @@ public:
 			*value->m_object, flags, indentLevel, maxIndentLevel);
 	}
 
-	bool DumpGlobals(String^ filename, unsigned int flags, unsigned int maxIndentLevel)
-	{
-		return m_state->DumpGlobals(MarshalStringANSI(filename), flags, maxIndentLevel);
-	}
-
-	bool DumpGlobals(String^ filename)
-	{
-		return m_state->DumpGlobals(MarshalStringANSI(filename), (unsigned int)DumpObjectTypes::DUMP_ALPHABETICAL, 0xffffffff);
-	}
-
 	// Extra
 	LuaStackObject^ BoxPointer(void* u)									{  return gcnew LuaStackObject(this, m_state->BoxPointer(u));  }
 	void* UnBoxPointer(int stackIndex)									{  return m_state->UnBoxPointer(stackIndex);  }

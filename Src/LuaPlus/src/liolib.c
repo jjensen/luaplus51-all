@@ -458,19 +458,6 @@ static int io_read (lua_State *L) {
   return g_read(L, getiofile(L, IO_INPUT), 1);
 }
 
-#if LUAPLUS_EXTENSIONS
-static int io_readall (lua_State *L) {
-  const char *filename = luaL_checkstring(L, 1);
-  FILE *f = fopen(filename, "rb");
-  if (!f)
-    return 0;
-  read_chars(L, f, ~((size_t)0));  /* read MAX_SIZE_T chars */
-  fclose(f);
-  if (ferror(f))
-    return pushresult(L, 0, NULL);
-  return 1;
-}
-#endif /* LUAPLUS_EXTENSIONS */
 
 static int f_read (lua_State *L) {
   return g_read(L, tofile(L), 2);
@@ -529,21 +516,6 @@ static int io_write (lua_State *L) {
   return g_write(L, getiofile(L, IO_OUTPUT), 1);
 }
 
-#if LUAPLUS_EXTENSIONS
-static int io_writeall (lua_State *L) {
-  const char *filename = luaL_checkstring(L, 1);
-  int status;
-  size_t l;
-  const char *s;
-  FILE *f = fopen(filename, "wb");
-  if (!f)
-    return 0;
-  s = luaL_checklstring(L, 2, &l);
-  status = fwrite(s, sizeof(char), l, f) == l;
-  fclose(f);
-  return pushresult(L, status, NULL);
-}
-#endif /* LUAPLUS_EXTENSIONS */
 
 static int f_write (lua_State *L) {
   return g_write(L, tofile(L), 2);
@@ -604,10 +576,6 @@ static const luaL_Reg iolib[] = {
   {"tmpfile", io_tmpfile},
   {"type", io_type},
   {"write", io_write},
-#if LUAPLUS_EXTENSIONS
-  {"readall", io_readall},
-  {"writeall", io_writeall},
-#endif /* LUAPLUS_EXTENSIONS */
   {NULL, NULL}
 };
 

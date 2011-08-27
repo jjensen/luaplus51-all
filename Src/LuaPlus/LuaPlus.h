@@ -17,6 +17,7 @@
 #include "LuaTableIterator.h"
 #include "LuaObject.inl"
 #include "LuaStateOutFile.h"
+#include "LuaStateOutString.h"
 #include "LuaHelper.h"
 #include "LuaAutoBlock.h"
 #include "LuaStackTableIterator.h"

@@ -210,6 +210,7 @@ lua_State *luaE_newthread (lua_State *L) {
   return L1;
 }
 
+
 void luaE_freethread (lua_State *L, lua_State *L1) {
   luaF_close(L1, L1->stack);  /* close all upvalues for this thread */
   lua_assert(L1->openupval == NULL);
@@ -218,9 +219,6 @@ void luaE_freethread (lua_State *L, lua_State *L1) {
   luaM_freemem(L, fromstate(L1), state_size(lua_State));
 }
 
-#if LUAPLUS_EXTENSIONS
-void LuaState_UserStateOpen(lua_State* L);
-#endif /* LUAPLUS_EXTENSIONS */
 
 LUA_API lua_State *lua_newstate (lua_Alloc f, void *ud) {
   int i;
