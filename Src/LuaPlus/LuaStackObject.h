@@ -7,8 +7,8 @@
 // The code presented in this file may be used in any environment it is
 // acceptable to use Lua.
 ///////////////////////////////////////////////////////////////////////////////
-#ifndef LUASTACKOBJECT_H
-#define LUASTACKOBJECT_H
+#ifndef LUAPLUS__LUASTACKOBJECT_H
+#define LUAPLUS__LUASTACKOBJECT_H
 
 #include "LuaPlusInternal.h"
 #include "LuaPlusCD.h"
@@ -236,4 +236,4 @@ namespace LPCD {
 		{  return LuaStackObject(lua_State_To_LuaState(L), idx);  }
 } // namespace LPCD
 
-#endif // LUASTACKOBJECT_H
+#endif // LUAPLUS__LUASTACKOBJECT_H

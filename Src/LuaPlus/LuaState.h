@@ -7,8 +7,8 @@
 // The code presented in this file may be used in any environment it is
 // acceptable to use Lua.
 ///////////////////////////////////////////////////////////////////////////////
-#ifndef LUASTATE_H
-#define LUASTATE_H
+#ifndef LUAPLUS__LUASTATE_H
+#define LUAPLUS__LUASTATE_H
 
 #include "LuaPlusInternal.h"
 
@@ -428,4 +428,4 @@ private:
 #include "LuaState.inl"
 #endif // LUAPLUS_ENABLE_INLINES
 
-#endif // LUASTATE_H
+#endif // LUAPLUS__LUASTATE_H

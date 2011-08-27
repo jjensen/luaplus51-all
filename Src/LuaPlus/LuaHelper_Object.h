@@ -7,8 +7,8 @@
 // The code presented in this file may be used in any environment it is
 // acceptable to use Lua.
 ///////////////////////////////////////////////////////////////////////////////
-#ifndef LUAHELPER_OBJECT_H
-#define LUAHELPER_OBJECT_H
+#ifndef LUAPLUS__LUAHELPER_OBJECT_H
+#define LUAPLUS__LUAHELPER_OBJECT_H
 
 #include "LuaPlusInternal.h"
 
@@ -144,4 +144,4 @@ namespace LuaHelper
 } // namespace LuaPlus
 
 
-#endif // LUAHELPER_OBJECT_H
+#endif // LUAPLUS__LUAHELPER_OBJECT_H
