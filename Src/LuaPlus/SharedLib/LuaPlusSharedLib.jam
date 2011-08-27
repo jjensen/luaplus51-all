@@ -11,28 +11,27 @@ local LUAPLUS_SRCS =
 		../LuaHelper_Object.h
 		../LuaHelper_StackObject.h
 		../LuaLink.h
-#		../LuaObject.cpp
 		../LuaObject.h
 		../LuaObject.inl
 		../LuaPlus.cpp
 		../LuaPlus.h
 		../LuaPlusAddons.c
 		../LuaPlusCD.h
-		../LuaPlusFunctions.cpp
 		../LuaPlusInternal.h
-		../LuaPlus_Libs.cpp
 		../LuaStackObject.h
 		../LuaStackObject.inl
 		../LuaStackTableIterator.h
 		../LuaStackTableIterator.inl
-		../LuaState.cpp
 		../LuaState.h
 		../LuaState.inl
 		../LuaStateOutFile.h
+		../LuaStateOutString.h
 		../LuaState_DumpObject.cpp
-#		../LuaTableIterator.cpp
 		../LuaTableIterator.h
 		../lwstrlib.c
+;
+
+local LUA_SRCS =
 		../src/lapi.c
 		../src/lapi.h
 		../src/lauxlib.c
@@ -90,6 +89,9 @@ local LUAPLUS_SRCS =
 		../src/lnum.h
 ;
 
+SourceGroup LuaPlusShared : Lua : $(LUA_SRCS) ;
+SourceGroup LuaPlusShared : LuaPlus : $(LUAPLUS_SRCS) ;
+
 C.IncludeDirectories LuaPlusShared : $(LUAPLUS)/Src/LuaPlus/src ;
 C.InstallNamePath LuaPlusShared : @rpath ;
 
@@ -108,6 +110,6 @@ C.OutputName LuaPlusShared : luaplus51-1201 ;
 LuaPlusFixUpTarget LuaPlusShared ;
 C.OutputPostfix LuaPlusShared : _debug : debug ;
 
-C.Library LuaPlusShared : $(LUAPLUS_SRCS) : shared ;
+C.Library LuaPlusShared : $(LUA_SRCS) $(LUAPLUS_SRCS) : shared ;
 
 }

@@ -1030,11 +1030,7 @@ union luai_Cast { double l_d; long l_l; };
 ** CHANGE them if you defined LUAI_EXTRASPACE and need to do something
 ** extra when a thread is created/deleted/resumed/yielded.
 */
-#if LUAPLUS_EXTENSIONS
-#define luai_userstateopen(L)		LuaState_UserStateOpen(L)
-#else
 #define luai_userstateopen(L)		((void)L)
-#endif /* LUAPLUS_EXTENSIONS */
 #define luai_userstateclose(L)		((void)L)
 #define luai_userstatethread(L,L1)	((void)L)
 #define luai_userstatefree(L)		((void)L)
@@ -1070,6 +1066,8 @@ union luai_Cast { double l_d; long l_l; };
 ** Local configuration. You can use this space to add your redefinitions
 ** without modifying the main part of the file.
 */
+
+
 
 #endif
 

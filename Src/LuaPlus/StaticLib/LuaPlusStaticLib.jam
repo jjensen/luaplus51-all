@@ -26,8 +26,8 @@ local LUAPLUS_SRCS =
 		../LuaState.cpp
 		../LuaState.h
 		../LuaState.inl
-		../LuaStateOutFile.cpp
 		../LuaStateOutFile.h
+		../LuaStateOutString.h
 		../LuaState_DumpObject.cpp
 		../LuaTableIterator.h
 		../luathread.c

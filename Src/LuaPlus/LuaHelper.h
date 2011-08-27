@@ -13,11 +13,4 @@
 #include "LuaHelper_Object.h"
 #include "LuaHelper_StackObject.h"
 
-namespace LuaPlus
-{
-	namespace LuaHelper {
-		LUAPLUS_API void MergeObjects(LuaObject& mergeTo, LuaObject& mergeFrom, bool replaceDuplicates);
-	}
-}
-
 #endif // LUAPLUS__LUAHELPER_H

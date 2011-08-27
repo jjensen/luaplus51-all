@@ -7,29 +7,18 @@
 // The code presented in this file may be used in any environment it is
 // acceptable to use Lua.
 ///////////////////////////////////////////////////////////////////////////////
-#ifndef BUILDING_LUAPLUS
-#define BUILDING_LUAPLUS
-#endif
-LUA_EXTERN_C_BEGIN
-#include "src/lobject.h"
-LUA_EXTERN_C_END
 #include "LuaPlus.h"
 
-#if defined(WIN32) && !defined(_XBOX) && !defined(_XBOX_VER)
-#include <windows.h>
-#undef GetObject
-#undef LoadString
-#elif defined(_XBOX) || defined(_XBOX_VER)
-#include <xtl.h>
-#endif // WIN32
-
 #include <ctype.h>
+
+/* macro to `unsign' a character */
+#define uchar(c)        ((unsigned char)(c))
 
 LUA_EXTERN_C int str_format_helper (luaL_Buffer* b, lua_State *L, int arg);
 
 namespace LuaPlus {
 
-static void luaI_addquotedbinary (LuaStateOutFile& file, const char* s, size_t l) {
+static void luaI_addquotednonwidebinary (LuaStateOutFile& file, const char* s, size_t l) {
 	file.Print("%c", '"');
 	while (l--) {
 		switch (*s) {
@@ -86,13 +75,249 @@ static void luaI_addquotedwidebinary (LuaStateOutFile& file, const lua_WChar* s,
 
 #endif /* LUA_WIDESTRING */
 
+#define L_ESC		'%'
+
+/* maximum size of each formatted item (> len(format('%99.99f', -1e308))) */
+#define MAX_ITEM	512
+/* valid flags in a format specification */
+#define FLAGS	"-+ #0"
+/*
+** maximum size of each format specification (such as '%-099.99d')
+** (+10 accounts for %99.99x plus margin of error)
+*/
+#if LNUM_PATCH
+#define MAX_FORMAT	(sizeof(FLAGS) + sizeof(LUA_INTEGER_FMT)-2 + 10)
+#else
+#define MAX_FORMAT	(sizeof(FLAGS) + sizeof(LUA_INTFRMLEN) + 10)
+#endif /* LNUM_PATCH */
+
+static const char *scanformat (lua_State *L, const char *strfrmt, char *form) {
+  const char *p = strfrmt;
+  while (*p != '\0' && strchr(FLAGS, *p) != NULL) p++;  /* skip flags */
+  if ((size_t)(p - strfrmt) >= sizeof(FLAGS))
+    luaL_error(L, "invalid format (repeated flags)");
+  if (isdigit(uchar(*p))) p++;  /* skip width */
+  if (isdigit(uchar(*p))) p++;  /* (2 digits at most) */
+  if (*p == '.') {
+    p++;
+    if (isdigit(uchar(*p))) p++;  /* skip precision */
+    if (isdigit(uchar(*p))) p++;  /* (2 digits at most) */
+  }
+  if (isdigit(uchar(*p)))
+    luaL_error(L, "invalid format (width or precision too long)");
+  *(form++) = '%';
+  strncpy(form, strfrmt, p - strfrmt + 1);
+  form += p - strfrmt + 1;
+  *form = '\0';
+  return p;
+}
+
+
+static void addquoted (lua_State *L, luaL_Buffer *b, int arg) {
+  size_t l;
+  const char *s = luaL_checklstring(L, arg, &l);
+  luaL_addchar(b, '"');
+  while (l--) {
+    switch (*s) {
+      case '"': case '\\': case '\n': {
+        luaL_addchar(b, '\\');
+        luaL_addchar(b, *s);
+        break;
+      }
+      case '\r': {
+        luaL_addlstring(b, "\\r", 2);
+        break;
+      }
+      case '\0': {
+        luaL_addlstring(b, "\\000", 4);
+        break;
+      }
+      default: {
+        luaL_addchar(b, *s);
+        break;
+      }
+    }
+    s++;
+  }
+  luaL_addchar(b, '"');
+}
+
+
+void addquotedbinary (lua_State *L, luaL_Buffer *b, int arg) {
+  size_t l;
+#if LUA_WIDESTRING
+  if (lua_type(L, arg) == LUA_TWSTRING)
+  {
+    const lua_WChar *s = luaL_checklwstring(L, arg, &l);
+    luaL_addchar(b, 'L');
+    luaL_addchar(b, '"');
+    while (l--) {
+      switch (*s) {
+        case '"':  case '\\':
+          luaL_addchar(b, '\\');
+          luaL_addchar(b, *s);
+          break;
+        case '\a':  luaL_addchar(b, '\\');  luaL_addchar(b, 'a');  break;
+        case '\b':  luaL_addchar(b, '\\');  luaL_addchar(b, 'b');  break;
+        case '\f':  luaL_addchar(b, '\\');  luaL_addchar(b, 'f');  break;
+        case '\n':  luaL_addchar(b, '\\');  luaL_addchar(b, 'n');  break;
+        case '\r':  luaL_addchar(b, '\\');  luaL_addchar(b, 'r');  break;
+        case '\t':  luaL_addchar(b, '\\');  luaL_addchar(b, 't');  break;
+        case '\v':  luaL_addchar(b, '\\');  luaL_addchar(b, 'v');  break;
+        default:
+          if (*s < 256  &&  isprint((unsigned char)*s)) {
+            luaL_addchar(b, *s);
+          } else {
+            char str[10];
+            sprintf(str, "\\x%04x", (unsigned int)*s);
+            luaL_addstring(b, str);
+          }
+      }
+      s++;
+    }
+    luaL_addchar(b, '"');
+  }
+  else
+#endif /* LUA_WIDESTRING */
+  {
+    const char *s = luaL_checklstring(L, arg, &l);
+    luaL_addchar(b, '"');
+    while (l--) {
+      switch (*s) {
+        case '"':  case '\\':
+          luaL_addchar(b, '\\');
+          luaL_addchar(b, *s);
+          break;
+        case '\a':  luaL_addchar(b, '\\');  luaL_addchar(b, 'a');  break;
+        case '\b':  luaL_addchar(b, '\\');  luaL_addchar(b, 'b');  break;
+        case '\f':  luaL_addchar(b, '\\');  luaL_addchar(b, 'f');  break;
+        case '\n':  luaL_addchar(b, '\\');  luaL_addchar(b, 'n');  break;
+        case '\r':  luaL_addchar(b, '\\');  luaL_addchar(b, 'r');  break;
+        case '\t':  luaL_addchar(b, '\\');  luaL_addchar(b, 't');  break;
+        case '\v':  luaL_addchar(b, '\\');  luaL_addchar(b, 'v');  break;
+        default:
+          if (isprint((unsigned char)*s)) {
+            luaL_addchar(b, *s);
+          } else {
+            char str[10];
+            sprintf(str, "\\x%02x", (unsigned int)(unsigned char)*s);
+            luaL_addstring(b, str);
+          }
+      }
+      s++;
+    }
+    luaL_addchar(b, '"');
+  }
+}
+
+
+static void addintlen (char *form) {
+  size_t l = strlen(form);
+  char spec = form[l - 1];
+#if LNUM_PATCH
+  const char *tmp= LUA_INTEGER_FMT;   /* "%lld" or "%ld" */
+  strcpy(form + l - 1, tmp+1);
+  form[l + sizeof(LUA_INTEGER_FMT)-4] = spec;
+#else
+  strcpy(form + l - 1, LUA_INTFRMLEN);
+  form[l + sizeof(LUA_INTFRMLEN) - 2] = spec;
+  form[l + sizeof(LUA_INTFRMLEN) - 1] = '\0';
+#endif /* LNUM_PATCH */
+}
+
+
+int str_format_helper (luaL_Buffer *b, lua_State *L, int arg) {
+  int top = lua_gettop(L);
+  size_t sfl;
+  const char *strfrmt = luaL_checklstring(L, arg, &sfl);
+  const char *strfrmt_end = strfrmt+sfl;
+  luaL_buffinit(L, b);
+  while (strfrmt < strfrmt_end) {
+    if (*strfrmt != L_ESC)
+      luaL_addchar(b, *strfrmt++);
+    else if (*++strfrmt == L_ESC)
+      luaL_addchar(b, *strfrmt++);  /* %% */
+    else { /* format item */
+      char form[MAX_FORMAT];  /* to store the format (`%...') */
+      char buff[MAX_ITEM];  /* to store the formatted item */
+      if (++arg > top)
+        luaL_argerror(L, arg, "no value");
+      strfrmt = scanformat(L, strfrmt, form);
+      switch (*strfrmt++) {
+        case 'c': {
+          sprintf(buff, form, (int)luaL_checknumber(L, arg));
+          break;
+        }
+        case 'd':  case 'i': {
+          addintlen(form);
+#if LNUM_PATCH
+          sprintf(buff, form, luaL_checkinteger(L, arg));
+#else
+          sprintf(buff, form, (LUA_INTFRM_T)luaL_checknumber(L, arg));
+#endif /* LNUM_PATCH */
+          break;
+        }
+        case 'o':  case 'u':  case 'x':  case 'X': {
+          addintlen(form);
+#if LNUM_PATCH
+          sprintf(buff, form, (unsigned LUA_INTEGER)luaL_checkinteger(L, arg));
+#else
+          sprintf(buff, form, (unsigned LUA_INTFRM_T)luaL_checknumber(L, arg));
+#endif /* LNUM_PATCH */
+          break;
+        }
+        case 'e':  case 'E': case 'f':
+        case 'g': case 'G': {
+          sprintf(buff, form, (double)luaL_checknumber(L, arg));
+          break;
+        }
+        case 'q': {
+          addquoted(L, b, arg);
+          continue;  /* skip the 'addsize' at the end */
+        }
+        case 's': {
+          size_t l;
+          const char *s = luaL_checklstring(L, arg, &l);
+          if (!strchr(form, '.') && l >= 100) {
+            /* no precision and string is too long to be formatted;
+               keep original string */
+            lua_pushvalue(L, arg);
+            luaL_addvalue(b);
+            continue;  /* skip the `addsize' at the end */
+          }
+          else {
+            sprintf(buff, form, s);
+            break;
+          }
+        }
+        default: {  /* also treat cases `pnLlh' */
+          return luaL_error(L, "invalid option " LUA_QL("%%%c") " to "
+                               LUA_QL("format"), *(strfrmt - 1));
+        }
+        case 'B': {
+          if (!lua_isboolean(L, arg)  &&  !lua_isnil(L, arg))
+            luaL_typerror(L, arg, lua_typename(L, LUA_TBOOLEAN));
+          strcpy(buff, lua_toboolean(L, arg) ? "true" : "false");
+          break;
+        }
+        case 'Q': {
+          addquotedbinary(L, b, arg);
+          continue;  /* skip the `addsize' at the end */
+        }
+      }
+      luaL_addlstring(b, buff, strlen(buff));
+    }
+  }
+  return 1;
+}
+
 #define bufflen(B)	((B)->p - (B)->buffer)
 
 static int LS_LuaFilePrint(LuaState* state) {
 	LuaStateOutFile* file = (LuaStateOutFile*)state->Stack(1).GetUserData();
 
 	luaL_Buffer b;
-	str_format_helper(&b, *state, 2);
+	::str_format_helper(&b, *state, 2);
 
 	size_t l = bufflen(&b);
 	if (l != 0) {
@@ -195,7 +420,7 @@ static void WriteKey(LuaStateOutFile& file, LuaObject& key) {
 			file.Print("%s", key.GetString());
 		else {
 			file.Print("[");
-			luaI_addquotedbinary(file, key.GetString(), key.StrLen());
+			luaI_addquotednonwidebinary(file, key.GetString(), key.StrLen());
 			file.Print("]");
 		}
 	} else if (key.IsBoolean()) {
@@ -471,7 +696,7 @@ bool LuaState::DumpObject(LuaStateOutFile& file, LuaObject& key, LuaObject& valu
 	// Or if the object's value is a string, write it as a quoted string.
 	else if (value.IsString())
 	{
-		luaI_addquotedbinary(file, value.GetString(), value.StrLen());
+		luaI_addquotednonwidebinary(file, value.GetString(), value.StrLen());
 	}
 
 #if LUA_WIDESTRING
@@ -961,6 +1186,139 @@ bool LuaState::DumpGlobals(LuaStateOutFile& file, unsigned int flags, unsigned i
 	return true;
 }
 
-#endif // LUAPLUS_EXTENSIONS
+
+#endif // LUAPLUS_DUMPOBJECT
 
 } // namespace LuaPlus
+
+
+LUA_EXTERN_C int str_format_helper (luaL_Buffer *b, lua_State *L, int arg) {
+	return LuaPlus::str_format_helper(b, L, arg);
+}
+
+
+#if LUAPLUS_DUMPOBJECT
+
+LUA_EXTERN_C void luaplus_dumptable(lua_State* L, int index)
+{
+	LuaPlus::LuaState* state = lua_State_To_LuaState(L);
+	LuaPlus::LuaObject valueObj(state, index);
+	LuaPlus::LuaStateOutString stringFile;
+	state->DumpObject(stringFile, NULL, valueObj, LuaPlus::LuaState::DUMP_ALPHABETICAL | LuaPlus::LuaState::DUMP_WRITEALL, 0, -1);
+	state->PushString(stringFile.GetBuffer());
+}
+
+
+// LuaDumpObject(file, key, value, alphabetical, indentLevel, maxIndentLevel, writeAll)
+extern "C" int luaplus_ls_LuaDumpObject( lua_State* L )
+{
+	LuaPlus::LuaState* state = lua_State_To_LuaState( L );
+	LuaPlus::LuaStateOutFile file;
+
+	LuaPlus::LuaStack args(state);
+	LuaPlus::LuaStackObject fileObj = args[1];
+	if (fileObj.IsTable()  &&  state->GetTop() == 1)
+	{
+		LuaPlus::LuaObject valueObj(fileObj);
+		LuaPlus::LuaObject nameObj;
+		LuaPlus::LuaStateOutString stringFile;
+		state->DumpObject(stringFile, NULL, valueObj, LuaPlus::LuaState::DUMP_ALPHABETICAL, 0, -1);
+		state->PushString(stringFile.GetBuffer());
+		return 1;
+	}
+
+	const char* fileName = NULL;
+	if ( fileObj.IsUserData() )
+	{	
+		FILE* stdioFile = (FILE *)fileObj.GetUserData();
+		file.Assign( stdioFile );
+	}
+	else if ( fileObj.IsString() )
+	{
+		fileName = fileObj.GetString();
+	}
+
+	LuaPlus::LuaObject nameObj = args[2];
+	LuaPlus::LuaObject valueObj = args[3];
+	LuaPlus::LuaStackObject alphabeticalObj = args[4];
+	LuaPlus::LuaStackObject indentLevelObj = args[5];
+	LuaPlus::LuaStackObject maxIndentLevelObj = args[6];
+	LuaPlus::LuaStackObject writeAllObj = args[7];
+	bool writeAll = writeAllObj.IsBoolean() ? writeAllObj.GetBoolean() : false;
+	bool alphabetical = alphabeticalObj.IsBoolean() ? alphabeticalObj.GetBoolean() : true;
+	unsigned int maxIndentLevel = maxIndentLevelObj.IsInteger() ? (unsigned int)maxIndentLevelObj.GetInteger() : 0xFFFFFFFF;
+
+	unsigned int flags = (alphabetical ? LuaPlus::LuaState::DUMP_ALPHABETICAL : 0) | (writeAll ? LuaPlus::LuaState::DUMP_WRITEALL : 0);
+
+	if (fileName)
+	{
+		if (strcmp(fileName, ":string") == 0)
+		{
+			LuaPlus::LuaStateOutString stringFile;
+			state->DumpObject(stringFile, nameObj, valueObj, flags, indentLevelObj.GetInteger(), maxIndentLevel);
+			state->PushString(stringFile.GetBuffer());
+			return 1;
+		}
+		else
+		{
+			state->DumpObject(fileName, nameObj, valueObj, flags, (unsigned int)indentLevelObj.GetInteger(), maxIndentLevel);
+		}
+	}
+	else
+	{
+		state->DumpObject(file, nameObj, valueObj, flags, (unsigned int)indentLevelObj.GetInteger(), maxIndentLevel);
+	}
+
+	return 0;
+}
+
+
+// LuaDumpFile(file, key, value, alphabetical, indentLevel, maxIndentLevel, writeAll)
+extern "C" int luaplus_ls_LuaDumpFile(lua_State* L)
+{
+	return luaplus_ls_LuaDumpObject(L);
+}
+
+
+// LuaDumpGlobals(file, alphabetical, maxIndentLevel, writeAll)
+extern "C" int luaplus_ls_LuaDumpGlobals(lua_State* L)
+{
+	LuaPlus::LuaState* state = lua_State_To_LuaState( L );
+	LuaPlus::LuaStateOutFile file;
+
+	LuaPlus::LuaStack args(state);
+	LuaPlus::LuaStackObject fileObj = args[1];
+	const char* fileName = NULL;
+	if ( fileObj.IsUserData() )
+	{
+		FILE* stdioFile = (FILE *)fileObj.GetUserData();
+		file.Assign( stdioFile );
+	}
+	else if ( fileObj.IsString() )
+	{
+		fileName = fileObj.GetString();
+	}
+
+	LuaPlus::LuaStackObject alphabeticalObj = args[2];
+	LuaPlus::LuaStackObject maxIndentLevelObj = args[3];
+	LuaPlus::LuaStackObject writeAllObj = args[4];
+	bool alphabetical = alphabeticalObj.IsBoolean() ? alphabeticalObj.GetBoolean() : true;
+	unsigned int maxIndentLevel = maxIndentLevelObj.IsInteger() ? (unsigned int)maxIndentLevelObj.GetInteger() : 0xFFFFFFFF;
+	bool writeAll = writeAllObj.IsBoolean() ? writeAllObj.GetBoolean() : false;
+
+	unsigned int flags = (alphabetical ? LuaPlus::LuaState::DUMP_ALPHABETICAL : 0) | (writeAll ? LuaPlus::LuaState::DUMP_WRITEALL : 0);
+
+	if (fileName)
+	{
+		state->DumpGlobals(fileName, flags, maxIndentLevel);
+	}
+	else
+	{
+		state->DumpGlobals(file, flags, maxIndentLevel);
+	}
+
+	return 0;
+}
+
+#endif // LUAPLUS_DUMPOBJECT
+

@@ -679,21 +679,10 @@ static int luaB_newproxy (lua_State *L) {
   return 1;
 }
 
-#if LUAPLUS_EXTENSIONS
-
-static int luaB_createtable (lua_State *L) {
-  lua_createtable(L, (int)luaL_optinteger(L, 1, 0), (int)luaL_optinteger(L, 2, 0));
-  return 1;
-}
-
-#endif /* LUAPLUS_EXTENSIONS */
 
 static const luaL_Reg base_funcs[] = {
   {"assert", luaB_assert},
   {"collectgarbage", luaB_collectgarbage},
-#if LUAPLUS_EXTENSIONS
-  {"createtable", luaB_createtable},
-#endif /* LUAPLUS_EXTENSIONS */
   {"dofile", luaB_dofile},
   {"error", luaB_error},
   {"gcinfo", luaB_gcinfo},
