@@ -27,8 +27,6 @@
 #endif /* LNUM_PATCH */
 
 
-NAMESPACE_LUA_BEGIN
-
 #define hasjumps(e)	((e)->t != (e)->f)
 
 
@@ -1164,5 +1162,3 @@ int luaK_wstringK (FuncState *fs, TString *s) {
 #endif
 }
 #endif /* LUA_WIDESTRING */
-
-NAMESPACE_LUA_END

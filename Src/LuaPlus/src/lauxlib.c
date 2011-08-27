@@ -27,8 +27,6 @@
 #include "llimits.h"
 #endif /* LNUM_PATCH */
 
-NAMESPACE_LUA_BEGIN
-
 #define FREELIST_REF	0	/* free list of references */
 
 
@@ -735,4 +733,3 @@ LUALIB_API lua_State *luaL_newstate (void) {
   return L;
 }
 
-NAMESPACE_LUA_END

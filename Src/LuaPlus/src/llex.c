@@ -26,8 +26,6 @@
 #include "lnum.h"
 #endif /* LNUM_PATCH */
 
-NAMESPACE_LUA_BEGIN
-
 #if LUA_WIDESTRING_FILE
 
 static int nextwide(LexState *ls)
@@ -806,4 +804,3 @@ void luaX_lookahead (LexState *ls) {
   ls->lookahead.token = llex(ls, &ls->lookahead.seminfo);
 }
 
-NAMESPACE_LUA_END

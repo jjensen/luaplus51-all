@@ -20,8 +20,6 @@
 namespace LuaPlus
 {
 
-USING_NAMESPACE_LUA;
-
 /**
 	Representation of a Lua object.
 **/

@@ -14,7 +14,6 @@
 
 #include "lua.h"
 
-NAMESPACE_LUA_BEGIN
 
 typedef LUAI_UINT32 lu_int32;
 
@@ -129,7 +128,5 @@ typedef lu_int32 Instruction;
 #else
 #define condhardstacktests(x)	x
 #endif
-
-NAMESPACE_LUA_END
 
 #endif

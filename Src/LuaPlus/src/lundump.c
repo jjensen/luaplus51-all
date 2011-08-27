@@ -20,8 +20,6 @@
 #include "lundump.h"
 #include "lzio.h"
 
-NAMESPACE_LUA_BEGIN
-
 typedef struct {
  lua_State* L;
  ZIO* Z;
@@ -382,5 +380,3 @@ void luaU_header (char* h)
  *h++=(char)(((lua_Number)0.5)==0);		/* is lua_Number integral? */
 #endif /* LNUM_PATCH */
 }
-
-NAMESPACE_LUA_END

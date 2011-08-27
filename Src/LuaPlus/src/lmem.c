@@ -18,7 +18,7 @@
 #include "lobject.h"
 #include "lstate.h"
 
-NAMESPACE_LUA_BEGIN
+
 
 /*
 ** About the realloc function:
@@ -92,4 +92,3 @@ void *luaM_realloc_ (lua_State *L, void *block, size_t osize, size_t nsize) {
   return block;
 }
 
-NAMESPACE_LUA_END

@@ -9,7 +9,6 @@
 
 #include "lobject.h"
 
-NAMESPACE_LUA_BEGIN
 
 #define gnode(t,i)	(&(t)->node[i])
 #if LUAPLUS_EXTENSIONS
@@ -54,6 +53,5 @@ LUAI_FUNC Node *luaH_mainposition (const Table *t, const TValue *key);
 LUAI_FUNC int luaH_isdummy (Node *n);
 #endif
 
-NAMESPACE_LUA_END
 
 #endif

@@ -15,8 +15,6 @@
 #include "lstate.h"
 #include "lundump.h"
 
-NAMESPACE_LUA_BEGIN
-
 typedef struct {
  lua_State* L;
  lua_Writer writer;
@@ -304,5 +302,3 @@ int luaU_dump (lua_State* L, const Proto* f, lua_Writer w, void* data, int strip
 #endif /* LUA_ENDIAN_SUPPORT */
  return D.status;
 }
-
-NAMESPACE_LUA_END

@@ -18,8 +18,6 @@
 #include "lnum.h"
 #endif /* LNUM_PATCH */
 
-NAMESPACE_LUA_BEGIN
-
 #define PrintFunction	luaU_print
 
 #define Sizeof(x)	((int)sizeof(x))
@@ -245,5 +243,3 @@ void PrintFunction(const Proto* f, int full)
  }
  for (i=0; i<n; i++) PrintFunction(f->p[i],full);
 }
-
-NAMESPACE_LUA_END

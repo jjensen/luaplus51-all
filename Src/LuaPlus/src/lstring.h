@@ -12,7 +12,6 @@
 #include "lobject.h"
 #include "lstate.h"
 
-NAMESPACE_LUA_BEGIN
 
 #define sizestring(s)	(sizeof(union TString)+((s)->len+1)*sizeof(char))
 #if LUA_WIDESTRING
@@ -40,7 +39,5 @@ LUAI_FUNC TString *luaS_newlstr (lua_State *L, const char *str, size_t l);
 #if LUA_WIDESTRING
 LUAI_FUNC TString *luaS_newlwstr (lua_State *L, const lua_WChar *str, size_t l);
 #endif /* LUA_WIDESTRING */
-
-NAMESPACE_LUA_END
 
 #endif

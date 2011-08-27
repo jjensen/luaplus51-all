@@ -22,7 +22,6 @@
 #include "ltable.h"
 #include "ltm.h"
 
-NAMESPACE_LUA_BEGIN
 
 #define GCSTEPSIZE	1024u
 #define GCSWEEPMAX	40
@@ -830,4 +829,3 @@ void luaC_linkupval (lua_State *L, UpVal *uv) {
   }
 }
 
-NAMESPACE_LUA_END

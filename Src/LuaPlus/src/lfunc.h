@@ -10,7 +10,6 @@
 
 #include "lobject.h"
 
-NAMESPACE_LUA_BEGIN
 
 #define sizeCclosure(n)	(cast(int, sizeof(CClosure)) + \
                          cast(int, sizeof(TValue)*((n)-1)))
@@ -31,6 +30,5 @@ LUAI_FUNC void luaF_freeupval (lua_State *L, UpVal *uv);
 LUAI_FUNC const char *luaF_getlocalname (const Proto *func, int local_number,
                                          int pc);
 
-NAMESPACE_LUA_END
 
 #endif

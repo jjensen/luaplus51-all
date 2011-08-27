@@ -12,7 +12,6 @@
 #include "lopcodes.h"
 #include "lparser.h"
 
-NAMESPACE_LUA_BEGIN
 
 /*
 ** Marks the end of a patch list. It is an invalid value both as an absolute
@@ -84,7 +83,5 @@ LUAI_FUNC void luaK_setlist (FuncState *fs, int base, int nelems, int tostore);
 #if LNUM_PATCH
 LUAI_FUNC int luaK_integerK (FuncState *fs, lua_Integer r);
 #endif /* LNUM_PATCH */
-
-NAMESPACE_LUA_END
 
 #endif

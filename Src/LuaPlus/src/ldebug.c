@@ -29,7 +29,6 @@
 #include "lvm.h"
 
 
-NAMESPACE_LUA_BEGIN
 
 static const char *getfuncname (lua_State *L, CallInfo *ci, const char **name);
 
@@ -686,6 +685,8 @@ void luaG_errormsg (lua_State *L) {
 }
 
 #endif /* LUA_EXT_RESUMABLEVM */
+
+
 void luaG_runerror (lua_State *L, const char *fmt, ...) {
   va_list argp;
   va_start(argp, fmt);
@@ -702,4 +703,3 @@ void luaG_runerror (lua_State *L, const char *fmt, ...) {
 #endif /* LUA_EXT_RESUMABLEVM */
 }
 
-NAMESPACE_LUA_END

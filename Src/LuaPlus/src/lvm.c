@@ -30,8 +30,6 @@
 #include "lnum.h"
 #endif /* LNUM_PATCH */
 
-NAMESPACE_LUA_BEGIN
-
 /* limit for table tag-method chains (to avoid loops) */
 #define MAXTAGLOOP	100
 
@@ -1690,5 +1688,3 @@ void luaV_resume (lua_State *L) {
 }
 
 #endif /* LUA_EXT_RESUMABLEVM */
-
-NAMESPACE_LUA_END

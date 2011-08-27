@@ -19,7 +19,6 @@
 #include "lauxlib.h"
 #include "lualib.h"
 
-NAMESPACE_LUA_BEGIN
 
 static int os_pushresult (lua_State *L, int i, const char *filename) {
   int en = errno;  /* calls to Lua API may change this value */
@@ -288,4 +287,3 @@ LUALIB_API int luaopen_os (lua_State *L) {
   return 1;
 }
 
-NAMESPACE_LUA_END

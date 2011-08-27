@@ -25,8 +25,6 @@
 #endif
 #endif /* LNUM_PATCH */
 
-NAMESPACE_LUA_BEGIN
-
 #undef PI
 #if LNUM_PATCH
 #ifdef LNUM_FLOAT
@@ -566,4 +564,3 @@ LUALIB_API int luaopen_math (lua_State *L) {
   return 1;
 }
 
-NAMESPACE_LUA_END

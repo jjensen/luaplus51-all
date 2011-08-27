@@ -10,7 +10,6 @@
 
 #include "lobject.h"
 
-NAMESPACE_LUA_BEGIN
 
 /*
 * WARNING: if you change the order of this enumeration,
@@ -59,7 +58,5 @@ LUAI_FUNC const TValue *luaT_gettm (Table *events, TMS event, TString *ename);
 LUAI_FUNC const TValue *luaT_gettmbyobj (lua_State *L, const TValue *o,
                                                        TMS event);
 LUAI_FUNC void luaT_init (lua_State *L);
-
-NAMESPACE_LUA_END
 
 #endif

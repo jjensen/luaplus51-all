@@ -25,7 +25,7 @@
 #include "lstring.h"
 #include "ltable.h"
 
-NAMESPACE_LUA_BEGIN
+
 
 #define hasmultret(k)		((k) == VCALL || (k) == VVARARG)
 
@@ -1609,5 +1609,3 @@ static void chunk (LexState *ls) {
 }
 
 /* }====================================================================== */
-
-NAMESPACE_LUA_END

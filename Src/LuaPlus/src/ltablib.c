@@ -15,7 +15,6 @@
 #include "lauxlib.h"
 #include "lualib.h"
 
-NAMESPACE_LUA_BEGIN
 
 #define aux_getn(L,n)	(luaL_checktype(L, n, LUA_TTABLE), luaL_getn(L, n))
 
@@ -312,4 +311,3 @@ LUALIB_API int luaopen_table (lua_State *L) {
   return 1;
 }
 
-NAMESPACE_LUA_END

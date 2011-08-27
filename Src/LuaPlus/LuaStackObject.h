@@ -227,8 +227,6 @@ protected:
 #endif // LUAPLUS_ENABLE_INLINES
 
 namespace LPCD {
-	USING_NAMESPACE_LUA;
-
 	using namespace LuaPlus;
 
 	inline void Push(lua_State* L, LuaStackObject& value)			{  (void)L; value.Push();  }

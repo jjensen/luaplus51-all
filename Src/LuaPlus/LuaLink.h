@@ -74,43 +74,6 @@
 #define LUA_USE_MACOSX
 #endif
 
-#if defined(LUAPLUS_ALL)  &&  !defined(LUAPLUS_USE_NAMESPACES)
-#define NAMESPACE_LUA_BEGIN
-#define NAMESPACE_LUA_END
-#define USING_NAMESPACE_LUA
-#define NAMESPACE_LUA_PREFIX
-#define LUA_EXTERN_C
-#define LUA_EXTERN_C_BEGIN
-#define LUA_EXTERN_C_END
-#endif /* LUAPLUS_ALL */
-
-#if 0
-#ifdef LUAPLUS_USE_NAMESPACES
-#define NAMESPACE_LUA_BEGIN namespace Lua {
-#define NAMESPACE_LUA_END } // namespace Lua
-#define USING_NAMESPACE_LUA using namespace Lua;
-#define NAMESPACE_LUA_PREFIX Lua::
-#define LUA_EXTERN_C
-#define LUA_EXTERN_C_BEGIN
-#define LUA_EXTERN_C_END
-#endif /* LUAPLUS_USE_NAMESPACES */
-#endif
-
-#if defined(LUAPLUS_CPP)
-#define NAMESPACE_LUA_BEGIN
-#define NAMESPACE_LUA_END
-#define USING_NAMESPACE_LUA
-#define NAMESPACE_LUA_PREFIX
-#define LUA_EXTERN_C
-#define LUA_EXTERN_C_BEGIN
-#define LUA_EXTERN_C_END
-#endif /* LUAPLUS_ALL */
-
-#ifndef NAMESPACE_LUA_BEGIN
-#define NAMESPACE_LUA_BEGIN
-#define NAMESPACE_LUA_END
-#define USING_NAMESPACE_LUA
-#define NAMESPACE_LUA_PREFIX
 #if defined(__cplusplus)
 #define LUA_EXTERN_C extern "C"
 #define LUA_EXTERN_C_BEGIN extern "C" {
@@ -120,7 +83,6 @@
 #define LUA_EXTERN_C_BEGIN
 #define LUA_EXTERN_C_END
 #endif
-#endif /* NAMESPACE_LUA_BEGIN */
 
 #endif /* LUALINK_H */
 

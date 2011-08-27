@@ -23,8 +23,6 @@
 #include "lstate.h"
 #endif /* LUA_EXT_RESUMABLEVM */
 
-NAMESPACE_LUA_BEGIN
-
 /*
 ** If your system does not support `stdout', you can just remove this function.
 ** If you need, you can define your own `print' function, following this
@@ -946,4 +944,3 @@ LUALIB_API int luaopen_base (lua_State *L) {
   return 2;
 }
 
-NAMESPACE_LUA_END

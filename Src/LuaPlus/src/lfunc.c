@@ -19,7 +19,6 @@
 #include "lstate.h"
 
 
-NAMESPACE_LUA_BEGIN
 
 Closure *luaF_newCclosure (lua_State *L, int nelems, Table *e) {
 #if LUA_MEMORY_STATS
@@ -254,4 +253,3 @@ const char *luaF_getlocalname (const Proto *f, int local_number, int pc) {
   return NULL;  /* not found */
 }
 
-NAMESPACE_LUA_END

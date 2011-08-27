@@ -71,8 +71,6 @@ static void *luaplus_alloc (void *ud, void *ptr, size_t osize, size_t nsize) {
 static lua_Alloc luaHelper_defaultAlloc = luaplus_alloc;
 static void* luaHelper_ud = NULL;
 
-NAMESPACE_LUA_BEGIN
-
 void lua_getdefaultallocfunction(lua_Alloc* allocFunc, void** ud)
 {
 	*allocFunc = luaHelper_defaultAlloc;
@@ -94,14 +92,11 @@ void LuaState_UserStateOpen(lua_State* L)
 }
 
 
-NAMESPACE_LUA_END
 
 LUA_EXTERN_C_END
 
 namespace LuaPlus
 {
-
-USING_NAMESPACE_LUA
 
 #if LUAPLUS_EXCEPTIONS
 

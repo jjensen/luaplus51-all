@@ -28,8 +28,6 @@
 #pragma warning(disable: 4213)
 #endif /* _MSC_VER */
 
-NAMESPACE_LUA_BEGIN
-
 /* macro to `unsign' a character */
 #ifndef uchar
 #define uchar(c)        ((unsigned char)(c))
@@ -1152,7 +1150,5 @@ LUALIB_API int luaopen_wstring (lua_State *L) {
   wcreatemetatable(L);
   return 1;
 }
-
-NAMESPACE_LUA_END
 
 #endif /* LUA_WIDESTRING */

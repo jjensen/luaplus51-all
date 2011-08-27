@@ -26,9 +26,7 @@ LUA_EXTERN_C_END
 
 #include <ctype.h>
 
-NAMESPACE_LUA_BEGIN
 LUA_EXTERN_C int str_format_helper (luaL_Buffer* b, lua_State *L, int arg);
-NAMESPACE_LUA_END
 
 namespace LuaPlus {
 

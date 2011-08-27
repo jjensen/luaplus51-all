@@ -12,7 +12,6 @@
 
 #include "lmem.h"
 
-NAMESPACE_LUA_BEGIN
 
 #define EOZ	(-1)			/* end of stream */
 
@@ -74,7 +73,5 @@ struct Zio {
 
 
 LUAI_FUNC int luaZ_fill (ZIO *z);
-
-NAMESPACE_LUA_END
 
 #endif

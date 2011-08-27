@@ -13,7 +13,6 @@
 #include "lualib.h"
 #include "lauxlib.h"
 
-NAMESPACE_LUA_BEGIN
 
 static const luaL_Reg lualibs[] = {
   {"", luaopen_base},
@@ -46,5 +45,3 @@ LUALIB_API void luaL_openlibs (lua_State *L) {
   LuaPlus_ScriptFunctionsRegister(L);
 #endif
 }
-
-NAMESPACE_LUA_END

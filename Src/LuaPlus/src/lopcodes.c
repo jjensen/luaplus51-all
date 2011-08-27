@@ -10,7 +10,6 @@
 
 #include "lopcodes.h"
 
-NAMESPACE_LUA_BEGIN
 
 /* ORDER OP */
 
@@ -132,4 +131,3 @@ const lu_byte luaP_opmodes[NUM_OPCODES] = {
 #endif /* LUA_BITFIELD_OPS */
 };
 
-NAMESPACE_LUA_END

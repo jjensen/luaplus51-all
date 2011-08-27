@@ -16,9 +16,6 @@
 
 #include "luaconf.h"
 
-NAMESPACE_LUA_BEGIN
-
-LUA_EXTERN_C_BEGIN
 
 #define LUA_VERSION	"Lua 5.1"
 #define LUA_RELEASE	"Lua 5.1.4"
@@ -571,7 +568,5 @@ LUA_API int (lua_dumpendian) (lua_State *L, lua_Writer writer, void *data, int s
 #endif /* LUA_ENDIAN_SUPPORT */
 
 LUA_EXTERN_C_END
-
-NAMESPACE_LUA_END
 
 #endif
