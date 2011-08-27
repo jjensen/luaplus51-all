@@ -11,12 +11,6 @@
 #define LUAPLUS__LUAPLUS_H
 
 #include "LuaPlusInternal.h"
-
-LUA_EXTERN_C_BEGIN
-#include "src/lua.h"
-#include "src/lauxlib.h"
-LUA_EXTERN_C_END
-
 #include "LuaStackObject.h"
 #include "LuaObject.h"
 #include "LuaState.h"
