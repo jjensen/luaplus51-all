@@ -23,8 +23,6 @@
 #define lua_number2wstr(s,n)    sprintf((s), LUA_NUMBER_FMT, (n))
 #endif
 
-Table *getcurrenv (lua_State *L);
-
 #if LUA_WIDESTRING
 
 int luaV_towstring (lua_State *L, TValue *obj) {
