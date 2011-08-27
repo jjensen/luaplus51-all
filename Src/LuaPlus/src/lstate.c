@@ -53,12 +53,6 @@ LUA_API void lua_setloadnotifyfunction(lua_State *L, void (*loadNotifyFunction)(
 }
 
 
-LUA_API void lua_setusergcfunction(lua_State *L, void (*userGCFunction)(void*))
-{
-  G(L)->userGCFunction = userGCFunction;
-}
-
-
 #endif /* LUAPLUS_EXTENSIONS */
 
 
@@ -288,7 +282,6 @@ LUA_API lua_State *lua_newstate (lua_Alloc f, void *ud) {
   g->gcdept = 0;
 #if LUAPLUS_EXTENSIONS
   g->loadNotifyFunction = NULL;
-  g->userGCFunction = NULL;
 #endif /* LUAPLUS_EXTENSIONS */
   for (i=0; i<NUM_TAGS; i++) g->mt[i] = NULL;
   if (luaD_rawrunprotected(L, f_luaopen, NULL) != 0) {

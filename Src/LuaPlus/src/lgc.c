@@ -598,10 +598,6 @@ static void markroot (lua_State *L) {
   markvalue(g, &G(L)->l_refs);
 #endif /* LUA_FASTREF_SUPPORT */
   markmt(g);
-#if LUAPLUS_EXTENSIONS
-  if (G(L)->userGCFunction)
-    G(L)->userGCFunction(L);
-#endif /* LUAPLUS_EXTENSIONS */
   g->gcstate = GCSpropagate;
 }
 
@@ -629,10 +625,6 @@ static void atomic (lua_State *L) {
   lua_assert(!iswhite(obj2gco(g->mainthread)));
   markobject(g, L);  /* mark running thread */
   markmt(g);  /* mark basic metatables (again) */
-#if LUAPLUS_EXTENSIONS
-  if (G(L)->userGCFunction)
-    G(L)->userGCFunction(L);
-#endif /* LUAPLUS_EXTENSIONS */
   propagateall(g);
   /* remark gray again */
   g->gray = g->grayagain;

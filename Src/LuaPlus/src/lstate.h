@@ -101,7 +101,6 @@ typedef struct global_State {
   struct Table *mt[NUM_TAGS];  /* metatables for basic types */
   TString *tmname[TM_N];  /* array with tag-method names */
 #if LUAPLUS_EXTENSIONS
-  void (*userGCFunction)(void*);
   void (*loadNotifyFunction)(lua_State *L, const char *);
 #endif /* LUAPLUS_EXTENSIONS */
 #if LUA_FASTREF_SUPPORT
