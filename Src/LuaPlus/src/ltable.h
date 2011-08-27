@@ -11,11 +11,11 @@
 
 
 #define gnode(t,i)	(&(t)->node[i])
-#if LUAPLUS_EXTENSIONS
-#define gkey(n)		((TValue*)(&(n)->i_key.tvk))
-#else
+#if LUA_PACK_VALUE
 #define gkey(n)		(&(n)->i_key.tvk)
-#endif /* LUAPLUS_EXTENSIONS */
+#else
+#define gkey(n)		(&(n)->i_key.nk)
+#endif /* LUA_PACK_VALUE */
 #define gval(n)		(&(n)->i_val)
 #define gnext(n)	((n)->i_key.nk.next)
 
