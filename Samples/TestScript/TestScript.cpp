@@ -355,9 +355,11 @@ using namespace SimpleMem;
 
 SimpleHeap* heap;
 
-#if LUAPLUS_EXTENSIONS
-
+#if LUA_MEMORY_STATS
 void* ReallocFunction(void* ud, void* ptr, size_t osize, size_t nsize, const char* allocName, unsigned int flags)
+#else
+void* ReallocFunction(void* ud, void* ptr, size_t osize, size_t nsize)
+#endif /* LUA_MEMORY_STATS */
 {
 	SimpleHeap* heap = (SimpleHeap*)ud;
 
@@ -367,6 +369,7 @@ void* ReallocFunction(void* ud, void* ptr, size_t osize, size_t nsize, const cha
 		return NULL;
 	}
 
+#if LUA_MEMORY_STATS
 	if (flags == LUA_ALLOC_TEMP)
 	{
 		return heap->Realloc(ptr, nsize, SimpleHeap::FIRSTFIT_TOP,
@@ -375,9 +378,11 @@ void* ReallocFunction(void* ud, void* ptr, size_t osize, size_t nsize, const cha
 
 	return heap->Realloc(ptr, nsize, SimpleHeap::FIRSTFIT_BOTTOM,
 		allocName, __FILE__, __LINE__);
+#else
+	return heap->Realloc(ptr, nsize, SimpleHeap::FIRSTFIT_BOTTOM,
+		"", __FILE__, __LINE__);
+#endif /* LUA_MEMORY_STATS */
 }
-
-#endif // LUAPLUS_EXTENSIONS
 
 int checkpoint = 0;
 
