@@ -11,7 +11,7 @@
 #include <limits.h>
 #include <stddef.h>
 
-#include "../LuaLink.h"
+#include "../LuaPlusConfig.h"
 
 /*
 ** ==================================================================

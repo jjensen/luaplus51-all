@@ -7,8 +7,8 @@
 // The code presented in this file may be used in any environment it is
 // acceptable to use Lua.
 ///////////////////////////////////////////////////////////////////////////////
-#ifndef LUALINK_H
-#define LUALINK_H
+#ifndef LUAPLUS__LUAPLUS_CONFIG_H
+#define LUAPLUS__LUAPLUS_CONFIG_H
 
 #ifndef LUA_TILDE_DEBUGGER
 #if defined(_MSC_VER)
@@ -180,5 +180,5 @@
 #define LUA_EXTERN_C_END
 #endif
 
-#endif /* LUALINK_H */
+#endif /* LUAPLUS__LUAPLUS_CONFIG_H */
 

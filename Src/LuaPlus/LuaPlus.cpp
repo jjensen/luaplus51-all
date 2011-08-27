@@ -10,7 +10,6 @@
 #ifndef BUILDING_LUAPLUS
 #define BUILDING_LUAPLUS
 #endif
-#include "LuaLink.h"
 LUA_EXTERN_C_BEGIN
 #include "src/lobject.h"
 LUA_EXTERN_C_END

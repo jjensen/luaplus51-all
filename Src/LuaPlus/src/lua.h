@@ -12,8 +12,6 @@
 #include <stdarg.h>
 #include <stddef.h>
 
-#include "../LuaLink.h"
-
 #include "luaconf.h"
 
 
