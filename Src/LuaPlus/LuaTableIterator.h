@@ -92,8 +92,15 @@ inline void LuaTableIterator::Reset() {
 	// Start the iteration.  If the return value is 0, then the iterator
 	// will be invalid.
 //	m_isDone = !LuaPlusH_next(state, &m_tableObj, &m_keyObj, &m_valueObj);
+#if LUA_FASTREF_SUPPORT
 	m_keyObj.Push();
 	m_isDone = lua_next(m_tableObj.GetCState(), m_tableObj.GetRef()) == 0;
+#else
+	lua_getfastref(m_tableObj.GetCState(), m_tableObj.GetRef());
+	m_keyObj.Push();
+	m_isDone = lua_next(m_tableObj.GetCState(), -2) == 0;
+	lua_remove(m_tableObj.GetCState(), m_isDone ? -1 : -3);
+#endif // !LUA_FASTREF_SUPPORT
 	if (m_isDone) {
 		m_keyObj.Reset();
 		m_valueObj.Reset();
@@ -131,8 +138,15 @@ inline bool LuaTableIterator::Next() {
 	LuaState* state = m_tableObj.GetState();
 
 	// Do the Lua table iteration.
+#if LUA_FASTREF_SUPPORT
 	m_keyObj.Push();
 	m_isDone = lua_next(m_tableObj.GetCState(), m_tableObj.GetRef()) == 0;
+#else
+	lua_getfastref(m_tableObj.GetCState(), m_tableObj.GetRef());
+	m_keyObj.Push();
+	m_isDone = lua_next(m_tableObj.GetCState(), -2) == 0;
+	lua_remove(m_tableObj.GetCState(), m_isDone ? -1 : -3);
+#endif // LUA_FASTREF_SUPPORT
 	if (!m_isDone) {
 		m_keyObj = LuaObject(m_tableObj.GetCState(), -2);
 		m_valueObj = LuaObject(m_tableObj.GetCState(), -1);

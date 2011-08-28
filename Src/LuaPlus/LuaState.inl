@@ -104,12 +104,24 @@ LUAPLUS_INLINE void LuaState::XMove(LuaState* to, int n)
 
 
 LUAPLUS_INLINE int LuaState::Equal(const LuaObject& o1, const LuaObject& o2) {
+#if LUA_FASTREF_SUPPORT
 	return lua_equal(o1.L, o1.ref, o2.ref);
+#else
+	LuaFastRefPush _frp1(&o1);
+	LuaFastRefPush _frp2(&o2);
+	return lua_equal(o1.L, -2, -1);
+#endif // LUA_FASTREF_SUPPORT
 }
 
 
 LUAPLUS_INLINE int LuaState::LessThan(const LuaObject& o1, const LuaObject& o2) {
+#if LUA_FASTREF_SUPPORT
 	return lua_lessthan(o1.L, o1.ref, o2.ref);
+#else
+	LuaFastRefPush _frp1(&o1);
+	LuaFastRefPush _frp2(&o2);
+	return lua_lessthan(o1.L, -2, -1);
+#endif // LUA_FASTREF_SUPPORT
 }
 
 
