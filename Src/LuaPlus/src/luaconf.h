@@ -823,11 +823,8 @@ union luai_Cast { double l_d; long l_l; };
 #if defined(LNUM_DOUBLE) && !defined(LUA_ANSI) && !defined(__SSE2__) && \
     (defined(__i386) || defined (_M_IX86) || defined(__i386__))
 
-#if LUAPLUS_EXTENSIONS
-#define lua_number2int(i,d)   i = (int)d;
-
 /* On a Microsoft compiler, use assembler */
-# elif defined(_MSC_VER)
+# if defined(_MSC_VER) 
 #  define lua_number2int(i,d)   __asm fld d   __asm fistp i
 # else
 
