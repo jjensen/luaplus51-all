@@ -334,6 +334,8 @@ TEST(LuaState_PushLString)
 
 
 //////////////////////////////////////////////////////////////////////////
+#if LUA_WIDESTRING
+
 TEST(LuaState_PushLWString)
 {
 	LuaStateOwner state(false);
@@ -347,6 +349,7 @@ TEST(LuaState_PushLWString)
 	CHECK_EQUAL(lp_wcscmp(state->Stack(-1).GetWString(), compareStr), 0);
 }
 
+#endif // LUA_WIDESTRING
 
 //////////////////////////////////////////////////////////////////////////
 TEST(LuaState_PushString)
@@ -362,6 +365,8 @@ TEST(LuaState_PushString)
 
 
 //////////////////////////////////////////////////////////////////////////
+#if LUA_WIDESTRING
+
 TEST(LuaState_PushWString)
 {
 	LuaStateOwner state(false);
@@ -375,6 +380,10 @@ TEST(LuaState_PushWString)
 	CHECK_EQUAL(lp_wcscmp(state->Stack(-1).GetWString(), compareStr), 0);
 }
 
+#endif // LUA_WIDESTRING
+
+
+#if 0
 
 //////////////////////////////////////////////////////////////////////////
 LuaStackObject LuaState_PushVFStringHelper(LuaState* state, const char* fmt, ...)
@@ -411,6 +420,7 @@ TEST(LuaState_PushFString)
 	CHECK_EQUAL(state->Stack(-1).GetString(), "Hello5");
 }
 
+#endif
 
 //////////////////////////////////////////////////////////////////////////
 int var_LuaState_PushCClosure_Helper_1 = 0;
@@ -697,6 +707,8 @@ TEST(LuaState_Load)
 
 
 //////////////////////////////////////////////////////////////////////////
+#if LUA_WIDESTRING
+
 struct LuaState_WLoad_Info
 {
 	LuaState_WLoad_Info() : pos(0), size(0)  {}
@@ -736,6 +748,8 @@ TEST(LuaState_WLoad)
 	CHECK_EQUAL(5, obj.GetNumber());
 }
 
+#endif // LUA_WIDESTRING
+
 
 //////////////////////////////////////////////////////////////////////////
 struct LuaState_Dump_Info
@@ -762,8 +776,12 @@ TEST(LuaState_Dump)
 	int ret = state->LoadString("MyNumber = 5");
 	CHECK_EQUAL(state->GetTop(), 1);
 
-	LuaState_Dump_Info dumpInfo;	
+	LuaState_Dump_Info dumpInfo;
+#if LUA_ENDIAN_SUPPORT
 	state->Dump(LuaState_Dump_Helper, &dumpInfo, 1, '=');
+#else
+	state->Dump(LuaState_Dump_Helper, &dumpInfo);
+#endif // LUA_ENDIAN_SUPPORT
 	state->Pop();
 	CHECK(dumpInfo.bufferPos > 0);
 
@@ -836,6 +854,8 @@ TEST(LuaState_Concat)
 
 
 //////////////////////////////////////////////////////////////////////////
+#if LUA_WIDESTRING
+
 TEST(LuaState_ConcatW)
 {
 	lua_WChar str1[] = { 'A', 'b', 0 };
@@ -855,6 +875,8 @@ TEST(LuaState_ConcatW)
 	lua_WChar finalStr[] = { 'A', 'b', 'C', 'd', 'E', 'f', 'G', 'h', 'I', 'j', 0 };
 	CHECK_EQUAL(0, lp_wcscmp(finalStr, state->Stack(-1).GetWString()));
 }
+
+#endif // LUA_WIDESTRING
 
 
 /**TODO: LuaState.GetAllocF**/
@@ -1063,12 +1085,14 @@ TEST(LuaObject_Assign)
 	CHECK(strcmp(obj.GetString(), "Hello") == 0);
 	CHECK(strcmp(obj.TypeName(), "string") == 0);
 
+#if LUA_WIDESTRING
 	lua_WChar helloStr[] = { 'H', 'e', 'l', 'l', 'o', 0 };
 	obj.Assign(state, helloStr);
 	CHECK(obj.Type() == LUA_TWSTRING);
 	CHECK(obj.IsWString());
 	CHECK(lp_wcscmp(obj.GetWString(), helloStr) == 0);
 	CHECK(strcmp(obj.TypeName(), "wstring") == 0);
+#endif // LUA_WIDESTRING
 
 /*	obj.AssignUserData(state, (void*)0x12345678);
 	CHECK(obj.Type() == LUA_TUSERDATA);
@@ -1302,6 +1326,8 @@ TEST(LuaObject_SetString)
 
 
 //////////////////////////////////////////////////////////////////////////
+#if LUA_WIDESTRING
+
 TEST(LuaObject_SetWString)
 {
 	LuaStateOwner state;
@@ -1327,6 +1353,8 @@ TEST(LuaObject_SetWString)
 	obj.Set(stringObj, test3Str);
 	CHECK(lp_wcscmp(obj[stringObj].GetWString(), test3Str) == 0);
 }
+
+#endif // LUA_WIDESTRING
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -1504,9 +1532,11 @@ TEST(LuaObject_StrLen)
 	stringObj.Assign(state, "Test");
 	CHECK(stringObj.StrLen() == 4);
 
+#if LUA_WIDESTRING
 	lua_WChar wideString[] = { 'W', 'i', 'd', 'e', ' ', 'S', 't', 'r', 'i', 'n', 'g', 0 };
 	stringObj.Assign(state, wideString);
 	CHECK(stringObj.StrLen() == 11);
+#endif // LUA_WIDESTRING
 }
 
 
@@ -1845,10 +1875,12 @@ TEST(LuaObject_CheckConvertibleTypes)
 	LuaObject numObj = globalsObj["Number"];
 	CHECK(numObj.IsNumber());
 	CHECK(!numObj.IsString());
-	CHECK(!numObj.IsWString());
 	CHECK(numObj.IsConvertibleToNumber());
 	CHECK(numObj.IsConvertibleToString());
+#if LUA_WIDESTRING
+	CHECK(!numObj.IsWString());
 	CHECK(numObj.IsConvertibleToWString());
+#endif // LUA_WIDESTRING
 
 	lua_Number num = numObj.ToNumber();
 	CHECK(numObj.IsNumber());
@@ -1857,7 +1889,9 @@ TEST(LuaObject_CheckConvertibleTypes)
 	CHECK(numObj.IsString());
 	CHECK(strcmp(str, "501") == 0);
 	CHECK(numObj.IsConvertibleToNumber());
+#if LUA_WIDESTRING
 	CHECK(!numObj.IsConvertibleToWString());
+#endif // LUA_WIDESTRING
 
 	num = numObj.ToNumber();
 	CHECK(numObj.IsString());		// Once in string form, it stays there.
@@ -1865,6 +1899,7 @@ TEST(LuaObject_CheckConvertibleTypes)
 	globalsObj.Set("Number", 501);
 	numObj = globalsObj["Number"];
 
+#if LUA_WIDESTRING
 	const lua_WChar* wstr = numObj.ToWString();
 	CHECK(numObj.IsWString());
 	lua_WChar num501[] = { '5', '0', '1', 0 };
@@ -1874,6 +1909,7 @@ TEST(LuaObject_CheckConvertibleTypes)
 
 	num = numObj.ToNumber();
 	CHECK(numObj.IsWString());		// Again, once in string form, it stays there.
+#endif // LUA_WIDESTRING
 
 	globalsObj.Set("Number", 501);
 	numObj = globalsObj["Number"];
@@ -1986,7 +2022,11 @@ TEST(LuaState_LoadCompiledScript)
 		CHECK(state->GetTop() == 1);
 
 		FILE* file = fopen("CompileMe.lc", "wb");
+#if LUA_ENDIAN_SUPPORT
 		state->Dump(WriteToBinaryFile, file, 1, '=');
+#else
+		state->Dump(WriteToBinaryFile, file);
+#endif // LUA_ENDIAN_SUPPORT
 		fclose(file);
 
 		CHECK(state->GetTop() == 1);
@@ -2129,6 +2169,7 @@ TEST(LuaState_BitOperators)
 	CHECK(state->GetGlobals()["res1"].IsNumber());
 	CHECK(state->GetGlobals()["res1"].GetNumber() == -10);
 
+#if LUA_BITFIELD_OPS
 	state->DoString("res1 = i1 | 3");
 	CHECK(state->GetGlobals()["res1"].IsNumber());
 	CHECK(state->GetGlobals()["res1"].GetNumber() == 11);
@@ -2156,8 +2197,11 @@ TEST(LuaState_BitOperators)
 	state->DoString("i1 = i1 | 0x80000000");
 	CHECK(state->GetGlobals()["i1"].IsNumber());
 	CHECK(state->GetGlobals()["i1"].GetNumber() == 0x80001000);
+#endif // LUA_BITFIELD_OPS
 }
 
+
+#if LUA_WIDESTRING
 
 TEST(LuaPlus_TestANSIFile)
 {
@@ -2179,6 +2223,8 @@ TEST(LuaPlus_TestUnicodeFile)
 	LuaObject sObj = state->GetGlobal("s");
 	CHECK(sObj.IsWString());
 }
+
+#endif // LUA_WIDESTRING
 
 
 TEST(LuaPlus_BogusCharacters)
