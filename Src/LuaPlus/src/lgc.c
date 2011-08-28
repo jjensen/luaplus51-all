@@ -66,11 +66,7 @@ static void removeentry (Node *n) {
 }
 
 
-#if LUAPLUS_EXTENSIONS
-void reallymarkobject (global_State *g, GCObject *o) {
-#else
 static void reallymarkobject (global_State *g, GCObject *o) {
-#endif /* LUAPLUS_EXTENSIONS */
   lua_assert(iswhite(o) && !isdead(g, o));
   white2gray(o);
   switch (o->gch.tt) {

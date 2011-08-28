@@ -13,8 +13,6 @@
 #include "LuaPlusInternal.h"
 #include "LuaAutoBlock.h"
 
-#if LUAPLUS_EXTENSIONS
-
 namespace LuaPlus {
 
 #define LUAFUNCTION_PRECALL() \
@@ -233,7 +231,5 @@ protected:
 };
 
 } // namespace LuaPlus
-
-#endif // LUAPLUS_EXTENSIONS
 
 #endif // LUAPLUS__LUAFUNCTION_H

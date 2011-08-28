@@ -33,9 +33,7 @@ public:
 	///////////////////////////////////////////////////////////////////////////
 	LUAPLUS_CLASS_API static LuaState* Create();
 	LUAPLUS_CLASS_API static LuaState* Create(bool initStandardLibrary);
-#if LUAPLUS_EXTENSIONS
 	LUAPLUS_CLASS_API static LuaObject CreateThread(LuaState* parentState);
-#endif // LUAPLUS_EXTENSIONS
 	LUAPLUS_CLASS_API static void Destroy(LuaState* state);
 
 	lua_CFunction AtPanic(lua_CFunction panicf);
@@ -76,14 +74,10 @@ public:
 	const char* TypeName(int type);
 
 	int Equal(int index1, int index2);
-#if LUAPLUS_EXTENSIONS
  	int Equal(const LuaObject& o1, const LuaObject& o2);
-#endif // LUAPLUS_EXTENSIONS
 	int RawEqual(int index1, int index2);
 	int LessThan(int index1, int index2);
-#if LUAPLUS_EXTENSIONS
 	int LessThan(const LuaObject& o1, const LuaObject& o2);
-#endif // LUAPLUS_EXTENSIONS
 
 	lua_Number ToNumber(int index);
 	lua_Integer ToInteger(int index);
@@ -132,11 +126,9 @@ public:
 	LuaStackObject GetFEnv(int index);
 
 	// LuaPlus ---->
-#if LUAPLUS_EXTENSIONS
 	LuaObject GetGlobals() throw();
 	LuaObject GetRegistry();
 	LuaObject GetGlobal(const char *name);
-#endif // LUAPLUS_EXTENSIONS
 	LuaStackObject GetGlobals_Stack();					// Backward compatible.
 	LuaStackObject GetRegistry_Stack();
 	LuaStackObject GetGlobal_Stack(const char *name);
@@ -254,10 +246,8 @@ public:
 	lua_Number OptNumber(int nArg, lua_Number def);
 	lua_Integer CheckInteger(int numArg);
 	lua_Integer OptInteger(int nArg, lua_Integer def);
-#if LUAPLUS_EXTENSIONS
 	lua_Integer CheckBoolean(int narg);
 	lua_Integer OptBoolean(int narg, lua_Integer def);
-#endif /* LUAPLUS_EXTENSIONS */
 	void CheckStack(int sz, const char* msg);
 	void CheckType(int narg, int t);
 	void CheckAny(int narg);
@@ -292,11 +282,10 @@ public:
 	int DoFile(const char *filename);
 	int DoString(const char *str);
 	int DoBuffer(const char *buff, size_t size, const char *name);
-#if LUAPLUS_EXTENSIONS
+
 	int DoFile(const char *filename, LuaObject& fenvObj);
 	int DoString(const char *str, LuaObject& fenvObj);
 	int DoBuffer(const char *buff, size_t size, const char *name, LuaObject& fenvObj);
-#endif // LUAPLUS_EXTENSIONS
 
 #if LUA_WIDESTRING
 	int LoadWBuffer(const lua_WChar* buff, size_t size, const char* name);
@@ -309,9 +298,7 @@ public:
 	const char* LTypeName(int index);
 	void GetMetaTable(const char* metatableName);
 
-#if LUAPLUS_EXTENSIONS
 	LuaObject NewUserDataBox(void* u);
-#endif // LUAPLUS_EXTENSIONS
 
 #if LUAPLUS_DUMPOBJECT
 	LUAPLUS_CLASS_API bool DumpObject(const char* filename, const char* name, LuaObject& value, unsigned int flags = DUMP_ALPHABETICAL,
@@ -337,20 +324,16 @@ public:
 
 	int UpValueIndex(int i);
 
-#if LUAPLUS_EXTENSIONS
-	LUAPLUS_CLASS_API LuaObject GetLocalByName( int level, const char* name );
-#endif // LUAPLUS_EXTENSIONS
+	LuaObject GetLocalByName( int level, const char* name );
 
 protected:
 	LuaState();
 	~LuaState();
 	LuaState& operator=(LuaState& src);		// Not implemented.
 
-#if LUAPLUS_EXTENSIONS
 	bool CallFormatting(LuaObject& tableObj, LuaStateOutFile& file, int indentLevel,
 			bool writeAll, bool alphabetical, bool writeTablePointers,
 			unsigned int maxIndentLevel);
-#endif // LUAPLUS_EXTENSIONS
 };
 
 

@@ -82,11 +82,11 @@ static TValue *luaH_setinthelper (lua_State *L, Table *t, int key) {
 #endif /* LUA_FASTREF_SUPPORT */
 
 
-#if LUAPLUS_EXTENSIONS
+#if LUA_WIDESTRING
 TValue *index2adr (lua_State *L, int idx) {
 #else
 static TValue *index2adr (lua_State *L, int idx) {
-#endif /* LUAPLUS_EXTENSIONS */
+#endif /* LUA_WIDESTRING */
   if (idx > 0) {
     TValue *o = L->base + (idx - 1);
     api_check(L, idx <= L->ci->top - L->base);
@@ -124,11 +124,7 @@ static TValue *index2adr (lua_State *L, int idx) {
 }
 
 
-#if LUAPLUS_EXTENSIONS
-Table *getcurrenv (lua_State *L) {
-#else
 static Table *getcurrenv (lua_State *L) {
-#endif /* LUAPLUS_EXTENSIONS */
   if (L->ci == L->base_ci)  /* no enclosing function? */
     return hvalue(gt(L));  /* use global table as environment */
   else {
