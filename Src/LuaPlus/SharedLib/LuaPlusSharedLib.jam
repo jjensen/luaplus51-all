@@ -99,7 +99,13 @@ C.InstallNamePath LuaPlusShared : @rpath ;
 C.Defines LuaPlusShared : LUA_OPNAMES ;
 C.Defines LuaPlusShared : LUAPLUS_BUILDDLL LUAPLUS_DLL ;
 
-if $(UNIX)
+if $(MSVCNT)
+{
+	C.CFlags LuaPlusShared : /arch:SSE2 ;
+	C.C++Flags LuaPlusShared : /arch:SSE2 ;
+	C.Defines LuaPlusShared : __SSE2__ ;
+}
+else if $(UNIX)
 {
 	C.LinkPrebuiltLibraries LuaPlusShared : stdc++ dl ;
 	if ! $(OS) in MACOS MACOSX {
