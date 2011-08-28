@@ -13,8 +13,6 @@
 #include "LuaPlusInternal.h"
 #include "LuaObject.h"
 
-#if LUAPLUS_EXTENSIONS
-
 ///////////////////////////////////////////////////////////////////////////////
 // namespace LuaPlus
 ///////////////////////////////////////////////////////////////////////////////
@@ -193,7 +191,5 @@ inline LuaObject& LuaTableIterator::GetValue() {
 }
 
 } // namespace LuaPlus
-
-#endif // LUAPLUS_EXTENSIONS
 
 #endif // LUAPLUS__LUATABLEITERATOR_H

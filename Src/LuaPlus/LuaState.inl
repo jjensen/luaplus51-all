@@ -819,8 +819,6 @@ LUAPLUS_INLINE lua_Integer LuaState::OptInteger(int nArg, lua_Integer def)
 }
 
 
-#if LUAPLUS_EXTENSIONS
-
 LUAPLUS_INLINE lua_Integer LuaState::CheckBoolean(int numArg) {
 	return luaL_checkboolean(LuaState_to_lua_State(this), numArg);
 }
@@ -829,8 +827,6 @@ LUAPLUS_INLINE lua_Integer LuaState::CheckBoolean(int numArg) {
 LUAPLUS_INLINE lua_Integer LuaState::OptBoolean(int nArg, lua_Integer def) {
 	return luaL_optboolean(LuaState_to_lua_State(this), nArg, def);
 }
-
-#endif /* LUAPLUS_EXTENSIONS */
 
 
 LUAPLUS_INLINE const char* LuaState::CheckString(int numArg)
@@ -987,7 +983,6 @@ LUAPLUS_INLINE void* LuaState::UnBoxPointer(int stackIndex)
 	return (*(void **)(lua_touserdata(LuaState_to_lua_State(this), stackIndex)));
 }
 
-#if LUAPLUS_EXTENSIONS
 
 LUAPLUS_INLINE LuaObject LuaState::NewUserDataBox(void* u) {
 	LuaObject obj(this);
@@ -1028,7 +1023,6 @@ LUAPLUS_INLINE int LuaState::DoBuffer( const char *buff, size_t size, const char
 	return lua_pcall(L, 0, LUA_MULTRET, 0);
 }
 
-#endif // LUAPLUS_EXTENSIONS
 
 
 } // namespace LuaPlus

@@ -10,8 +10,6 @@
 #ifndef LUAPLUS__LUACALL_INL
 #define LUAPLUS__LUACALL_INL
 
-#if LUAPLUS_EXTENSIONS
-
 ///////////////////////////////////////////////////////////////////////////////
 // namespace LuaPlus
 ///////////////////////////////////////////////////////////////////////////////
@@ -135,7 +133,5 @@ LUAPLUS_INLINE LuaCall& LuaCall::operator=(const LuaCall& src) {
 }
 
 } // namespace LuaPlus
-
-#endif // LUAPLUS_EXTENSIONS
 
 #endif // LUAPLUS__LUACALL_INL

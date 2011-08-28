@@ -539,8 +539,6 @@ LUA_EXTERN_C_END
 
 #endif /* LUA_WIDESTRING */
 
-#if LUAPLUS_EXTENSIONS
-
 LUA_EXTERN_C_BEGIN
 
 #define LUA_ALLOC_TEMP 1
@@ -556,8 +554,6 @@ LUA_API void lua_setusergcfunction(lua_State *L, void (*userGCFunction)(void*));
 #define lua_unboxpointer(L,i)   (*(void **)(lua_touserdata(L, i)))
 
 LUA_EXTERN_C_END
-
-#endif /* LUAPLUS_EXTENSIONS */
 
 LUA_EXTERN_C_BEGIN
 

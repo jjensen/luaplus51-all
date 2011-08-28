@@ -287,11 +287,7 @@ static int arrayindex (const TValue *key) {
 ** elements in the array part, then elements in the hash part. The
 ** beginning of a traversal is signalled by -1.
 */
-#if LUAPLUS_EXTENSIONS
-int luaH_findindex (lua_State *L, Table *t, StkId key) {
-#else
 static int findindex (lua_State *L, Table *t, StkId key) {
-#endif /* LUAPLUS_EXTENSIONS */
   int i;
   if (ttisnil(key)) return -1;  /* first iteration */
 #if LNUM_PATCH
@@ -322,11 +318,7 @@ static int findindex (lua_State *L, Table *t, StkId key) {
 
 
 int luaH_next (lua_State *L, Table *t, StkId key) {
-#if LUAPLUS_EXTENSIONS
-  int i = luaH_findindex(L, t, key);  /* find original element */
-#else
   int i = findindex(L, t, key);  /* find original element */
-#endif /* LUAPLUS_EXTENSIONS */
   for (i++; i < t->sizearray; i++) {  /* try first array part */
     if (!ttisnil(&t->array[i])) {  /* a non-nil value? */
 #if LNUM_PATCH
