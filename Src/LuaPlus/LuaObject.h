@@ -314,6 +314,9 @@ public:
 	void Unregister(const char* funcName);
 
 protected:
+#if !LUA_FASTREF_SUPPORT
+	friend class LuaFastRefPush;
+#endif // LUA_FASTREF_SUPPORT
 	void RegisterHelper(const char* funcName, lua_CFunction function, int nupvalues, const void* callee, unsigned int sizeofCallee, void* func, unsigned int sizeofFunc);
 	LUAPLUS_CLASS_API void AssignCFunctionHelper(lua_CFunction function, int nupvalues, const void* callee, unsigned int sizeofCallee, void* func, unsigned int sizeofFunc);
 
@@ -426,12 +429,40 @@ namespace LPCD {
 
 namespace LuaPlus {
 
+#if !LUA_FASTREF_SUPPORT
+class LuaFastRefPush
+{
+public:
+	LuaFastRefPush(const LuaObject* self) {
+		lua_getfastref(self->L, self->ref);
+		this->self = self;
+	}
+
+	~LuaFastRefPush() {
+		lua_pop(self->L, 1);
+	}
+
+	const LuaObject* self;
+};
+
+#define LUA_FASTREF_PUSH() LuaFastRefPush _frp(this)
+#define LUA_FASTREF_REF_1 -1
+#define LUA_FASTREF_REF_2 -2
+#define LUA_FASTREF_REF_3 -3
+#else
+#define LUA_FASTREF_PUSH()
+#define LUA_FASTREF_REF_1 this->ref
+#define LUA_FASTREF_REF_2 this->ref
+#define LUA_FASTREF_REF_3 this->ref
+#endif // !LUA_FASTREF_SUPPORT
+
 template <typename T>
 inline LuaObject& LuaObject::SetNil(const T& key) {
 	luaplus_assert(L  &&  IsTable());
+	LUA_FASTREF_PUSH();
 	LPCD::Push(L, key);
 	lua_pushnil(L);
-	lua_settable(L, ref);
+	lua_settable(L, LUA_FASTREF_REF_3);
 	return *this;
 }
 
@@ -439,9 +470,10 @@ inline LuaObject& LuaObject::SetNil(const T& key) {
 template <typename KeyT, typename ValueT>
 LuaObject& LuaObject::Set(const KeyT& key, const ValueT& value) {
 	luaplus_assert(L  &&  IsTable());
+	LUA_FASTREF_PUSH();
 	LPCD::Push(L, key);
 	LPCD::Push(L, value);
-	lua_settable(L, ref);
+	lua_settable(L, LUA_FASTREF_REF_3);
 	return *this;
 }
 
@@ -449,9 +481,10 @@ LuaObject& LuaObject::Set(const KeyT& key, const ValueT& value) {
 template <typename KeyT, typename ValueT>
 LuaObject& LuaObject::Set(const KeyT& key, const ValueT& value, int len) {
 	luaplus_assert(L  &&  IsTable());
+	LUA_FASTREF_PUSH();
 	LPCD::Push(L, key);
 	LPCD::Push(L, value, len);
-	lua_settable(L, ref);
+	lua_settable(L, LUA_FASTREF_REF_3);
 	return *this;
 }
 
@@ -459,9 +492,10 @@ LuaObject& LuaObject::Set(const KeyT& key, const ValueT& value, int len) {
 template <typename T>
 inline LuaObject& LuaObject::RawSetNil(const T& key) {
 	luaplus_assert(L  &&  IsTable());
+	LUA_FASTREF_PUSH();
 	LPCD::Push(L, key);
 	lua_pushnil(L);
-	lua_rawset(L, ref);
+	lua_rawset(L, LUA_FASTREF_REF_3);
 	return *this;
 }
 
@@ -469,9 +503,10 @@ inline LuaObject& LuaObject::RawSetNil(const T& key) {
 template <typename KeyT, typename ValueT>
 LuaObject& LuaObject::RawSet(const KeyT& key, const ValueT& value) {
 	luaplus_assert(L  &&  IsTable());
+	LUA_FASTREF_PUSH();
 	LPCD::Push(L, key);
 	LPCD::Push(L, value);
-	lua_rawset(L, ref);
+	lua_rawset(L, LUA_FASTREF_REF_3);
 	return *this;
 }
 
@@ -479,9 +514,10 @@ LuaObject& LuaObject::RawSet(const KeyT& key, const ValueT& value) {
 template <typename KeyT, typename ValueT>
 LuaObject& LuaObject::RawSet(const KeyT& key, const ValueT& value, int len) {
 	luaplus_assert(L  &&  IsTable());
+	LUA_FASTREF_PUSH();
 	LPCD::Push(L, key);
 	LPCD::Push(L, value, len);
-	lua_rawset(L, ref);
+	lua_rawset(L, LUA_FASTREF_REF_3);
 	return *this;
 }
 

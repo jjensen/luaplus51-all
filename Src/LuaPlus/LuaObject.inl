@@ -58,7 +58,11 @@ inline LuaObject::LuaObject(LuaState* state, int stackIndex) throw()
 inline LuaObject::LuaObject(lua_State* _L, int _ref, bool directAssign) throw()
 	: L(_L)
 {
+#if LUA_FASTREF_SUPPORT
 	ref = directAssign ? _ref : lua_fastrefindex(L, _ref);
+#else
+	ref = directAssign ? _ref : (lua_getfastref(L, _ref), lua_fastrefindex(L, _ref));
+#endif // LUA_FASTREF_SUPPORT
 }
 
 
@@ -72,7 +76,12 @@ inline LuaObject::LuaObject(lua_State* _L, bool popTop) throw()
 inline LuaObject::LuaObject(const LuaObject& src) throw() {
 	if (src.L) {
 		L = src.L;
+#if LUA_FASTREF_SUPPORT
 		ref = lua_fastrefindex(L, src.ref);
+#else
+		lua_getfastref(L, src.ref);
+		ref = lua_fastref(L);
+#endif // LUA_FASTREF_SUPPORT
 	} else {
 		L = NULL;
 		ref = LUA_FASTREFNIL;
@@ -96,7 +105,12 @@ inline LuaObject& LuaObject::operator=(const LuaObject& src) throw() {
 		lua_fastunref(L, ref);
 	if (src.L) {
 		L = src.L;
+#if LUA_FASTREF_SUPPORT
 		ref = lua_fastrefindex(L, src.ref);
+#else
+		lua_getfastref(L, src.ref);
+		ref = lua_fastref(L);
+#endif // LUA_FASTREF_SUPPORT
 	} else {
 		L = NULL;
 		ref = LUA_FASTREFNIL;
@@ -140,42 +154,48 @@ inline void LuaObject::Reset() {
 // Mirrors lua_typename().
 inline const char* LuaObject::TypeName() const {
 	luaplus_assert(L);
-	return lua_typename(L, lua_type(L, ref));
+	LUA_FASTREF_PUSH();
+	return lua_typename(L, lua_type(L, LUA_FASTREF_REF_1));
 }
 
 
 // Mirrors lua_type().
 inline int LuaObject::Type() const {
 	luaplus_assert(L);
-	return lua_type(L, ref);
+	LUA_FASTREF_PUSH();
+	return lua_type(L, LUA_FASTREF_REF_1);
 }
 
 
 // Mirrors lua_isnil().
 inline bool LuaObject::IsNil() const {
 	luaplus_assert(L);
-	return lua_isnil(L, ref);
+	LUA_FASTREF_PUSH();
+	return lua_isnil(L, LUA_FASTREF_REF_1);
 }
 
 
 // Mirrors lua_istable().
 inline bool LuaObject::IsTable() const {
 	luaplus_assert(L);
-	return lua_istable(L, ref);
+	LUA_FASTREF_PUSH();
+	return lua_istable(L, LUA_FASTREF_REF_1);
 }
 
 
 // Mirrors lua_isuserdata().
 inline bool LuaObject::IsUserData() const {
 	luaplus_assert(L);
-	return lua_isuserdata(L, ref) != 0;
+	LUA_FASTREF_PUSH();
+	return lua_isuserdata(L, LUA_FASTREF_REF_1) != 0;
 }
 
 
 // Mirrors lua_iscfunction().
 inline bool LuaObject::IsCFunction() const {
 	luaplus_assert(L);
-	return lua_iscfunction(L, ref) != 0;
+	LUA_FASTREF_PUSH();
+	return lua_iscfunction(L, LUA_FASTREF_REF_1) != 0;
 }
 
 
@@ -183,7 +203,8 @@ inline bool LuaObject::IsCFunction() const {
 // a real integer, not something that can be converted to a integer.
 inline bool LuaObject::IsInteger() const {
 	luaplus_assert(L);
-	return lua_type(L, ref) == LUA_TNUMBER;
+	LUA_FASTREF_PUSH();
+	return lua_type(L, LUA_FASTREF_REF_1) == LUA_TNUMBER;
 }
 
 
@@ -191,7 +212,8 @@ inline bool LuaObject::IsInteger() const {
 // a real number, not something that can be converted to a number.
 inline bool LuaObject::IsNumber() const {
 	luaplus_assert(L);
-	return lua_type(L, ref) == LUA_TNUMBER;
+	LUA_FASTREF_PUSH();
+	return lua_type(L, LUA_FASTREF_REF_1) == LUA_TNUMBER;
 }
 
 
@@ -199,14 +221,16 @@ inline bool LuaObject::IsNumber() const {
 // a real string, not something that can be converted to a string.
 inline bool LuaObject::IsString() const {
 	luaplus_assert(L);
-	return lua_type(L, ref) == LUA_TSTRING;
+	LUA_FASTREF_PUSH();
+	return lua_type(L, LUA_FASTREF_REF_1) == LUA_TSTRING;
 }
 
 
 #if LUA_WIDESTRING
 inline bool LuaObject::IsWString() const {
 	luaplus_assert(L);
-	return lua_type(L, ref) == LUA_TWSTRING;
+	LUA_FASTREF_PUSH();
+	return lua_type(L, LUA_FASTREF_REF_1) == LUA_TWSTRING;
 }
 #endif /* LUA_WIDESTRING */
 
@@ -214,21 +238,24 @@ inline bool LuaObject::IsWString() const {
 // Mirrors lua_isinteger().
 inline bool LuaObject::IsConvertibleToInteger() const {
 	luaplus_assert(L);
-	return lua_isnumber(L, ref) != 0;
+	LUA_FASTREF_PUSH();
+	return lua_isnumber(L, LUA_FASTREF_REF_1) != 0;
 }
 
 
 // Mirrors lua_isnumber().
 inline bool LuaObject::IsConvertibleToNumber() const {
 	luaplus_assert(L);
-	return lua_isnumber(L, ref) != 0;
+	LUA_FASTREF_PUSH();
+	return lua_isnumber(L, LUA_FASTREF_REF_1) != 0;
 }
 
 
 // Mirrors lua_isstring().
 inline bool LuaObject::IsConvertibleToString() const {
 	luaplus_assert(L);
-	return lua_isstring(L, ref) != 0;
+	LUA_FASTREF_PUSH();
+	return lua_isstring(L, LUA_FASTREF_REF_1) != 0;
 }
 
 
@@ -236,7 +263,8 @@ inline bool LuaObject::IsConvertibleToString() const {
 #if LUA_WIDESTRING
 inline bool LuaObject::IsConvertibleToWString() const {
 	luaplus_assert(L);
-	return lua_iswstring(L, ref) != 0;
+	LUA_FASTREF_PUSH();
+	return lua_iswstring(L, LUA_FASTREF_REF_1) != 0;
 }
 #endif /* LUA_WIDESTRING */
 
@@ -244,49 +272,78 @@ inline bool LuaObject::IsConvertibleToWString() const {
 // Mirrors lua_isfunction().
 inline bool LuaObject::IsFunction() const {
 	luaplus_assert(L);
-	return lua_isfunction(L, ref);
+	LUA_FASTREF_PUSH();
+	return lua_isfunction(L, LUA_FASTREF_REF_1);
 }
 
 
 // Mirrors lua_isnone().
 inline bool LuaObject::IsNone() const {
 	luaplus_assert(L);
-	return lua_isnone(L, ref);
+	LUA_FASTREF_PUSH();
+	return lua_isnone(L, LUA_FASTREF_REF_1);
 }
 
 
 // Mirrors lua_islightuserdata().
 inline bool LuaObject::IsLightUserData() const {
 	luaplus_assert(L);
-	return lua_islightuserdata(L, ref);
+	LUA_FASTREF_PUSH();
+	return lua_islightuserdata(L, LUA_FASTREF_REF_1);
 }
 
 
 // Mirrors lua_isboolean().
 inline bool LuaObject::IsBoolean() const {
 	luaplus_assert(L);
-	return lua_isboolean(L, ref);
+	LUA_FASTREF_PUSH();
+	return lua_isboolean(L, LUA_FASTREF_REF_1);
 }
 
 
 // Mirrors lua_tointeger()
 inline int LuaObject::ToInteger() {
 	luaplus_assert(L);
+	LUA_FASTREF_PUSH();
+#if LUA_FASTREF_SUPPORT
 	return lua_tointeger(L, ref);
+#else
+	lua_getfastref(L, ref);
+	lua_Integer ret = lua_tointeger(L, -1);
+	lua_fastunref(L, ref);
+	ref = lua_fastref(L);
+	return ret;
+#endif // LUA_FASTREF_SUPPORT
 }
 
 
 // Mirrors lua_tonumber()
 inline lua_Number LuaObject::ToNumber() {
 	luaplus_assert(L);
+#if LUA_FASTREF_SUPPORT
 	return lua_tonumber(L, ref);
+#else
+	lua_getfastref(L, ref);
+	lua_Number ret = lua_tonumber(L, -1);
+	lua_fastunref(L, ref);
+	ref = lua_fastref(L);
+	return ret;
+#endif // LUA_FASTREF_SUPPORT
 }
 
 
 // Mirrors lua_tostring().
 inline const char* LuaObject::ToString() {
 	luaplus_assert(L);
+#if LUA_FASTREF_SUPPORT
 	return lua_tostring(L, ref);
+#else
+	lua_getfastref(L, ref);
+	const char* ret = lua_tostring(L, -1);
+	lua_fastunref(L, ref);
+	ref = lua_fastref(L);
+	return ret;
+#endif // LUA_FASTREF_SUPPORT
 }
 
 
@@ -294,51 +351,72 @@ inline const char* LuaObject::ToString() {
 #if LUA_WIDESTRING
 inline const lua_WChar* LuaObject::ToWString() {
 	luaplus_assert(L);
+#if LUA_FASTREF_SUPPORT
 	return lua_towstring(L, ref);
+#else
+	lua_getfastref(L, ref);
+	const char* ret = lua_tostring(L, -1);
+	lua_fastunref(L, ref);
+	ref = lua_fastref(L);
+	return ret;
+#endif // LUA_FASTREF_SUPPORT
 }
 #endif /* LUA_WIDESTRING */
 
 
 inline size_t LuaObject::ObjLen() {
 	luaplus_assert(L);
-	return lua_objlen(L, ref);
+#if !LUA_FASTREF_SUPPORT
+	if (Type() == LUA_TNUMBER  /*  ||  Type() == LUA_TINT */)
+	{
+		ToString();
+	}
+#endif // !LUA_FASTREF_SUPPORT
+	LUA_FASTREF_PUSH();
+	return lua_objlen(L, LUA_FASTREF_REF_1);
 }
 
 
 inline int LuaObject::GetInteger() const {
 	luaplus_assert(L  &&  IsInteger());
-	return lua_tointeger(L, ref);
+	LUA_FASTREF_PUSH();
+	return lua_tointeger(L, LUA_FASTREF_REF_1);
 }
 
 
 inline float LuaObject::GetFloat() const {
 	luaplus_assert(L  &&  IsNumber());
-	return (float)lua_tonumber(L, ref);
+	LUA_FASTREF_PUSH();
+	return (float)lua_tonumber(L, LUA_FASTREF_REF_1);
 }
 
 
 inline double LuaObject::GetDouble() const {
 	luaplus_assert(L  &&  IsNumber());
-	return (double)lua_tonumber(L, ref);
+	LUA_FASTREF_PUSH();
+	return (double)lua_tonumber(L, LUA_FASTREF_REF_1);
 }
 
 
 inline lua_Number LuaObject::GetNumber() const {
 	luaplus_assert(L  &&  IsNumber());
-	return (lua_Number)lua_tonumber(L, ref);
+	LUA_FASTREF_PUSH();
+	return (lua_Number)lua_tonumber(L, LUA_FASTREF_REF_1);
 }
 
 
 inline const char* LuaObject::GetString() const {
 	luaplus_assert(L  &&  IsString());
-	return lua_tostring(L, ref);
+	LUA_FASTREF_PUSH();
+	return lua_tostring(L, LUA_FASTREF_REF_1);
 }
 
 
 #if LUA_WIDESTRING
 inline const lua_WChar* LuaObject::GetWString()const {
 	luaplus_assert(L  &&  IsWString());
-	return lua_towstring(L, ref);
+	LUA_FASTREF_PUSH();
+	return lua_towstring(L, LUA_FASTREF_REF_1);
 }
 #endif /* LUA_WIDESTRING */
 
@@ -350,54 +428,61 @@ inline size_t LuaObject::StrLen() const {
 #else
 	luaplus_assert(IsString());
 #endif /* LUA_WIDESTRING */
-	return lua_objlen(L, ref);
+	LUA_FASTREF_PUSH();
+	return lua_objlen(L, LUA_FASTREF_REF_1);
 }
 
 
 inline lua_CFunction LuaObject::GetCFunction() const {
 	luaplus_assert(L  &&  IsCFunction());
-	return lua_tocfunction(L, ref);
+	LUA_FASTREF_PUSH();
+	return lua_tocfunction(L, LUA_FASTREF_REF_1);
 }
 
 
 // Mirrors lua_touserdata().
 inline void* LuaObject::GetUserData() const {
 	luaplus_assert(L  &&  IsUserData());
-	return lua_touserdata(L, ref);
+	LUA_FASTREF_PUSH();
+	return lua_touserdata(L, LUA_FASTREF_REF_1);
 }
 
 
 // Mirrors lua_topointer.
 inline const void* LuaObject::GetLuaPointer() const {
 	luaplus_assert(L);
-	return lua_topointer(L, ref);
+	LUA_FASTREF_PUSH();
+	return lua_topointer(L, LUA_FASTREF_REF_1);
 }
 
 
 // No equivalent.
 inline void* LuaObject::GetLightUserData() const {
 	luaplus_assert(L  &&  IsLightUserData());
-	return lua_touserdata(L, ref);
+	LUA_FASTREF_PUSH();
+	return lua_touserdata(L, LUA_FASTREF_REF_1);
 }
 
 
 // Mirrors lua_toboolean().
 inline bool LuaObject::GetBoolean() const {
 	luaplus_assert(L  &&  IsBoolean()  ||  IsNil());
-	return lua_toboolean(L, ref) != 0;
+	LUA_FASTREF_PUSH();
+	return lua_toboolean(L, LUA_FASTREF_REF_1) != 0;
 }
 
 
 inline LuaStackObject LuaObject::Push() const {
 	luaplus_assert(L);
-	lua_pushvalue(L, ref);
+	lua_getfastref(L, ref);
 	return LuaStackObject(L, lua_gettop(L));
 }
 
 
 inline LuaObject LuaObject::GetMetaTable() const {
 	luaplus_assert(L);
-	if (lua_getmetatable(L, ref))
+	LUA_FASTREF_PUSH();
+	if (lua_getmetatable(L, LUA_FASTREF_REF_1))
 		return LuaObject(L, lua_fastref(L), true);
 	return LuaObject(L);
 }
@@ -405,8 +490,9 @@ inline LuaObject LuaObject::GetMetaTable() const {
 
 inline void LuaObject::SetMetaTable(const LuaObject& valueObj) {
 	luaplus_assert(L);
-	lua_pushvalue(L, valueObj.ref);
-	lua_setmetatable(L, ref);
+	LUA_FASTREF_PUSH();
+	lua_getfastref(L, valueObj.ref);
+	lua_setmetatable(L, LUA_FASTREF_REF_2);
 }
 
 
@@ -461,6 +547,7 @@ inline void LuaObject::Remove(int index) {
 inline void LuaObject::Sort() {
 	luaplus_assert(L);
 	lua_getglobal(L, "table");
+	luaplus_assert(lua_istable(L, -1));
 	lua_getfield(L, -1, "sort");
 	luaplus_assert(lua_isfunction(L, -1));
 	Push();
@@ -497,11 +584,17 @@ inline size_t LuaObject::GetTableCount() const {
 **/
 inline LuaObject LuaObject::CreateTable(const char* key, int narray, int nrec) {
 	luaplus_assert(L);
-	lua_pushstring(L, key);				// key
-	lua_pushvalue(L, -1);				// key key
-	lua_createtable(L, narray, nrec);	// key key table
+	LUA_FASTREF_PUSH();					// (table)
+	lua_pushstring(L, key);				// (table) key
+	lua_pushvalue(L, -1);				// (table) key key
+	lua_createtable(L, narray, nrec);	// (table) key key table
+#if LUA_FASTREF_SUPPORT
 	lua_settable(L, ref);				// key
 	lua_gettable(L, ref);				// table
+#else
+	lua_settable(L, -4);				// (table) key
+	lua_gettable(L, -2);				// (table) table
+#endif // LUA_FASTREF_SUPPORT
 	return LuaObject(L, lua_fastref(L), true);
 }
 
@@ -515,11 +608,17 @@ inline LuaObject LuaObject::CreateTable(const char* key, int narray, int nrec) {
 **/
 inline LuaObject LuaObject::CreateTable(int key, int narray, int nrec) {
 	luaplus_assert(L);
-	lua_pushinteger(L, key);			// key
-	lua_pushvalue(L, -1);				// key key
-	lua_createtable(L, narray, nrec);	// key key table
+	LUA_FASTREF_PUSH();					// (table)
+	lua_pushinteger(L, key);			// (table) key
+	lua_pushvalue(L, -1);				// (table) key key
+	lua_createtable(L, narray, nrec);	// (table) key key table
+#if LUA_FASTREF_SUPPORT
 	lua_settable(L, ref);				// key
 	lua_gettable(L, ref);				// table
+#else
+	lua_settable(L, -4);				// (table) key
+	lua_gettable(L, -2);				// (table) table
+#endif // LUA_FASTREF_SUPPORT
 	return LuaObject(L, lua_fastref(L), true);
 }
 
@@ -533,11 +632,17 @@ inline LuaObject LuaObject::CreateTable(int key, int narray, int nrec) {
 **/
 inline LuaObject LuaObject::CreateTable(LuaObject& key, int narray, int nrec) {
 	luaplus_assert(L);
-	lua_pushvalue(L, key.ref);			// key
-	lua_pushvalue(L, -1);				// key key
-	lua_createtable(L, narray, nrec);	// key key table
+	LUA_FASTREF_PUSH();					// (table)
+	lua_getfastref(L, key.ref);			// (table) key
+	lua_pushvalue(L, -1);				// (table) key key
+	lua_createtable(L, narray, nrec);	// (table) key key table
+#if LUA_FASTREF_SUPPORT
 	lua_settable(L, ref);				// key
 	lua_gettable(L, ref);				// table
+#else
+	lua_settable(L, -4);				// (table) key
+	lua_gettable(L, -2);				// (table) table
+#endif // LUA_FASTREF_SUPPORT
 	return LuaObject(L, lua_fastref(L), true);
 }
 
@@ -564,31 +669,35 @@ inline LuaObject LuaObject::operator[](const LuaStackObject& key) const {
 
 inline LuaObject LuaObject::Get(const char* key) const {
 	luaplus_assert(L  &&  IsTable());
-	lua_pushstring(L, key);				// key
-	lua_gettable(L, ref);				// value
+	LUA_FASTREF_PUSH();					// (table)
+	lua_pushstring(L, key);				// (table) key
+	lua_gettable(L, LUA_FASTREF_REF_2);	// (table) value
 	return LuaObject(L, lua_fastref(L), true);
 }
 
 
 inline LuaObject LuaObject::Get(int key) const {
 	luaplus_assert(L  &&  IsTable());
-	lua_pushinteger(L, key);			// key
-	lua_gettable(L, ref);				// value
+	LUA_FASTREF_PUSH();					// (table)
+	lua_pushinteger(L, key);			// (table) key
+	lua_gettable(L, LUA_FASTREF_REF_2);	// (table) value
 	return LuaObject(L, lua_fastref(L), true);
 }
 
 inline LuaObject LuaObject::Get(const LuaObject& key) const {
 	luaplus_assert(L  &&  IsTable());
-	lua_pushvalue(L, key.ref);			// key
-	lua_gettable(L, ref);				// value
+	LUA_FASTREF_PUSH();					// (table)
+	lua_getfastref(L, key.ref);			// (table) key
+	lua_gettable(L, LUA_FASTREF_REF_2);	// (table) value
 	return LuaObject(L, lua_fastref(L), true);
 }
 
 
 inline LuaObject LuaObject::Get(const LuaStackObject& key) const {
 	luaplus_assert(L  &&  IsTable());
-	lua_pushvalue(L, key.m_stackIndex);	// key
-	lua_gettable(L, ref);				// table
+	LUA_FASTREF_PUSH();					// (table)
+	lua_pushvalue(L, key.m_stackIndex);	// (table) key
+	lua_gettable(L, LUA_FASTREF_REF_2);	// (table) table
 	return LuaObject(L, lua_fastref(L), true);
 }
 
@@ -634,29 +743,33 @@ inline LuaObject LuaObject::RawGet(const LuaStackObject& key) const {
 
 inline LuaObject LuaObject::RawGetByName(const char* key) const {
 	luaplus_assert(L  &&  IsTable());
-	lua_pushstring(L, key);				// key
-	lua_rawget(L, ref);					// value
+	LUA_FASTREF_PUSH();					// (table)
+	lua_pushstring(L, key);				// (table) key
+	lua_rawget(L, LUA_FASTREF_REF_2);	// (table) value
 	return LuaObject(L, lua_fastref(L), true);
 }
 
 inline LuaObject LuaObject::RawGetByIndex(int key) const {
 	luaplus_assert(L  &&  IsTable());
-	lua_rawgeti(L, ref, key);			// value
+	LUA_FASTREF_PUSH();					// (table)
+	lua_rawgeti(L, LUA_FASTREF_REF_1, key);		// (table) value
 	return LuaObject(L, lua_fastref(L), true);
 }
 
 inline LuaObject LuaObject::RawGetByObject(const LuaObject& key) const {
 	luaplus_assert(L  &&  IsTable());
-	lua_pushvalue(L, key.ref);			// key
-	lua_rawget(L, ref);					// value
+	LUA_FASTREF_PUSH();					// (table)
+	lua_getfastref(L, key.ref);			// (table) key
+	lua_rawget(L, LUA_FASTREF_REF_2);	// (table) value
 	return LuaObject(L, lua_fastref(L), true);
 }
 
 
 inline LuaObject LuaObject::RawGetByObject(const LuaStackObject& key) const {
 	luaplus_assert(L  &&  IsTable());
-	lua_pushvalue(L, key.m_stackIndex);	// key
-	lua_rawget(L, ref);					// value
+	LUA_FASTREF_PUSH();					// (table)
+	lua_pushvalue(L, key.m_stackIndex);	// (table) key
+	lua_rawget(L, LUA_FASTREF_REF_2);	// (table) value
 	return LuaObject(L, lua_fastref(L), true);
 }
 
@@ -785,104 +898,116 @@ inline LuaObject& LuaObject::SetObject(LuaObject& key, LuaObject& value) {
 
 inline LuaObject& LuaObject::RawSetBoolean(const char* key, bool value) {
 	luaplus_assert(L&&  IsTable());
+	LUA_FASTREF_PUSH();					// (table)
 	lua_pushstring(L, key);
 	lua_pushboolean(L, value);
-	lua_rawset(L, ref);
+	lua_rawset(L, LUA_FASTREF_REF_3);
 	return *this;
 }
 
 
 inline LuaObject& LuaObject::RawSetBoolean(int key, bool value) {
 	luaplus_assert(L  &&  IsTable());
+	LUA_FASTREF_PUSH();					// (table)
 	lua_pushboolean(L, value);
-	lua_rawseti(L, ref, key);
+	lua_rawseti(L, LUA_FASTREF_REF_2, key);
 	return *this;
 }
 
 
 inline LuaObject& LuaObject::RawSetBoolean(LuaObject& key, bool value) {
 	luaplus_assert(L  &&  IsTable());
-	lua_pushvalue(L, key.GetRef());
+	LUA_FASTREF_PUSH();					// (table)
+	lua_getfastref(L, key.ref);
 	lua_pushboolean(L, value);
-	lua_rawset(L, ref);
+	lua_rawset(L, LUA_FASTREF_REF_3);
 	return *this;
 }
 
 
 inline LuaObject& LuaObject::RawSetInteger(const char* key, int value) {
 	luaplus_assert(L&&  IsTable());
+	LUA_FASTREF_PUSH();					// (table)
 	lua_pushstring(L, key);
 	lua_pushinteger(L, value);
-	lua_rawset(L, ref);
+	lua_rawset(L, LUA_FASTREF_REF_3);
 	return *this;
 }
 
 
 inline LuaObject& LuaObject::RawSetInteger(int key, int value) {
 	luaplus_assert(L  &&  IsTable());
+	LUA_FASTREF_PUSH();					// (table)
 	lua_pushinteger(L, value);
-	lua_rawseti(L, ref, key);
+	lua_rawseti(L, LUA_FASTREF_REF_2, key);
 	return *this;
 }
 
 
 inline LuaObject& LuaObject::RawSetInteger(LuaObject& key, int value) {
 	luaplus_assert(L  &&  IsTable());
-	lua_pushvalue(L, key.GetRef());
+	LUA_FASTREF_PUSH();					// (table)
+	lua_getfastref(L, key.ref);
 	lua_pushinteger(L, value);
-	lua_rawset(L, ref);
+	lua_rawset(L, LUA_FASTREF_REF_3);
 	return *this;
 }
 
 
 inline LuaObject& LuaObject::RawSetNumber(const char* key, lua_Number value) {
 	luaplus_assert(L&&  IsTable());
+	LUA_FASTREF_PUSH();					// (table)
 	lua_pushstring(L, key);
 	lua_pushnumber(L, value);
-	lua_rawset(L, ref);
+	lua_rawset(L, LUA_FASTREF_REF_3);
 	return *this;
 }
 
 
 inline LuaObject& LuaObject::RawSetNumber(int key, lua_Number value) {
 	luaplus_assert(L  &&  IsTable());
+	LUA_FASTREF_PUSH();					// (table)
 	lua_pushnumber(L, value);
-	lua_rawseti(L, ref, key);
+	lua_rawseti(L, LUA_FASTREF_REF_2, key);
 	return *this;
 }
 
 
 inline LuaObject& LuaObject::RawSetNumber(LuaObject& key, lua_Number value) {
 	luaplus_assert(L  &&  IsTable());
-	lua_pushvalue(L, key.GetRef());
+	LUA_FASTREF_PUSH();					// (table)
+	lua_getfastref(L, key.ref);
 	lua_pushnumber(L, value);
-	lua_rawset(L, ref);
+	lua_rawset(L, LUA_FASTREF_REF_3);
 	return *this;
 }
 
 
 inline LuaObject& LuaObject::RawSetString(const char* key, const char* value, int len) {
 	luaplus_assert(L&&  IsTable());
+	LUA_FASTREF_PUSH();					// (table)
 	lua_pushstring(L, key);
 	lua_pushlstring(L, value, len == -1 ? strlen(value) : len);
-	lua_rawset(L, ref);
+	lua_rawset(L, LUA_FASTREF_REF_3);
 	return *this;
 }
 
 
 inline LuaObject& LuaObject::RawSetString(int key, const char* value, int len) {
 	luaplus_assert(L  &&  IsTable());
+	LUA_FASTREF_PUSH();					// (table)
 	lua_pushlstring(L, value, len == -1 ? strlen(value) : len);
-	lua_rawseti(L, ref, key);
+	lua_rawseti(L, LUA_FASTREF_REF_2, key);
 	return *this;
 }
 
 
 inline LuaObject& LuaObject::RawSetString(LuaObject& key, const char* value, int len) {
 	luaplus_assert(L  &&  IsTable());
-	lua_pushvalue(L, key.GetRef());
+	LUA_FASTREF_PUSH();					// (table)
+	lua_getfastref(L, key.ref);
 	lua_pushlstring(L, value, len == -1 ? strlen(value) : len);
-	lua_rawset(L, ref);
+	lua_rawset(L, LUA_FASTREF_REF_3);
 	return *this;
 }
 
@@ -890,26 +1015,29 @@ inline LuaObject& LuaObject::RawSetString(LuaObject& key, const char* value, int
 #if LUA_WIDESTRING
 inline LuaObject& LuaObject::RawSetWString(const char* key, const lua_WChar* value, int len) {
 	luaplus_assert(L&&  IsTable());
+	LUA_FASTREF_PUSH();					// (table)
 	lua_pushstring(L, key);
 	lua_pushlwstring(L, value, len == -1 ? lua_WChar_len(value) : len);
-	lua_rawset(L, ref);
+	lua_rawset(L, LUA_FASTREF_REF_3);
 	return *this;
 }
 
 
 inline LuaObject& LuaObject::RawSetWString(int key, const lua_WChar* value, int len) {
 	luaplus_assert(L  &&  IsTable());
+	LUA_FASTREF_PUSH();					// (table)
 	lua_pushlwstring(L, value, len == -1 ? lua_WChar_len(value) : len);
-	lua_rawseti(L, ref, key);
+	lua_rawseti(L, LUA_FASTREF_REF_2, key);
 	return *this;
 }
 
 
 inline LuaObject& LuaObject::RawSetWString(LuaObject& key, const lua_WChar* value, int len) {
 	luaplus_assert(L  &&  IsTable());
-	lua_pushvalue(L, key.GetRef());
+	LUA_FASTREF_PUSH();					// (table)
+	lua_getfastref(L, key.ref);
 	lua_pushlwstring(L, value, len == -1 ? lua_WChar_len(value) : len);
-	lua_rawset(L, ref);
+	lua_rawset(L, LUA_FASTREF_REF_3);
 	return *this;
 }
 #endif /* LUA_WIDESTRING */
@@ -917,75 +1045,84 @@ inline LuaObject& LuaObject::RawSetWString(LuaObject& key, const lua_WChar* valu
 
 inline LuaObject& LuaObject::RawSetUserData(const char* key, void* value) {
 	luaplus_assert(L&&  IsTable());
+	LUA_FASTREF_PUSH();					// (table)
 	lua_pushstring(L, key);
 	lua_pushlightuserdata(L, value);
-	lua_rawset(L, ref);
+	lua_rawset(L, LUA_FASTREF_REF_3);
 	return *this;
 }
 
 
 inline LuaObject& LuaObject::RawSetUserData(int key, void* value) {
 	luaplus_assert(L  &&  IsTable());
+	LUA_FASTREF_PUSH();					// (table)
 	lua_pushlightuserdata(L, value);
-	lua_rawseti(L, ref, key);
+	lua_rawseti(L, LUA_FASTREF_REF_2, key);
 }
 
 
 inline LuaObject& LuaObject::RawSetUserData(LuaObject& key, void* value) {
 	luaplus_assert(L  &&  IsTable());
-	lua_pushvalue(L, key.GetRef());
+	LUA_FASTREF_PUSH();					// (table)
+	lua_getfastref(L, key.ref);
 	lua_pushlightuserdata(L, value);
-	lua_rawset(L, ref);
+	lua_rawset(L, LUA_FASTREF_REF_3);
 	return *this;
 }
 
 
 inline LuaObject& LuaObject::RawSetLightUserData(const char* key, void* value) {
 	luaplus_assert(L&&  IsTable());
+	LUA_FASTREF_PUSH();					// (table)
 	lua_pushstring(L, key);
 	lua_pushlightuserdata(L, value);
-	lua_rawset(L, ref);
+	lua_rawset(L, LUA_FASTREF_REF_3);
 	return *this;
 }
 
 
 inline LuaObject& LuaObject::RawSetLightUserData(int key, void* value) {
 	luaplus_assert(L  &&  IsTable());
+	LUA_FASTREF_PUSH();					// (table)
 	lua_pushlightuserdata(L, value);
-	lua_rawseti(L, ref, key);
+	lua_rawseti(L, LUA_FASTREF_REF_2, key);
 }
 
 
 inline LuaObject& LuaObject::RawSetLightUserData(LuaObject& key, void* value) {
 	luaplus_assert(L  &&  IsTable());
-	lua_pushvalue(L, key.GetRef());
+	LUA_FASTREF_PUSH();					// (table)
+	lua_getfastref(L, key.ref);
 	lua_pushlightuserdata(L, value);
-	lua_rawset(L, ref);
+	lua_rawset(L, LUA_FASTREF_REF_3);
 	return *this;
 }
 
 
 inline LuaObject& LuaObject::RawSetObject(const char* key, LuaObject& value) {
 	luaplus_assert(L&&  IsTable());
+	LUA_FASTREF_PUSH();					// (table)
 	lua_pushstring(L, key);
 	lua_pushvalue(L, value.GetRef());
-	lua_rawset(L, ref);
+	lua_rawset(L, LUA_FASTREF_REF_3);
 	return *this;
 }
 
 
 inline LuaObject& LuaObject::RawSetObject(int key, LuaObject& value) {
 	luaplus_assert(L  &&  IsTable());
+	LUA_FASTREF_PUSH();					// (table)
 	lua_pushvalue(L, value.GetRef());
-	lua_rawseti(L, ref, key);
+	lua_rawseti(L, LUA_FASTREF_REF_2, key);
 }
 
 
 inline LuaObject& LuaObject::RawSetObject(LuaObject& key, LuaObject& value) {
 	luaplus_assert(L  &&  IsTable());
-	lua_pushvalue(L, key.GetRef());
-	lua_pushvalue(L, value.GetRef());
-	lua_rawset(L, ref);
+	LUA_FASTREF_PUSH();					// (table)
+	lua_getfastref(L, key.ref);
+	lua_getfastref(L, value.ref);
+	lua_rawset(L, LUA_FASTREF_REF_3);
 	return *this;
 }
 
@@ -1093,20 +1230,26 @@ inline void LuaObject::AssignNewTable(LuaState* state, int narray, int nrec) {
 **/
 inline void LuaObject::Register(const char* funcName, lua_CFunction function, int nupvalues) {
 	luaplus_assert(L);
+	LUA_FASTREF_PUSH();					// (table)
 	lua_pushcclosure(L, function, nupvalues);
-	lua_setfield(L, ref, funcName);
+	lua_setfield(L, LUA_FASTREF_REF_2, funcName);
 }
 
 
 inline void LuaObject::Register(const char* funcName, int (*function)(LuaState*), int nupvalues) {
 	luaplus_assert(L);
+	LUA_FASTREF_PUSH();					// (table)
 	lua_pushcclosure(L, (lua_CFunction)function, nupvalues);
-	lua_setfield(L, ref, funcName);
+	lua_setfield(L, LUA_FASTREF_REF_2, funcName);
 }
 
 
 inline void LuaObject::RegisterHelper(const char* funcName, lua_CFunction function, int nupvalues, const void* callee, unsigned int sizeofCallee, void* func, unsigned int sizeofFunc) {
 	luaplus_assert(L);
+	LUA_FASTREF_PUSH();					// (table)
+#if !LUA_FASTREF_SUPPORT
+	int top = lua_gettop(L);
+#endif // !LUA_FASTREF_SUPPORT
 
 	if (sizeofFunc != 0)
 	{
@@ -1124,7 +1267,11 @@ inline void LuaObject::RegisterHelper(const char* funcName, lua_CFunction functi
 	}
 
 	lua_pushcclosure(L, (lua_CFunction)function, nupvalues);
+#if LUA_FASTREF_SUPPORT
 	lua_setfield(L, ref, funcName);
+#else
+	lua_setfield(L, top, funcName);
+#endif // LUA_FASTREF_SUPPORT
 }
 
 
