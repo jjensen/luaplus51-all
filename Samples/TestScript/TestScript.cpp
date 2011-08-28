@@ -624,8 +624,10 @@ void CloneTest()
 
 	clonedTableObj.SetNil("Yo");
 
+#if LUAPLUS_DUMPOBJECT
 	state->DumpObject("test1.lua", "Table", tableObj, false);
 	state->DumpObject("test2.lua", "Table", clonedTableObj, false);
+#endif // LUAPLUS_DUMPOBJECT
 }
 
 
@@ -688,7 +690,9 @@ void TestDumpGlobals()
 	LuaStateOwner state(false);
 	state->DoString("GlobalTable = { 1, 2, 3, 4 }");
 	state->DoString("GlobalValue = 5");
+#if LUAPLUS_DUMPOBJECT
 	state->DumpGlobals("dump.lua");
+#endif // LUAPLUS_DUMPOBJECT
 }
 
 
@@ -697,9 +701,13 @@ void DumpTest()
 	LuaStateOwner state(false);
 	LuaObject complexObj = state->GetGlobals().CreateTable("Complex");
 	complexObj.Set("d:\\Test\\Stuff\\\xff\xfe", "An entry");
+#if LUAPLUS_DUMPOBJECT
 	state->DumpObject("test.lua", "Complex", complexObj);
+#endif // LUAPLUS_DUMPOBJECT
 }
 
+
+#if LUAPLUS_EXTENSIONS
 
 void TestANSIFile()
 {
@@ -729,6 +737,7 @@ void ReadUnicodeFile()
     state->DoFile("ReadUnicodeFile.lua");
 }
 
+#endif // LUAPLUS_EXTENSIONS
 
 void IntegerTest()
 {
@@ -2719,9 +2728,13 @@ void RefTest()
 		}
 		for (int index = 1; index < 1000000; ++index)
 		{
-//			lua_getfastref(L, refs[index - 1]);
-//			lua_type(L, -1);
+#if LUA_FASTREF_SUPPORT
 			lua_type(L, refs[index - 1]);
+#else
+			lua_getfastref(L, refs[index - 1]);
+			lua_type(L, -1);
+			lua_pop(L, 1);
+#endif // LUA_FASTREF_SUPPORT
 //			lua_pop(L, 1);
 		}
 		for (int index = 1; index < 1000000; ++index)
@@ -2846,7 +2859,7 @@ int __cdecl main(int argc, char* argv[])
 {
 	TestSet();
 
-	RefTest();
+//	RefTest();
 //	if (1) return 0;
 
 	TestState();
@@ -2871,9 +2884,12 @@ int __cdecl main(int argc, char* argv[])
     IssuesTest();
 	VectorMonsterMetatableTest();
 
+#if LUAPLUS_EXTENSIONS
 	TestANSIFile();
 	TestUnicodeFile();
     ReadUnicodeFile();
+#endif // LUAPLUS_EXCEPTIONS
+
 	LoadCompiledScript();
 	BadDoString();
 	SetTest();
