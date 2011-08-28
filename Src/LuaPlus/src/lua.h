@@ -474,8 +474,6 @@ LUA_API void lua_getfastref (lua_State *L, int ref);
 
 #endif /* LUA_FASTREF_SUPPORT */
 
-LUA_EXTERN_C_END
-
 /* }====================================================================== */
 
 /******************************************************************************
@@ -502,8 +500,6 @@ LUA_EXTERN_C_END
 ******************************************************************************/
 
 #if LUA_WIDESTRING
-
-LUA_EXTERN_C_BEGIN
 
 /* formats for Lua numbers */
 #ifndef LUA_NUMBER_WSCAN
@@ -535,11 +531,7 @@ LUA_API const lua_WChar     *(lua_tolwstring) (lua_State *L, int idx, size_t *le
 
 size_t lua_WChar_len(const lua_WChar* str);
 
-LUA_EXTERN_C_END
-
 #endif /* LUA_WIDESTRING */
-
-LUA_EXTERN_C_BEGIN
 
 #define LUA_ALLOC_TEMP 1
 LUA_API void lua_getdefaultallocfunction(lua_Alloc* allocFunc, void** ud);
@@ -553,14 +545,9 @@ LUA_API void lua_setusergcfunction(lua_State *L, void (*userGCFunction)(void*));
 
 #define lua_unboxpointer(L,i)   (*(void **)(lua_touserdata(L, i)))
 
-LUA_EXTERN_C_END
-
-LUA_EXTERN_C_BEGIN
 
 #if LUA_ENDIAN_SUPPORT
 LUA_API int (lua_dumpendian) (lua_State *L, lua_Writer writer, void *data, int strip, char endian);
 #endif /* LUA_ENDIAN_SUPPORT */
-
-LUA_EXTERN_C_END
 
 #endif

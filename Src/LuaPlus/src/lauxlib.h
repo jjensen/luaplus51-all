@@ -14,7 +14,6 @@
 
 #include "lua.h"
 
-LUA_EXTERN_C_BEGIN
 
 #if defined(LUA_COMPAT_GETN)
 LUALIB_API int (luaL_getn) (lua_State *L, int t);
@@ -209,8 +208,6 @@ LUALIB_API int (luaL_loadwstring) (lua_State *L, const lua_WChar *s);
 #define luaL_dowstring(L, s)	(luaL_loadwstring(L, s) || lua_pcall(L, 0, 0, 0))
 
 #endif /* LUA_WIDESTRING */
-
-LUA_EXTERN_C_END
 
 /* }====================================================== */
 #endif
