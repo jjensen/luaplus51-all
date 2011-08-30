@@ -198,3 +198,19 @@ function ex.removeemptydirectories(path)
 
 	return remove
 end
+
+function io.readall(filename)
+	local file, err = io.open(filename, 'rb')
+	if not file then return nil, err end
+	local buffer = file:read('*a')
+	file:close()
+	return buffer
+end
+
+function io.writeall(filename, buffer)
+	local file, err = io.open(filename, 'wb')
+	if not file then return nil, err end
+	local result, err = file:write(buffer)
+	if not result then return result, err end
+	file:close()	
+end
