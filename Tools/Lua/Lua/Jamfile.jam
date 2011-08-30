@@ -36,9 +36,9 @@ rule LuaApplication TARGET : OPTIONS
 	}
 	if $(MSVCNT)
 	{
-		C.LinkFlags : /DELAYLOAD:luaplus51-1201_debug.dll : debug ;
-		C.LinkFlags : /DELAYLOAD:luaplus51-1201.dll : release ;
-		C.LinkFlags : /DELAYLOAD:luaplus51-1201.dll : releaseltcg ;
+		C.LinkFlags : /DELAYLOAD:luaplus51-1202_debug.dll : debug ;
+		C.LinkFlags : /DELAYLOAD:luaplus51-1202.dll : release ;
+		C.LinkFlags : /DELAYLOAD:luaplus51-1202.dll : releaseltcg ;
 		C.LinkPrebuiltLibraries : DelayImp ;
 	}
 	C.IncludeDirectories : $(LUAPLUS)/Src $(LUAPLUS)/Src/LuaPlus/Src ; # [ FSubDirPath LUAPLUS Src ] ;
