@@ -3,7 +3,7 @@
 #include "stdafx.h"
 
 #undef LoadString
-#include "LuaPlus/LuaLink.h"
+#include "LuaPlus/LuaPlusConfig.h"
 LUA_EXTERN_C_BEGIN
 #define LUA_CORE
 #include "LuaPlus/src/lobject.h"
