@@ -14,8 +14,6 @@ extern "C" {
 #define FONT_METATABLE "xls.Font"
 #define CELLFORMAT_METATABLE "xls.CellFormat"
 
-#if !LUAPLUS_EXTENSIONS
-
 #if LNUM_PATCH
 static void tag_error (lua_State *L, int narg, int t) {
 	luaL_typerror(L, narg, t<0 ? "integer" : lua_typename(L, t));
@@ -27,7 +25,7 @@ static void tag_error (lua_State *L, int narg, int tag) {
 #endif /* LNUM_PATCH */
 
 
-LUALIB_API lua_Integer luaL_checkboolean (lua_State *L, int narg) {
+LUALIB_API lua_Integer checkboolean (lua_State *L, int narg) {
 	lua_Integer d = lua_toboolean(L, narg);
 	if (d == 0 && !lua_isboolean(L, narg))  /* avoid extra test when d is not 0 */
 		tag_error(L, narg, LUA_TBOOLEAN);
@@ -35,11 +33,9 @@ LUALIB_API lua_Integer luaL_checkboolean (lua_State *L, int narg) {
 }
 
 
-LUALIB_API lua_Integer luaL_optboolean (lua_State *L, int narg, int def) {
-	return luaL_opt(L, luaL_checkboolean, narg, def);
+LUALIB_API lua_Integer optboolean (lua_State *L, int narg, int def) {
+	return luaL_opt(L, checkboolean, narg, def);
 }
-
-#endif // LUAPLUS_EXTENSIONS
 
 
 struct xls_WChar {
@@ -884,7 +880,7 @@ int lExcelFont_set_weight(lua_State* L) {
 
 int lExcelFont_set_italic(lua_State* L) {
 	ExcelFont* excelFont = lExcelFont_check(L, 1);
-	excelFont->set_italic(luaL_checkboolean(L, 2) != 0);
+	excelFont->set_italic(checkboolean(L, 2) != 0);
 	lua_pushvalue(L, 1);
 	return 1;
 }
@@ -1241,7 +1237,7 @@ int lCellFormat_is_wrapping(lua_State* L) {
 
 int lCellFormat_set_wrapping(lua_State* L) {
 	CellFormat* cellFormat = lCellFormat_check(L, 1);
-	cellFormat->set_wrapping(luaL_checkboolean(L, 2) != 0);
+	cellFormat->set_wrapping(checkboolean(L, 2) != 0);
 	return 0;
 }
 
