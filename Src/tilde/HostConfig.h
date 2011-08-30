@@ -30,7 +30,9 @@ THE SOFTWARE.
 
 #include <string>
 
+extern "C" {
 #include "lua.h"
+}
 
 
 #define TILDE_ASSERT(exp)			((void)( (exp) != 0 || (tilde::assert_exp((const char *)#exp, __FILE__, __LINE__), 0) ))
