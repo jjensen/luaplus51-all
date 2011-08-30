@@ -182,7 +182,11 @@ union GCObject {
 
 
 /* macros to convert a GCObject into a specific value */
+#if LUA_WIDESTRING
+#define rawgco2ts(o)	check_exp((o)->gch.tt == LUA_TSTRING || (o)->gch.tt == LUA_TWSTRING, &((o)->ts))
+#else
 #define rawgco2ts(o)	check_exp((o)->gch.tt == LUA_TSTRING, &((o)->ts))
+#endif /* LUA_WIDESTRING */
 #define gco2ts(o)	(&rawgco2ts(o)->tsv)
 #define rawgco2u(o)	check_exp((o)->gch.tt == LUA_TUSERDATA, &((o)->u))
 #define gco2u(o)	(&rawgco2u(o)->uv)
