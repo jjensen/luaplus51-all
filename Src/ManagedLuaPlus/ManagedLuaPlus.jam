@@ -22,9 +22,9 @@ C.OutputPath ManagedLuaPlus : $(LUAPLUS_OUTPUT_DIRECTORY) : release ;
 C.OutputPath ManagedLuaPlus : $(LUAPLUS_OUTPUT_DIRECTORY) : releaseltcg ;
 
 C.LinkPrebuiltLibraries ManagedLuaPlus : DelayImp ;
-C.LinkFlags ManagedLuaPlus : /DELAYLOAD:luaplus51-1201_debug.dll : debug ;
-C.LinkFlags ManagedLuaPlus : /DELAYLOAD:luaplus51-1201.dll : release ;
-C.LinkFlags ManagedLuaPlus : /DELAYLOAD:luaplus51-1201.dll : releaseltcg ;
+C.LinkFlags ManagedLuaPlus : /DELAYLOAD:luaplus51-1202_debug.dll : debug ;
+C.LinkFlags ManagedLuaPlus : /DELAYLOAD:luaplus51-1202.dll : release ;
+C.LinkFlags ManagedLuaPlus : /DELAYLOAD:luaplus51-1202.dll : releaseltcg ;
 C.LinkFlags ManagedLuaPlus : /KEYFILE:\"$(SEARCH_SOURCE)/ManagedLuaPlus.snk\" ;
 
 C.UseDotNet ManagedLuaPlus ;
