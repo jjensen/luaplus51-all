@@ -512,38 +512,6 @@ int luaplus_str_format (lua_State *L) {
 #endif /* LUA_STRING_FORMAT_EXTENSIONS */
 
 
-#if LUAPLUS_EXTENSIONS
-
-int luaplus_io_readall (lua_State *L) {
-  const char *filename = luaL_checkstring(L, 1);
-  FILE *f = fopen(filename, "rb");
-  if (!f)
-    return 0;
-  read_chars(L, f, ~((size_t)0));  /* read MAX_SIZE_T chars */
-  fclose(f);
-  if (ferror(f))
-    return pushresult(L, 0, NULL);
-  return 1;
-}
-
-
-int luaplus_io_writeall (lua_State *L) {
-  const char *filename = luaL_checkstring(L, 1);
-  int status;
-  size_t l;
-  const char *s;
-  FILE *f = fopen(filename, "wb");
-  if (!f)
-    return 0;
-  s = luaL_checklstring(L, 2, &l);
-  status = fwrite(s, sizeof(char), l, f) == l;
-  fclose(f);
-  return pushresult(L, status, NULL);
-}
-
-#endif /* LUAPLUS_EXTENSIONS */
-
-
 #if LNUM_PATCH
 static void tag_error (lua_State *L, int narg, int t) {
 	luaL_typerror(L, narg, t<0 ? "integer" : lua_typename(L, t));
@@ -605,17 +573,6 @@ LUA_EXTERN_C void LuaPlus_ScriptFunctionsRegister(lua_State* L)
 	lua_settable(L, -3);
 	lua_pop(L, 1);
 #endif /* LUA_STRING_FORMAT_EXTENSIONS */
-
-#if LUAPLUS_EXTENSIONS
-	lua_getglobal(L, "io");
-	lua_pushliteral(L, "readall");
-	lua_pushcfunction(L, luaplus_io_readall);
-	lua_settable(L, -3);
-	lua_pushliteral(L, "writeall");
-	lua_pushcfunction(L, luaplus_io_writeall);
-	lua_settable(L, -3);
-	lua_pop(L, 1);
-#endif /* LUAPLUS_EXTENSIONS */
 
 	lua_pushliteral(L, "createtable");
 	lua_pushcfunction(L, luaplus_base_createtable);
