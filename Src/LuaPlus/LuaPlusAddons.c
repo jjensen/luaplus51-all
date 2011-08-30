@@ -602,7 +602,7 @@ LUA_EXTERN_C void LuaPlus_ScriptFunctionsRegister(lua_State* L)
 	lua_getglobal(L, "string");
 	lua_pushliteral(L, "format");
 	lua_pushcfunction(L, luaplus_str_format);
-	lua_settable(L, -2);
+	lua_settable(L, -3);
 	lua_pop(L, 1);
 #endif /* LUA_STRING_FORMAT_EXTENSIONS */
 
@@ -610,10 +610,10 @@ LUA_EXTERN_C void LuaPlus_ScriptFunctionsRegister(lua_State* L)
 	lua_getglobal(L, "io");
 	lua_pushliteral(L, "readall");
 	lua_pushcfunction(L, luaplus_io_readall);
-	lua_settable(L, -2);
+	lua_settable(L, -3);
 	lua_pushliteral(L, "writeall");
 	lua_pushcfunction(L, luaplus_io_writeall);
-	lua_settable(L, -2);
+	lua_settable(L, -3);
 	lua_pop(L, 1);
 #endif /* LUAPLUS_EXTENSIONS */
 
