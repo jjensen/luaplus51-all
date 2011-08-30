@@ -5,6 +5,7 @@ SubDir LUAPLUS Src LuaPlus StaticLib ;
 local LUAPLUS_SRCS =
 		../LuaAutoBlock.h
 		../LuaCall.h
+		../LuaCall.inl
 		../LuaFunction.h
 		../LuaHelper.h
 		../LuaHelper_Object.h
@@ -16,27 +17,22 @@ local LUAPLUS_SRCS =
 		../LuaPlus.h
 		../LuaPlusAddons.c
 		../LuaPlusCD.h
-		../LuaPlusFunctions.cpp
-		../LuaPlusFunctions.h
+		../LuaPlusConfig.h
 		../LuaPlusInternal.h
-		../LuaPlus_Libs.cpp
 		../LuaStackObject.h
 		../LuaStackObject.inl
 		../LuaStackTableIterator.h
-		../LuaState.cpp
+		../LuaStackTableIterator.inl
 		../LuaState.h
 		../LuaState.inl
 		../LuaStateOutFile.h
 		../LuaStateOutString.h
 		../LuaState_DumpObject.cpp
 		../LuaTableIterator.h
-		../luathread.c
-		../luathread.h
 		../lwstrlib.c
-		../pt.c
-		../pt.h
-		../srm.c
-		../srm.h
+;
+
+local LUA_SRCS =
 		../src/lapi.c
 		../src/lapi.h
 		../src/lauxlib.c
@@ -94,7 +90,8 @@ local LUAPLUS_SRCS =
 		../src/lnum.h
 ;
 
-LUAPLUS_SRCS += ../popen.c ;
+SourceGroup LuaPlusStatic : Lua : $(LUA_SRCS) ;
+SourceGroup LuaPlusStatic : LuaPlus : $(LUAPLUS_SRCS) ;
 
 C.IncludeDirectories LuaPlusStatic : ../src ;
 
@@ -104,6 +101,6 @@ LuaPlusDefines LuaPlusStatic ;
 
 C.OutputName LuaPlusStatic : luaplusstatic51_1202 ;
 
-C.Library LuaPlusStatic : $(LUAPLUS_SRCS) ;
+C.Library LuaPlusStatic : $(LUA_SRCS) $(LUAPLUS_SRCS) ;
 
 }
