@@ -45,8 +45,10 @@ THE SOFTWARE.
 #include "tilde/LuaDebuggerComms.h"
 #include "tilde/ReceiveMessageBuffer.h"
 
+extern "C" {
 #include "lua.h"
 #include "lobject.h"
+}
 
 #define strcmp _stricmp
 

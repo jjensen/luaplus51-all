@@ -32,7 +32,9 @@ THE SOFTWARE.
 #include <map>
 #include <set>
 
+extern "C" {
 #include "lua.h"
+}
 
 #include "tilde/HostConfig.h"
 #include "tilde/LuaDebuggerProtocol.h"

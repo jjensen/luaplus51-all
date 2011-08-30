@@ -28,7 +28,9 @@ THE SOFTWARE.
 #ifndef TILDE_INCLUDED_LuaDebuggerHost_h
 #define TILDE_INCLUDED_LuaDebuggerHost_h
 
+extern "C" {
 #include <lua.h>
+}
 
 namespace tilde
 {
