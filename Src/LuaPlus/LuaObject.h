@@ -178,9 +178,6 @@ public:
 	LuaObject& SetObject(int key, LuaObject& value);
 	LuaObject& SetObject(LuaObject& key, LuaObject& value);
 
-	LuaObject& RawSetNil(const char* key);
-	LuaObject& RawSetNil(int key);
-	LuaObject& RawSetNil(LuaObject& key);
 	LuaObject& RawSetBoolean(const char* key, bool value);
 	LuaObject& RawSetBoolean(int key, bool value);
 	LuaObject& RawSetBoolean(LuaObject& key, bool value);
@@ -489,8 +486,8 @@ LuaObject& LuaObject::Set(const KeyT& key, const ValueT& value, int len) {
 }
 
 
-template <typename T>
-inline LuaObject& LuaObject::RawSetNil(const T& key) {
+template <typename KeyT>
+LuaObject& LuaObject::RawSetNil(const KeyT& key) {
 	luaplus_assert(L  &&  IsTable());
 	LUA_FASTREF_PUSH();
 	LPCD::Push(L, key);
