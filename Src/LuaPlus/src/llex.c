@@ -307,43 +307,9 @@ static int read_numeral (LexState *ls, SemInfo *seminfo) {
 static void read_numeral (LexState *ls, SemInfo *seminfo) {
 #endif /* LNUM_PATCH */
   lua_assert(isdigit(ls->current));
-#if LUA_EXT_HEXADECIMAL
-  if (ls->current == '0') {
-    save_and_next(ls);
-    if (ls->current == 'x') {
-      /* Process a hex number */
-      int ch = 0;
-      int c = 0;
-      int i = 0;
-      int numDigits = 8;
-      next(ls);
-      do {
-        ch = tolower(ls->current);
-        if (isdigit(ch))
-          c = 16*c + (ch-'0');
-        else if (ch >= 'a' && ch <= 'f')
-          c = 16*c + (ch-'a') + 10;
-        next(ls);
-        ch = tolower(ls->current);
-      } while (++i<numDigits && (isdigit(ch) || (ch >= 'a' && ch <= 'f')));
-#if LNUM_PATCH
-      seminfo->i = c;
-      return TK_INT;
-#else
-      seminfo->r = c;
-      return;
-#endif /* LNUM_PATCH */
-    }
-  }
-
-  while (isdigit(ls->current) || ls->current == '.') {
-    save_and_next(ls);
-  }
-#else
   do {
     save_and_next(ls);
   } while (isdigit(ls->current) || ls->current == '.');
-#endif /* LUA_EXT_HEXADECIMAL */
   if (check_next(ls, "Ee"))  /* `E'? */
     check_next(ls, "+-");  /* optional exponent sign */
   while (isalnum(ls->current) || ls->current == '_')
