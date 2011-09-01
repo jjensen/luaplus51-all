@@ -1,3 +1,4 @@
+if $(PLATFORM) in win32 win64  # For now
 {
 
 local SRCS =
