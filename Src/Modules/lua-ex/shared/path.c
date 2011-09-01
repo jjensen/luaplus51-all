@@ -635,7 +635,7 @@ static int ex_path_is_writable(lua_State *L) {
 #if defined(WIN32)
     lua_pushboolean(L, (sbuff.st_mode & _S_IWRITE) == _S_IWRITE);
 #else
-    lua_pushboolean(L, !S_IWRITE(sbuff.st_mode));
+    lua_pushboolean(L, (sbuff.st_mode & S_IWRITE) == S_IWRITE);
 #endif
   else
     lua_pushboolean(L, 0);
