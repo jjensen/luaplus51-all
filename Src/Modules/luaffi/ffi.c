@@ -1527,19 +1527,59 @@ static int ffi_number(lua_State* L)
         if (ct.pointers) {
             return 0;
 
+		} else if (ct.type == DOUBLE_TYPE) {
+            lua_pushnumber(L, *(double*) data);
+            return 1;
+
+		} else if (ct.type == FLOAT_TYPE) {
+            lua_pushnumber(L, *(float*) data);
+            return 1;
+
+		} else if (ct.type == BOOL_TYPE) {
+            lua_pushnumber(L, *(char*) data);
+            return 1;
+
+		} else if (ct.type == INT8_TYPE) {
+            lua_pushnumber(L, *(int8_t*) data);
+            return 1;
+
+		} else if (ct.type == INT16_TYPE) {
+            lua_pushnumber(L, *(int16_t*) data);
+            return 1;
+
+		} else if (ct.type == INT32_TYPE) {
+            lua_pushnumber(L, *(int32_t*) data);
+            return 1;
+
+		} else if (ct.type == INT64_TYPE) {
+            lua_pushnumber(L, *(int64_t*) data);
+            return 1;
+
+		} else if (ct.type == UINT8_TYPE) {
+            lua_pushnumber(L, *(uint8_t*) data);
+            return 1;
+
+		} else if (ct.type == UINT16_TYPE) {
+            lua_pushnumber(L, *(uint16_t*) data);
+            return 1;
+
+		} else if (ct.type == UINT32_TYPE) {
+            lua_pushnumber(L, *(uint32_t*) data);
+            return 1;
+
+		} else if (ct.type == UINT64_TYPE) {
+            lua_pushnumber(L, *(uint64_t*) data);
+            return 1;
+
         } else if (ct.type == UINTPTR_TYPE) {
             lua_pushnumber(L, *(uintptr_t*) data);
             return 1;
 
-        } else if (ct.type == UINT64_TYPE) {
-            lua_pushnumber(L, *(uint64_t*) data);
+        } else if (ct.type == ENUM_TYPE) {
+            lua_pushnumber(L, *(int32_t*) data);
             return 1;
 
-        } else if (ct.type == INT64_TYPE) {
-            lua_pushnumber(L, *(int64_t*) data);
-            return 1;
-
-        } else {
+		} else {
             return 0;
         }
 
