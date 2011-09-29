@@ -558,7 +558,9 @@ static int py_lua_module_panic(lua_State* L)
 	return (-1);
 }
 
+#if defined(WIN32)
 #include <windows.h>
+#endif /* WIN32 */
 
 DL_EXPORT(void)
 initlua(void)
@@ -574,6 +576,7 @@ initlua(void)
 	if (!m)
 		return;
 	if (!L) {
+#if defined(WIN32)
 		FILE* file;
 		char filename[_MAX_PATH];
 		char* slashptr;
@@ -621,6 +624,7 @@ initlua(void)
 		}
 //		L = lua_open();
 //		lua_cpcall(L, &pmain, NULL);
+#endif /* WIN32 */
 		L = lua_newstate(py_lua_alloc, py_lua_module_panic);
 		luaL_openlibs(L);
 		if (lua_cpcall(L, luaopen_python, NULL) != 0) {

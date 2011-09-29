@@ -1,6 +1,3 @@
-if $(NT)
-{
-
 {
 
 local SRCS =
@@ -10,34 +7,41 @@ local SRCS =
 		src/pythoninlua.h
 ;
 
-PYTHON_ROOT = c:/python27 ;
-PYTHON_LIB = python27 ;
+if $(NT) {
+	PYTHON_ROOT = c:/python27 ;
+	PYTHON_LIB = python27 ;
 
-C.IncludeDirectories python : $(PYTHON_ROOT)/include ;
-C.LinkDirectories python : $(PYTHON_ROOT)/libs ;
+	local libName ;
+	switch $(CONFIG) {
+		case debug :		libName = $(PYTHON_LIB)_d ;
+		case release :		libName = $(PYTHON_LIB) ;
+		case releaseltcg :	libName = $(PYTHON_LIB) ;
+	}
 
-local libName ;
-switch $(CONFIG) {
-	case debug :		libName = $(PYTHON_LIB)_d ;
-	case release :		libName = $(PYTHON_LIB) ;
-	case releaseltcg :	libName = $(PYTHON_LIB) ;
+	C.IncludeDirectories python : $(PYTHON_ROOT)/include ;
+	C.LinkDirectories python : $(PYTHON_ROOT)/libs ;
+
+	if $(CONFIG) != *  &&  [ Glob $(PYTHON_ROOT)/libs : $(libName).lib ] {
+		C.LinkFlags python : /DELAYLOAD:lua5.1.debug.dll : debug ;
+		C.LinkFlags python : /DELAYLOAD:lua5.1.dll : release ;
+		C.LinkPrebuiltLibraries python : DelayImp ;
+		
+		C.LinkPrebuiltLibraries python : $(libName) ;
+		
+	}
+} else {
+	PYTHON_ROOT = /System/Library/Frameworks/Python.framework/Versions/2.7 ;
+	C.IncludeDirectories python : $(PYTHON_ROOT)/include/python2.7 ;
+	C.LinkDirectories python : $(PYTHON_ROOT)/lib ;
+	C.LinkPrebuiltLibraries python : python2.7 ; 
 }
 
-if $(PLATFORM) = *
-{
+if $(PLATFORM) = * {
 	Project python : $(SRCS) ;
-}
-else if $(CONFIG) != *  &&  [ Glob $(PYTHON_ROOT)/libs : $(libName).lib ]
-{
-	C.LinkFlags python : /DELAYLOAD:lua5.1.debug.dll : debug ;
-	C.LinkFlags python : /DELAYLOAD:lua5.1.dll : release ;
-	C.LinkPrebuiltLibraries python : DelayImp ;
-	
-	C.LinkPrebuiltLibraries python : $(libName) ;
-	
+} else {
 	Lua.CModule python : : $(SRCS) ;
 }
 
+
 }
 
-} # if $(NT)
