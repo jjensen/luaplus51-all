@@ -12,6 +12,7 @@
 
 #include "LuaPlusInternal.h"
 #include "LuaPlusCD.h"
+#include "LuaStateCD.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // namespace LuaPlus
