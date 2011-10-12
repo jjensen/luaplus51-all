@@ -1,4 +1,4 @@
-if $(OS) = NT  &&  $(COMPILER.$(PLATFORM)) != vc6
+if $(OS) = NT  &&  $(C.COMPILER) != vc6
 {
 
 local SRCS =
@@ -47,13 +47,15 @@ local SRCS =
 		src/dll/luacom_dll.h
 ;
 
-local luacom5.lua = <luacom>luacom5.lua ;
+ActiveTarget luacom ;
+
+local luacom5.lua = [ C.GristFiles : luacom5.lua ] ;
 SearchSource $(luacom5.lua) : src/library ;
 
-local luacom5.lo = <luacom>luacom5.lo ;
+local luacom5.lo = [ C.GristFiles : luacom5.lo ] ;
 MakeLocate $(luacom5.lo) : $(LOCATE_SOURCE) ;
 
-local luacom5.loh = <luacom>luacom5.loh ;
+local luacom5.loh = [ C.GristFiles : luacom5.loh ] ;
 MakeLocate $(luacom5.loh) : $(LOCATE_SOURCE) ;
 ForceCare $(luacom5.loh) ;
 

@@ -1,4 +1,4 @@
-if ( ! $(NT)  ||  $(COMPILER.$(PLATFORM)) != vc6 )
+if ( ! $(NT)  ||  $(COMPILER) != vc6 )
 {
 
 local SRCS =
@@ -27,7 +27,7 @@ CopyFile p4 : $(LUA_LDIR)/p4.lua : $(SUBDIR)/src/p4.lua ;
 local P4API = p4api ;
 
 if $(NT) {
-	local bin = $(COMPILER.$(PLATFORM)) ;
+	local bin = $(COMPILER) ;
 	if $(PLATFORM) = win32 {
 		bin = $(bin)/bin.ntx86 ;
 	} else if $(PLATFORM) = win64 {

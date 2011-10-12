@@ -49,9 +49,9 @@ actions qt_generatebinding {
 }
 
 rule build_qt_lib_binding BINDING_HEADER : DEPENDENCIES {
-	ActiveTarget $(BINDING_NAME) ;
-
 	local BINDING_NAME = $(BINDING_HEADER:L) ;
+
+	C.ActiveTarget $(BINDING_NAME) ;
 
 	local LQT_GEN_DIR = $(LOCATE_SOURCE)/$(BINDING_NAME)_src ;
 
@@ -62,7 +62,7 @@ rule build_qt_lib_binding BINDING_HEADER : DEPENDENCIES {
 		PP_CONFIG = $(SUBDIR)/cpptoxml/parser/rpp/pp-qt-configuration-win ;
 	}
 
-	local GEN_XML = @($(BINDING_NAME).xml:G=$(BINDING_NAME)) ;
+	local GEN_XML = [ C.GristFiles : $(BINDING_NAME).xml ] ;
 	MakeLocate $(GEN_XML) : $(LQT_GEN_DIR) ;
 
 	Depends $(GEN_XML) : $(CPPTOXML_EXE) ;
@@ -74,12 +74,12 @@ rule build_qt_lib_binding BINDING_HEADER : DEPENDENCIES {
 		cpptoxml $(GEN_XML) ;
 	}
 
-	local bindingname_enum.cpp = @($(BINDING_NAME)_enum.cpp:G=$(BINDING_NAME)) ;
-	local bindingname_merged_build.cpp = @($(BINDING_NAME)_merged_build.cpp:G=$(BINDING_NAME)) ;
-	local bindingname_meta.cpp = @($(BINDING_NAME)_meta.cpp:G=$(BINDING_NAME)) ;
-	local bindingname_slot.cpp = @($(BINDING_NAME)_slot.cpp:G=$(BINDING_NAME)) ;
-	local bindingname_slot.hpp = @($(BINDING_NAME)_slot.hpp:G=$(BINDING_NAME)) ;
-	local bindingname_types.lua = @($(BINDING_NAME)_types.lua:G=$(BINDING_NAME)) ;
+	local bindingname_enum.cpp = [ C.GristFiles : @($(BINDING_NAME)_enum.cpp) ] ;
+	local bindingname_merged_build.cpp = [ C.GristFiles : @($(BINDING_NAME)_merged_build.cpp) ] ;
+	local bindingname_meta.cpp = [ C.GristFiles : @($(BINDING_NAME)_meta.cpp) ] ;
+	local bindingname_slot.cpp = [ C.GristFiles : @($(BINDING_NAME)_slot.cpp) ] ;
+	local bindingname_slot.hpp = [ C.GristFiles : @($(BINDING_NAME)_slot.hpp) ] ;
+	local bindingname_types.lua = [ C.GristFiles : @($(BINDING_NAME)_types.lua) ] ;
 	local targets = $(bindingname_enum.cpp) $(bindingname_merged_build.cpp) $(bindingname_meta.cpp) $(bindingname_slot.cpp) $(bindingname_slot.hpp) $(bindingname_types.lua) ;
 	MakeLocate $(targets) : $(LQT_GEN_DIR) ;
 
@@ -87,12 +87,13 @@ rule build_qt_lib_binding BINDING_HEADER : DEPENDENCIES {
 	local commandline_depends ;
 	DEPENDENCIES = $(DEPENDENCIES:L) ;
 	for dependency in $(DEPENDENCIES) {
-		commandline_types += -t $(LOCATE_TARGET)/$(dependency)_src/$(dependency)_types.lua ;
+		local dependencyGrist = $(C.ACTIVE_TOOLCHAIN):$(dependency) ;
+		local dependency_bindingname_types.lua = @($(dependency)_types.lua:G=$(dependencyGrist)) ;
+		commandline_types += -t $(dependency_bindingname_types.lua:T) ;
 		commandline_depends += generate_${dependency}_cpp ;
 
 		local dependency_files = $(dependency)_enum.cpp $(dependency)_merged_build.cpp $(dependency)_meta.cpp $(dependency)_slot.cpp $(dependency)_slot.hpp $(dependency)_types.lua ;
-		dependency_files = $(dependency_files:G=$(dependency)) ;
-
+		dependency_files = $(dependency_files:G=$(dependencyGrist)) ;
 		Depends $(targets) : $(dependency_files) ;
 	}
 
@@ -119,9 +120,10 @@ rule build_qt_lib_binding BINDING_HEADER : DEPENDENCIES {
 	NotFile $(BINDING_NAME) ;
 
 	C.UseQt $(BINDING_NAME) : core gui network opengl script sql svg uitools xml xmlpatterns webkit : link ;
+
+    C.Defines $(BINDING_NAME) : MODULE_$(BINDING_NAME) ;
 	C.IncludeDirectories $(BINDING_NAME) : $(SUBDIR)/common ;
 	C.C++Flags $(BINDING_NAME) : /bigobj ;
-	ActiveTarget $(BINDING_NAME) ;
 	Lua.CModule $(BINDING_NAME) : $(BINDING_NAME) :
 			[ C.Qt.Moc $(BINDING_NAME) : $(bindingname_slot.hpp) ]
 			$(SUBDIR)/common/*.cpp
@@ -152,12 +154,12 @@ rule build_qt_lib_binding BINDING_HEADER : DEPENDENCIES {
 
 build_qt_lib_binding QtCore ;
 build_qt_lib_binding QtNetwork : QtCore ;
-build_qt_lib_binding QtGui : QtNetwork QtCore : bigobj ;
+build_qt_lib_binding QtGui : QtNetwork QtCore ;
 build_qt_lib_binding QtScript : QtGui QtNetwork QtCore ;
 build_qt_lib_binding QtOpenGL : QtGui QtNetwork QtCore ;
 build_qt_lib_binding QtSvg : QtScript QtGui QtNetwork QtCore ;
-build_qt_lib_binding QtUiTools : QtCore QtGui QtXml ;
 build_qt_lib_binding QtXml : QtSvg QtScript QtGui QtNetwork QtCore ;
+build_qt_lib_binding QtUiTools : QtCore QtGui QtXml ;
 build_qt_lib_binding QtXmlPatterns : QtCore QtXml ;
 build_qt_lib_binding QtWebKit : QtXmlPatterns QtSvg QtScript QtOpenGL QtGui QtNetwork QtCore QtXml ;
 build_qt_lib_binding QtSql : QtCore ;

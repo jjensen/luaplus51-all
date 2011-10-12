@@ -1,6 +1,6 @@
 {
 
-ActiveProject socket ;
+ActiveTarget socket ;
 
 local EXTRA_SRCS ;
 if $(MSVCNT)
@@ -49,14 +49,14 @@ local SRCS =
 	$(EXTRA_SRCS)
 ;
 
-CopyFile : $(LUA_LDIR)/socket/ftp.lua : $(SUBDIR)/src/ftp.lua ;
-CopyFile : $(LUA_LDIR)/socket/http.lua : $(SUBDIR)/src/http.lua ;
-CopyFile : $(LUA_LDIR)/ltn12.lua : $(SUBDIR)/src/ltn12.lua ;
-CopyFile : $(LUA_LDIR)/mime.lua : $(SUBDIR)/src/mime.lua ;
-CopyFile : $(LUA_LDIR)/socket/smtp.lua : $(SUBDIR)/src/smtp.lua ;
-CopyFile : $(LUA_LDIR)/socket.lua : $(SUBDIR)/src/socket.lua ;
-CopyFile : $(LUA_LDIR)/socket/tp.lua : $(SUBDIR)/src/tp.lua ;
-CopyFile : $(LUA_LDIR)/socket/url.lua : $(SUBDIR)/src/url.lua ;
+CopyFile socket : $(LUA_LDIR)/socket/ftp.lua : $(SUBDIR)/src/ftp.lua ;
+CopyFile socket : $(LUA_LDIR)/socket/http.lua : $(SUBDIR)/src/http.lua ;
+CopyFile socket : $(LUA_LDIR)/ltn12.lua : $(SUBDIR)/src/ltn12.lua ;
+CopyFile socket : $(LUA_LDIR)/mime.lua : $(SUBDIR)/src/mime.lua ;
+CopyFile socket : $(LUA_LDIR)/socket/smtp.lua : $(SUBDIR)/src/smtp.lua ;
+CopyFile socket : $(LUA_LDIR)/socket.lua : $(SUBDIR)/src/socket.lua ;
+CopyFile socket : $(LUA_LDIR)/socket/tp.lua : $(SUBDIR)/src/tp.lua ;
+CopyFile socket : $(LUA_LDIR)/socket/url.lua : $(SUBDIR)/src/url.lua ;
 
 C.Defines : LUASOCKET_EXPORTS ;
 
@@ -71,8 +71,6 @@ Lua.CModule socket : socket/core : $(SRCS) ;
 
 ###############################################################################
 ###############################################################################
-ActiveProject mime ;
-
 Lua.CModule mime : mime/core : src/mime.c ;
 
 }

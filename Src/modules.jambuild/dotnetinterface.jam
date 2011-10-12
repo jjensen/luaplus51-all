@@ -1,4 +1,4 @@
-if $(OS) = NT  &&  $(COMPILER.$(PLATFORM)) != vc6 {
+if $(OS) = NT  &&  $(COMPILER) != vc6 {
 
 IncludeModule CSharp ;
 

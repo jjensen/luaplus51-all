@@ -115,7 +115,9 @@ else if $(UNIX)
 
 C.OutputName LuaPlusShared : luaplus51-1202 ;
 LuaPlusFixUpTarget LuaPlusShared ;
-C.OutputPostfix LuaPlusShared : _debug : debug ;
+if $(CONFIG) = debug {
+	C.OutputPostfix LuaPlusShared : _debug ;
+}
 
 C.Library LuaPlusShared : $(LUA_SRCS) $(LUAPLUS_SRCS) : shared ;
 

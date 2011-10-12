@@ -1,6 +1,6 @@
 SubDir LUAPLUS Src ManagedLuaPlus ;
 
-if $(COMPILER.$(PLATFORM)) != vc6
+if $(COMPILER) != vc6
 {
 
 local SRCS =

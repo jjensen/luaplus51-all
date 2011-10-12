@@ -34,14 +34,16 @@ CopyFiles luamacro : $(LUA_LDIR)/macro : $(SUBDIR)/$(MACRO_SRCS) ;
 CopyFiles luamacro : $(LUA_LDIR)/macro/lib : $(SUBDIR)/$(MACRO_LIB_SRCS) ;
 
 if $(NT) {
-	local luam.bat = @(luam.bat:G=luamacro) ;
-	MakeLocate $(luam.bat) : $(LUAPLUS_OUTPUT_DIRECTORY) ;
-	local contents = "@\"%~dp0lua.exe\" \"$(LUA_LDIR)/luam.lua\" %*" ;
-	CONTENTS on $(luam.bat) = $(contents) ;
-	WriteFile $(luam.bat) ;
-	UseCommandLine $(luam.bat) : $(contents) ;
-	Depends luamacro : $(luam.bat) ;
-	Clean clean:luamacro : $(luam.bat) ;
+	if ! $(TARGETINFO_LOCATE) {
+		local luam.bat = @(luam.bat:G=luamacro) ;
+		MakeLocate $(luam.bat) : $(LUAPLUS_OUTPUT_DIRECTORY) ;
+		local contents = "@\"%~dp0lua.exe\" \"$(LUA_LDIR)/luam.lua\" %*" ;
+		CONTENTS on $(luam.bat) = $(contents) ;
+		WriteFile $(luam.bat) ;
+		UseCommandLine $(luam.bat) : $(contents) ;
+		Depends luamacro : $(luam.bat) ;
+		Clean clean:luamacro : $(luam.bat) ;
+	}
 }
 
 }

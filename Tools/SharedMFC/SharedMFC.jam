@@ -119,7 +119,7 @@ SourceGroup SharedMFC : TreeColumn_src : $(TREECOLUMN_SRC_SRCS) ;
 
 C.Defines SharedMFC : _UNICODE UNICODE ;
 
-if $(COMPILER.$(PLATFORM)) = vs2010 {
+if $(COMPILER) = vs2010 {
 	C.Defines SharedMFC : WINVER=0x0501 _WIN32_WINNT=0x0501 ;
 }
 

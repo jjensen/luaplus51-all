@@ -281,7 +281,7 @@ local SRCS =
 		$(ZLIB_SRCS)
 ;
 
-ActiveProject cURL ;
+C.ActiveTarget cURL ;
 
 SourceGroup : libcurl : $(CURL_LIB_SRCS) ;
 SourceGroup : zlib : $(ZLIB_SRCS) ;

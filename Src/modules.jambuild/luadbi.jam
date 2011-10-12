@@ -24,10 +24,8 @@ if $(MYSQL_FOUND) {
 
 	C.UseMySQL ;
 
-    Depends luadbi : dbdmysql ;
-	Depends dbdmysql : luadbi-dbi.lua ;
-	Depends clean:luadbi : clean:dbdmysql ;
-	Depends clean:dbdmysql : clean:luadbi-dbi.lua ;
+    Depends luadbi : dbdmysql : luadbi-dbi.lua ;
+	Depends clean:luadbi : clean:dbdmysql : clean:luadbi-dbi.lua ;
 
 	Lua.CModule : : $(SRCS) ;
 
@@ -50,10 +48,8 @@ if $(MYSQL_FOUND) {
 			DBI.lua
 	;
 
-    Depends luadbi : dbdsqlite3 ;
-	Depends dbdsqlite3 : luadbi-dbi.lua ;
-	Depends clean:luadbi : clean:dbdsqlite3 ;
-	Depends clean:dbdsqlite3 : clean:luadbi-dbi.lua ;
+    Depends luadbi : dbdsqlite3 : luadbi-dbi.lua ;
+	Depends clean:luadbi : clean:dbdsqlite3 : clean:luadbi-dbi.lua ;
 
 	C.Defines : SQLITE_ENABLE_FTS3 ;
 	C.IncludeDirectories : ../sqlite3/sqlite ;

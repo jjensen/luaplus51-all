@@ -315,7 +315,7 @@ C.IncludeDirectories apr : ../expat/lib ;
 Lua.CModule apr : apr/core : $(SRCS) $(APR_SRCS) $(APRICONV_SRCS) $(APRUTIL_SRCS) $(EXPAT_SRCS) ;
 
 rule GenerateAPRHeader SOURCE {
-	local TARGET = <apr>$(SOURCE:BS=.h) ;
+	local TARGET = [ C.GristFiles apr : $(SOURCE:BS=.h) ] ;
 	CopyFile apr : $(TARGET) : $(SUBDIR)/$(SOURCE) ;
 	MakeLocate $(TARGET) : $(LOCATE_TARGET) ;
 	ForceCare $(TARGET) ;

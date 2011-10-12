@@ -8,7 +8,7 @@ if $(NT)
 ActiveTarget luasql.ado ;
 
 Lua.Module : : src/ado/ado.lua ;
-CopyFile : $(LUA_LDIR)/luasql/ado.lua : $(SUBDIR)/src/ado/ado.lua ;
+CopyFile luasql.ado : $(LUA_LDIR)/luasql/ado.lua : $(SUBDIR)/src/ado/ado.lua ;
 
 ###############################################################################
 ###############################################################################

@@ -19,7 +19,7 @@ local SRCS =
 		Lua.cpp
 ;
 
-if $(NT)  &&  $(COMPILER.$(PLATFORM)) != vc6
+if $(NT)  &&  $(COMPILER) != vc6
 {
 	SRCS += $(TILDE_SRCS) ;
 }
@@ -30,15 +30,17 @@ rule LuaApplication TARGET : OPTIONS
 
 	SubInclude LUAPLUS Src LuaPlus SharedLib : LuaPlusSharedLib ;
 
-	if $(NT)  &&  $(COMPILER.$(PLATFORM)) != vc6
+	if $(NT)  &&  $(C.COMPILER) != vc6
 	{
 #		C.Defines : REMOTE_DEBUGGER ;
 	}
 	if $(MSVCNT)
 	{
-		C.LinkFlags : /DELAYLOAD:luaplus51-1202_debug.dll : debug ;
-		C.LinkFlags : /DELAYLOAD:luaplus51-1202.dll : release ;
-		C.LinkFlags : /DELAYLOAD:luaplus51-1202.dll : releaseltcg ;
+		switch $(CONFIG) {
+			case debug :		C.LinkFlags : /DELAYLOAD:luaplus51-1202_debug.dll ;
+			case release :		C.LinkFlags : /DELAYLOAD:luaplus51-1202.dll ;
+			case releaseltcg :	C.LinkFlags : /DELAYLOAD:luaplus51-1202.dll : releaseltcg ;
+		}
 		C.LinkPrebuiltLibraries : DelayImp ;
 	}
 	C.IncludeDirectories : $(LUAPLUS)/Src $(LUAPLUS)/Src/LuaPlus/Src ; # [ FSubDirPath LUAPLUS Src ] ;
@@ -56,8 +58,6 @@ rule LuaApplication TARGET : OPTIONS
 	C.Application : $(SRCS) : $(OPTIONS) ;
 }
 
-NoWorkspace luaplus ;
-LuaApplication luaplus ;
 NoWorkspace "lua" ;
 LuaApplication "lua" ;
 
@@ -68,6 +68,6 @@ if $(NT)
 	NoWorkspace "luaw" ;
 }
 
-on "lua" LUA_EXE = $(LINK_TARGET) ;
+on @(lua:G=$(C.ACTIVE_TOOLCHAIN)) LUA_EXE = $(LINK_TARGET) ;
 
 }

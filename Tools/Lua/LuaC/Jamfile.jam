@@ -7,8 +7,7 @@ local SRCS =
 		../../../Src/LuaPlus/src/print.c
 ;
 
-rule LuaCApplication TARGET
-{
+rule LuaCApplication TARGET {
 	ActiveTarget $(TARGET) ;
 
 	SubInclude LUAPLUS Src LuaPlus StaticLib : LuaPlusStaticLib ;
@@ -16,14 +15,12 @@ rule LuaCApplication TARGET
 	C.IncludeDirectories $(TARGET) : $(LUAPLUS)/Src/LuaPlus/src ;
 	C.LinkLibraries $(TARGET) : LuaPlusStatic ;
 	LuaPlusFixUpTarget $(TARGET) ;
-	C.Application $(TARGET) : $(SRCS) ;
+	local exe = [ C.Application $(TARGET) : $(SRCS) ] ;
 	NoWorkspace $(TARGET) ;
+	return $(exe) ;
 }
 
-LuaCApplication luaplusc ;
-LuaCApplication "luac" ;
-
-on luac LUAC_EXE = $(LINK_TARGET) ;
+LUAC_EXE = [ LuaCApplication luac ] ;
 
 }
 

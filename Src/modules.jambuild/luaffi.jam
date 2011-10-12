@@ -9,7 +9,7 @@ local SRCS =
 		parser.c
 ;
 
-ActiveProject luaffi ;
+ActiveTarget luaffi ;
 
 #CopyFile luaffi : $(LUA_LDIR)/alien.lua : $(SUBDIR)/src/alien.lua ;
 
@@ -26,10 +26,10 @@ actions _DynAsm {
 }
 
 rule DynAsm TARGET : ARCHITECTURE_DEFINE : OUTPUT_HEADER : DASC_FILE {
-	DASC_FILE = [ C.TargetGrist $(TARGET) : $(DASC_FILE) ] ;
+	DASC_FILE = [ C.GristFiles $(TARGET) : $(DASC_FILE) ] ;
 	SEARCH on $(DASC_FILE) = $(SEARCH_SOURCE) ;
 
-	OUTPUT_HEADER = [ C.TargetGrist $(TARGET) : $(OUTPUT_HEADER) ] ;
+	OUTPUT_HEADER = [ C.GristFiles $(TARGET) : $(OUTPUT_HEADER) ] ;
 
 	Depends $(OUTPUT_HEADER) : $(DASC_FILE) ;
 	MakeLocate $(OUTPUT_HEADER) : $(LOCATE_TARGET) ;

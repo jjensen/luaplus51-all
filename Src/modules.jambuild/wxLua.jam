@@ -1,4 +1,4 @@
-ActiveProject wx ;
+ActiveTarget wx ;
 
 if $(NT)
 {

@@ -27,7 +27,7 @@ SourceGroup ScintillaWrapper : "Source Files" : $(SOURCE_FILES_SRCS) ;
 IncludeModule c/mfc ;
 C.UseMFC ScintillaWrapper : shared ;
 
-if $(COMPILER.$(PLATFORM)) = vs2010 {
+if $(COMPILER) = vs2010 {
 	C.Defines ScintillaWrapper : WINVER=0x0501 _WIN32_WINNT=0x0501 ;
 }
 

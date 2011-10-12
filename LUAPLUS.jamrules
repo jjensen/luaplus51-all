@@ -1,13 +1,13 @@
 ###############################################################################
 # Set these if the user didn't use jam --workspace.
 #ALL_LOCATE_TARGET ?= [ FSubDirPath LUAPLUS obj $(COMPILER.$(PLATFORM)) temp-$(PLATFORM)-$(CONFIG) ] ;
-ALL_LOCATE_TARGET ?= $(LUAPLUS)/obj/$(COMPILER.$(PLATFORM))/temp-$(PLATFORM)-$(CONFIG) ;
+ALL_LOCATE_TARGET ?= $(LUAPLUS)/obj/$(C.COMPILER)/temp-$(PLATFORM)-$(CONFIG) ;
 
 DEPCACHE.standard ?= $(ALL_LOCATE_TARGET)/.depcache ;
 DEPCACHE ?= standard ;
 
-#LUAPLUS_OUTPUT_DIRECTORY ?= [ FSubDirPath LUAPLUS bin.$(COMPILER.$(PLATFORM)).$(PLATFORM) ] ;
-LUAPLUS_OUTPUT_DIRECTORY ?= $(LUAPLUS)/bin.$(COMPILER.$(PLATFORM)).$(PLATFORM) ;
+#LUAPLUS_OUTPUT_DIRECTORY ?= [ FSubDirPath LUAPLUS bin.$(C.COMPILER).$(PLATFORM) ] ;
+LUAPLUS_OUTPUT_DIRECTORY ?= $(LUAPLUS)/bin.$(C.COMPILER).$(PLATFORM) ;
 
 IncludeModule copyfile ;
 
@@ -26,9 +26,11 @@ rule LuaPlusDefines TARGET
 rule LuaPlusFixUpTarget TARGET
 {
 	LuaPlusDefines $(TARGET) ;
-	C.OutputPostfix $(TARGET) : .debug : debug ;
-	C.OutputPostfix $(TARGET) : : release ;
-	C.OutputPostfix $(TARGET) : : releaseltcg ;
+	if $(CONFIG) = debug {
+		C.OutputPostfix $(TARGET) : .debug ;
+	} else {
+		C.OutputPostfix $(TARGET) : ;
+	}
 	C.OutputPath $(TARGET) : $(LUAPLUS_OUTPUT_DIRECTORY) ;
 }
 ###############################################################################
@@ -44,7 +46,9 @@ if $(OS) = NT {
 rule LuaPlus.CModule TARGET : OUTPUT_NAME : SOURCES : MODULES_SUBDIR {
 	SubInclude LUAPLUS Src LuaPlus SharedLib : LuaPlusSharedLib ;
 
-	TARGET = [ RetrieveActiveTarget $(TARGET) ] ;
+	TARGET = [ ActiveTarget $(TARGET) ] ;
+
+	Depends all : $(TARGET) ;
 
 	C.Defines $(TARGET) : LUAPLUS_DLL ;
 	LuaPlusDefines $(TARGET) ;
@@ -67,9 +71,11 @@ rule LuaPlus.CModule TARGET : OUTPUT_NAME : SOURCES : MODULES_SUBDIR {
 	}
 
 	C.OutputName $(TARGET) : $(OUTPUT_NAME[1]) ;
-	C.OutputPostfix $(TARGET) : .debug : debug ;
-	C.OutputPostfix $(TARGET) : : release ;
-	C.OutputPostfix $(TARGET) : : releaseltcg ;
+	if $(CONFIG) = debug {
+		C.OutputPostfix $(TARGET) : .debug ;
+	} else {
+		C.OutputPostfix $(TARGET) : ;
+	}
 	C.OutputPath $(TARGET) : $(LUA_CDIR)/$(MODULES_SUBDIR:E=) ;
 	C.Library $(TARGET) : $(SOURCES) : module ;
 
@@ -81,13 +87,15 @@ rule LuaPlus.CModule TARGET : OUTPUT_NAME : SOURCES : MODULES_SUBDIR {
 rule Lua.CModule TARGET : OUTPUT_NAME : SOURCES : MODULES_SUBDIR {
 	SubInclude LUAPLUS Src Lua51Proxy : Lua51Proxy ;
 
-	TARGET = [ RetrieveActiveTarget $(TARGET) ] ;
+	TARGET = [ ActiveTarget $(TARGET) ] ;
+
+	Depends all : $(TARGET) ;
 
 	LuaPlusDefines $(TARGET) ;
 	C.IncludeDirectories $(TARGET) : "$(LUAPLUS)/Src/LuaPlus/src" ;
 
 	if $(OS) != MACOSX  &&  $(OS) != LINUX {
-		if $(COMPILER.$(PLATFORM)) != vc6 {
+		if $(C.COMPILER) != vc6 {
 			C.LinkLibraries $(TARGET) : lua5.1 ;
 		} else {
 			C.LinkLibraries $(TARGET) : LuaPlusShared ;
@@ -110,8 +118,11 @@ rule Lua.CModule TARGET : OUTPUT_NAME : SOURCES : MODULES_SUBDIR {
 	}
 
 	C.OutputName $(TARGET) : $(OUTPUT_NAME[1]) ;
-	C.OutputPostfix $(TARGET) : .debug : debug ;
-	C.OutputPostfix $(TARGET) : : release releaseltcg ;
+	if $(CONFIG) = debug {
+		C.OutputPostfix $(TARGET) : .debug ;
+	} else {
+		C.OutputPostfix $(TARGET) : ;
+	}
 	C.OutputPath $(TARGET) : $(LUA_CDIR)/$(MODULES_SUBDIR:E=) ;
 	C.Library $(TARGET) : $(SOURCES) : module ;
 
@@ -121,7 +132,7 @@ rule Lua.CModule TARGET : OUTPUT_NAME : SOURCES : MODULES_SUBDIR {
 
 
 rule Lua.Module TARGET : OUTPUT_NAME : SOURCES {
-	TARGET = [ RetrieveActiveTarget $(TARGET) ] ;
+	TARGET = [ ActiveTarget $(TARGET) ] ;
 
 	OUTPUT_NAME ?= $(TARGET) ;
 
@@ -146,7 +157,7 @@ if ! $(TARGETINFO_LOCATE)
 rule Lua.ToBinary PARENTS : TARGETS : SOURCES
 {
 	Depends $(TARGETS) : $(SOURCES) ;
-	Depends $(TARGETS) : $(LUAC_EXE) ;
+	Needs $(TARGETS) : $(LUAC_EXE) ;
 
 	Clean clean:$(PARENTS) : $(TARGETS) ;
 
@@ -162,7 +173,7 @@ actions _LuaToBinary
 rule Lua.Bin2C PARENTS : TARGETS : SOURCES
 {
 	Depends $(TARGETS) : $(SOURCES) ;
-	Depends $(TARGETS) : $(LUA_EXE) ;
+	Needs $(TARGETS) : $(LUA_EXE) ;
 
 	Clean clean:$(PARENTS) : $(TARGETS) ;
 

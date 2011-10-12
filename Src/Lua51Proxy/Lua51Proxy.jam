@@ -135,6 +135,10 @@ if $(MSVCNT) {
 	{
 		SubDir LUAPLUS Src Lua51Proxy : $(TARGET) ;
 
+		if ! $(TARGETINFO_LOCATE) {
+			Depends all : $(TARGET) ;
+		}
+		
 		C.LinkFlags $(TARGET) :
 				/NOENTRY
 				/INCREMENTAL:NO
@@ -152,8 +156,9 @@ if $(MSVCNT) {
 			}
 		}
 
-		C.OutputPostfix $(TARGET) : : release ;
-		C.OutputPostfix $(TARGET) : : releaseltcg ;
+		if $(CONFIG) in release releaseltcg {
+			C.OutputPostfix $(TARGET) : ;
+		}
 		C.OutputPath $(TARGET) : $(LUAPLUS_OUTPUT_DIRECTORY) ;
 
 		UseCommandLine $(TARGET) : $(symbols) ;
@@ -167,15 +172,17 @@ if $(MSVCNT) {
 	{
 		SubDir LUAPLUS Src Lua51Proxy : $(TARGET) ;
 
+		Depends all : $(TARGET) ;
+		
 		local linkTarget ;
-		on LuaPlusShared linkTarget = $(LINK_TARGET[1]) ;
+		on @(LuaPlusShared:G=$(C.ACTIVE_TOOLCHAIN_TARGET)) linkTarget = $(LINK_TARGET[1]) ;
 
-		local proxySharedLibrary = [ C.TargetGrist $(TARGET) : $(TARGET)$(linkTarget:S) ] ;
+		local proxySharedLibrary = [ C.GristFiles $(TARGET) : $(TARGET)$(linkTarget:S) ] ;
 		local realProxySharedLibraryName = lib$(TARGET)$(linkTarget:S) ;
 		BINDING on $(proxySharedLibrary) = $(realProxySharedLibraryName) ;
 		MakeLocate $(proxySharedLibrary) : [ C._retrieveOutputPath LuaPlusShared ] ;
 
-		local proxyFakeExportLibrary = [ C.TargetGrist $(TARGET) : $(TARGET)$(SUFLIB) ] ;
+		local proxyFakeExportLibrary = [ C.GristFiles $(TARGET) : $(TARGET)$(SUFLIB) ] ;
 		BINDING on $(proxyFakeExportLibrary) = lib$(TARGET)$(linkTarget:S) ;
 		MakeLocate $(proxyFakeExportLibrary) : [ C._retrieveOutputPath LuaPlusShared ] ;
 

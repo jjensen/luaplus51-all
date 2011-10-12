@@ -87,7 +87,7 @@
 #endif /* LUA_WIDESTRING */
 
 #ifndef LUA_PACK_VALUE
-#define LUA_PACK_VALUE 1
+#define LUA_PACK_VALUE 0
 #endif /* LUA_PACK_VALUE */
 
 #ifndef LNUM_PATCH
