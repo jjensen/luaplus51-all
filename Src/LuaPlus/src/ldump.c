@@ -201,7 +201,7 @@ static void DumpConstants(const Proto* f, DumpState* D)
 	break;
 #if LUA_WIDESTRING
    case LUA_TWSTRING:
-	DumpWString(rawtsvalue(o),D);
+	DumpWString(rawtwsvalue(o),D);
 	break;
 #endif /* LUA_WIDESTRING */
    default:
