@@ -172,24 +172,19 @@ int lziparchive_open(lua_State* L) {
 }
 
 
-/*
+
 int lziparchive_openfrommemory(lua_State* L) {
 	ZipArchive* archive = lziparchive_check(L, 1);
 	const char* buffer = luaL_checkstring(L, 2);
 	MemFile memFile;
 	memFile.Attach((BYTE*)buffer, lua_objlen(L, 2));
 	int readOnly = 1;
-	const char* defaultPassword = 0;
-	int flags;
-	if (lua_type(L, 3) == LUA_TBOOLEAN) {
-		readOnly = lua_toboolean(L, 3);
-	}
-	defaultPassword = luaL_optstring(L, 4, NULL);
-	flags = (int)luaL_optnumber(L, 5, ZipArchive::SUPPORT_MD5);
+	int flags = (int)luaL_optnumber(L, 3, ZipArchive::SUPPORT_MD5);
+	const char* defaultPassword = luaL_optstring(L, 4, NULL);
 	lua_pushboolean(L, archive->Open(memFile, "filename", readOnly != 0, flags, defaultPassword) != 0);
 	return 1;
 }
-*/
+
 
 
 int lziparchive_close(lua_State* L) {
@@ -1311,7 +1306,7 @@ static const struct luaL_reg lziparchivefilehandle_funcs[] = {
 
 static const struct luaL_reg lziparchive_funcs[] = {
 	{ "open",				lziparchive_open },
-//	{ "openfrommemory",		lziparchive_openfrommemory },
+	{ "openfrommemory",		lziparchive_openfrommemory },
 	{ "close",				lziparchive_close },
 	{ "updatemd5s",			lziparchive_updatemd5s },
 	{ "flush",				lziparchive_flush },
