@@ -2730,7 +2730,7 @@ bool ZipArchive::ProcessFileList(ZipArchive::FileOrderList& fileOrderList, Proce
 		return true;
 
 	// If the drive is read-only, then exit.
-	if (m_readOnly)
+	if (m_readOnly  &&  !options->checkOnly)
 		return false;
 
 	bool needsPack = m_needsPack;
@@ -3135,28 +3135,34 @@ bool ZipArchive::ProcessFileList(ZipArchive::FileOrderList& fileOrderList, Proce
 
 		if (newArchive) {
 			if (!info.needUpdate) {
-				if (options->statusUpdateCallback)
-					options->statusUpdateCallback(PACKING_COPY, info.entryName, options->statusUpdateUserData);
+				if (!options->checkOnly) {
+					if (options->statusUpdateCallback)
+						options->statusUpdateCallback(PACKING_COPY, info.entryName, options->statusUpdateUserData);
 
-				ZipEntryFileHandle srcFileHandle;
-				if (FileOpen(info.entryName, srcFileHandle)) {
-					bool ret = newArchive->FileCopy(srcFileHandle);
-					FileClose(srcFileHandle);
-					if (!ret)
-					{
-						delete newArchive;
+					ZipEntryFileHandle srcFileHandle;
+					if (FileOpen(info.entryName, srcFileHandle)) {
+						bool ret = newArchive->FileCopy(srcFileHandle);
+						FileClose(srcFileHandle);
+						if (!ret)
+						{
+							delete newArchive;
 #if defined(_MSC_VER)
-						_unlink(newArchiveFileName);
+							_unlink(newArchiveFileName);
 #else
-						unlink(newArchiveFileName);
+							unlink(newArchiveFileName);
 #endif
+							return false;
+						}
+						continue;
+					} else {
 						return false;
 					}
-					continue;
-				} else {
-					return false;
 				}
-			}
+
+			// If there was something to update and we're only testing whether a change would occur,
+			// inform the caller.
+			} else if (options->checkOnly)
+				return true;
 		}
 
 		// If we determined above there is nothing to update, then go to the next file.
