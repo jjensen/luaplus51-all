@@ -157,43 +157,70 @@ function clexer.collectenums(buffer)
 	-- Find enums
 	local tokenIndex = 1
 	local tokenCount = #tokens
+	local token
 	while tokenIndex <= tokenCount do
-		local token = tokens[tokenIndex]
+		-- Look for an enum declaration
+		token = tokens[tokenIndex]
 		if token[2] == 'identifier'  and  token[1] == 'enum' then
-			local currentEnumIndex = 1
-
-			-- Search for brace.
-			tokenIndex = tokenIndex + 1
-			while tokenIndex <= tokenCount do
-				token = tokens[tokenIndex]
-				if token[2] == '{' then break end
+			local currentEnumIndex = 0
+			-- Find an opening brace
+			repeat
 				tokenIndex = tokenIndex + 1
-			end
+				if tokens[tokenIndex][2] == '{' then
+					tokenIndex = tokenIndex + 1
+					break
+				end
+			until tokenIndex == tokenCount
 
-			local enumTable = enums
-			
-			tokenIndex = tokenIndex + 1
+			-- Collect every enum until a closing brace is encountered
 			while tokenIndex <= tokenCount do
 				token = tokens[tokenIndex]
-				if token[2] == 'identifier' then
-					local identifier = token[1]
-
+				local tokenType = token[2]
+				if tokenType == 'identifier' then
+					local enumIdentifier = token[1]
+					-- This will use the current enum index unless an explicit one is assigned
 					tokenIndex = tokenIndex + 1
 					while tokenIndex <= tokenCount do
-						token = tokens[tokenIndex]
-						if token[2] == 'operator' and token[1] == ',' then break end
-						tokenIndex = tokenIndex + 1
+						local tokenString = tokens[tokenIndex][1]
+						if tokenString == ',' or tokenString == '}' then
+							-- It's important not to increment tokenIndex here so that closing braces will be caught in the outer while loop
+							break
+						elseif tokenString == '=' then
+							-- Find the assignment
+							repeat
+								tokenIndex = tokenIndex + 1
+								token = tokens[tokenIndex]
+								tokenString = token[1]
+								tokenType = token[2]
+								if tokenType == 'integer' then
+									currentEnumIndex = tonumber( tokenString, tokenString:sub( 1, 2 ) == '0x' and 16 or 10 )
+									break
+								elseif tokenType == 'identifier' then
+									currentEnumIndex = enums[tokenString]
+										or error( "The enum \"" .. enumIdentifier .. "\" is assigned the undefined symbol \"" .. tokenString .. "\"", 2 )
+									break
+								elseif tokenType ~= 'whitespace' then
+									error( "Something is wrong with the assignment to the enum \"" .. enumIdentifier .. "\"", 2 )									
+								end
+							until tokenIndex == tokenCount
+							tokenIndex = tokenIndex + 1
+							break
+						else
+							tokenIndex = tokenIndex + 1
+						end
 					end
-
-					enumTable[identifier] = currentEnumIndex
+					-- Assign the enum value
+					enums[enumIdentifier] = currentEnumIndex
 					currentEnumIndex = currentEnumIndex + 1
+				elseif tokenType == '}' then
+					break
+				else
+					tokenIndex = tokenIndex + 1
 				end
-				if token[2] == '}' then break end
-				tokenIndex = tokenIndex + 1
 			end
-			
+		else
+			tokenIndex = tokenIndex + 1
 		end
-		tokenIndex = tokenIndex + 1
 	end
 
 	return enums
