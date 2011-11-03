@@ -4,7 +4,7 @@
 * RCS Id: $Id: srm.c,v 1.2 2001/12/14 21:55:13 diego Exp $
 \*======================================================================*/
 
-#include "lua.h"
+#include "src/lua.h"
 
 #ifdef LUA_MTSUPPORT
 

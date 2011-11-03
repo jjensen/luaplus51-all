@@ -7,7 +7,7 @@
 * Diego Nehab, 12/3/2001
 * RCS Id: $Id: pt.c,v 1.7 2004/11/24 19:50:02 diego Exp $
 \*======================================================================*/
-#include "lua.h"
+#include "src/lua.h"
 
 #ifdef LUA_MTSUPPORT
 

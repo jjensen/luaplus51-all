@@ -6,7 +6,7 @@
 
 #include <stdlib.h>
 
-#include <lua.h>
+#include "src/lua.h"
 
 #ifdef LUA_MTSUPPORT
 
