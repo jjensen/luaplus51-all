@@ -4,11 +4,8 @@
 -- Copyright (c) 2005 Javier Guerra
 -----------------------------------------------------------------------------
 
-require "lfs"
+local lfs = require "lfs"
 require "xavante.mime"
-require "socket.url"
-
-module (arg and arg[1])
 
 local source_mt = { __index = {} }
 local source = source_mt.__index
@@ -23,6 +20,9 @@ end
 
 function source:getResource (rootUrl, path)
 	local diskpath = self.rootDir .. path
+	if diskpath:sub(-1) == '/' then
+		diskpath = diskpath:sub(1, -2)
+	end
 	local attr = lfs.attributes (diskpath)
 	if not attr then return end
 
@@ -43,9 +43,12 @@ end
 
 function source:createResource (rootUrl, path)
 	local diskpath = self.rootDir .. path
+	if diskpath:sub(-1) == '/' then
+		diskpath = diskpath:sub(1, -2)
+	end
 	local attr = lfs.attributes (diskpath)
 	if not attr then
-		io.open (diskpath, "w"):close ()
+		io.open (diskpath, "wb"):close ()
 		attr = lfs.attributes (diskpath)
 	end
 	
@@ -235,9 +238,14 @@ function resource:setProp (propname, value)
 	return false
 end
 
-function makeSource (params)
+local M = {}
+
+function M.makeSource (params)
 	params = params or {}
-	params.rootDir = params.rootDir or "./"
+	params.rootDir = params.rootDir or "."
 
 	return setmetatable (params, source_mt)
 end
+
+return M
+

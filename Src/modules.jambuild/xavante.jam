@@ -8,6 +8,12 @@ local ROOT_LUAS =
 		src/xavante/xavante.lua
 ;
 
+local WEBDAV_LUAS =
+		src/webdav/davFileProps.lua
+		src/webdav/davFileRepository.lua
+		src/webdav/davhandler.lua
+;
+
 local XAVANTE_LUAS =
 		src/xavante/cgiluahandler.lua
 		src/xavante/encoding.lua
@@ -22,9 +28,10 @@ local XAVANTE_LUAS =
 		src/xavante/ruleshandler.lua
 ;
 
-Lua.Module xavante : : $(SAJAX_LUAS) $(ROOT_LUAS) $(XAVANTE_LUAS) ;
+Lua.Module xavante : : $(SAJAX_LUAS) $(ROOT_LUAS) $(WEBDAV_LUAS) $(XAVANTE_LUAS) ;
 
 CopyFiles xavante : $(LUA_LDIR) : $(SUBDIR)/$(ROOT_LUAS) $(SUBDIR)/$(SAJAX_LUAS) ;
+CopyFiles xavante : $(LUA_LDIR)/xavante : $(SUBDIR)/$(WEBDAV_LUAS) ;
 CopyFiles xavante : $(LUA_LDIR)/xavante : $(SUBDIR)/$(XAVANTE_LUAS) ;
 
 }

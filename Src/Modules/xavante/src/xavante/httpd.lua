@@ -207,14 +207,14 @@ end
 --		data : content data to send
 local function send_res_data (res, data)
 
-	if not data or data == "" then
-		return
-	end
-
 	if not res.sent_headers then
 		send_res_headers (res)
 	end
 	
+	if not data or data == "" then
+		return
+	end
+
 	if data then
 		if res.chunked then
 			res.socket:send (string.format ("%X\r\n", string.len (data)))

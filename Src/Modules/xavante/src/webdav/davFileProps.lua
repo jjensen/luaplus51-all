@@ -4,9 +4,7 @@
 -- Copyright (c) 2005 Javier Guerra
 -----------------------------------------------------------------------------
 
-require "lfs"
-
-module (arg and arg[1])
+local lfs = require "lfs"
 
 local props_mt = { __index = {} }
 local props = props_mt.__index
@@ -66,7 +64,13 @@ function props:setProp (path, propname, value)
 	f:close ()
 end
 
-function makeProps (params)
+function props:delete (path)
+	os.remove (self.rootDir..path..'/')
+end
+
+local M = {}
+
+function M.makeProps (params)
 	params = params or {}
 	
 	params.rootDir = params.rootDir or ".PROPS/"
@@ -74,3 +78,6 @@ function makeProps (params)
 
 	return setmetatable (params, props_mt)
 end
+
+return M
+
