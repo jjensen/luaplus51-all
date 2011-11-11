@@ -1,6 +1,12 @@
-2010-February-14
+2011-January-10
 
-Version "0.7-devel"
+Version "0.8-devel"
+
+Since the "0.7-devel" release of this Lua library...
+
+Added a missing lua_pop in dbvm_bind_names()
+Now dbvm_bind_index() binds a boolean as 1 or 0
+Thanks to Ronny Dierckx
 
 Since the "0.6-devel" release of this Lua library...
 

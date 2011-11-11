@@ -449,11 +449,10 @@ static int dbvm_bind_index(lua_State *L, sqlite3_stmt *vm, int index, int lindex
             return sqlite3_bind_text(vm, index, lua_tostring(L, lindex), lua_strlen(L, lindex), SQLITE_TRANSIENT);
         case LUA_TNUMBER:
             return sqlite3_bind_double(vm, index, lua_tonumber(L, lindex));
+        case LUA_TBOOLEAN:
+            return sqlite3_bind_int(vm, index, lua_toboolean(L, lindex) ? 1 : 0);
         case LUA_TNONE:
         case LUA_TNIL:
-        /* allow boolean values so i have a way to know which
-        ** values were actually not set */
-        case LUA_TBOOLEAN:
             return sqlite3_bind_null(vm, index);
         default:
             luaL_error(L, "index (%d) - invalid data type for bind (%s)", index, lua_typename(L, lua_type(L, lindex)));
@@ -537,6 +536,7 @@ static int dbvm_bind_names(lua_State *L) {
             lua_pushstring(L, ++name);
             lua_gettable(L, 2);
             result = dbvm_bind_index(L, vm, n, -1);
+            lua_pop(L, 1);
         }
         else {
             lua_pushnumber(L, n);
