@@ -730,11 +730,11 @@ static int alien_function_tostring(lua_State *L) {
 static int alien_function_call(lua_State *L) {
   int i, j, nargs, nparams;
   int iret; double dret; void *pret; long lret; unsigned long ulret; float fret;
-  int *refi_args, nrefi, nrefui, nrefd, nrefc;
-  double *refd_args;
-  char *refc_args;
-  unsigned int *refui_args;
-  void **args;
+  int *refi_args = 0, nrefi, nrefui, nrefd, nrefc;
+  double *refd_args = 0;
+  char *refc_args = 0;
+  unsigned int *refui_args = 0;
+  void **args = 0;
   ffi_cif *cif;
   alien_Function *af = alien_tofunction(L, 1);
   cif = &(af->cif);
