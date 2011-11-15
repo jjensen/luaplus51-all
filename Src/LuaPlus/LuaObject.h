@@ -36,6 +36,7 @@ public:
 	LuaObject(lua_State* L, bool popTop) throw();
 	LuaObject(const LuaObject& src) throw();
 	LuaObject(const LuaStackObject& src) throw();
+
 	LuaObject& operator=(const LuaObject& src) throw();
 	LuaObject& operator=(const LuaStackObject& src) throw();
 
@@ -313,6 +314,8 @@ public:
 	}
 
 	LuaObject& Unregister(const char* funcName);
+
+	bool CheckUData(const char* tname, void** out);
 
 protected:
 #if !LUA_FASTREF_SUPPORT

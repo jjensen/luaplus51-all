@@ -1526,6 +1526,23 @@ inline LuaObject& LuaObject::AssignCFunction(int (*func)(LuaState*), int nupvalu
 }
 
 
+/**
+**/
+inline bool LuaObject::CheckUData(const char* tname, void** out) {
+	LUA_FASTREF_PUSH();
+	void *p = lua_touserdata(L, LUA_FASTREF_REF_1);
+	if (p != NULL) {  /* value is a userdata? */
+		if (lua_getmetatable(L, LUA_FASTREF_REF_1)) {  /* does it have a metatable? */
+			lua_getfield(L, LUA_REGISTRYINDEX, tname);  /* get correct metatable */
+			if (lua_rawequal(L, -1, -2)) {  /* does it have the correct mt? */
+				lua_pop(L, 2);  /* remove both metatables */
+				*out = p;
+				return true;
+			}
+		}
+	}
+	*out = NULL;
+	return false;
 }
 
 
