@@ -274,6 +274,8 @@ public:
 
 	LuaObject Lookup(const char* key) const;
 
+	LuaObject ForceGetTable(const char* name) const;
+
 	LuaObject& Register(const char* funcName, lua_CFunction func, int nupvalues = 0);
 
 	LuaObject& Register(const char* funcName, int (*func)(LuaState*), int nupvalues = 0);
