@@ -169,7 +169,8 @@ inline int LuaObject::Type() const {
 
 // Mirrors lua_isnil().
 inline bool LuaObject::IsNil() const {
-	luaplus_assert(L);
+	if (!L)
+		return true;
 	LUA_FASTREF_PUSH();
 	return lua_isnil(L, LUA_FASTREF_REF_1);
 }
