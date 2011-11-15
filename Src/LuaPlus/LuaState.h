@@ -260,7 +260,7 @@ public:
 	void* CheckUData(int ud, const char* tname);
 
 	int Where(int lvl);
-	void Error(const char* fmt, ...);
+	int Error(const char* fmt, ...);
 
 	int CheckOption(int narg, const char *def, const char *const lst[]);
 

@@ -934,6 +934,17 @@ LUAPLUS_INLINE int LuaState::Where(int lvl)
 }
 
 
+LUAPLUS_INLINE int LuaState::Error(const char* fmt, ...) {
+	va_list argp;
+	va_start(argp, fmt);
+	luaL_where(LuaState_to_lua_State(this), 1);
+	lua_pushvfstring(LuaState_to_lua_State(this), fmt, argp);
+	va_end(argp);
+	lua_concat(LuaState_to_lua_State(this), 2);
+	return lua_error(LuaState_to_lua_State(this));
+}
+
+
 LUAPLUS_INLINE int LuaState::Ref(int t)
 {
 	return luaL_ref(LuaState_to_lua_State(this), t);
