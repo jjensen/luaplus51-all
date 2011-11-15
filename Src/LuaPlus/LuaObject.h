@@ -134,23 +134,23 @@ public:
 	template <typename KeyT, typename ValueT> LuaObject& RawSet(const KeyT& key, const ValueT& value, int len);
 	template <typename KeyT> LuaObject& RawSetNil(const KeyT& key);
 
-	void AssignNil();
-	void AssignNil(lua_State* L);
-	void AssignNil(LuaState* state);
-	template <typename ValueT> void Assign(const ValueT& value);
-	void Assign(lua_State* L, const char* value, int len);
-	void Assign(LuaState* state, const char* value, int len);
-	template <typename ValueT> void Assign(lua_State* L, const ValueT& value);
-	template <typename ValueT> void Assign(LuaState* state, const ValueT& value);
-	template <typename ValueT> void Assign(lua_State* L, const ValueT& value, int len);
-	template <typename ValueT> void Assign(LuaState* state, const ValueT& value, int len);
+	LuaObject& AssignNil();
+	LuaObject& AssignNil(lua_State* L);
+	LuaObject& AssignNil(LuaState* state);
+	template <typename ValueT> LuaObject& Assign(const ValueT& value);
+	LuaObject& Assign(lua_State* L, const char* value, int len);
+	LuaObject& Assign(LuaState* state, const char* value, int len);
+	template <typename ValueT> LuaObject& Assign(lua_State* L, const ValueT& value);
+	template <typename ValueT> LuaObject& Assign(LuaState* state, const ValueT& value);
+	template <typename ValueT> LuaObject& Assign(lua_State* L, const ValueT& value, int len);
+	template <typename ValueT> LuaObject& Assign(LuaState* state, const ValueT& value, int len);
 #if LUA_WIDESTRING
-	void Assign(lua_State* L, const lua_WChar* value, int len);
-	void Assign(LuaState* state, const lua_WChar* value, int len);
+	LuaObject& Assign(lua_State* L, const lua_WChar* value, int len);
+	LuaObject& Assign(LuaState* state, const lua_WChar* value, int len);
 #endif // LUA_WIDESTRING
-	void AssignNewTable(int narray = 0, int nrec = 0);
-	void AssignNewTable(lua_State* L, int narray = 0, int nrec = 0);
-	void AssignNewTable(LuaState* state, int narray = 0, int nrec = 0);
+	LuaObject& AssignNewTable(int narray = 0, int nrec = 0);
+	LuaObject& AssignNewTable(lua_State* L, int narray = 0, int nrec = 0);
+	LuaObject& AssignNewTable(LuaState* state, int narray = 0, int nrec = 0);
 
 	LuaObject& SetBoolean(const char* key, bool value);
 	LuaObject& SetBoolean(int key, bool value);
@@ -206,50 +206,47 @@ public:
 	LuaObject& RawSetObject(int key, LuaObject& value);
 	LuaObject& RawSetObject(LuaObject& key, LuaObject& value);
 
-	void AssignBoolean(LuaState* state, bool value);
-	void AssignInteger(LuaState* state, int value);
-	void AssignNumber(LuaState* state, lua_Number value);
-	void AssignString(LuaState* state, const char* value, int len = -1);
+	LuaObject& AssignBoolean(LuaState* state, bool value);
+	LuaObject& AssignInteger(LuaState* state, int value);
+	LuaObject& AssignNumber(LuaState* state, lua_Number value);
+	LuaObject& AssignString(LuaState* state, const char* value, int len = -1);
 #if LUA_WIDESTRING
-	void AssignWString(LuaState* state, const lua_WChar* value, int len = -1);
+	LuaObject& AssignWString(LuaState* state, const lua_WChar* value, int len = -1);
 #endif /* LUA_WIDESTRING */
-	void AssignUserData(LuaState* state, void* value);
-	void AssignLightUserData(LuaState* state, void* value);
-	void AssignObject(LuaObject& value);		// Should this function be removed??
 
-	void AssignCFunction(lua_CFunction func, int nupvalues = 0);
-	void AssignCFunction(int (*func)(LuaState*), int nupvalues = 0);
+	LuaObject& AssignUserdata(LuaState* state, void* value);
+	LuaObject& AssignUserdata(LuaState* state, size_t size);
+	LuaObject& AssignLightUserdata(LuaState* state, void* value);
+	LuaObject& AssignObject(LuaObject& value);		// Should this function be removed??
+
+	LuaObject& AssignCFunction(lua_CFunction func, int nupvalues = 0);
+	LuaObject& AssignCFunction(int (*func)(LuaState*), int nupvalues = 0);
 
 	template <class Callee>
-	void AssignCFunction(const Callee& callee, int (Callee::*func)(LuaState*), int nupvalues = 0)
-	{
+	LuaObject& AssignCFunction(const Callee& callee, int (Callee::*func)(LuaState*), int nupvalues = 0) {
 		const void* pCallee = &callee;
-		AssignCFunctionHelper(LPCD::LuaStateMemberDispatcherHelper<Callee>::LuaStateMemberDispatcher, nupvalues, &pCallee, sizeof(Callee*), &func, sizeof(func));
+		return AssignCFunctionHelper(LPCD::LuaStateMemberDispatcherHelper<Callee>::LuaStateMemberDispatcher, nupvalues, &pCallee, sizeof(Callee*), &func, sizeof(func));
 	}
 
 	template <class Callee>
-	void AssignCFunctionObjectFunctor(const char* funcName, int (Callee::*func)(LuaState*), int nupvalues = 0)
-	{
-		AssignCFunctionHelper(LPCD::Object_MemberDispatcher_to_LuaStateHelper<Callee>::Object_MemberDispatcher_to_LuaState, nupvalues, NULL, 0, &func, sizeof(func));
+	LuaObject& AssignCFunctionObjectFunctor(const char* funcName, int (Callee::*func)(LuaState*), int nupvalues = 0) {
+		return AssignCFunctionHelper(LPCD::Object_MemberDispatcher_to_LuaStateHelper<Callee>::Object_MemberDispatcher_to_LuaState, nupvalues, NULL, 0, &func, sizeof(func));
 	}
 
 	template <typename Func>
-	inline void AssignCFunctionDirect(Func func, unsigned int nupvalues = 0)
-	{
-		AssignCFunctionHelper(LPCD::DirectCallFunctionDispatchHelper<Func>::DirectCallFunctionDispatcher, nupvalues, NULL, 0, &func, sizeof(func));
+	inline LuaObject& AssignCFunctionDirect(Func func, unsigned int nupvalues = 0) {
+		return AssignCFunctionHelper(LPCD::DirectCallFunctionDispatchHelper<Func>::DirectCallFunctionDispatcher, nupvalues, NULL, 0, &func, sizeof(func));
 	}
 
 	template <typename Callee, typename Func>
-	inline void AssignCFunctionDirect(const Callee& callee, Func func, unsigned int nupvalues = 0)
-	{
+	inline LuaObject& AssignCFunctionDirect(const Callee& callee, Func func, unsigned int nupvalues = 0) {
 		const void* pCallee = &callee;
-		AssignCFunctionHelper(LPCD::DirectCallMemberDispatcherHelper<Callee, Func>::DirectCallMemberDispatcher, nupvalues, &pCallee, sizeof(Callee*), &func, sizeof(func));
+		return AssignCFunctionHelper(LPCD::DirectCallMemberDispatcherHelper<Callee, Func>::DirectCallMemberDispatcher, nupvalues, &pCallee, sizeof(Callee*), &func, sizeof(func));
 	}
 
 	template <typename Callee, typename Func>
-	inline void AssignCFunctionObjectDirect(const Callee* callee, Func func, unsigned int nupvalues = 0)
-	{
-		AssignCFunctionHelper(LPCD::DirectCallObjectMemberDispatcherHelper<Callee, Func, 2>::DirectCallMemberDispatcher, nupvalues, NULL, 0, &func, sizeof(func));
+	inline LuaObject& AssignCFunctionObjectDirect(const Callee* callee, Func func, unsigned int nupvalues = 0) {
+		return AssignCFunctionHelper(LPCD::DirectCallObjectMemberDispatcherHelper<Callee, Func, 2>::DirectCallMemberDispatcher, nupvalues, NULL, 0, &func, sizeof(func));
 	}
 
 
@@ -277,46 +274,50 @@ public:
 
 	LuaObject Lookup(const char* key) const;
 
-	void Register(const char* funcName, lua_CFunction func, int nupvalues = 0);
+	LuaObject& Register(const char* funcName, lua_CFunction func, int nupvalues = 0);
 
-	void Register(const char* funcName, int (*func)(LuaState*), int nupvalues = 0);
+	LuaObject& Register(const char* funcName, int (*func)(LuaState*), int nupvalues = 0);
 
 	template <class Callee>
-	void Register(const char* funcName, const Callee& callee, int (Callee::*func)(LuaState*), int nupvalues = 0) {
+	inline LuaObject& Register(const char* funcName, const Callee& callee, int (Callee::*func)(LuaState*), int nupvalues = 0) {
 		const void* pCallee = &callee;
-		RegisterHelper(funcName, LPCD::LuaStateMemberDispatcherHelper<Callee>::LuaStateMemberDispatcher, nupvalues, &pCallee, sizeof(Callee*), &func, sizeof(func));
+		return RegisterHelper(funcName, LPCD::LuaStateMemberDispatcherHelper<Callee>::LuaStateMemberDispatcher, nupvalues, &pCallee, sizeof(Callee*), &func, sizeof(func));
 	}
 
 	template <class Callee>
-	void RegisterObjectFunctor(const char* funcName, int (Callee::*func)(LuaState*), int nupvalues = 0)
-	{
-		RegisterHelper(funcName, LPCD::Object_MemberDispatcher_to_LuaStateHelper<Callee>::Object_MemberDispatcher_to_LuaState, nupvalues, NULL, 0, &func, sizeof(func));
+	inline LuaObject& RegisterObjectFunctor(const char* funcName, int (Callee::*func)(LuaState*), int nupvalues = 0) {
+		return RegisterHelper(funcName, LPCD::Object_MemberDispatcher_to_LuaStateHelper<Callee>::Object_MemberDispatcher_to_LuaState, nupvalues, NULL, 0, &func, sizeof(func));
 	}
 
 	template <typename Func>
-	inline void RegisterDirect(const char* funcName, Func func, unsigned int nupvalues = 0) {
-		RegisterHelper(funcName, LPCD::DirectCallFunctionDispatchHelper<Func>::DirectCallFunctionDispatcher, nupvalues, NULL, 0, &func, sizeof(func));
+	inline LuaObject& RegisterDirect(const char* funcName, Func func, unsigned int nupvalues = 0) {
+		return RegisterHelper(funcName, LPCD::DirectCallFunctionDispatchHelper<Func>::DirectCallFunctionDispatcher, nupvalues, NULL, 0, &func, sizeof(func));
 	}
 
 	template <typename Callee, typename Func>
-	inline void RegisterDirect(const char* funcName, const Callee& callee, Func func, unsigned int nupvalues = 0) {
+	inline LuaObject& RegisterDirect(const char* funcName, const Callee& callee, Func func, unsigned int nupvalues = 0) {
 		const void* pCallee = &callee;
-		RegisterHelper(funcName, LPCD::DirectCallMemberDispatcherHelper<Callee, Func>::DirectCallMemberDispatcher, nupvalues, &pCallee, sizeof(Callee*), &func, sizeof(func));
+		return RegisterHelper(funcName, LPCD::DirectCallMemberDispatcherHelper<Callee, Func>::DirectCallMemberDispatcher, nupvalues, &pCallee, sizeof(Callee*), &func, sizeof(func));
 	}
 
 	template <typename Callee, typename Func>
-	inline void RegisterObjectDirect(const char* funcName, const Callee* callee, Func func, unsigned int nupvalues = 0) {
-		RegisterHelper(funcName, LPCD::DirectCallObjectMemberDispatcherHelper<Callee, Func, 2>::DirectCallMemberDispatcher, nupvalues, NULL, 0, &func, sizeof(func));
+	inline LuaObject& RegisterObjectDirect(const char* funcName, const Callee* callee, Func func, unsigned int nupvalues = 0) {
+		return RegisterHelper(funcName, LPCD::DirectCallObjectMemberDispatcherHelper<Callee, Func, 2>::DirectCallMemberDispatcher, nupvalues, NULL, 0, &func, sizeof(func));
 	}
 
-	void Unregister(const char* funcName);
+	template <typename Callee, typename Func>
+	inline LuaObject& RegisterInPlaceObjectDirect(const char* funcName, const Callee* callee, Func func, unsigned int nupvalues = 0) {
+		return RegisterHelper(funcName, LPCD::DirectCallInPlaceObjectMemberDispatcherHelper<Callee, Func, 2>::DirectCallMemberDispatcher, nupvalues, NULL, 0, &func, sizeof(func));
+	}
+
+	LuaObject& Unregister(const char* funcName);
 
 protected:
 #if !LUA_FASTREF_SUPPORT
 	friend class LuaFastRefPush;
 #endif // LUA_FASTREF_SUPPORT
-	void RegisterHelper(const char* funcName, lua_CFunction function, int nupvalues, const void* callee, unsigned int sizeofCallee, void* func, unsigned int sizeofFunc);
-	LUAPLUS_CLASS_API void AssignCFunctionHelper(lua_CFunction function, int nupvalues, const void* callee, unsigned int sizeofCallee, void* func, unsigned int sizeofFunc);
+	LuaObject& RegisterHelper(const char* funcName, lua_CFunction function, int nupvalues, const void* callee, unsigned int sizeofCallee, void* func, unsigned int sizeofFunc);
+	LuaObject& AssignCFunctionHelper(lua_CFunction function, int nupvalues, const void* callee, unsigned int sizeofCallee, void* func, unsigned int sizeofFunc);
 
 private:
 	lua_State* L;
@@ -521,83 +522,90 @@ LuaObject& LuaObject::RawSet(const KeyT& key, const ValueT& value, int len) {
 
 
 template <typename ValueT>
-void LuaObject::Assign(const ValueT& value) {
+LuaObject& LuaObject::Assign(const ValueT& value) {
 	luaplus_assert(L);
 	lua_fastunref(L, ref);
 	LPCD::Push(L, value);
 	ref = lua_fastref(L);
+	return *this;
 }
 
 
-inline void LuaObject::Assign(lua_State* _L, const char* value, int len) {
+inline LuaObject& LuaObject::Assign(lua_State* _L, const char* value, int len) {
 	luaplus_assert(_L);
 	if (L)
 		lua_fastunref(L, ref);
 	L = _L;
 	LPCD::Push(L, value, len == -1 ? strlen(value) : len);
 	ref = lua_fastref(L);
+	return *this;
 }
 
 
-inline void LuaObject::Assign(LuaState* state, const char* value, int len) {
-	Assign(LuaState_to_lua_State(state), value, len);
+inline LuaObject& LuaObject::Assign(LuaState* state, const char* value, int len) {
+	return Assign(LuaState_to_lua_State(state), value, len);
 }
 
 #if LUA_WIDESTRING
 
-inline void LuaObject::Assign(lua_State* _L, const lua_WChar* value, int len) {
+inline LuaObject& LuaObject::Assign(lua_State* _L, const lua_WChar* value, int len) {
 	luaplus_assert(_L);
 	if (L)
 		lua_fastunref(L, ref);
 	L = _L;
 	LPCD::Push(L, value, len == -1 ? lua_WChar_len(value) : len);
 	ref = lua_fastref(L);
+	return *this;
 }
 
-inline void LuaObject::Assign(LuaState* state, const lua_WChar* value, int len) {
-	Assign(LuaState_to_lua_State(state), value, len);
+inline LuaObject& LuaObject::Assign(LuaState* state, const lua_WChar* value, int len) {
+	return Assign(LuaState_to_lua_State(state), value, len);
 }
 
 #endif // LUA_WIDESTRING
 
 
 template <typename ValueT>
-void LuaObject::Assign(LuaState* state, const ValueT& value, int len) {
+LuaObject& LuaObject::Assign(LuaState* state, const ValueT& value, int len) {
 	if (L)
 		lua_fastunref(L, ref);
 	L = LuaState_to_lua_State(state);
 	LPCD::Push(L, value, len);
 	ref = lua_fastref(L);
+	return *this;
 }
 
 
 template <typename ValueT>
-void LuaObject::Assign(lua_State* _L, const ValueT& value) {
+LuaObject& LuaObject::Assign(lua_State* _L, const ValueT& value) {
 	if (L)
 		lua_fastunref(L, ref);
 	L = _L;
 	LPCD::Push(L, value);
 	ref = lua_fastref(L);
+	return *this;
 }
 
 
 template <typename ValueT>
-void LuaObject::Assign(LuaState* state, const ValueT& value) {
+LuaObject& LuaObject::Assign(LuaState* state, const ValueT& value) {
 	if (L)
 		lua_fastunref(L, ref);
 	L = LuaState_to_lua_State(state);
 	LPCD::Push(L, value);
 	ref = lua_fastref(L);
+	return *this;
 }
 
 
 template <typename ValueT>
-void LuaObject::Assign(lua_State* _L, const ValueT& value, int len) {
+LuaObject& LuaObject::Assign(lua_State* _L, const ValueT& value, int len) {
 	if (L)
 		lua_fastunref(L, ref);
 	L = _L;
 	LPCD::Push(L, value, len);
 	ref = lua_fastref(L);
+	return *this;
 }
 
 

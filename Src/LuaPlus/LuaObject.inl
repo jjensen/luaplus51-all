@@ -1128,97 +1128,123 @@ inline LuaObject& LuaObject::RawSetObject(LuaObject& key, LuaObject& value) {
 }
 
 
-inline void LuaObject::AssignNil() {
+inline LuaObject& LuaObject::AssignNil() {
 	luaplus_assert(L);
 	lua_fastunref(L, ref);
 	lua_pushnil(L);
 	ref = lua_fastref(L);
+	return *this;
 }
 
 
-inline void LuaObject::AssignNil(lua_State* _L) {
+inline LuaObject& LuaObject::AssignNil(lua_State* _L) {
 	if (L)
 		lua_fastunref(L, ref);
 	L = _L;
 	lua_pushnil(L);
 	ref = lua_fastref(L);
+	return *this;
 }
 
 
-inline void LuaObject::AssignNil(LuaState* state) {
+inline LuaObject& LuaObject::AssignNil(LuaState* state) {
 	if (L)
 		lua_fastunref(L, ref);
 	L = LuaState_to_lua_State(state);
 	lua_pushnil(L);
 	ref = lua_fastref(L);
+	return *this;
 }
 
 
-inline void LuaObject::AssignBoolean(LuaState* state, bool value) {
-	Assign(state, value);
+inline LuaObject& LuaObject::AssignBoolean(LuaState* state, bool value) {
+	return Assign(state, value);
 }
 
 
-inline void LuaObject::AssignInteger(LuaState* state, int value) {
-	Assign(state, value);
+inline LuaObject& LuaObject::AssignInteger(LuaState* state, int value) {
+	return Assign(state, value);
 }
 
 
-inline void LuaObject::AssignNumber(LuaState* state, lua_Number value) {
-	Assign(state, value);
+inline LuaObject& LuaObject::AssignNumber(LuaState* state, lua_Number value) {
+	return Assign(state, value);
 }
 
 
-inline void LuaObject::AssignString(LuaState* state, const char* value, int len) {
-	Assign(state, value, len);
+inline LuaObject& LuaObject::AssignString(LuaState* state, const char* value, int len) {
+	return Assign(state, value, len);
 }
 
 
 #if LUA_WIDESTRING
-inline void LuaObject::AssignWString(LuaState* state, const lua_WChar* value, int len) {
-	Assign(LuaState_to_lua_State(state), value, len);
+inline LuaObject& LuaObject::AssignWString(LuaState* state, const lua_WChar* value, int len) {
+	return Assign(LuaState_to_lua_State(state), value, len);
 }
 #endif /* LUA_WIDESTRING */
 
 
-inline void LuaObject::AssignUserData(LuaState* state, void* value) {
-	Assign(state, value);
+inline LuaObject& LuaObject::AssignUserdata(LuaState* state, void* value) {
+	lua_State* _L = LuaState_to_lua_State(state);
+	luaplus_assert(_L);
+	if (L)
+		lua_fastunref(L, ref);
+	L = _L;
+	LPCD::Push(L, LPCD::LuaUserdata(value));
+	ref = lua_fastref(L);
+	return *this;
 }
 
 
-inline void LuaObject::AssignLightUserData(LuaState* state, void* value) {
-	Assign(state, value);
+inline LuaObject& LuaObject::AssignUserdata(LuaState* state, size_t size) {
+	lua_State* _L = LuaState_to_lua_State(state);
+	luaplus_assert(_L);
+	if (L)
+		lua_fastunref(L, ref);
+	L = _L;
+	lua_newuserdata(L, size);
+	ref = lua_fastref(L);
+	return *this;
 }
 
 
-inline void LuaObject::AssignObject(LuaObject& value) {
+inline LuaObject& LuaObject::AssignLightUserdata(LuaState* state, void* value) {
+	return Assign(state, value);
+}
+
+
+inline LuaObject& LuaObject::AssignObject(LuaObject& value) {
 	*this = value;
+	return *this;
 }
 
 
-inline void LuaObject::AssignNewTable(int narray, int nrec) {
+inline LuaObject& LuaObject::AssignNewTable(int narray, int nrec) {
 	luaplus_assert(L);
 	lua_fastunref(L, ref);
 	lua_createtable(L, narray, nrec);
 	ref = lua_fastref(L);
+	return *this;
 }
 
 
-inline void LuaObject::AssignNewTable(lua_State* _L, int narray, int nrec) {
+inline LuaObject& LuaObject::AssignNewTable(lua_State* _L, int narray, int nrec) {
 	if (L)
 		lua_fastunref(L, ref);
 	L = _L;
 	lua_createtable(L, narray, nrec);
 	ref = lua_fastref(L);
+	return *this;
 }
 
 
-inline void LuaObject::AssignNewTable(LuaState* state, int narray, int nrec) {
+inline LuaObject& LuaObject::AssignNewTable(LuaState* state, int narray, int nrec) {
 	if (L)
 		lua_fastunref(L, ref);
 	L = LuaState_to_lua_State(state);
 	lua_createtable(L, narray, nrec);
 	ref = lua_fastref(L);
+	return *this;
 }
 
 
@@ -1229,23 +1255,25 @@ inline void LuaObject::AssignNewTable(LuaState* state, int narray, int nrec) {
 	@param funcName The name of the function to register.
 	@param function A pointer to the C function to register.
 **/
-inline void LuaObject::Register(const char* funcName, lua_CFunction function, int nupvalues) {
+inline LuaObject& LuaObject::Register(const char* funcName, lua_CFunction function, int nupvalues) {
 	luaplus_assert(L);
 	LUA_FASTREF_PUSH();					// (table)
 	lua_pushcclosure(L, function, nupvalues);
 	lua_setfield(L, LUA_FASTREF_REF_2, funcName);
+	return *this;
 }
 
 
-inline void LuaObject::Register(const char* funcName, int (*function)(LuaState*), int nupvalues) {
+inline LuaObject& LuaObject::Register(const char* funcName, int (*function)(LuaState*), int nupvalues) {
 	luaplus_assert(L);
 	LUA_FASTREF_PUSH();					// (table)
 	lua_pushcclosure(L, (lua_CFunction)function, nupvalues);
 	lua_setfield(L, LUA_FASTREF_REF_2, funcName);
+	return *this;
 }
 
 
-inline void LuaObject::RegisterHelper(const char* funcName, lua_CFunction function, int nupvalues, const void* callee, unsigned int sizeofCallee, void* func, unsigned int sizeofFunc) {
+inline LuaObject& LuaObject::RegisterHelper(const char* funcName, lua_CFunction function, int nupvalues, const void* callee, unsigned int sizeofCallee, void* func, unsigned int sizeofFunc) {
 	luaplus_assert(L);
 	LUA_FASTREF_PUSH();					// (table)
 #if !LUA_FASTREF_SUPPORT
@@ -1273,6 +1301,8 @@ inline void LuaObject::RegisterHelper(const char* funcName, lua_CFunction functi
 #else
 	lua_setfield(L, top, funcName);
 #endif // LUA_FASTREF_SUPPORT
+
+	return *this;
 }
 
 
@@ -1282,10 +1312,10 @@ inline void LuaObject::RegisterHelper(const char* funcName, lua_CFunction functi
 
 	@param funcName The name of the function to unregister.
 **/
-inline void LuaObject::Unregister(const char* funcName)
+inline LuaObject& LuaObject::Unregister(const char* funcName)
 {
 	luaplus_assert(L);
-	SetNil(funcName);
+	return SetNil(funcName);
 }
 
 
@@ -1476,17 +1506,18 @@ inline LuaObject LuaObject::Lookup(const char* key) const {
 
 /**
 **/
-inline void LuaObject::AssignCFunction(lua_CFunction function, int nupvalues)
-{
-	AssignCFunctionHelper(function, nupvalues, NULL, 0, NULL, 0);
+inline LuaObject& LuaObject::AssignCFunction(lua_CFunction function, int nupvalues) {
+	return AssignCFunctionHelper(function, nupvalues, NULL, 0, NULL, 0);
 }
 
 
 /**
 **/
-inline void LuaObject::AssignCFunction(int (*func)(LuaState*), int nupvalues)
-{
-	AssignCFunctionHelper(LPCD::LuaStateFunctionDispatcher, nupvalues, NULL, 0, &func, sizeof(func));
+inline LuaObject& LuaObject::AssignCFunction(int (*func)(LuaState*), int nupvalues) {
+	return AssignCFunctionHelper(LPCD::LuaStateFunctionDispatcher, nupvalues, NULL, 0, &func, sizeof(func));
+}
+
+
 }
 
 
