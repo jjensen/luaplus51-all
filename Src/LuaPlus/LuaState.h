@@ -125,7 +125,7 @@ public:
 	void RawGetI(int index, int n);
 	LuaStackObject CreateTable(int narr = 0, int nrec = 0);
 	LuaStackObject NewUserdata(size_t size);
-	LuaStackObject GetMetaTable(int objindex);
+	LuaStackObject GetMetatable(int objindex);
 	LuaStackObject GetFEnv(int index);
 
 	// LuaPlus ---->
@@ -142,7 +142,7 @@ public:
 	void SetField(int index, const char* key);
 	void RawSet(int index);
 	void RawSetI(int index, int n);
-	void SetMetaTable(int index);
+	void SetMetatable(int index);
 	void SetFEnv(int index);
 
 	// `load' and `call' functions (load and run Lua code)
@@ -256,7 +256,7 @@ public:
 	void CheckType(int narg, int t);
 	void CheckAny(int narg);
 
-	LuaStackObject NewMetaTable(const char* tname);
+	LuaObject NewMetatable(const char* tname);
 	void* CheckUData(int ud, const char* tname);
 
 	int Where(int lvl);
@@ -300,7 +300,7 @@ public:
 #endif /* LUA_WIDESTRING */
 
 	const char* LTypeName(int index);
-	void GetMetaTable(const char* metatableName);
+	LuaObject GetMetatable(const char* metatableName);
 
 	LuaObject NewUserdataBox(void* u);
 

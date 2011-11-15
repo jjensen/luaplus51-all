@@ -350,11 +350,11 @@ static int LS_LuaFileIndent(LuaState* state) {
 
 bool LuaState::CallFormatting(LuaObject& tableObj, LuaStateOutFile& file, int indentLevel,
 		bool writeAll, bool alphabetical, bool writeTablePointers, unsigned int maxIndentLevel) {
-	LuaObject metaTableObj = tableObj.GetMetaTable();
-	if (metaTableObj.IsNil())
+	LuaObject metatableObj = tableObj.GetMetatable();
+	if (metatableObj.IsNil())
 		return false;
 
-	LuaObject formattedWriteObj = metaTableObj["FormattedWrite"];
+	LuaObject formattedWriteObj = metatableObj["FormattedWrite"];
 	if (!formattedWriteObj.IsFunction())
 		return false;
 

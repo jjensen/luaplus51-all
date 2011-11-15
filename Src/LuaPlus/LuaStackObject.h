@@ -112,9 +112,9 @@ public:
 
 	int Ref(int lock = 1);
 
-	LuaStackObject GetMetaTable();
-	void SetMetaTable();
-	void SetMetaTable(LuaStackObject value);
+	LuaStackObject GetMetatable();
+	void SetMetatable();
+	void SetMetatable(LuaStackObject value);
 
 	void SetTable();
 	size_t GetCount();

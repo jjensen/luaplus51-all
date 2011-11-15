@@ -393,7 +393,7 @@ LUAPLUS_INLINE LuaStackObject LuaState::NewUserdata(size_t size) {
 	return LuaStackObject(*this, GetTop());
 }
 
-LUAPLUS_INLINE LuaStackObject LuaState::GetMetaTable(int index)
+LUAPLUS_INLINE LuaStackObject LuaState::GetMetatable(int index)
 {
 	lua_getmetatable(LuaState_to_lua_State(this), index);
 	return LuaStackObject(this, lua_gettop(LuaState_to_lua_State(this)));
@@ -457,7 +457,7 @@ LUAPLUS_INLINE void LuaState::RawSetI(int index, int n)
 	lua_rawseti(LuaState_to_lua_State(this), index, n);
 }
 
-LUAPLUS_INLINE void LuaState::SetMetaTable(int index)
+LUAPLUS_INLINE void LuaState::SetMetatable(int index)
 {
 	lua_setmetatable(LuaState_to_lua_State(this), index);
 }
@@ -914,10 +914,10 @@ LUAPLUS_INLINE void LuaState::CheckAny(int narg)
 }
 
 
-LUAPLUS_INLINE LuaStackObject LuaState::NewMetaTable(const char* tname)
+LUAPLUS_INLINE LuaObject LuaState::NewMetatable(const char* tname)
 {
 	luaL_newmetatable(LuaState_to_lua_State(this), tname);
-	return LuaStackObject(this, GetTop());
+	return LuaObject(LuaState_to_lua_State(this), true);
 }
 
 
@@ -979,8 +979,9 @@ LUAPLUS_INLINE const char* LuaState::LTypeName(int index) {
 }
 
 
-LUAPLUS_INLINE void LuaState::GetMetaTable(const char* metatableName) {
+LUAPLUS_INLINE LuaObject LuaState::GetMetatable(const char* metatableName) {
 	luaL_getmetatable(LuaState_to_lua_State(this), metatableName);
+	return LuaObject(LuaState_to_lua_State(this), true);
 }
 
 

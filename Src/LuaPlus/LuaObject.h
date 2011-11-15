@@ -108,8 +108,8 @@ public:
 
 	LuaStackObject Push() const;
 
-	LuaObject GetMetaTable() const;
-	void SetMetaTable(const LuaObject& valueObj);
+	LuaObject GetMetatable() const;
+	LuaObject& SetMetatable(const LuaObject& valueObj);
 
 	void Insert(LuaObject& obj);
 	void Insert(int index, LuaObject& obj);

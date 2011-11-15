@@ -479,7 +479,7 @@ inline LuaStackObject LuaObject::Push() const {
 }
 
 
-inline LuaObject LuaObject::GetMetaTable() const {
+inline LuaObject LuaObject::GetMetatable() const {
 	luaplus_assert(L);
 	LUA_FASTREF_PUSH();
 	if (lua_getmetatable(L, LUA_FASTREF_REF_1))
@@ -488,11 +488,12 @@ inline LuaObject LuaObject::GetMetaTable() const {
 }
 
 
-inline void LuaObject::SetMetaTable(const LuaObject& valueObj) {
+inline LuaObject& LuaObject::SetMetatable(const LuaObject& valueObj) {
 	luaplus_assert(L);
 	LUA_FASTREF_PUSH();
 	lua_getfastref(L, valueObj.ref);
 	lua_setmetatable(L, LUA_FASTREF_REF_2);
+	return *this;
 }
 
 
@@ -1330,8 +1331,8 @@ inline LuaObject LuaObject::Clone() const {
 	if (IsTable()) {
 		LuaObject tableObj(L);
 //		sethvalue(L, &tableObj.m_object, luaH_new(L, hvalue(&m_object)->sizearray, hvalue(&m_object)->lsizenode));
-		tableObj.AssignNewTable(lua_State_To_LuaState(L), 0, 0);
-		tableObj.SetMetaTable(GetMetaTable());
+		tableObj.AssignNewTable(lua_State_to_LuaState(L), 0, 0);
+		tableObj.SetMetatable(GetMetatable());
 
 		for (LuaTableIterator it(*this); it; ++it) {
 			if (it.GetValue().IsTable()) {

@@ -196,15 +196,15 @@ LUAPLUS_INLINE int LuaStackObject::Ref( int lock )
 	return luaL_ref( LuaState_to_lua_State( L ), m_stackIndex );
 }
 
-LUAPLUS_INLINE LuaStackObject LuaStackObject::GetMetaTable()
+LUAPLUS_INLINE LuaStackObject LuaStackObject::GetMetatable()
 {
 	lua_getmetatable( GetCState(), m_stackIndex );
 	return LuaStackObject( GetState(),
 		lua_gettop( GetCState() ) );
 }
 
-LUAPLUS_INLINE void LuaStackObject::SetMetaTable()					{  lua_setmetatable( GetCState(), m_stackIndex );  }
-LUAPLUS_INLINE void LuaStackObject::SetMetaTable( LuaStackObject value )
+LUAPLUS_INLINE void LuaStackObject::SetMetatable()					{  lua_setmetatable( GetCState(), m_stackIndex );  }
+LUAPLUS_INLINE void LuaStackObject::SetMetatable( LuaStackObject value )
 {
 	value.Push();
 	lua_setmetatable( GetCState(), m_stackIndex );
