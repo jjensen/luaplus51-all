@@ -583,7 +583,7 @@ inline size_t LuaObject::GetTableCount() const {
 	@param size The size of the table.
 	@return Returns the object representing the newly created table.
 **/
-inline LuaObject LuaObject::CreateTable(const char* key, int narray, int nrec) {
+inline LuaObject LuaObject::CreateTable(const char* key, int narray, int nrec) const {
 	luaplus_assert(L);
 	LUA_FASTREF_PUSH();					// (table)
 	lua_pushstring(L, key);				// (table) key
@@ -607,7 +607,7 @@ inline LuaObject LuaObject::CreateTable(const char* key, int narray, int nrec) {
 	@param size The size of the table.
 	@return Returns the object representing the newly created table.
 **/
-inline LuaObject LuaObject::CreateTable(int key, int narray, int nrec) {
+inline LuaObject LuaObject::CreateTable(int key, int narray, int nrec) const {
 	luaplus_assert(L);
 	LUA_FASTREF_PUSH();					// (table)
 	lua_pushinteger(L, key);			// (table) key
@@ -631,7 +631,7 @@ inline LuaObject LuaObject::CreateTable(int key, int narray, int nrec) {
 	@param size The size of the table.
 	@return Returns the object representing the newly created table.
 **/
-inline LuaObject LuaObject::CreateTable(LuaObject& key, int narray, int nrec) {
+inline LuaObject LuaObject::CreateTable(LuaObject& key, int narray, int nrec) const {
 	luaplus_assert(L);
 	LUA_FASTREF_PUSH();					// (table)
 	lua_getfastref(L, key.ref);			// (table) key
