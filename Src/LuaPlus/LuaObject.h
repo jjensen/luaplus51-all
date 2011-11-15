@@ -337,7 +337,7 @@ namespace LPCD {
 	inline bool	Match(TypeWrapper<LuaObject>, lua_State* L, int idx)
 		{  (void)L, (void)idx;  return true;  }
 	inline LuaPlus::LuaObject Get(TypeWrapper<LuaPlus::LuaObject>, lua_State* L, int idx)
-		{  return LuaObject(lua_State_To_LuaState(L), idx);  }
+		{  return LuaObject(lua_State_to_LuaState(L), idx);  }
 
 	template <typename Object, typename VarType>
 	inline void PropertyCreate(LuaPlus::LuaObject& metaTableObj, const char* varName, VarType Object::* var, bool read = true, bool write = true) {

@@ -24,13 +24,13 @@ namespace LPCD
 		{  return lua_type(L, idx) == LUA_TNONE;  }
 
 	inline LuaState* Get(TypeWrapper<LuaState*>, lua_State* L, int /*idx*/)
-		{  return lua_State_To_LuaState(L);  }
+		{  return lua_State_to_LuaState(L);  }
 
 	inline int LuaStateFunctionDispatcher(lua_State* L) {
 		typedef int (*Functor)(LuaPlus::LuaState*);
 		unsigned char* buffer = LPCD::GetFirstUpValueAsUserData(L);
 		Functor& func = *(Functor*)(buffer);
- 		return (*func)(lua_State_To_LuaState(L));
+ 		return (*func)(lua_State_to_LuaState(L));
 	}
 
 	template <typename Callee>
@@ -41,7 +41,7 @@ namespace LPCD
  			unsigned char* buffer = LPCD::GetFirstUpValueAsUserData(L);
 			Callee& callee = **(Callee**)buffer;
 			Functor& func = *(Functor*)(buffer + sizeof(Callee*));
-			return (callee.*func)(lua_State_To_LuaState(L));
+			return (callee.*func)(lua_State_to_LuaState(L));
 		}
 	};
 
@@ -53,7 +53,7 @@ namespace LPCD
  			unsigned char* buffer = GetFirstUpValueAsUserData(L);
 			Functor& func = *(Functor*)(buffer);
 			Callee& callee = *(Callee*)GetObjectUserData(L);
-			return (callee.*func)(lua_State_To_LuaState(L));
+			return (callee.*func)(lua_State_to_LuaState(L));
 		}
 	};
 } // namespace LPCD

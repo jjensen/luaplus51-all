@@ -231,7 +231,7 @@ namespace LPCD {
 	inline bool	Match(TypeWrapper<LuaStackObject>, lua_State* L, int idx)
 		{  (void)L, (void)idx;  return true;  }
 	inline LuaStackObject	Get(TypeWrapper<LuaStackObject>, lua_State* L, int idx)
-		{  return LuaStackObject(lua_State_To_LuaState(L), idx);  }
+		{  return LuaStackObject(lua_State_to_LuaState(L), idx);  }
 } // namespace LPCD
 
 #endif // LUAPLUS__LUASTACKOBJECT_H

@@ -1167,7 +1167,7 @@ LUA_EXTERN_C int str_format_helper (luaL_Buffer *b, lua_State *L, int arg) {
 
 LUA_EXTERN_C void luaplus_dumptable(lua_State* L, int index)
 {
-	LuaPlus::LuaState* state = lua_State_To_LuaState(L);
+	LuaPlus::LuaState* state = lua_State_to_LuaState(L);
 	LuaPlus::LuaObject valueObj(state, index);
 	LuaPlus::LuaStateOutString stringFile;
 	state->DumpObject(stringFile, NULL, valueObj, LuaPlus::LuaState::DUMP_ALPHABETICAL | LuaPlus::LuaState::DUMP_WRITEALL, 0, -1);
@@ -1178,7 +1178,7 @@ LUA_EXTERN_C void luaplus_dumptable(lua_State* L, int index)
 // LuaDumpObject(file, key, value, alphabetical, indentLevel, maxIndentLevel, writeAll)
 extern "C" int luaplus_ls_LuaDumpObject( lua_State* L )
 {
-	LuaPlus::LuaState* state = lua_State_To_LuaState( L );
+	LuaPlus::LuaState* state = lua_State_to_LuaState( L );
 	LuaPlus::LuaStateOutFile file;
 
 	LuaPlus::LuaStack args(state);

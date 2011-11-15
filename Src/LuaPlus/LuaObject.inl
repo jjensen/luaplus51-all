@@ -1293,7 +1293,7 @@ inline void LuaObject::Unregister(const char* funcName)
 inline bool LuaObject::operator==(const LuaObject& right) const
 {
 	luaplus_assert(L);
-	return lua_State_To_LuaState(L)->Equal(*this, right) != 0;
+	return lua_State_to_LuaState(L)->Equal(*this, right) != 0;
 }
 
 	
@@ -1302,7 +1302,7 @@ inline bool LuaObject::operator==(const LuaObject& right) const
 inline bool LuaObject::operator<(const LuaObject& right) const
 {
 	luaplus_assert(L);
-	return lua_State_To_LuaState(L)->LessThan(*this, right) != 0;
+	return lua_State_to_LuaState(L)->LessThan(*this, right) != 0;
 }
 
 	
@@ -1310,7 +1310,7 @@ inline bool LuaObject::operator<(const LuaObject& right) const
 **/
 inline LuaState* LuaObject::GetState() const
 {
-	return lua_State_To_LuaState(L);
+	return lua_State_to_LuaState(L);
 }
 
 

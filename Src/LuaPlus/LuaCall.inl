@@ -75,7 +75,7 @@ LUAPLUS_INLINE LuaCall& operator<<(LuaCall& call, lua_CFunction value) {
 }
 
 LUAPLUS_INLINE LuaCall& operator<<(LuaCall& call, int (*value)(LuaState*)) {
-	LuaState* state = lua_State_To_LuaState(call.L);
+	LuaState* state = lua_State_to_LuaState(call.L);
 	state->PushCClosure(value, 0);
 	++call.numArgs;
 	return call;
@@ -108,7 +108,7 @@ LUAPLUS_INLINE LuaCall& operator<<(LuaCall& call, LuaObject& value) {
 }
 
 LUAPLUS_INLINE LuaStackObject LuaCall::operator<<(const LuaRun& run) {
-	LuaState* state = lua_State_To_LuaState(L);
+	LuaState* state = lua_State_to_LuaState(L);
     int resultsStackPos = lua_gettop(L) - numArgs;
 	int err = lua_pcall(L, numArgs, run.numResults, run.alertStackPos);
 	if (err != 0) {

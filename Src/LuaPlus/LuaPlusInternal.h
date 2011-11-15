@@ -64,6 +64,6 @@ struct LuaArgNil {};
 #endif
 
 #define LuaState_to_lua_State(state) ((lua_State*)(state))
-#define lua_State_To_LuaState(L) ((LuaPlus::LuaState*)L)
+#define lua_State_to_LuaState(L) ((LuaPlus::LuaState*)L)
 
 #endif // LUAPLUS__LUAPLUSINTERNAL_H

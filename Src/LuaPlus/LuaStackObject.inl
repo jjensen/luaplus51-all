@@ -48,7 +48,7 @@ LUAPLUS_INLINE bool LuaStackObject::operator==(const LuaStackObject& right) cons
 **/
 LUAPLUS_INLINE LuaState* LuaStackObject::GetState() const
 {
-	return lua_State_To_LuaState( L );
+	return lua_State_to_LuaState( L );
 }
 
 

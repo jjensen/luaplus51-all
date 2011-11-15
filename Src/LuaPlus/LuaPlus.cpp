@@ -103,7 +103,7 @@ LuaException::~LuaException()
 {
 	lua_State* L = lua_newstate(luaHelper_defaultAlloc, luaHelper_ud);
 	lua_atpanic(L, LuaState_FatalError);
-	return lua_State_To_LuaState(L);
+	return lua_State_to_LuaState(L);
 }
 
 
