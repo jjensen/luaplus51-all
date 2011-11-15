@@ -1905,6 +1905,17 @@ namespace LPCD
 		return NULL;
 	}
 
+	inline void* GetInPlaceObjectUserdata(lua_State* L)
+	{
+		int type = lua_type(L, 1);
+		if (type == LUA_TUSERDATA)
+			return lua_touserdata(L, 1);
+		else
+			luaL_argerror(L, 1, "must be an in-place userdata");
+
+		return NULL;
+	}
+
 	template <typename Callee>
 	class Object_MemberDispatcherHelper
 	{
@@ -1931,60 +1942,67 @@ namespace LPCD
 		}
 	};
 
-	inline int PropertyMetaTable_newindex(lua_State* L)
+	template <typename Callee, typename Func, int startIndex>
+	class DirectCallInPlaceObjectMemberDispatcherHelper
 	{
-													// t k v
-		lua_getmetatable(L, 1);						// t k v m
-		lua_pushstring(L, "__props");				// t k v m p
-		lua_rawget(L, -2);							// t k v m pt
-		if (lua_istable(L, -1))
-		{
-			lua_pushvalue(L, 2);					// t k v m pt k
-			lua_rawget(L, -2);						// t k v m pt prop
-			if (lua_isnil(L, -1))
+	public:
+		static inline int DirectCallMemberDispatcher(lua_State* L)
 			{
-				luaL_argerror(L, 1, "The property is not available.");
+ 			unsigned char* buffer = GetFirstUpValueAsUserdata(L);
+			Callee& callee = *(Callee*)GetInPlaceObjectUserdata(L);
+			return Call(callee, *(Func*)buffer, L, startIndex);
 			}
+	};
 
-			lua_rawgeti(L, -1, 2);					// t k v m pt prop setf
-			lua_pushvalue(L, 1);					// t k v m pt prop setf t
-			lua_pushvalue(L, 3);					// t k v m pt prop setf t v
-			lua_call(L, 2, 1);
-			return 1;
+	inline int PropertyMetatable_newindex(lua_State* L)
+	{
+													// table key value
+		lua_pushvalue(L, 2);						// table key value key
+		lua_rawget(L, lua_upvalueindex(2));			// table key value property
+		if (lua_isfunction(L, -1)) {
+			lua_CFunction f = lua_tocfunction(L, -1);
+			lua_getupvalue(L, -1, 1);				// table key value property offset
+			lua_remove(L, -2);						// table key value offset
+			return f(L);
 		}
 
+		luaL_argerror(L, 1, "The property is not available.");
 		return 0;
 	}
 
 	// function gettable_event (table, key)
-	inline int PropertyMetaTable_index(lua_State* L)
+	inline int PropertyMetatable_index(lua_State* L)
 	{
-													// t v
-		lua_getmetatable(L, 1);						// t v m
-		lua_pushvalue(L, 2);						// t v m v
-		lua_rawget(L, -2);							// t v m lookup
+													// table key
+		lua_pushvalue(L, 2);						// table key key
+		lua_rawget(L, lua_upvalueindex(2));			// table key property
+		if (lua_isfunction(L, -1)) {
+			lua_CFunction f = lua_tocfunction(L, -1);
+			lua_getupvalue(L, -1, 1);				// table key property offset
+			lua_remove(L, -2);						// table key offset
+			return f(L);
+		}
+
+		int type = lua_type(L, lua_upvalueindex(1));
+		if (type == LUA_TTABLE) {
+			lua_pushvalue(L, 2);					// table key key
+			lua_gettable(L, lua_upvalueindex(1));	// table key value
 		if (!lua_isnil(L, -1))
 			return 1;
-
-		lua_pop(L, 1);								// t v m
-		lua_pushstring(L, "__props");				// t k v m __props
-		lua_rawget(L, -2);							// t k v m pt
-
-		if (lua_istable(L, -1))
-		{
-			lua_pushvalue(L, 2);					// t k v m pt k
-			lua_rawget(L, -2);						// t k v m pt prop
-			if (lua_isnil(L, -1))
-			{
-				luaL_argerror(L, 1, "The property is not available.");
-			}
-
-			lua_rawgeti(L, -1, 1);					// t k v m pt prop getf
-			lua_pushvalue(L, 1);					// t k v m pt prop getf t
+			lua_pop(L, 1);							// table key
+		} else if (type == LUA_TFUNCTION) {
+			lua_pushvalue(L, lua_upvalueindex(1));	// t v f
+			lua_pushvalue(L, 1);					// t v f t
+			lua_pushvalue(L, 2);					// t v f t v
 			lua_call(L, 1, 1);
 			return 1;
 		}
 
+		lua_pushstring(L, "The property [");
+		lua_pushvalue(L, 2);
+		lua_pushstring(L, "] is unknown.");
+		lua_concat(L, 3);
+		luaL_argerror(L, 1, lua_tostring(L, -1));
 		return 0;
 	}
 
@@ -1994,26 +2012,47 @@ namespace LPCD
 	public:
 		static int PropertyGet(lua_State* L)
 		{
-			void* offset = lua_touserdata(L, lua_upvalueindex(1));
-
 			Object* obj = (Object*)LPCD::GetObjectUserdata(L);
+			void* offset = lua_touserdata(L, 3);
 			LPCD::Push(L, *(VarType*)((unsigned char*)obj + (unsigned int)offset));
-
 			return 1;
 		}
 
 		static int PropertySet(lua_State* L)
 		{
-			void* offset = lua_touserdata(L, lua_upvalueindex(1));
-
 			Object* obj = (Object*)LPCD::GetObjectUserdata(L);
+			void* offset = lua_touserdata(L, 4);
 
-			if (!Match(TypeWrapper<VarType>(), L, 2))
-				luaL_argerror(L, 2, "bad argument");
+			if (!Match(TypeWrapper<VarType>(), L, 3))
+				luaL_argerror(L, 3, "bad argument");
 
-			*(VarType*)((unsigned char*)obj + (unsigned int)offset) = Get(TypeWrapper<VarType>(), L, 2);
+			*(VarType*)((unsigned char*)obj + (unsigned int)offset) = Get(TypeWrapper<VarType>(), L, 3);
+			return 0;
+		}
+	};
 
+	template <typename Object, typename VarType>
+	class InPlacePropertyMemberHelper
+	{
+	public:
+		static int PropertyGet(lua_State* L)
+		{
+			Object* obj = (Object*)LPCD::GetInPlaceObjectUserdata(L);
+			void* offset = lua_touserdata(L, 3);
+			LPCD::Push(L, *(VarType*)((unsigned char*)obj + (unsigned int)offset));
 			return 1;
+		}
+
+		static int PropertySet(lua_State* L)
+		{
+			Object* obj = (Object*)LPCD::GetInPlaceObjectUserdata(L);
+			void* offset = lua_touserdata(L, 4);
+
+			if (!Match(TypeWrapper<VarType>(), L, 3))
+				luaL_argerror(L, 3, "bad argument");
+
+			*(VarType*)((unsigned char*)obj + (unsigned int)offset) = Get(TypeWrapper<VarType>(), L, 3);
+			return 0;
 		}
 	};
 
@@ -2076,6 +2115,22 @@ inline void lpcd_pushmemberpropertysetclosure(lua_State* L, VarType Object::* va
 {
 	lua_pushlightuserdata(L, (void*)&(((Object*)0)->*var));
 	lua_pushcclosure(L, &LPCD::PropertyMemberHelper<Object, VarType>::PropertySet, 1);
+}
+
+
+template <typename Object, typename VarType>
+inline void lpcd_pushmemberinplacepropertygetclosure(lua_State* L, VarType Object::* var)
+{
+	lua_pushlightuserdata(L, (void*)&(((Object*)0)->*var));
+	lua_pushcclosure(L, &LPCD::InPlacePropertyMemberHelper<Object, VarType>::PropertyGet, 1);
+}
+
+
+template <typename Object, typename VarType>
+inline void lpcd_pushmemberinplacepropertysetclosure(lua_State* L, VarType Object::* var)
+{
+	lua_pushlightuserdata(L, (void*)&(((Object*)0)->*var));
+	lua_pushcclosure(L, &LPCD::InPlacePropertyMemberHelper<Object, VarType>::PropertySet, 1);
 }
 
 
