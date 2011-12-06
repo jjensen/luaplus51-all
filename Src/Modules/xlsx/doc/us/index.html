@@ -1,0 +1,247 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<title>xlsx</title>
+    <link rel="stylesheet" href="doc.css" type="text/css"/>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+</head>
+
+<body>
+
+<div id="container">
+
+<div id="product">
+
+	<div id="product_name"><big><strong>xlsx</strong></big></div>
+	<div id="product_description">Read/write xlsx files</div>
+</div> <!-- id="product" -->
+
+<div id="main">
+
+<div id="navigation">
+<h1>xlsx</h1>
+	<ul>
+
+		<li><strong>Home</strong>
+			<ul>
+                            
+			</ul>
+		</li>
+
+		<li><a href="license.html">License</a>
+			<ul>
+                            
+			</ul>
+		</li>
+
+	</ul>
+</div> <!-- id="navigation" -->
+
+<div id="content">
+
+
+<h2>Introduction</h2>
+
+<p>The module <em>xlsx</em> allows read and write access to .xlsx files.</p>
+
+
+
+<h2>Example</h2>
+
+
+<pre>
+    require 'xlsx'
+
+    local workbook = xlsx.Workbook(filename)
+</pre>
+
+
+
+
+<hr/>
+<h2>xlsx Reference</h2>
+
+<h3>workbook = xlsx.Workbook([filename])</h3>
+
+<p>Creates or opens a Workbook object.  Returns a Workbook object.</p>
+
+<ul>
+    <li><code>filename</code> is the name of the .xlsx file to open.</li>
+</ul>
+
+
+
+
+<hr/>
+<h2>Workbook Reference</h2>
+
+<h3>totalWorksheets = #workbook</h3>
+
+<p>Returns the total number of Excel worksheets in the current Excel workbook.</p>
+
+
+
+<h3>worksheet = workbook[sheetIndex | name]</h3>
+
+<p>Returns an object representing the Excel worksheet specified by <code>sheetIndex</code> or <code>name</code>.  If no worksheet is found with the given <code>sheetIndex</code> or <code>name</code>, then <code>nil</code> is returned.</p>
+
+<ul>
+    <li><code>sheetIndex</code> is an index in the range of 1 &lt;= <code>sheetIndex</code> &lt;= <code>GetTotalWorksheets</code> representing the sheet to retrieve.</li>
+    <li><code>name</code> is a string representing the sheet name to retrieve.</li>
+</ul>
+
+
+
+<h3>workbook:Close()</h3>
+
+<p>Closes the current Excel workbook.</p>
+
+
+
+
+<h3>totalWorksheets = workbook:GetTotalWorksheets()</h3>
+
+<p>Returns the total number of Excel worksheets in the current Excel workbook.</p>
+
+
+
+
+<h3>worksheet = workbook:GetWorksheet(sheetIndex | name)</h3>
+
+<p>Returns an object representing the Excel worksheet specified by <code>sheetIndex</code> or <code>name</code>.  If no worksheet is found with the given <code>sheetIndex</code> or <code>name</code>, then <code>GetWorksheet</code> returns <code>nil</code>.</p>
+
+<ul>
+    <li><code>sheetIndex</code> is an index in the range of 0 &lt;= <code>sheetIndex</code> &lt; <code>GetTotalWorksheets()</code> representing the sheet to retrieve.</li>
+    <li><code>name</code> is either a string or an xls.wchar representing the sheet name to retrieve.</li>
+</ul>
+
+
+
+
+<h3>sheetName = workbook:GetSheetName(sheetIndex)</h3>
+
+<p>Returns either the name of the sheet.</p>
+
+<ul>
+    <li><code>sheetIndex</code> is an index in the range of 1 &lt;= <code>sheetIndex</code> &lt;= <code>GetTotalWorksheets()</code> representing the worksheet to delete.</li>
+</ul>
+
+
+
+
+<hr/>
+<h2>Worksheet Reference</h2>
+
+<h3>sheetName = worksheet:GetSheetName()</h3>
+
+<p>Returns the name of the sheet.</p>
+
+
+
+
+<h3>totalRows = worksheet:GetTotalRows()</h3>
+
+<p>Returns the total number of rows in the Excel worksheet.</p>
+
+
+
+
+<h3>totalColumns = worksheet:GetTotalCols()</h3>
+
+<p>Returns the total number of columns in the Excel worksheet.</p>
+
+
+
+<h3>cell = worksheet:Cell(row, col)</h3>
+
+<p>Retrieves the contents of a cell from the Excel worksheet.</p>
+
+<p>Returns the cell if the operation succeeded, <code>nil</code> if either the row or column are not in range.</p>
+
+<ul>
+    <li><code>row</code> is a value from 0 to 65535, representing the row in the Excel worksheet to retrieve.</li>
+    <li><code>col</code> is a value from 0 to 255, representing the column in the Excel worksheet to retrieve.</li>
+</ul>
+
+
+
+
+<h3>cell = worksheet.COLROW</h3>
+
+<p>Retrieves the contents of a cell from the Excel worksheet.</p>
+
+<p>Returns the cell if the operation succeeded, <code>nil</code> if either the row or column are not in range.</p>
+
+<ul>
+    <li><code>COLROW</code> is a column and row in Excel format, such as A4 or BD12.</li>
+</ul>
+
+
+
+
+
+<hr/>
+<h2>Cell Reference</h2>
+
+<h3>cellType = cell:Type()</h3>
+
+<p>Returns one of the following as the type of this Excel cell.</p>
+
+<ul>
+    <li><code>cell.UNDEFINED</code></li>
+    <li><code>cell.INT</code></li>
+    <li><code>cell.DOUBLE</code></li>
+    <li><code>cell.STRING</code></li>
+    <li><code>cell.WSTRING</code></li>
+    <li><code>cell.FORMULA</code></li>
+</ul>
+
+
+
+<h3>cellContent = cell.value</h3>
+
+<p>Returns the raw value of the cell.</p>
+
+
+
+
+<h3>cellContent = cell:Get()</h3>
+
+<p>If the type of the cell is <code>cell.INT</code> or <code>cell.DOUBLE</code>, the integer or double content of the cell is returned as a Lua number.  If the type of the cell is <code>cell.STRING</code>, the ANSI string content of the cell is returned as a Lua string.  If the type of the cell is <code>cell.WSTRING</code>, the Unicode string content of the cell are returned as an <code>xls.wchar</code>.  Otherwise, <code>nil</code> is returned.</p>
+
+
+
+<h3>cellContent = cell:GetInteger()</h3>
+
+<p>If the type of the cell is <code>cell.INT</code>, the integer content of the cell is returned as a Lua number.  Otherwise, <code>nil</code> is returned.</p>
+
+
+
+<h3>cellContent = cell:GetDouble()</h3>
+
+<p>If the type of the cell is <code>cell.DOUBLE</code>, the double content of the cell is returned as a Lua number.  Otherwise, <code>nil</code> is returned.</p>
+
+
+
+<h3>cellContent = cell:GetString()</h3>
+
+<p>If the type of the cell is <code>cell.STRING</code>, the ANSI string content of the cell is returned as a Lua string.  Otherwise, <code>nil</code> is returned.</p>
+
+
+
+
+</div> <!-- id="content" -->
+
+</div> <!-- id="main" -->
+
+<div id="about">
+	<p><a href="http://validator.w3.org/check?uri=referer">Valid XHTML 1.0!</a></p>
+</div> <!-- id="about" -->
+
+</div> <!-- id="container" -->
+
+</body>
+</html>
+
