@@ -492,7 +492,7 @@ public:
 
 template <typename T>
 inline LuaObject& LuaObject::SetNil(const T& key) {
-	luaplus_assert(L  &&  IsTable());
+	luaplus_assert(L);
 	LUA_FASTREF_PUSH();
 	LPCD::Push(L, key);
 	lua_pushnil(L);
@@ -503,7 +503,7 @@ inline LuaObject& LuaObject::SetNil(const T& key) {
 
 template <typename KeyT, typename ValueT>
 LuaObject& LuaObject::Set(const KeyT& key, const ValueT& value) {
-	luaplus_assert(L  &&  IsTable());
+	luaplus_assert(L);
 	LUA_FASTREF_PUSH();
 	LPCD::Push(L, key);
 	LPCD::Push(L, value);
@@ -514,7 +514,7 @@ LuaObject& LuaObject::Set(const KeyT& key, const ValueT& value) {
 
 template <typename KeyT, typename ValueT>
 LuaObject& LuaObject::Set(const KeyT& key, const ValueT& value, int len) {
-	luaplus_assert(L  &&  IsTable());
+	luaplus_assert(L);
 	LUA_FASTREF_PUSH();
 	LPCD::Push(L, key);
 	LPCD::Push(L, value, len);
@@ -525,7 +525,7 @@ LuaObject& LuaObject::Set(const KeyT& key, const ValueT& value, int len) {
 
 template <typename KeyT>
 LuaObject& LuaObject::RawSetNil(const KeyT& key) {
-	luaplus_assert(L  &&  IsTable());
+	luaplus_assert(L);
 	LUA_FASTREF_PUSH();
 	LPCD::Push(L, key);
 	lua_pushnil(L);
@@ -536,7 +536,7 @@ LuaObject& LuaObject::RawSetNil(const KeyT& key) {
 
 template <typename KeyT, typename ValueT>
 LuaObject& LuaObject::RawSet(const KeyT& key, const ValueT& value) {
-	luaplus_assert(L  &&  IsTable());
+	luaplus_assert(L);
 	LUA_FASTREF_PUSH();
 	LPCD::Push(L, key);
 	LPCD::Push(L, value);
@@ -547,7 +547,7 @@ LuaObject& LuaObject::RawSet(const KeyT& key, const ValueT& value) {
 
 template <typename KeyT, typename ValueT>
 LuaObject& LuaObject::RawSet(const KeyT& key, const ValueT& value, int len) {
-	luaplus_assert(L  &&  IsTable());
+	luaplus_assert(L);
 	LUA_FASTREF_PUSH();
 	LPCD::Push(L, key);
 	LPCD::Push(L, value, len);

@@ -670,7 +670,7 @@ inline LuaObject LuaObject::operator[](const LuaStackObject& key) const {
 
 
 inline LuaObject LuaObject::Get(const char* key) const {
-	luaplus_assert(L  &&  IsTable());
+	luaplus_assert(L);
 	LUA_FASTREF_PUSH();					// (table)
 	lua_pushstring(L, key);				// (table) key
 	lua_gettable(L, LUA_FASTREF_REF_2);	// (table) value
@@ -679,7 +679,7 @@ inline LuaObject LuaObject::Get(const char* key) const {
 
 
 inline LuaObject LuaObject::Get(int key) const {
-	luaplus_assert(L  &&  IsTable());
+	luaplus_assert(L);
 	LUA_FASTREF_PUSH();					// (table)
 	lua_pushinteger(L, key);			// (table) key
 	lua_gettable(L, LUA_FASTREF_REF_2);	// (table) value
@@ -687,7 +687,7 @@ inline LuaObject LuaObject::Get(int key) const {
 }
 
 inline LuaObject LuaObject::Get(const LuaObject& key) const {
-	luaplus_assert(L  &&  IsTable());
+	luaplus_assert(L);
 	LUA_FASTREF_PUSH();					// (table)
 	lua_getfastref(L, key.ref);			// (table) key
 	lua_gettable(L, LUA_FASTREF_REF_2);	// (table) value
@@ -696,7 +696,7 @@ inline LuaObject LuaObject::Get(const LuaObject& key) const {
 
 
 inline LuaObject LuaObject::Get(const LuaStackObject& key) const {
-	luaplus_assert(L  &&  IsTable());
+	luaplus_assert(L);
 	LUA_FASTREF_PUSH();					// (table)
 	lua_pushvalue(L, key.m_stackIndex);	// (table) key
 	lua_gettable(L, LUA_FASTREF_REF_2);	// (table) table
@@ -744,7 +744,7 @@ inline LuaObject LuaObject::RawGet(const LuaStackObject& key) const {
 
 
 inline LuaObject LuaObject::RawGetByName(const char* key) const {
-	luaplus_assert(L  &&  IsTable());
+	luaplus_assert(L);
 	LUA_FASTREF_PUSH();					// (table)
 	lua_pushstring(L, key);				// (table) key
 	lua_rawget(L, LUA_FASTREF_REF_2);	// (table) value
@@ -752,14 +752,14 @@ inline LuaObject LuaObject::RawGetByName(const char* key) const {
 }
 
 inline LuaObject LuaObject::RawGetByIndex(int key) const {
-	luaplus_assert(L  &&  IsTable());
+	luaplus_assert(L);
 	LUA_FASTREF_PUSH();					// (table)
 	lua_rawgeti(L, LUA_FASTREF_REF_1, key);		// (table) value
 	return LuaObject(L, lua_fastref(L), true);
 }
 
 inline LuaObject LuaObject::RawGetByObject(const LuaObject& key) const {
-	luaplus_assert(L  &&  IsTable());
+	luaplus_assert(L);
 	LUA_FASTREF_PUSH();					// (table)
 	lua_getfastref(L, key.ref);			// (table) key
 	lua_rawget(L, LUA_FASTREF_REF_2);	// (table) value
@@ -768,7 +768,7 @@ inline LuaObject LuaObject::RawGetByObject(const LuaObject& key) const {
 
 
 inline LuaObject LuaObject::RawGetByObject(const LuaStackObject& key) const {
-	luaplus_assert(L  &&  IsTable());
+	luaplus_assert(L);
 	LUA_FASTREF_PUSH();					// (table)
 	lua_pushvalue(L, key.m_stackIndex);	// (table) key
 	lua_rawget(L, LUA_FASTREF_REF_2);	// (table) value
@@ -899,7 +899,7 @@ inline LuaObject& LuaObject::SetObject(LuaObject& key, LuaObject& value) {
 
 
 inline LuaObject& LuaObject::RawSetBoolean(const char* key, bool value) {
-	luaplus_assert(L&&  IsTable());
+	luaplus_assert(L);
 	LUA_FASTREF_PUSH();					// (table)
 	lua_pushstring(L, key);
 	lua_pushboolean(L, value);
@@ -909,7 +909,7 @@ inline LuaObject& LuaObject::RawSetBoolean(const char* key, bool value) {
 
 
 inline LuaObject& LuaObject::RawSetBoolean(int key, bool value) {
-	luaplus_assert(L  &&  IsTable());
+	luaplus_assert(L);
 	LUA_FASTREF_PUSH();					// (table)
 	lua_pushboolean(L, value);
 	lua_rawseti(L, LUA_FASTREF_REF_2, key);
@@ -918,7 +918,7 @@ inline LuaObject& LuaObject::RawSetBoolean(int key, bool value) {
 
 
 inline LuaObject& LuaObject::RawSetBoolean(LuaObject& key, bool value) {
-	luaplus_assert(L  &&  IsTable());
+	luaplus_assert(L);
 	LUA_FASTREF_PUSH();					// (table)
 	lua_getfastref(L, key.ref);
 	lua_pushboolean(L, value);
@@ -928,7 +928,7 @@ inline LuaObject& LuaObject::RawSetBoolean(LuaObject& key, bool value) {
 
 
 inline LuaObject& LuaObject::RawSetInteger(const char* key, int value) {
-	luaplus_assert(L&&  IsTable());
+	luaplus_assert(L);
 	LUA_FASTREF_PUSH();					// (table)
 	lua_pushstring(L, key);
 	lua_pushinteger(L, value);
@@ -938,7 +938,7 @@ inline LuaObject& LuaObject::RawSetInteger(const char* key, int value) {
 
 
 inline LuaObject& LuaObject::RawSetInteger(int key, int value) {
-	luaplus_assert(L  &&  IsTable());
+	luaplus_assert(L);
 	LUA_FASTREF_PUSH();					// (table)
 	lua_pushinteger(L, value);
 	lua_rawseti(L, LUA_FASTREF_REF_2, key);
@@ -947,7 +947,7 @@ inline LuaObject& LuaObject::RawSetInteger(int key, int value) {
 
 
 inline LuaObject& LuaObject::RawSetInteger(LuaObject& key, int value) {
-	luaplus_assert(L  &&  IsTable());
+	luaplus_assert(L);
 	LUA_FASTREF_PUSH();					// (table)
 	lua_getfastref(L, key.ref);
 	lua_pushinteger(L, value);
@@ -957,7 +957,7 @@ inline LuaObject& LuaObject::RawSetInteger(LuaObject& key, int value) {
 
 
 inline LuaObject& LuaObject::RawSetNumber(const char* key, lua_Number value) {
-	luaplus_assert(L&&  IsTable());
+	luaplus_assert(L);
 	LUA_FASTREF_PUSH();					// (table)
 	lua_pushstring(L, key);
 	lua_pushnumber(L, value);
@@ -967,7 +967,7 @@ inline LuaObject& LuaObject::RawSetNumber(const char* key, lua_Number value) {
 
 
 inline LuaObject& LuaObject::RawSetNumber(int key, lua_Number value) {
-	luaplus_assert(L  &&  IsTable());
+	luaplus_assert(L);
 	LUA_FASTREF_PUSH();					// (table)
 	lua_pushnumber(L, value);
 	lua_rawseti(L, LUA_FASTREF_REF_2, key);
@@ -976,7 +976,7 @@ inline LuaObject& LuaObject::RawSetNumber(int key, lua_Number value) {
 
 
 inline LuaObject& LuaObject::RawSetNumber(LuaObject& key, lua_Number value) {
-	luaplus_assert(L  &&  IsTable());
+	luaplus_assert(L);
 	LUA_FASTREF_PUSH();					// (table)
 	lua_getfastref(L, key.ref);
 	lua_pushnumber(L, value);
@@ -986,7 +986,7 @@ inline LuaObject& LuaObject::RawSetNumber(LuaObject& key, lua_Number value) {
 
 
 inline LuaObject& LuaObject::RawSetString(const char* key, const char* value, int len) {
-	luaplus_assert(L&&  IsTable());
+	luaplus_assert(L);
 	LUA_FASTREF_PUSH();					// (table)
 	lua_pushstring(L, key);
 	lua_pushlstring(L, value, len == -1 ? strlen(value) : len);
@@ -996,7 +996,7 @@ inline LuaObject& LuaObject::RawSetString(const char* key, const char* value, in
 
 
 inline LuaObject& LuaObject::RawSetString(int key, const char* value, int len) {
-	luaplus_assert(L  &&  IsTable());
+	luaplus_assert(L);
 	LUA_FASTREF_PUSH();					// (table)
 	lua_pushlstring(L, value, len == -1 ? strlen(value) : len);
 	lua_rawseti(L, LUA_FASTREF_REF_2, key);
@@ -1005,7 +1005,7 @@ inline LuaObject& LuaObject::RawSetString(int key, const char* value, int len) {
 
 
 inline LuaObject& LuaObject::RawSetString(LuaObject& key, const char* value, int len) {
-	luaplus_assert(L  &&  IsTable());
+	luaplus_assert(L);
 	LUA_FASTREF_PUSH();					// (table)
 	lua_getfastref(L, key.ref);
 	lua_pushlstring(L, value, len == -1 ? strlen(value) : len);
@@ -1016,7 +1016,7 @@ inline LuaObject& LuaObject::RawSetString(LuaObject& key, const char* value, int
 
 #if LUA_WIDESTRING
 inline LuaObject& LuaObject::RawSetWString(const char* key, const lua_WChar* value, int len) {
-	luaplus_assert(L&&  IsTable());
+	luaplus_assert(L);
 	LUA_FASTREF_PUSH();					// (table)
 	lua_pushstring(L, key);
 	lua_pushlwstring(L, value, len == -1 ? lua_WChar_len(value) : len);
@@ -1026,7 +1026,7 @@ inline LuaObject& LuaObject::RawSetWString(const char* key, const lua_WChar* val
 
 
 inline LuaObject& LuaObject::RawSetWString(int key, const lua_WChar* value, int len) {
-	luaplus_assert(L  &&  IsTable());
+	luaplus_assert(L);
 	LUA_FASTREF_PUSH();					// (table)
 	lua_pushlwstring(L, value, len == -1 ? lua_WChar_len(value) : len);
 	lua_rawseti(L, LUA_FASTREF_REF_2, key);
@@ -1035,7 +1035,7 @@ inline LuaObject& LuaObject::RawSetWString(int key, const lua_WChar* value, int 
 
 
 inline LuaObject& LuaObject::RawSetWString(LuaObject& key, const lua_WChar* value, int len) {
-	luaplus_assert(L  &&  IsTable());
+	luaplus_assert(L);
 	LUA_FASTREF_PUSH();					// (table)
 	lua_getfastref(L, key.ref);
 	lua_pushlwstring(L, value, len == -1 ? lua_WChar_len(value) : len);
@@ -1046,7 +1046,7 @@ inline LuaObject& LuaObject::RawSetWString(LuaObject& key, const lua_WChar* valu
 
 
 inline LuaObject& LuaObject::RawSetUserdata(const char* key, void* value) {
-	luaplus_assert(L&&  IsTable());
+	luaplus_assert(L);
 	LUA_FASTREF_PUSH();					// (table)
 	lua_pushstring(L, key);
 	lua_pushlightuserdata(L, value);
@@ -1056,7 +1056,7 @@ inline LuaObject& LuaObject::RawSetUserdata(const char* key, void* value) {
 
 
 inline LuaObject& LuaObject::RawSetUserdata(int key, void* value) {
-	luaplus_assert(L  &&  IsTable());
+	luaplus_assert(L);
 	LUA_FASTREF_PUSH();					// (table)
 	lua_pushlightuserdata(L, value);
 	lua_rawseti(L, LUA_FASTREF_REF_2, key);
@@ -1064,7 +1064,7 @@ inline LuaObject& LuaObject::RawSetUserdata(int key, void* value) {
 
 
 inline LuaObject& LuaObject::RawSetUserdata(LuaObject& key, void* value) {
-	luaplus_assert(L  &&  IsTable());
+	luaplus_assert(L);
 	LUA_FASTREF_PUSH();					// (table)
 	lua_getfastref(L, key.ref);
 	lua_pushlightuserdata(L, value);
@@ -1074,7 +1074,7 @@ inline LuaObject& LuaObject::RawSetUserdata(LuaObject& key, void* value) {
 
 
 inline LuaObject& LuaObject::RawSetLightUserdata(const char* key, void* value) {
-	luaplus_assert(L&&  IsTable());
+	luaplus_assert(L);
 	LUA_FASTREF_PUSH();					// (table)
 	lua_pushstring(L, key);
 	lua_pushlightuserdata(L, value);
@@ -1084,7 +1084,7 @@ inline LuaObject& LuaObject::RawSetLightUserdata(const char* key, void* value) {
 
 
 inline LuaObject& LuaObject::RawSetLightUserdata(int key, void* value) {
-	luaplus_assert(L  &&  IsTable());
+	luaplus_assert(L);
 	LUA_FASTREF_PUSH();					// (table)
 	lua_pushlightuserdata(L, value);
 	lua_rawseti(L, LUA_FASTREF_REF_2, key);
@@ -1092,7 +1092,7 @@ inline LuaObject& LuaObject::RawSetLightUserdata(int key, void* value) {
 
 
 inline LuaObject& LuaObject::RawSetLightUserdata(LuaObject& key, void* value) {
-	luaplus_assert(L  &&  IsTable());
+	luaplus_assert(L);
 	LUA_FASTREF_PUSH();					// (table)
 	lua_getfastref(L, key.ref);
 	lua_pushlightuserdata(L, value);
@@ -1102,7 +1102,7 @@ inline LuaObject& LuaObject::RawSetLightUserdata(LuaObject& key, void* value) {
 
 
 inline LuaObject& LuaObject::RawSetObject(const char* key, LuaObject& value) {
-	luaplus_assert(L&&  IsTable());
+	luaplus_assert(L);
 	LUA_FASTREF_PUSH();					// (table)
 	lua_pushstring(L, key);
 	lua_pushvalue(L, value.GetRef());
@@ -1112,7 +1112,7 @@ inline LuaObject& LuaObject::RawSetObject(const char* key, LuaObject& value) {
 
 
 inline LuaObject& LuaObject::RawSetObject(int key, LuaObject& value) {
-	luaplus_assert(L  &&  IsTable());
+	luaplus_assert(L);
 	LUA_FASTREF_PUSH();					// (table)
 	lua_pushvalue(L, value.GetRef());
 	lua_rawseti(L, LUA_FASTREF_REF_2, key);
@@ -1120,7 +1120,7 @@ inline LuaObject& LuaObject::RawSetObject(int key, LuaObject& value) {
 
 
 inline LuaObject& LuaObject::RawSetObject(LuaObject& key, LuaObject& value) {
-	luaplus_assert(L  &&  IsTable());
+	luaplus_assert(L);
 	LUA_FASTREF_PUSH();					// (table)
 	lua_getfastref(L, key.ref);
 	lua_getfastref(L, value.ref);
