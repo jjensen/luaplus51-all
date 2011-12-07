@@ -12,8 +12,10 @@
 
 #include "LuaPlusInternal.h"
 
+extern "C" {
 LUALIB_API lua_Integer (luaL_checkboolean) (lua_State *L, int narg);
 LUALIB_API lua_Integer (luaL_optboolean) (lua_State *L, int narg, int def);
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 // namespace LuaPlus
