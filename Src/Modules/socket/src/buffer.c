@@ -159,7 +159,7 @@ int buffer_isempty(p_buffer buf) {
 /*-------------------------------------------------------------------------*\
 * Sends a block of data (unbuffered)
 \*-------------------------------------------------------------------------*/
-#define STEPSIZE 8192
+#define STEPSIZE (32*1024)
 static int sendraw(p_buffer buf, const char *data, size_t count, size_t *sent) {
     p_io io = buf->io;
     p_timeout tm = buf->tm;
