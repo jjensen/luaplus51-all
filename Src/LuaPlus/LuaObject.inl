@@ -1281,6 +1281,8 @@ inline LuaObject& LuaObject::RegisterHelper(const char* funcName, lua_CFunction 
 	int top = lua_gettop(L);
 #endif // !LUA_FASTREF_SUPPORT
 
+	lua_pushstring(L, funcName);
+
 	if (sizeofFunc != 0)
 	{
 		unsigned char* buffer = (unsigned char*)lua_newuserdata(L, sizeofCallee + sizeofFunc);
@@ -1298,9 +1300,9 @@ inline LuaObject& LuaObject::RegisterHelper(const char* funcName, lua_CFunction 
 
 	lua_pushcclosure(L, (lua_CFunction)function, nupvalues);
 #if LUA_FASTREF_SUPPORT
-	lua_setfield(L, ref, funcName);
+	lua_rawset(L, ref);
 #else
-	lua_setfield(L, top, funcName);
+	lua_rawset(L, top);
 #endif // LUA_FASTREF_SUPPORT
 
 	return *this;
