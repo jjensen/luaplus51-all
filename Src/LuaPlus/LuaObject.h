@@ -345,34 +345,47 @@ namespace LPCD {
 	inline LuaPlus::LuaObject Get(TypeWrapper<LuaPlus::LuaObject>, lua_State* L, int idx)
 		{  return LuaObject(lua_State_to_LuaState(L), idx);  }
 
+	inline LuaPlus::LuaObject PropertyMetatable_GetFunctions(LuaPlus::LuaObject& metatableObj) {
+		lua_State* L = metatableObj.GetCState();
+		metatableObj.Push();							// metatable
+		lua_getfield(L, -1, "__index");					// metatable __index
+		lua_getupvalue(L, -1, 1);						// metatable __index props__functions
+		LuaPlus::LuaObject retObj(L, true);
+		lua_pop(L, 2);
+		return retObj;
+	}
+
 	template <typename Object, typename VarType>
 	inline void PropertyCreate(LuaPlus::LuaObject& metatableObj, const char* varName, VarType Object::* var, bool read = true, bool write = true) {
 		lua_State* L = metatableObj.GetCState();
 		metatableObj.Push();							// metatable
-		lua_rawget(L, LUA_REGISTRYINDEX);				// props
 
-		lua_pushstring(L, varName);						// props varName
-
-		lua_rawgeti(L, -2, 3);							// props varName inPlace
-		bool inPlace = lua_toboolean(L, -1) != 0;
-		lua_pop(L, 1);									// props varName
+		lua_pushstring(L, varName);						// metatable varName
 
 		if (read) {
-			lua_rawgeti(L, -2, 1);						// props varName props__index
-			lua_pushvalue(L, -2);						// props varName props__index varName
+			lua_getfield(L, -2, "__index");				// metatable varName __index
+			lua_getupvalue(L, -1, 1);					// metatable varName __index functions
+			lua_getupvalue(L, -2, 2);					// metatable varName __index functions inPlace
+			bool inPlace = lua_toboolean(L, -1) != 0;
+			lua_pop(L, 1);								// metatable varName __index functions
+			lua_pushvalue(L, -3);						// metatable varName __index functions varName
 			inPlace ? lpcd_pushmemberinplacepropertygetclosure(L, var) : lpcd_pushmemberpropertygetclosure(L, var);
-														// props varName props__index varName closure
-			lua_rawset(L, -3);							// props varName props__index
-			lua_pop(L, 1);								// props varName
+														// metatable varName __index functions varName closure
+			lua_rawset(L, -3);							// metatable varName __index functions
+			lua_pop(L, 2);								// metatable varName
 		}
 
 		if (write) {
-			lua_rawgeti(L, -2, 2);						// props varName props__newindex
-			lua_pushvalue(L, -2);						// props varName props__newindex varName
+			lua_getfield(L, -2, "__newindex");			// metatable varName __newindex
+			lua_getupvalue(L, -1, 1);					// metatable varName __newindex functions
+			lua_getupvalue(L, -2, 2);					// metatable varName __newindex functions inPlace
+			bool inPlace = lua_toboolean(L, -1) != 0;
+			lua_pop(L, 1);								// metatable varName __newindex functions
+			lua_pushvalue(L, -3);						// metatable varName __newindex functions varName
 			inPlace ? lpcd_pushmemberinplacepropertysetclosure(L, var) : lpcd_pushmemberpropertysetclosure(L, var);
-														// props varName props__newindex varName closure
-			lua_rawset(L, -3);							// props varName props__newindex
-			lua_pop(L, 1);								// props varName
+														// metatable varName __newindex functions varName closure
+			lua_rawset(L, -3);							// metatable varName __newindex functions
+			lua_pop(L, 2);								// metatable varName
 		}
 
 		lua_pop(L, 2);
@@ -384,29 +397,19 @@ namespace LPCD {
 
 		metatableObj.Push();				// metatable
 
-		lua_newtable(L);					// metatable props
-		lua_pushstring(L, "__mode");		// metatable props __mode
-		lua_pushstring(L, "kv");			// metatable props __mode kv
-		lua_rawset(L, -3);					// metatable props
+		lua_pushstring(L, "__index");		// metatable "__index"
+		lua_newtable(L);					// metatable "__index" __index
+		lua_pushboolean(L, inPlace ? 1 : 0);// metatable "__index" __index inPlace
+		lua_pushcclosure(L, PropertyMetatable_index, 2);	// metatable "__index" PropertyMetatable_index
+		lua_rawset(L, -3);					// metatable
 
-		lua_getfield(L, -2, "__index");		// metatable props __index
-		lua_newtable(L);					// metatable props __index props__index
-		lua_pushvalue(L, -1);				// metatable props __index props__index props__index
-		lua_rawseti(L, -4, 1);				// metatable props __index props__index
-		lua_pushcclosure(L, PropertyMetatable_index, 2);	// metatable props PropertyMetatable_index
-		lua_setfield(L, -3, "__index");		// metatable props
+		lua_pushstring(L, "__newindex");	// metatable "__newindex"
+		lua_newtable(L);					// metatable "__newindex" __newindex
+		lua_pushboolean(L, inPlace ? 1 : 0);// metatable "__newindex" __newindex inPlace
+		lua_pushcclosure(L, PropertyMetatable_newindex, 2);	// metatable "__newindex" PropertyMetatable_newindex
+		lua_rawset(L, -3);					// metatable
 
-		lua_getfield(L, -2, "__newindex");	// metatable props __newindex
-		lua_newtable(L);					// metatable props __newindex props__newindex
-		lua_pushvalue(L, -1);				// metatable props __newindex props__newindex props__newindex
-		lua_rawseti(L, -4, 2);				// metatable props __newindex props__newindex
-		lua_pushcclosure(L, PropertyMetatable_newindex, 2);	// metatable props PropertyMetatable_newindex
-		lua_setfield(L, -3, "__newindex");	// metatable props
-
-		lua_pushboolean(L, inPlace ? 1 : 0);// metatable props inPlace
-		lua_rawseti(L, -2, 3);				// metatable props
-
-		lua_rawset(L, LUA_REGISTRYINDEX);	//
+		lua_pop(L, 1);						//
 	}
 
 

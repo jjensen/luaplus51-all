@@ -1859,15 +1859,20 @@ namespace LPCD
 	inline void* CheckObject(lua_State* L, int index, const char* tname)
 	{
 		int type = lua_type(L, index);
-		if (type == LUA_TUSERDATA)
-			return *(void **)luaL_checkudata(L, index, tname);
-		else if (type == LUA_TTABLE) {
-			if (!lua_getmetatable(L, index))			/* does it have a metatable? */
-				luaL_typerror(L, index, tname);
-			lua_getfield(L, LUA_REGISTRYINDEX, tname);	/* get correct metatable */
-			if (!lua_rawequal(L, -1, -2))
-				luaL_typerror(L, index, tname);
-			lua_pop(L, 2);
+		if (type == LUA_TUSERDATA) {
+			if (tname)
+				return *(void**)luaL_checkudata(L, index, tname);
+			else
+				return *(void**)lua_touserdata(L, index);
+		} else if (type == LUA_TTABLE) {
+			if (tname) {
+				if (!lua_getmetatable(L, index))			/* does it have a metatable? */
+					luaL_typerror(L, index, tname);
+				lua_getfield(L, LUA_REGISTRYINDEX, tname);	/* get correct metatable */
+				if (!lua_rawequal(L, -1, -2))
+					luaL_typerror(L, index, tname);
+				lua_pop(L, 2);
+			}
 			lua_pushstring(L, "__object");
 			lua_rawget(L, index);
 			if (lua_type(L, -1) != LUA_TLIGHTUSERDATA)
@@ -1947,63 +1952,138 @@ namespace LPCD
 	{
 	public:
 		static inline int DirectCallMemberDispatcher(lua_State* L)
-			{
+		{
  			unsigned char* buffer = GetFirstUpValueAsUserdata(L);
 			Callee& callee = *(Callee*)GetInPlaceObjectUserdata(L);
 			return Call(callee, *(Func*)buffer, L, startIndex);
-			}
+		}
 	};
 
-	inline int PropertyMetatable_newindex(lua_State* L)
-	{
+	inline int PropertyMetatable_newindex(lua_State* L) {
 													// table key value
 		lua_pushvalue(L, 2);						// table key value key
-		lua_rawget(L, lua_upvalueindex(2));			// table key value property
+		lua_rawget(L, lua_upvalueindex(1));			// table key value property
 		if (lua_isfunction(L, -1)) {
-			lua_CFunction f = lua_tocfunction(L, -1);
-			lua_getupvalue(L, -1, 1);				// table key value property offset
-			lua_remove(L, -2);						// table key value offset
-			return f(L);
+			if (lua_getupvalue(L, -1, 2)) {			// table key value property userdataTest
+				if (lua_touserdata(L, -1) == (void*)-2) {
+					lua_pop(L, 1);								// table key value property
+					lua_CFunction f = lua_tocfunction(L, -1);	// table key value propertyfunc
+					lua_getupvalue(L, -1, 1);					// table key value propertyfunc offset
+					lua_replace(L, 4);							// table key value offset
+					return f(L);
+				}
+				lua_pop(L, 1);						// table key value
+			}
+			lua_rawset(L, -3);						// table
+			return 0;
+		} else if (!lua_isnil(L, -1)) {
+			lua_pop(L, 1);							// table key value
+			lua_rawset(L, -3);						// table
+			return 0;
 		}
 
-		luaL_argerror(L, 1, "The property is not available.");
+		lua_pop(L, 1);								// table key value
+
+		if (!lua_getmetatable(L, -3))				// table key value metatable
+			return 0;
+
+		do {
+			lua_getfield(L, -1, "__newindex");				// table key value metatable __newindex
+			if (lua_isnil(L, -1)) {
+				lua_pop(L, 2);								// table key value
+				lua_rawset(L, -3);							// table
+				return 0;
+			}
+
+			lua_getupvalue(L, -1, 1);						// table key value metatable __newindex functions
+			lua_pushvalue(L, 2);							// table key value metatable __newindex functions key
+			lua_rawget(L, -2);								// table key value metatable __newindex functions property
+			if (lua_isfunction(L, -1)) {
+				if (lua_getupvalue(L, -1, 2)) {				// table key value metatable __newindex functions userdataTest
+					if (lua_touserdata(L, -1) == (void*)-2) {
+						lua_pop(L, 1);						// table key value metatable __newindex functions
+						lua_CFunction f = lua_tocfunction(L, -1);	// table key value metatable __newindex functions
+						lua_getupvalue(L, -1, 1);			// table key value metatable __newindex functions offset
+						lua_replace(L, 4);					// table key value offset __newindex functions
+						return f(L);
+					}
+					lua_pop(L, 2);							// table key value metatable __newindex
+				}
+				lua_rawset(L, -3);							// table key value
+				return 1;
+			} else if (!lua_isnil(L, -1)) {
+				lua_pop(L, 4);
+				lua_rawset(L, -3);
+				return 0;
+			}
+
+			lua_pop(L, 3);									// table key value metatable
+			if (!lua_getmetatable(L, 4)) {					// table key value metatable metatable2
+				lua_pop(L, 1);
+				break;
+			}
+			lua_remove(L, -2);								// table key value metatable2
+		} while (true);
+
+		lua_rawset(L, -3);
 		return 0;
 	}
 
 	// function gettable_event (table, key)
-	inline int PropertyMetatable_index(lua_State* L)
-	{
-													// table key
-		lua_pushvalue(L, 2);						// table key key
-		lua_rawget(L, lua_upvalueindex(2));			// table key property
+	// upvalues:
+	//     1 - function__index
+	//     2 - properties__index
+	inline int PropertyMetatable_index(lua_State* L) {
+		lua_pushvalue(L, 2);							// table key key
+		lua_rawget(L, lua_upvalueindex(1));				// table key property
 		if (lua_isfunction(L, -1)) {
-			lua_CFunction f = lua_tocfunction(L, -1);
-			lua_getupvalue(L, -1, 1);				// table key property offset
-			lua_remove(L, -2);						// table key offset
-			return f(L);
-		}
-
-		int type = lua_type(L, lua_upvalueindex(1));
-		if (type == LUA_TTABLE) {
-			lua_pushvalue(L, 2);					// table key key
-			lua_gettable(L, lua_upvalueindex(1));	// table key value
-		if (!lua_isnil(L, -1))
+			if (lua_getupvalue(L, -1, 2)) {
+				if (lua_touserdata(L, -1) == (void*)-2) {
+					lua_pop(L, 1);
+					lua_CFunction f = lua_tocfunction(L, -1);	// table key propertyfunc
+					lua_getupvalue(L, -1, 1);					// table key propertyfunc offset
+					lua_replace(L, 3);							// table key offset
+					return f(L);
+				}
+				lua_pop(L, 1);
+			}
 			return 1;
-			lua_pop(L, 1);							// table key
-		} else if (type == LUA_TFUNCTION) {
-			lua_pushvalue(L, lua_upvalueindex(1));	// t v f
-			lua_pushvalue(L, 1);					// t v f t
-			lua_pushvalue(L, 2);					// t v f t v
-			lua_call(L, 1, 1);
+		} else if (!lua_isnil(L, -1))
 			return 1;
-		}
 
-		lua_pushstring(L, "The property [");
-		lua_pushvalue(L, 2);
-		lua_pushstring(L, "] is unknown.");
-		lua_concat(L, 3);
-		luaL_argerror(L, 1, lua_tostring(L, -1));
-		return 0;
+		lua_pop(L, 1);									// table key
+
+		if (!lua_getmetatable(L, -2))					// table key metatable
+			return 0;
+
+		do {
+			lua_getfield(L, -1, "__index");					// table key metatable __index
+			if (lua_isnil(L, -1))
+				return 0;
+
+			lua_getupvalue(L, -1, 1);						// table key metatable __index functions
+			lua_pushvalue(L, 2);							// table key metatable __index functions key
+			lua_rawget(L, -2);								// table key metatable __index functions property
+			if (lua_isfunction(L, -1)) {
+				if (lua_getupvalue(L, -1, 2)) {				// table key metatable __index functions userdataTest
+					if (lua_touserdata(L, -1) == (void*)-2) {
+						lua_pop(L, 1);						// table key metatable __index functions
+						lua_CFunction f = lua_tocfunction(L, -1);	// table key metatable __index functions
+						lua_getupvalue(L, -1, 1);			// table key metatable __index functions offset
+						lua_replace(L, 3);					// table key offset __index functions
+						return f(L);
+					}
+					lua_pop(L, 1);							// table key metatable __index functions
+				}
+				return 1;
+			} else if (!lua_isnil(L, -1))
+				return 1;
+
+			lua_pop(L, 3);									// table key metatable
+			if (!lua_getmetatable(L, 3))					// table key metatable metatable2
+				return 0;
+			lua_remove(L, -2);								// table key metatable2
+		} while (true);
 	}
 
 	template <typename Object, typename VarType>
@@ -2106,7 +2186,8 @@ template <typename Object, typename VarType>
 inline void lpcd_pushmemberpropertygetclosure(lua_State* L, VarType Object::* var)
 {
 	lua_pushlightuserdata(L, (void*)&(((Object*)0)->*var));
-	lua_pushcclosure(L, &LPCD::PropertyMemberHelper<Object, VarType>::PropertyGet, 1);
+	lua_pushlightuserdata(L, (void*)-2);
+	lua_pushcclosure(L, &LPCD::PropertyMemberHelper<Object, VarType>::PropertyGet, 2);
 }
 
 
@@ -2114,7 +2195,8 @@ template <typename Object, typename VarType>
 inline void lpcd_pushmemberpropertysetclosure(lua_State* L, VarType Object::* var)
 {
 	lua_pushlightuserdata(L, (void*)&(((Object*)0)->*var));
-	lua_pushcclosure(L, &LPCD::PropertyMemberHelper<Object, VarType>::PropertySet, 1);
+	lua_pushlightuserdata(L, (void*)-2);
+	lua_pushcclosure(L, &LPCD::PropertyMemberHelper<Object, VarType>::PropertySet, 2);
 }
 
 
@@ -2122,7 +2204,8 @@ template <typename Object, typename VarType>
 inline void lpcd_pushmemberinplacepropertygetclosure(lua_State* L, VarType Object::* var)
 {
 	lua_pushlightuserdata(L, (void*)&(((Object*)0)->*var));
-	lua_pushcclosure(L, &LPCD::InPlacePropertyMemberHelper<Object, VarType>::PropertyGet, 1);
+	lua_pushlightuserdata(L, (void*)-2);
+	lua_pushcclosure(L, &LPCD::InPlacePropertyMemberHelper<Object, VarType>::PropertyGet, 2);
 }
 
 
@@ -2130,7 +2213,8 @@ template <typename Object, typename VarType>
 inline void lpcd_pushmemberinplacepropertysetclosure(lua_State* L, VarType Object::* var)
 {
 	lua_pushlightuserdata(L, (void*)&(((Object*)0)->*var));
-	lua_pushcclosure(L, &LPCD::InPlacePropertyMemberHelper<Object, VarType>::PropertySet, 1);
+	lua_pushlightuserdata(L, (void*)-2);
+	lua_pushcclosure(L, &LPCD::InPlacePropertyMemberHelper<Object, VarType>::PropertySet, 2);
 }
 
 
@@ -2138,7 +2222,8 @@ template <typename VarType>
 inline void lpcd_pushglobalpropertygetclosure(lua_State* L, VarType* var)
 {
 	lua_pushlightuserdata(L, (void*)var);
-	lua_pushcclosure(L, &LPCD::PropertyGlobalHelper<VarType>::PropertyGet, 1);
+	lua_pushlightuserdata(L, (void*)-2);
+	lua_pushcclosure(L, &LPCD::PropertyGlobalHelper<VarType>::PropertyGet, 2);
 }
 
 
@@ -2146,8 +2231,8 @@ template <typename VarType>
 inline void lpcd_pushglobalpropertysetclosure(lua_State* L, VarType* var)
 {
 	lua_pushlightuserdata(L, (void*)var);
-	lua_pushcclosure(L, &LPCD::PropertyGlobalHelper<VarType>::PropertySet, 1);
+	lua_pushlightuserdata(L, (void*)-2);
+	lua_pushcclosure(L, &LPCD::PropertyGlobalHelper<VarType>::PropertySet, 2);
 }
 
 #endif // LUAPLUS__LUAPLUSCD_H
-
