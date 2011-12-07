@@ -459,7 +459,7 @@ local function dav_delete (req, res, repos_b, props_b)
 	local path = req.relpath
 	local resource = repos_b:getResource (req.match, path)
 	if not resource then
-		return http.err_404
+		return xavante.httpd.err_404
 	end
 	
 	-- NOTE: this should iterate depth-first
