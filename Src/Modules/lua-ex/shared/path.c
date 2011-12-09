@@ -115,34 +115,36 @@ int path_destroy(const char* inDirName)
   strcpy(dirNamePtr, "*.*");
 
   handle = FindFirstFile(dirName, &fd);
-  if (handle == INVALID_HANDLE_VALUE)
-    return 0;
-
   *dirNamePtr = 0;
 
-  do {
-    if (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
-      int skipDir = fd.cFileName[0] == '.'  &&
-        (fd.cFileName[1] == 0  ||  (fd.cFileName[1] == '.'  &&  fd.cFileName[2] == 0));
-      if (!skipDir) {
+  if (handle != INVALID_HANDLE_VALUE)
+  {
+    do {
+      if (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
+        int skipDir = fd.cFileName[0] == '.'  &&
+          (fd.cFileName[1] == 0  ||  (fd.cFileName[1] == '.'  &&  fd.cFileName[2] == 0));
+        if (!skipDir) {
+          strcpy(dirNamePtr, fd.cFileName);
+          strcat(dirNamePtr, "\\");
+          if (!path_destroy(dirName)) {
+            FindClose(handle);
+            return 0;
+          }
+        }
+      } else {
         strcpy(dirNamePtr, fd.cFileName);
-        strcat(dirNamePtr, "\\");
-        if (!path_destroy(dirName))
+        SetFileAttributes(dirName, FILE_ATTRIBUTE_ARCHIVE);
+        if (!DeleteFile(dirName)) {
+          FindClose(handle);
           return 0;
+        }
       }
-    } else {
-      strcpy(dirNamePtr, fd.cFileName);
-      SetFileAttributes(dirName, FILE_ATTRIBUTE_ARCHIVE);
-      if (!DeleteFile(dirName)) {
-        FindClose(handle);
-        return 0;
-      }
-    }
-  } while (FindNextFile(handle, &fd));
+	} while (FindNextFile(handle, &fd));
 
-  FindClose(handle);
+    FindClose(handle);
+  }
 
-  *dirNamePtr = 0;
+  *--dirNamePtr = 0;
   if (!RemoveDirectory(dirName))
     return 0;
 #else
@@ -166,33 +168,32 @@ int path_destroy(const char* inDirName)
   *dirNamePtr = 0;
 
   DIR* dirp = opendir(dirName);
-  if (!dirp)
-    return 0;
-
-  struct dirent* dp;
-  while ((dp = readdir(dirp)) != NULL) {
-    struct stat attr;
-    strcpy(dirNamePtr, dp->d_name);
-	if (stat(dirName, &attr) != -1  &&  (attr.st_mode & S_IFDIR)) {
-      int skipDir = dp->d_name[0] == '.'  &&  (dp->d_name[1] == 0  ||  (dp->d_name[1] == '.'  &&  dp->d_name[2] == 0));
-      if (!skipDir) {
-        strcat(dirNamePtr, "\\");
-        if (!path_destroy(dirName))
+  if (dirp)
+  {
+    struct dirent* dp;
+    while ((dp = readdir(dirp)) != NULL) {
+      strcpy(dirNamePtr, dp->d_name);
+	  if (dp->d_type & DT_DIR) {
+        int skipDir = dp->d_name[0] == '.'  &&  (dp->d_name[1] == 0  ||  (dp->d_name[1] == '.'  &&  dp->d_name[2] == 0));
+        if (!skipDir) {
+          strcat(dirNamePtr, "/");
+          if (!path_destroy(dirName)) {
+            closedir(dirp);
+            return 0;
+		  }
+        }
+      } else {
+        if (unlink(dirName) == -1) {
+          closedir(dirp);
           return 0;
-      }
-    } else {
-      //			::SetFileAttributes(dirName, FILE_ATTRIBUTE_ARCHIVE);
-      //			if (!::DeleteFile(dirName))
-      if (unlink(dirName) == -1) {
-        closedir(dirp);
-        return 0;
+        }
       }
     }
   }
 
   closedir(dirp);
 
-  *dirNamePtr = 0;
+  *--dirNamePtr = 0;
   if (rmdir(dirName) == -1)
     return 0;
 #endif
