@@ -579,6 +579,8 @@ int lBasicExcelWorksheet_GetColWidth(lua_State* L) {
 }
 
 
+#ifdef EXPERIMENTAL_CELL_MERGING
+
 int lBasicExcelWorksheet_MergeCells(lua_State* L) {
 	BasicExcelWorksheet* worksheet = lBasicExcelWorksheet_check(L, 1);
 	int row = luaL_checkinteger(L, 2);
@@ -589,6 +591,7 @@ int lBasicExcelWorksheet_MergeCells(lua_State* L) {
 	return 1;
 }
 
+#endif // EXPERIMENTAL_CELL_MERGING
 
 static const struct luaL_reg BasicExcelWorksheet_funcs[] = {
 	{ "GetAnsiSheetName",  	lBasicExcelWorksheet_GetAnsiSheetName },
@@ -605,7 +608,9 @@ static const struct luaL_reg BasicExcelWorksheet_funcs[] = {
 	{ "SetColWidth",  		lBasicExcelWorksheet_SetColWidth },
 	{ "GetColWidth",  		lBasicExcelWorksheet_GetColWidth },
 
+#ifdef EXPERIMENTAL_CELL_MERGING
 	{ "MergeCells",  		lBasicExcelWorksheet_MergeCells },
+#endif // EXPERIMENTAL_CELL_MERGING
 	{ NULL, NULL },
 };
 
@@ -1565,16 +1570,16 @@ extern "C" int luaopen_xls(lua_State* L)
 	 // horizontal aligmment
 	REGISTER_FIELD(EXCEL_HALIGN_GENERAL);
 	REGISTER_FIELD(EXCEL_HALIGN_LEFT);
-	REGISTER_FIELD(EXCEL_HALIGN_CENTRED);
+	REGISTER_FIELD(EXCEL_HALIGN_CENTERED);
 	REGISTER_FIELD(EXCEL_HALIGN_RIGHT);
 	REGISTER_FIELD(EXCEL_HALIGN_FILLED);
 	REGISTER_FIELD(EXCEL_HALIGN_JUSITFIED);
-	REGISTER_FIELD(EXCEL_HALIGN_SEL_CENTRED);
+	REGISTER_FIELD(EXCEL_HALIGN_SEL_CENTER);
 	REGISTER_FIELD(EXCEL_HALIGN_DISTRIBUTED);
 
 	 // vertical alignment
 	REGISTER_FIELD(EXCEL_VALIGN_TOP);
-	REGISTER_FIELD(EXCEL_VALIGN_CENTRED);
+	REGISTER_FIELD(EXCEL_VALIGN_CENTERED);
 	REGISTER_FIELD(EXCEL_VALIGN_BOTTOM);
 	REGISTER_FIELD(EXCEL_VALIGN_JUSTIFIED);
 	REGISTER_FIELD(EXCEL_VALIGN_DISTRIBUTED);

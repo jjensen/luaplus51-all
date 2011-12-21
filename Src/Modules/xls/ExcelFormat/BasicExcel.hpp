@@ -75,6 +75,8 @@
 	// - reduced memory consumption in BasicExcel data handling
 	// - return current value string from formula cells
 	// - don't preserve empty rows/columns at the end of sheets
+// Version 3.1 (05.03.2011, Martin Fuchs)
+	// - fix memory leak in CellBlock::Read(), reported by Paul Goodman
 
 #ifndef BASICEXCEL_HPP
 #define BASICEXCEL_HPP
@@ -93,7 +95,7 @@
 #define LONGINT_CONST(x) x##LL
 #define COMPOUNDFILE CompoundFile::
 
-#ifdef _DEBUG
+#if defined(_DEBUG) && !defined(_ITERATOR_DEBUG_LEVEL)
 #define _ITERATOR_DEBUG_LEVEL 0	// speedup iterator operations while debugging
 #endif
 #endif
@@ -164,12 +166,8 @@ enum DECOLOR {
 
 
 #if _MSC_VER>=1400	// VS 2005
-#ifndef _CRT_SECURE_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS //MF
-#endif // _CRT_SECURE_NO_WARNINGS
-#ifndef _SCL_SECURE_NO_WARNINGS
 #define _SCL_SECURE_NO_WARNINGS //MF
-#endif // _SCL_SECURE_NO_WARNINGS
 #endif
 
 #include <algorithm>
@@ -294,7 +292,7 @@ private:
 
 } // namespace WinCompFiles
 
-#endif
+#endif // _WIN32
 
 namespace YCompoundFiles
 {
@@ -583,6 +581,8 @@ struct LittleEndian
 
 
 #ifndef _WIN32
+
+#error accessing large XLS files without using the WIN32 IStorage API is buggy, use it at your own risc by commenting out this error message
 
 class Block
 // PURPOSE: In charge of handling blocks of data from a file
@@ -959,8 +959,8 @@ struct CODE
 			GUTS=0x0080,			//Layout of outline symbols.
 			WSBOOL=0x0081,			//16-bit value with boolean options for the current sheet.
 			GRIDSET=0x0082, 		//Whether option to print sheet grid lines has ever been changed.
-			HCENTER=0x0083, 		//Sheet is centred horizontally when printed.
-			VCENTER=0x0084, 		//Whether sheet is centred vertically when printed.
+			HCENTER=0x0083, 		//Sheet is centered horizontally when printed.
+			VCENTER=0x0084, 		//Whether sheet is centered vertically when printed.
 			BOUNDSHEET=0x0085,		//Sheet inside of the workbook
 			WRITEPROT=0x0086,		//Whether file is write protected.
 			COUNTRY=0x008C, 		//User interface language of the Excel version that has saved the file, system regional settings at the time the file was saved.
@@ -1809,8 +1809,10 @@ public: // Cell functions
 	void SetColWidth(const int colindex , const USHORT colwidth);
 	USHORT GetColWidth(const int colindex);
 
+#ifdef EXPERIMENTAL_CELL_MERGING
 	void MergeCells(int row, int col, USHORT rowRange, USHORT colRange);
-
+#endif
+    
 private: // Internal functions
 	void UpdateCells(); ///< Update cells using information from BasicExcel.worksheets_.
 

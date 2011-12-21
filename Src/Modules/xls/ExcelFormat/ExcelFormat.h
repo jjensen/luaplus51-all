@@ -231,27 +231,27 @@ enum XF_USED_ATTRIB {
  2- 0 07H XF_HOR_ALIGN: Horizontal alignment
  3    08H 1 = Text is wrapped at right border
  6- 4 70H XF_VERT_ALIGN: Vertical alignment
- 7    80H 1 = Justify last line in justified or distibuted text
+ 7    80H 1 = Justify last line in justified or distributed text
 */
 enum EXCEL_ALIGNMENT {
 	 // horizontal aligmment
 	EXCEL_HALIGN_GENERAL		= 0x00,
 	EXCEL_HALIGN_LEFT			= 0x01,
-	EXCEL_HALIGN_CENTRED		= 0x02,
+	EXCEL_HALIGN_CENTERED		= 0x02,
 	EXCEL_HALIGN_RIGHT			= 0x03,
 	EXCEL_HALIGN_FILLED			= 0x04,
 	EXCEL_HALIGN_JUSITFIED		= 0x05,
-	EXCEL_HALIGN_SEL_CENTRED	= 0x06,	// centred across selection
+	EXCEL_HALIGN_SEL_CENTER		= 0x06,	// centered across selection
 	EXCEL_HALIGN_DISTRIBUTED	= 0x07,	// available in Excel 10.0 (Excel XP) and later only
 
 	 // vertical alignment
 	EXCEL_VALIGN_TOP			= 0x00,
-	EXCEL_VALIGN_CENTRED		= 0x10,
+	EXCEL_VALIGN_CENTERED		= 0x10,
 	EXCEL_VALIGN_BOTTOM			= 0x20,
 	EXCEL_VALIGN_JUSTIFIED		= 0x30,
 	EXCEL_VALIGN_DISTRIBUTED	= 0x40,	// available in Excel 10.0 (Excel XP) and later only
 
-	EXCEL_JUSTIFY_LAST_LINE		= 0x80	// justify last line in justified or distibuted text
+	EXCEL_JUSTIFY_LAST_LINE		= 0x80	// justify last line in justified or distributed text
 };
 
 

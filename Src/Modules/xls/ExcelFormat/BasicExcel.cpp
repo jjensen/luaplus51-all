@@ -4430,42 +4430,34 @@ ULONG Worksheet::CellTable::RowBlock::CellBlock::Read(const char* data)
 
 	switch(type_) {
 		case CODE::BLANK:
-			_union.blank_ = new Blank;
 			bytesRead += _union.blank_->Read(data);
 			break;
 
 		case CODE::MULBLANK:
-			_union.mulblank_ = new MulBlank;
 			bytesRead += _union.mulblank_->Read(data);
 			break;
 
 		case CODE::BOOLERR:
-			_union.boolerr_ = new BoolErr;
 			bytesRead += _union.boolerr_->Read(data);
 			break;
 
 		case CODE::LABELSST:
-			_union.labelsst_ = new LabelSST;
 			bytesRead += _union.labelsst_->Read(data);
 			break;
 
 		case CODE::MULRK:
-			_union.mulrk_ = new MulRK;
 			bytesRead +=_union. mulrk_->Read(data);
 			break;
 
 		case CODE::NUMBER:
-			_union.number_ = new Number;
 			bytesRead += _union.number_->Read(data);
 			break;
 
 		case CODE::RK:
-			_union.rk_ = new RK;
 			bytesRead += _union.rk_->Read(data);
 			break;
 
 		case CODE::FORMULA:
-			_union.formula_ = new Formula;
 			bytesRead += _union.formula_->Read(data);
 			break;
 	}
@@ -5049,7 +5041,7 @@ bool BasicExcel::Load(const char* filename)
 	if (file_.IsOpen())
 		file_.Close();
 
-	if (file_.Open(filename)) {
+	if (file_.Open(filename, ios_base::in)) {
 		workbook_ = Workbook();
 		worksheets_.clear();
 
@@ -5070,7 +5062,7 @@ bool BasicExcel::Load(const wchar_t* filename)
 	if (file_.IsOpen())
 		file_.Close();
 
-	if (file_.Open(filename)) {
+	if (file_.Open(filename, ios_base::in)) {
 		workbook_ = Workbook();
 		worksheets_.clear();
 
@@ -6438,6 +6430,11 @@ void BasicExcelWorksheet::UpdateCells()
 	}
 }
 
+
+#ifdef EXPERIMENTAL_CELL_MERGING
+
+ // experimental cell merging code - can lead to crashes of MS Excel
+
 void BasicExcelWorksheet::MergeCells(int row, int col, USHORT rowRange, USHORT colRange)
 {
 	BasicExcelCell* cell = Cell(row, col);
@@ -6456,6 +6453,9 @@ void BasicExcelWorksheet::MergeCells(int row, int col, USHORT rowRange, USHORT c
 	worksheet.mergedCells_.mergedCellsVector_.push_back(mergedCell);
 */
 }
+
+#endif
+
 
 /************************************************************************************************************/
 

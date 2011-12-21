@@ -37,7 +37,7 @@ XLSFormatManager::XLSFormatManager(BasicExcel& xls)
 	_formats[10] = L"0.00%";															// Percent
 	_formats[11] = L"0.00E+00";															// Scientific
 	_formats[12] = L"# ?/?";															// Fraction
-	_formats[13] = L"# ?\?/?\?";															// Fraction
+	_formats[13] = L"# ?\?/?\?";														// Fraction
 	_formats[14] = XLS_FORMAT_DATE;			// "M/D/YY"									// Date
 	_formats[15] = L"D-MMM-YY";															// Date
 	_formats[16] = L"D-MMM";															// Date

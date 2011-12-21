@@ -1,0 +1,498 @@
+<!DOCTYPE HTML PUBLIC"-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>Article Source</title>
+<link rel="stylesheet" type="text/css" href="http://s.codeproject.com/App_Themes/Std/CSS/CodeProject.css?dt=2.3.101110.2" />
+<base href="http://www.codeproject.com/KB/office/" />
+</head>
+<body>
+<!--
+HTML for article "ExcelFormat Library" by Martin Fuchs
+URL: http://www.codeproject.com/KB/office/ExcelFormat.aspx
+Copyright 2009, 2010, 2011 by Martin Fuchs
+All formatting, additions and alterations Copyright © CodeProject, 1999-2011
+-->
+
+<!-- Start Article -->
+<ul class="download">
+<li><a href="ExcelFormat/ExcelFormat_bin.zip">Download demo project - 87.1 KB</a></li>
+
+<li><a href="ExcelFormat/ExcelFormat_src.zip">Download source - 57.44 KB</a></li>
+</ul>
+<img style="WIDTH: 514px; HEIGHT: 275px" height="275" alt="ExcelFormat" src="ExcelFormat/example1.png" width="514" /> 
+<h2>Introduction</h2>
+
+<p>There has been the C++ project <a href="BasicExcel.aspx">BasicExcel</a> for quite some years now. It is very useful to read and write Excel sheets in <em>.xls</em> format. However, it contains only very basic functionality. There are missing features like text formatting using fonts, and display formats and formulas are not yet supported. This article covers this additional functionality. The new, derived project <code>ExcelFormat</code> is based on the old <code>BasicExcel</code> code, and just adds what I was missing for my own needs. If you want to see where I am using the new library, you can look at the Export functions of <a href="http://www.foxplanet.de/servicemgr">Service Manager</a> and <a href="http://www.foxplanet.de/uninstmgr">Uninstall Manager</a>.</p>
+
+<h2>XLS Format</h2>
+
+<p>This library processes Excel files in the <em>BIFF8</em> XLS file format. For a detailed documentation of the format and all its internals, there are two documents available:</p>
+
+<ul>
+<li>OpenOffice provides <a href="http://sc.openoffice.org/excelfileformat.pdf">OpenOffice.org's Documentation of the Microsoft Excel File Format</a>.</li>
+
+<li>Microsoft published the <a href="http://www.microsoft.com/interop/docs/OfficeBinaryFormats.mspx">Microsoft Office Binary File Formats</a> a few years later.</li>
+
+</ul>
+
+<h2>Compatibility</h2>
+
+<p>You can use the code on MS Windows with the MSVC compilers of VC++ 6.0 SP3 or later. Using GCC on MacOSX or Linux is also supported, but with some limitations. May be it even works in other environments like Sun Solaris, but this is not yet tested.
+Here you can see a table of environments with their respective status:</p>
+
+<table style="width: 800px" border="1">
+<tr style="border-style: double">
+<th></th><th>small XLS files</th><th>larger XLS files</th>
+</tr>
+<tr><td><b>WIN32, using Windows API <code>IStorage</code></b></td><td style="text-align:center">OK</td><td style="text-align:center">OK</td></tr>
+<tr><td><b>WIN64, using Windows API <code>IStorage</code></b></td><td style="text-align:center">OK</td><td style="text-align:center">OK</td></tr>
+<tr><td><b>MacOS X / Linux 32 bit, using <code>BasicExcel</code> <code>CompoundFile</code> implementation</b></td><td style="text-align:center">OK</td><td style="text-align:center">issues</td></tr>
+<tr><td><b>MacOS X / Linux 64 bit, using <code>BasicExcel</code> <code>CompoundFile</code> implementation</b></td><td style="text-align:center">OK</td><td style="text-align:center">issues</td></tr>
+</table>
+
+<p>The issues listed above are because of the incomplete <code>CompoundFile</code> implementation of the underlying <code>BasicExcel</code> library.
+I already fixed some part of the <code>BasicExcel</code> code regarding numbers in <code>RKValue</code> format and 64 bit compatibility,
+but there are still issues that show up when reading or writing larger XLS files which use XBAT or SBAT entries.</p>
+
+<h2>Using the Code</h2>
+
+<p>To use the new formatting functionality, first create an <code>XLSFormatManager</code> object, like in the <code>example1()</code> function, and attach it to an existing <code>BasicExcel</code> object:</p>
+
+<pre lang="C++"><span class="code-keyword">void</span> example1(<span class="code-keyword">const</span> <span class="code-keyword">char</span>* path)
+{
+    BasicExcel xls;
+
+    <span class="code-comment">//</span><span class="code-comment"> create sheet 1 and get the associated BasicExcelWorksheet pointer
+</span>    xls.New(<span class="code-digit">1</span>);
+    BasicExcelWorksheet* sheet = xls.GetWorksheet(<span class="code-digit">0</span>);
+
+    XLSFormatManager fmt_mgr(xls);</pre>
+
+<p>You can find all the examples of this article in the source code file <em>Examples.cpp</em>.</p>
+
+<p>To define a custom font, create an <code>ExcelFont</code> object and set any needed properties, for example, the font weight for a bold font:</p>
+
+<pre lang="C++">ExcelFont font_bold;
+font_bold._weight = FW_BOLD;	<span class="code-comment">//</span><span class="code-comment"> 700=bold, 400=normal</span></pre>
+
+<p>The format of an Excel cell can be defined by a <code>CellFormat</code> object, which holds the chosen font and some more properties:</p>
+
+<pre lang="C++">CellFormat fmt_bold(fmt_mgr);
+fmt_bold.set_font(font_bold);</pre>
+
+<p>After you have prepared the <code>CellFormat</code>, you can choose the font and display settings of Excel cells by calling <code>SetFormat()</code>:</p>
+
+<pre lang="C++"><span class="code-comment">//</span><span class="code-comment"> Create a table containing a header row in bold and four rows below.
+</span>int col, row = <span class="code-digit">0</span>;
+
+<span class="code-keyword">for</span>(col=0; col<span class="code-keyword">&lt;</span><span class="code-digit">10</span>; ++col) {
+    BasicExcelCell* cell = sheet-<span class="code-keyword">&gt;</span>Cell(row, col);
+
+    cell-<span class="code-keyword">&gt;</span>Set(<span class="code-string">"</span><span class="code-string">TITLE"</span>);
+    cell-<span class="code-keyword">&gt;</span>SetFormat(fmt_bold);
+}
+
+<span class="code-keyword">while</span>(++row <span class="code-keyword">&lt;</span> <span class="code-digit">4</span>) {
+    <span class="code-keyword">for</span>(int col=0; col<span class="code-keyword">&lt;</span><span class="code-digit">10</span>; ++col)
+        sheet-<span class="code-keyword">&gt;</span>Cell(row, col)-<span class="code-keyword">&gt;</span>Set(<span class="code-string">"</span><span class="code-string">text"</span>);
+}
+
+++row;</pre>
+
+<p>Text color is specified by setting color indices in <code>ExcelFont</code>, for example:</p>
+
+<pre lang="C++">ExcelFont font_red_bold;
+font_red_bold._weight = FW_BOLD;
+font_red_bold._color_index = EGA_RED;
+
+CellFormat fmt_red_bold(fmt_mgr, font_red_bold);
+fmt_red_bold.set_color1(COLOR1_PAT_SOLID); 		<span class="code-comment">//</span><span class="code-comment"> solid background
+</span>fmt_red_bold.set_color2(MAKE_COLOR2(EGA_BLUE,<span class="code-digit">0</span>));	<span class="code-comment">//</span><span class="code-comment"> blue background
+</span>
+
+CellFormat fmt_green(fmt_mgr, ExcelFont().set_color_index(EGA_GREEN));
+
+<span class="code-keyword">for</span>(col=0; col<span class="code-keyword">&lt;</span><span class="code-digit">10</span>; ++col) {
+    BasicExcelCell* cell = sheet-<span class="code-keyword">&gt;</span>Cell(row, col);
+
+    cell-<span class="code-keyword">&gt;</span>Set(<span class="code-string">"</span><span class="code-string">xxx"</span>);
+    cell-<span class="code-keyword">&gt;</span>SetFormat(fmt_red_bold);
+
+    cell = sheet-<span class="code-keyword">&gt;</span>Cell(row, ++col);
+    cell-<span class="code-keyword">&gt;</span>Set(<span class="code-string">"</span><span class="code-string">yyy"</span>);
+    cell-<span class="code-keyword">&gt;</span>SetFormat(fmt_green);
+}</pre>
+
+<p><em>ExcelFormat.h</em> contains constants to define basic palette colors in the enumeration <code>EXCEL_COLORS</code>, you can use in calls to <code>ExcelFont()::set_color_index()</code>. The macro <code>MAKE_COLOR2</code> accepts two color indices to specify the pattern line and pattern background colors. As a shortcut to calling <code>CellFormat::set_color1()</code> and <code>CellFormat::set_color2()</code>, you can also use <code>CellFormat::set_background()</code> to define cells with solid background colors or colorize patterns.</p>
+
+<p>After creating and formatting the Excel cells in memory, all you have to do is to save the new Excel sheet as a file:</p>
+
+<pre lang="C++">    xls.SaveAs(path);
+}</pre>
+
+<p>This should be enough for a quick overview on how to use the new <code>ExcelFormat</code> objects. In the source code file <em>ExcelFormat.cpp</em>, you can find some more examples.</p>
+
+<h3>ExcelFont</h3>
+
+<p>There are nine font properties available:</p>
+
+<pre lang="C++"><span class="code-keyword">struct</span> ExcelFont
+{
+    ExcelFont()
+
+    ...
+
+    wstring _name;
+    <span class="code-keyword">short</span>   _height;
+    <span class="code-keyword">short</span>   _weight;
+    <span class="code-keyword">short</span>   _options;
+    <span class="code-keyword">short</span>   _color_index;
+    <span class="code-keyword">short</span>   _escapement_type;
+    <span class="code-keyword">char</span>    _underline_type;
+    <span class="code-keyword">char</span>    _family;
+    <span class="code-keyword">char</span>    _character_set;
+
+    ...
+
+};</pre>
+
+<p>For detailed information, please look into the <a href="http://sc.openoffice.org/excelfileformat.pdf">XLS file format documentation</a>.</p>
+
+<h3>CellFormat</h3>
+
+<p>These <code>CellFormat</code> properties are available in addition to the chosen <code>ExcelFont</code> and the display format:</p>
+
+<pre lang="C++"><span class="code-keyword">struct</span> CellFormat
+{
+    CellFormat(XLSFormatManager&amp; mgr)
+
+    ...
+
+    <span class="code-keyword">char</span>    _alignment;
+    <span class="code-keyword">char</span>    _rotation;
+    <span class="code-keyword">char</span>    _text_props;
+    <span class="code-keyword">int</span>     _borderlines;
+    <span class="code-keyword">int</span>     _color1;
+    <span class="code-keyword">short</span>   _color2;
+
+    ...
+
+};</pre>
+
+<p>In <code>example2()</code>, you can see how to change the font face and the font size:</p>
+
+<pre lang="C++">ExcelFont font_header;
+font_header.set_weight(FW_BOLD);
+font_header.set_underline_type(EXCEL_UNDERLINE_SINGLE);
+font_header.set_font_name(L<span class="code-string">"</span><span class="code-string">Times New Roman"</span>);  <span class="code-comment">//</span><span class="code-comment"> font face "Times New Roman"
+</span>
+
+font_header.set_color_index(EGA_BLUE);
+font_header._options = EXCEL_FONT_STRUCK_OUT;
+
+CellFormat fmt_header(fmt_mgr, font_header);
+fmt_header.set_rotation(<span class="code-digit">30</span>); <span class="code-comment">//</span><span class="code-comment"> rotate the header cell text 30° to the left
+
+</span>
+int row = <span class="code-digit">0</span>;
+
+<span class="code-keyword">for</span>(int col=0; col<span class="code-keyword">&lt;</span><span class="code-digit">10</span>; ++col) {
+    BasicExcelCell* cell = sheet-<span class="code-keyword">&gt;</span>Cell(row, col);
+
+    cell-<span class="code-keyword">&gt;</span>Set(<span class="code-string">"</span><span class="code-string">TITLE"</span>);
+    cell-<span class="code-keyword">&gt;</span>SetFormat(fmt_header);
+}</pre>
+
+<p>The <code>example3()</code> function shows how to use <code>CellFormat::set_format_string()</code> and <code>BasicExcelCell::SetFormat()</code> to define text, number, and date format <code>string</code>s. There are some predefined constants for format <code>string</code>s:</p>
+
+<pre lang="C++"><span class="code-preprocessor">#define</span> XLS_FORMAT_GENERAL      L<span class="code-string">"</span><span class="code-string">General"</span>
+<span class="code-preprocessor">#define</span> XLS_FORMAT_TEXT         L<span class="code-string">"</span><span class="code-string">@"</span>
+<span class="code-preprocessor">#define</span> XLS_FORMAT_INTEGER      L<span class="code-string">"</span><span class="code-string">0"</span>
+
+<span class="code-preprocessor">#define</span> XLS_FORMAT_DECIMAL      L<span class="code-string">"</span><span class="code-string">0.00"</span>
+<span class="code-preprocessor">#define</span> XLS_FORMAT_PERCENT      L<span class="code-string">"</span><span class="code-string">0%"</span>
+
+
+<span class="code-preprocessor">#define</span> XLS_FORMAT_DATE         L<span class="code-string">"</span><span class="code-string">M/D/YY"</span>
+
+<span class="code-preprocessor">#define</span> XLS_FORMAT_TIME         L<span class="code-string">"</span><span class="code-string">h:mm:ss"</span>
+<span class="code-preprocessor">#define</span> XLS_FORMAT_DATETIME     L<span class="code-string">"</span><span class="code-string">M/D/YY h:mm"</span></pre>
+
+<p>However, you can use any valid Excel format <code>string</code> to define custom display formats.</p>
+
+<p><code>example4()</code> shows how to use many different fonts and colors in one sheet:</p>
+<img style="WIDTH: 547px; HEIGHT: 462px" height="462" alt="ExcelFormat" src="ExcelFormat/example4.png" width="547" /> 
+<h3>Formulas</h3>
+
+<p>Formulas are now preserved when reading and writing an Excel sheet. You can even store a formula into an Excel cell by calling <code>BasicExcelCell::SetFormula()</code>. However, currently, you either have to copy a <code>Worksheet::CellTable::RowBlock::CellBlock::Formula</code> object from an already existing cell, or you have to define it yourself, which is quite tricky because Excel uses a pre-parsed formula containing <em>RPN</em> tokens.</p>
+
+<h2>Points of Interest</h2>
+
+<p>For those who are interested in a bit of background information, I want to provide a description of what has been changed since the predecessor library <a href="BasicExcel.aspx">BasicExcel</a>.</p>
+
+<h3>Conditional Compilation</h3>
+
+<p>There are two different <code>BasicExcel</code> implementations, one for VC++ version 6.0, and one for newer compilers. <code>ExcelFormat</code> now merges these two code bases by using conditional compilation to handle the differences.
+Most of this is accomplished in the header file by this code snippet (and modifications using the newly defined macros):</p>
+
+<pre lang="C++"><span class="code-preprocessor">#if</span> _MSC_VER<span class="code-keyword">&lt;</span>=1200    <span class="code-comment">//</span><span class="code-comment"> VC++ 6.0
+</span>
+<span class="code-preprocessor">#pragma</span> warning(disable: <span class="code-digit">4786</span>)
+
+<span class="code-preprocessor">#define</span> LONGINT <span class="code-keyword">__int64</span>
+<span class="code-preprocessor">#define</span> LONGINT_CONST(x) x
+<span class="code-preprocessor">#define</span> COMPOUNDFILE
+
+<span class="code-preprocessor">#else</span>    <span class="code-comment">//</span><span class="code-comment"> newer Microsoft compilers
+</span>
+<span class="code-preprocessor">#define</span> LONGINT <span class="code-keyword">long</span> <span class="code-keyword">long</span>
+<span class="code-preprocessor">#define</span> LONGINT_CONST(x) x##LL
+<span class="code-preprocessor">#define</span> COMPOUNDFILE CompoundFile::
+
+<span class="code-preprocessor">#ifdef</span> _DEBUG
+<span class="code-preprocessor">#define</span> _ITERATOR_DEBUG_LEVEL 0	<span class="code-comment">// speedup iterator operations while debugging</span>
+<span class="code-preprocessor">#endif</span>
+
+<span class="code-preprocessor">#endif</span></pre>
+
+<p>To distinguish between MS Windows environments using MSVC and others using GCC, the macro _MSC_VER is tested for existence. This switches between using the Windows API to access the compound binary file format and the BasicExcel implementation of CompoundFile.</p>
+
+<p>The <code>#pragma warning</code> statement disables compiler warnings of VC++ 6.0 because of long compiler internal names in object files, which occur for non-trivial usage of STL classes.</p>
+
+<p>Immediately after these defines, there are these preprocessor statements for VS 2005 and above:</p>
+
+<pre lang="C++"><span class="code-preprocessor">#if</span> _MSC_VER<span class="code-keyword">&gt;</span>=1400    		<span class="code-comment">//</span><span class="code-comment"> VS 2005
+</span><span class="code-preprocessor">#define</span> _CRT_SECURE_NO_WARNINGS    	<span class="code-comment">//</span><span class="code-comment">MF
+</span><span class="code-preprocessor">#define</span> _SCL_SECURE_NO_WARNINGS    	<span class="code-comment">//</span><span class="code-comment">MF
+
+</span><span class="code-preprocessor">#endif</span></pre>
+
+<p>They disable the VC++ security library warnings, because the <code>BasicExcel</code> code is not yet prepared for this new runtime library additions. By the way, the <em>MF</em> comments mark additions and fixes by me to the old <code>BasicExcel</code> code.</p>
+
+<p>Additionally, I eliminated some compiler warnings by fixing data types. Typically, this was a change from integral types like <code>int</code> to the C runtime library type <code>size_t</code>.</p>
+
+<p>To switch between 32 bit and 64 bit mode using GCC, use the compiler option <code>-m32</code> respective <code>-m64</code> like in the Makefile example in the source download.
+In the VC++ environment you can choose the target environment in the project settings.</p>
+
+<h3>New Features</h3>
+
+<p>In addition to the new API described above, I had to add code in <code>BasicExcel</code> in order to implement these new features:</p>
+
+<ul>
+<li>Read and write the <code>Formula</code> structure from/to XLS files</li>
+
+<li>Define, read, and write the <code>FORMAT</code> structure from/to XLS files</li>
+
+<li>Get/set the XF index value <code>BasicExcelCell</code> objects for all the various cell types</li>
+</ul>
+
+<h3>Formatting Storage Structures</h3>
+
+<p>The information about the format of an Excel cell in the <em>BIFF8</em> file format is stored using a so called <em>XF index</em>. This refers to an XF (<q>extended format</q>) record, which consists of the following members:</p>
+
+<pre lang="C++">XF {
+    <span class="code-keyword">short</span>       fontRecordIndex     <span class="code-comment">//</span><span class="code-comment"> FORMAT index
+</span>    <span class="code-keyword">short</span>       formatRecordIndex   <span class="code-comment">//</span><span class="code-comment"> FONT index
+</span>
+    <span class="code-keyword">short</span>       protectionType
+    <span class="code-keyword">char</span>        alignment
+    <span class="code-keyword">char</span>        rotation
+    <span class="code-keyword">char</span>        textProperties
+    <span class="code-keyword">char</span>        usedAttributes
+    <span class="code-keyword">int</span>         borderLines
+    <span class="code-keyword">int</span>         colour1
+    <span class="code-keyword">short</span>       colour2
+}</pre>
+
+<p>Besides a few directly associated attributes specifying alignment, rotation, etc. of the Excel cell, there are two more index values: <code>fontRecordIndex</code> and <code>formatRecordIndex</code>. These are used to define font and display format descriptions. In the whole picture, this two-level index based formatting architecture enables cell formatting with small file sizes and low memory usage, because there are typically only a few different fonts and display formats used in an Excel worksheet. The font index refers to a <code>FONT</code> record with the following attributes:</p>
+
+<pre lang="C++">FONT {
+    <span class="code-keyword">short</span>       height
+    <span class="code-keyword">short</span>       options
+    <span class="code-keyword">short</span>       colourIndex
+    <span class="code-keyword">short</span>       weight
+    <span class="code-keyword">short</span>       escapementType
+    <span class="code-keyword">char</span>        underlineType
+    <span class="code-keyword">char</span>        family
+    <span class="code-keyword">char</span>        characterSet
+    <span class="code-keyword">char</span>        unused
+    SmallString name
+}</pre>
+
+<p>The third index is a special one. This format index is associated with a record containing only the index itself and a text representation of the display format:</p>
+
+<pre lang="C++">FORMAT {
+    <span class="code-keyword">short</span>       index
+    LargeString fmtstring
+}</pre>
+
+<p><code>XLSFormatManager</code> manages these three formatting substructures to format Excel cells using the C++ structures <code>CellFormat</code> and <code>ExcelFont</code>:</p>
+
+<pre lang="text">struct CellFormat  -&gt;  XF {FORMAT index, FONT index, XF attributes}
+
+struct ExcelFont   -&gt;  FONT {FONT attributes}</pre>
+
+<p>On calling <code>CellFormat::set_font(const ExcelFont&amp; font)</code>, the manager class searches for an already registered matching font description. If there is none yet, a new <code>FONT</code> record is created to be stored in the Excel sheet. On calling <code>CellFormat::set_format_string(const wstring&amp; fmt_str)</code>, the manager class searches for an already registered matching display format <code>string</code>. If there is none yet, a new <code>FORMAT</code> record stores the display format <code>string</code>. The same strategy is used when applying a <code>CellFormat</code> to a cell object by calling <code>BasicExcelCell::SetFormat(const CellFormat&amp; fmt)</code>: the manager class searches for an already registered matching XF description with identical font and format indices as well as matching XF attributes. If there is none yet, a new <code>XF</code> record is created to be stored in the Excel sheet. In the end, this results in a list of <code>FORMAT</code>, <code>FONT</code>, and <code>XF</code> records, which are stored in the header of the Excel workbook file. Each cell is formatted by storing a single related XF index, which determines all the cell formatting attributes, the font, and the display format.</p>
+
+<p>For further implementation details, please have a look into <em>ExcelFormat.h</em>, <em>ExcelFormat.cpp</em>, <em>BasicExcel.hpp</em> and <em>BasicExcel.cpp</em> of the source code.</p>
+
+<h3>Memory Usage</h3>
+
+<p>To limit memory usage, a reference counting <code>SmartPtr</code> is used to manage the heap structures needed for formula storage. Every cell contains only an optionally filled pointer to the <code>struct Formula</code>. For text or number cells, formula information is not needed. So the smart pointer stays empty, and just contains the value <code>NULL</code>.</p>
+
+<p>In the following section, you can see the implementation of the <code>struct RefCnt</code> as the base for <code>struct Formula</code> and the template <code>struct SmartPtr</code> to hold the reference counted heap objects:</p>
+
+<pre lang="C++"><span class="code-comment">//</span><span class="code-comment"> reference counter for SmartPtr managed objects
+</span><span class="code-keyword">struct</span> RefCnt
+{
+    <span class="code-comment">//</span><span class="code-comment"> On construction the reference counter
+</span>    <span class="code-comment">//</span><span class="code-comment"> is initialized with an usage count of 0.
+</span>    RefCnt()
+     :    _ref_cnt(<span class="code-digit">0</span>)
+    {
+    }
+
+    <span class="code-keyword">int</span>    _ref_cnt;
+};
+
+
+<span class="code-comment">//</span><span class="code-comment"> reference counting smart pointer
+</span><span class="code-keyword">template</span><span class="code-keyword">&lt;</span><span class="code-keyword">typename</span> T<span class="code-keyword">&gt;</span> <span class="code-keyword">struct</span> SmartPtr
+{
+    <span class="code-comment">//</span><span class="code-comment"> default constructor
+</span>    SmartPtr()
+     :  _ptr(NULL)
+    {
+    }
+
+    <span class="code-comment">//</span><span class="code-comment"> The initialized SmartPtr constructor increments the reference counter
+
+</span>          <span class="code-comment">//</span><span class="code-comment"> in struct RefCnt.
+</span>    SmartPtr(T* p)
+     :  _ptr(p)
+    {
+        <span class="code-keyword">if</span> (p)
+            ++_ptr-<span class="code-keyword">&gt;</span>_ref_cnt;
+    }
+
+    <span class="code-comment">//</span><span class="code-comment"> The copy constructor increments the reference counter.
+</span>    SmartPtr(<span class="code-keyword">const</span> SmartPtr&amp; other)
+     :    _ptr(other._ptr)
+    {
+        <span class="code-keyword">if</span> (_ptr)
+            ++_ptr-<span class="code-keyword">&gt;</span>_ref_cnt;
+    }
+
+    <span class="code-comment">//</span><span class="code-comment"> The destructor decreases the reference counter and
+
+</span>    <span class="code-comment">//</span><span class="code-comment"> frees the managed memory as the counter reaches zero.
+</span>    ~SmartPtr()
+    {
+        <span class="code-keyword">if</span> (_ptr) {
+            <span class="code-keyword">if</span> (!--_ptr-<span class="code-keyword">&gt;</span>_ref_cnt)
+                <span class="code-keyword">delete</span> _ptr;
+        }
+    }
+
+    <span class="code-comment">//</span><span class="code-comment"> The assignment operator increments the reference counter.
+
+</span>    SmartPtr&amp; operator=(T* p)
+    {
+        <span class="code-keyword">if</span> (_ptr) {
+            <span class="code-keyword">if</span> (!--_ptr-<span class="code-keyword">&gt;</span>_ref_cnt)
+                <span class="code-keyword">delete</span> _ptr;
+
+            _ptr = NULL;
+        }
+
+        <span class="code-keyword">if</span> (p) {
+            _ptr = p;
+
+            ++_ptr-<span class="code-keyword">&gt;</span>_ref_cnt;
+        }
+
+        <span class="code-keyword">return</span> *<span class="code-keyword">this</span>;
+    }
+
+     <span class="code-comment">//</span><span class="code-comment"> operator bool() to check for non-empty smart pointers
+
+</span>    <span class="code-keyword">operator</span> <span class="code-keyword">bool</span>() <span class="code-keyword">const</span> {<span class="code-keyword">return</span> _ptr != NULL;}
+
+     <span class="code-comment">//</span><span class="code-comment"> operator!() to check for empty smart pointers
+</span>    <span class="code-keyword">bool</span> operator!() <span class="code-keyword">const</span> {<span class="code-keyword">return</span> !_ptr;}
+
+     <span class="code-comment">//</span><span class="code-comment"> operator-&gt;() to access the managed objects
+
+</span>    T* <span class="code-keyword">operator</span>-<span class="code-keyword">&gt;</span>() {<span class="code-keyword">return</span> _ptr;}
+    <span class="code-keyword">const</span> T* <span class="code-keyword">operator</span>-<span class="code-keyword">&gt;</span>() <span class="code-keyword">const</span> {<span class="code-keyword">return</span> _ptr;}
+
+     <span class="code-comment">//</span><span class="code-comment"> Dereference pointed memory
+
+</span>    T&amp; <span class="code-keyword">operator</span>*() {<span class="code-keyword">return</span> *_ptr;}
+    <span class="code-keyword">const</span> T&amp; <span class="code-keyword">operator</span>*() <span class="code-keyword">const</span> {<span class="code-keyword">return</span> *_ptr;}
+
+
+<span class="code-keyword">private</span>:
+    T* _ptr;
+};</pre>
+
+<h3>String Conversion</h3>
+
+<p>There are some new <code>string</code> conversion functions: <code>stringFromSmallString()</code>, <code>stringFromLargeString()</code>, <code>wstringFromSmallString()</code>, <code>wstringFromLargeString()</code> using <code>narrow_string()</code>/<code>widen_string()</code> are used to convert from internal Excel <code>string</code> structures to STL <code>string</code> classes and vice versa. You can use them to access the internal data storage of <code>BasicExcel</code>.</p>
+
+<h2>History</h2>
+
+<ul>
+
+<li>20.09.2009 - Version 1.0 of <code>ExcelFormat</code> (<code>BasicExcel</code> Version 2.0)</li>
+
+<li>28.09.2009 - Version 2.0<ul>
+<li>Added new section <em>Formatting storage structures</em></li>
+</ul></li>
+
+<li>04.10.2009 - Version 2.1<ul>
+<li>Updated source code with macros and constants for cell and font properties</li>
+</ul></li>
+
+<li>07.11.2009 - Version 2.2<ul>
+<li>Fixed VS2008 problem when reading sheets with formula fields</li>
+<li>Added <code>BasicExcel::Close()</code>, <code>CellFormat::get</code>/<code>set_text_props()</code> and <code>get/set_borderlines()</code></li>
+</ul></li>
+
+<li>12.01.2010 - Version 2.3: (by Ami Castonguay and Martin Fuchs)
+<ul>
+<li>Fixed reference counting of Formula data structs</li>
+<li>Support for shared formulas</li>
+<li>Support for merged cells</li>
+<li>Save formatting even if cell is empty</li>
+<li>Flush <code>fstream</code> instead of closing it followed by open to prevent races in conjunction with virus scanners</li>
+<li>Enable reading of XLS files exported by MacOS <em>Numbers.app</em></li>
+</ul>
+</li>
+
+<li>15.11.2010 - Version 2.4<ul>
+<li>Add second <code>set_borderlines()</code> overload</li>
+<li>Add <code>ExcelFont::set_italic()</code>, <code>CellFormat::set_wrapping()</code></li>
+<li>Handle <code>COLINFO</code></li>
+<li>Miscellaneous fixes</li>
+</ul></li>
+
+<li>01.01.2011 - Version 2.5<ul>
+<li>Dynamically allocate memory for unexpected high row/column values while loading XLS files</li>
+<li>Unicode overloads for <code>Load()</code> and <code>SaveAs()</code></li>
+<li>Adjust to <code>RKValues</code> written by OpenOffice Calc</li>
+</ul></li>
+
+<li>23.01.2011 - Version 3.0<ul>
+<li>access compound document files using the Windows API</li>
+<li>reduced memory consumption and increased speed</li>
+<li>64 bit portability</li>
+<li>return current value string from formula cells</li>
+</ul></li>
+
+</ul>
+
+<!-- Article Text End -->
+
+</body>
+</html>
