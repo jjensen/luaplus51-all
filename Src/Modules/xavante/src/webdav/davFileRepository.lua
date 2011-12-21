@@ -143,7 +143,7 @@ function resource:getContentData ()
 
 		local block
 		repeat
-			block = f:read (8192)
+			block = f:read (32*1024)
 			if block then
 				coroutine.yield (block)
 			end
