@@ -1,19 +1,11 @@
 {
 
 local SRCS =
-		lxls.cpp
-		ExcelFormat/BasicExcel.cpp
-		ExcelFormat/BasicExcel.hpp
-		ExcelFormat/ExcelFormat.cpp
-		ExcelFormat/ExcelFormat.h
+		xlsx.lua
 ;
 
-if $(NT) {
-} else {
-}
+Lua.Module xlsx : : $(SRCS) ;
 
-C.IncludeDirectories xls : ExcelFormat ;
-
-Lua.CModule xls : : $(SRCS) ;
+CopyFiles xlsx : $(LUA_LDIR) : $(SUBDIR)/$(SRCS) ;
 
 }
