@@ -92,6 +92,7 @@ int path_create(const char* inPath)
 
 int path_destroy(const char* inDirName)
 {
+  int ret = 1;
 #if defined(WIN32)
   char dirName[MAX_PATH];
   char* dirNamePtr = dirName;
@@ -100,7 +101,7 @@ int path_destroy(const char* inDirName)
   HANDLE handle;
 
   if (*inDirName == 0)
-    return 1;
+    return ret;
 
   while (ch = *inDirName++) {
     if (ch == '/'  ||  ch == '\\')
@@ -117,8 +118,7 @@ int path_destroy(const char* inDirName)
   handle = FindFirstFile(dirName, &fd);
   *dirNamePtr = 0;
 
-  if (handle != INVALID_HANDLE_VALUE)
-  {
+  if (handle != INVALID_HANDLE_VALUE) {
     do {
       if (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
         int skipDir = fd.cFileName[0] == '.'  &&
@@ -127,33 +127,31 @@ int path_destroy(const char* inDirName)
           strcpy(dirNamePtr, fd.cFileName);
           strcat(dirNamePtr, "\\");
           if (!path_destroy(dirName)) {
-            FindClose(handle);
-            return 0;
+            ret = 0;
           }
         }
       } else {
         strcpy(dirNamePtr, fd.cFileName);
         SetFileAttributes(dirName, FILE_ATTRIBUTE_ARCHIVE);
         if (!DeleteFile(dirName)) {
-          FindClose(handle);
-          return 0;
+          ret = 0;
         }
       }
-	} while (FindNextFile(handle, &fd));
+    } while (FindNextFile(handle, &fd));
 
     FindClose(handle);
   }
 
   *--dirNamePtr = 0;
   if (!RemoveDirectory(dirName))
-    return 0;
+    ret = 0;
 #else
   char dirName[FILENAME_MAX];
   char* dirNamePtr;
   char ch;
 
   if (*inDirName == 0)
-    return 1;
+    return ret;
 
   dirNamePtr = dirName;
 
@@ -173,19 +171,17 @@ int path_destroy(const char* inDirName)
     struct dirent* dp;
     while ((dp = readdir(dirp)) != NULL) {
       strcpy(dirNamePtr, dp->d_name);
-	  if (dp->d_type & DT_DIR) {
+      if (dp->d_type & DT_DIR) {
         int skipDir = dp->d_name[0] == '.'  &&  (dp->d_name[1] == 0  ||  (dp->d_name[1] == '.'  &&  dp->d_name[2] == 0));
         if (!skipDir) {
           strcat(dirNamePtr, "/");
           if (!path_destroy(dirName)) {
-            closedir(dirp);
-            return 0;
-		  }
+            ret = 0;
+          }
         }
       } else {
         if (unlink(dirName) == -1) {
-          closedir(dirp);
-          return 0;
+          ret = 0;
         }
       }
     }
@@ -195,10 +191,10 @@ int path_destroy(const char* inDirName)
 
   *--dirNamePtr = 0;
   if (rmdir(dirName) == -1)
-    return 0;
+    ret = 0;
 #endif
 
-  return 1;
+  return ret;
 }
 
 
