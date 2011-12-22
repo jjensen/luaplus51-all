@@ -78,32 +78,28 @@ local __sheetMetatable = {
                     until index > #colLetters
                 end
 
-                local formula
-                local data = columnNode['#'].v[1]['#']
-                if colType == 's' then
-                    data = self.workbook.sharedStrings[tonumber(data) + 1]
-                elseif (cellS == '1'  or  cellS == '2'  or  cellS == '3'  or  cellS == '4')  and colType == 'n' then
-                    local value = columnData
-                    print(tonumber(value))
-                    print(value)
-                    assert()
-                    data = xldata_as_tuple(tonumber(columnNode[1]['#'][1]['#'].nodeValue))
-                end
+                if columnNode['#'].v then
+                    local data = columnNode['#'].v[1]['#']
+                    if colType == 's' then
+                        data = self.workbook.sharedStrings[tonumber(data) + 1]
+                    end
 
-                --if columnNode['#'].f then
-                    --assert()
-                --end
+                    --local formula
+                    --if columnNode['#'].f then
+                        --assert()
+                    --end
 
-                if not rows[rowNum] then
-                    rows[rowNum] = {}
+                    if not rows[rowNum] then
+                        rows[rowNum] = {}
+                    end
+                    if not columns[colNum] then
+                        columns[colNum] = {}
+                    end
+                    local cell = Cell(rowNum, colNum, data, formula)
+                    table.insert(rows[rowNum], cell)
+                    table.insert(columns[colNum], cell)
+                    self.__cells[cellId] = cell
                 end
-                if not columns[colNum] then
-                    columns[colNum] = {}
-                end
-                local cell = Cell(rowNum, colNum, data, formula)
-                table.insert(rows[rowNum], cell)
-                table.insert(columns[colNum], cell)
-                self.__cells[cellId] = cell
             end
         end
         self.__rows = rows
@@ -138,11 +134,11 @@ local __sheetMetatable = {
     end,
 
     GetTotalRows = function(self)
-        return #self.rows
+        return #self.__rows
     end,
 
     GetTotalCols = function(self)
-        return #self.cols
+        return #self.__cols
     end,
 
     Cell = function(self, row, col)
@@ -165,7 +161,7 @@ __sheetMetatable.__index = function(self, key)
     local value = __sheetMetatable[key]
     if value then return value end
     return self.__cells[key]
-end,
+end
 
 
 function Sheet(workbook, id, name)
@@ -202,6 +198,14 @@ local __workbookMetatableMembers = {
     GetSheetName = function(self, key)
         return self:GetWorksheet(key).name
     end,
+
+    Sheets = function(self)
+        local i = 0
+        return function()
+            i = i + 1
+            return self.__sheets[i]
+        end
+    end
 }
 
 
