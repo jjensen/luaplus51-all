@@ -278,7 +278,9 @@ local SRCS =
 		src/memory_pool.c
 		src/object.c
 		src/permissions.c
+		src/pollset.c
 		src/proc.c
+		src/serialize.c
 		src/shm.c
 		src/signal.c
 		src/stat.c
@@ -286,7 +288,6 @@ local SRCS =
 		src/thread.c
 		src/thread_queue.c
 		src/time.c
-		src/tuple.c
 		src/uri.c
 		src/user.c
 		src/uuid.c
