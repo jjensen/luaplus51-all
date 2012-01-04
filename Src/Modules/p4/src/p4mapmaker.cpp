@@ -28,12 +28,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /*******************************************************************************
 * Name		: p4mapmaker.cpp
 *
-* Author	: Tony Smith <tony@perforce.com> 
+* Author	: Tony Smith <tony@perforce.com>
 *
 * Description	: Class to encapsulate Perforce map manipulation from Ruby
 *
 ******************************************************************************/
+extern "C" {
 #include "lua.h"
+}
 #include "undefdups.h"
 #include "p4/clientapi.h"
 #include "p4/mapapi.h"
@@ -78,7 +80,7 @@ P4MapMaker::P4MapMaker( const P4MapMaker &m )
 }
 
 
-P4MapMaker * 
+P4MapMaker *
 P4MapMaker::Join( lua_State *L, P4MapMaker *l, P4MapMaker *r)
 {
 	P4MapMaker* m = (P4MapMaker*)lua_newuserdata(L, sizeof(P4MapMaker));
@@ -103,7 +105,7 @@ P4MapMaker::Insert( int m )
 
 	l = lbuf.Text();
 
-	// Look for mapType in lhs only. 
+	// Look for mapType in lhs only.
 	if( l[ 0 ] == '-' )
 	{
 		l += 1;

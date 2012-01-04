@@ -1,5 +1,7 @@
+extern "C" {
 #include "lua.h"
 #include "lauxlib.h"
+}
 #include "undefdups.h"
 #include "p4/clientapi.h"
 #include "p4/strtable.h"

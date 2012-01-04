@@ -36,8 +36,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ******************************************************************************/
 #include <ctype.h>
 #include <new>
+extern "C" {
 #include "lua.h"
 #include "lauxlib.h"
+}
 #include "p4/clientapi.h"
 #include "p4/spec.h"
 #include "p4/diff.h"

@@ -34,8 +34,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 * 		  Perforce API.
 *
 ******************************************************************************/
+extern "C" {
 #include "lua.h"
 #include "lauxlib.h"
+}
 #include "undefdups.h"
 #include "p4/clientapi.h"
 #include "p4/i18napi.h"

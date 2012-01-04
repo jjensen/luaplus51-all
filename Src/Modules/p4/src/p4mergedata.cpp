@@ -33,7 +33,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * Description	: Class for holding merge data
  *
  ******************************************************************************/
+extern "C" {
 #include "lua.h"
+}
 #include "undefdups.h"
 #include "p4/clientapi.h"
 #include "p4/i18napi.h"
@@ -58,7 +60,7 @@ P4MergeData::P4MergeData( lua_State *_L, ClientUser *ui, ClientMerge *m, StrPtr 
     if( ( t = ui->varList->GetVar( "baseName" ) ) ) base = t->Text();
     if( ( t = ui->varList->GetVar( "yourName" ) ) ) yours = t->Text();
     if( ( t = ui->varList->GetVar( "theirName" ) ) ) theirs = t->Text();
-    
+
 }
 
 int

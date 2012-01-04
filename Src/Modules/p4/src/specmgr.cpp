@@ -37,8 +37,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *
 ******************************************************************************/
 #include <ctype.h>
+extern "C" {
 #include "lua.h"
 #include "lauxlib.h"
+}
 #include "undefdups.h"
 #include "p4/clientapi.h"
 #include "p4/strops.h"
@@ -234,8 +236,8 @@ SpecMgr::HaveSpecDef( const char *type )
 }
 
 //
-// Convert a Perforce StrDict into a Lua table. Convert multi-level 
-// data (Files0, Files1 etc. ) into (nested) array members of the hash. 
+// Convert a Perforce StrDict into a Lua table. Convert multi-level
+// data (Files0, Files1 etc. ) into (nested) array members of the hash.
 //
 
 int
@@ -279,7 +281,7 @@ SpecMgr::StringToSpec( const char *type, const char *form, Error *e )
 	StrPtr *		specDef = specs->GetVar( type );
 	Spec		s( specDef->Text(), "", e );
 
-	if( !e->Test() ) 
+	if( !e->Test() )
 		s.ParseNoValid( form, &specData, e );
 
 	if ( e->Test() )
@@ -290,7 +292,7 @@ SpecMgr::StringToSpec( const char *type, const char *form, Error *e )
 
 
 //
-// Format routine. updates a StrBuf object with the form content. 
+// Format routine. updates a StrBuf object with the form content.
 // The StrBuf can then be converted to a Lua string where required.
 //
 void
@@ -375,7 +377,7 @@ SpecMgr::SpecFields( StrPtr *specDef )
 
 	//
 	// There's no trivial way to do this using the API (and get it right), so
-	// for now, we parse the string manually. We're ignoring the type of 
+	// for now, we parse the string manually. We're ignoring the type of
 	// the field, and any constraints it may be under; what we're interested
 	// in is solely the field name
 	//
@@ -491,10 +493,10 @@ SpecMgr::InsertItem( int table, const StrPtr *var, const StrPtr *val )
 	else if ( !lua_istable( L, -1 ) )
 	{
 		//
-		// There's an index in our var name, but the name is already defined 
-		// and the value it contains is not an array. This means we've got a 
-		// name collision. This can happen in 'p4 diff2' for example, when 
-		// one file gets 'depotFile' and the other gets 'depotFile2'. In 
+		// There's an index in our var name, but the name is already defined
+		// and the value it contains is not an array. This means we've got a
+		// name collision. This can happen in 'p4 diff2' for example, when
+		// one file gets 'depotFile' and the other gets 'depotFile2'. In
 		// these cases it makes sense to keep the structure flat so we
 		// just use the raw variable name.
 		//
