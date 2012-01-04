@@ -1517,15 +1517,45 @@ inline LuaObject LuaObject::ForceGetTable(const char* key) const {
 
 /**
 **/
-inline LuaObject& LuaObject::AssignCFunction(lua_CFunction function, int nupvalues) {
-	return AssignCFunctionHelper(function, nupvalues, NULL, 0, NULL, 0);
+inline LuaObject& LuaObject::AssignCFunction(LuaState* state, lua_CFunction function, int nupvalues) {
+	return AssignCFunctionHelper(state, function, nupvalues, NULL, 0, NULL, 0);
 }
 
 
 /**
 **/
-inline LuaObject& LuaObject::AssignCFunction(int (*func)(LuaState*), int nupvalues) {
-	return AssignCFunctionHelper(LPCD::LuaStateFunctionDispatcher, nupvalues, NULL, 0, &func, sizeof(func));
+inline LuaObject& LuaObject::AssignCFunction(LuaState* state, int (*func)(LuaState*), int nupvalues) {
+	return AssignCFunctionHelper(state, LPCD::LuaStateFunctionDispatcher, nupvalues, NULL, 0, &func, sizeof(func));
+}
+
+
+/**
+**/
+inline LuaObject& LuaObject::AssignCFunctionHelper(LuaState* state, lua_CFunction function, int nupvalues, const void* callee, unsigned int sizeofCallee, void* func, unsigned int sizeofFunc) {
+	if (L)
+		lua_fastunref(L, ref);
+
+	L = LuaState_to_lua_State(state);
+
+	if (sizeofFunc != 0)
+	{
+		unsigned char* buffer = (unsigned char*)lua_newuserdata(L, sizeofCallee + sizeofFunc);
+		unsigned int pos = 0;
+		if (sizeofCallee > 0)
+		{
+			memcpy(buffer, callee, sizeofCallee);
+			pos += sizeofCallee;
+		}
+
+		memcpy(buffer + pos, func, sizeofFunc);
+
+		nupvalues++;
+	}
+
+	lua_pushcclosure(L, (lua_CFunction)function, nupvalues);
+	ref = lua_fastref(L);
+
+	return *this;
 }
 
 

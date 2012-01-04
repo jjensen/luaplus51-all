@@ -220,34 +220,34 @@ public:
 	LuaObject& AssignLightUserdata(LuaState* state, void* value);
 	LuaObject& AssignObject(LuaObject& value);		// Should this function be removed??
 
-	LuaObject& AssignCFunction(lua_CFunction func, int nupvalues = 0);
-	LuaObject& AssignCFunction(int (*func)(LuaState*), int nupvalues = 0);
+	LuaObject& AssignCFunction(LuaState* state, lua_CFunction func, int nupvalues = 0);
+	LuaObject& AssignCFunction(LuaState* state, int (*func)(LuaState*), int nupvalues = 0);
 
 	template <class Callee>
-	LuaObject& AssignCFunction(const Callee& callee, int (Callee::*func)(LuaState*), int nupvalues = 0) {
+	LuaObject& AssignCFunction(LuaState* state, const Callee& callee, int (Callee::*func)(LuaState*), int nupvalues = 0) {
 		const void* pCallee = &callee;
-		return AssignCFunctionHelper(LPCD::LuaStateMemberDispatcherHelper<Callee>::LuaStateMemberDispatcher, nupvalues, &pCallee, sizeof(Callee*), &func, sizeof(func));
+		return AssignCFunctionHelper(state, LPCD::LuaStateMemberDispatcherHelper<Callee>::LuaStateMemberDispatcher, nupvalues, &pCallee, sizeof(Callee*), &func, sizeof(func));
 	}
 
 	template <class Callee>
-	LuaObject& AssignCFunctionObjectFunctor(const char* funcName, int (Callee::*func)(LuaState*), int nupvalues = 0) {
-		return AssignCFunctionHelper(LPCD::Object_MemberDispatcher_to_LuaStateHelper<Callee>::Object_MemberDispatcher_to_LuaState, nupvalues, NULL, 0, &func, sizeof(func));
+	LuaObject& AssignCFunctionObjectFunctor(LuaState* state, const char* funcName, int (Callee::*func)(LuaState*), int nupvalues = 0) {
+		return AssignCFunctionHelper(state, LPCD::Object_MemberDispatcher_to_LuaStateHelper<Callee>::Object_MemberDispatcher_to_LuaState, nupvalues, NULL, 0, &func, sizeof(func));
 	}
 
 	template <typename Func>
-	inline LuaObject& AssignCFunctionDirect(Func func, unsigned int nupvalues = 0) {
-		return AssignCFunctionHelper(LPCD::DirectCallFunctionDispatchHelper<Func>::DirectCallFunctionDispatcher, nupvalues, NULL, 0, &func, sizeof(func));
+	inline LuaObject& AssignCFunctionDirect(LuaState* state, Func func, unsigned int nupvalues = 0) {
+		return AssignCFunctionHelper(state, LPCD::DirectCallFunctionDispatchHelper<Func>::DirectCallFunctionDispatcher, nupvalues, NULL, 0, &func, sizeof(func));
 	}
 
 	template <typename Callee, typename Func>
-	inline LuaObject& AssignCFunctionDirect(const Callee& callee, Func func, unsigned int nupvalues = 0) {
+	inline LuaObject& AssignCFunctionDirect(LuaState* state, const Callee& callee, Func func, unsigned int nupvalues = 0) {
 		const void* pCallee = &callee;
-		return AssignCFunctionHelper(LPCD::DirectCallMemberDispatcherHelper<Callee, Func>::DirectCallMemberDispatcher, nupvalues, &pCallee, sizeof(Callee*), &func, sizeof(func));
+		return AssignCFunctionHelper(state, LPCD::DirectCallMemberDispatcherHelper<Callee, Func>::DirectCallMemberDispatcher, nupvalues, &pCallee, sizeof(Callee*), &func, sizeof(func));
 	}
 
 	template <typename Callee, typename Func>
-	inline LuaObject& AssignCFunctionObjectDirect(const Callee* callee, Func func, unsigned int nupvalues = 0) {
-		return AssignCFunctionHelper(LPCD::DirectCallObjectMemberDispatcherHelper<Callee, Func, 2>::DirectCallMemberDispatcher, nupvalues, NULL, 0, &func, sizeof(func));
+	inline LuaObject& AssignCFunctionObjectDirect(LuaState* state, const Callee* callee, Func func, unsigned int nupvalues = 0) {
+		return AssignCFunctionHelper(state, LPCD::DirectCallObjectMemberDispatcherHelper<Callee, Func, 2>::DirectCallMemberDispatcher, nupvalues, NULL, 0, &func, sizeof(func));
 	}
 
 
@@ -322,7 +322,7 @@ protected:
 	friend class LuaFastRefPush;
 #endif // LUA_FASTREF_SUPPORT
 	LuaObject& RegisterHelper(const char* funcName, lua_CFunction function, int nupvalues, const void* callee, unsigned int sizeofCallee, void* func, unsigned int sizeofFunc);
-	LuaObject& AssignCFunctionHelper(lua_CFunction function, int nupvalues, const void* callee, unsigned int sizeofCallee, void* func, unsigned int sizeofFunc);
+	LuaObject& AssignCFunctionHelper(LuaState* state, lua_CFunction function, int nupvalues, const void* callee, unsigned int sizeofCallee, void* func, unsigned int sizeofFunc);
 
 private:
 	lua_State* L;
