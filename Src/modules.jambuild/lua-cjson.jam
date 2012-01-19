@@ -1,0 +1,12 @@
+{
+
+local SRCS =
+        lua_cjson.c
+        strbuf.c
+        strbuf.h
+;
+
+Lua.CModule lua-cjson : cjson : $(SRCS) ;
+
+}
+
