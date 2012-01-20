@@ -3,12 +3,14 @@
 require'qtcore'
 require'qtgui'
 
-app = QApplication.new(1 + select('#', ...), {arg[0], ...})
-app.__gc = app.delete -- take ownership of object
+app = QApplication(1 + select('#', ...), {arg[0], ...})
 
-hello = QPushButton.new(QString.new("Hello World!"))
+-- the conversion from Lua string to QString is automatic
+hello = QPushButton.new("Hello World!")
+-- but not the other way round
+print(hello:text():toUtf8())
+
 hello:resize(100, 30)
-
 hello:show()
 
 app.exec()

@@ -30,8 +30,8 @@ end
 local new_MyWidget = function(...)
 	local this = QWidget.new(...)
 
-	local quit = QPushButton.new(QString.new'Quit')
-	quit:setFont(QFont.new(QString.new'Times', 18, 75))
+	local quit = QPushButton.new('Quit')
+	quit:setFont(QFont('Times', 18, 75))
 
 	QObject.connect(quit, '2clicked()', this, '1close()')
 

@@ -27,6 +27,12 @@
 int lqtL_qt_metacall (lua_State *, QObject *, QObject *, QMetaObject::Call, const char *, int, void **);
 void lqtL_qobject_custom (lua_State *L);
 
+#ifndef MODULE_qtgui
+void lqtL_qvariant_custom (lua_State *L);
+#else
+void lqtL_qvariant_custom_qtgui (lua_State *L);
+#endif
+
 // custom type handlers
 
 QList<QByteArray> lqtL_getStringList(lua_State *L, int i);

@@ -105,9 +105,12 @@ function virtual_overload(v)
       } else
         lua_error(L);
     }
+  } else {
+    lua_settop(L, oldtop);
+    ]]..fallback..[[
   }
-  lua_settop(L, oldtop);
-  ]] .. fallback .. '\n}\n'
+}
+]]
 	v.virtual_overload = ret
 	v.virtual_proto = string.gsub(proto, ';;', '', 1)
 	return v

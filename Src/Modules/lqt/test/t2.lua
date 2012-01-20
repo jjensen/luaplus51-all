@@ -1,16 +1,18 @@
 #!/usr/bin/lua
 
+local arg = {n = select('#', ...), [0] = arg[0], ...}
+
 require'qtcore'
 require'qtgui'
 
-app = QApplication.new(1 + select('#', ...), {arg[0], ...})
-app.__gc = app.delete -- take ownership of object
+app = QApplication(1 + arg.n, arg)
 
-quit = QPushButton.new(QString.new("Quit"))
+quit = QPushButton("Quit")
 quit:resize(75, 30)
-quit:setFont(QFont.new(QString.new'Times', 18, 75))
+quit:setFont(QFont("Times", 18, 75))
 
-QObject.connect(quit, '2clicked()', app, '1quit()')
+-- won't work, the signals and slots are checked if they exist
+-- print(quit:connect('madeup()', app, 'quit()'))
 
 quit:show()
 

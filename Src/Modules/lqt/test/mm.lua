@@ -2,13 +2,13 @@
 
 require'qtcore'
 
-qapp = QCoreApplication.new_local(1+select("#", ...), {arg[0], ...})
+qapp = QCoreApplication(1+select("#", ...), {arg[0], ...})
 
 local N = 1
 local qo = nil
 local del = QObject.delete
 for i = 1, 10*N do
-  qo = QObject.new_local(qo)
+  qo = QObject(qo)
   print('created QObject', qo);
   qo.delete = function(...) del(...) print('deleting', ...) end
   qo.__gc = function(...) del(...) print('deleting', ...) end

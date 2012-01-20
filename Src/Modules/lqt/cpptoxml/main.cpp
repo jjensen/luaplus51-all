@@ -420,6 +420,25 @@ void printHelp()
 }
 
 
+
+QString findIncludeFile(const QString& sourceName, const QString& qtdir)
+{
+	QStringList tries;
+
+#define TRY_DIRECTORY(dir) \
+	do { QString tmp = dir; \
+		if (QFileInfo(tmp).exists()) return dir; else tries.append(tmp); \
+	} while (0)
+
+	TRY_DIRECTORY(qtdir+'/'+sourceName+'/'+sourceName);
+	TRY_DIRECTORY(qtdir+"/Headers/"+sourceName);
+	TRY_DIRECTORY(QString("/Library/Frameworks/%1.framework/Headers/%1").arg(sourceName));
+
+	cerr << "Could not find include file, tried here: " << qPrintable(tries.join(" "));
+	exit(1);
+}
+
+
 int main (int argc, char **argv) {
 	bool onlyPreprocess = false;
 	bool dontResolve = false;
@@ -489,48 +508,24 @@ int main (int argc, char **argv) {
 			if (separed)
 				i++;
 		} else {
-#ifdef Q_OS_MAC
 			if (sourceName.isEmpty())
 				sourceName = QString::fromLatin1(argv[i]);
-			else
-				qtdir = QString::fromLatin1(argv[i]);
-#else
-			sourceName = QString::fromLatin1(argv[i]);
-#endif
 		}
 	}
-	
+
 	if (qtdir.isEmpty())
 		qtdir = QDir::fromNativeSeparators(getenv("QT_INCLUDE"));
 	if (qtdir.isEmpty()) {
 		fprintf(stderr, "Generator requires Qt include dir as option -Q or QT_INCLUDE to be set\n");
 		return 1;
 	}
+
+	if (!QFileInfo(sourceName).exists() || QFileInfo(sourceName).isDir())
+		sourceName = findIncludeFile(sourceName, qtdir);
 	
-	QString frameworkDir = "/Library/Frameworks";
-	if (!QFileInfo(sourceName).exists() || QFileInfo(sourceName).isDir()) {
-		QString qtincludefile = QDir::fromNativeSeparators(qtdir+'/'+sourceName+'/'+sourceName);
-		QString macincludefile = QString("%1/%2.framework/Headers/%2").arg(frameworkDir).arg(sourceName);
-		if (QFileInfo(qtincludefile).exists()) {
-			sourceName = qtincludefile;
-		} else if (QFileInfo(macincludefile).exists()) {
-			sourceName = macincludefile;
-		} else {
-			QString msg = "Error: wether '" + sourceName + "' nor '" + qtincludefile;
-#if defined(Q_OS_MAC)
-			msg += "' or '" + macincludefile;
-#endif
-			msg += "' found";
-			fprintf(stderr, "%s\n", msg.toLatin1().constData());
-			return 1;
-		}
-	}
+	if (verbose) fprintf(stderr, "Used file: %s\n", qPrintable(sourceName));
 	
-	if(verbose) fprintf(stderr, "Used file: %s", qPrintable(sourceName));
-	
-	QString currentDir = QDir::current().absolutePath();
 	QFileInfo sourceInfo(sourceName);
-	//QDir::setCurrent(sourceInfo.absolutePath());
 
 	inclist << (sourceInfo.absolutePath());
 	inclist << (QDir::convertSeparators(qtdir));
@@ -540,16 +535,10 @@ int main (int argc, char **argv) {
 		<<"QtOpenGL" << "QtWebKit"<< "QtScript" << "QtSvg";
 
 	Q_FOREACH(const QString& lib, qts) {
-		if (sourceName.contains(frameworkDir)) {
-			// TODO does not work with framework because there are no QtCore, QtGui, ... folders
-			inclist << QString("%1/%2.framework/Headers").arg(frameworkDir).arg(lib);
-		} else {
-			inclist << QDir::convertSeparators(qtdir + "/" + lib);
-		}
+		inclist << QDir::convertSeparators(qtdir + "/" + lib);
 	}
 
-	if(debug) qDebug() << "atdir: " << qtdir << "sourceName: " << sourceName << inclist;
-	
+	if(debug) qDebug() << "atdir: " << qtdir << "\nsourceName: " << sourceName << "\nincludes" << inclist;
 
 	Preprocessor pp;
 	pp.addIncludePaths(inclist);

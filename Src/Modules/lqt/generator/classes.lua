@@ -335,7 +335,7 @@ function fill_implicit_constructor()
 					and (not f.xarg.access or f.xarg.access == "public")
 					and f[1].xarg.type_base ~= c.xarg.name
 					and not f[1].xarg.type_base:match('Private$')
-					and not f.xarg.explicit
+					-- and not f.xarg.explicit
 					and not c.abstract
 				then
 					local class_name = c.xarg.cname
@@ -381,6 +381,12 @@ local function generate_implicit_code(class_name, t)
 				
 				local newtype = fullname .. '(arg)'
 				if c.shell then newtype = 'lqt_shell_'..c.xarg.cname..'(L,arg)' end
+				
+				-- HACK: QVariant with 'char const*' argument - force it to QByteArray
+				if fullname == 'QVariant' and typ == 'char const*' then
+				    typ = 'QByteArray'
+				end
+				
 				local convert_code = 
 					  '  if ('..test..') {\n'
 					..'    '..typ..' arg = '..typesystem[typ].get('n')..';\n'
@@ -858,10 +864,11 @@ end
 	if qobject_present then
 		print_meta('\tlqtL_qobject_custom(L);')
 	end
-	print_meta('\t//lua_pushlightuserdata(L, (void*)&LqtSlotAcceptor::staticMetaObject);')
-	print_meta('\t//lua_setfield(L, LUA_REGISTRYINDEX, LQT_METAOBJECT);')
-	print_meta('\t//lqtL_passudata(L, (void*)(new LqtSlotAcceptor(L)), "QObject*");')
-	print_meta('\t//lua_setfield(L, LUA_REGISTRYINDEX, LQT_METACALLER);')
+	if module_name == "qtcore" then
+		print_meta("\tlqtL_qvariant_custom(L);")
+	elseif module_name == "qtgui" then
+		print_meta("\tlqtL_qvariant_custom_qtgui(L);")
+	end
 	print_meta('\tlqtL_register_super(L);')
 	print_meta('\tlqtSlotAcceptor_'..module_name..' = new LqtSlotAcceptor(L);')
 	print_meta('\treturn 0;\n}')

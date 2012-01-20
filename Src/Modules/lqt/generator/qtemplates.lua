@@ -11,7 +11,8 @@ return {
 	qtgui = {
 		["QList<T>"] = { "QList<QGraphicsItem*>", "QList<int>", "QList<qreal>",
 			"QList<QModelIndex>", "QList<QSize>", "QList<QPolygonF>", "QList<QKeySequence>",
-			"QList<QUrl>", "QList<QRectF>", "QList<QImageTextKeyLang>", "QList<QTableWidgetItem*>" },
+			"QList<QUrl>", "QList<QRectF>", "QList<QImageTextKeyLang>", "QList<QTableWidgetItem*>",
+			"QList<QAction*>" },
 		["QVector<T>"] = { "QVector<QPointF>", "QVector<QPoint>", "QVector<QRgb>", "QVector<QLine>",
 			"QVector<QRectF>", "QVector<QRect>", "QVector<QTextLength>", "QVector<QGradientStop>",
 			"QVector<qreal>", "QVector<QColor>", "QVector<QTextFormat>", "QVector<QLineF>" },

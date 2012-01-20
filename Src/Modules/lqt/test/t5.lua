@@ -6,8 +6,8 @@ require'qtgui'
 local new_MyWidget = function(...)
 	local this = QWidget.new(...)
 
-	local quit = QPushButton.new(QString.new'Quit')
-	quit:setFont(QFont.new(QString.new'Times', 18, 75))
+	local quit = QPushButton.new('Quit')
+	quit:setFont(QFont.new('Times', 18, 75))
 
 	local lcd = QLCDNumber.new()
 	lcd:setSegmentStyle'Filled'
