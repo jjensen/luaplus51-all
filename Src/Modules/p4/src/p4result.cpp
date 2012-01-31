@@ -41,24 +41,56 @@ extern "C" {
 }
 #include "p4/clientapi.h"
 #include "p4result.h"
+#include "luamessage.h"
 
 P4Result::P4Result( lua_State *L )
 	: L( L )
 	, outputRef(LUA_NOREF)
 	, warningsRef(LUA_NOREF)
 	, errorsRef(LUA_NOREF)
-	, table( -1 )
+	, messagesRef(LUA_NOREF)
+	, trackRef(LUA_NOREF)
 {
-    Reset();
+    apiLevel = atoi( P4Tag::l_client );
+
+	Reset();
+}
+
+
+P4Result::~P4Result()
+{
+	if ( outputRef != LUA_NOREF )
+		luaL_unref( L, LUA_REGISTRYINDEX, outputRef );
+	if ( warningsRef != LUA_NOREF )
+		luaL_unref( L, LUA_REGISTRYINDEX, warningsRef );
+	if ( errorsRef != LUA_NOREF )
+		luaL_unref( L, LUA_REGISTRYINDEX, errorsRef );
+	if ( messagesRef != LUA_NOREF )
+		luaL_unref( L, LUA_REGISTRYINDEX, messagesRef );
+	if ( trackRef != LUA_NOREF )
+		luaL_unref( L, LUA_REGISTRYINDEX, trackRef );
+}
+
+
+int P4Result::GetOutput()
+{   
+    int temp = outputRef;
+    outputRef = LUA_NOREF;  // last reference is removed by caller
+    return temp;
 }
 
 
 void
 P4Result::Reset()
 {
-    luaL_unref(L, LUA_REGISTRYINDEX, outputRef);
-    luaL_unref(L, LUA_REGISTRYINDEX, warningsRef);
-    luaL_unref(L, LUA_REGISTRYINDEX, errorsRef);
+	if ( outputRef != LUA_NOREF )
+		luaL_unref( L, LUA_REGISTRYINDEX, outputRef );
+	if ( warningsRef != LUA_NOREF )
+		luaL_unref( L, LUA_REGISTRYINDEX, warningsRef );
+	if ( errorsRef != LUA_NOREF )
+		luaL_unref( L, LUA_REGISTRYINDEX, errorsRef );
+	if ( messagesRef != LUA_NOREF )
+		luaL_unref( L, LUA_REGISTRYINDEX, messagesRef );
 
     lua_newtable(L);
     outputRef = luaL_ref(L, LUA_REGISTRYINDEX);
@@ -66,58 +98,54 @@ P4Result::Reset()
     warningsRef = luaL_ref(L, LUA_REGISTRYINDEX);
     lua_newtable(L);
     errorsRef = luaL_ref(L, LUA_REGISTRYINDEX);
+    lua_newtable(L);
+    messagesRef = luaL_ref(L, LUA_REGISTRYINDEX);
+
+	ClearTrack();
 }
 
-void
-P4Result::AddOutput( const char *msg, int length )
+int P4Result::AppendString(int list, const char * str)
 {
-	if ( table != -1 )
-	{
-		lua_getfield( L, table, "OutputText" );
-		if ( lua_isfunction( L, -1 ) )
-		{
-			lua_pushlstring(L, msg, length == -1 ? strlen( msg ) : length );
-			lua_call( L, 1, 0 );
-			return;
-		}
-		lua_pop( L, 1 );
-	}
-
-	lua_rawgeti(L, LUA_REGISTRYINDEX, outputRef);
-	lua_pushnumber(L, lua_objlen(L, -1) + 1);
-	lua_pushlstring(L, msg, length == -1 ? strlen( msg ) : length );
-	lua_rawset(L, -3);
+	lua_rawgeti(L, LUA_REGISTRYINDEX, list);
+	lua_pushstring(L, str);
+	lua_rawseti(L, -2, lua_objlen(L, -2) + 1);
 	lua_pop(L, 1);
+    return 0;
 }
 
-void
-P4Result::AddOutput( int out )
+int P4Result::AppendString(int list, int index)
 {
-	if ( table != -1 )
-	{
-		lua_getfield( L, table, "OutputText" );
-		if ( lua_isfunction( L, -1 ) )
-		{
-			lua_pushvalue( L, out );
-			lua_call( L, 1, 0 );
-			return;
-		}
-		lua_pop( L, 1 );
-	}
-
-	lua_rawgeti(L, LUA_REGISTRYINDEX, outputRef);
-	lua_pushnumber(L, lua_objlen(L, -1) + 1);
-	lua_pushvalue(L, out);
-	lua_rawset(L, -3);
+	lua_rawgeti(L, LUA_REGISTRYINDEX, list);
+	lua_pushvalue(L, index);
+	lua_rawseti(L, -2, lua_objlen(L, -2) + 1);
 	lua_pop(L, 1);
+    return 0;
 }
 
-void
-P4Result::AddError( Error *e )
+void P4Result::AddOutput( const char *msg )
 {
-    StrBuf	m;
-    e->Fmt( &m, EF_PLAIN );
+    AppendString(outputRef, msg);
+}
 
+void P4Result::AddTrack( int luaIndex )
+{
+    AppendString(trackRef, luaIndex);
+}
+
+void P4Result::ClearTrack()
+{
+    luaL_unref(L, LUA_REGISTRYINDEX, trackRef);
+    lua_newtable(L);
+    trackRef = luaL_ref(L, LUA_REGISTRYINDEX);
+}
+
+void P4Result::AddOutput( int out )
+{
+    AppendString(outputRef, out);
+}
+
+void P4Result::AddError( Error *e )
+{
     int s;
     s = e->GetSeverity();
 
@@ -127,61 +155,43 @@ P4Result::AddError( Error *e )
     // list and the rest are lumped together as errors.
     //
 
+    StrBuf	m;
+    e->Fmt( &m, EF_PLAIN );
+
     if ( s == E_EMPTY || s == E_INFO )
-    {
 		AddOutput( m.Text() );
-		return;
-    }
-
-	if ( table != -1 )
-	{
-		lua_getfield( L, table, s == E_WARN ? "OutputWarning" : "OutputError" );
-		if ( lua_isfunction( L, -1 ) )
-		{
-			lua_pushstring(L, m.Text() );
-			lua_call( L, 1, 0 );
-			return;
-		}
-		lua_pop( L, 1 );
-	}
-
-	if ( s == E_WARN )
-		lua_rawgeti(L, LUA_REGISTRYINDEX, warningsRef);
+	else if ( s == E_WARN )
+		AppendString(warningsRef, m.Text());
 	else
-		lua_rawgeti(L, LUA_REGISTRYINDEX, errorsRef);
-	lua_pushnumber(L, lua_objlen(L, -1) + 1);
-	lua_pushstring(L, m.Text());
-	lua_rawset(L, -3);
+		AppendString(errorsRef, m.Text());
+
+	p4_message_new(L, e);
+	AppendString(messagesRef, lua_gettop(L));
 	lua_pop(L, 1);
 }
 
-int
-P4Result::ErrorCount()
+int P4Result::ErrorCount()
 {
     return Length( errorsRef );
 }
 
-int
-P4Result::WarningCount()
+int P4Result::WarningCount()
 {
     return Length( warningsRef );
 }
 
-void
-P4Result::FmtErrors( StrBuf &buf )
+void P4Result::FmtErrors( StrBuf &buf )
 {
     Fmt( "[Error]: ", errorsRef, buf );
 }
 
-void
-P4Result::FmtWarnings( StrBuf &buf )
+void P4Result::FmtWarnings( StrBuf &buf )
 {
     Fmt( "[Warning]: ", warningsRef, buf );
 }
 
 
-int
-P4Result::Length( int ary )
+int P4Result::Length( int ary )
 {
     lua_rawgeti(L, LUA_REGISTRYINDEX, ary);
 	int len = lua_objlen(L, -1);
@@ -189,8 +199,7 @@ P4Result::Length( int ary )
     return len;
 }
 
-void
-P4Result::Fmt( const char *label, int table, StrBuf &buf )
+void P4Result::Fmt( const char *label, int table, StrBuf &buf )
 {
     buf.Clear();
     // If the array is empty, then we just return

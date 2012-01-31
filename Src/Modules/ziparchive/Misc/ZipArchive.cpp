@@ -2883,7 +2883,9 @@ bool ZipArchive::ProcessFileList(ZipArchive::FileOrderList& fileOrderList, Proce
 		if (m_fileEntryCount == 0) {
 			// Set the start of the .zip file contents to be after the directory
 			// at the beginning.
-			GetParentFile()->SetLength(initialOffset);
+			if (!options->checkOnly) {
+				GetParentFile()->SetLength(initialOffset);
+			}
 			m_dirOffset = initialOffset;
 		} else if (lowestFileOffset != initialOffset) {
 			if (options->checkOnly)

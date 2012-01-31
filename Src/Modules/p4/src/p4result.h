@@ -39,18 +39,23 @@ class P4Result
 public:
 
     P4Result( lua_State *L );
-
-	void SetTable( int t )	{ table = t; }
+	~P4Result();
 
     // Setting
-    void	AddOutput( const char *msg, int length = -1 );
-	void	AddOutput( int out );
+    void	AddOutput( const char *msg );
+	void	AddOutput( int luaIndex );
+	void	AddTrack( int luaIndex );
     void	AddError( Error *e );
 
-    // Getting
-    int	GetOutput()	{ return outputRef;	}
-    int	GetErrors()	{ return errorsRef;	}
+    void	ClearTrack();
+    void	SetApiLevel( int level ) { apiLevel = level; }
+
+	// Getting
+    int	GetOutput();
+    int	GetErrors()		{ return errorsRef;	}
     int	GetWarnings()	{ return warningsRef;	}
+    int	GetMessages()	{ return messagesRef;	}
+    int	GetTrack()		{ return trackRef;	}
 
     // Get errors/warnings as a formatted string
     void	FmtErrors( StrBuf &buf );
@@ -66,10 +71,14 @@ public:
 private:
     int		Length( int ary );
     void	Fmt( const char *label, int ary, StrBuf &buf );
+	int		AppendString(int list, const char * str);
+	int		AppendString(int list, int index);
 
     lua_State *L;
     int	outputRef;
     int	warningsRef;
     int	errorsRef;
-	int table;
+    int	messagesRef;
+    int	trackRef;
+    int         apiLevel;
 };

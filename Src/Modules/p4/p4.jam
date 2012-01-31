@@ -4,6 +4,8 @@ if ( ! $(NT)  ||  $(COMPILER.$(PLATFORM)) != vc6 )
 local SRCS =
 		src/clientuserlua.cpp
 		src/clientuserlua.h
+		src/luamessage.cpp
+		src/luamessage.h
 		src/p4.cpp
 		src/p4.lua
 		src/p4clientapi.cpp

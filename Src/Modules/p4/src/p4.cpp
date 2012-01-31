@@ -12,6 +12,7 @@ extern "C" {
 #include "clientuserlua.h"
 #include "p4clientapi.h"
 #include "p4mergedata.h"
+#include "luamessage.h"
 #include "p4mapmaker.h"
 #include <new>
 
@@ -31,6 +32,7 @@ static Ident ident = {
 #define P4_CONNECTION_METATABLE "P4.Connection"
 #define P4_MAP_METATABLE "P4.Map"
 #define P4_MERGEDATA_METATABLE "P4.MergeData"
+#define P4_MESSAGE_METATABLE "P4.Message"
 
 
 
@@ -135,6 +137,102 @@ static void p4_mergedata_create_metatable(lua_State *L) {
 	lua_newtable(L);
 	luaL_register(L, NULL, p4_mergedata_index_funcs);
 	lua_pushcclosure(L, p4_mergedata_index, 1);
+	lua_settable(L, -3);
+	lua_pop(L, 1);
+}
+
+
+// ===================
+// ==== P4Message ====
+// ===================
+
+static LuaMessage *p4_checkmessage(lua_State *L, int index) {
+	void *ud = luaL_checkudata(L, index, P4_MESSAGE_METATABLE);
+	luaL_argcheck(L, ud != NULL, index, "P4.Message expected");
+	return (LuaMessage*)ud;
+}
+
+
+static int p4_message___gc(lua_State* L) {
+	LuaMessage* m = p4_checkmessage(L, 1);
+	m->~LuaMessage();
+	return 0;
+}
+
+static int p4_message___tostring(lua_State* L) {
+	LuaMessage* m = p4_checkmessage(L, 1);
+	m->getText();
+	return 1;
+}
+
+static int p4_message_index_repr(lua_State* L) {
+	LuaMessage* m = p4_checkmessage(L, 1);
+	m->getRepr();
+	return 1;
+}
+
+static int p4_message_index_severity(lua_State* L) {
+	LuaMessage* m = p4_checkmessage(L, 1);
+	m->getSeverity();
+	return 1;
+}
+
+static int p4_message_index_generic(lua_State* L) {
+	LuaMessage* m = p4_checkmessage(L, 1);
+	m->getGeneric();
+	return 1;
+}
+
+static int p4_message_index_msgid(lua_State* L) {
+	LuaMessage* m = p4_checkmessage(L, 1);
+	m->getMsgid();
+	return 1;
+}
+
+static int p4_message_index(lua_State *L) {
+	LuaMessage* m = p4_checkmessage(L, 1);
+	const char* key = luaL_checklstring(L, 2, NULL);
+	lua_getfield(L, lua_upvalueindex(1), key);
+	lua_CFunction function = lua_tocfunction(L, -1);
+	if (!function)
+	    luaL_argerror(L, 2, "improper key");
+	function(L);
+	return 1;
+}
+
+
+static const struct luaL_reg p4_message_index_funcs[] = {
+	{ "severity",					p4_message_index_severity },
+	{ "generic",					p4_message_index_generic },
+	{ "msgid",						p4_message_index_msgid },
+	{ NULL, NULL },
+};
+
+
+static const struct luaL_reg p4_message_funcs[] = {
+	{ "__gc",						p4_message___gc },
+	{ "__tostring",					p4_message___tostring },
+	{ NULL, NULL },
+};
+
+
+int p4_message_new(lua_State* L, const Error * message) {
+	LuaMessage* m = (LuaMessage*)lua_newuserdata(L, sizeof(LuaMessage));
+	::new(m) LuaMessage(L, message);
+
+	luaL_getmetatable( L, P4_MESSAGE_METATABLE );
+	lua_setmetatable(L, -2);
+
+	return 1;
+}
+
+static void p4_message_create_metatable(lua_State *L) {
+	luaL_newmetatable(L, P4_MESSAGE_METATABLE);			// metatable
+	luaL_register(L, NULL, p4_message_funcs);
+	lua_pushliteral(L, "__index");
+	lua_newtable(L);
+	luaL_register(L, NULL, p4_message_index_funcs);
+	lua_pushcclosure(L, p4_message_index, 1);
 	lua_settable(L, -3);
 	lua_pop(L, 1);
 }
@@ -353,137 +451,206 @@ static void p4_map_create_metatable(lua_State *L) {
 
 
 
-static P4ClientApi *p4_checkconnection(lua_State *L, int index) {
+static P4ClientAPI *p4_checkconnection(lua_State *L, int index) {
   void *ud = luaL_checkudata(L, index, P4_CONNECTION_METATABLE);
   luaL_argcheck(L, ud != NULL, index, "P4.P4 expected");
-  return (P4ClientApi*)ud;
+  return (P4ClientAPI*)ud;
 }
 
 
 static int p4_connection_index_api_level(lua_State *L) {
-	P4ClientApi* p4 = p4_checkconnection(L, 1);
+	P4ClientAPI* p4 = p4_checkconnection(L, 1);
 	lua_pushinteger(L, p4->GetApiLevel());
 	return 1;
 }
 
 static int p4_connection_index_charset(lua_State *L) {
-	P4ClientApi* p4 = p4_checkconnection(L, 1);
-	lua_pushstring(L, p4->GetCharset().Text());
+	P4ClientAPI* p4 = p4_checkconnection(L, 1);
+	lua_pushstring(L, p4->GetCharset());
 	return 1;
 }
 
 static int p4_connection_index_client(lua_State *L) {
-	P4ClientApi* p4 = p4_checkconnection(L, 1);
-	lua_pushstring(L, p4->GetClient().Text());
+	P4ClientAPI* p4 = p4_checkconnection(L, 1);
+	lua_pushstring(L, p4->GetClient());
 	return 1;
 }
 
 static int p4_connection_index_cwd(lua_State *L) {
-	P4ClientApi* p4 = p4_checkconnection(L, 1);
-	lua_pushstring(L, p4->GetCwd().Text());
+	P4ClientAPI* p4 = p4_checkconnection(L, 1);
+	lua_pushstring(L, p4->GetCwd());
+	return 1;
+}
+
+static int p4_connection_index_debug(lua_State *L) {
+	P4ClientAPI* p4 = p4_checkconnection(L, 1);
+	lua_pushinteger(L, p4->GetDebug());
+	return 1;
+}
+
+static int p4_connection_index_exception_level(lua_State *L) {
+	P4ClientAPI* p4 = p4_checkconnection(L, 1);
+	lua_pushnumber(L, p4->GetExceptionLevel());
 	return 1;
 }
 
 static int p4_connection_index_host(lua_State *L) {
-	P4ClientApi* p4 = p4_checkconnection(L, 1);
-	lua_pushstring(L, p4->GetHost().Text());
+	P4ClientAPI* p4 = p4_checkconnection(L, 1);
+	lua_pushstring(L, p4->GetHost());
 	return 1;
 }
 
-static int p4_connection_index_keepalive(lua_State *L) {
-	P4ClientApi* p4 = p4_checkconnection(L, 1);
-	return p4->GetKeepAlive();
+static int p4_connection_index_handler(lua_State *L) {
+	P4ClientAPI* p4 = p4_checkconnection(L, 1);
+	int handlerRef = p4->GetHandler();
+	if ( handlerRef != LUA_NOREF )
+	{
+		lua_rawgeti( L, LUA_REGISTRYINDEX, handlerRef );
+		return 1;
+	}
+	return 0;
+}
+
+static int p4_connection_index_input(lua_State *L) {
+	P4ClientAPI* p4 = p4_checkconnection(L, 1);
+	lua_rawgeti(L, LUA_REGISTRYINDEX, p4->GetInput());
+	return 1;
 }
 
 static int p4_connection_index_language(lua_State *L) {
-	P4ClientApi* p4 = p4_checkconnection(L, 1);
-	lua_pushstring(L, p4->GetLanguage().Text());
+	P4ClientAPI* p4 = p4_checkconnection(L, 1);
+	lua_pushstring(L, p4->GetLanguage());
+	return 1;
+}
+
+static int p4_connection_index_maxlocktime(lua_State *L) {
+	P4ClientAPI* p4 = p4_checkconnection(L, 1);
+	lua_pushnumber(L, p4->GetMaxLockTime());
+	return 1;
+}
+
+static int p4_connection_index_maxresults(lua_State *L) {
+	P4ClientAPI* p4 = p4_checkconnection(L, 1);
+	lua_pushnumber(L, p4->GetMaxResults());
+	return 1;
+}
+
+static int p4_connection_index_maxscanrows(lua_State *L) {
+	P4ClientAPI* p4 = p4_checkconnection(L, 1);
+	lua_pushnumber(L, p4->GetMaxScanRows());
 	return 1;
 }
 
 static int p4_connection_index_os(lua_State *L) {
-	P4ClientApi* p4 = p4_checkconnection(L, 1);
-	lua_pushstring(L, p4->GetOs().Text());
+	P4ClientAPI* p4 = p4_checkconnection(L, 1);
+	lua_pushstring(L, p4->GetOs());
 	return 1;
 }
 
 static int p4_connection_index_p4config_file(lua_State *L) {
-	P4ClientApi* p4 = p4_checkconnection(L, 1);
-	lua_pushstring(L, p4->GetConfig().Text());
+	P4ClientAPI* p4 = p4_checkconnection(L, 1);
+	lua_pushstring(L, p4->GetConfig());
 	return 1;
 }
 
 static int p4_connection_index_password(lua_State *L) {
-	P4ClientApi* p4 = p4_checkconnection(L, 1);
-	lua_pushstring(L, p4->GetPassword().Text());
+	P4ClientAPI* p4 = p4_checkconnection(L, 1);
+	lua_pushstring(L, p4->GetPassword());
 	return 1;
 }
 
 static int p4_connection_index_port(lua_State *L) {
-	P4ClientApi* p4 = p4_checkconnection(L, 1);
-	lua_pushstring(L, p4->GetPort().Text());
+	P4ClientAPI* p4 = p4_checkconnection(L, 1);
+	lua_pushstring(L, p4->GetPort());
 	return 1;
 }
 
 static int p4_connection_index_prog(lua_State *L) {
-	P4ClientApi* p4 = p4_checkconnection(L, 1);
-	lua_pushstring(L, p4->GetProg().Text());
+	P4ClientAPI* p4 = p4_checkconnection(L, 1);
+	lua_pushstring(L, p4->GetProg());
 	return 1;
 }
 
 static int p4_connection_index_resolver(lua_State *L) {
-	P4ClientApi* p4 = p4_checkconnection(L, 1);
+	P4ClientAPI* p4 = p4_checkconnection(L, 1);
 	lua_rawgeti(L, LUA_REGISTRYINDEX, p4->GetResolver());
 	return 1;
 }
 
+static int p4_connection_index_streams(lua_State *L) {
+	P4ClientAPI* p4 = p4_checkconnection(L, 1);
+	lua_pushboolean(L, p4->GetStreams() != 0);
+	return 1;
+}
+
 static int p4_connection_index_ticket_file(lua_State *L) {
-	P4ClientApi* p4 = p4_checkconnection(L, 1);
-	lua_pushstring(L, p4->GetTicketFile().Text());
+	P4ClientAPI* p4 = p4_checkconnection(L, 1);
+	lua_pushstring(L, p4->GetTicketFile());
+	return 1;
+}
+
+static int p4_connection_index_track(lua_State *L) {
+	P4ClientAPI* p4 = p4_checkconnection(L, 1);
+	lua_pushboolean(L, p4->GetTrack() != 0);
 	return 1;
 }
 
 static int p4_connection_index_user(lua_State *L) {
-	P4ClientApi* p4 = p4_checkconnection(L, 1);
-	lua_pushstring(L, p4->GetUser().Text());
+	P4ClientAPI* p4 = p4_checkconnection(L, 1);
+	lua_pushstring(L, p4->GetUser());
 	return 1;
 }
 
 static int p4_connection_index_version(lua_State *L) {
-	P4ClientApi* p4 = p4_checkconnection(L, 1);
-	lua_pushstring(L, p4->GetVersion().Text());
+	P4ClientAPI* p4 = p4_checkconnection(L, 1);
+	lua_pushstring(L, p4->GetVersion());
 	return 1;
 }
 
 static int p4_connection_index_errors(lua_State *L) {
-	P4ClientApi* p4 = p4_checkconnection(L, 1);
+	P4ClientAPI* p4 = p4_checkconnection(L, 1);
 	lua_rawgeti(L, LUA_REGISTRYINDEX, p4->GetErrors());
 	return 1;
 }
 
-static int p4_connection_index_output(lua_State *L) {
-	P4ClientApi* p4 = p4_checkconnection(L, 1);
-	lua_rawgeti(L, LUA_REGISTRYINDEX, p4->GetOutput());
+static int p4_connection_index_messages(lua_State *L) {
+	P4ClientAPI* p4 = p4_checkconnection(L, 1);
+	lua_rawgeti(L, LUA_REGISTRYINDEX, p4->GetMessages());
+	return 1;
+}
+
+static int p4_connection_index_track_output(lua_State *L) {
+	P4ClientAPI* p4 = p4_checkconnection(L, 1);
+	lua_rawgeti(L, LUA_REGISTRYINDEX, p4->GetTrackOutput());
 	return 1;
 }
 
 static int p4_connection_index_warnings(lua_State *L) {
-	P4ClientApi* p4 = p4_checkconnection(L, 1);
+	P4ClientAPI* p4 = p4_checkconnection(L, 1);
 	lua_rawgeti(L, LUA_REGISTRYINDEX, p4->GetWarnings());
 	return 1;
 }
 
 static int p4_connection_index_tagged(lua_State *L) {
-	P4ClientApi* p4 = p4_checkconnection(L, 1);
-	lua_pushboolean(L, p4->IsTagged());
+	P4ClientAPI* p4 = p4_checkconnection(L, 1);
+	lua_pushboolean(L, p4->GetTagged());
 	return 1;
 }
 
 
-static int p4_connection_index_exception_level(lua_State *L) {
-	P4ClientApi* p4 = p4_checkconnection(L, 1);
-	lua_pushnumber(L, p4->ExceptionLevel());
-	return 1;
+static int p4_connection_index_server_level(lua_State *L) {
+	P4ClientAPI* p4 = p4_checkconnection(L, 1);
+	return p4->GetServerLevel();
+}
+
+static int p4_connection_index_server_case_insensitive(lua_State *L) {
+	P4ClientAPI* p4 = p4_checkconnection(L, 1);
+	return p4->GetServerCaseInsensitive();
+}
+
+static int p4_connection_index_server_unicode(lua_State *L) {
+	P4ClientAPI* p4 = p4_checkconnection(L, 1);
+	return p4->GetServerUnicode();
 }
 
 
@@ -492,142 +659,160 @@ static const struct luaL_reg p4_connection_index_funcs[] = {
 	{ "charset",		p4_connection_index_charset },
 	{ "client",			p4_connection_index_client },
 	{ "cwd",			p4_connection_index_cwd },
+	{ "debug",			p4_connection_index_debug },
+	{ "exception_level",p4_connection_index_exception_level },
+	{ "handler",		p4_connection_index_handler },
 	{ "host",			p4_connection_index_host },
-	{ "keepalive",		p4_connection_index_keepalive },
+	{ "input",			p4_connection_index_input },
 	{ "language",		p4_connection_index_language },
+	{ "maxlocktime",	p4_connection_index_maxlocktime },
+	{ "maxresults",		p4_connection_index_maxresults },
+	{ "maxscanrows",	p4_connection_index_maxscanrows },
 	{ "os",				p4_connection_index_os },
 	{ "p4config_file",	p4_connection_index_p4config_file },
 	{ "password",		p4_connection_index_password },
 	{ "port",			p4_connection_index_port },
 	{ "prog",			p4_connection_index_prog },
 	{ "resolver",		p4_connection_index_resolver },
+	{ "streams",		p4_connection_index_streams },
+	{ "tagged",			p4_connection_index_tagged },
 	{ "ticket_file",	p4_connection_index_ticket_file },
+	{ "track",			p4_connection_index_track },
 	{ "user",			p4_connection_index_user },
 	{ "version",		p4_connection_index_version },
+	{ "OS",				p4_connection_index_os },
+	{ "PATCHLEVEL",		p4_connection_index_os },
 
 	{ "errors",			p4_connection_index_errors },
-	{ "output",			p4_connection_index_output },
+	{ "messages",		p4_connection_index_messages },
+	{ "track_output",	p4_connection_index_track_output },
 	{ "warnings",		p4_connection_index_warnings },
-	{ "tagged",			p4_connection_index_tagged },
-	{ "exception_level",p4_connection_index_exception_level },
+	{ "server_level",	p4_connection_index_server_level },
+	{ "server_case_insensitive", p4_connection_index_server_case_insensitive },
+	{ "server_unicode", p4_connection_index_server_unicode },
 	{ NULL, NULL },
 };
 
 
 
 static int p4_connection_newindex_api_level(lua_State *L) {
-	P4ClientApi* p4 = p4_checkconnection(L, 1);
+	P4ClientAPI* p4 = p4_checkconnection(L, 1);
 	p4->SetApiLevel(luaL_checkint(L, 3));
 	return 0;
 }
 
 static int p4_connection_newindex_charset(lua_State *L) {
-	P4ClientApi* p4 = p4_checkconnection(L, 1);
+	P4ClientAPI* p4 = p4_checkconnection(L, 1);
 	p4->SetCharset(luaL_checklstring(L, 3, NULL));
 	return 0;
 }
 
 static int p4_connection_newindex_client(lua_State *L) {
-	P4ClientApi* p4 = p4_checkconnection(L, 1);
+	P4ClientAPI* p4 = p4_checkconnection(L, 1);
 	p4->SetClient(luaL_checklstring(L, 3, NULL));
 	return 0;
 }
 
 static int p4_connection_newindex_cwd(lua_State *L) {
-	P4ClientApi* p4 = p4_checkconnection(L, 1);
+	P4ClientAPI* p4 = p4_checkconnection(L, 1);
 	const char* cwd = luaL_checklstring(L, 3, NULL);
 	p4->SetCwd(cwd);
 	return 0;
 }
 
+static int p4_connection_newindex_debug(lua_State *L) {
+	P4ClientAPI* p4 = p4_checkconnection(L, 1);
+	p4->SetDebug((int)luaL_checknumber(L, 3));
+	return 0;
+}
+
+static int p4_connection_newindex_handler(lua_State *L) {
+	P4ClientAPI* p4 = p4_checkconnection(L, 1);
+	p4->SetHandler(3);
+	return 0;
+}
+
 static int p4_connection_newindex_host(lua_State *L) {
-	P4ClientApi* p4 = p4_checkconnection(L, 1);
+	P4ClientAPI* p4 = p4_checkconnection(L, 1);
 	p4->SetHost(luaL_checklstring(L, 3, NULL));
 	return 0;
 }
 
 static int p4_connection_newindex_input(lua_State *L) {
-	P4ClientApi* p4 = p4_checkconnection(L, 1);
+	P4ClientAPI* p4 = p4_checkconnection(L, 1);
 	p4->SetInput(3);
 	return 0;
 }
 
-static int p4_connection_newindex_keepalive(lua_State *L) {
-	P4ClientApi* p4 = p4_checkconnection(L, 1);
-	p4->SetKeepAlive(3);
-	return 0;
-}
-
 static int p4_connection_newindex_language(lua_State *L) {
-	P4ClientApi* p4 = p4_checkconnection(L, 1);
+	P4ClientAPI* p4 = p4_checkconnection(L, 1);
 	p4->SetLanguage(luaL_checklstring(L, 3, NULL));
 	return 0;
 }
 
 static int p4_connection_newindex_password(lua_State *L) {
-	P4ClientApi* p4 = p4_checkconnection(L, 1);
+	P4ClientAPI* p4 = p4_checkconnection(L, 1);
 	p4->SetPassword(luaL_checklstring(L, 3, NULL));
 	return 0;
 }
 
 static int p4_connection_newindex_port(lua_State *L) {
-	P4ClientApi* p4 = p4_checkconnection(L, 1);
+	P4ClientAPI* p4 = p4_checkconnection(L, 1);
 	p4->SetPort(luaL_checklstring(L, 3, NULL));
 	return 0;
 }
 
 static int p4_connection_newindex_user(lua_State *L) {
-	P4ClientApi* p4 = p4_checkconnection(L, 1);
+	P4ClientAPI* p4 = p4_checkconnection(L, 1);
 	p4->SetUser(luaL_checklstring(L, 3, NULL));
 	return 0;
 }
 
 static int p4_connection_newindex_prog(lua_State *L) {
-	P4ClientApi* p4 = p4_checkconnection(L, 1);
+	P4ClientAPI* p4 = p4_checkconnection(L, 1);
 	p4->SetProg(luaL_checklstring(L, 3, NULL));
 	return 0;
 }
 
 static int p4_connection_newindex_version(lua_State *L) {
-	P4ClientApi* p4 = p4_checkconnection(L, 1);
+	P4ClientAPI* p4 = p4_checkconnection(L, 1);
 	p4->SetVersion(luaL_checklstring(L, 3, NULL));
 	return 0;
 }
 
 static int p4_connection_newindex_ticketfile(lua_State *L) {
-	P4ClientApi* p4 = p4_checkconnection(L, 1);
+	P4ClientAPI* p4 = p4_checkconnection(L, 1);
 	p4->SetTicketFile(luaL_checklstring(L, 3, NULL));
 	return 0;
 }
 
 
 static int p4_connection_newindex_maxlocktime(lua_State *L) {
-	P4ClientApi* p4 = p4_checkconnection(L, 1);
+	P4ClientAPI* p4 = p4_checkconnection(L, 1);
 	p4->SetMaxLockTime((int)luaL_checknumber(L, 3));
 	return 0;
 }
 
 
 static int p4_connection_newindex_maxresults(lua_State *L) {
-	P4ClientApi* p4 = p4_checkconnection(L, 1);
+	P4ClientAPI* p4 = p4_checkconnection(L, 1);
 	p4->SetMaxResults((int)luaL_checknumber(L, 3));
 	return 0;
 }
 
 
 static int p4_connection_newindex_maxscanrows(lua_State *L) {
-	P4ClientApi* p4 = p4_checkconnection(L, 1);
+	P4ClientAPI* p4 = p4_checkconnection(L, 1);
 	p4->SetMaxScanRows((int)luaL_checknumber(L, 3));
 	return 0;
 }
 
 
 static int p4_connection_newindex_resolver(lua_State *L) {
-	P4ClientApi* p4 = p4_checkconnection(L, 1);
+	P4ClientAPI* p4 = p4_checkconnection(L, 1);
 	p4->SetResolver(3);
 	return 0;
 }
-
 
 lua_Integer checkboolean (lua_State *L, int narg) {
 	lua_Integer d = lua_toboolean(L, narg);
@@ -636,16 +821,29 @@ lua_Integer checkboolean (lua_State *L, int narg) {
 	return d;
 }
 
+static int p4_connection_newindex_streams(lua_State *L) {
+	P4ClientAPI* p4 = p4_checkconnection(L, 1);
+	p4->SetStreams(checkboolean(L, 3) != 0);
+	return 0;
+}
+
+static int p4_connection_newindex_track(lua_State *L) {
+	P4ClientAPI* p4 = p4_checkconnection(L, 1);
+	p4->SetTrack(checkboolean(L, 3) != 0);
+	return 0;
+}
+
+
 static int p4_connection_newindex_tagged(lua_State *L) {
-	P4ClientApi* p4 = p4_checkconnection(L, 1);
-	p4->Tagged(checkboolean(L, 3));
+	P4ClientAPI* p4 = p4_checkconnection(L, 1);
+	p4->SetTagged(checkboolean(L, 3));
 	return 0;
 }
 
 
 static int p4_connection_newindex_exception_level(lua_State *L) {
-	P4ClientApi* p4 = p4_checkconnection(L, 1);
-	p4->ExceptionLevel((int)luaL_checknumber(L, 3));
+	P4ClientAPI* p4 = p4_checkconnection(L, 1);
+	p4->SetExceptionLevel((int)luaL_checknumber(L, 3));
 	return 0;
 }
 
@@ -655,17 +853,20 @@ static const struct luaL_reg p4_connection_newindex_funcs[] = {
 	{ "charset",		p4_connection_newindex_charset },
 	{ "client",			p4_connection_newindex_client },
 	{ "cwd",			p4_connection_newindex_cwd },
+	{ "debug",			p4_connection_newindex_debug },
+	{ "handler",		p4_connection_newindex_handler },
 	{ "host",			p4_connection_newindex_host },
 	{ "input",			p4_connection_newindex_input },
-	{ "keepalive",		p4_connection_newindex_keepalive },
 	{ "language",		p4_connection_newindex_language },
 	{ "password",		p4_connection_newindex_password },
 	{ "port",			p4_connection_newindex_port },
 	{ "prog",			p4_connection_newindex_prog },
 	{ "resolver",		p4_connection_newindex_resolver },
+	{ "streams",		p4_connection_newindex_streams },
+	{ "track",			p4_connection_newindex_track },
 	{ "user",			p4_connection_newindex_user },
 	{ "version",		p4_connection_newindex_version },
-	{ "ticketfile",		p4_connection_newindex_ticketfile },
+	{ "ticket_file",	p4_connection_newindex_ticketfile },
 
 	{ "maxlocktime",	p4_connection_newindex_maxlocktime },
 	{ "maxresults",		p4_connection_newindex_maxresults },
@@ -678,8 +879,8 @@ static const struct luaL_reg p4_connection_newindex_funcs[] = {
 
 
 static int p4_connection_gc(lua_State *L) {
-	P4ClientApi* p4 = p4_checkconnection( L, 1 );
-	p4->~P4ClientApi();
+	P4ClientAPI* p4 = p4_checkconnection( L, 1 );
+	p4->~P4ClientAPI();
 	return 0;
 }
 
@@ -688,7 +889,7 @@ static int p4_connection_tostring(lua_State *L) {
 }
 
 static int p4_connection_index(lua_State *L) {
-	P4ClientApi* p4 = p4_checkconnection( L, 1 );
+	P4ClientAPI* p4 = p4_checkconnection( L, 1 );
 	const char* key = luaL_checklstring( L, 2, NULL );
 	lua_getfield( L, lua_upvalueindex( 1 ), key );
 	if ( !lua_isnil( L, -1 ) )
@@ -714,7 +915,7 @@ static int p4_connection_index(lua_State *L) {
 }
 
 static int p4_connection_newindex(lua_State *L) {
-	P4ClientApi* p4 = p4_checkconnection(L, 1);
+	P4ClientAPI* p4 = p4_checkconnection(L, 1);
 	const char* key = luaL_checklstring(L, 2, NULL);
 	lua_getfield(L, lua_upvalueindex(1), key);
 	lua_CFunction function = lua_tocfunction(L, -1);
@@ -729,25 +930,25 @@ static int p4_connection_newindex(lua_State *L) {
 // Session connect/disconnect
 //
 static int p4_connection_connect(lua_State *L) {
-	P4ClientApi* p4 = p4_checkconnection(L, 1);
+	P4ClientAPI* p4 = p4_checkconnection(L, 1);
 	return p4->Connect();
 }
 
 
 static int p4_connection_disconnect(lua_State *L) {
-	P4ClientApi* p4 = p4_checkconnection(L, 1);
+	P4ClientAPI* p4 = p4_checkconnection(L, 1);
 	return p4->Disconnect();
 }
 
 
 static int p4_connection_connected(lua_State *L) {
-	P4ClientApi* p4 = p4_checkconnection(L, 1);
+	P4ClientAPI* p4 = p4_checkconnection(L, 1);
 	return p4->Connected();
 }
 
 
 static int p4_connection_env(lua_State *L) {
-	P4ClientApi* p4 = p4_checkconnection( L, 1 );
+	P4ClientAPI* p4 = p4_checkconnection( L, 1 );
 	if ( lua_gettop( L ) == 2 )
 	{
 		if ( lua_isstring( L, 2 ) )
@@ -772,7 +973,7 @@ static int p4_connection_env(lua_State *L) {
  ******************************************************************************/
 
 static int p4_connection_run( lua_State *L ) {
-	P4ClientApi* p4 = p4_checkconnection( L, 1 );
+	P4ClientAPI* p4 = p4_checkconnection( L, 1 );
 	const char* cmd;
 	int argc;
 	char** argv;
@@ -893,7 +1094,7 @@ static int p4_connection_run( lua_State *L ) {
 		}
 	}
 
-	int ret = p4->Run( cmd, argc, argv, lua_istable( L, 2 ) ? 2 : -1 );
+	int ret = p4->Run( cmd, argc, argv );
 
 	for (int i = 0; i < argc; ++i)
 		free(argv[i]);
@@ -904,14 +1105,14 @@ static int p4_connection_run( lua_State *L ) {
 
 
 static int p4_connection_format_spec(lua_State *L) {
-	P4ClientApi* p4 = p4_checkconnection(L, 1);
+	P4ClientAPI* p4 = p4_checkconnection(L, 1);
 	luaL_argcheck( L, lua_type( L, 3 ) == LUA_TTABLE, 2, "table expected" );
 	return p4->FormatSpec( luaL_checkstring( L, 2 ), 3 );
 }
 
 
 static int p4_connection_parse_spec(lua_State *L) {
-	P4ClientApi* p4 = p4_checkconnection(L, 1);
+	P4ClientAPI* p4 = p4_checkconnection(L, 1);
 	return p4->ParseSpec( luaL_checkstring( L, 2 ), luaL_checkstring( L, 3 ) );
 }
 
@@ -1066,8 +1267,8 @@ static int p4_connection_create_metatable(lua_State *L) {
 
 
 static int l_create_connection(lua_State *L) {
-	P4ClientApi* p4 = (P4ClientApi*)lua_newuserdata(L, sizeof(P4ClientApi));
-	::new(p4) P4ClientApi(L);
+	P4ClientAPI* p4 = (P4ClientAPI*)lua_newuserdata(L, sizeof(P4ClientAPI));
+	::new(p4) P4ClientAPI(L);
 
 	luaL_getmetatable(L, P4_CONNECTION_METATABLE);
 	lua_setmetatable(L, -2);
@@ -1098,6 +1299,7 @@ extern "C" int luaopen_p4_p4api (lua_State *L) {
 	p4_connection_create_metatable(L);
 	p4_map_create_metatable(L);
 	p4_mergedata_create_metatable(L);
+	p4_message_create_metatable(L);
 	return 1;
 }
 

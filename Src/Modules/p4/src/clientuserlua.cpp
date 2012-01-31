@@ -46,6 +46,7 @@ extern "C" {
 #include "p4luadebug.h"
 #include "p4result.h"
 #include "p4mergedata.h"
+#include "luamessage.h"
 #include "ClientUserLua.h"
 #include "specmgr.h"
 
@@ -60,30 +61,39 @@ ClientUserLua::ClientUserLua( lua_State *_L, SpecMgr *s )
 	L = _L;
 	specMgr = s;
 	debug = 0;
+	track = false;
+	alive = 1;
+    apiLevel = atoi( P4Tag::l_client );
+
 	inputRef = LUA_NOREF;
-	mergeData = -1;
-	mergeResult = -1;
-	table = -1;
+	resolverRef = LUA_NOREF;
+	handlerRef = LUA_NOREF;
+
+//	mergeData = -1;
+//	mergeResult = -1;
 }
 
-void
-ClientUserLua::Reset()
+ClientUserLua::~ClientUserLua()
+{
+	luaL_unref( L, LUA_REGISTRYINDEX, inputRef );
+	luaL_unref( L, LUA_REGISTRYINDEX, resolverRef );
+	if ( handlerRef != LUA_NOREF )
+		luaL_unref( L, LUA_REGISTRYINDEX, handlerRef );
+}
+
+void ClientUserLua::Reset()
 {
 	results.Reset();
-	// Leave input alone.
+    // input data is untouched
+
+    alive = 1; // yes, we want data from the server
 }
 
-void
-ClientUserLua::Finished()
+void ClientUserLua::Finished()
 {
-	// Reset input coz we should be done with it now. Keeping hold of
-	// it just prevents GC from sweeping it if possible
-	if ( P4LUADEBUG_CALLS && inputRef != LUA_NOREF )
-		fprintf( stderr, "[P4] Cleaning up saved input\n" );
-
 	luaL_unref( L, LUA_REGISTRYINDEX, inputRef );
 	inputRef = LUA_NOREF;
-
+/*
 	if ( table != -1 )
 	{
 		lua_getfield( L, table, "Finished" );
@@ -94,10 +104,108 @@ ClientUserLua::Finished()
 		}
 		lua_pop( L, 1 );
 	}
+*/
 }
 
-void
-ClientUserLua::HandleError( Error *e )
+static const int REPORT = 0;
+static const int HANDLED = 1;
+static const int CANCEL = 2;
+
+// returns true if output should be reported
+// false if the output is handled and should be ignored
+
+bool ClientUserLua::CallOutputMethod( const char * method, int data )
+{
+    int answer = REPORT;
+
+	lua_rawgeti( L, LUA_REGISTRYINDEX, this->handlerRef );
+	if ( lua_istable( L, -1 ) ) {
+		lua_getfield( L, -1, method );
+		if ( lua_isfunction( L, -1 ) ) {
+			lua_pushvalue( L, data );
+			int ret = lua_pcall( L, 1, 1, 0 );
+			if ( ret ) { // exception thrown
+				alive = 0;
+			}
+			else {
+				long a = lua_tointeger( L, -1 );
+				if( a == -1 ) {
+					alive = 0; // exception thrown or silly return value
+				}
+				else
+				{
+					if ( a & CANCEL)
+						alive = 0;
+					answer = a & HANDLED;
+				}
+			}
+		}
+		lua_pop( L, 1 );
+	}
+	lua_pop( L, 1 );
+
+    return ( answer == 0 );
+}
+
+void ClientUserLua::ProcessOutput( const char * method, int data )
+{
+    if( this->handlerRef != LUA_NOREF )
+    {
+		if( CallOutputMethod( method, data ) )
+			results.AddOutput(data);
+    }
+    else
+		results.AddOutput(data);
+}
+
+void ClientUserLua::ProcessMessage( Error *e )
+{
+    if( this->handlerRef != LUA_NOREF )
+    {
+		int s = e->GetSeverity();
+
+		if ( s == E_EMPTY || s == E_INFO )
+		{
+			// info messages should be send to outputInfo
+			// not outputError, or untagged output looks
+			// very strange indeed
+
+			StrBuf m;
+			e->Fmt( &m, EF_PLAIN );
+			lua_pushstring( L, m.Text() );
+
+			if( CallOutputMethod( "outputInfo", lua_gettop( L )) )
+				results.AddOutput( lua_gettop( L ) );
+		}
+		else
+		{
+			p4_message_new(L, e);
+
+			if( CallOutputMethod( "outputMessage", lua_gettop(L) ) )
+				results.AddError( e );
+			lua_pop(L, 1);
+		}
+    }
+    else
+		results.AddError( e );
+}
+
+void ClientUserLua::Message( Error *e )
+{
+	if( P4LUADEBUG_CALLS )
+		fprintf( stderr, "[P4] Message()\n" );
+
+	if( P4LUADEBUG_DATA )
+	{
+		StrBuf t;
+		e->Fmt( t, EF_PLAIN );
+		fprintf( stderr, "... [%s] %s\n", e->FmtSeverity(), t.Text() );
+	}
+
+    ProcessMessage( e );
+}
+
+void ClientUserLua::HandleError( Error *e )
 {
 	if( P4LUADEBUG_CALLS )
 		fprintf( stderr, "[P4] HandleError()\n" );
@@ -109,33 +217,62 @@ ClientUserLua::HandleError( Error *e )
 		fprintf( stderr, "... [%s] %s\n", e->FmtSeverity(), t.Text() );
 	}
 
-	results.AddError( e );
+    ProcessMessage( e );
 }
 
-void
-ClientUserLua::OutputText( const char *data, int length )
+void ClientUserLua::OutputText( const char *data, int length )
 {
 	if( P4LUADEBUG_CALLS )
 		fprintf( stderr, "[P4] OutputText()\n" );
 	if( P4LUADEBUG_DATA )
 		fprintf( stderr, "... [%d]%*s\n", length, length, data );
 
-	results.AddOutput( data, length );
+	if( track && length > 4 && data[0] == '-' && data[1] == '-' && data[2] == '-' && data[3] == ' ') {
+		int p = 4;
+		for( int i = 4; i < length; ++i ) {
+			if( data[i] == '\n' ) {
+				if( i > p ) {
+					lua_pushlstring( L, data + p, i - p );
+					results.AddTrack( lua_gettop( L ) );
+					lua_pop( L, 1 );
+					p = i + 5;
+				}
+				else {
+					// a hack, we have encountered a line that looked like track but wasn't
+					// try to undo the damage by clearing the track output and returning the
+					// original string
+
+					results.ClearTrack();
+					lua_pushlstring( L, data, length );
+					results.AddOutput( lua_gettop( L ) );
+					lua_pop( L, 1 );
+					return;
+				}
+			}
+		}
+	}
+	else {
+		lua_pushlstring( L, data, length );
+		ProcessOutput("outputText", lua_gettop( L ));
+		lua_pop( L, 1 );
+	}
+
+	results.AddOutput( data );
 }
 
-void
-ClientUserLua::OutputInfo( char level, const char *data )
+void ClientUserLua::OutputInfo( char level, const char *data )
 {
 	if( P4LUADEBUG_CALLS )
 		fprintf( stderr, "[P4] OutputInfo()\n" );
 	if( P4LUADEBUG_DATA )
 		fprintf( stderr, "... %s\n", data );
 
-	results.AddOutput( data );
+	lua_pushstring( L, data );
+	ProcessOutput("outputInfo", lua_gettop( L ));
+	lua_pop( L, 1 );
 }
 
-void
-ClientUserLua::OutputBinary( const char *data, int length )
+void ClientUserLua::OutputBinary( const char *data, int length )
 {
 	if( P4LUADEBUG_CALLS )
 		fprintf( stderr, "[P4] OutputBinary()\n" );
@@ -154,7 +291,9 @@ ClientUserLua::OutputBinary( const char *data, int length )
 	// P4Result::AddOutput() assumes it can strlen() to find the length,
 	// we'll make the String object here.
 	//
-	results.AddOutput( data, length );
+	lua_pushlstring( L, data, length );
+	ProcessOutput("outputBinary", lua_gettop( L ));
+	lua_pop( L, 1 );
 }
 
 void
@@ -222,16 +361,16 @@ ClientUserLua::OutputStat( StrDict *values )
 	{
 		if( P4LUADEBUG_CALLS )
 			fprintf(stderr ,"[P4] OutputStat() - Converting to P4::Spec object\n");
-		results.AddOutput( specMgr->StrDictToSpec( dict, spec ) );
-		lua_pop( L, 1 );
+		specMgr->StrDictToSpec( dict, spec );
 	}
 	else
 	{
 		if( P4LUADEBUG_CALLS )
 			fprintf(stderr ,"[P4] OutputStat() - Converting to hash\n");
-		results.AddOutput( specMgr->StrDictToHash( dict ) );
-		lua_pop( L, 1 );
+		specMgr->StrDictToHash( dict );
 	}
+    ProcessOutput("outputStat", lua_gettop(L) );
+	lua_pop( L, 1 );
 }
 
 
@@ -277,10 +416,7 @@ ClientUserLua::Diff( FileSys *f1, FileSys *f2, int doPage,
 		// In its own block to make sure that the diff object is deleted
 		// before we delete the FileSys objects.
 		//
-#ifndef OS_NEXT
-		::
-#endif
-			Diff d;
+		::Diff d;
 
 		d.SetInput( f1_bin, f2_bin, diffFlags, e );
 		if ( ! e->Test() ) d.SetOutput( t->Name(), e );
@@ -460,7 +596,7 @@ ClientUserLua::Resolve( ClientMerge *m, Error *e )
 
 
 /*
-* Accept input from Ruby and convert to a StrBuf for Perforce
+* Accept input from Lua and convert to a StrBuf for Perforce
 * purposes.  We just save what we're given here because we may not
 * have the specdef available to parse it with at this time.
 */
@@ -494,6 +630,36 @@ ClientUserLua::SetResolver( int i )
 	return 1;
 }
 
+
+int ClientUserLua::SetHandler( int i )
+{
+	if ( P4LUADEBUG_CALLS )
+		fprintf( stderr, "[P4] SetInput()\n" );
+
+	alive = 1;
+
+	if ( handlerRef != LUA_NOREF )
+	    luaL_unref(L, LUA_REGISTRYINDEX, handlerRef );
+
+	if ( lua_isnil( L, i ) )
+	{
+		handlerRef = LUA_NOREF;
+		return 0;
+	}
+	else
+	{
+		lua_pushvalue( L, i );
+		handlerRef = luaL_ref( L, LUA_REGISTRYINDEX );
+		return 1;
+	}
+}
+
+
+void ClientUserLua::SetApiLevel( int level )
+{
+    apiLevel = level;
+    results.SetApiLevel( level );
+}
 
 int
 ClientUserLua::MkMergeInfo( ClientMerge *m, StrPtr &hint )

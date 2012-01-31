@@ -40,13 +40,16 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * server, and converts the data to Ruby form for returning to the caller.
  ******************************************************************************/
 class SpecMgr;
-class ClientUserLua : public ClientUser
+class ClientUserLua : public ClientUser, public KeepAlive
 {
 public:
 	ClientUserLua( lua_State *L, SpecMgr *s );
 
+	virtual ~ClientUserLua();
+
 	// Client User methods overridden here
 	virtual void	HandleError( Error *e );
+	virtual void 	Message( Error *err );
 	virtual void    OutputText( const char *data, int length );
 	virtual void    OutputInfo( char level, const char *data );
 	virtual void	OutputStat( StrDict *values );
@@ -58,15 +61,21 @@ public:
 
 	virtual int	Resolve( ClientMerge *m, Error *e );
 
-	void	Finished();
+	virtual void	Finished();
 
 	// Local methods
 	int		SetInput( int i );
-	void	SetCommand( const char *c )	{ cmd = c;	}
-	void	SetTable( int t ) { table = t;  results.SetTable( t ); }
+	int		GetInput()			{  return inputRef;  }
 
     int		SetResolver( int i );
-    int		GetResolver() { return resolverRef; }
+    int		GetResolver()		{ return resolverRef; }
+
+    int		SetHandler( int i );
+    int		GetHandler()		{ return handlerRef; }
+
+	void	SetCommand( const char *c )	{ cmd = c;	}
+	void	SetApiLevel( int level );
+    void	SetTrack(bool t)		{ track = t; }
 
 	P4Result& GetResults()		{ return results;	}
 	int	ErrorCount();
@@ -75,8 +84,14 @@ public:
 	// Debugging support
 	void	SetDebug( int d )	{ debug = d; 		}
 
+	// override from KeepAlive
+	virtual int	IsAlive() { return alive; }
+
 private:
 	int		MkMergeInfo( ClientMerge *m, StrPtr &hint );
+	void		ProcessOutput( const char * method, int data);
+	void		ProcessMessage( Error * e);
+	bool		CallOutputMethod( const char * method, int data);
 
 private:
 	lua_State *	L;
@@ -85,9 +100,12 @@ private:
 	P4Result	results;
 	int			inputRef;
 	int			resolverRef;
-	int			mergeData;
-	int			mergeResult;
+	int			handlerRef;
 	int		debug;
-	int			table;
+ 	int		apiLevel;
+ 	int 		alive;
+ 	bool 		track;
+//	int			mergeData;
+//	int			mergeResult;
 };
 
