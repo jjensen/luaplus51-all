@@ -1,6 +1,6 @@
-require "cjson"
+local json = require "cjson"
 
--- Misc routines to assist with CJSON testing
+-- Various common routines used by the Lua CJSON package
 --
 -- Mark Pulford <mark@kyne.com.au>
 
@@ -10,7 +10,7 @@ require "cjson"
 -- -1   Not an array
 -- 0    Empty table
 -- >0   Highest index in the array
-function is_array(table)
+local function is_array(table)
     local max = 0
     local count = 0
     for k, v in pairs(table) do
@@ -28,7 +28,9 @@ function is_array(table)
     return max
 end
 
-function serialise_table(value, indent, depth)
+local serialise_value
+
+local function serialise_table(value, indent, depth)
     local spacing, spacing2, indent2
     if indent then
         spacing = "\n" .. indent
@@ -61,10 +63,9 @@ function serialise_table(value, indent, depth)
             if comma then
                 table.insert(fragment, "," .. spacing2)
             end
-            table.insert(fragment, string.format(
-                "[%s] = %s", serialise_value(k, indent2, depth),
-                             serialise_value(v, indent2, depth))
-            )
+            table.insert(fragment,
+                ("[%s] = %s"):format(serialise_value(k, indent2, depth),
+                                     serialise_value(v, indent2, depth)))
             comma = true
         end
     end
@@ -77,10 +78,10 @@ function serialise_value(value, indent, depth)
     if indent == nil then indent = "" end
     if depth == nil then depth = 0 end
 
-    if value == cjson.null then
-        return "cjson.null"
+    if value == json.null then
+        return "json.null"
     elseif type(value) == "string" then
-        return string.format("%q", value)
+        return ("%q"):format(value)
     elseif type(value) == "nil" or type(value) == "number" or
            type(value) == "boolean" then
         return tostring(value)
@@ -91,19 +92,15 @@ function serialise_value(value, indent, depth)
     end
 end
 
-function dump_value(value)
-    print(serialise_value(value))
-end
-
-function file_load(filename)
+local function file_load(filename)
     local file
     if filename == nil then
         file = io.stdin
     else
         local err
-        file, err = io.open(filename)
+        file, err = io.open(filename, "rb")
         if file == nil then
-            error(string.format("Unable to read '%s': %s", filename, err))
+            error(("Unable to read '%s': %s"):format(filename, err))
         end
     end
     local data = file:read("*a")
@@ -119,15 +116,15 @@ function file_load(filename)
     return data
 end
 
-function file_save(filename, data)
+local function file_save(filename, data)
     local file
     if filename == nil then
         file = io.stdout
     else
         local err
-        file, err = io.open(filename, "w")
+        file, err = io.open(filename, "wb")
         if file == nil then
-            error(string.format("Unable to write '%s': %s", filename, err))
+            error(("Unable to write '%s': %s"):format(filename, err))
         end
     end
     file:write(data)
@@ -136,7 +133,7 @@ function file_save(filename, data)
     end
 end
 
-function compare_values(val1, val2)
+local function compare_values(val1, val2)
     local type1 = type(val1)
     local type2 = type(val2)
     if type1 ~= type2 then
@@ -176,13 +173,20 @@ function compare_values(val1, val2)
     return true
 end
 
-function run_test(testname, func, input, should_work, output)
+local test_count_pass = 0
+local test_count_total = 0
+
+local function run_test_summary()
+    return test_count_pass, test_count_total
+end
+
+local function run_test(testname, func, input, should_work, output)
     local function status_line(name, status, value)
         local statusmap = { [true] = ":success", [false] = ":error" }
         if status ~= nil then
             name = name .. statusmap[status]
         end
-        print(string.format("[%s] %s", name, serialise_value(value, false)))
+        print(("[%s] %s"):format(name, serialise_value(value, false)))
     end
 
     local result = { pcall(func, unpack(input)) }
@@ -191,10 +195,13 @@ function run_test(testname, func, input, should_work, output)
     local correct = false
     if success == should_work and compare_values(result, output) then
         correct = true
+        test_count_pass = test_count_pass + 1
     end
+    test_count_total = test_count_total + 1
 
     local teststatus = { [true] = "PASS", [false] = "FAIL" }
-    print("==> Test " .. testname .. ": " .. teststatus[correct])
+    print(("==> Test [%d] %s: %s"):format(test_count_total, testname,
+                                          teststatus[correct]))
 
     status_line("Input", nil, input)
     if not correct then
@@ -206,29 +213,59 @@ function run_test(testname, func, input, should_work, output)
     return correct, result
 end
 
-function run_test_group(testgroup, tests)
-    local function run_config(configname, func)
-        local success, msg = pcall(func)
-        if msg then
-            print(string.format("==> Config %s: %s", configname, msg))
+local function run_test_group(tests)
+    local function run_helper(name, func, input)
+        if type(name) == "string" and #name > 0 then
+            print("==> " .. name)
         end
+        -- Not a protected call, these functions should never generate errors.
+        func(unpack(input or {}))
         print()
     end
 
-    local function test_id(group, id)
-        return string.format("%s [%d]", group, id)
-    end
-
-    for k, v in ipairs(tests) do
-        if type(v) == "function" then
-            -- Useful for changing configuration during a batch
-            run_config(test_id(testgroup, k), v)
-        elseif type(v) == "table" then
-            run_test(test_id(testgroup, k), unpack(v))
+    for _, v in ipairs(tests) do
+        -- Run the helper if "should_work" is missing
+        if v[4] == nil then
+            run_helper(unpack(v))
         else
-            error("Testgroup can only contain functions and tables")
+            run_test(unpack(v))
         end
     end
 end
+
+-- Run a Lua script in a separate environment
+local function run_script(script, env)
+    local env = env or {}
+    local func
+
+    -- Use setfenv() if it exists, otherwise assume Lua 5.2 load() exists
+    if _G.setfenv then
+        func = loadstring(script)
+        if func then
+            setfenv(func, env)
+        end
+    else
+        func = load(script, nil, nil, env)
+    end
+
+    if func == nil then
+            error("Invalid syntax.")
+    end
+    func()
+
+    return env
+end
+
+-- Export functions
+return {
+    serialise_value = serialise_value,
+    file_load = file_load,
+    file_save = file_save,
+    compare_values = compare_values,
+    run_test_summary = run_test_summary,
+    run_test = run_test,
+    run_test_group = run_test_group,
+    run_script = run_script
+}
 
 -- vi:ai et sw=4 ts=4:

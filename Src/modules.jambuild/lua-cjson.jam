@@ -1,10 +1,15 @@
 {
 
 local SRCS =
+		dtoa.c
+		dtoa_config.h
+		g_fmt.c
         lua_cjson.c
         strbuf.c
         strbuf.h
 ;
+
+C.Defines lua-cjson : USE_INTERNAL_FPCONV ;
 
 Lua.CModule lua-cjson : cjson : $(SRCS) ;
 
