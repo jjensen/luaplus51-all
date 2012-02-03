@@ -859,6 +859,25 @@ int fileglob_IsDirectory(fileglob* self) {
 }
 
 
+int fileglob_IsLink(fileglob* self) {
+#if defined(WIN32)
+	if (self->context->handle != INVALID_HANDLE_VALUE) {
+		return (self->context->fd.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) != 0;
+	}
+#else
+	if (self->context->dirp) {
+		if (!self->context->hasattr) {
+			stat(fileglob_FileName(self), &self->context->attr);
+			self->context->hasattr = 1;
+		}
+		return 0;
+	}
+#endif
+
+	return 0;
+}
+
+
 int fileglob_IsReadOnly(fileglob* self) {
 #if defined(WIN32)
 	if (self->context->handle != INVALID_HANDLE_VALUE) {

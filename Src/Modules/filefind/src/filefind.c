@@ -313,6 +313,21 @@ static int filefind_index_is_directory(lua_State* L) {
 }
 
 
+static int filefind_index_is_link_helper(lua_State* L, struct FileFindInfo* info) {
+#if defined(WIN32)
+	lua_pushboolean(L, (info->fd.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) != 0);
+#else
+	lua_pushboolean(L, false);
+#endif
+	return 1;
+}
+
+
+static int filefind_index_is_link(lua_State* L) {
+	return filefind_index_is_link_helper(L, filefind_checkmetatable(L, 1));
+}
+
+
 static int filefind_index_is_readonly_helper(lua_State* L, struct FileFindInfo* info) {
 #if defined(WIN32)
 	lua_pushboolean(L, (info->fd.dwFileAttributes & FILE_ATTRIBUTE_READONLY) != 0);
@@ -349,6 +364,8 @@ static int filefind_index_table(lua_State* L) {
 	lua_setfield(L, -2, "size");
 	filefind_index_is_directory_helper(L, info);
 	lua_setfield(L, -2, "is_directory");
+	filefind_index_is_link_helper(L, info);
+	lua_setfield(L, -2, "is_link");
 	filefind_index_is_readonly_helper(L, info);
 	lua_setfield(L, -2, "is_readonly");
 	return 1;
@@ -365,6 +382,7 @@ static const struct luaL_reg filefind_index_properties[] = {
 	{ "write_FILETIME",			filefind_index_write_FILETIME },
 	{ "size",					filefind_index_size },
 	{ "is_directory",			filefind_index_is_directory },
+	{ "is_link",				filefind_index_is_link },
 	{ "is_readonly",			filefind_index_is_readonly },
 	{ "table",					filefind_index_table },
 	{ NULL, NULL },
@@ -420,6 +438,8 @@ static int filefind_tostring(lua_State *L) {
 	sprintf(buffer, ", size = %I64d", ((unsigned __int64)info->fd.nFileSizeLow + ((unsigned __int64)info->fd.nFileSizeHigh << 32)));
 	lua_pushstring(L, buffer);
 	sprintf(buffer, ", is_directory = %s", (info->fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0 ? "true" : "false");
+	lua_pushstring(L, buffer);
+	sprintf(buffer, ", is_link = %s", (info->fd.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) != 0 ? "true" : "false");
 	lua_pushstring(L, buffer);
 	sprintf(buffer, ", is_readonly = %s", (info->fd.dwFileAttributes & FILE_ATTRIBUTE_READONLY) ? "true" : "false");
 	lua_pushstring(L, buffer);
@@ -674,6 +694,17 @@ static int glob_index_is_directory(lua_State* L) {
 }
 
 
+static int glob_index_is_link_helper(lua_State* L, struct _fileglob* glob) {
+	lua_pushboolean(L, fileglob_IsLink(glob));
+	return 1;
+}
+
+
+static int glob_index_is_link(lua_State* L) {
+	return glob_index_is_link_helper(L, glob_checkmetatable(L, 1));
+}
+
+
 static int glob_index_is_readonly_helper(lua_State* L, struct _fileglob* glob) {
 	lua_pushboolean(L, fileglob_IsReadOnly(glob));
 	return 1;
@@ -706,6 +737,8 @@ static int glob_index_table(lua_State* L) {
 	lua_setfield(L, -2, "size");
 	glob_index_is_directory_helper(L, glob);
 	lua_setfield(L, -2, "is_directory");
+	glob_index_is_link_helper(L, glob);
+	lua_setfield(L, -2, "is_link");
 	glob_index_is_readonly_helper(L, glob);
 	lua_setfield(L, -2, "is_readonly");
 	return 1;
@@ -722,6 +755,7 @@ static const struct luaL_reg glob_index_properties[] = {
 	{ "write_FILETIME",			glob_index_write_FILETIME },
 	{ "size",					glob_index_size },
 	{ "is_directory",			glob_index_is_directory },
+	{ "is_link",				glob_index_is_link },
 	{ "is_readonly",			glob_index_is_readonly },
 	{ "table",					glob_index_table },
 	{ NULL, NULL },
@@ -779,6 +813,8 @@ static int glob_tostring(lua_State *L) {
 	sprintf(buffer, ", size = %lld", fileglob_FileSize(glob));
 	lua_pushstring(L, buffer);
 	sprintf(buffer, ", is_directory = %s", fileglob_IsDirectory(glob) ? "true" : "false");
+	lua_pushstring(L, buffer);
+	sprintf(buffer, ", is_link = %s", fileglob_IsLink(glob) ? "true" : "false");
 	lua_pushstring(L, buffer);
 	sprintf(buffer, ", is_readonly = %s", fileglob_IsReadOnly(glob)? "true" : "false");
 	lua_pushstring(L, buffer);

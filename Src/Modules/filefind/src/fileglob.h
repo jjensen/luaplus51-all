@@ -36,6 +36,7 @@ fileglob_uint64 fileglob_AccessFILETIME(fileglob* self);
 fileglob_uint64 fileglob_WriteFILETIME(fileglob* self);
 fileglob_uint64 fileglob_FileSize(fileglob* self);
 int fileglob_IsDirectory(fileglob* self);
+int fileglob_IsLink(fileglob* self);
 int fileglob_IsReadOnly(fileglob* self);
 
 int fileglob_WildMatch(const char* pattern, const char *string, int caseSensitive);
