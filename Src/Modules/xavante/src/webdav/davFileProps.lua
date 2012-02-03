@@ -26,12 +26,15 @@ local function mkdir_p (path)
 end
 
 function props:getPropNames (path)
-	path = self.rootDir..path
+	local diskpath = self.rootDir .. path
+	if diskpath:sub(-1) == '/' then
+		diskpath = diskpath:sub(1, -2)
+	end
 	local function gen ()
-		local attr = lfs.attributes (path)
+		local attr = lfs.attributes (diskpath)
 		if not attr or attr.mode ~= "directory" then return nil end
 
-		for prop in lfs.dir (path) do
+		for prop in lfs.dir (diskpath) do
 			if string.sub (prop, 1,1) ~= "." then
 				coroutine.yield (prop)
 			end

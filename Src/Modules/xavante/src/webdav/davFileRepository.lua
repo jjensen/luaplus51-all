@@ -198,15 +198,19 @@ function resource:getItems (depth)
 
 	else
 		local function recur (p)
-			local attr = assert (lfs.attributes (rootdir .. p))
+			local diskpath = rootdir .. p
+			if diskpath:sub(-1) == '/' then
+				diskpath = diskpath:sub(1, -2)
+			end
+			local attr = assert (lfs.attributes (diskpath))
 			if attr.mode == "directory" then
-				for entry in lfs.dir (rootdir .. p) do
+				for entry in lfs.dir (diskpath) do
 					if string.sub (entry, 1,1) ~= "." then
 						recur (p.."/"..entry)
 					end
 				end
-			coroutine.yield (self.source:getResource (self.pfx, p))
 			end
+			coroutine.yield (self.source:getResource (self.pfx, p))
 		end
 		gen = function () recur (path) end
 	end

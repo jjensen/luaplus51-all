@@ -294,7 +294,7 @@ local function dav_propfind (req, res, repos_b, props_b)
 				for _, propname in lomChilds (findtype) do
 					local propval = resource:getProp (propname)
 					if not propval and props_b then
-						propval = props_b:getProp (req.relpath, propname)
+						propval = props_b:getProp (resource.path, propname)
 					end
 					local shortname = reducename (namespace, propname)
 					addProp (propstat, shortname, propval)
@@ -306,7 +306,7 @@ local function dav_propfind (req, res, repos_b, props_b)
 					addProp (propstat, shortname, "")
 				end
 				if props_b then
-					for propname in props_b:getPropNames (req.relpath) do
+					for propname in props_b:getPropNames (resource.path) do
 						local shortname = reducename (namespace, propname)
 						addProp (propstat, shortname, "")
 					end
@@ -319,9 +319,9 @@ local function dav_propfind (req, res, repos_b, props_b)
 					addProp (propstat, shortname, propval)
 				end
 				if props_b then
-					for propname in props_b:getPropNames (req.relpath) do
+					for propname in props_b:getPropNames (resource.path) do
 						local shortname = reducename (namespace, propname)
-						local propval = props_b:getProp (req.relpath, propname)
+						local propval = props_b:getProp (resource.path, propname)
 						addProp (propstat, shortname, propval)
 					end
 				end
