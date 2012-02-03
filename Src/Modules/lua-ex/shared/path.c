@@ -126,9 +126,14 @@ int path_destroy(const char* inDirName)
         if (!skipDir) {
           strcpy(dirNamePtr, fd.cFileName);
           strcat(dirNamePtr, "\\");
-          if (!path_destroy(dirName)) {
-            ret = 0;
-          }
+		  if (!(fd.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT)) {
+			  if (!path_destroy(dirName)) {
+				ret = 0;
+			  }
+		  } else {
+			  if (!RemoveDirectory(dirNamePtr))
+				  ret = 0;
+		  }
         }
       } else {
         strcpy(dirNamePtr, fd.cFileName);

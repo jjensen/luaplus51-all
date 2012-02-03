@@ -125,8 +125,14 @@ static int ex_remove(lua_State *L)
   if (attr == (DWORD)-1)
     return push_error(L);
   if (attr & FILE_ATTRIBUTE_DIRECTORY) {
-    if (!path_destroy(pathname))
-		return push_error(L);
+    if (!(attr & FILE_ATTRIBUTE_REPARSE_POINT)) {
+      if (!path_destroy(pathname))
+		  return push_error(L);
+    } else {
+      if (!RemoveDirectory(pathname))
+        return push_error(L);
+	}
+      
   } else {
     SetFileAttributes(pathname, FILE_ATTRIBUTE_ARCHIVE);
     if (!DeleteFile(pathname))
