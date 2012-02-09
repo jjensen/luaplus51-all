@@ -98,8 +98,8 @@ namespace LuaHelper
 			of the right type.
 		\return Returns the value found or the defaultValue.
 	**/
-	inline void* GetLightUserData( LuaObject& obj, int key, bool require = true, void* defaultValue = NULL );
-	inline void* GetLightUserData( LuaObject& obj, const char* key, bool require = true, void* defaultValue = NULL );
+	inline void* GetLightUserdata( LuaObject& obj, int key, bool require = true, void* defaultValue = NULL );
+	inline void* GetLightUserdata( LuaObject& obj, const char* key, bool require = true, void* defaultValue = NULL );
 
 
 	/**
@@ -212,27 +212,27 @@ inline float GetFloat( LuaObject& obj, const char* key, bool require, float defa
 }
 
 
-inline void* GetLightUserData( LuaObject& obj, int key, bool require, void* defaultValue ) {
+inline void* GetLightUserdata( LuaObject& obj, int key, bool require, void* defaultValue ) {
 	LuaObject outObj = obj[ key ];
-	if ( !outObj.IsLightUserData() ) {
+	if ( !outObj.IsLightUserdata() ) {
 		if ( require ) {
 			luaplus_assert( 0 );
 		}
 		return defaultValue;
 	}
-	return outObj.GetLightUserData();
+	return outObj.GetLightUserdata();
 }
 
 
-inline void* GetLightUserData( LuaObject& obj, const char* key, bool require, void* defaultValue ) {
+inline void* GetLightUserdata( LuaObject& obj, const char* key, bool require, void* defaultValue ) {
 	LuaObject outObj = obj[ key ];
-	if ( !outObj.IsLightUserData() ) {
+	if ( !outObj.IsLightUserdata() ) {
 		if ( require ) {
 			luaplus_assert( 0 );
 		}
 		return defaultValue;
 	}
-	return outObj.GetLightUserData();
+	return outObj.GetLightUserdata();
 }
 
 

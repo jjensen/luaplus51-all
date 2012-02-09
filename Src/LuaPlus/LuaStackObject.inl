@@ -93,7 +93,7 @@ LUAPLUS_INLINE bool LuaStackObject::IsTable() const					{  return lua_istable( G
 /**
 	\return Returns true if the object is user data, including light user data.
 **/
-LUAPLUS_INLINE bool LuaStackObject::IsUserData() const				{  return lua_isuserdata( GetCState(), m_stackIndex ) != 0;  }
+LUAPLUS_INLINE bool LuaStackObject::IsUserdata() const				{  return lua_isuserdata( GetCState(), m_stackIndex ) != 0;  }
 
 
 /**
@@ -143,7 +143,7 @@ LUAPLUS_INLINE bool LuaStackObject::IsNone() const					{  return !L  ||  lua_isn
 	\return Returns true if the object is light user data (that is, the object
 		is just a pointer.
 **/
-LUAPLUS_INLINE bool LuaStackObject::IsLightUserData() const			{  return lua_islightuserdata( GetCState(), m_stackIndex ) != 0;  }
+LUAPLUS_INLINE bool LuaStackObject::IsLightUserdata() const			{  return lua_islightuserdata( GetCState(), m_stackIndex ) != 0;  }
 
 
 /**
@@ -180,9 +180,9 @@ LUAPLUS_INLINE const lua_WChar* LuaStackObject::GetWString() const
 #endif /* LUA_WIDESTRING */
 LUAPLUS_INLINE size_t LuaStackObject::StrLen() const				{  return lua_strlen( GetCState(), m_stackIndex );  }
 LUAPLUS_INLINE lua_CFunction LuaStackObject::GetCFunction() const	{  luaplus_assert( lua_iscfunction( GetCState(), m_stackIndex ) );  return lua_tocfunction( GetCState(), m_stackIndex );  }
-LUAPLUS_INLINE void* LuaStackObject::GetUserData() const			{  luaplus_assert( lua_isuserdata( GetCState(), m_stackIndex ) );  return lua_touserdata( GetCState(), m_stackIndex );  }
+LUAPLUS_INLINE void* LuaStackObject::GetUserdata() const			{  luaplus_assert( lua_isuserdata( GetCState(), m_stackIndex ) );  return lua_touserdata( GetCState(), m_stackIndex );  }
 LUAPLUS_INLINE const void* LuaStackObject::GetLuaPointer() const	{  return lua_topointer( GetCState(), m_stackIndex );  }
-LUAPLUS_INLINE void* LuaStackObject::GetLightUserData() const		{  luaplus_assert( lua_islightuserdata( GetCState(), m_stackIndex ));  return (void*)lua_touserdata( GetCState(), m_stackIndex );  }
+LUAPLUS_INLINE void* LuaStackObject::GetLightUserdata() const		{  luaplus_assert( lua_islightuserdata( GetCState(), m_stackIndex ));  return (void*)lua_touserdata( GetCState(), m_stackIndex );  }
 LUAPLUS_INLINE bool LuaStackObject::GetBoolean() const				{  luaplus_assert( lua_isboolean( GetCState(), m_stackIndex )  ||  lua_isnil( GetCState(), m_stackIndex ) );  return (int)lua_toboolean( GetCState(), m_stackIndex ) != 0;  }
 LUAPLUS_INLINE lua_State* LuaStackObject::GetThread() const			{  luaplus_assert( lua_isthread( GetCState(), m_stackIndex )  ||  lua_isnil( GetCState(), m_stackIndex ) );  return lua_tothread( GetCState(), m_stackIndex );  }
 
@@ -416,7 +416,7 @@ LUAPLUS_INLINE void LuaStackObject::SetWString( int index, const lua_WChar* valu
 	@param name The name of the object to assign the value to.
 	@param value The value to assign to [name].
 **/
-LUAPLUS_INLINE void LuaStackObject::SetUserData( const char* name, void* value )
+LUAPLUS_INLINE void LuaStackObject::SetUserdata( const char* name, void* value )
 {
 	lua_pushstring( GetCState(), name );
 	(*(void **)(lua_newuserdata(GetCState(), sizeof(void *))) = (value));
@@ -429,7 +429,7 @@ LUAPLUS_INLINE void LuaStackObject::SetUserData( const char* name, void* value )
 	@param index The index of the object to assign the value to.
 	@param value The value to assign to [index].
 **/
-LUAPLUS_INLINE void LuaStackObject::SetUserData( int index, void* value )
+LUAPLUS_INLINE void LuaStackObject::SetUserdata( int index, void* value )
 {
 	lua_pushnumber( GetCState(), (lua_Number)index );
 	(*(void **)(lua_newuserdata(GetCState(), sizeof(void *))) = (value));
@@ -442,7 +442,7 @@ LUAPLUS_INLINE void LuaStackObject::SetUserData( int index, void* value )
 	@param name The name of the object to assign the value to.
 	@param value The value to assign to [name].
 **/
-LUAPLUS_INLINE void LuaStackObject::SetLightUserData( int index, void* value )
+LUAPLUS_INLINE void LuaStackObject::SetLightUserdata( int index, void* value )
 {
 	lua_pushnumber( GetCState(), (lua_Number)index );
 	lua_pushlightuserdata( GetCState(), value );
@@ -455,7 +455,7 @@ LUAPLUS_INLINE void LuaStackObject::SetLightUserData( int index, void* value )
 	@param name The name of the object to assign the value to.
 	@param value The value to assign to [name].
 **/
-LUAPLUS_INLINE void LuaStackObject::SetLightUserData( const char* name, void* value )
+LUAPLUS_INLINE void LuaStackObject::SetLightUserdata( const char* name, void* value )
 {
 	lua_pushstring( GetCState(), name );
 	lua_pushlightuserdata( GetCState(), value );

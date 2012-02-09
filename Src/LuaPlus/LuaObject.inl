@@ -184,7 +184,7 @@ inline bool LuaObject::IsTable() const {
 
 
 // Mirrors lua_isuserdata().
-inline bool LuaObject::IsUserData() const {
+inline bool LuaObject::IsUserdata() const {
 	luaplus_assert(L);
 	LUA_FASTREF_PUSH();
 	return lua_isuserdata(L, LUA_FASTREF_REF_1) != 0;
@@ -286,7 +286,7 @@ inline bool LuaObject::IsNone() const {
 
 
 // Mirrors lua_islightuserdata().
-inline bool LuaObject::IsLightUserData() const {
+inline bool LuaObject::IsLightUserdata() const {
 	luaplus_assert(L);
 	LUA_FASTREF_PUSH();
 	return lua_islightuserdata(L, LUA_FASTREF_REF_1);
@@ -441,8 +441,8 @@ inline lua_CFunction LuaObject::GetCFunction() const {
 
 
 // Mirrors lua_touserdata().
-inline void* LuaObject::GetUserData() const {
-	luaplus_assert(L  &&  IsUserData());
+inline void* LuaObject::GetUserdata() const {
+	luaplus_assert(L  &&  IsUserdata());
 	LUA_FASTREF_PUSH();
 	return lua_touserdata(L, LUA_FASTREF_REF_1);
 }
@@ -457,8 +457,8 @@ inline const void* LuaObject::GetLuaPointer() const {
 
 
 // No equivalent.
-inline void* LuaObject::GetLightUserData() const {
-	luaplus_assert(L  &&  IsLightUserData());
+inline void* LuaObject::GetLightUserdata() const {
+	luaplus_assert(L  &&  IsLightUserdata());
 	LUA_FASTREF_PUSH();
 	return lua_touserdata(L, LUA_FASTREF_REF_1);
 }
@@ -851,32 +851,32 @@ inline LuaObject& LuaObject::SetWString(LuaObject& key, const lua_WChar* value, 
 #endif /* LUA_WIDESTRING */
 
 
-inline LuaObject& LuaObject::SetUserData(const char* key, void* value) {
+inline LuaObject& LuaObject::SetUserdata(const char* key, void* value) {
 	return Set(key, value);
 }
 
 
-inline LuaObject& LuaObject::SetUserData(int key, void* value) {
+inline LuaObject& LuaObject::SetUserdata(int key, void* value) {
 	return Set(key, value);
 }
 
 
-inline LuaObject& LuaObject::SetUserData(LuaObject& key, void* value) {
+inline LuaObject& LuaObject::SetUserdata(LuaObject& key, void* value) {
 	return Set(key, value);
 }
 
 
-inline LuaObject& LuaObject::SetLightUserData(const char* key, void* value) {
+inline LuaObject& LuaObject::SetLightUserdata(const char* key, void* value) {
 	return Set(key, value);
 }
 
 
-inline LuaObject& LuaObject::SetLightUserData(int key, void* value) {
+inline LuaObject& LuaObject::SetLightUserdata(int key, void* value) {
 	return Set(key, value);
 }
 
 
-inline LuaObject& LuaObject::SetLightUserData(LuaObject& key, void* value) {
+inline LuaObject& LuaObject::SetLightUserdata(LuaObject& key, void* value) {
 	return Set(key, value);
 }
 
@@ -1043,7 +1043,7 @@ inline LuaObject& LuaObject::RawSetWString(LuaObject& key, const lua_WChar* valu
 #endif /* LUA_WIDESTRING */
 
 
-inline LuaObject& LuaObject::RawSetUserData(const char* key, void* value) {
+inline LuaObject& LuaObject::RawSetUserdata(const char* key, void* value) {
 	luaplus_assert(L&&  IsTable());
 	LUA_FASTREF_PUSH();					// (table)
 	lua_pushstring(L, key);
@@ -1053,7 +1053,7 @@ inline LuaObject& LuaObject::RawSetUserData(const char* key, void* value) {
 }
 
 
-inline LuaObject& LuaObject::RawSetUserData(int key, void* value) {
+inline LuaObject& LuaObject::RawSetUserdata(int key, void* value) {
 	luaplus_assert(L  &&  IsTable());
 	LUA_FASTREF_PUSH();					// (table)
 	lua_pushlightuserdata(L, value);
@@ -1061,7 +1061,7 @@ inline LuaObject& LuaObject::RawSetUserData(int key, void* value) {
 }
 
 
-inline LuaObject& LuaObject::RawSetUserData(LuaObject& key, void* value) {
+inline LuaObject& LuaObject::RawSetUserdata(LuaObject& key, void* value) {
 	luaplus_assert(L  &&  IsTable());
 	LUA_FASTREF_PUSH();					// (table)
 	lua_getfastref(L, key.ref);
@@ -1071,7 +1071,7 @@ inline LuaObject& LuaObject::RawSetUserData(LuaObject& key, void* value) {
 }
 
 
-inline LuaObject& LuaObject::RawSetLightUserData(const char* key, void* value) {
+inline LuaObject& LuaObject::RawSetLightUserdata(const char* key, void* value) {
 	luaplus_assert(L&&  IsTable());
 	LUA_FASTREF_PUSH();					// (table)
 	lua_pushstring(L, key);
@@ -1081,7 +1081,7 @@ inline LuaObject& LuaObject::RawSetLightUserData(const char* key, void* value) {
 }
 
 
-inline LuaObject& LuaObject::RawSetLightUserData(int key, void* value) {
+inline LuaObject& LuaObject::RawSetLightUserdata(int key, void* value) {
 	luaplus_assert(L  &&  IsTable());
 	LUA_FASTREF_PUSH();					// (table)
 	lua_pushlightuserdata(L, value);
@@ -1089,7 +1089,7 @@ inline LuaObject& LuaObject::RawSetLightUserData(int key, void* value) {
 }
 
 
-inline LuaObject& LuaObject::RawSetLightUserData(LuaObject& key, void* value) {
+inline LuaObject& LuaObject::RawSetLightUserdata(LuaObject& key, void* value) {
 	luaplus_assert(L  &&  IsTable());
 	LUA_FASTREF_PUSH();					// (table)
 	lua_getfastref(L, key.ref);

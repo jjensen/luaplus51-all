@@ -21,9 +21,9 @@ LUA_EXTERN_C_END
 // LuaPlus Call Dispatcher
 namespace LPCD
 {
-	struct LuaLightUserData
+	struct LuaLightUserdata
 	{
-		LuaLightUserData(const void* value) :
+		LuaLightUserdata(const void* value) :
 			m_value(value)
 		{
 		}
@@ -32,9 +32,9 @@ namespace LPCD
 	};
 
 
-	struct LuaUserData
+	struct LuaUserdata
 	{
-		LuaUserData(const void* value) :
+		LuaUserdata(const void* value) :
 			m_value(value)
 		{
 		}
@@ -62,8 +62,8 @@ namespace LPCD
 	inline void Push(lua_State* L, const LuaNil&)			{  lua_pushnil(L);  }
 	inline void Push(lua_State* L, lua_CFunction value)		{  lua_pushcclosure(L, value, 0);  }
 	inline void Push(lua_State* L, const void* value)		{  lua_pushlightuserdata(L, (void*)value);  }
-	inline void Push(lua_State* L, const LuaLightUserData& value)	{  lua_pushlightuserdata(L, (void*)value.m_value);  }
-    inline void Push(lua_State* L, const LuaUserData& value){  *(void **)(lua_newuserdata(L, sizeof(void *))) = (void*)value.m_value;  }
+	inline void Push(lua_State* L, const LuaLightUserdata& value)	{  lua_pushlightuserdata(L, (void*)value.m_value);  }
+    inline void Push(lua_State* L, const LuaUserdata& value){  *(void **)(lua_newuserdata(L, sizeof(void *))) = (void*)value.m_value;  }
 
 	template<class T> struct TypeWrapper {};
 
@@ -1747,7 +1747,7 @@ namespace LPCD
 	}
 
 
-	inline unsigned char* GetFirstUpValueAsUserData(lua_State* L)
+	inline unsigned char* GetFirstUpValueAsUserdata(lua_State* L)
 	{
 		void* buffer;
 
@@ -1767,7 +1767,7 @@ namespace LPCD
 	public:
 		static inline int DirectCallFunctionDispatcher(lua_State* L)
 		{
- 			unsigned char* buffer = GetFirstUpValueAsUserData(L);
+ 			unsigned char* buffer = GetFirstUpValueAsUserdata(L);
 			return Call(*(Func*)(buffer), L, 1);
 		}
 	};
@@ -1779,7 +1779,7 @@ namespace LPCD
 	public:
 		static inline int DirectCallMemberDispatcher(lua_State* L)
 		{
- 			unsigned char* buffer = GetFirstUpValueAsUserData(L);
+ 			unsigned char* buffer = GetFirstUpValueAsUserdata(L);
 			return Call(**(Callee**)buffer, *(Func*)(buffer + sizeof(Callee*)), L, 1);
 		}
 	};
@@ -1787,7 +1787,7 @@ namespace LPCD
 	inline int lua_StateFunctionDispatcher(lua_State* L)
 	{
 		typedef int (*Functor)(lua_State*);
- 		unsigned char* buffer = GetFirstUpValueAsUserData(L);
+ 		unsigned char* buffer = GetFirstUpValueAsUserdata(L);
 		Functor& func = *(Functor*)(buffer);
 		return (*func)(L);
 	}
@@ -1800,7 +1800,7 @@ namespace LPCD
 		static inline int lua_StateMemberDispatcher(lua_State* L)
 		{
 			typedef int (Callee::*Functor)(lua_State*);
- 			unsigned char* buffer = GetFirstUpValueAsUserData(L);
+ 			unsigned char* buffer = GetFirstUpValueAsUserdata(L);
 			Callee& callee = **(Callee**)buffer;
 			Functor& func = *(Functor*)(buffer + sizeof(Callee*));
 			return (callee.*func)(L);
@@ -1882,7 +1882,7 @@ namespace LPCD
 		return NULL;
 	}
 	
-	inline void* GetObjectUserData(lua_State* L)
+	inline void* GetObjectUserdata(lua_State* L)
 	{
 		int type = lua_type(L, 1);
 		if (type == LUA_TUSERDATA)
@@ -1912,9 +1912,9 @@ namespace LPCD
 		static inline int Object_MemberDispatcher(lua_State* L)
 		{
 			typedef int (Callee::*Functor)(lua_State*);
- 			unsigned char* buffer = GetFirstUpValueAsUserData(L);
+ 			unsigned char* buffer = GetFirstUpValueAsUserdata(L);
 			Functor& func = *(Functor*)(buffer);
-			Callee& callee = *(Callee*)GetObjectUserData(L);
+			Callee& callee = *(Callee*)GetObjectUserdata(L);
 			return (callee.*func)(L);
 		}
 	};
@@ -1925,8 +1925,8 @@ namespace LPCD
 	public:
 		static inline int DirectCallMemberDispatcher(lua_State* L)
 		{
- 			unsigned char* buffer = GetFirstUpValueAsUserData(L);
-			Callee& callee = *(Callee*)GetObjectUserData(L);
+ 			unsigned char* buffer = GetFirstUpValueAsUserdata(L);
+			Callee& callee = *(Callee*)GetObjectUserdata(L);
 			return Call(callee, *(Func*)buffer, L, startIndex);
 		}
 	};
@@ -1996,8 +1996,7 @@ namespace LPCD
 		{
 			void* offset = lua_touserdata(L, lua_upvalueindex(1));
 
-			Object* obj = (Object*)LPCD::GetObjectUserData(L);
-
+			Object* obj = (Object*)LPCD::GetObjectUserdata(L);
 			LPCD::Push(L, *(VarType*)((unsigned char*)obj + (unsigned int)offset));
 
 			return 1;
@@ -2007,7 +2006,7 @@ namespace LPCD
 		{
 			void* offset = lua_touserdata(L, lua_upvalueindex(1));
 
-			Object* obj = (Object*)LPCD::GetObjectUserData(L);
+			Object* obj = (Object*)LPCD::GetObjectUserdata(L);
 
 			if (!Match(TypeWrapper<VarType>(), L, 2))
 				luaL_argerror(L, 2, "bad argument");

@@ -66,7 +66,7 @@ public:
 
 	bool IsNil() const;
 	bool IsTable() const;
-	bool IsUserData() const;
+	bool IsUserdata() const;
 	bool IsCFunction() const;
 	bool IsInteger() const;
 	bool IsNumber() const;
@@ -80,7 +80,7 @@ public:
 #endif /* LUA_WIDESTRING */
 	bool IsFunction() const;
 	bool IsNone() const;
-	bool IsLightUserData() const;
+	bool IsLightUserdata() const;
 	bool IsBoolean() const;
 
 	int ToInteger();
@@ -101,9 +101,9 @@ public:
 #endif /* LUA_WIDESTRING */
 	size_t StrLen() const;
 	lua_CFunction GetCFunction() const;
-	void* GetUserData() const;
+	void* GetUserdata() const;
 	const void* GetLuaPointer() const;
-	void* GetLightUserData() const;
+	void* GetLightUserdata() const;
 	bool GetBoolean() const;
 
 	LuaStackObject Push() const;
@@ -169,12 +169,12 @@ public:
 	LuaObject& SetWString(int key, const lua_WChar* value, int len = -1);
 	LuaObject& SetWString(LuaObject& key, const lua_WChar* value, int len = -1);
 #endif /* LUA_WIDESTRING */
-	LuaObject& SetUserData(const char* key, void* value);
-	LuaObject& SetUserData(int key, void* value);
-	LuaObject& SetUserData(LuaObject& key, void* value);
-	LuaObject& SetLightUserData(const char* key, void* value);
-	LuaObject& SetLightUserData(int key, void* value);
-	LuaObject& SetLightUserData(LuaObject& key, void* value);
+	LuaObject& SetUserdata(const char* key, void* value);
+	LuaObject& SetUserdata(int key, void* value);
+	LuaObject& SetUserdata(LuaObject& key, void* value);
+	LuaObject& SetLightUserdata(const char* key, void* value);
+	LuaObject& SetLightUserdata(int key, void* value);
+	LuaObject& SetLightUserdata(LuaObject& key, void* value);
 	LuaObject& SetObject(const char* key, LuaObject& value);
 	LuaObject& SetObject(int key, LuaObject& value);
 	LuaObject& SetObject(LuaObject& key, LuaObject& value);
@@ -196,12 +196,12 @@ public:
 	LuaObject& RawSetWString(int key, const lua_WChar* value, int len = -1);
 	LuaObject& RawSetWString(LuaObject& key, const lua_WChar* value, int len = -1);
 #endif /* LUA_WIDESTRING */
-	LuaObject& RawSetUserData(const char* key, void* value);
-	LuaObject& RawSetUserData(int key, void* value);
-	LuaObject& RawSetUserData(LuaObject& key, void* value);
-	LuaObject& RawSetLightUserData(const char* key, void* value);
-	LuaObject& RawSetLightUserData(int key, void* value);
-	LuaObject& RawSetLightUserData(LuaObject& key, void* value);
+	LuaObject& RawSetUserdata(const char* key, void* value);
+	LuaObject& RawSetUserdata(int key, void* value);
+	LuaObject& RawSetUserdata(LuaObject& key, void* value);
+	LuaObject& RawSetLightUserdata(const char* key, void* value);
+	LuaObject& RawSetLightUserdata(int key, void* value);
+	LuaObject& RawSetLightUserdata(LuaObject& key, void* value);
 	LuaObject& RawSetObject(const char* key, LuaObject& value);
 	LuaObject& RawSetObject(int key, LuaObject& value);
 	LuaObject& RawSetObject(LuaObject& key, LuaObject& value);

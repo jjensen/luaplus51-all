@@ -150,7 +150,7 @@ LUAPLUS_INLINE int LuaState::IsCFunction(int index) const {
 }
 
 
-LUAPLUS_INLINE int LuaState::IsUserData(int index) const {
+LUAPLUS_INLINE int LuaState::IsUserdata(int index) const {
 	return lua_isuserdata(LuaState_to_lua_State(this), index);
 }
 
@@ -165,7 +165,7 @@ LUAPLUS_INLINE int LuaState::IsTable(int index) const {
 }
 
 
-LUAPLUS_INLINE int LuaState::IsLightUserData(int index) const {
+LUAPLUS_INLINE int LuaState::IsLightUserdata(int index) const {
 	return lua_islightuserdata(LuaState_to_lua_State(this), index);
 }
 
@@ -270,7 +270,7 @@ LUAPLUS_INLINE lua_CFunction LuaState::ToCFunction(int index) {
 }
 
 
-LUAPLUS_INLINE void* LuaState::ToUserData(int index) {
+LUAPLUS_INLINE void* LuaState::ToUserdata(int index) {
 	return lua_touserdata(LuaState_to_lua_State(this), index);
 }
 
@@ -348,7 +348,7 @@ LUAPLUS_INLINE LuaStackObject LuaState::PushBoolean(bool value)
 	return LuaStackObject(this, lua_gettop(LuaState_to_lua_State(this)));
 }
 
-LUAPLUS_INLINE LuaStackObject LuaState::PushLightUserData(void* p)
+LUAPLUS_INLINE LuaStackObject LuaState::PushLightUserdata(void* p)
 {
 	lua_pushlightuserdata(LuaState_to_lua_State(this), p);
 	return LuaStackObject(this, lua_gettop(LuaState_to_lua_State(this)));
@@ -388,7 +388,7 @@ LUAPLUS_INLINE LuaStackObject LuaState::CreateTable(int narr, int nrec) {
 }
 
 
-LUAPLUS_INLINE LuaStackObject LuaState::NewUserData(size_t size) {
+LUAPLUS_INLINE LuaStackObject LuaState::NewUserdata(size_t size) {
 	lua_newuserdata(LuaState_to_lua_State(this), size);
 	return LuaStackObject(*this, GetTop());
 }
@@ -1015,7 +1015,7 @@ LUAPLUS_INLINE void* LuaState::UnBoxPointer(int stackIndex)
 }
 
 
-LUAPLUS_INLINE LuaObject LuaState::NewUserDataBox(void* u) {
+LUAPLUS_INLINE LuaObject LuaState::NewUserdataBox(void* u) {
 	LuaObject obj(this);
 	obj.Assign(this, u);
 	return obj;

@@ -79,7 +79,7 @@ public:
 
 	bool IsNil() const;
 	bool IsTable() const;
-	bool IsUserData() const;
+	bool IsUserdata() const;
 	bool IsCFunction() const;
 	bool IsInteger() const;
 	bool IsNumber() const;
@@ -87,7 +87,7 @@ public:
 	bool IsWString() const;
 	bool IsFunction() const;
 	bool IsNone() const;
-	bool IsLightUserData() const;
+	bool IsLightUserdata() const;
 	bool IsBoolean() const;
 	bool IsThread() const;
 
@@ -101,9 +101,9 @@ public:
 #endif /* LUA_WIDESTRING */
 	size_t StrLen() const;
 	lua_CFunction GetCFunction() const;
-	void* GetUserData() const;
+	void* GetUserdata() const;
 	const void* GetLuaPointer() const;
-	void* GetLightUserData() const;
+	void* GetLightUserdata() const;
 	bool GetBoolean() const;
 	lua_State* GetThread() const;
 
@@ -136,10 +136,10 @@ public:
 	void SetWString(const char* name, const lua_WChar* value);
 	void SetWString(int index, const lua_WChar* value);
 #endif /* LUA_WIDESTRING */
-	void SetUserData(const char* name, void* value);
-	void SetUserData(int index, void* value);
-	void SetLightUserData(int index, void* value);
-	void SetLightUserData(const char* name, void* value);
+	void SetUserdata(const char* name, void* value);
+	void SetUserdata(int index, void* value);
+	void SetLightUserdata(int index, void* value);
+	void SetLightUserdata(const char* name, void* value);
 	void SetObject(const char* name, LuaStackObject& value);
 	void SetObject(int index, LuaStackObject& value);
 

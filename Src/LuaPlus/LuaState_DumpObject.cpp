@@ -314,7 +314,7 @@ int str_format_helper (luaL_Buffer *b, lua_State *L, int arg) {
 #define bufflen(B)	((B)->p - (B)->buffer)
 
 static int LS_LuaFilePrint(LuaState* state) {
-	LuaStateOutFile* file = (LuaStateOutFile*)state->Stack(1).GetUserData();
+	LuaStateOutFile* file = (LuaStateOutFile*)state->Stack(1).GetUserdata();
 
 	luaL_Buffer b;
 	::str_format_helper(&b, *state, 2);
@@ -338,7 +338,7 @@ static int LS_LuaFilePrint(LuaState* state) {
 
 
 static int LS_LuaFileIndent(LuaState* state) {
-	LuaStateOutFile* file = (LuaStateOutFile*)state->Stack(1).GetUserData();
+	LuaStateOutFile* file = (LuaStateOutFile*)state->Stack(1).GetUserdata();
 	int indentLevel = (int)state->Stack(2).GetInteger();
 	file->Indent((unsigned int)indentLevel);
 
@@ -631,7 +631,7 @@ bool LuaState::DumpObject(LuaStateOutFile& file, LuaObject& key, LuaObject& valu
 			else
 				file.Print(" ");
 
-			if (value.IsUserData())
+			if (value.IsUserdata())
 			{
 				file.Print("-- ");
 				if (!key.IsNil())
@@ -639,7 +639,7 @@ bool LuaState::DumpObject(LuaStateOutFile& file, LuaObject& key, LuaObject& valu
 					WriteKey(file, key);
 					file.Print(" = ");
 				}
-				file.Print("'userdata: %p'", value.GetUserData());
+				file.Print("'userdata: %p'", value.GetUserdata());
 			}
 			else if (value.IsCFunction())
 			{
@@ -992,16 +992,16 @@ bool LuaState::DumpObject(LuaStateOutFile& file, const char* name, LuaObject& va
 	const unsigned int indentSpaces = (indentLevel == -1 ? 0 : indentLevel) * INDENT_SIZE;
 
 	// If the variable is user data or a function...
-	if (value.IsUserData()  ||  value.IsFunction()  ||  value.IsCFunction())
+	if (value.IsUserdata()  ||  value.IsFunction()  ||  value.IsCFunction())
 	{
 		// ... only write it if they requested it be written.  But only do
 		// it as a comment.
 		if ((flags & DUMP_WRITEALL)  &&  name)
 		{
-			if (value.IsUserData())
+			if (value.IsUserdata())
 			{
 				file.Print("-- %s", name);
-				file.Print(" = '!!!USERDATA!!!'\r\n");
+				file.Print(" = '!!!USERDATA!!!'\n");
 			}
 			else if (value.IsFunction())
 			{
@@ -1086,16 +1086,16 @@ bool LuaState::DumpObject(const char* filename, const char* name, LuaObject& val
 		return false;
 
 	// If the variable is user data or a function...
-	if (value.IsUserData()  ||  value.IsFunction()  ||  value.IsCFunction())
+	if (value.IsUserdata()  ||  value.IsFunction()  ||  value.IsCFunction())
 	{
 		// ... only write it if they requested it be written.  But only do
 		// it as a comment.
 		if ((flags & DUMP_WRITEALL)  &&  name)
 		{
-			if (value.IsUserData())
+			if (value.IsUserdata())
 			{
 				file->Print("-- %s", name);
-				file->Print(" = '!!!USERDATA!!!'\r\n");
+				file->Print(" = '!!!USERDATA!!!'\n");
 			}
 			else if (value.IsFunction())
 			{
@@ -1194,9 +1194,9 @@ extern "C" int luaplus_ls_LuaDumpObject( lua_State* L )
 	}
 
 	const char* fileName = NULL;
-	if ( fileObj.IsUserData() )
+	if ( fileObj.IsUserdata() )
 	{	
-		FILE* stdioFile = (FILE *)fileObj.GetUserData();
+		FILE* stdioFile = (FILE *)fileObj.GetUserdata();
 		file.Assign( stdioFile );
 	}
 	else if ( fileObj.IsString() )

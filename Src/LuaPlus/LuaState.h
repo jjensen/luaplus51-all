@@ -64,10 +64,10 @@ public:
 	int IsWString(int index) const;
 #endif /* LUA_WIDESTRING */
 	int IsCFunction(int index) const;
-	int IsUserData(int index) const;
+	int IsUserdata(int index) const;
 	int IsFunction(int index) const;
 	int IsTable(int index) const;
-	int IsLightUserData(int index) const;
+	int IsLightUserdata(int index) const;
 	int IsNil(int index) const;
 	int IsBoolean(int index) const;
 	int IsThread(int index) const;
@@ -93,7 +93,7 @@ public:
 #endif /* LUA_WIDESTRING */
 	size_t ObjLen(int index);
 	lua_CFunction ToCFunction(int index);
-	void* ToUserData(int index);
+	void* ToUserdata(int index);
 	lua_State* ToThread(int index);
 	const void* ToPointer(int index);
 
@@ -115,7 +115,7 @@ public:
 
 	LuaStackObject PushCFunction(lua_CFunction f);
 	LuaStackObject PushBoolean(bool value);
-	LuaStackObject PushLightUserData(void* p);
+	LuaStackObject PushLightUserdata(void* p);
 	LuaStackObject PushThread();
 
 	// get functions (Lua -> stack)
@@ -124,7 +124,7 @@ public:
 	void RawGet(int index);
 	void RawGetI(int index, int n);
 	LuaStackObject CreateTable(int narr = 0, int nrec = 0);
-	LuaStackObject NewUserData(size_t size);
+	LuaStackObject NewUserdata(size_t size);
 	LuaStackObject GetMetaTable(int objindex);
 	LuaStackObject GetFEnv(int index);
 
@@ -302,7 +302,7 @@ public:
 	const char* LTypeName(int index);
 	void GetMetaTable(const char* metatableName);
 
-	LuaObject NewUserDataBox(void* u);
+	LuaObject NewUserdataBox(void* u);
 
 #if LUAPLUS_DUMPOBJECT
 	LUAPLUS_CLASS_API bool DumpObject(const char* filename, const char* name, LuaObject& value, unsigned int flags = DUMP_ALPHABETICAL,

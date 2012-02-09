@@ -126,15 +126,15 @@ namespace LuaHelper
 		\return Returns the value found or the defaultValue.
 	**/
 	template< typename KeyT >
-	static void* GetLightUserData( LuaStackObject& obj, KeyT key, bool require = true, void* defaultValue = NULL ) {
+	static void* GetLightUserdata( LuaStackObject& obj, KeyT key, bool require = true, void* defaultValue = NULL ) {
 		LuaAutoObject outObj = obj[ key ];
-		if ( !outObj.IsLightUserData() ) {
+		if ( !outObj.IsLightUserdata() ) {
 			if ( require ) {
 				luaplus_assert( 0 );
 			}
 			return defaultValue;
 		}
-		return outObj.GetLightUserData();
+		return outObj.GetLightUserdata();
 	}
 
 
