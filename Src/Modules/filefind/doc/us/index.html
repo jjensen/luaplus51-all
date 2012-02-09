@@ -30,18 +30,6 @@
 			</ul>
 		</li>
 
-		<li><a href="reference.html">Reference</a>
-			<ul>
-                            
-			</ul>
-		</li>
-
-		<li><a href="license.html">License</a>
-			<ul>
-                            
-			</ul>
-		</li>
-
 	</ul>
 </div> <!-- id="navigation" -->
 
@@ -52,19 +40,102 @@
 
 <p><em>filefind</em> is a Lua module providing both highly efficient directory iteration and an expressive syntax for recursively globbing sets of files or directories from the disk in a single execution.  The globbing functionality was inspired by Perforce's recursive wildcard syntax and implements JPSoft's TCC syntax for stepping up directories.</p>
 
-<h2>History</h2>
+<h2>Example</h2>
 
-<ul>
-    <li><p>Version 2.0 (9 Dec 2009)</p>
-    <ul>
-        <li>Adds a revamped version of the old 'glob' module that handles iterators and has even better performance.  Also adds support for the <tt>+</tt> modifier that will list both files and directories.</li>
-        <li>A number of bug fixes.</li>
-    </ul></li>
-    <li><p>Version 1.0 (27 Aug 2002 - CodeProject article at http://www.codeproject.com/KB/files/fileglob.aspx)</p>
-    <ul>
-        <li>Initial version.</li>
-    </ul></li>
-</ul>
+
+<pre>
+    require 'filefind'
+
+    for entry in filefind.glob('**') do
+        print(entry.filename)
+    end
+</pre>
+
+
+
+<h2>Reference Manual</h2>
+
+<p>This is a reference of all of the filefind module's methods.</p>
+
+<h2>Module <code>filefind</code></h2>
+
+<p><strong>entryTable = filefind.attributes(<em>filename</em>)</strong></p>
+
+<p>Retrieves file or directory properties for one item.</p>
+
+
+<p><strong>for entry in filefind.glob(<em>pattern</em>) do</strong></p>
+
+<p>Begins a new iteration of files and/or directories using <em>pattern</em> as the glob wildcard.  All glob syntax, described elsewhere, is available.</p>
+
+
+<p><strong>for entry in filefind.match(<em>pattern</em>) do</strong></p>
+
+<p>Begins a new iteration of files and directories using <em>pattern</em> as the wildcard.  Simple access to the file system is used.  The more powerful file globbing facilities are not available.</p>
+
+
+<h3>Time Conversion</h3>
+
+<p><strong>lowTime, highTime = filefind.unix_time_to_FILETIME_UTC(unixTime)</strong></p>
+
+<p>Converts a Unix time_t to a Windows FILETIME adjusted to UTC.  Returns the FILETIME as a two integers representing low time and high time.</p>
+
+
+<p><strong>entryTable = filefind.unix_time_to_FILETIME_UTC(unixTime)</strong></p>
+
+<p>Converts a Unix time_t to a Windows FILETIME adjusted to UTC.  Returns the FILETIME as a two integers representing low time and high time.</p>
+
+
+<p><strong>entryTable = filefind.FILETIME_to_unix_time_UTC(filetime)</strong></p>
+
+<p>Converts a Windows FILETIME to Unix time_t adjusted to UTC.  <code>filetime</code> may be two integers representing the low time and high time of the FILETIME structure or a string representing the low time and high time combined.</p>
+
+<p>Returns the time_t.</p>
+
+
+<p><strong>entryTable = filefind.time_t_to_FILETIME(time_t)</strong></p>
+
+<p>Converts a Unix time_t to a Windows FILETIME.  Returns the FILETIME as a two integers representing low time and high time.</p>
+
+
+<p><strong>entryTable = filefind.FILETIME_to_time_t(filetime)</strong></p>
+
+<p>Converts a Windows FILETIME to Unix time_t.  <code>filetime</code> may be two integers representing the low time and high time of the FILETIME structure or a string representing the low time and high time combined.</p>
+
+<p>Returns the time_t.</p>
+
+
+
+
+<h3>File entry information</h3>
+
+<p><strong>entry.table</strong> - table - Returns a table with all of the properties below.  Entry properties are usually looked up and returned on demand.  Some may take extra time to compute.</p>
+
+<p><strong>entry.filename</strong> - string - The relative path from the <em>filefind.match()</em> starting directory.</p>
+
+<p><strong>entry.creation_time</strong> - number - The creation time of the file/directory in seconds starting from midnight (00:00:00), January 1, 1970.</p>
+
+<p><strong>entry.access_time</strong> - number - The last access time of the file/directory in seconds starting from midnight (00:00:00), January 1, 1970.</p>
+
+<p><strong>entry.write_time</strong> - number - The last write time of the file/directory in seconds starting from midnight (00:00:00), January 1, 1970.</p>
+
+<p><strong>entry.creation_FILETIME</strong> - table - The creation time of the file/directory in FILETIME format starting from midnight (00:00:00), January 1, 1970.  Element 1 of the table is the low file time.  Element 2 is the high file time.</p>
+
+<p><strong>entry.access_FILETIME</strong> - table - The last access time of the file/directory in FILETIME format starting from midnight (00:00:00), January 1, 1970.  Element 1 of the table is the low file time.  Element 2 is the high file time.</p>
+
+<p><strong>entry.write_FILETIME</strong> - table - The last write time of the file/directory in FILETIME format starting from midnight (00:00:00), January 1, 1970.  Element 1 of the table is the low file time.  Element 2 is the high file time.</p>
+
+<p><strong>entry.is_directory</strong> - boolean - <tt>true</tt> if the glob entry is a directory, <tt>false</tt> otherwise.</p>
+
+<p><strong>entry.is_link</strong> - boolean - <tt>true</tt> if the entry is a hard or symbolic link, <tt>false</tt> otherwise.</p>
+
+<p><strong>entry.is_readonly</strong> - boolean - <tt>true</tt> if the glob entry is read only, <tt>false</tt> otherwise.</p>
+
+<p><strong>entry.number<em>of</em>links</strong> - number - The number of files pointing to the hardlink blob, 0 if none.</p>
+
+<p><strong>entry.size</strong> - number - The size of the file.</p>
+
+
 
 <h2>Available Glob Syntax</h2>
 
@@ -292,21 +363,48 @@
 </table>
 
 
-<h2>Example</h2>
 
 
-<pre>
-    require 'filefind'
+<h2>License</h2>
 
-    for entry in filefind.glob('**') do
-        print(entry.filename)
-    end
-</pre>
+<p>The filefind module is licensed under the terms of the MIT license and can be used unrestricted in any place where Lua could be used.</p>
 
+<hr/>
 
-<h2>Download and Installation</h2>
+<h2>Lua License</h2>
 
-<p>To fill in.</p>
+<p>Lua is licensed under the terms of the MIT license reproduced below.
+This means that Lua is free software and can be used for both academic
+and commercial purposes at absolutely no cost.</p>
+
+<p>For details and rationale, see [http://www.lua.org/license.html].</p>
+
+<hr/>
+
+<p>Copyright (C) 2003-2004 Tecgraf, PUC-Rio.</p>
+
+<p>Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:</p>
+
+<p>The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.</p>
+
+<p>THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.</p>
+
+<hr/>
+
+<p>(end of COPYRIGHT)</p>
+
 
 <h2>Credits</h2>
 
@@ -314,9 +412,23 @@
 
 <p>Joshua Jensen wrote the rest of the filefind module.</p>
 
-<h2>Contact Us</h2>
 
-<p>To fill in.</p>
+<h2>History</h2>
+
+<ul>
+    <li><p>Version 2.0 (9 Dec 2009)</p>
+    <ul>
+        <li>Adds a revamped version of the old 'glob' module that handles iterators and has even better performance.  Also adds support for the <tt>+</tt> modifier that will list both files and directories.</li>
+        <li>Changes the access functions to just member lookups for the resultant handle.</li>
+        <li>A number of bug fixes.</li>
+    </ul></li>
+    <li><p>Version 1.0 (27 Aug 2002 - CodeProject article at http://www.codeproject.com/KB/files/fileglob.aspx)</p>
+    <ul>
+        <li>Initial version.</li>
+    </ul></li>
+</ul>
+
+
 
 
 

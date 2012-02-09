@@ -12,15 +12,90 @@
     end
 </pre>
 
-## History
 
-* Version 2.0 (9 Dec 2009)
-    * Adds a revamped version of the old 'glob' module that handles iterators and has even better performance.  Also adds support for the <tt>+</tt> modifier that will list both files and directories.
-    * Changes the access functions to just member lookups for the resultant handle.
-    * A number of bug fixes.
+## Reference Manual
 
-* Version 1.0 (27 Aug 2002 - CodeProject article at http://www.codeproject.com/KB/files/fileglob.aspx)
-    * Initial version.
+This is a reference of all of the filefind module's methods.
+
+## Module `filefind`
+
+**entryTable = filefind.attributes(*filename*)**
+
+Retrieves file or directory properties for one item.
+
+
+**for entry in filefind.glob(*pattern*) do**
+
+Begins a new iteration of files and/or directories using *pattern* as the glob wildcard.  All glob syntax, described elsewhere, is available.
+
+
+**for entry in filefind.match(*pattern*) do**
+
+Begins a new iteration of files and directories using *pattern* as the wildcard.  Simple access to the file system is used.  The more powerful file globbing facilities are not available.
+
+
+### Time Conversion
+
+**lowTime, highTime = filefind.unix\_time\_to\_FILETIME\_UTC(unixTime)**
+
+Converts a Unix time_t to a Windows FILETIME adjusted to UTC.  Returns the FILETIME as a two integers representing low time and high time.
+
+
+**entryTable = filefind.unix\_time\_to\_FILETIME\_UTC(unixTime)**
+
+Converts a Unix time_t to a Windows FILETIME adjusted to UTC.  Returns the FILETIME as a two integers representing low time and high time.
+
+
+**entryTable = filefind.FILETIME\_to\_unix\_time\_UTC(filetime)**
+
+Converts a Windows FILETIME to Unix time_t adjusted to UTC.  `filetime` may be two integers representing the low time and high time of the FILETIME structure or a string representing the low time and high time combined.
+
+Returns the time_t.
+
+
+**entryTable = filefind.time\_t\_to\_FILETIME(time_t)**
+
+Converts a Unix time_t to a Windows FILETIME.  Returns the FILETIME as a two integers representing low time and high time.
+
+
+**entryTable = filefind.FILETIME\_to\_time\_t(filetime)**
+
+Converts a Windows FILETIME to Unix time_t.  `filetime` may be two integers representing the low time and high time of the FILETIME structure or a string representing the low time and high time combined.
+
+Returns the time_t.
+
+
+
+
+### File entry information
+
+**entry.table** - table - Returns a table with all of the properties below.  Entry properties are usually looked up and returned on demand.  Some may take extra time to compute.
+
+**entry.filename** - string - The relative path from the *filefind.match()* starting directory.
+
+**entry.creation_time** - number - The creation time of the file/directory in seconds starting from midnight (00:00:00), January 1, 1970.
+
+**entry.access_time** - number - The last access time of the file/directory in seconds starting from midnight (00:00:00), January 1, 1970.
+
+**entry.write_time** - number - The last write time of the file/directory in seconds starting from midnight (00:00:00), January 1, 1970.
+
+**entry.creation_FILETIME** - table - The creation time of the file/directory in FILETIME format starting from midnight (00:00:00), January 1, 1970.  Element 1 of the table is the low file time.  Element 2 is the high file time.
+
+**entry.access_FILETIME** - table - The last access time of the file/directory in FILETIME format starting from midnight (00:00:00), January 1, 1970.  Element 1 of the table is the low file time.  Element 2 is the high file time.
+
+**entry.write_FILETIME** - table - The last write time of the file/directory in FILETIME format starting from midnight (00:00:00), January 1, 1970.  Element 1 of the table is the low file time.  Element 2 is the high file time.
+
+**entry.is_directory** - boolean - <tt>true</tt> if the glob entry is a directory, <tt>false</tt> otherwise.
+
+**entry.is_link** - boolean - <tt>true</tt> if the entry is a hard or symbolic link, <tt>false</tt> otherwise.
+
+**entry.is_readonly** - boolean - <tt>true</tt> if the glob entry is read only, <tt>false</tt> otherwise.
+
+**entry.number_of_links** - number - The number of files pointing to the hardlink blob, 0 if none.
+
+**entry.size** - number - The size of the file.
+
+
 
 ## Available Glob Syntax
 
@@ -232,9 +307,49 @@ This matches all directories under c:/Dir1/ that start with A.  Under all of the
   </tr>
 </table>
 
-## Download and Installation
 
-To fill in.
+
+## License
+
+The filefind module is licensed under the terms of the MIT license and can be used unrestricted in any place where Lua could be used.
+
+===============================================================================
+
+Lua License
+-----------
+
+Lua is licensed under the terms of the MIT license reproduced below.
+This means that Lua is free software and can be used for both academic
+and commercial purposes at absolutely no cost.
+
+For details and rationale, see [http://www.lua.org/license.html].
+
+===============================================================================
+
+Copyright (C) 2003-2004 Tecgraf, PUC-Rio.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
+===============================================================================
+
+(end of COPYRIGHT)
+
 
 ## Credits
 
@@ -242,6 +357,15 @@ The filefind module glob source code is originally based on [Matthias Wandel's M
 
 Joshua Jensen wrote the rest of the filefind module.
 
-## Contact Us
 
-To fill in.
+## History
+
+* Version 2.0 (9 Dec 2009)
+    * Adds a revamped version of the old 'glob' module that handles iterators and has even better performance.  Also adds support for the <tt>+</tt> modifier that will list both files and directories.
+    * Changes the access functions to just member lookups for the resultant handle.
+    * A number of bug fixes.
+
+* Version 1.0 (27 Aug 2002 - CodeProject article at http://www.codeproject.com/KB/files/fileglob.aspx)
+    * Initial version.
+
+

@@ -3,8 +3,6 @@ require "markdown"
 
 local pages = {
   { name = "Home", file = "index", sections = {} },
-  { name = "Reference", file = "reference", sections = {} },
-  { name = "License", file = "license", sections = {} }
 }
 
 local project = {
