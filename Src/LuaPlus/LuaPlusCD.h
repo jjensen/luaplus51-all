@@ -296,6 +296,98 @@ namespace LPCD
 		}
 
 
+		template <typename P1, typename P2, typename P3, typename P4,
+					typename P5, typename P6, typename P7, typename P8>
+		static int Call(RT (*func)(P1, P2, P3, P4, P5, P6, P7, P8), lua_State* L, int index)
+		{
+			luaL_argassert(1, index + 0);
+			luaL_argassert(2, index + 1);
+			luaL_argassert(3, index + 2);
+			luaL_argassert(4, index + 3);
+			luaL_argassert(5, index + 4);
+			luaL_argassert(6, index + 5);
+			luaL_argassert(7, index + 6);
+			luaL_argassert(8, index + 7);
+
+			RT ret = func(
+				Get(TypeWrapper<P1>(), L, index + 0),
+				Get(TypeWrapper<P2>(), L, index + 1),
+				Get(TypeWrapper<P3>(), L, index + 2),
+				Get(TypeWrapper<P4>(), L, index + 3),
+				Get(TypeWrapper<P5>(), L, index + 4),
+				Get(TypeWrapper<P6>(), L, index + 5),
+				Get(TypeWrapper<P7>(), L, index + 6),
+				Get(TypeWrapper<P8>(), L, index + 7)
+			);
+			Push(L, ret);
+			return 1;
+		}
+
+
+		template <typename P1, typename P2, typename P3, typename P4,
+					typename P5, typename P6, typename P7, typename P8,
+					typename P9>
+		static int Call(RT (*func)(P1, P2, P3, P4, P5, P6, P7, P8, P9), lua_State* L, int index)
+		{
+			luaL_argassert(1, index + 0);
+			luaL_argassert(2, index + 1);
+			luaL_argassert(3, index + 2);
+			luaL_argassert(4, index + 3);
+			luaL_argassert(5, index + 4);
+			luaL_argassert(6, index + 5);
+			luaL_argassert(7, index + 6);
+			luaL_argassert(8, index + 7);
+			luaL_argassert(9, index + 8);
+
+			RT ret = func(
+				Get(TypeWrapper<P1>(), L, index + 0),
+				Get(TypeWrapper<P2>(), L, index + 1),
+				Get(TypeWrapper<P3>(), L, index + 2),
+				Get(TypeWrapper<P4>(), L, index + 3),
+				Get(TypeWrapper<P5>(), L, index + 4),
+				Get(TypeWrapper<P6>(), L, index + 5),
+				Get(TypeWrapper<P7>(), L, index + 6),
+				Get(TypeWrapper<P8>(), L, index + 7),
+				Get(TypeWrapper<P9>(), L, index + 8)
+			);
+			Push(L, ret);
+			return 1;
+		}
+
+
+		template <typename P1, typename P2, typename P3, typename P4,
+					typename P5, typename P6, typename P7, typename P8,
+					typename P9, typename P10>
+		static int Call(RT (*func)(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10), lua_State* L, int index)
+		{
+			luaL_argassert(1, index + 0);
+			luaL_argassert(2, index + 1);
+			luaL_argassert(3, index + 2);
+			luaL_argassert(4, index + 3);
+			luaL_argassert(5, index + 4);
+			luaL_argassert(6, index + 5);
+			luaL_argassert(7, index + 6);
+			luaL_argassert(8, index + 7);
+			luaL_argassert(9, index + 8);
+			luaL_argassert(10, index + 9);
+
+			RT ret = func(
+				Get(TypeWrapper<P1>(), L, index + 0),
+				Get(TypeWrapper<P2>(), L, index + 1),
+				Get(TypeWrapper<P3>(), L, index + 2),
+				Get(TypeWrapper<P4>(), L, index + 3),
+				Get(TypeWrapper<P5>(), L, index + 4),
+				Get(TypeWrapper<P6>(), L, index + 5),
+				Get(TypeWrapper<P7>(), L, index + 6),
+				Get(TypeWrapper<P8>(), L, index + 7),
+				Get(TypeWrapper<P9>(), L, index + 8),
+				Get(TypeWrapper<P10>(), L, index + 9)
+			);
+			Push(L, ret);
+			return 1;
+		}
+
+
 		//////////////////////////////////////////////////////////////////////////////
 		//////////////////////////////////////////////////////////////////////////////
 		//////////////////////////////////////////////////////////////////////////////
@@ -578,6 +670,184 @@ namespace LPCD
 			Push(L, ret);
 			return 1;
 		}
+
+		template <typename Callee, typename P1, typename P2, typename P3,
+					typename P4, typename P5, typename P6, typename P7, typename P8>
+		static int Call(Callee& callee, RT (Callee::*func)(P1, P2, P3, P4, P5, P6, P7, P8), lua_State* L, int index)
+		{
+			luaL_argassert(1, index + 0);
+			luaL_argassert(2, index + 1);
+			luaL_argassert(3, index + 2);
+			luaL_argassert(4, index + 3);
+			luaL_argassert(5, index + 4);
+			luaL_argassert(6, index + 5);
+			luaL_argassert(7, index + 6);
+			luaL_argassert(8, index + 7);
+
+			RT ret = (callee.*func)(
+				Get(TypeWrapper<P1>(), L, index + 0),
+				Get(TypeWrapper<P2>(), L, index + 1),
+				Get(TypeWrapper<P3>(), L, index + 2),
+				Get(TypeWrapper<P4>(), L, index + 3),
+				Get(TypeWrapper<P5>(), L, index + 4),
+				Get(TypeWrapper<P6>(), L, index + 5),
+				Get(TypeWrapper<P7>(), L, index + 6),
+				Get(TypeWrapper<P8>(), L, index + 7)
+			);
+			Push(L, ret);
+			return 1;
+		}
+
+		template <typename Callee, typename P1, typename P2, typename P3,
+					typename P4, typename P5, typename P6, typename P7, typename P8>
+		static int Call(Callee& callee, RT (Callee::*func)(P1, P2, P3, P4, P5, P6, P7, P8) const, lua_State* L, int index)
+		{
+			luaL_argassert(1, index + 0);
+			luaL_argassert(2, index + 1);
+			luaL_argassert(3, index + 2);
+			luaL_argassert(4, index + 3);
+			luaL_argassert(5, index + 4);
+			luaL_argassert(6, index + 5);
+			luaL_argassert(7, index + 6);
+			luaL_argassert(8, index + 7);
+
+			RT ret = (callee.*func)(
+				Get(TypeWrapper<P1>(), L, index + 0),
+				Get(TypeWrapper<P2>(), L, index + 1),
+				Get(TypeWrapper<P3>(), L, index + 2),
+				Get(TypeWrapper<P4>(), L, index + 3),
+				Get(TypeWrapper<P5>(), L, index + 4),
+				Get(TypeWrapper<P6>(), L, index + 5),
+				Get(TypeWrapper<P7>(), L, index + 6),
+				Get(TypeWrapper<P8>(), L, index + 7)
+			);
+			Push(L, ret);
+			return 1;
+		}
+
+		template <typename Callee, typename P1, typename P2, typename P3,
+					typename P4, typename P5, typename P6, typename P7, typename P8,
+					typename P9>
+		static int Call(Callee& callee, RT (Callee::*func)(P1, P2, P3, P4, P5, P6, P7, P8, P9), lua_State* L, int index)
+		{
+			luaL_argassert(1, index + 0);
+			luaL_argassert(2, index + 1);
+			luaL_argassert(3, index + 2);
+			luaL_argassert(4, index + 3);
+			luaL_argassert(5, index + 4);
+			luaL_argassert(6, index + 5);
+			luaL_argassert(7, index + 6);
+			luaL_argassert(8, index + 7);
+			luaL_argassert(9, index + 8);
+
+			RT ret = (callee.*func)(
+				Get(TypeWrapper<P1>(), L, index + 0),
+				Get(TypeWrapper<P2>(), L, index + 1),
+				Get(TypeWrapper<P3>(), L, index + 2),
+				Get(TypeWrapper<P4>(), L, index + 3),
+				Get(TypeWrapper<P5>(), L, index + 4),
+				Get(TypeWrapper<P6>(), L, index + 5),
+				Get(TypeWrapper<P7>(), L, index + 6),
+				Get(TypeWrapper<P8>(), L, index + 7),
+				Get(TypeWrapper<P9>(), L, index + 8)
+			);
+			Push(L, ret);
+			return 1;
+		}
+
+		template <typename Callee, typename P1, typename P2, typename P3,
+					typename P4, typename P5, typename P6, typename P7, typename P8,
+					typename P9>
+		static int Call(Callee& callee, RT (Callee::*func)(P1, P2, P3, P4, P5, P6, P7, P8, P9) const, lua_State* L, int index)
+		{
+			luaL_argassert(1, index + 0);
+			luaL_argassert(2, index + 1);
+			luaL_argassert(3, index + 2);
+			luaL_argassert(4, index + 3);
+			luaL_argassert(5, index + 4);
+			luaL_argassert(6, index + 5);
+			luaL_argassert(7, index + 6);
+			luaL_argassert(8, index + 7);
+			luaL_argassert(9, index + 8);
+
+			RT ret = (callee.*func)(
+				Get(TypeWrapper<P1>(), L, index + 0),
+				Get(TypeWrapper<P2>(), L, index + 1),
+				Get(TypeWrapper<P3>(), L, index + 2),
+				Get(TypeWrapper<P4>(), L, index + 3),
+				Get(TypeWrapper<P5>(), L, index + 4),
+				Get(TypeWrapper<P6>(), L, index + 5),
+				Get(TypeWrapper<P7>(), L, index + 6),
+				Get(TypeWrapper<P8>(), L, index + 7),
+				Get(TypeWrapper<P9>(), L, index + 8)
+			);
+			Push(L, ret);
+			return 1;
+		}
+
+		template <typename Callee, typename P1, typename P2, typename P3,
+					typename P4, typename P5, typename P6, typename P7, typename P8,
+					typename P9, typename P10>
+		static int Call(Callee& callee, RT (Callee::*func)(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10), lua_State* L, int index)
+		{
+			luaL_argassert(1, index + 0);
+			luaL_argassert(2, index + 1);
+			luaL_argassert(3, index + 2);
+			luaL_argassert(4, index + 3);
+			luaL_argassert(5, index + 4);
+			luaL_argassert(6, index + 5);
+			luaL_argassert(7, index + 6);
+			luaL_argassert(8, index + 7);
+			luaL_argassert(9, index + 8);
+			luaL_argassert(10, index + 9);
+
+			RT ret = (callee.*func)(
+				Get(TypeWrapper<P1>(), L, index + 0),
+				Get(TypeWrapper<P2>(), L, index + 1),
+				Get(TypeWrapper<P3>(), L, index + 2),
+				Get(TypeWrapper<P4>(), L, index + 3),
+				Get(TypeWrapper<P5>(), L, index + 4),
+				Get(TypeWrapper<P6>(), L, index + 5),
+				Get(TypeWrapper<P7>(), L, index + 6),
+				Get(TypeWrapper<P8>(), L, index + 7),
+				Get(TypeWrapper<P9>(), L, index + 8),
+				Get(TypeWrapper<P10>(), L, index + 9)
+			);
+			Push(L, ret);
+			return 1;
+		}
+
+		template <typename Callee, typename P1, typename P2, typename P3,
+					typename P4, typename P5, typename P6, typename P7, typename P8,
+					typename P9, typename P10>
+		static int Call(Callee& callee, RT (Callee::*func)(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10) const, lua_State* L, int index)
+		{
+			luaL_argassert(1, index + 0);
+			luaL_argassert(2, index + 1);
+			luaL_argassert(3, index + 2);
+			luaL_argassert(4, index + 3);
+			luaL_argassert(5, index + 4);
+			luaL_argassert(6, index + 5);
+			luaL_argassert(7, index + 6);
+			luaL_argassert(8, index + 7);
+			luaL_argassert(9, index + 8);
+			luaL_argassert(10, index + 9);
+
+			RT ret = (callee.*func)(
+				Get(TypeWrapper<P1>(), L, index + 0),
+				Get(TypeWrapper<P2>(), L, index + 1),
+				Get(TypeWrapper<P3>(), L, index + 2),
+				Get(TypeWrapper<P4>(), L, index + 3),
+				Get(TypeWrapper<P5>(), L, index + 4),
+				Get(TypeWrapper<P6>(), L, index + 5),
+				Get(TypeWrapper<P7>(), L, index + 6),
+				Get(TypeWrapper<P8>(), L, index + 7),
+				Get(TypeWrapper<P9>(), L, index + 8),
+				Get(TypeWrapper<P10>(), L, index + 9)
+			);
+			Push(L, ret);
+			return 1;
+		}
 	};
 
 
@@ -709,6 +979,89 @@ namespace LPCD
 				Get(TypeWrapper<P5>(), L, index + 4),
 				Get(TypeWrapper<P6>(), L, index + 5),
 				Get(TypeWrapper<P7>(), L, index + 6)
+			);
+			return 0;
+		}
+
+		template <typename P1, typename P2, typename P3, typename P4, typename P5, typename P6, typename P7, typename P8>
+		static int Call(void (*func)(P1, P2, P3, P4, P5, P6, P7, P8), lua_State* L, int index)
+		{
+			luaL_argassert(1, index + 0);
+			luaL_argassert(2, index + 1);
+			luaL_argassert(3, index + 2);
+			luaL_argassert(4, index + 3);
+			luaL_argassert(5, index + 4);
+			luaL_argassert(6, index + 5);
+			luaL_argassert(7, index + 6);
+			luaL_argassert(8, index + 7);
+
+			func(
+				Get(TypeWrapper<P1>(), L, index + 0),
+				Get(TypeWrapper<P2>(), L, index + 1),
+				Get(TypeWrapper<P3>(), L, index + 2),
+				Get(TypeWrapper<P4>(), L, index + 3),
+				Get(TypeWrapper<P5>(), L, index + 4),
+				Get(TypeWrapper<P6>(), L, index + 5),
+				Get(TypeWrapper<P7>(), L, index + 6),
+				Get(TypeWrapper<P8>(), L, index + 7)
+			);
+			return 0;
+		}
+
+
+		template <typename P1, typename P2, typename P3, typename P4, typename P5, typename P6, typename P7, typename P8, typename P9>
+		static int Call(void (*func)(P1, P2, P3, P4, P5, P6, P7, P8, P9), lua_State* L, int index)
+		{
+			luaL_argassert(1, index + 0);
+			luaL_argassert(2, index + 1);
+			luaL_argassert(3, index + 2);
+			luaL_argassert(4, index + 3);
+			luaL_argassert(5, index + 4);
+			luaL_argassert(6, index + 5);
+			luaL_argassert(7, index + 6);
+			luaL_argassert(8, index + 7);
+			luaL_argassert(9, index + 8);
+
+			func(
+				Get(TypeWrapper<P1>(), L, index + 0),
+				Get(TypeWrapper<P2>(), L, index + 1),
+				Get(TypeWrapper<P3>(), L, index + 2),
+				Get(TypeWrapper<P4>(), L, index + 3),
+				Get(TypeWrapper<P5>(), L, index + 4),
+				Get(TypeWrapper<P6>(), L, index + 5),
+				Get(TypeWrapper<P7>(), L, index + 6),
+				Get(TypeWrapper<P8>(), L, index + 7),
+				Get(TypeWrapper<P9>(), L, index + 8)
+			);
+			return 0;
+		}
+
+
+		template <typename P1, typename P2, typename P3, typename P4, typename P5, typename P6, typename P7, typename P8, typename P9, typename P10>
+		static int Call(void (*func)(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10), lua_State* L, int index)
+		{
+			luaL_argassert(1, index + 0);
+			luaL_argassert(2, index + 1);
+			luaL_argassert(3, index + 2);
+			luaL_argassert(4, index + 3);
+			luaL_argassert(5, index + 4);
+			luaL_argassert(6, index + 5);
+			luaL_argassert(7, index + 6);
+			luaL_argassert(8, index + 7);
+			luaL_argassert(9, index + 8);
+			luaL_argassert(10, index + 9);
+
+			func(
+				Get(TypeWrapper<P1>(), L, index + 0),
+				Get(TypeWrapper<P2>(), L, index + 1),
+				Get(TypeWrapper<P3>(), L, index + 2),
+				Get(TypeWrapper<P4>(), L, index + 3),
+				Get(TypeWrapper<P5>(), L, index + 4),
+				Get(TypeWrapper<P6>(), L, index + 5),
+				Get(TypeWrapper<P7>(), L, index + 6),
+				Get(TypeWrapper<P8>(), L, index + 7),
+				Get(TypeWrapper<P9>(), L, index + 8),
+				Get(TypeWrapper<P10>(), L, index + 9)
 			);
 			return 0;
 		}
@@ -979,6 +1332,178 @@ namespace LPCD
 			);
 			return 0;
 		}
+
+		template <typename Callee, typename P1, typename P2, typename P3,
+					typename P4, typename P5, typename P6, typename P7, typename P8>
+		static int Call(Callee& callee, void (Callee::*func)(P1, P2, P3, P4, P5, P6, P7, P8), lua_State* L, int index)
+		{
+			luaL_argassert(1, index + 0);
+			luaL_argassert(2, index + 1);
+			luaL_argassert(3, index + 2);
+			luaL_argassert(4, index + 3);
+			luaL_argassert(5, index + 4);
+			luaL_argassert(6, index + 5);
+			luaL_argassert(7, index + 6);
+			luaL_argassert(8, index + 7);
+
+			(callee.*func)(
+				Get(TypeWrapper<P1>(), L, index + 0),
+				Get(TypeWrapper<P2>(), L, index + 1),
+				Get(TypeWrapper<P3>(), L, index + 2),
+				Get(TypeWrapper<P4>(), L, index + 3),
+				Get(TypeWrapper<P5>(), L, index + 4),
+				Get(TypeWrapper<P6>(), L, index + 5),
+				Get(TypeWrapper<P7>(), L, index + 6),
+				Get(TypeWrapper<P8>(), L, index + 7)
+			);
+			return 0;
+		}
+
+		template <typename Callee, typename P1, typename P2, typename P3,
+					typename P4, typename P5, typename P6, typename P7, typename P8>
+		static int Call(Callee& callee, void (Callee::*func)(P1, P2, P3, P4, P5, P6, P7, P8) const, lua_State* L, int index)
+		{
+			luaL_argassert(1, index + 0);
+			luaL_argassert(2, index + 1);
+			luaL_argassert(3, index + 2);
+			luaL_argassert(4, index + 3);
+			luaL_argassert(5, index + 4);
+			luaL_argassert(6, index + 5);
+			luaL_argassert(7, index + 6);
+			luaL_argassert(8, index + 7);
+
+			(callee.*func)(
+				Get(TypeWrapper<P1>(), L, index + 0),
+				Get(TypeWrapper<P2>(), L, index + 1),
+				Get(TypeWrapper<P3>(), L, index + 2),
+				Get(TypeWrapper<P4>(), L, index + 3),
+				Get(TypeWrapper<P5>(), L, index + 4),
+				Get(TypeWrapper<P6>(), L, index + 5),
+				Get(TypeWrapper<P7>(), L, index + 6),
+				Get(TypeWrapper<P8>(), L, index + 7)
+			);
+			return 0;
+		}
+
+		template <typename Callee, typename P1, typename P2, typename P3,
+					typename P4, typename P5, typename P6, typename P7, typename P8,
+					typename P9>
+		static int Call(Callee& callee, void (Callee::*func)(P1, P2, P3, P4, P5, P6, P7, P8, P9), lua_State* L, int index)
+		{
+			luaL_argassert(1, index + 0);
+			luaL_argassert(2, index + 1);
+			luaL_argassert(3, index + 2);
+			luaL_argassert(4, index + 3);
+			luaL_argassert(5, index + 4);
+			luaL_argassert(6, index + 5);
+			luaL_argassert(7, index + 6);
+			luaL_argassert(8, index + 7);
+			luaL_argassert(9, index + 8);
+
+			(callee.*func)(
+				Get(TypeWrapper<P1>(), L, index + 0),
+				Get(TypeWrapper<P2>(), L, index + 1),
+				Get(TypeWrapper<P3>(), L, index + 2),
+				Get(TypeWrapper<P4>(), L, index + 3),
+				Get(TypeWrapper<P5>(), L, index + 4),
+				Get(TypeWrapper<P6>(), L, index + 5),
+				Get(TypeWrapper<P7>(), L, index + 6),
+				Get(TypeWrapper<P8>(), L, index + 7),
+				Get(TypeWrapper<P9>(), L, index + 8)
+			);
+			return 0;
+		}
+
+		template <typename Callee, typename P1, typename P2, typename P3,
+					typename P4, typename P5, typename P6, typename P7, typename P8,
+					typename P9>
+		static int Call(Callee& callee, void (Callee::*func)(P1, P2, P3, P4, P5, P6, P7, P8, P9) const, lua_State* L, int index)
+		{
+			luaL_argassert(1, index + 0);
+			luaL_argassert(2, index + 1);
+			luaL_argassert(3, index + 2);
+			luaL_argassert(4, index + 3);
+			luaL_argassert(5, index + 4);
+			luaL_argassert(6, index + 5);
+			luaL_argassert(7, index + 6);
+			luaL_argassert(8, index + 7);
+			luaL_argassert(9, index + 8);
+
+			(callee.*func)(
+				Get(TypeWrapper<P1>(), L, index + 0),
+				Get(TypeWrapper<P2>(), L, index + 1),
+				Get(TypeWrapper<P3>(), L, index + 2),
+				Get(TypeWrapper<P4>(), L, index + 3),
+				Get(TypeWrapper<P5>(), L, index + 4),
+				Get(TypeWrapper<P6>(), L, index + 5),
+				Get(TypeWrapper<P7>(), L, index + 6),
+				Get(TypeWrapper<P8>(), L, index + 7),
+				Get(TypeWrapper<P9>(), L, index + 8)
+			);
+			return 0;
+		}
+
+		template <typename Callee, typename P1, typename P2, typename P3,
+					typename P4, typename P5, typename P6, typename P7, typename P8,
+					typename P9, typename P10>
+		static int Call(Callee& callee, void (Callee::*func)(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10), lua_State* L, int index)
+		{
+			luaL_argassert(1, index + 0);
+			luaL_argassert(2, index + 1);
+			luaL_argassert(3, index + 2);
+			luaL_argassert(4, index + 3);
+			luaL_argassert(5, index + 4);
+			luaL_argassert(6, index + 5);
+			luaL_argassert(7, index + 6);
+			luaL_argassert(8, index + 7);
+			luaL_argassert(9, index + 8);
+			luaL_argassert(10, index + 9);
+
+			(callee.*func)(
+				Get(TypeWrapper<P1>(), L, index + 0),
+				Get(TypeWrapper<P2>(), L, index + 1),
+				Get(TypeWrapper<P3>(), L, index + 2),
+				Get(TypeWrapper<P4>(), L, index + 3),
+				Get(TypeWrapper<P5>(), L, index + 4),
+				Get(TypeWrapper<P6>(), L, index + 5),
+				Get(TypeWrapper<P7>(), L, index + 6),
+				Get(TypeWrapper<P8>(), L, index + 7),
+				Get(TypeWrapper<P9>(), L, index + 8),
+				Get(TypeWrapper<P10>(), L, index + 9)
+			);
+			return 0;
+		}
+
+		template <typename Callee, typename P1, typename P2, typename P3,
+					typename P4, typename P5, typename P6, typename P7, typename P8,
+					typename P9, typename P10>
+		static int Call(Callee& callee, void (Callee::*func)(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10) const, lua_State* L, int index)
+		{
+			luaL_argassert(1, index + 0);
+			luaL_argassert(2, index + 1);
+			luaL_argassert(3, index + 2);
+			luaL_argassert(4, index + 3);
+			luaL_argassert(5, index + 4);
+			luaL_argassert(6, index + 5);
+			luaL_argassert(7, index + 6);
+			luaL_argassert(8, index + 7);
+			luaL_argassert(9, index + 8);
+			luaL_argassert(10, index + 9);
+
+			(callee.*func)(
+				Get(TypeWrapper<P1>(), L, index + 0),
+				Get(TypeWrapper<P2>(), L, index + 1),
+				Get(TypeWrapper<P3>(), L, index + 2),
+				Get(TypeWrapper<P4>(), L, index + 3),
+				Get(TypeWrapper<P5>(), L, index + 4),
+				Get(TypeWrapper<P6>(), L, index + 5),
+				Get(TypeWrapper<P7>(), L, index + 6),
+				Get(TypeWrapper<P8>(), L, index + 7),
+				Get(TypeWrapper<P9>(), L, index + 8),
+				Get(TypeWrapper<P10>(), L, index + 9)
+			);
+			return 0;
+		}
 	};
 
 
@@ -1036,6 +1561,27 @@ namespace LPCD
 	template <typename RT, typename P1, typename P2, typename P3, typename P4,
 				typename P5, typename P6, typename P7>
 	int Call(RT (*func)(P1, P2, P3, P4, P5, P6, P7), lua_State* L, int index)
+	{
+		return ReturnSpecialization<RT>::Call(func, L, index);
+	}
+
+
+	template <typename RT, typename P1, typename P2, typename P3, typename P4, typename P5, typename P6, typename P7, typename P8>
+	int Call(RT (*func)(P1, P2, P3, P4, P5, P6, P7, P8), lua_State* L, int index)
+	{
+		return ReturnSpecialization<RT>::Call(func, L, index);
+	}
+
+
+	template <typename RT, typename P1, typename P2, typename P3, typename P4, typename P5, typename P6, typename P7, typename P8, typename P9>
+	int Call(RT (*func)(P1, P2, P3, P4, P5, P6, P7, P8, P9), lua_State* L, int index)
+	{
+		return ReturnSpecialization<RT>::Call(func, L, index);
+	}
+
+
+	template <typename RT, typename P1, typename P2, typename P3, typename P4, typename P5, typename P6, typename P7, typename P8, typename P9, typename P10>
+	int Call(RT (*func)(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10), lua_State* L, int index)
 	{
 		return ReturnSpecialization<RT>::Call(func, L, index);
 	}
@@ -1156,6 +1702,48 @@ namespace LPCD
 	template <typename Callee, typename RT, typename P1, typename P2, typename P3,
 				typename P4, typename P5, typename P6, typename P7>
 	int Call(Callee& callee, RT (Callee::*func)(P1, P2, P3, P4, P5, P6, P7) const, lua_State* L, int index)
+	{
+		return ReturnSpecialization<RT>::Call(callee, func, L, index);
+	}
+
+
+	template <typename Callee, typename RT, typename P1, typename P2, typename P3, typename P4, typename P5, typename P6, typename P7, typename P8>
+	int Call(Callee& callee, RT (Callee::*func)(P1, P2, P3, P4, P5, P6, P7, P8), lua_State* L, int index)
+	{
+		return ReturnSpecialization<RT>::Call(callee, func, L, index);
+	}
+
+
+	template <typename Callee, typename RT, typename P1, typename P2, typename P3, typename P4, typename P5, typename P6, typename P7, typename P8>
+	int Call(Callee& callee, RT (Callee::*func)(P1, P2, P3, P4, P5, P6, P7, P8) const, lua_State* L, int index)
+	{
+		return ReturnSpecialization<RT>::Call(callee, func, L, index);
+	}
+
+
+	template <typename Callee, typename RT, typename P1, typename P2, typename P3, typename P4, typename P5, typename P6, typename P7, typename P8, typename P9>
+	int Call(Callee& callee, RT (Callee::*func)(P1, P2, P3, P4, P5, P6, P7, P8, P9), lua_State* L, int index)
+	{
+		return ReturnSpecialization<RT>::Call(callee, func, L, index);
+	}
+
+
+	template <typename Callee, typename RT, typename P1, typename P2, typename P3, typename P4, typename P5, typename P6, typename P7, typename P8, typename P9>
+	int Call(Callee& callee, RT (Callee::*func)(P1, P2, P3, P4, P5, P6, P7, P8, P9) const, lua_State* L, int index)
+	{
+		return ReturnSpecialization<RT>::Call(callee, func, L, index);
+	}
+
+
+	template <typename Callee, typename RT, typename P1, typename P2, typename P3, typename P4, typename P5, typename P6, typename P7, typename P8, typename P9, typename P10>
+	int Call(Callee& callee, RT (Callee::*func)(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10), lua_State* L, int index)
+	{
+		return ReturnSpecialization<RT>::Call(callee, func, L, index);
+	}
+
+
+	template <typename Callee, typename RT, typename P1, typename P2, typename P3, typename P4, typename P5, typename P6, typename P7, typename P8, typename P9, typename P10>
+	int Call(Callee& callee, RT (Callee::*func)(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10) const, lua_State* L, int index)
 	{
 		return ReturnSpecialization<RT>::Call(callee, func, L, index);
 	}
