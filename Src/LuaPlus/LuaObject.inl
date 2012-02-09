@@ -1553,7 +1553,7 @@ inline LuaObject& LuaObject::AssignCFunctionHelper(LuaState* state, lua_CFunctio
 
 /**
 **/
-inline bool LuaObject::CheckUData(const char* tname, void** out) {
+inline bool LuaObject::CheckUData(const char* tname, void** out) const {
 	LUA_FASTREF_PUSH();
 	void *p = lua_touserdata(L, LUA_FASTREF_REF_1);
 	if (p != NULL) {  /* value is a userdata? */

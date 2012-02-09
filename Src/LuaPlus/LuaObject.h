@@ -321,7 +321,7 @@ public:
 
 	LuaObject& Unregister(const char* funcName);
 
-	bool CheckUData(const char* tname, void** out);
+	bool CheckUData(const char* tname, void** out) const;
 
 protected:
 #if !LUA_FASTREF_SUPPORT
@@ -351,7 +351,7 @@ namespace LPCD {
 	inline LuaPlus::LuaObject Get(TypeWrapper<LuaPlus::LuaObject>, lua_State* L, int idx)
 		{  return LuaObject(lua_State_to_LuaState(L), idx);  }
 
-	inline LuaPlus::LuaObject PropertyMetatable_GetFunctions(LuaPlus::LuaObject& metatableObj) {
+	inline LuaPlus::LuaObject PropertyMetatable_GetFunctions(const LuaPlus::LuaObject& metatableObj) {
 		lua_State* L = metatableObj.GetCState();
 		metatableObj.Push();							// metatable
 		lua_getfield(L, -1, "__index");					// metatable __index
@@ -362,7 +362,7 @@ namespace LPCD {
 	}
 
 	template <typename Object, typename VarType>
-	inline void PropertyCreate(LuaPlus::LuaObject& metatableObj, const char* varName, VarType Object::* var, bool read = true, bool write = true) {
+	inline void PropertyCreate(const LuaPlus::LuaObject& metatableObj, const char* varName, VarType Object::* var, bool read = true, bool write = true) {
 		lua_State* L = metatableObj.GetCState();
 		metatableObj.Push();							// metatable
 
