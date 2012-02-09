@@ -1060,6 +1060,7 @@ inline LuaObject& LuaObject::RawSetUserdata(int key, void* value) {
 	LUA_FASTREF_PUSH();					// (table)
 	lua_pushlightuserdata(L, value);
 	lua_rawseti(L, LUA_FASTREF_REF_2, key);
+	return *this;
 }
 
 
@@ -1088,6 +1089,7 @@ inline LuaObject& LuaObject::RawSetLightUserdata(int key, void* value) {
 	LUA_FASTREF_PUSH();					// (table)
 	lua_pushlightuserdata(L, value);
 	lua_rawseti(L, LUA_FASTREF_REF_2, key);
+	return *this;
 }
 
 
@@ -1116,6 +1118,7 @@ inline LuaObject& LuaObject::RawSetObject(int key, LuaObject& value) {
 	LUA_FASTREF_PUSH();					// (table)
 	lua_pushvalue(L, value.GetRef());
 	lua_rawseti(L, LUA_FASTREF_REF_2, key);
+	return *this;
 }
 
 
