@@ -275,7 +275,13 @@ public:
 
 	LuaObject Lookup(const char* key) const;
 
-	LuaObject ForceGetTable(const char* name) const;
+	template <typename T>
+	LuaObject ForceGetTable(T key) const {
+		LuaObject tableObj = (*this)[key];
+		if (tableObj.IsTable())
+			return tableObj;
+		return CreateTable(key);
+	}
 
 	LuaObject& Register(const char* funcName, lua_CFunction func, int nupvalues = 0);
 

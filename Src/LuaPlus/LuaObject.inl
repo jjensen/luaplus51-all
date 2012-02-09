@@ -1507,14 +1507,6 @@ inline LuaObject LuaObject::Lookup(const char* key) const {
 }
 
 
-inline LuaObject LuaObject::ForceGetTable(const char* key) const {
-	LuaObject tableObj = (*this)[key];
-	if (tableObj.IsTable())
-		return tableObj;
-	return CreateTable(key);
-}
-
-
 /**
 **/
 inline LuaObject& LuaObject::AssignCFunction(LuaState* state, lua_CFunction function, int nupvalues) {
