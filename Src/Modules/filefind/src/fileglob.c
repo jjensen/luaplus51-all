@@ -897,6 +897,41 @@ int fileglob_IsReadOnly(fileglob* self) {
 }
 
 
+fileglob_uint64 fileglob_NumberOfLinks(fileglob* self) {
+#if defined(WIN32)
+	if (self->context->handle != INVALID_HANDLE_VALUE) {
+//		return ((fileglob_uint64)self->context->fd.nFileSizeLow + ((fileglob_uint64)self->context->fd.nFileSizeHigh << 32));
+		HANDLE handle;
+		BY_HANDLE_FILE_INFORMATION fileInformation;
+
+		const char* fullPath = fileglob_FileName(self);
+
+		handle = CreateFile(fullPath, 0, 0, NULL, OPEN_EXISTING, 0, NULL);
+		if (handle == INVALID_HANDLE_VALUE) {
+			return 0;
+		}
+		if (GetFileInformationByHandle(handle, &fileInformation) == FALSE) {
+			CloseHandle(handle);
+			return 0;
+		}
+		CloseHandle(handle);
+
+		return fileInformation.nNumberOfLinks;
+	}
+#else
+	if (self->context->dirp) {
+		if (!self->context->hasattr) {
+			stat(fileglob_FileName(self), &self->context->attr);
+			self->context->hasattr = 1;
+		}
+		return self->context->attr.st_size;
+	}
+#endif
+
+	return 0;
+}
+
+
 
 /**
 	\internal Does all the actual globbing.

@@ -65,6 +65,9 @@ struct FileFindInfo {
 	int first;			/* default true */
 	HANDLE handle;		/* INVALID_HANDLE_VALUE */
 	WIN32_FIND_DATA fd;
+	char* path;
+	char* pathEnd;
+	char* wildcard;
 };
 
 static int FileFindNextMatch(struct FileFindInfo* info) {
@@ -134,8 +137,7 @@ static int filefind_next(lua_State *L) {
 }
 
 
-static int filefind_close(lua_State *L) {
-	struct FileFindInfo* info = filefind_checkmetatable(L, 1);
+static int filefind_close_helper(lua_State *L, struct FileFindInfo* info) {
 #if defined(WIN32)
 	if (info->handle) {
 		FindClose(info->handle);
@@ -147,24 +149,27 @@ static int filefind_close(lua_State *L) {
 		info->dirp = NULL;
 	}
 #endif
+	if (info->path) {
+		free(info->path);
+		info->path = NULL;
+	}
+	if (info->wildcard) {
+		free(info->wildcard);
+		info->wildcard = NULL;
+	}
 	return 0;
+}
+
+
+static int filefind_close(lua_State *L) {
+	struct FileFindInfo* info = filefind_checkmetatable(L, 1);
+	return filefind_close_helper(L, info);
 }
 
 
 static int filefind_gc(lua_State *L) {
 	struct FileFindInfo* info = filefind_checkmetatable(L, 1);
-#if defined(WIN32)
-	if (info->handle) {
-		FindClose(info->handle);
-		info->handle = NULL;
-	}
-#else
-	if (info->dirp)
-		closedir(info->dirp);
-	free(info->path);
-	free(info->wildcard);
-#endif
-	return 0;
+	return filefind_close_helper(L, info);
 }
 
 
@@ -343,8 +348,41 @@ static int filefind_index_is_readonly(lua_State* L) {
 }
 
 
-static int filefind_index_table(lua_State* L) {
-	struct FileFindInfo* info = filefind_checkmetatable(L, 1);
+static int filefind_index_number_of_links_helper(lua_State* L, struct FileFindInfo* info) {
+#if defined(WIN32)
+	HANDLE handle;
+	BY_HANDLE_FILE_INFORMATION fileInformation;
+
+	char fullPath[MAX_PATH];
+	strcpy(fullPath, info->path);
+	strcat(fullPath, info->fd.cFileName);
+
+	handle = CreateFile(fullPath, 0, 0, NULL, OPEN_EXISTING, 0, NULL);
+	if (handle == INVALID_HANDLE_VALUE) {
+		lua_pushnumber(L, 0);
+		return 1;
+	}
+	if (GetFileInformationByHandle(handle, &fileInformation) == FALSE) {
+		CloseHandle(handle);
+		lua_pushnumber(L, 0);
+		return 1;
+	}
+	CloseHandle(handle);
+
+	lua_pushnumber(L, fileInformation.nNumberOfLinks);
+#else
+	lua_pushnumber(L, 0);
+#endif
+	return 1;
+}
+
+
+static int filefind_index_number_of_links(lua_State* L) {
+	return filefind_index_number_of_links_helper(L, filefind_checkmetatable(L, 1));
+}
+
+
+static int filefind_index_table_helper(lua_State* L, struct FileFindInfo* info) {
 	lua_newtable(L);
 	filefind_index_filename_helper(L, info);
 	lua_setfield(L, -2, "filename");
@@ -368,7 +406,15 @@ static int filefind_index_table(lua_State* L) {
 	lua_setfield(L, -2, "is_link");
 	filefind_index_is_readonly_helper(L, info);
 	lua_setfield(L, -2, "is_readonly");
+	filefind_index_number_of_links_helper(L, info);
+	lua_setfield(L, -2, "number_of_links");
 	return 1;
+}
+
+
+static int filefind_index_table(lua_State* L) {
+	struct FileFindInfo* info = filefind_checkmetatable(L, 1);
+	return filefind_index_table_helper(L, info);
 }
 
 
@@ -384,6 +430,7 @@ static const struct luaL_reg filefind_index_properties[] = {
 	{ "is_directory",			filefind_index_is_directory },
 	{ "is_link",				filefind_index_is_link },
 	{ "is_readonly",			filefind_index_is_readonly },
+	{ "number_of_links",		filefind_index_number_of_links },
 	{ "table",					filefind_index_table },
 	{ NULL, NULL },
 };
@@ -443,6 +490,12 @@ static int filefind_tostring(lua_State *L) {
 	lua_pushstring(L, buffer);
 	sprintf(buffer, ", is_readonly = %s", (info->fd.dwFileAttributes & FILE_ATTRIBUTE_READONLY) ? "true" : "false");
 	lua_pushstring(L, buffer);
+
+	filefind_index_number_of_links_helper(L, info);
+	sprintf(buffer, ", number_of_links = %d", lua_tointeger(L, -1));
+	lua_pop(L, 1);
+
+	lua_pushstring(L, buffer);
 	lua_concat(L, lua_gettop(L) - top);
 	return 1;
 #else
@@ -475,12 +528,31 @@ static int filefind_create_metatable(lua_State *L) {
 
 static int l_filefind_first(lua_State *L) {
 	const char* wildcard = luaL_checkstring(L, 1);
+	const char* origWildcard = wildcard;
 
 	struct FileFindInfo* info = (struct FileFindInfo*)lua_newuserdata(L, sizeof(struct FileFindInfo));
 
+	char* ptr;
+	char* slashPtr;
+
+	info->path = malloc(strlen(wildcard) + 256);
+	strcpy(info->path, wildcard);
+	for (ptr = info->path; *ptr; ++ptr)
+		if (*ptr == '\\')
+			*ptr = '/';
+	slashPtr = strrchr(info->path, '/');
+	wildcard = slashPtr ? slashPtr + 1 : info->path;
+	info->wildcard = malloc(strlen(wildcard) + 1);
+	strcpy(info->wildcard, wildcard);
+	if (slashPtr)
+		*++slashPtr = 0;
+	else
+		info->path[0] = 0;
+	info->pathEnd = info->path + strlen(info->path);
+
 	info->first = 1;
 #if defined(WIN32)
-	info->handle = FindFirstFile(wildcard, &info->fd);
+	info->handle = FindFirstFile(origWildcard, &info->fd);
 	if (info->handle != INVALID_HANDLE_VALUE) {
 		if (info->fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
 			if (strcmp(info->fd.cFileName, ".") == 0  ||  strcmp(info->fd.cFileName, "..") == 0)
@@ -489,23 +561,6 @@ static int l_filefind_first(lua_State *L) {
 	}
 #else
 	{
-		char* ptr;
-		char* slashPtr;
-
-		info->path = malloc(strlen(wildcard) + 256);
-		strcpy(info->path, wildcard);
-		for (ptr = info->path; *ptr; ++ptr)
-			if (*ptr == '\\')
-				*ptr = '/';
-		slashPtr = strrchr(info->path, '/');
-		wildcard = slashPtr ? slashPtr + 1 : info->path;
-		info->wildcard = malloc(strlen(wildcard) + 1);
-		strcpy(info->wildcard, wildcard);
-		if (slashPtr)
-			*++slashPtr = 0;
-		else
-			info->path[0] = 0;
-		info->pathEnd = info->path + strlen(info->path);
 		info->dirp = opendir(slashPtr ? info->path : ".");
 		if (info->dirp) {
 			if (!FileFindNextMatch(info))
@@ -552,6 +607,16 @@ static int LS_filefind_matchiter(lua_State* L) {
 static int l_filefind_match(lua_State* L) {
 	l_filefind_first(L);
 	lua_pushcclosure(L, LS_filefind_matchiter, 1);
+	return 1;
+}
+
+
+static int l_filefind_attributes(lua_State* L) {
+	struct FileFindInfo* info;
+	l_filefind_first(L);
+	info = filefind_checkmetatable(L, -1);
+	filefind_index_table_helper(L, info);
+	filefind_close_helper(L, info);
 	return 1;
 }
 
@@ -716,6 +781,17 @@ static int glob_index_is_readonly(lua_State* L) {
 }
 
 
+static int glob_index_number_of_links_helper(lua_State* L, struct _fileglob* glob) {
+	lua_pushnumber(L, (lua_Number)ui64ToDouble(fileglob_NumberOfLinks(glob)));
+	return 1;
+}
+
+
+static int glob_index_number_of_links(lua_State* L) {
+	return glob_index_number_of_links_helper(L, glob_checkmetatable(L, 1));
+}
+
+
 static int glob_index_table(lua_State* L) {
 	struct _fileglob* glob = glob_checkmetatable(L, 1);
 	lua_newtable(L);
@@ -741,6 +817,8 @@ static int glob_index_table(lua_State* L) {
 	lua_setfield(L, -2, "is_link");
 	glob_index_is_readonly_helper(L, glob);
 	lua_setfield(L, -2, "is_readonly");
+	glob_index_number_of_links_helper(L, glob);
+	lua_setfield(L, -2, "number_of_links");
 	return 1;
 }
 
@@ -757,6 +835,7 @@ static const struct luaL_reg glob_index_properties[] = {
 	{ "is_directory",			glob_index_is_directory },
 	{ "is_link",				glob_index_is_link },
 	{ "is_readonly",			glob_index_is_readonly },
+	{ "number_of_links",		glob_index_number_of_links },
 	{ "table",					glob_index_table },
 	{ NULL, NULL },
 };
@@ -817,6 +896,8 @@ static int glob_tostring(lua_State *L) {
 	sprintf(buffer, ", is_link = %s", fileglob_IsLink(glob) ? "true" : "false");
 	lua_pushstring(L, buffer);
 	sprintf(buffer, ", is_readonly = %s", fileglob_IsReadOnly(glob)? "true" : "false");
+	lua_pushstring(L, buffer);
+	sprintf(buffer, ", number_of_links = %lld", fileglob_NumberOfLinks(glob));
 	lua_pushstring(L, buffer);
 	lua_concat(L, lua_gettop(L) - top);
 	return 1;
@@ -1023,6 +1104,7 @@ static int l_filefind_time_t_to_FILETIME(lua_State* L) {
 
 
 static const struct luaL_reg filefind_lib[] = {
+	{ "attributes", l_filefind_attributes },
 	{ "first", l_filefind_first },
 	{ "match", l_filefind_match },
 	{ "glob", l_fileglob_glob },
