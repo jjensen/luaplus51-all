@@ -46,24 +46,7 @@ namespace LPCD
 	{
 	};
 
-	inline void Push(lua_State* L, bool value)				{  lua_pushboolean(L, value);  }
-	inline void Push(lua_State* L, char value)				{  lua_pushnumber(L, (lua_Number)value);  }
-	inline void Push(lua_State* L, unsigned char value)		{  lua_pushnumber(L, (lua_Number)value);  }
-	inline void Push(lua_State* L, short value)				{  lua_pushnumber(L, (lua_Number)value);  }
-	inline void Push(lua_State* L, unsigned short value)	{  lua_pushnumber(L, (lua_Number)value);  }
-	inline void Push(lua_State* L, int value)				{  lua_pushnumber(L, (lua_Number)value);  }
-	inline void Push(lua_State* L, unsigned int value)		{  lua_pushnumber(L, (lua_Number)value);  }
-	inline void Push(lua_State* L, long value)				{  lua_pushnumber(L, (lua_Number)value);  }
-	inline void Push(lua_State* L, unsigned long value)		{  lua_pushnumber(L, (lua_Number)value);  }
-	inline void Push(lua_State* L, double value)			{  lua_pushnumber(L, (lua_Number)value);  }
-	inline void Push(lua_State* L, float value)				{  lua_pushnumber(L, (lua_Number)value);  }
-	inline void Push(lua_State* L, const char* value)		{  lua_pushstring(L, value);  }
-	inline void Push(lua_State* L, const char* value, int len)		{  lua_pushlstring(L, value, len);  }
-	inline void Push(lua_State* L, const LuaNil&)			{  lua_pushnil(L);  }
-	inline void Push(lua_State* L, lua_CFunction value)		{  lua_pushcclosure(L, value, 0);  }
-	inline void Push(lua_State* L, const void* value)		{  lua_pushlightuserdata(L, (void*)value);  }
-	inline void Push(lua_State* L, const LuaLightUserdata& value)	{  lua_pushlightuserdata(L, (void*)value.m_value);  }
-    inline void Push(lua_State* L, const LuaUserdata& value){  *(void **)(lua_newuserdata(L, sizeof(void *))) = (void*)value.m_value;  }
+	template<typename T> void Push(lua_State* L, T value);
 
 	template<class T> struct TypeWrapper {};
 
@@ -1806,6 +1789,29 @@ namespace LPCD
 			return (callee.*func)(L);
 		}
 	};
+
+	template<> inline void Push<bool>(lua_State* L, bool value)				{  lua_pushboolean(L, value);  }
+	template<> inline void Push<char>(lua_State* L, char value)				{  lua_pushnumber(L, (lua_Number)value);  }
+	template<> inline void Push<unsigned char>(lua_State* L, unsigned char value)		{  lua_pushnumber(L, (lua_Number)value);  }
+	template<> inline void Push<short>(lua_State* L, short value)				{  lua_pushnumber(L, (lua_Number)value);  }
+	template<> inline void Push<unsigned short>(lua_State* L, unsigned short value)	{  lua_pushnumber(L, (lua_Number)value);  }
+	template<> inline void Push<int>(lua_State* L, int value)				{  lua_pushnumber(L, (lua_Number)value);  }
+	template<> inline void Push<unsigned int>(lua_State* L, unsigned int value)		{  lua_pushnumber(L, (lua_Number)value);  }
+	template<> inline void Push<long>(lua_State* L, long value)				{  lua_pushnumber(L, (lua_Number)value);  }
+	template<> inline void Push<unsigned long>(lua_State* L, unsigned long value)		{  lua_pushnumber(L, (lua_Number)value);  }
+	template<> inline void Push<double>(lua_State* L, double value)			{  lua_pushnumber(L, (lua_Number)value);  }
+	template<> inline void Push<float>(lua_State* L, float value)				{  lua_pushnumber(L, (lua_Number)value);  }
+	template<> inline void Push<char*>(lua_State* L, char* value)		{  lua_pushstring(L, value);  }
+	template<> inline void Push<const char*>(lua_State* L, const char* value)		{  lua_pushstring(L, value);  }
+	inline void Push(lua_State* L, const char* value, int len)		{  lua_pushlstring(L, value, len);  }
+	template<> inline void Push<const LuaNil&>(lua_State* L, const LuaNil&)			{  lua_pushnil(L);  }
+	template<> inline void Push<lua_CFunction>(lua_State* L, lua_CFunction value)		{  lua_pushcclosure(L, value, 0);  }
+	template<> inline void Push<const void*>(lua_State* L, const void* value)		{  lua_pushlightuserdata(L, (void*)value);  }
+	template<> inline void Push<void*>(lua_State* L, void* value)		{  lua_pushlightuserdata(L, value);  }
+	template<> inline void Push<const LuaLightUserdata&>(lua_State* L, const LuaLightUserdata& value)	{  lua_pushlightuserdata(L, (void*)value.m_value);  }
+    template<> inline void Push<const LuaUserdata&>(lua_State* L, const LuaUserdata& value){  *(void **)(lua_newuserdata(L, sizeof(void *))) = (void*)value.m_value;  }
+    template<> inline void Push<LuaUserdata&>(lua_State* L, LuaUserdata& value){  *(void **)(lua_newuserdata(L, sizeof(void *))) = (void*)value.m_value;  }
+    template<> inline void Push<LuaUserdata>(lua_State* L, LuaUserdata value){  *(void **)(lua_newuserdata(L, sizeof(void *))) = (void*)value.m_value;  }
 } // namespace LPCD
 
 
