@@ -582,7 +582,7 @@ struct LittleEndian
 
 #ifndef _WIN32
 
-#error accessing large XLS files without using the WIN32 IStorage API is buggy, use it at your own risc by commenting out this error message
+//#error accessing large XLS files without using the WIN32 IStorage API is buggy, use it at your own risc by commenting out this error message
 
 class Block
 // PURPOSE: In charge of handling blocks of data from a file
