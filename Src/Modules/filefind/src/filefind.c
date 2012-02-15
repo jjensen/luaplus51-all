@@ -322,7 +322,7 @@ static int filefind_index_is_link_helper(lua_State* L, struct FileFindInfo* info
 #if defined(WIN32)
 	lua_pushboolean(L, (info->fd.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) != 0);
 #else
-	lua_pushboolean(L, false);
+	lua_pushboolean(L, 0);
 #endif
 	return 1;
 }
@@ -957,7 +957,7 @@ static int l_fileglob_glob(lua_State* L) {
 
 #ifdef WIN32
 
-static int l_filefind_unix_time_to_FILETIME_UTC(lua_State* L) {
+static int l_filefind_FILETIME_to_unix_time_UTC(lua_State* L) {
 	FILETIME fileTime;
 
 	if (lua_isnumber(L, 1)  &&  lua_isnumber(L, 2)) {
@@ -992,7 +992,7 @@ static int l_filefind_unix_time_to_FILETIME_UTC(lua_State* L) {
 }
 
 
-static int l_filefind_FILETIME_to_unix_time_UTC(lua_State* L) {
+static int l_filefind_unix_time_to_FILETIME_UTC(lua_State* L) {
 	time_t unixTime = (time_t)luaL_checknumber(L, 1);
 #if _MSC_VER
 		__int64 ll; // 64 bit value
