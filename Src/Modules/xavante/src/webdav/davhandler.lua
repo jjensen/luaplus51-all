@@ -422,7 +422,7 @@ local function dav_put (req, res, repos_b)
 	local resource = repos_b:getResource (req.match, path)
 		or repos_b:createResource (req.match, path)
 
-	if req.headers["content-range"] then
+	if not resource  or  req.headers["content-range"] then
 		return xavante.httpd.err_405 (req, res)
 	end
 

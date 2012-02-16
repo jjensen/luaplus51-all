@@ -21,18 +21,21 @@ end
 
 function source:getResource (rootUrl, path)
 	local diskpath = self.rootDir .. path
-	if diskpath:sub(-1) == '/' then
-		diskpath = diskpath:sub(1, -2)
-	end
 	local attr = lfs.attributes (diskpath)
-	if not attr then return end
+	if not attr then
+		if diskpath:sub(-1) == '/' then
+			diskpath = diskpath:sub(1, -2)
+			attr = lfs.attributes (diskpath)
+		end
+		if not attr then return end
+	end
 
 	local _,_,pfx = string.find (rootUrl, "^(.*/)[^/]-$")
 
 	if attr.mode == "directory" and string.sub (path, -1) ~= "/" then
 		path = path .."/"
 	end
-	
+
 	return setmetatable ({
 		source = self,
 		path = path,
@@ -44,15 +47,20 @@ end
 
 function source:createResource (rootUrl, path)
 	local diskpath = self.rootDir .. path
-	if diskpath:sub(-1) == '/' then
-		diskpath = diskpath:sub(1, -2)
-	end
 	local attr = lfs.attributes (diskpath)
 	if not attr then
-		io.open (diskpath, "wb"):close ()
-		attr = lfs.attributes (diskpath)
+		if diskpath:sub(-1) == '/' then
+			diskpath = diskpath:sub(1, -2)
+			attr = lfs.attributes (diskpath)
+		end
 	end
-	
+	if not attr then
+		local file = io.open (diskpath, "wb")
+		if file then file:close () end
+		attr = lfs.attributes (diskpath)
+		if not attr then return end
+	end
+
 	local _,_,pfx = string.find (rootUrl, "^(.*/)[^/]-$")
 
 	return setmetatable ({
@@ -200,10 +208,14 @@ function resource:getItems (depth)
 	else
 		local function recur (p)
 			local diskpath = rootdir .. p
-			if diskpath:sub(-1) == '/' then
-				diskpath = diskpath:sub(1, -2)
+			local attr = lfs.attributes (diskpath)
+			if not attr then
+				if diskpath:sub(-1) == '/' then
+					diskpath = diskpath:sub(1, -2)
+					attr = lfs.attributes (diskpath)
+				end
 			end
-			local attr = assert (lfs.attributes (diskpath))
+			assert (attr)
 			if attr.mode == "directory" then
 				for entry in lfs.dir (diskpath) do
 					if string.sub (entry, 1,1) ~= "." then
