@@ -11,7 +11,7 @@ local simplerules = {
       match = ".",
       with = xavante.davhandler,
       params = {
-      	  repos_b = davFileRepository.makeSource(),
+      	  repos_b = davFileRepository.makeSource{ rootDir = webDir },
       	  props_b = davFileProps.makeProps(),
     	},
     },
