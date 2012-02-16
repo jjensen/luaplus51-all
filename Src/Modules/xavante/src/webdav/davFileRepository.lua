@@ -6,6 +6,7 @@
 
 local lfs = require "lfs"
 require "xavante.mime"
+local url = require "socket.url"
 
 local source_mt = { __index = {} }
 local source = source_mt.__index
@@ -224,7 +225,7 @@ end
 
 function resource:getHRef ()
 	local _,_,sfx = string.find (self.path, "^/*(.*)$")
-	return self.pfx..sfx
+	return url.build(url.parse(self.pfx..sfx))
 end
 
 function resource:getPropNames ()
