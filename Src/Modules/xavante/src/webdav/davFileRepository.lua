@@ -197,7 +197,7 @@ function resource:getItems (depth)
 						path = path .."/"
 					end
 					for entry in lfs.dir (diskpath) do
-						if string.sub (entry, 1,1) ~= "." then
+						if entry ~= "." and entry ~= ".." then
 							coroutine.yield (self.source:getResource (self.pfx, path..entry))
 						end
 					end
@@ -218,7 +218,7 @@ function resource:getItems (depth)
 			assert (attr)
 			if attr.mode == "directory" then
 				for entry in lfs.dir (diskpath) do
-					if string.sub (entry, 1,1) ~= "." then
+					if entry ~= "." and entry ~= ".." then
 						recur (p.."/"..entry)
 					end
 				end
@@ -227,7 +227,7 @@ function resource:getItems (depth)
 		end
 		gen = function () recur (path) end
 	end
-	
+
 	if gen then return coroutine.wrap (gen) end
 end
 
