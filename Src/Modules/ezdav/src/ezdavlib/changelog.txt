@@ -1,0 +1,6 @@
+0.2 -> 0.3	
+* If: field is now supplied for MKCOL calls
+  (mod_dav 0.9.15 still returns 423 though. Not sure if it's a mod_dav issue,
+   or my understanding of the specs is off.)
+* Resource name is URL encoded (silly mistake)
+* Fixed the very broken strdup_url_encoded() 

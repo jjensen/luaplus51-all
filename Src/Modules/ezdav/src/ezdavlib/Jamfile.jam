@@ -1,0 +1,48 @@
+SubDir TOP ;
+
+local EXPAT_SRCS =
+		expat/lib/xmlparse.c
+		expat/lib/xmlrole.c
+		expat/lib/xmltok.c
+		expat/lib/ascii.h
+		expat/lib/asciitab.h
+		expat/lib/expat.h
+		expat/lib/expat_external.h
+		expat/lib/iasciitab.h
+		expat/lib/internal.h
+		expat/lib/latin1tab.h
+		expat/lib/nametab.h
+		expat/lib/utf8tab.h
+		expat/lib/xmlrole.h
+		expat/lib/xmltok.h
+		expat/lib/xmltok_impl.h
+;
+
+local SRCS =
+		$(EXPAT_SRCS)
+		date_decode.c
+		date_decode.h
+		digcalc.c
+		digcalc.h
+		global.h
+		high_level_webdav_functions.c
+		high_level_webdav_functions.h
+		http.c
+		http.h
+		http_storage.c
+		http_storage.h
+		md5.c
+		md5.h
+		strutl.c
+		strutl.h
+		webdav.c
+		webdav.h
+		xml_tree.c
+		xml_tree.h
+;		
+
+SourceGroup webdav : expat : $(EXPAT_SRCS) ;
+
+C.Defines webdav : XML_STATIC HAVE_MEMMOVE ;
+C.IncludeDirectories webdav : expat/lib ;
+C.Library webdav : $(SRCS) ;

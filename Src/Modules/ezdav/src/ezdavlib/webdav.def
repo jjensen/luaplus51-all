@@ -1,0 +1,22 @@
+LIBRARY    WEBDAV
+DESCRIPTION "Easy to use WebDAV library."
+EXPORTS
+	dav_initialize_lock_database
+	dav_finalize_lock_database
+	dav_save_lock_database
+	dav_load_lock_database
+	dav_connect
+	dav_disconnect
+	dav_opendir
+	dav_opendir_ex
+	dav_readdir
+	dav_closedir
+	dav_mkdir
+	dav_delete
+	dav_copy_to_server
+	dav_copy_from_server
+	dav_lock
+	dav_unlock
+	dav_abandon_lock
+	dav_error
+	dav_error_msg

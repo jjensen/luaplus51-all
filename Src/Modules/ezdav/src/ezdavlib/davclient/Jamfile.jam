@@ -1,0 +1,8 @@
+SubDir TOP davclient ;
+
+SubInclude TOP ;
+
+C.IncludeDirectories davclient : .. ../expat/lib ;
+C.LinkLibraries davclient : webdav ;
+C.LinkPrebuiltLibraries davclient : wsock32 ;
+C.Application davclient : davclient.c tlsf.c tlsf.h tlsfbits.h ;
