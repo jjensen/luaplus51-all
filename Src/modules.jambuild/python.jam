@@ -7,6 +7,8 @@ local SRCS =
 		src/pythoninlua.h
 ;
 
+local HAS_PYTHON_LIB ;
+
 if $(NT) {
 	PYTHON_ROOT = c:/python27 ;
 	PYTHON_LIB = python27 ;
@@ -27,18 +29,20 @@ if $(NT) {
 		C.LinkPrebuiltLibraries python : DelayImp ;
 		
 		C.LinkPrebuiltLibraries python : $(libName) ;
-		
+
+		HAS_PYTHON_LIB = 1 ;
 	}
 } else {
 	PYTHON_ROOT = /System/Library/Frameworks/Python.framework/Versions/2.7 ;
 	C.IncludeDirectories python : $(PYTHON_ROOT)/include/python2.7 ;
 	C.LinkDirectories python : $(PYTHON_ROOT)/lib ;
 	C.LinkPrebuiltLibraries python : python2.7 ; 
+	HAS_PYTHON_LIB = 1 ;
 }
 
 if $(PLATFORM) = * {
 	Project python : $(SRCS) ;
-} else {
+} else if $(HAS_PYTHON_LIB) = 1 {
 	Lua.CModule python : : $(SRCS) ;
 }
 
