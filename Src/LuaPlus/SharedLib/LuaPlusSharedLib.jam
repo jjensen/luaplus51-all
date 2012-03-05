@@ -90,35 +90,33 @@ local LUA_SRCS =
 		../src/lnum.h
 ;
 
-SourceGroup LuaPlusShared : Lua : $(LUA_SRCS) ;
-SourceGroup LuaPlusShared : LuaPlus : $(LUAPLUS_SRCS) ;
+ActiveTarget lua51 ;
 
-C.IncludeDirectories LuaPlusShared : $(LUAPLUS)/Src/LuaPlus/src ;
-C.InstallNamePath LuaPlusShared : @rpath ;
+SourceGroup : Lua : $(LUA_SRCS) ;
+SourceGroup : LuaPlus : $(LUAPLUS_SRCS) ;
 
-C.Defines LuaPlusShared : LUA_OPNAMES ;
-C.Defines LuaPlusShared : LUAPLUS_BUILDDLL LUAPLUS_DLL ;
+C.IncludeDirectories : $(LUAPLUS)/Src/LuaPlus/src ;
+C.InstallNamePath : @rpath ;
 
-if $(MSVCNT)
-{
-	C.CFlags LuaPlusShared : /arch:SSE2 ;
-	C.C++Flags LuaPlusShared : /arch:SSE2 ;
-	C.Defines LuaPlusShared : __SSE2__ ;
-}
-else if $(UNIX)
-{
-	C.LinkPrebuiltLibraries LuaPlusShared : stdc++ dl ;
+C.Defines : LUA_OPNAMES ;
+C.Defines : LUAPLUS_BUILDDLL LUAPLUS_DLL ;
+
+if $(MSVCNT) {
+	C.CFlags : /arch:SSE2 ;
+	C.C++Flags : /arch:SSE2 ;
+	C.Defines : __SSE2__ ;
+} else if $(UNIX) {
+	C.LinkPrebuiltLibraries : stdc++ dl ;
 	if ! $(OS) in MACOS MACOSX {
-		C.LinkFlags LuaPlusShared : -Wl,-soname,luaplus51-1202.so ;
+		C.LinkFlags : -Wl,-soname,luaplus51-1202.so ;
 	}
 }
 
-C.OutputName LuaPlusShared : luaplus51-1202 ;
-LuaPlusFixUpTarget LuaPlusShared ;
+LuaPlusFixUpTarget lua51 ;
 if $(CONFIG) = debug {
-	C.OutputPostfix LuaPlusShared : _debug ;
+	C.OutputPostfix : _debug ;
 }
 
-C.Library LuaPlusShared : $(LUA_SRCS) $(LUAPLUS_SRCS) : shared ;
+C.Library : $(LUA_SRCS) $(LUAPLUS_SRCS) : shared ;
 
 }

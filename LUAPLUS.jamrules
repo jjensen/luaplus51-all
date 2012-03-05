@@ -53,7 +53,7 @@ rule LuaPlus.CModule TARGET : OUTPUT_NAME : SOURCES : MODULES_SUBDIR {
 	C.Defines $(TARGET) : LUAPLUS_DLL ;
 	LuaPlusDefines $(TARGET) ;
 	C.IncludeDirectories $(TARGET) : "$(LUAPLUS)/Src" "$(LUAPLUS)/Src/LuaPlus/src" ;
-	C.LinkLibraries $(TARGET) : LuaPlusShared ;
+	C.LinkLibraries $(TARGET) : lua51 ;
 
 	OUTPUT_NAME ?= $(TARGET) ;
 
@@ -95,11 +95,7 @@ rule Lua.CModule TARGET : OUTPUT_NAME : SOURCES : MODULES_SUBDIR {
 	C.IncludeDirectories $(TARGET) : "$(LUAPLUS)/Src/LuaPlus/src" ;
 
 	if $(OS) != MACOSX  &&  $(OS) != LINUX {
-		if $(C.COMPILER) != vc6 {
-			C.LinkLibraries $(TARGET) : lua5.1 ;
-		} else {
-			C.LinkLibraries $(TARGET) : LuaPlusShared ;
-		}
+		C.LinkLibraries $(TARGET) : lua51 ;
 	}
 
 	OUTPUT_NAME ?= $(TARGET) ;

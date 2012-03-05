@@ -150,9 +150,9 @@ if $(MSVCNT) {
 		for symbol in $(__Lua51Proxy_Symbols)
 		{
 			if $(CONFIG) != debug {
-				C.LinkFlags $(TARGET) : "/EXPORT:$(symbol)=luaplus51-1202.$(symbol)" ;
+				C.LinkFlags $(TARGET) : "/EXPORT:$(symbol)=lua51.$(symbol)" ;
 			} else {
-				C.LinkFlags $(TARGET) : "/EXPORT:$(symbol)=luaplus51-1202_debug.$(symbol)" ;
+				C.LinkFlags $(TARGET) : "/EXPORT:$(symbol)=lua51_debug.$(symbol)" ;
 			}
 		}
 
@@ -195,9 +195,5 @@ if $(MSVCNT) {
 }
 
 LuaProxySharedLibrary lua5.1 ;
-
-if $(NT) {
-	LuaProxySharedLibrary lua51 ;
-}
 
 }

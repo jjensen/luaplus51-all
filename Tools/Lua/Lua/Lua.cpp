@@ -462,9 +462,9 @@ int main (int argc, char **argv) {
             strcpy(slashptr, buffer);
 
 #ifdef _DEBUG
-          strcat(filename, "luaplus51-1202.debug.dll");
+          strcat(filename, "lua51_debug.dll");
 #else
-          strcat(filename, "luaplus51-1202.dll");
+          strcat(filename, "lua51.dll");
 #endif
           LoadLibrary(filename);
         }

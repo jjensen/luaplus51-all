@@ -37,14 +37,14 @@ rule LuaApplication TARGET : OPTIONS
 	if $(MSVCNT)
 	{
 		switch $(CONFIG) {
-			case debug :		C.LinkFlags : /DELAYLOAD:luaplus51-1202_debug.dll ;
-			case release :		C.LinkFlags : /DELAYLOAD:luaplus51-1202.dll ;
-			case releaseltcg :	C.LinkFlags : /DELAYLOAD:luaplus51-1202.dll : releaseltcg ;
+			case debug :		C.LinkFlags : /DELAYLOAD:lua51_debug.dll ;
+			case release :		C.LinkFlags : /DELAYLOAD:lua51.dll ;
+			case releaseltcg :	C.LinkFlags : /DELAYLOAD:lua51.dll : releaseltcg ;
 		}
 		C.LinkPrebuiltLibraries : DelayImp ;
 	}
 	C.IncludeDirectories : $(LUAPLUS)/Src $(LUAPLUS)/Src/LuaPlus/Src ; # [ FSubDirPath LUAPLUS Src ] ;
-	C.LinkLibraries : LuaPlusShared ;
+	C.LinkLibraries : lua51 ;
 	if $(OS) = LINUX
 	{
 		C.LinkFlags : -Wl,-E -lreadline ;
