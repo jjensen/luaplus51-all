@@ -687,13 +687,7 @@ LUALIB_API int (luaL_loadstring) (lua_State *L, const char *s) {
 /* }====================================================== */
 
 
-#if LUA_MEMORY_STATS
-static void *l_alloc (void *ud, void *ptr, size_t osize, size_t nsize, const char* allocName, unsigned int flags) {
-  (void)allocName;
-  (void)flags;
-#else
 static void *l_alloc (void *ud, void *ptr, size_t osize, size_t nsize) {
-#endif /* LUA_MEMORY_STATS */
   (void)ud;
   (void)osize;
   if (nsize == 0) {

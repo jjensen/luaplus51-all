@@ -20,13 +20,7 @@
 //-----------------------------------------------------------------------------
 LUA_EXTERN_C_BEGIN
 
-#if LUA_MEMORY_STATS
-static void *luaplus_alloc (void *ud, void *ptr, size_t osize, size_t nsize, const char* allocName, unsigned int flags) {
-  (void)allocName;
-  (void)flags;
-#else
 static void *luaplus_alloc (void *ud, void *ptr, size_t osize, size_t nsize) {
-#endif /* LUA_MEMORY_STATS */
   (void)osize;
   (void)ud;
   if (nsize == 0) {

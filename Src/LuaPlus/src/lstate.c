@@ -182,11 +182,7 @@ static void close_state (lua_State *L) {
   luaZ_freebuffer(L, &g->buff);
   freestack(L, L);
 //  lua_assert(g->totalbytes == sizeof(LG));
-#if LUA_MEMORY_STATS
-  (*g->frealloc)(g->ud, fromstate(L), state_size(LG), 0, "lua.state", 0);
-#else
   (*g->frealloc)(g->ud, fromstate(L), state_size(LG), 0);
-#endif /* LUA_MEMORY_STATS */
 }
 
 
@@ -224,11 +220,7 @@ LUA_API lua_State *lua_newstate (lua_Alloc f, void *ud) {
   int i;
   lua_State *L;
   global_State *g;
-#if LUA_MEMORY_STATS
-  void *l = (*f)(ud, NULL, 0, state_size(LG), "lua_State", 0);
-#else
   void *l = (*f)(ud, NULL, 0, state_size(LG));
-#endif /* LUA_MEMORY_STATS */
   if (l == NULL) return NULL;
   L = tostate(l);
   g = &((LG *)L)->g;
