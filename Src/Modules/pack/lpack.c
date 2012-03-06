@@ -5,6 +5,8 @@
 #include "malloc.h"
 #endif
 
+#undef LUA_WIDESTRING
+
 typedef struct Mbuffer {
   char *buffer;
   size_t buffsize;
@@ -69,7 +71,9 @@ char *luaZ_openspace (lua_State *L, Mbuffer *buff, size_t n) {
 #define	OP_NATIVE	'='		/* native endian */
 
 #define	OP_BOOLEAN	'B'		/* boolean = unsigned char */
+#if LUA_WIDESTRING
 #define	OP_WIDESTRING	'w'
+#endif // LUA_WIDESTRING
 #define OP_PAD '@'
 
 #include <ctype.h>
@@ -108,6 +112,8 @@ static void doswap(int swap, void *p, size_t n)
  }
 }
 
+#if LUA_WIDESTRING
+
 static void dowideswap(int swap, void *p, size_t n)
 {
 	if (swap)
@@ -123,6 +129,8 @@ static void dowideswap(int swap, void *p, size_t n)
 		}
 	}
 }
+
+#endif // LUA_WIDESTRING
 
 #define UNPACKNUMBER(OP,T)		\
    case OP:				\
@@ -205,6 +213,7 @@ static int l_unpack(lua_State *L) 		/** unpack(s,f,[init]) */
 		int c=*f++;
 		int N=0;
 		int isWide = 0;
+#if LUA_WIDESTRING
 		if (c == OP_WIDESTRING)
 		{
 			isWide = 1;
@@ -212,6 +221,7 @@ static int l_unpack(lua_State *L) 		/** unpack(s,f,[init]) */
 			if (!c)
 				break;
 		}
+#endif // LUA_WIDESTRING
 		while (isdigit(*f)) N=10*N+(*f++)-'0';
 		if (N==0) N=1;
 		while (N--)
@@ -388,14 +398,16 @@ static int l_pack(lua_State *L) 		/** pack(f,...) */
 		int c=*f++;
 		int N=0;
 		int isWide = 0;
+#if LUA_WIDESTRING
 		if (c == OP_WIDESTRING)
 		{
 			isWide = 1;
 			c=*f++;
 			if (!c)
 				break;
-		}
-		else if (c == OP_PAD)
+		} else
+#endif // LUA_WIDESTRING
+		if (c == OP_PAD)
 		{
 			if (padCount == 0)
 			{
