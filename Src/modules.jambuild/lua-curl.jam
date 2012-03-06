@@ -293,13 +293,11 @@ if $(MSVCNT)  &&  $(PLATFORM) in win32 win64 {
 	C.Defines : USE_SSLEAY ;
 
 	if $(PLATFORM) = win32 {
-		C.IncludeDirectories : c:/OpenSSL/include c:/OpenSSL/include/openssl ;
-		C.LinkDirectories : c:/OpenSSL/lib/VC/static ;
-		#C.LinkDirectories : c:/OpenSSL/lib ;
+		C.IncludeDirectories : c:/OpenSSL-Win32/include c:/OpenSSL-Win32/include/openssl ;
+		C.LinkDirectories : c:/OpenSSL-Win32/lib/VC/static ;
 	} else {
 		C.IncludeDirectories : c:/OpenSSL-Win64/include c:/OpenSSL-Win64/include/openssl ;
 		C.LinkDirectories : c:/OpenSSL-Win64/lib/VC/static ;
-		#C.LinkDirectories : c:/OpenSSL-Win64/lib ;
 	}
 
 	#C.LinkPrebuiltLibraries : libeay32 ssleay32 ;
