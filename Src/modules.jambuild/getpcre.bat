@@ -1,18 +1,12 @@
 pushd
 cd ..\Modules\lrexlib
-if exist pcre-7.8.zip del pcre-7.8.zip
-if exist pcre-7.8 rmdir /s /q pcre-7.8
-if exist pcre-8.00.zip del pcre-8.00.zip
-if exist pcre-8.00 rmdir /s /q pcre-8.00
-if exist pcre-8.02.zip del pcre-8.02.zip
-if exist pcre-8.02 rmdir /s /q pcre-8.02
-if exist pcre-8.13.zip del pcre-8.13.zip
-if exist pcre-8.13 rmdir /s /q pcre-8.13
-wget ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre-8.13.zip
-unzip pcre-8.13.zip
-del pcre-8.13.zip
+if exist pcre-8.30.zip del pcre-8.30.zip
+if exist pcre-8.30 rmdir /s /q pcre-8.30
+wget ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre-8.30.zip
+unzip pcre-8.30.zip
+del pcre-8.30.zip
 
-cd pcre-8.13
+cd pcre-8.30
 if not exist pcre.h copy pcre.h.generic pcre.h
 if not exist config.h copy config.h.generic config.h
 if not exist pcre_chartables.c copy pcre_chartables.c.dist pcre_chartables.c
