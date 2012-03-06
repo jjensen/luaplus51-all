@@ -1,0 +1,12 @@
+*.o
+*.so
+*.obj
+*.dll
+*.lib
+*.exp
+*.exe
+*.lua
+*.html
+*~
+!test.lua
+tags*
