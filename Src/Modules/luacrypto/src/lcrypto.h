@@ -10,15 +10,25 @@
 #define LUACRYPTO_API   LUA_API
 #endif
 
-#define LUACRYPTO_PREFIX "LuaCrypto: "
-#define LUACRYPTO_CORENAME "crypto"
-#define LUACRYPTO_EVPNAME "crypto.evp"
-#define LUACRYPTO_HMACNAME "crypto.hmac"
-#define LUACRYPTO_RANDNAME "crypto.rand"
+#define LUACRYPTO_PREFIX      "LuaCrypto: "
+#define LUACRYPTO_CORENAME    "crypto"
+#define LUACRYPTO_DIGESTNAME  "crypto.digest"
+#define LUACRYPTO_ENCRYPTNAME "crypto.encrypt"
+#define LUACRYPTO_DECRYPTNAME "crypto.decrypt"
+#define LUACRYPTO_SIGNNAME    "crypto.sign"
+#define LUACRYPTO_VERIFYNAME  "crypto.verify"
+
+#define LUACRYPTO_SEALNAME    "crypto.seal"
+#define LUACRYPTO_OPENNAME    "crypto.open"
+
+#define LUACRYPTO_HMACNAME    "crypto.hmac"
+#define LUACRYPTO_RANDNAME    "crypto.rand"
+#define LUACRYPTO_PKEYNAME    "crypto.pkey"
+#define LUACRYPTO_X509_CA_NAME "crypto.x509_ca"
 
 LUACRYPTO_API int luacrypto_createmeta (lua_State *L, const char *name, const luaL_reg *methods);
 LUACRYPTO_API void luacrypto_setmeta (lua_State *L, const char *name);
 LUACRYPTO_API void luacrypto_set_info (lua_State *L);
-
+LUACRYPTO_API int luaopen_crypto(lua_State *L);
 
 #endif
