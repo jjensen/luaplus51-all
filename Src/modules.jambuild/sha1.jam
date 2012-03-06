@@ -1,0 +1,19 @@
+{
+
+local SRCS =
+		lmd5.c
+		lmd5.h
+		md5.h
+		md5c.c
+		md5global.h
+		../ziparchive/Misc/aes/sha1.c
+		../ziparchive/Misc/aes/sha1.h
+;
+
+C.Defines sha1 : USE_SHA1_GLADMAN ;
+C.IncludeDirectories sha1 : ../ziparchive/Misc/aes ;
+
+Lua.CModule sha1 : : $(SRCS) ;
+
+}
+
