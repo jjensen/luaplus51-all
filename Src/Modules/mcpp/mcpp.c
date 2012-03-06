@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <lua.h>
 #include <lauxlib.h>
+#include <stdio.h>
 #include "mcpp/src/mcpp_lib.h"
 
 static int l_preprocess(lua_State* L) {
