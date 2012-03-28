@@ -1,5 +1,5 @@
 /*
- * THREADING.C   	                    Copyright (c) 2007-08, Asko Kauppi
+ * THREADING.C   	                    Copyright (c) 2007-10, Asko Kauppi
  *
  * Lua Lanes OS threading specific code.
  *
@@ -10,7 +10,7 @@
 /*
 ===============================================================================
 
-Copyright (C) 2007-08 Asko Kauppi <akauppi@gmail.com>
+Copyright (C) 2007-10 Asko Kauppi <akauppi@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -41,9 +41,9 @@ THE SOFTWARE.
 #include "threading.h"
 #include "lua.h"
 
-#if !((defined PLATFORM_WIN32) || (defined PLATFORM_POCKETPC))
+#if THREADAPI == THREADAPI_PTHREAD
 # include <sys/time.h>
-#endif
+#endif // THREADAPI == THREADAPI_PTHREAD
 
 
 #if defined(PLATFORM_LINUX) || defined(PLATFORM_CYGWIN)
@@ -67,29 +67,19 @@ THE SOFTWARE.
 //#define THREAD_CREATE_RETRIES_MAX 20
     // loops (maybe retry forever?)
 
-/*
-* FAIL is for unexpected API return values - essentially programming
-* error in _this_ code.
+/* 
+* FAIL is for unexpected API return values - essentially programming 
+* error in _this_ code. 
 */
-#if (defined PLATFORM_WIN32) || (defined PLATFORM_POCKETPC)
+#if THREADAPI == THREADAPI_WINDOWS
 static void FAIL( const char *funcname, int rc ) {
     fprintf( stderr, "%s() failed! (%d)\n", funcname, rc );
+#ifdef _MSC_VER
+    __debugbreak(); // give a chance to the debugger!
+#endif // _MSC_VER
     abort();
 }
-#endif
-
-
-#if _MSC_VER  &&  _MSC_VER <= 1300
-double ui64ToDouble(unsigned __int64 ui64)
-{
-  __int64 i64 = (ui64 & 0x7FFFFFFFFFFFFFF);
-  double dbl = (double) i64;
-  if (ui64 & 0x8000000000000000)
-    dbl += (double) 0x8000000000000000;
-  return dbl;
-
-}
-#endif
+#endif // THREADAPI == THREADAPI_WINDOWS
 
 
 /*
@@ -100,9 +90,9 @@ double ui64ToDouble(unsigned __int64 ui64)
 */
 time_d now_secs(void) {
 
-#if (defined PLATFORM_WIN32) || (defined PLATFORM_POCKETPC)
+#if THREADAPI == THREADAPI_WINDOWS
     /*
-    * Windows FILETIME values are "100-nanosecond intervals since
+    * Windows FILETIME values are "100-nanosecond intervals since 
     * January 1, 1601 (UTC)" (MSDN). Well, we'd want Unix Epoch as
     * the offset and it seems, so would they:
     *
@@ -138,14 +128,10 @@ time_d now_secs(void) {
      * of the 100ns class but just 1ms (Windows XP).
      */
 # if 1
-#if _MSC_VER  &&  _MSC_VER <= 1300
-    return (double) (ui64ToDouble(uli.QuadPart - uli_epoch.QuadPart)/10000) / 1000.0;
-#else
     // >= 2.0.3 code
     return (double) ((uli.QuadPart - uli_epoch.QuadPart)/10000) / 1000.0;
-#endif
 # elif 0
-    // fix from Kriss Daniels, see:
+    // fix from Kriss Daniels, see: 
     // <http://luaforge.net/forum/forum.php?thread_id=22704&forum_id=1781>
     //
     // "seem to be getting negative numbers from the old version, probably number
@@ -159,7 +145,7 @@ time_d now_secs(void) {
     // <= 2.0.2 code
     return (double)(uli.QuadPart - uli_epoch.QuadPart) / 10000000.0;
 # endif
-#else
+#else // THREADAPI == THREADAPI_PTHREAD
     struct timeval tv;
         // {
         //   time_t       tv_sec;   /* seconds since Jan. 1, 1970 */
@@ -170,7 +156,7 @@ time_d now_secs(void) {
     assert( rc==0 );
 
     return ((double)tv.tv_sec) + ((tv.tv_usec)/1000) / 1000.0;
-#endif
+#endif // THREADAPI THREADAPI_PTHREAD
 }
 
 
@@ -182,7 +168,7 @@ time_d SIGNAL_TIMEOUT_PREPARE( double secs ) {
 }
 
 
-#if !((defined PLATFORM_WIN32) || (defined PLATFORM_POCKETPC))
+#if THREADAPI == THREADAPI_PTHREAD
 /*
 * Prepare 'abs_secs' kind of timeout to 'timespec' format
 */
@@ -195,8 +181,13 @@ static void prepare_timeout( struct timespec *ts, time_d abs_secs ) {
 
     ts->tv_sec= floor( abs_secs );
     ts->tv_nsec= ((long)((abs_secs - ts->tv_sec) * 1000.0 +0.5)) * 1000000UL;   // 1ms = 1000000ns
+    if (ts->tv_nsec == 1000000000UL)
+    {
+        ts->tv_nsec = 0;
+        ts->tv_sec = ts->tv_sec + 1;
+    }
 }
-#endif
+#endif // THREADAPI == THREADAPI_PTHREAD
 
 
 /*---=== Threading ===---*/
@@ -211,7 +202,7 @@ static void prepare_timeout( struct timespec *ts, time_d abs_secs ) {
 //
 // Note: using external C modules may be affected by the stack size check.
 //       if having problems, set back to '0' (default stack size of the system).
-//
+// 
 // Win32:       64K (?)
 // Win64:       xxx
 //
@@ -239,7 +230,7 @@ static void prepare_timeout( struct timespec *ts, time_d abs_secs ) {
 # endif
 #endif
 
-#if (defined PLATFORM_WIN32) || (defined PLATFORM_POCKETPC)
+#if THREADAPI == THREADAPI_WINDOWS
   //
   void MUTEX_INIT( MUTEX_T *ref ) {
      *ref= CreateMutex( NULL /*security attr*/, FALSE /*not locked*/, NULL );
@@ -273,7 +264,7 @@ static void prepare_timeout( struct timespec *ts, time_d abs_secs ) {
                               data,
                               0,    // flags (0/CREATE_SUSPENDED)
                               NULL  // thread id (not used)
-                            );
+                            );    
 
     if (h == INVALID_HANDLE_VALUE) FAIL( "CreateThread", GetLastError() );
 
@@ -285,16 +276,17 @@ static void prepare_timeout( struct timespec *ts, time_d abs_secs ) {
                       (prio == -2) ? THREAD_PRIORITY_LOWEST :
                                      THREAD_PRIORITY_IDLE;  // -3
 
-        if (!SetThreadPriority( h, win_prio ))
+        if (!SetThreadPriority( h, win_prio )) 
             FAIL( "SetThreadPriority", GetLastError() );
     }
     *ref= h;
   }
   //
-  bool_t THREAD_WAIT( THREAD_T *ref, double secs ) {
-    long ms= (long)((secs*1000.0)+0.5);
+bool_t THREAD_WAIT_IMPL( THREAD_T *ref, double secs)
+{
+    DWORD ms = (secs<0.0) ? INFINITE : (DWORD)((secs*1000.0)+0.5);
 
-    DWORD rc= WaitForSingleObject( *ref, ms<0 ? INFINITE:ms /*timeout*/ );
+    DWORD rc= WaitForSingleObject( *ref, ms /*timeout*/ );
         //
         // (WAIT_ABANDONED)
         // WAIT_OBJECT_0    success (0)
@@ -332,14 +324,14 @@ static void prepare_timeout( struct timespec *ts, time_d abs_secs ) {
   bool_t SIGNAL_WAIT( SIGNAL_T *ref, MUTEX_T *mu_ref, time_d abs_secs ) {
     DWORD rc;
     long ms;
-
+    
     if (abs_secs<0.0)
         ms= INFINITE;
     else if (abs_secs==0.0)
         ms= 0;
     else {
         ms= (long) ((abs_secs - now_secs())*1000.0 + 0.5);
-
+        
         // If the time already passed, still try once (ms==0). A short timeout
         // may have turned negative or 0 because of the two time samples done.
         //
@@ -365,11 +357,11 @@ static void prepare_timeout( struct timespec *ts, time_d abs_secs ) {
     return TRUE;
   }
   void SIGNAL_ALL( SIGNAL_T *ref ) {
-/*
+/* 
  * MSDN tries to scare that 'PulseEvent' is bad, unreliable and should not be
  * used. Use condition variables instead (wow, they have that!?!); which will
  * ONLY WORK on Vista and 2008 Server, it seems... so MS, isn't it.
- *
+ * 
  * I refuse to believe that; using 'PulseEvent' is probably just as good as
  * using Windows (XP) in the first place. Just don't use APC's (asynchronous
  * process calls) in your C side coding.
@@ -382,7 +374,7 @@ static void prepare_timeout( struct timespec *ts, time_d abs_secs ) {
     if (!PulseEvent( *ref ))
         FAIL( "PulseEvent", GetLastError() );
   }
-#else
+#else // THREADAPI == THREADAPI_PTHREAD
   // PThread (Linux, OS X, ...)
   //
   // On OS X, user processes seem to be able to change priorities.
@@ -392,8 +384,8 @@ static void prepare_timeout( struct timespec *ts, time_d abs_secs ) {
   #include <sys/time.h>
   //
   static void _PT_FAIL( int rc, const char *name, const char *file, uint_t line ) {
-    const char *why= (rc==EINVAL) ? "EINVAL" :
-                     (rc==EBUSY) ? "EBUSY" :
+    const char *why= (rc==EINVAL) ? "EINVAL" : 
+                     (rc==EBUSY) ? "EBUSY" : 
                      (rc==EPERM) ? "EPERM" :
                      (rc==ENOMEM) ? "ENOMEM" :
                      (rc==ESRCH) ? "ESRCH" :
@@ -442,7 +434,7 @@ static void prepare_timeout( struct timespec *ts, time_d abs_secs ) {
     PT_CALL( pthread_cond_broadcast(ref) );     // wake up ALL waiting threads
   }
   //
-  void THREAD_CREATE( THREAD_T* ref,
+  void THREAD_CREATE( THREAD_T* ref, 
                       THREAD_RETURN_T (*func)( void * ),
                       void *data, int prio /* -2..+2 */ ) {
     pthread_attr_t _a;
@@ -453,7 +445,7 @@ static void prepare_timeout( struct timespec *ts, time_d abs_secs ) {
 
 #ifndef PTHREAD_TIMEDJOIN
     // We create a NON-JOINABLE thread. This is mainly due to the lack of
-    // 'pthread_timedjoin()', but does offer other benefits (s.a. earlier
+    // 'pthread_timedjoin()', but does offer other benefits (s.a. earlier 
     // freeing of the thread's resources).
     //
     PT_CALL( pthread_attr_setdetachstate(a,PTHREAD_CREATE_DETACHED) );
@@ -471,8 +463,8 @@ static void prepare_timeout( struct timespec *ts, time_d abs_secs ) {
 #if (defined _THREAD_STACK_SIZE) && (_THREAD_STACK_SIZE > 0)
     PT_CALL( pthread_attr_setstacksize( a, _THREAD_STACK_SIZE ) );
 #endif
-
-    bool_t normal=
+    
+    bool_t normal= 
 #if defined(PLATFORM_LINUX) && defined(LINUX_SCHED_RR)
         !sudo;          // with sudo, even normal thread must use SCHED_RR
 #else
@@ -488,8 +480,8 @@ static void prepare_timeout( struct timespec *ts, time_d abs_secs ) {
         PT_CALL( pthread_attr_setinheritsched( a, PTHREAD_EXPLICIT_SCHED ) );
 
         //---
-        // "Select the scheduling policy for the thread: one of SCHED_OTHER
-        // (regular, non-real-time scheduling), SCHED_RR (real-time,
+        // "Select the scheduling policy for the thread: one of SCHED_OTHER 
+        // (regular, non-real-time scheduling), SCHED_RR (real-time, 
         // round-robin) or SCHED_FIFO (real-time, first-in first-out)."
         //
         // "Using the RR policy ensures that all threads having the same
@@ -499,16 +491,16 @@ static void prepare_timeout( struct timespec *ts, time_d abs_secs ) {
         // sched_param structure is the priority sched_priority. For SCHED_OTHER,
         // the affected scheduling parameters are implementation-defined."
         //
-        // "The priority of a thread is specified as a delta which is added to
+        // "The priority of a thread is specified as a delta which is added to 
         // the priority of the process."
         //
-        // ".. priority is an integer value, in the range from 1 to 127.
+        // ".. priority is an integer value, in the range from 1 to 127. 
         //  1 is the least-favored priority, 127 is the most-favored."
         //
         // "Priority level 0 cannot be used: it is reserved for the system."
         //
-        // "When you use specify a priority of -99 in a call to
-        // pthread_setschedparam(), the priority of the target thread is
+        // "When you use specify a priority of -99 in a call to 
+        // pthread_setschedparam(), the priority of the target thread is 
         // lowered to the lowest possible value."
         //
         // ...
@@ -528,12 +520,12 @@ static void prepare_timeout( struct timespec *ts, time_d abs_secs ) {
         // With SCHED_OTHER, the range 25..32 is normal (maybe the same 26,
         // but the difference is not so clear with OTHER).
         //
-        // 'sched_get_priority_min()' and '..max()' give 15, 47 as the
+        // 'sched_get_priority_min()' and '..max()' give 15, 47 as the 
         // priority limits. This could imply, user mode applications won't
         // be able to use values outside of that range.
         //
         #define _PRIO_MODE SCHED_OTHER
-
+        
         // OS X 10.4.9 (PowerPC) gives ENOTSUP for process scope
         //#define _PRIO_SCOPE PTHREAD_SCOPE_PROCESS
 
@@ -556,7 +548,7 @@ static void prepare_timeout( struct timespec *ts, time_d abs_secs ) {
         // but even Ubuntu does not seem to define it.
         //
         #define _PRIO_MODE SCHED_RR
-
+        
         // NTLP 2.5: only system scope allowed (being the basic reason why
         //           root privileges are required..)
         //#define _PRIO_SCOPE PTHREAD_SCOPE_PROCESS
@@ -594,7 +586,7 @@ static void prepare_timeout( struct timespec *ts, time_d abs_secs ) {
 #define _PRIO_AN (_PRIO_0 + ((_PRIO_HI-_PRIO_0)/2) )
 #define _PRIO_BN (_PRIO_LO + ((_PRIO_0-_PRIO_LO)/2) )
 
-        sp.sched_priority=
+        sp.sched_priority= 
             (prio == +2) ? _PRIO_HI :
             (prio == +1) ? _PRIO_AN :
 #if defined(PLATFORM_LINUX) && defined(LINUX_SCHED_RR)
@@ -613,7 +605,7 @@ static void prepare_timeout( struct timespec *ts, time_d abs_secs ) {
 # ifndef THREAD_CREATE_RETRIES_MAX
     // Don't bother with retries; a failure is a failure
     //
-    {
+    { 
       int rc= pthread_create( ref, a, func, data );
       if (rc) _PT_FAIL( rc, "pthread_create()", __FILE__, __LINE__-1 );
     }
@@ -630,13 +622,13 @@ static void prepare_timeout( struct timespec *ts, time_d abs_secs ) {
             // OS X / Linux:
             //    EAGAIN: ".. lacked the necessary resources to create
             //             another thread, or the system-imposed limit on the
-            //             total number of threads in a process
+            //             total number of threads in a process 
             //             [PTHREAD_THREADS_MAX] would be exceeded."
             //    EINVAL: attr is invalid
             // Linux:
             //    EPERM: no rights for given parameters or scheduling (no sudo)
             //    ENOMEM: (known to fail with this code, too - not listed in man)
-
+            
         if (rc==0) break;   // ok!
 
         // In practise, exhaustion seems to be coming from memory, not a
@@ -661,7 +653,7 @@ static void prepare_timeout( struct timespec *ts, time_d abs_secs ) {
     }
   }
   //
-  /*
+ /*
   * Wait for a thread to finish.
   *
   * 'mu_ref' is a lock we should use for the waiting; initially unlocked.
@@ -669,11 +661,7 @@ static void prepare_timeout( struct timespec *ts, time_d abs_secs ) {
   *
   * Returns TRUE for succesful wait, FALSE for timed out
   */
-#ifdef PTHREAD_TIMEDJOIN
-  bool_t THREAD_WAIT( THREAD_T *ref, double secs )
-#else
-  bool_t THREAD_WAIT( THREAD_T *ref, SIGNAL_T *signal_ref, MUTEX_T *mu_ref, volatile enum e_status *st_ref, double secs )
-#endif
+bool_t THREAD_WAIT( THREAD_T *ref, double secs , SIGNAL_T *signal_ref, MUTEX_T *mu_ref, volatile enum e_status *st_ref)
 {
     struct timespec ts_store;
     const struct timespec *timeout= NULL;
@@ -681,16 +669,17 @@ static void prepare_timeout( struct timespec *ts, time_d abs_secs ) {
 
     // Do timeout counting before the locks
     //
-#ifdef PTHREAD_TIMEDJOIN
-    if (secs>=0.0) {
-#else
-    if (secs>0.0) {
-#endif
+#if THREADWAIT_METHOD == THREADWAIT_TIMEOUT
+    if (secs>=0.0)
+#else // THREADWAIT_METHOD == THREADWAIT_CONDVAR
+    if (secs>0.0)
+#endif // THREADWAIT_METHOD == THREADWAIT_CONDVAR
+    {
         prepare_timeout( &ts_store, now_secs()+secs );
         timeout= &ts_store;
     }
 
-#ifdef PTHREAD_TIMEDJOIN
+#if THREADWAIT_METHOD == THREADWAIT_TIMEOUT
     /* Thread is joinable
     */
     if (!timeout) {
@@ -703,12 +692,13 @@ static void prepare_timeout( struct timespec *ts, time_d abs_secs ) {
         }
         done= rc==0;
     }
-#else
+#else // THREADWAIT_METHOD == THREADWAIT_CONDVAR
     /* Since we've set the thread up as PTHREAD_CREATE_DETACHED, we cannot
      * join with it. Use the cond.var.
     */
+    (void) ref; // unused
     MUTEX_LOCK( mu_ref );
-
+    
         // 'secs'==0.0 does not need to wait, just take the current status
         // within the 'mu_ref' locks
         //
@@ -726,13 +716,13 @@ static void prepare_timeout( struct timespec *ts, time_d abs_secs ) {
         done= *st_ref >= DONE;  // DONE|ERROR_ST|CANCELLED
 
     MUTEX_UNLOCK( mu_ref );
-#endif
+#endif // THREADWAIT_METHOD == THREADWAIT_CONDVAR
     return done;
   }
   //
   void THREAD_KILL( THREAD_T *ref ) {
     pthread_cancel( *ref );
   }
-#endif
+#endif // THREADAPI == THREADAPI_PTHREAD
 
 static const lua_Alloc alloc_f= 0;

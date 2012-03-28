@@ -4,7 +4,8 @@
 -- Test program for Lua Lanes
 --
 
-require "lanes"
+local lanes = require "lanes"
+lanes.configure()
 
 local linda= lanes.linda()
 local key= "$"

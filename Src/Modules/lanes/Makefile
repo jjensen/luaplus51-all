@@ -24,8 +24,8 @@ TIME=time
 ifeq "$(findstring MINGW32,$(shell uname -s))" "MINGW32"
   # MinGW MSYS on XP
   #
-  LUA=lua
-  LUAC=luac
+  LUA=lua.exe
+  LUAC=luac.exe
   _SO=.dll
   _TARGET_SO=./lua51-lanes.dll
   TIME=timeit.exe
@@ -36,7 +36,7 @@ else
   LUAC=$(word 1,$(shell which luac5.1) $(shell which luac51) luac)
 endif
 
-_PREFIX=LUA_CPATH=./src/?$(_SO) LUA_PATH="src/?.lua;./tests/?.lua"
+_PREFIX=LUA_CPATH="./src/?$(_SO)" LUA_PATH="./src/?.lua;./tests/?.lua"
 
 #---
 all: $(_TARGET_SO)
@@ -71,8 +71,9 @@ rock:
 #--- Testing ---
 #
 test:
+	$(MAKE) errhangtest
 	$(MAKE) irayo_recursive
-#	$(MAKE) irayo_closure
+	$(MAKE) irayo_closure
 	$(MAKE) basic
 	$(MAKE) fifo
 	$(MAKE) keeper
@@ -82,11 +83,14 @@ test:
 	$(MAKE) objects
 	$(MAKE) fibonacci
 	$(MAKE) recursive
+	$(MAKE) func_is_string
+	$(MAKE) atexit
+	$(MAKE) linda_perf
 
 basic: tests/basic.lua $(_TARGET_SO)
 	$(_PREFIX) $(LUA) $<
 
-# 
+#
 # This tries to show out a bug which happens in lane cleanup (multicore CPU's only)
 #
 REP_ARGS=-llanes -e "print'say aaa'; for i=1,10 do print(i) end"
@@ -140,7 +144,22 @@ irayo_closure: tests/irayo_closure.lua $(_TARGET_SO)
 finalizer: tests/finalizer.lua $(_TARGET_SO)
 	$(_PREFIX) $(LUA) $<
 
+errhangtest: tests/errhangtest.lua $(_TARGET_SO)
+	$(_PREFIX) $(LUA) $<
+
 error-test: tests/error.lua $(_TARGET_SO)
+	$(_PREFIX) $(LUA) $<
+
+appendud: tests/appendud.lua $(_TARGET_SO)
+	$(_PREFIX) $(LUA) $<
+
+func_is_string: tests/func_is_string.lua $(_TARGET_SO)
+	$(_PREFIX) $(LUA) $<
+
+linda_perf: tests/linda_perf.lua $(_TARGET_SO)
+	$(_PREFIX) $(LUA) $<
+
+atexit: tests/atexit.lua $(_TARGET_SO)
 	$(_PREFIX) $(LUA) $<
 
 #---
@@ -175,7 +194,7 @@ LUA_LIBDIR=$(DESTDIR)/lib/lua/5.1
 LUA_SHAREDIR=$(DESTDIR)/share/lua/5.1
 
 #
-# AKa 17-Oct: changed to use 'install -m 644' and 'cp -p' 
+# AKa 17-Oct: changed to use 'install -m 644' and 'cp -p'
 #
 install: $(_TARGET_SO) src/lanes.lua
 	mkdir -p $(LUA_LIBDIR) $(LUA_SHAREDIR)
@@ -196,7 +215,7 @@ tar tgz:
 ifeq "$(VERSION)" ""
 	echo "Usage: make tar VERSION=x.x"; false
 else
-	$(MAKE) clean 
+	$(MAKE) clean
 	-rm -rf $(MODULE)-$(VERSION)
 	mkdir $(MODULE)-$(VERSION)
 	tar c * --exclude=.svn --exclude=.DS_Store --exclude="_*" \
@@ -208,8 +227,8 @@ else
 	rm -rf $(MODULE)-$(VERSION)
 	md5sum $(MODULE)-$(VERSION).tgz
 endif
-	
-	
+
+
 #--- Undocumented ---
 #
 

@@ -10,7 +10,8 @@ haven't investigated further.
 e.g. { globals = { data = 1, func = function() useclosurehere() end } }"
 ]]
 
-require "lanes"
+local lanes = require "lanes"
+lanes.configure()
 
 local function testrun()
     assert( print )
@@ -20,11 +21,13 @@ local function testrun()
     return true
 end
 
--- Should also work without these lines, but currently doesn't (bug in Lanes,
--- a function thrown over isn't connected to receiving lane's globals)
+-- When some function dereferences a global key, the associated global in the source state
+-- isn't sent over the target lane
+-- therefore, the necessary functions must either be pulled as upvalues (hence locals)
+-- or the globals must exist in the target lanes because the modules have been required there
 --
---local print=print
---local assert=assert
+local print=print
+local assert=assert
 
 local function useclosurehere()
     assert( print )

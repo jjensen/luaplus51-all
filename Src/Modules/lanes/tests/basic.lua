@@ -2,12 +2,13 @@
 -- BASIC.LUA           Copyright (c) 2007-08, Asko Kauppi <akauppi@gmail.com>
 --
 -- Selftests for Lua Lanes
--- 
+--
 -- To do:
 --      - ...
 --
 
-require "lanes"
+local lanes = require "lanes"
+lanes.configure()
 require "assert"    -- assert.fails()
 
 local lanes_gen=    assert( lanes.gen )
@@ -20,7 +21,7 @@ local function PRINT(...)
     for i=1,select('#',...) do
         str= str..tostring(select(i,...)).."\t"
     end
-    if io then 
+    if io then
         io.stderr:write(str.."\n")
     end
 end
@@ -55,7 +56,7 @@ tables_match= function( a, b )
 end
 
 
----=== Tasking (basic) ===---
+PRINT( "---=== Tasking (basic) ===---")
 
 local function task( a, b, c )
     --error "111"     -- testing error messages
@@ -98,7 +99,7 @@ assert( lane1.status == "done" )
 assert( lane1.status == "done" )
 
 
----=== Tasking (cancelling) ===---
+PRINT( "---=== Tasking (cancelling) ===---")
 
 local task_launch2= lanes_gen( "", { cancelstep=100, globals={hey=true} }, task )
 
@@ -136,7 +137,7 @@ PRINT(" "..st)
 assert( st == "cancelled" )
 
 
----=== Communications ===---
+PRINT( "---=== Communications ===---")
 
 local function WR(...) io.stderr:write(...) end
 
@@ -157,7 +158,7 @@ local chunk= function( linda )
     send { 'a', 'b', 'c', d=10 }; WR( "{'a','b','c',d=10} sent\n" )
 
     v=receive(); WR( v.." received\n" ); assert( v==4 )
-        
+
     WR( "Lane ends!\n" )
 end
 
@@ -195,7 +196,7 @@ assert( PEEK() == nil )
 SEND(4)
 
 
----=== Stdlib naming ===---
+PRINT( "---=== Stdlib naming ===---")
 
 local function io_os_f()
     assert(io)
@@ -215,7 +216,7 @@ assert( f2()[1] )
 assert( f3()[1] )
 
 
----=== Comms criss cross ===---
+PRINT( "---=== Comms criss cross ===---")
 
 -- We make two identical lanes, which are using the same Linda channel.
 --
@@ -230,7 +231,7 @@ local tc= lanes_gen( "io",
     end
     STAGE("Hello")
     STAGE("I was here first!")
-    STAGE("So waht?")
+    STAGE("So what?")
   end
 )
 
@@ -241,32 +242,28 @@ local a,b= tc(linda, "A","B"), tc(linda, "B","A")   -- launching two lanes, twis
 local _= a[1],b[1]  -- waits until they are both ready
 
 
----=== Receive & send of code ===---
+PRINT( "---=== Receive & send of code ===---")
 
 local upvalue="123"
 
 local function chunk2( linda )
     assert( upvalue=="123" )    -- even when running as separate thread
-
     -- function name & line number should be there even as separate thread
     --
     local info= debug.getinfo(1)    -- 1 = us
-        --
-        for k,v in pairs(info) do PRINT(k,v) end
+    --
+    for k,v in pairs(info) do PRINT(k,v) end
 
-        assert( info.nups == 2 )    -- one upvalue + PRINT
-        assert( info.what == "Lua" )
-        
-        --assert( info.name == "chunk2" )   -- name does not seem to come through
-        assert( string.match( info.source, "^@tests[/\\]basic.lua$" ) )
-        assert( string.match( info.short_src, "^tests[/\\]basic.lua$" ) )
-        
-        -- These vary so let's not be picky (they're there..)
-        --
-        assert( info.linedefined > 200 )   -- start of 'chunk2'
-        assert( info.currentline > info.linedefined )   -- line of 'debug.getinfo'
-        assert( info.lastlinedefined > info.currentline )   -- end of 'chunk2'
-
+    assert( info.nups == 2 )    -- one upvalue + PRINT
+    assert( info.what == "Lua" )
+    --assert( info.name == "chunk2" )   -- name does not seem to come through
+    assert( string.match( info.source, "^@.*basic.lua$" ) )
+    assert( string.match( info.short_src, "^.*basic.lua$" ) )
+    -- These vary so let's not be picky (they're there..)
+    --
+    assert( info.linedefined > 200 )   -- start of 'chunk2'
+    assert( info.currentline > info.linedefined )   -- line of 'debug.getinfo'
+    assert( info.lastlinedefined > info.currentline )   -- end of 'chunk2'
     local func,k= linda:receive( "down" )
     assert( type(func)=="function" )
     assert( k=="down" )
@@ -275,17 +272,14 @@ local function chunk2( linda )
 
     local str= linda:receive( "down" )
     assert( str=="ok" )
-    
+
     linda:send( "up", function() return ":)" end, "ok2" )
 end
 
 local linda= lanes.linda()
-
-local t2= lanes_gen( "debug,string", chunk2 )(linda)     -- prepare & launch
-
+local t2= lanes_gen( "debug,string,io", chunk2 )(linda)     -- prepare & launch
 linda:send( "down", function(linda) linda:send( "up", "ready!" ) end,
                     "ok" )
-
 -- wait to see if the tiny function gets executed
 --
 local s= linda:receive( "up" )
@@ -304,7 +298,7 @@ local ok2= linda:receive( "up" )
 assert( ok2 == "ok2" )
 
 
----=== :join test ===---
+PRINT( "---=== :join test ===---")
 
 -- NOTE: 'unpack()' cannot be used on the lane handle; it will always return nil
 --       (unless [1..n] has been read earlier, in which case it would seemingly

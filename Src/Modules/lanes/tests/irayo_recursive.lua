@@ -8,7 +8,8 @@ local function recurse()
     print("level "..i);
     if i > 10 then return "finished" end
 
-    require "lanes"
+    local lanes = require "lanes"
+    lanes.configure{ nb_keepers = 1, with_timers = false}
 
     local lane = lanes.gen( "*", { globals = { ["i"]= i + 1 } }, recurse ) ()
     return lane[1]
