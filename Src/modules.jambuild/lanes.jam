@@ -1,6 +1,8 @@
 {
 
 local SRCS =
+		src/keeper.c
+		src/keeper.h
 		src/keeper.lua
 		src/threading.c
 		src/threading.h

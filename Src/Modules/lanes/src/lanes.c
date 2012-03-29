@@ -1885,7 +1885,7 @@ static bool_t thread_cancel( struct s_lane *s, double secs, bool_t force)
 
 LUAG_FUNC( thread_cancel)
 {
-	if( lua_gettop( L) != 1 || lua_type( L, 1) != LUA_TUSERDATA)
+	if( lua_type( L, 1) != LUA_TUSERDATA)
 	{
 		return luaL_error( L, "invalid argument #1, did you use ':' as you should?");
 	}
