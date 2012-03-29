@@ -19,8 +19,6 @@ extern "C" {
 #include "lualib.h"
 }
 
-#include "LuaRemoteDebuggingServer/LuaRemoteDebuggingServer.h"
-
 #if LUA_TILDE_DEBUGGER
 #include "tilde/LuaHostWindows.h"
 #endif /* LUA_TILDE_DEBUGGER */
@@ -326,16 +324,6 @@ static int collectargs (char **argv, int *pi, int *pv, int *pe) {
         }
         break;
       }
-#if defined(REMOTE_DEBUGGER)
-      case 'r': {
-        if (strcmp(argv[i], "-rld") == 0) {
-          LuaRemoteDebuggingServer::RegisterState("State", globalL);
-          LuaRemoteDebuggingServer::Initialize();
-          LuaRemoteDebuggingServer::WaitForDebuggerConnection();
-		}
-		break;
-      }
-#endif
       default: return -1;  /* invalid option */
     }
   }
@@ -482,9 +470,6 @@ int main (int argc, char **argv) {
   s.argv = argv;
   status = lua_cpcall(L, &pmain, &s);
   report(L, status);
-#if defined(REMOTE_DEBUGGER)
-  LuaRemoteDebuggingServer::Shutdown();
-#endif
   lua_close(L);
   return (status || s.status) ? EXIT_FAILURE : EXIT_SUCCESS;
 }
