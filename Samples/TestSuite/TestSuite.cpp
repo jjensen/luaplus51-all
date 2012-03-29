@@ -53,7 +53,7 @@ TEST(LuaState_CastState)
 {
 	LuaStateOwner state(false);
 	lua_State* L = state->GetCState();
-	LuaState* state2 = lua_State_To_LuaState(L);
+	LuaState* state2 = lua_State_to_LuaState(L);
 	CHECK(state == state2);
 }
 
@@ -506,15 +506,15 @@ TEST(LuaState_PushBoolean)
 
 
 //////////////////////////////////////////////////////////////////////////
-TEST(LuaState_PushLightUserData)
+TEST(LuaState_PushLightUserdata)
 {
 	LuaStateOwner state(false);
-	LuaStackObject obj = state->PushLightUserData((void*)0x12345678);
+	LuaStackObject obj = state->PushLightUserdata((void*)0x12345678);
 	CHECK_EQUAL(state->GetTop(), 1);
-	CHECK(obj.IsLightUserData());
-	CHECK(obj.GetLightUserData() == (void*)0x12345678);
-	CHECK(state->Stack(-1).IsLightUserData());
-	CHECK(state->Stack(-1).GetLightUserData() == (void*)0x12345678);
+	CHECK(obj.IsLightUserdata());
+	CHECK(obj.GetLightUserdata() == (void*)0x12345678);
+	CHECK(state->Stack(-1).IsLightUserdata());
+	CHECK(state->Stack(-1).GetLightUserdata() == (void*)0x12345678);
 }
 
 
@@ -543,15 +543,15 @@ TEST(LuaState_CreateTable)
 
 
 //////////////////////////////////////////////////////////////////////////
-TEST(LuaState_NewUserData)
+TEST(LuaState_NewUserdata)
 {
 	LuaStateOwner state(false);
-	LuaStackObject obj = state->NewUserData(10);
+	LuaStackObject obj = state->NewUserdata(10);
 	CHECK_EQUAL(state->GetTop(), 1);
-	CHECK(obj.IsUserData());
-	CHECK(!obj.IsLightUserData());
-	CHECK(state->Stack(-1).IsUserData());
-	CHECK(!state->Stack(-1).IsLightUserData());
+	CHECK(obj.IsUserdata());
+	CHECK(!obj.IsLightUserdata());
+	CHECK(state->Stack(-1).IsUserdata());
+	CHECK(!state->Stack(-1).IsLightUserdata());
 }
 
 
@@ -651,8 +651,8 @@ TEST(LuaState_PCall)
 //////////////////////////////////////////////////////////////////////////
 static int LuaState_CPCall_Helper(lua_State* L)
 {
-	LuaState* state = lua_State_To_LuaState(L);
-	int* var = (int*)state->Stack(1).GetLightUserData();
+	LuaState* state = lua_State_to_LuaState(L);
+	int* var = (int*)state->Stack(1).GetLightUserdata();
 	*var = 5;
 	return 0;
 }
@@ -1094,18 +1094,18 @@ TEST(LuaObject_Assign)
 	CHECK(strcmp(obj.TypeName(), "wstring") == 0);
 #endif // LUA_WIDESTRING
 
-/*	obj.AssignUserData(state, (void*)0x12345678);
+/*	obj.AssignUserdata(state, (void*)0x12345678);
 	CHECK(obj.Type() == LUA_TUSERDATA);
-	CHECK(obj.IsUserData());
-	CHECK(!obj.IsLightUserData());
-	CHECK(obj.GetUserData() == (void*)0x12345678);
+	CHECK(obj.IsUserdata());
+	CHECK(!obj.IsLightUserdata());
+	CHECK(obj.GetUserdata() == (void*)0x12345678);
 	CHECK(strcmp(obj.TypeName(), "userdata") == 0);
 */
 	obj.Assign(state, (void*)0x12345678);
 	CHECK(obj.Type() == LUA_TLIGHTUSERDATA);
-	CHECK(obj.IsUserData());
-	CHECK(obj.IsLightUserData());
-	CHECK(obj.GetUserData() == (void*)0x12345678);
+	CHECK(obj.IsUserdata());
+	CHECK(obj.IsLightUserdata());
+	CHECK(obj.GetUserdata() == (void*)0x12345678);
 	CHECK(strcmp(obj.TypeName(), "userdata") == 0);
 
 	// AssignObject test
@@ -1358,7 +1358,7 @@ TEST(LuaObject_SetWString)
 
 
 //////////////////////////////////////////////////////////////////////////
-TEST(LuaObject_SetUserData)
+TEST(LuaObject_SetUserdata)
 {
 	LuaStateOwner state;
 	LuaObject obj(state);
@@ -1366,24 +1366,24 @@ TEST(LuaObject_SetUserData)
 	CHECK(obj.IsTable());
 /*
 	// number
-	obj.SetUserData(1, (void*)0x12345678);
-	CHECK(obj[1].GetUserData() == (void*)0x12345678);
+	obj.SetUserdata(1, (void*)0x12345678);
+	CHECK(obj[1].GetUserdata() == (void*)0x12345678);
 
 	// string
-	obj.SetUserData("Hello", (void*)0x87654321);
-	CHECK(obj["Hello"].GetUserData() == (void*)0x87654321);
+	obj.SetUserdata("Hello", (void*)0x87654321);
+	CHECK(obj["Hello"].GetUserdata() == (void*)0x87654321);
 
 	// object
 	LuaObject stringObj(state);
 	stringObj.Assign(state, "Test");
-	obj.SetUserData(stringObj, (void*)0x02468024);
-	CHECK(obj[stringObj].GetUserData() == (void*)0x02468024);
+	obj.SetUserdata(stringObj, (void*)0x02468024);
+	CHECK(obj[stringObj].GetUserdata() == (void*)0x02468024);
 */
 }
 
 
 //////////////////////////////////////////////////////////////////////////
-TEST(LuaObject_SetLightUserData)
+TEST(LuaObject_SetLightUserdata)
 {
 	LuaStateOwner state;
 	LuaObject obj(state);
@@ -1392,17 +1392,17 @@ TEST(LuaObject_SetLightUserData)
 
 	// number
 	obj.Set(1, (void*)0x12345678);
-	CHECK(obj[1].GetUserData() == (void*)0x12345678);
+	CHECK(obj[1].GetUserdata() == (void*)0x12345678);
 
 	// string
 	obj.Set("Hello", (void*)0x87654321);
-	CHECK(obj["Hello"].GetUserData() == (void*)0x87654321);
+	CHECK(obj["Hello"].GetUserdata() == (void*)0x87654321);
 
 	// object
 	LuaObject stringObj(state);
 	stringObj.Assign(state, "Test");
 	obj.Set(stringObj, (void*)0x02468024);
-	CHECK(obj[stringObj].GetUserData() == (void*)0x02468024);
+	CHECK(obj[stringObj].GetUserdata() == (void*)0x02468024);
 }
 
 
@@ -1506,7 +1506,7 @@ TEST(LuaObject_GetByFuncs)
 	LuaObject metaTableObj;
 	metaTableObj.AssignNewTable(state);
 	metaTableObj.Set("__index", baseObj);
-	obj.SetMetaTable(metaTableObj);
+	obj.SetMetatable(metaTableObj);
 
 	// Now do the checks.
 	CHECK(obj.RawGetByIndex(2).IsNil());
@@ -1921,7 +1921,7 @@ TEST(LuaObject_CheckConvertibleTypes)
 
 	
 //////////////////////////////////////////////////////////////////////////
-TEST(LuaObject_MetaTable)
+TEST(LuaObject_Metatable)
 {
 	LuaStateOwner state;
 
@@ -1939,7 +1939,7 @@ TEST(LuaObject_MetaTable)
 	LuaObject stringObj(state);
 	stringObj.Assign(state, "Test");
 	metaTableObj.Set(1, "MyLittleNumber");
-	metaTableObj.Set("__name", "MyLittleMetaTable");
+	metaTableObj.Set("__name", "MyLittleMetatable");
 	metaTableObj.Set(stringObj, "MyLittleObject");
 	
 	// Make the metatable be the next lookup index.
@@ -1947,27 +1947,27 @@ TEST(LuaObject_MetaTable)
 
 	// Create a global called MyTable and assign the metatable.
 	LuaObject myTableObj = state->GetGlobals().CreateTable("MyTable");
-	myTableObj.SetMetaTable(metaTableObj);
+	myTableObj.SetMetatable(metaTableObj);
 
 	// Look it up again.
 	LuaObject testTableObj = state->GetGlobals()["MyTable"];
-	LuaObject testMetaTableObj = testTableObj.GetMetaTable();
-	CHECK(metaTableObj == testMetaTableObj);
+	LuaObject testMetatableObj = testTableObj.GetMetatable();
+	CHECK(metaTableObj == testMetatableObj);
 	CHECK(metaTableObj["__name"].IsString());
-	CHECK(strcmp(metaTableObj["__name"].GetString(), "MyLittleMetaTable") == 0);
+	CHECK(strcmp(metaTableObj["__name"].GetString(), "MyLittleMetatable") == 0);
 
 	// Test GetBy*() functions
 	CHECK(testTableObj.GetByIndex(1).IsString());
 	CHECK(strcmp(testTableObj.GetByIndex(1).GetString(), "MyLittleNumber") == 0);
 	CHECK(testTableObj.GetByName("__name").IsString());
-	CHECK(strcmp(testTableObj.GetByName("__name").GetString(), "MyLittleMetaTable") == 0);
+	CHECK(strcmp(testTableObj.GetByName("__name").GetString(), "MyLittleMetatable") == 0);
 	CHECK(testTableObj.GetByObject(stringObj).IsString());
 	CHECK(strcmp(testTableObj.GetByObject(stringObj).GetString(), "MyLittleObject") == 0);
 	CHECK(testTableObj.GetByIndex(2).IsNil());
 
 	// Test Get() functions reaching the baseObj.
 	CHECK(testTableObj.Get("base").IsNil());
-	metaTableObj.SetMetaTable(baseObj);
+	metaTableObj.SetMetatable(baseObj);
 	CHECK(testTableObj.Get("base").IsString());
 	CHECK(strcmp(testTableObj.GetByName("base").GetString(), "the base") == 0);
 
@@ -1975,7 +1975,7 @@ TEST(LuaObject_MetaTable)
 	CHECK(testTableObj[1].IsString());
 	CHECK(strcmp(testTableObj[1].GetString(), "MyLittleNumber") == 0);
 	CHECK(testTableObj["__name"].IsString());
-	CHECK(strcmp(testTableObj["__name"].GetString(), "MyLittleMetaTable") == 0);
+	CHECK(strcmp(testTableObj["__name"].GetString(), "MyLittleMetatable") == 0);
 	CHECK(testTableObj[stringObj].IsString());
 	CHECK(strcmp(testTableObj[stringObj].GetString(), "MyLittleObject") == 0);
 
@@ -2118,7 +2118,7 @@ TEST(LuaState_ExceptionTest)
 
 	try
 	{
-		void* data = state->GetGlobal("MyTable")[1].GetUserData();  (void)data;
+		void* data = state->GetGlobal("MyTable")[1].GetUserdata();  (void)data;
 	}
 	catch (const LuaException& /*e*/)
 	{

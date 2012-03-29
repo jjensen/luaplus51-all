@@ -19,7 +19,7 @@ local SRCS =
 ;
 
 C.IncludeDirectories TestSuite : $(LUAPLUS)/Src $(LUAPLUS)/Samples/UnitTest++/src ;
-C.LinkLibraries TestSuite : LuaPlusShared UnitTest++ ;
+C.LinkLibraries TestSuite : lua51 UnitTest++ ;
 
 TEST_SUITE_EXE = [ C.Application TestSuite : $(SRCS) ] ;
 TEST_SUITE_CWD = $(SUBDIR) ;
