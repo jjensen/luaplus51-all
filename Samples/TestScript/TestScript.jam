@@ -19,7 +19,7 @@ local SRCS =
 ;
 
 C.IncludeDirectories TestScript : $(LUAPLUS)/Src ;
-C.LinkLibraries TestScript : LuaPlusShared ;
+C.LinkLibraries TestScript : lua51 ;
 
 C.Application TestScript : $(SRCS) ;
 

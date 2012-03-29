@@ -17,17 +17,17 @@ public:
 	void bar() { assert(check == 0x12345678); }
 };
 
-void NewUserDataBoxTest()
+void NewUserdataBoxTest()
 {
 	Foo f;
 
 	LuaStateOwner lua;
 
-	LuaObject obj = lua->NewUserDataBox(&f);
+	LuaObject obj = lua->NewUserdataBox(&f);
 	lua->CreateTable();
     LuaObject meta = lua->StackTop();
 	meta.RegisterObjectDirect("bar", (Foo*)0, &Foo::bar);
-	obj.SetMetaTable(meta);
+	obj.SetMetatable(meta);
 
 	lua->GetGlobals().Set("f", obj);
 
@@ -273,11 +273,11 @@ void DoScriptArrayTest()
 }
 
 
-static int LS_LightUserDataCall( LuaState* state )
+static int LS_LightUserdataCall( LuaState* state )
 {
 	LuaStack args(state);
-	bool isLightUserData = args[ 1 ].IsLightUserData();
-	const void* ptr = args[ 1 ].GetUserData();
+	bool isLightUserdata = args[ 1 ].IsLightUserdata();
+	const void* ptr = args[ 1 ].GetUserdata();
     state->PushNumber(10000);
 	return 1;
 }
@@ -287,8 +287,8 @@ void TestPointer()
 {
 	LuaStateOwner state;
 
-	state->GetGlobals().Register("LightUserDataCall", LS_LightUserDataCall);
-	LuaObject funcObj = state->GetGlobal("LightUserDataCall");
+	state->GetGlobals().Register("LightUserdataCall", LS_LightUserdataCall);
+	LuaObject funcObj = state->GetGlobal("LightUserdataCall");
 	LuaCall call = funcObj;
 	LuaStackObject retObj = call << (void*)0xfedcba98 << LuaRun();
     printf("%f\n", retObj.GetNumber());
@@ -355,7 +355,7 @@ using namespace SimpleMem;
 
 SimpleHeap* heap;
 
-#if LUA_MEMORY_STATS
+#if 0  &&  LUA_MEMORY_STATS
 void* ReallocFunction(void* ud, void* ptr, size_t osize, size_t nsize, const char* allocName, unsigned int flags)
 #else
 void* ReallocFunction(void* ud, void* ptr, size_t osize, size_t nsize)
@@ -369,7 +369,7 @@ void* ReallocFunction(void* ud, void* ptr, size_t osize, size_t nsize)
 		return NULL;
 	}
 
-#if LUA_MEMORY_STATS
+#if 0  &&  LUA_MEMORY_STATS
 	if (flags == LUA_ALLOC_TEMP)
 	{
 		return heap->Realloc(ptr, nsize, SimpleHeap::FIRSTFIT_TOP,
@@ -569,7 +569,7 @@ void TestGCObject()
 }
 
 
-void SetUserData()
+void SetUserdata()
 {
 	SimpleHeap mainHeap("Test", false);
 	mainHeap.Initialize(1 * 1024 * 1024);
@@ -806,19 +806,19 @@ void MultiObjectTest()
 {
 	LuaStateOwner state;
 
-	LuaObject metaTableObj = state->GetGlobals().CreateTable("MultiObjectMetaTable");
+	LuaObject metaTableObj = state->GetGlobals().CreateTable("MultiObjectMetatable");
 	metaTableObj.Set("__index", metaTableObj);
 	metaTableObj.RegisterObjectFunctor("Print", &MultiObject::Print);
 	metaTableObj.RegisterObjectDirect("Print2", (MultiObject*)0, &MultiObject::Print2);
 
 	MultiObject obj1(10);
 	LuaObject obj1Obj = state->BoxPointer(&obj1);
-	obj1Obj.SetMetaTable(metaTableObj);
+	obj1Obj.SetMetatable(metaTableObj);
 	state->GetGlobals().Set("obj1", obj1Obj);
 
 	MultiObject obj2(20);
 	LuaObject obj2Obj = state->BoxPointer(&obj2);
-	obj2Obj.SetMetaTable(metaTableObj);
+	obj2Obj.SetMetatable(metaTableObj);
 	state->GetGlobals().Set("obj2", obj2Obj);
 
 	state->DoString("obj1:Print()");
@@ -827,12 +827,12 @@ void MultiObjectTest()
 	state->DoString("obj2:Print2(15)");
 
 	LuaObject table1Obj = state->GetGlobals().CreateTable("table1");
-	table1Obj.Set("__object", &obj1);
-	table1Obj.SetMetaTable(metaTableObj);
+	table1Obj.SetLightUserdata("__object", &obj1);
+	table1Obj.SetMetatable(metaTableObj);
 
 	LuaObject table2Obj = state->GetGlobals().CreateTable("table2");
-	table2Obj.Set("__object", &obj2);
-	table2Obj.SetMetaTable(metaTableObj);
+	table2Obj.SetLightUserdata("__object", &obj2);
+	table2Obj.SetMetatable(metaTableObj);
 
 	state->DoString("table1:Print()");
 	state->DoString("table2:Print()");
@@ -929,7 +929,7 @@ void ExceptionTest()
 
 	try
 	{
-		void* data = state->GetGlobal("MyTable")[1].GetUserData();
+		void* data = state->GetGlobal("MyTable")[1].GetUserdata();
 	}
 	catch (const LuaException& /*e*/)
 	{
@@ -982,13 +982,13 @@ void PropertyTest()
 	
 	MyPropertyTest test;
 
-	LuaObject metaTableObj = state->GetRegistry().CreateTable("MyPropertyClassMetaTable");
-	LPCD::MetaTable_IntegratePropertySupport(metaTableObj);
+	LuaObject metaTableObj = state->GetRegistry().CreateTable("MyPropertyClassMetatable");
+	LPCD::Metatable_IntegratePropertySupport(metaTableObj);
 	metaTableObj.RegisterObjectDirect("SetVar", (MyPropertyTest*)0, &MyPropertyTest::SetVar);
 
 	LuaObject table1Obj = state->GetGlobals().CreateTable("table1");
-	table1Obj.Set("__object", &test);
-	table1Obj.SetMetaTable(metaTableObj);
+	table1Obj.SetLightUserdata("__object", &test);
+	table1Obj.SetMetatable(metaTableObj);
 
 	LPCD::PropertyCreate(metaTableObj, "var", &MyPropertyTest::m_var);
 
@@ -1037,10 +1037,10 @@ void PropertyTest()
 }
 
 
-int PropertyMetaTable_newindex(LuaState* state)
+int PropertyMetatable_newindex(LuaState* state)
 {
 	LuaStack args(state);
-	LuaObject propsObj = args[1].GetMetaTable()["__props"];
+	LuaObject propsObj = args[1].GetMetatable()["__props"];
 	if (propsObj.IsTable())
 	{
 		LuaObject propObj = propsObj[args[2]];
@@ -1131,25 +1131,25 @@ namespace LPCD
 		return lua_tostring(L, idx);
 	}
 */
-	inline void Push(lua_State* L, const VECTOR& value)
+	template<> inline void Push<VECTOR>(lua_State* L, VECTOR value)
 	{
-		LuaState* state = lua_State_To_LuaState(L);
+		LuaState* state = lua_State_to_LuaState(L);
 		LuaObject obj = state->BoxPointer((void*)&value);
-		obj.SetMetaTable(state->GetRegistry()["VECTOR"]);
+		obj.SetMetatable(state->GetRegistry()["VECTOR"]);
 	}
 
 	inline bool	Match(TypeWrapper<VECTOR>, lua_State* L, int idx)
 	{
-		LuaState* state = lua_State_To_LuaState(L);
+		LuaState* state = lua_State_to_LuaState(L);
 		LuaObject obj = state->Stack(idx);
-		return obj.GetMetaTable() == state->GetRegistry()["VECTOR"];
+		return obj.GetMetatable() == state->GetRegistry()["VECTOR"];
 	}
 
 	inline bool	Match(TypeWrapper<VECTOR&>, lua_State* L, int idx)
 	{
-		LuaState* state = lua_State_To_LuaState(L);
+		LuaState* state = lua_State_to_LuaState(L);
 		LuaObject obj = state->Stack(idx);
-		return obj.GetMetaTable() == state->GetRegistry()["VECTOR"];
+		return obj.GetMetatable() == state->GetRegistry()["VECTOR"];
 	}
 
 	inline VECTOR Get(TypeWrapper<VECTOR>, lua_State* L, int idx)
@@ -1175,27 +1175,27 @@ void VectorMonsterMetatableTest()
 {
 	LuaStateOwner state(true);
 
-	LuaObject vectorMetaTableObj = state->GetRegistry().CreateTable("VECTOR"); 
-	LPCD::MetaTable_IntegratePropertySupport(vectorMetaTableObj); 
+	LuaObject vectorMetatableObj = state->GetRegistry().CreateTable("VECTOR"); 
+	LPCD::Metatable_IntegratePropertySupport(vectorMetatableObj); 
 
-	LPCD::PropertyCreate(vectorMetaTableObj, "x", &VECTOR::x); 
-	LPCD::PropertyCreate(vectorMetaTableObj, "y", &VECTOR::y); 
-	LPCD::PropertyCreate(vectorMetaTableObj, "z", &VECTOR::z); 
+	LPCD::PropertyCreate(vectorMetatableObj, "x", &VECTOR::x); 
+	LPCD::PropertyCreate(vectorMetatableObj, "y", &VECTOR::y); 
+	LPCD::PropertyCreate(vectorMetatableObj, "z", &VECTOR::z); 
 
-	LuaObject monsterMetaTableObj = state->GetRegistry().CreateTable("MONSTER"); 
-	LPCD::MetaTable_IntegratePropertySupport(monsterMetaTableObj); 
+	LuaObject monsterMetatableObj = state->GetRegistry().CreateTable("MONSTER"); 
+	LPCD::Metatable_IntegratePropertySupport(monsterMetatableObj); 
 
-	LPCD::PropertyCreate(monsterMetaTableObj, "alive", &MONSTER::alive); 
-	LPCD::PropertyCreate(monsterMetaTableObj, "mesh", &MONSTER::mesh); 
+	LPCD::PropertyCreate(monsterMetatableObj, "alive", &MONSTER::alive); 
+	LPCD::PropertyCreate(monsterMetatableObj, "mesh", &MONSTER::mesh); 
 
-	LPCD::PropertyCreate(monsterMetaTableObj, "position", &MONSTER::position);
-//	LPCD::PropertyCreate(monsterMetaTableObj, "name", &MONSTER::name);
+	LPCD::PropertyCreate(monsterMetatableObj, "position", &MONSTER::position);
+//	LPCD::PropertyCreate(monsterMetatableObj, "name", &MONSTER::name);
 
 	MONSTER monster;
 
 	LuaObject monsterObj = state->GetGlobals().CreateTable("Monster");
-	monsterObj.Set("__object", &monster);
-	monsterObj.SetMetaTable(monsterMetaTableObj);
+	monsterObj.SetLightUserdata("__object", &monster);
+	monsterObj.SetMetatable(monsterMetatableObj);
 
 	state->DoString("Monster.alive = 1");
 	state->DoString("Monster.position.x = 5");
@@ -1819,7 +1819,7 @@ int NullOutNext()
 }
 
 
-int __newindexMetaTableDoNothing( lua_State* L )
+int __newindexMetatableDoNothing( lua_State* L )
 {
     return 1;
 }
@@ -1830,7 +1830,7 @@ int GlobalNewIndexDoNothingTest(void)
 
     lua_newtable( L );
     lua_pushliteral( L, "__newindex" );
-    lua_pushcclosure( L, __newindexMetaTableDoNothing, 0 );
+    lua_pushcclosure( L, __newindexMetatableDoNothing, 0 );
     lua_rawset( L, -3 );
 
     lua_setmetatable( L, LUA_GLOBALSINDEX );
@@ -2494,7 +2494,7 @@ void UpvalueTest()
 }
 
 
-static int FuncUserData_pmain (lua_State *L)
+static int FuncUserdata_pmain (lua_State *L)
 {
     lua_pushcfunction(L, luaopen_base);
     lua_pushstring(L, "");
@@ -2507,12 +2507,12 @@ static int FuncUserData_pmain (lua_State *L)
 	return 0;
 }
 
-void FuncUserData()
+void FuncUserdata()
 {
 	lua_State *l = lua_open();
 	luaL_openlibs(l);
 
-	lua_cpcall(l, &FuncUserData_pmain, NULL);
+	lua_cpcall(l, &FuncUserdata_pmain, NULL);
 
 	lua_register( l, "new_udata", new_udata );
 
@@ -2621,7 +2621,7 @@ void RCTests()
 	SimpleGCTest();
 	WeakValueTableTest();
 	DestructorLeftOnStackTest();
-    FuncUserData();
+    FuncUserdata();
 	UpvalueTest();
     CoroutineIssue();
 
@@ -2867,7 +2867,7 @@ int __cdecl main(int argc, char* argv[])
 	TableTest();
 	TestCoroutine();
 	SimpleConstructor();
-	SetUserData();
+	SetUserdata();
 	WeakTableTest();
     TestGC();
 	TestGC2();
@@ -2877,7 +2877,7 @@ int __cdecl main(int argc, char* argv[])
     CoroutineTest();
 //    TestClass();
     ForBlowup();
-	NewUserDataBoxTest();
+	NewUserdataBoxTest();
 	DoStringErrorTest();
     GlobalErrorTest();
     TestStdString();
