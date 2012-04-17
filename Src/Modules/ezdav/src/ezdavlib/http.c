@@ -417,6 +417,14 @@ http_reconnect(HTTP_CONNECTION *connection)
 	{
 		return HT_RESOURCE_UNAVAILABLE;
 	}
+	{
+		int rcvsize = 128 * 1024;
+		setsockopt(connection->socketd, SOL_SOCKET, SO_RCVBUF, (char *)&rcvsize, (int)sizeof(rcvsize)); 
+	}
+	{
+		int flag = 1;
+		setsockopt(connection->socketd, IPPROTO_TCP, TCP_NODELAY, (char*)&flag, sizeof(flag));
+	}
 	if (connection->lazy)
 	{
 		while (connect(connection->socketd, (struct sockaddr *) &connection->address, sizeof(struct sockaddr_in)) != 0)
@@ -431,10 +439,6 @@ http_reconnect(HTTP_CONNECTION *connection)
 			return HT_NETWORK_ERROR;
 		}
 	}
-//	{
-//		int flag = 1;
-//		setsockopt(connection->socketd, IPPROTO_TCP, TCP_NODELAY, (char*)&flag, sizeof(flag));
-//	}
 	socket_setnonblocking(connection->socketd);
 	connection->status = HT_OK;
 	return HT_OK;
