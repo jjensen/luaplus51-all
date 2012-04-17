@@ -472,7 +472,7 @@ int
 xml_tree_write_to_storage(XML_TREE *tree, HTTP_STORAGE *storage)
 {
 	XML_NODE *node_cursor;
-	const char *header = "<?xml version=\"1.0\"?>\n";
+	const char *header = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
 	http_storage_write(storage, header, strlen(header));
 	for(node_cursor = tree->root_node->first_child_node; node_cursor != NULL; node_cursor = node_cursor->next_node)
 	{
