@@ -8,11 +8,63 @@
 #if !defined(WIN32)
 #include <sys/select.h>
 #endif /* WIN32 */
+#ifdef  LINUX
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <tcpd.h>
+#include <netdb.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+typedef int SOCKET;
+#define INVALID_SOCKET				-1
+#endif
+
+#ifdef  WIN32
+#include <winsock.h>
+#include <limits.h>
+#define close	closesocket
+#else
+#include <sys/socket.h>
+#include <resolv.h>
+#include <netdb.h>
+#include <fcntl.h>
+#include <errno.h>
+#include <arpa/inet.h>
+#include <netinet/tcp.h>
+
+#define SOCKET					int
+#define INVALID_SOCKET			-1
+#endif
 #include "http.h"
 #include "strutl.h"
 #include "global.h"
 #include "digcalc.h"
 #include "date_decode.h"
+
+#define HTTP_READ_BUFFER_SIZE (16*1024)
+
+struct http_connection {
+	SOCKET socketd;
+	int status;
+	char *host;
+	struct sockaddr_in address;
+	int persistent;
+	int lazy;
+	HTTP_AUTH_INFO *auth_info;
+	char read_buffer[HTTP_READ_BUFFER_SIZE];
+	int read_count;
+	int read_index;
+	int __http_exec_error;
+	char __http_exec_error_msg[256];
+};
+
+#if defined(WIN32)
+#define SOCKET_EWOULDBLOCK			WSAEWOULDBLOCK
+#define socket_errno				WSAGetLastError()
+#else
+#define SOCKET_EWOULDBLOCK			EWOULDBLOCK
+#define socket_errno				errno
+#endif
 
 /* socket_waitfd, socket_send, socket_recv, and socket_setnonblocking all borrowed from LuaSocket. */
 
@@ -27,6 +79,8 @@ enum {
 /*-------------------------------------------------------------------------*\
 * Wait for readable/writable/connected socket with timeout
 \*-------------------------------------------------------------------------*/
+#if defined(WIN32)
+
 #define WAITFD_R        1
 #define WAITFD_W        2
 #define WAITFD_E        4
@@ -43,18 +97,13 @@ int socket_waitfd(SOCKET socket, int sw) {
     if (sw & WAITFD_W) { FD_ZERO(&wfds); FD_SET(socket, &wfds); wp = &wfds; }
     if (sw & WAITFD_C) { FD_ZERO(&efds); FD_SET(socket, &efds); ep = &efds; }
     ret = select(0, rp, wp, ep, NULL);
-    if (ret == -1) return WSAGetLastError();
+    if (ret == -1) return socket_errno;
     if (ret == 0) return IO_TIMEOUT;
     if (sw == WAITFD_C && FD_ISSET(socket, &efds)) return IO_CLOSED;
     return IO_DONE;
 }
 
-/*-------------------------------------------------------------------------*\
-* Send with timeout
-* On windows, if you try to send 10MB, the OS will buffer EVERYTHING 
-* this can take an awful lot of time and we will end up blocked. 
-* Therefore, whoever calls this function should not pass a huge buffer.
-\*-------------------------------------------------------------------------*/
+
 int socket_send(SOCKET socket, const char *data, size_t count, int flags)
 {
     int err;
@@ -67,9 +116,9 @@ int socket_send(SOCKET socket, const char *data, size_t count, int flags)
 			return put;
         }
         /* deal with failure */
-        err = WSAGetLastError(); 
+        err = socket_errno;
         /* we can only proceed if there was no serious error */
-        if (err != WSAEWOULDBLOCK) return -1;
+        if (err != SOCKET_EWOULDBLOCK) return -1;
         /* avoid busy wait */
         if ((err = socket_waitfd(socket, WAITFD_W)) != IO_DONE) return -1;
     } 
@@ -77,9 +126,7 @@ int socket_send(SOCKET socket, const char *data, size_t count, int flags)
     return IO_UNKNOWN;
 }
 
-/*-------------------------------------------------------------------------*\
-* Receive with timeout
-\*-------------------------------------------------------------------------*/
+
 int socket_recv(SOCKET socket, char *data, size_t count, int flags) {
     int err;
     for ( ;; ) {
@@ -88,20 +135,95 @@ int socket_recv(SOCKET socket, char *data, size_t count, int flags) {
 			return taken;
         }
         if (taken == 0) return IO_CLOSED;
-        err = WSAGetLastError();
-        if (err != WSAEWOULDBLOCK) return -1;
+        err = socket_errno;
+        if (err != SOCKET_EWOULDBLOCK) return -1;
         if ((err = socket_waitfd(socket, WAITFD_R)) != IO_DONE) return -1;
     }
     return IO_UNKNOWN;
 }
 
+
 /*-------------------------------------------------------------------------*\
-* Put socket into non-blocking mode
-\*-------------------------------------------------------------------------*/
+ * Put socket into non-blocking mode
+ \*-------------------------------------------------------------------------*/
 void socket_setnonblocking(SOCKET socket) {
-    u_long argp = 1;
-    ioctlsocket(socket, FIONBIO, &argp);
+	u_long nonBlocking = 1;
+	ioctlsocket(socket, FIONBIO, &nonBlocking);
 }
+
+#else
+
+#define WAITFD_R        1
+#define WAITFD_W        2
+#define WAITFD_C        (WAITFD_R|WAITFD_W)
+
+int socket_waitfd(SOCKET socket, int sw) {
+    int ret;
+    fd_set rfds, wfds, *rp, *wp;
+    struct timeval tv, *tp;
+    double t;
+    do {
+        /* must set bits within loop, because select may have modifed them */
+        rp = wp = NULL;
+        if (sw & WAITFD_R) { FD_ZERO(&rfds); FD_SET(socket, &rfds); rp = &rfds; }
+        if (sw & WAITFD_W) { FD_ZERO(&wfds); FD_SET(socket, &wfds); wp = &wfds; }
+        ret = select(socket+1, rp, wp, NULL, NULL);
+    } while (ret == -1 && errno == EINTR);
+    if (ret == -1) return errno;
+    if (ret == 0) return IO_TIMEOUT;
+    if (sw == WAITFD_C && FD_ISSET(socket, &rfds)) return IO_CLOSED;
+    return IO_DONE;
+}
+
+
+int socket_send(SOCKET socket, const char *data, size_t count, int flags)
+{
+    int err;
+    /* loop until we send something or we give up on error */
+    for ( ;; ) {
+        long put = (long) send(socket, data, count, 0);
+        /* if we sent anything, we are done */
+        if (put > 0) {
+            return put;
+        }
+        err = errno;
+        /* send can't really return 0, but EPIPE means the connection was 
+         closed */
+        if (put == 0 || err == EPIPE) return -1;
+        /* we call was interrupted, just try again */
+        if (err == EINTR) continue;
+        /* if failed fatal reason, report error */
+        if (err != EAGAIN) return -1;
+        /* wait until we can send something or we timeout */
+        if ((err = socket_waitfd(socket, WAITFD_W)) != IO_DONE) return -1;
+    }
+    /* can't reach here */
+    return IO_UNKNOWN;
+}
+
+
+int socket_recv(SOCKET socket, char *data, size_t count, int flags) {
+    int err;
+    for ( ;; ) {
+        long taken = (long) recv(socket, data, count, 0);
+        if (taken > 0) {
+            return taken;
+        }
+        err = errno;
+        if (taken == 0) return -1;
+        if (err == EINTR) continue;
+        if (err != EAGAIN) return -1;
+        if ((err = socket_waitfd(socket, WAITFD_R)) != IO_DONE) return -1;
+    }
+    return IO_UNKNOWN;
+}
+
+
+void socket_setnonblocking(SOCKET socket) {
+	fcntl(socket, F_SETFL, O_NONBLOCK);
+}
+
+#endif
 
 static void *http_default_allocator(void *ud, void *ptr, size_t nsize) {
 	(void)ud;
@@ -183,7 +305,7 @@ static int
 	new_connection = (HTTP_CONNECTION *) _http_allocator(_http_allocator_user_data, 0, sizeof(HTTP_CONNECTION));
 	memset(new_connection, 0, sizeof(HTTP_CONNECTION));
 	new_connection->read_count = new_connection->read_index = 0;
-	new_connection->address.sin_family = PF_INET;
+	new_connection->address.sin_family = AF_INET;
 	new_connection->address.sin_port = htons(port);
 	if(username != NULL && password != NULL)
 	{
@@ -218,7 +340,7 @@ static int
 	}
 	if (!lazy)
 	{
-		new_connection->socketd = socket(PF_INET, SOCK_STREAM, 0);
+		new_connection->socketd = socket(AF_INET, SOCK_STREAM, 0);
 		if(new_connection->socketd == INVALID_SOCKET)
 		{
 			http_disconnect(&new_connection);
@@ -236,7 +358,7 @@ static int
 		new_connection->socketd = INVALID_SOCKET;
 	}
 	new_connection->lazy = lazy;
-	new_connection->persistent = TRUE;
+	new_connection->persistent = HT_TRUE;
 	new_connection->status = HT_OK;
 	*connection = new_connection;
 	return HT_OK;
@@ -290,7 +412,7 @@ http_reconnect(HTTP_CONNECTION *connection)
 	{
 		close(connection->socketd);
 	}
-	connection->socketd = socket(PF_INET, SOCK_STREAM, 0);
+	connection->socketd = socket(AF_INET, SOCK_STREAM, 0);
 	if(connection->socketd == INVALID_SOCKET)
 	{
 		return HT_RESOURCE_UNAVAILABLE;
@@ -369,6 +491,11 @@ http_disconnect(HTTP_CONNECTION **connection)
 	_http_allocator(_http_allocator_user_data, *connection, 0);
 	*connection = NULL;
 	return HT_OK;
+}
+
+const char *http_hoststring(HTTP_CONNECTION *connection)
+{
+	return connection->host;
 }
 
 void
@@ -530,7 +657,7 @@ int
 http_add_header_field_number(HTTP_REQUEST *request, const char *field_name, int field_value)
 {
 	char number_buffer[32];
-	if(field_value == INFINITY)
+	if(field_value == HT_INFINITY)
 	{
 		return http_add_header_field(request, field_name, "infinity");
 	}
@@ -1161,18 +1288,18 @@ http_has_header_field(HTTP_RESPONSE *response, const char *field_name, const cha
 	const char *value = NULL;
 	if(response == NULL || field_name == NULL || field_value == NULL)
 	{
-		return FALSE;
+		return HT_FALSE;
 	}
 	value = http_find_header_field(response, field_name, NULL);
 	if(value == NULL)
 	{
-		return FALSE;
+		return HT_FALSE;
 	}
 	if(strcasecmp(value, field_value) == 0)
 	{
-		return TRUE;
+		return HT_TRUE;
 	}
-	return FALSE;
+	return HT_FALSE;
 }
 
 int

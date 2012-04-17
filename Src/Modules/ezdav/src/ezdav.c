@@ -1,3 +1,7 @@
+#ifdef  WIN32
+#include <winsock.h>
+#endif // WIN32
+#include <string.h>
 #include "lua.h"
 #include "lauxlib.h"
 #include "high_level_webdav_functions.h"

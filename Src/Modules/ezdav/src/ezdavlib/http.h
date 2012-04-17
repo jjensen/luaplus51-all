@@ -1,38 +1,12 @@
 #ifndef __HTTP_H__
 #define __HTTP_H__
 #include <limits.h>
-#ifdef  LINUX
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <tcpd.h>
-#include <netdb.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-typedef int SOCKET;
-#define INVALID_SOCKET				-1
-#endif
-
-#ifdef  WIN32
-#include <winsock.h>
-#include <limits.h>
-#define close	closesocket
-#else
-#include <sys/socket.h>
-#include <resolv.h>
-#include <netdb.h>
-#include <fcntl.h>
-#include <errno.h>
-#include <arpa/inet.h>
-
-#define SOCKET					int
-#define INVALID_SOCKET			-1
-#endif
 
 #include "http_storage.h"
 
-#define TRUE						1
-#define FALSE						0
-#define INFINITY					LONG_MAX
+#define HT_TRUE						1
+#define HT_FALSE					0
+#define HT_INFINITY					LONG_MAX
 
 #define HT_OK						0
 #define HT_FATAL_ERROR				0xFFFF
@@ -65,26 +39,6 @@ typedef struct http_header_field HTTP_HEADER_FIELD;
 typedef struct http_auth_parameter HTTP_AUTH_PARAMETER;
 typedef struct http_auth_info HTTP_AUTH_INFO;
 
-#define HTTP_READ_BUFFER_SIZE (16*1024)
-
-struct http_connection {
-	SOCKET socketd;
-	int status;
-	char *host;
-	struct sockaddr_in address;
-	int persistent;
-	int lazy;
-	HTTP_AUTH_INFO *auth_info;
-	char read_buffer[HTTP_READ_BUFFER_SIZE];
-	int read_count;
-	int read_index;
-	int __http_exec_error;
-	char __http_exec_error_msg[256];
-};
-
-/*#define hoststr(c)		((c->host != NULL) ? c->host : inet_ntoa(c->address.sin_addr))*/
-#define hoststr(c)		(c)->host
-
 struct http_header_field {
 	char *name;
 	char *value;
@@ -111,7 +65,6 @@ struct http_request {
 	char *resource;
 	HTTP_HEADER_FIELD *first_header_field;
 	HTTP_HEADER_FIELD *last_header_field;
-	HTTP_STORAGE *headers;
 	HTTP_STORAGE *content;
 };
 
@@ -136,6 +89,7 @@ void http_set_allocator(http_allocator allocator, void* userdata);
 int http_connect(HTTP_CONNECTION **connection, const char *host, short port, const char *username, const char *password);
 int http_connect_lazy(HTTP_CONNECTION **connection, const char *host, short port, const char *username, const char *password);
 int http_disconnect(HTTP_CONNECTION **connection);
+const char *http_hoststring(HTTP_CONNECTION *connection);
 int http_add_header_field(HTTP_REQUEST *request, const char *field_name, const char *field_value);
 int http_add_header_field_number(HTTP_REQUEST *request, const char *field_name, int field_value);
 

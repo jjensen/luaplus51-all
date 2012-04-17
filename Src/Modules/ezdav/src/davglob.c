@@ -1,5 +1,7 @@
 #include <assert.h>
 #include <time.h>
+#include <ctype.h>
+#include <string.h>
 #include "buffer.h"
 #include "high_level_webdav_functions.h"
 

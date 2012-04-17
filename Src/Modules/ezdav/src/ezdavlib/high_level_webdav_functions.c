@@ -99,13 +99,13 @@ dav_resource_is_under_lock(const char *host, const char *resource, DAV_LOCKENTRY
 		{
 			if(resource[length] == '\0')
 			{
-				return TRUE;
+				return HT_TRUE;
 			}
 			else if(resource[length - 1] == '/')
 			{
-				if(lockentry->depth == INFINITY)
+				if(lockentry->depth == HT_INFINITY)
 				{
-					return TRUE;
+					return HT_TRUE;
 				}
 				else if(lockentry->depth > 0)
 				{
@@ -119,13 +119,13 @@ dav_resource_is_under_lock(const char *host, const char *resource, DAV_LOCKENTRY
 					}
 					if(lockentry->depth >= depth)
 					{
-						return TRUE;
+						return HT_TRUE;
 					}
 				}
 			}
 		}
 	}
-	return FALSE;
+	return HT_FALSE;
 }
 
 DAV_LOCKENTRY_INFO *
@@ -226,7 +226,7 @@ const char *
 get_depth_str(int depth)
 {
 	static char buffer[32];
-	if(depth == INFINITY)
+	if(depth == HT_INFINITY)
 	{
 		return "infinity";
 	}
@@ -282,7 +282,7 @@ dav_load_lock_database(const char *filepath)
 							{
 								if(strcasecmp(child_node_cursor->data, "infinity") == 0)
 								{
-									new_lockentry_info->depth = INFINITY;
+									new_lockentry_info->depth = HT_INFINITY;
 								}
 								else
 								{
@@ -297,7 +297,7 @@ dav_load_lock_database(const char *filepath)
 		}
 		xml_tree_destroy(&tree);
 	}
-	return TRUE; 
+	return HT_TRUE;
 }
 
 int
@@ -376,7 +376,7 @@ dav_save_lock_database(const char *filepath)
 		http_storage_destroy(&storage);
 		xml_tree_destroy(&tree);
 	}
-	return TRUE;
+	return HT_TRUE;
 }
 
 int 
@@ -403,7 +403,7 @@ dav_add_if_header_field(HTTP_CONNECTION *connection, HTTP_REQUEST *request)
 	char *if_field_value = NULL;
 	int if_field_value_length = 0;
 	DAV_LOCKENTRY_INFO *lockentry_info = NULL;
-	if((lockentry_info = dav_get_lockentry_from_database(hoststr(connection), request->resource)) != NULL)
+	if((lockentry_info = dav_get_lockentry_from_database(http_hoststring(connection), request->resource)) != NULL)
 	{
 		if(strlen(lockentry_info->resource) == strlen(request->resource))
 		{
@@ -484,7 +484,7 @@ dav_opendir_on_response_entity(HTTP_CONNECTION *connection, HTTP_REQUEST *reques
 			{
 				if((prop = dav_find_prop(response_cursor, 200, 200)) != NULL)
 				{
-					dav_scan_locktoken_into_database(hoststr(connection), response_cursor->href, prop);
+					dav_scan_locktoken_into_database(http_hoststring(connection), response_cursor->href, prop);
 				}
 			}
 		}
@@ -498,7 +498,7 @@ dav_opendir_ex(HTTP_CONNECTION *connection, const char *directory, const char *a
 	DAV_PROPFIND *propfind = NULL;
 	if(oddata == NULL || directory == NULL)
 	{
-		return FALSE;
+		return HT_FALSE;
 	}
 	memset(oddata, 0, sizeof(DAV_OPENDIR_DATA));
 	oddata->directory_length = strlen(directory);
@@ -507,7 +507,7 @@ dav_opendir_ex(HTTP_CONNECTION *connection, const char *directory, const char *a
 				dav_opendir_on_request_header, dav_opendir_on_request_entity, 
 				dav_opendir_on_response_header, dav_opendir_on_response_entity, (void *) oddata) != HT_OK)
 	{
-		return FALSE;
+		return HT_FALSE;
 	}
 	return (http_exec_error(connection) == 207);
 }
@@ -525,15 +525,15 @@ dav_readdir(DAV_OPENDIR_DATA *oddata)
 	DAV_ACTIVELOCK *activelock = NULL;
 	if(oddata == NULL) 
 	{
-		return FALSE;
+		return HT_FALSE;
 	}
 	if(oddata->response_cursor == NULL)
 	{
-		return FALSE;
+		return HT_FALSE;
 	}
 	if(oddata->response_cursor->href == NULL)
 	{
-		return FALSE;
+		return HT_FALSE;
 	}
 	oddata->href = oddata->response_cursor->href;
 	oddata->prop = dav_find_prop(oddata->response_cursor, 200, 200);
@@ -565,7 +565,7 @@ dav_readdir(DAV_OPENDIR_DATA *oddata)
 			oddata->lockowner = NULL;
 		}
 	}
-	return TRUE;
+	return HT_TRUE;
 }
 
 void
@@ -605,7 +605,7 @@ dav_copy_from_server(HTTP_CONNECTION *connection, const char *src, const char *d
 	if(http_exec(connection, HTTP_GET, src, NULL, NULL, 
 				dav_copy_from_server_on_response_header, NULL, (void *) &instance) != HT_OK)
 	{
-		return FALSE;
+		return HT_FALSE;
 	}
 	return (http_exec_error(connection) == 200);
 }
@@ -646,7 +646,7 @@ dav_copy_to_server(HTTP_CONNECTION *connection, const char *src, const char *des
 	if(http_exec(connection, HTTP_PUT, dest, dav_copy_to_server_on_request_header, dav_copy_to_server_on_request_entity, 
 				NULL, NULL, (void *) &instance) != HT_OK)
 	{
-		return FALSE;
+		return HT_FALSE;
 	}
 	return (http_exec_error(connection) == 200 || http_exec_error(connection) == 201);
 }
@@ -667,7 +667,7 @@ dav_mkdir(HTTP_CONNECTION *connection, const char *dir)
 {
 	if(http_exec(connection, HTTP_MKCOL, dir, dav_mkdir_on_request_header, NULL, NULL, NULL, NULL) != HT_OK)
 	{
-		return FALSE;
+		return HT_FALSE;
 	}
 	return (http_exec_error(connection) == 200 || http_exec_error(connection) == 201);
 };
@@ -689,11 +689,11 @@ dav_delete(HTTP_CONNECTION *connection, const char *resource)
 	if(http_exec(connection, HTTP_DELETE, resource, dav_delete_on_request_header, NULL, 
 				NULL, NULL, NULL) != HT_OK)
 	{
-		return FALSE;
+		return HT_FALSE;
 	}
 	if(http_exec_error(connection) == 204)
 	{
-		dav_remove_lockentry_from_database(hoststr(connection), resource);
+		dav_remove_lockentry_from_database(http_hoststring(connection), resource);
 	}
 	return (http_exec_error(connection) == 204);
 }
@@ -702,7 +702,7 @@ int
 dav_lock_on_request_header(HTTP_CONNECTION *connection, HTTP_REQUEST *request, HTTP_RESPONSE *response, void *data)
 {
 	int error = HT_OK;
-	if((error = http_add_header_field_number(request, "Depth", INFINITY)) != HT_OK
+	if((error = http_add_header_field_number(request, "Depth", HT_INFINITY)) != HT_OK
 			|| (error = dav_add_if_header_field(connection, request)) != HT_OK)
 	{
 		return error;
@@ -753,7 +753,7 @@ dav_lock_on_response_entity(HTTP_CONNECTION *connection, HTTP_REQUEST *request, 
 		{
 			return error;
 		}
-		dav_scan_locktoken_into_database(hoststr(connection), request->resource, prop);
+		dav_scan_locktoken_into_database(http_hoststring(connection), request->resource, prop);
 		dav_prop_destroy(&prop);
 	}
 	return HT_OK;
@@ -765,7 +765,7 @@ dav_lock(HTTP_CONNECTION *connection, const char *resource, const char *owner)
 	if(http_exec(connection, HTTP_LOCK, resource, dav_lock_on_request_header, dav_lock_on_request_entity, 
 				dav_lock_on_response_header, dav_lock_on_response_entity, (void *) owner) != HT_OK)
 	{
-		return FALSE;
+		return HT_FALSE;
 	}
 	return (http_exec_error(connection) == 200);
 }
@@ -791,7 +791,7 @@ dav_unlock_on_request_header(HTTP_CONNECTION *connection, HTTP_REQUEST *request,
 	int error = HT_OK;
 	DAV_LOCKENTRY_INFO *lockentry_info = NULL;
 	char *bracketed_token = NULL;
-	lockentry_info = dav_get_lockentry_from_database(hoststr(connection), request->resource);
+	lockentry_info = dav_get_lockentry_from_database(http_hoststring(connection), request->resource);
 	if(lockentry_info != NULL)
 	{
 		bracketed_token = strdup_locktoken(lockentry_info->locktoken);
@@ -801,7 +801,7 @@ dav_unlock_on_request_header(HTTP_CONNECTION *connection, HTTP_REQUEST *request,
 			return error;
 		}
 		_http_allocator(_http_allocator_user_data, bracketed_token, 0);
-		dav_remove_lockentry_from_database(hoststr(connection), request->resource);
+		dav_remove_lockentry_from_database(http_hoststring(connection), request->resource);
 	}
 	return HT_OK;
 }
@@ -812,7 +812,7 @@ dav_unlock(HTTP_CONNECTION *connection, const char *resource)
 	if(http_exec(connection, HTTP_UNLOCK, resource, dav_unlock_on_request_header, NULL, 
 				NULL, NULL, NULL) != HT_OK)
 	{
-		return FALSE;
+		return HT_FALSE;
 	}
 	return (http_exec_error(connection) == 204);
 }
@@ -820,8 +820,8 @@ dav_unlock(HTTP_CONNECTION *connection, const char *resource)
 int
 dav_abandon_lock(HTTP_CONNECTION *connection, const char *resource)
 {
-	dav_remove_lockentry_from_database(hoststr(connection), resource);
-	return TRUE;
+	dav_remove_lockentry_from_database(http_hoststring(connection), resource);
+	return HT_TRUE;
 }
 
 int 

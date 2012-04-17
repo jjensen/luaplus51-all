@@ -222,7 +222,7 @@ dav_process_activelock(DAV_ACTIVELOCK *activelock, XML_NODE *node)
 			{
 				if(strcasecmp(node_cursor->data, "Infinity") == 0)
 				{
-					activelock->depth = INFINITY;
+					activelock->depth = HT_INFINITY;
 				}
 				else
 				{
@@ -759,7 +759,7 @@ dav_set_find_all_prop(DAV_PROPFIND *propfind)
 	{
 		return HT_INVALID_ARGUMENT;
 	}
-	propfind->allprop = TRUE;
+	propfind->allprop = HT_TRUE;
 	return HT_OK;
 }
 
