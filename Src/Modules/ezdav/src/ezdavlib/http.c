@@ -429,6 +429,9 @@ http_reconnect(HTTP_CONNECTION *connection)
 	{
 		while (connect(connection->socketd, (struct sockaddr *) &connection->address, sizeof(struct sockaddr_in)) != 0)
 		{
+#if defined(WIN32)
+			Sleep(100);
+#endif // WIN32
 		}
 	}
 	else
