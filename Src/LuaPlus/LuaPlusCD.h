@@ -1702,8 +1702,7 @@ namespace LPCD {
 
 
 template <typename Func>
-inline void lua_pushdirectclosure(lua_State* L, Func func, unsigned int nupvalues)
-{
+inline void lpcd_pushdirectclosure(lua_State* L, Func func, unsigned int nupvalues = 0) {
 	unsigned char* buffer = (unsigned char*)lua_newuserdata(L, sizeof(func));
 	memcpy(buffer, &func, sizeof(func));
 	lua_insert(L, -1 - (int)nupvalues);
@@ -1712,8 +1711,7 @@ inline void lua_pushdirectclosure(lua_State* L, Func func, unsigned int nupvalue
 
 
 template <typename Callee, typename Func>
-inline void lua_pushdirectclosure(lua_State* L, const Callee& callee, Func func, unsigned int nupvalues)
-{
+inline void lpcd_pushdirectclosure(lua_State* L, const Callee& callee, Func func, unsigned int nupvalues = 0) {
 	unsigned char* buffer = (unsigned char*)lua_newuserdata(L, sizeof(Callee*) + sizeof(func));
 	const void* pCallee = &callee;
 	memcpy(buffer, &pCallee, sizeof(Callee*));
@@ -1723,8 +1721,7 @@ inline void lua_pushdirectclosure(lua_State* L, const Callee& callee, Func func,
 }
 
 
-inline void lua_pushfunctorclosure(lua_State* L, int (*func)(lua_State*), unsigned int nupvalues)
-{
+inline void lpcd_pushfunctorclosure(lua_State* L, int (*func)(lua_State*), unsigned int nupvalues = 0) {
 	unsigned char* buffer = (unsigned char*)lua_newuserdata(L, sizeof(func));
 	memcpy(buffer, &func, sizeof(func));
 	lua_insert(L, -1 - (int)nupvalues);
@@ -1733,8 +1730,7 @@ inline void lua_pushfunctorclosure(lua_State* L, int (*func)(lua_State*), unsign
 
 
 template <typename Callee>
-inline void lua_pushfunctorclosureex(lua_State* L, const Callee& callee, int (Callee::*func)(lua_State*), unsigned int nupvalues)
-{
+inline void lpcd_pushfunctorclosureex(lua_State* L, const Callee& callee, int (Callee::*func)(lua_State*), unsigned int nupvalues = 0) {
 	unsigned char* buffer = (unsigned char*)lua_newuserdata(L, sizeof(Callee*) + sizeof(func));
 	const void* pCallee = &callee;
 	memcpy(buffer, &pCallee, sizeof(Callee*));
@@ -1746,46 +1742,31 @@ inline void lua_pushfunctorclosureex(lua_State* L, const Callee& callee, int (Ca
 
 ///////////////////////////////////////////////////////////////////////////////
 
-namespace LPCD
-{
-	inline void* CheckObject(lua_State* L, int index, const char* tname)
-	{
-		int type = lua_type(L, index);
-		if (type == LUA_TUSERDATA) {
-			if (tname)
-				return *(void**)luaL_checkudata(L, index, tname);
-			else
-				return *(void**)lua_touserdata(L, index);
-		} else if (type == LUA_TTABLE) {
-			if (tname) {
-				if (!lua_getmetatable(L, index))			/* does it have a metatable? */
-					luaL_typerror(L, index, tname);
-				lua_getfield(L, LUA_REGISTRYINDEX, tname);	/* get correct metatable */
-				if (!lua_rawequal(L, -1, -2))
-					luaL_typerror(L, index, tname);
-				lua_pop(L, 2);
-			}
+namespace LPCD {
+	inline void* GetObjectUserdata(lua_State* L) {
+		int type = lua_type(L, 1);
+		if (type == LUA_TUSERDATA)
+			return *(void **)(lua_touserdata(L, 1));
+		else if (type == LUA_TTABLE) {
 			lua_pushstring(L, "__object");
-			lua_rawget(L, index);
-			if (lua_type(L, -1) != LUA_TLIGHTUSERDATA)
+			lua_rawget(L, 1);
+			if (!lua_isuserdata(L, -1))
 				luaL_error(L, "The table does not have a userdata member called __object.");
-			void* ret = lua_touserdata(L, -1);
+			void* ret = *(void **)(lua_touserdata(L, -1));
 			lua_pop(L, 1);
 			return ret;
 		} else {
-			luaL_typerror(L, index, tname);
+			luaL_argerror(L, 1, "must be userdata or a table with a userdata member called __object");
 		}
 
 		return NULL;
 	}
-	
-	inline void* GetObjectUserdata(lua_State* L)
-	{
+
+	inline void* GetInPlaceObjectUserdata(lua_State* L) {
 		int type = lua_type(L, 1);
 		if (type == LUA_TUSERDATA)
-			return *(void **)(lua_touserdata(L, 1));
-		else if (type == LUA_TTABLE)
-		{
+			return lua_touserdata(L, 1);
+		else if (type == LUA_TTABLE) {
 			lua_pushstring(L, "__object");
 			lua_rawget(L, 1);
 			if (!lua_isuserdata(L, -1))
@@ -1793,22 +1774,9 @@ namespace LPCD
 			void* ret = lua_touserdata(L, -1);
 			lua_pop(L, 1);
 			return ret;
-		}
-		else
-		{
+		} else {
 			luaL_argerror(L, 1, "must be userdata or a table with a userdata member called __object");
 		}
-
-		return NULL;
-	}
-
-	inline void* GetInPlaceObjectUserdata(lua_State* L)
-	{
-		int type = lua_type(L, 1);
-		if (type == LUA_TUSERDATA)
-			return lua_touserdata(L, 1);
-		else
-			luaL_argerror(L, 1, "must be an in-place userdata");
 
 		return NULL;
 	}
@@ -2042,8 +2010,7 @@ namespace LPCD
 
 
 template <typename Callee>
-inline void lua_pushobjectfunctorclosure(lua_State* L, int (Callee::*func)(lua_State*), unsigned int nupvalues)
-{
+inline void lpcd_pushobjectfunctorclosure(lua_State* L, int (Callee::*func)(lua_State*), unsigned int nupvalues = 0) {
 	unsigned char* buffer = (unsigned char*)lua_newuserdata(L, sizeof(func));
 	memcpy(buffer, &func, sizeof(func));
 	lua_pushcclosure(L, LPCD::Object_MemberDispatcherHelper<Callee>::Object_MemberDispatcher, nupvalues + 1);
@@ -2051,17 +2018,31 @@ inline void lua_pushobjectfunctorclosure(lua_State* L, int (Callee::*func)(lua_S
 
 
 template <typename Callee, typename Func>
-inline void lua_pushobjectdirectclosure(lua_State* L, const Callee* callee, Func func, unsigned int nupvalues)
-{
+inline void lpcd_pushobjectdirectclosure(lua_State* L, const Callee* callee, Func func, unsigned int nupvalues = 0) {
 	unsigned char* buffer = (unsigned char*)lua_newuserdata(L, sizeof(func));
 	memcpy(buffer, &func, sizeof(func));
 	lua_pushcclosure(L, LPCD::DirectCallObjectMemberDispatcherHelper<Callee, Func, 2>::DirectCallMemberDispatcher, nupvalues + 1);
 }
 
 
+template <typename Callee>
+inline void lpcd_pushinplaceobjectfunctorclosure(lua_State* L, int (Callee::*func)(lua_State*), unsigned int nupvalues = 0) {
+	unsigned char* buffer = (unsigned char*)lua_newuserdata(L, sizeof(func));
+	memcpy(buffer, &func, sizeof(func));
+	lua_pushcclosure(L, LPCD::Object_InPlaceMemberDispatcherHelper<Callee>::Object_MemberDispatcher, nupvalues + 1);
+}
+
+
+template <typename Callee, typename Func>
+inline void lpcd_pushinplaceobjectdirectclosure(lua_State* L, const Callee* callee, Func func, unsigned int nupvalues = 0) {
+	unsigned char* buffer = (unsigned char*)lua_newuserdata(L, sizeof(func));
+	memcpy(buffer, &func, sizeof(func));
+	lua_pushcclosure(L, LPCD::DirectCallInPlaceObjectMemberDispatcherHelper<Callee, Func, 2>::DirectCallMemberDispatcher, nupvalues + 1);
+}
+
+
 template <typename Object, typename VarType>
-inline void lpcd_pushmemberpropertygetclosure(lua_State* L, VarType Object::* var)
-{
+inline void lpcd_pushmemberpropertygetclosure(lua_State* L, VarType Object::* var) {
 	lua_pushlightuserdata(L, (void*)&(((Object*)0)->*var));
 	lua_pushlightuserdata(L, (void*)-2);
 	lua_pushcclosure(L, &LPCD::PropertyMemberHelper<Object, VarType>::PropertyGet, 2);
@@ -2069,8 +2050,7 @@ inline void lpcd_pushmemberpropertygetclosure(lua_State* L, VarType Object::* va
 
 
 template <typename Object, typename VarType>
-inline void lpcd_pushmemberpropertysetclosure(lua_State* L, VarType Object::* var)
-{
+inline void lpcd_pushmemberpropertysetclosure(lua_State* L, VarType Object::* var) {
 	lua_pushlightuserdata(L, (void*)&(((Object*)0)->*var));
 	lua_pushlightuserdata(L, (void*)-2);
 	lua_pushcclosure(L, &LPCD::PropertyMemberHelper<Object, VarType>::PropertySet, 2);
@@ -2078,8 +2058,7 @@ inline void lpcd_pushmemberpropertysetclosure(lua_State* L, VarType Object::* va
 
 
 template <typename Object, typename VarType>
-inline void lpcd_pushmemberinplacepropertygetclosure(lua_State* L, VarType Object::* var)
-{
+inline void lpcd_pushmemberinplacepropertygetclosure(lua_State* L, VarType Object::* var) {
 	lua_pushlightuserdata(L, (void*)&(((Object*)0)->*var));
 	lua_pushlightuserdata(L, (void*)-2);
 	lua_pushcclosure(L, &LPCD::InPlacePropertyMemberHelper<Object, VarType>::PropertyGet, 2);
@@ -2087,8 +2066,7 @@ inline void lpcd_pushmemberinplacepropertygetclosure(lua_State* L, VarType Objec
 
 
 template <typename Object, typename VarType>
-inline void lpcd_pushmemberinplacepropertysetclosure(lua_State* L, VarType Object::* var)
-{
+inline void lpcd_pushmemberinplacepropertysetclosure(lua_State* L, VarType Object::* var) {
 	lua_pushlightuserdata(L, (void*)&(((Object*)0)->*var));
 	lua_pushlightuserdata(L, (void*)-2);
 	lua_pushcclosure(L, &LPCD::InPlacePropertyMemberHelper<Object, VarType>::PropertySet, 2);
@@ -2096,8 +2074,7 @@ inline void lpcd_pushmemberinplacepropertysetclosure(lua_State* L, VarType Objec
 
 
 template <typename VarType>
-inline void lpcd_pushglobalpropertygetclosure(lua_State* L, VarType* var)
-{
+inline void lpcd_pushglobalpropertygetclosure(lua_State* L, VarType* var) {
 	lua_pushlightuserdata(L, (void*)var);
 	lua_pushlightuserdata(L, (void*)-2);
 	lua_pushcclosure(L, &LPCD::PropertyGlobalHelper<VarType>::PropertyGet, 2);
@@ -2105,11 +2082,217 @@ inline void lpcd_pushglobalpropertygetclosure(lua_State* L, VarType* var)
 
 
 template <typename VarType>
-inline void lpcd_pushglobalpropertysetclosure(lua_State* L, VarType* var)
-{
+inline void lpcd_pushglobalpropertysetclosure(lua_State* L, VarType* var) {
 	lua_pushlightuserdata(L, (void*)var);
 	lua_pushlightuserdata(L, (void*)-2);
 	lua_pushcclosure(L, &LPCD::PropertyGlobalHelper<VarType>::PropertySet, 2);
 }
+
+
+/* convert a stack index to positive */
+#define lpcd_abs_index(L, i)		((i) > 0 || (i) <= LUA_REGISTRYINDEX ? (i) : lua_gettop(L) + (i) + 1)
+
+inline void lpcd_integratepropertysupport(lua_State* L, int metatableIndex, bool inPlace = false) {
+	metatableIndex = lpcd_abs_index(L, metatableIndex);
+	lua_pushstring(L, "__index");		// metatable "__index"
+	lua_newtable(L);					// metatable "__index" __index
+	lua_pushboolean(L, inPlace ? 1 : 0);// metatable "__index" __index inPlace
+	lua_pushcclosure(L, LPCD::PropertyMetatable_index, 2);	// metatable "__index" PropertyMetatable_index
+	lua_rawset(L, metatableIndex);		// metatable
+
+	lua_pushstring(L, "__newindex");	// metatable "__newindex"
+	lua_newtable(L);					// metatable "__newindex" __newindex
+	lua_pushboolean(L, inPlace ? 1 : 0);// metatable "__newindex" __newindex inPlace
+	lua_pushcclosure(L, LPCD::PropertyMetatable_newindex, 2);	// metatable "__newindex" PropertyMetatable_newindex
+	lua_rawset(L, metatableIndex);		// metatable
+}
+
+
+inline void lpcd_propertymetatable_getfunctions(lua_State* L, int metatableIndex) {
+	lua_getfield(L, metatableIndex, "__index");		// (metatable) __index
+	lua_getupvalue(L, -1, 1);						// (metatable) __index props__functions
+	lua_remove(L, -2);								// (metatable) props__functions
+}
+
+
+inline void lpcd_newclassmetatable(lua_State* L, const char* className, const char* baseClassName, bool inPlace = false) {
+	luaL_newmetatable(L, className);			// class_metatable
+	lpcd_integratepropertysupport(L, -1, inPlace);
+
+	if (baseClassName) {
+		luaL_getmetatable(L, baseClassName);	// class_metatable baseClass_metatable
+		lua_setmetatable(L, -2);				// class_metatable
+	}
+}
+
+
+template <typename Object, typename VarType>
+inline void lpcd_propertycreate(lua_State* L, int metatableIndex, const char* varName, VarType Object::* var, bool read = true, bool write = true) {
+	lua_pushvalue(L, metatableIndex);				// metatable
+
+	lua_pushstring(L, varName);						// metatable varName
+
+	if (read) {
+		lua_getfield(L, -2, "__index");				// metatable varName __index
+		lua_getupvalue(L, -1, 1);					// metatable varName __index functions
+		lua_getupvalue(L, -2, 2);					// metatable varName __index functions inPlace
+		bool inPlace = lua_toboolean(L, -1) != 0;
+		lua_pop(L, 1);								// metatable varName __index functions
+		lua_pushvalue(L, -3);						// metatable varName __index functions varName
+		inPlace ? lpcd_pushmemberinplacepropertygetclosure(L, var) : lpcd_pushmemberpropertygetclosure(L, var);
+													// metatable varName __index functions varName closure
+		lua_rawset(L, -3);							// metatable varName __index functions
+		lua_pop(L, 2);								// metatable varName
+	}
+
+	if (write) {
+		lua_getfield(L, -2, "__newindex");			// metatable varName __newindex
+		lua_getupvalue(L, -1, 1);					// metatable varName __newindex functions
+		lua_getupvalue(L, -2, 2);					// metatable varName __newindex functions inPlace
+		bool inPlace = lua_toboolean(L, -1) != 0;
+		lua_pop(L, 1);								// metatable varName __newindex functions
+		lua_pushvalue(L, -3);						// metatable varName __newindex functions varName
+		inPlace ? lpcd_pushmemberinplacepropertysetclosure(L, var) : lpcd_pushmemberpropertysetclosure(L, var);
+													// metatable varName __newindex functions varName closure
+		lua_rawset(L, -3);							// metatable varName __newindex functions
+		lua_pop(L, 2);								// metatable varName
+	}
+
+	lua_pop(L, 2);
+}
+
+
+inline void* lpcd_checkobject(lua_State* L, int index, const char* tname, bool throwError = true) {
+	int wrappingType = lua_type(L, index);
+	bool isTable = lua_type(L, index) == LUA_TTABLE;
+	if (isTable) {
+		lua_getfield(L, index, "__object");
+		index = lpcd_abs_index(L, -1);
+	}
+	void *p = lua_touserdata(L, index);
+	if (p != NULL) {  /* value is a userdata? */
+		if (lua_getmetatable(L, index)) {  /* does it have a metatable? */
+			if (tname) {
+				lua_getfield(L, LUA_REGISTRYINDEX, tname);  /* get correct metatable */
+				if (lua_rawequal(L, -1, -2)) {  /* does it have the correct mt? */
+					lua_pop(L, 2);  /* remove both metatables */
+					if (isTable)
+						lua_pop(L, 1);
+					return p;
+				}
+			}
+			if (throwError) {
+				luaL_typerror(L, index, tname);  /* else error */
+			}
+			return NULL;
+		} else {
+			if (isTable)
+				lua_pop(L, 1);
+			return p;
+		}
+	} else {
+		if (throwError) {
+			luaL_typerror(L, index, tname);
+		} else {
+			if (isTable)
+				lua_pop(L, 1);
+			return NULL;
+		}
+	}
+
+	if (isTable)
+		lua_pop(L, 1);
+	return NULL;
+}
+
+
+class Class {
+public:
+	Class(lua_State* L, const char* className, const char* baseClassName = NULL)
+		: L(L)
+	{
+		lpcd_newclassmetatable(L, className, baseClassName);
+		lpcd_propertymetatable_getfunctions(L, -1);
+	}
+
+	~Class() {
+		lua_pop(L, 2);
+	}
+
+	void MetatableFunction(const char* name, lua_CFunction func, unsigned int nupvalues = 0) {
+		lua_pushcclosure(L, func, nupvalues);
+		lua_setfield(L, -3, name);
+	}
+
+	template <typename Object, typename VarType>
+	Class& Property(const char* varName, VarType Object::* var, bool read = true, bool write = true) {
+		lpcd_propertycreate(L, -2, varName, var, read, write);
+		return *this;
+	}
+
+	void Function(const char* name, lua_CFunction func, unsigned int nupvalues = 0) {
+		lua_pushcclosure(L, func, nupvalues);
+		lua_setfield(L, -2, name);
+	}
+
+	template <typename Callee>
+	inline Class& ObjectFunctor(const char* name, int (Callee::*func)(lua_State*), unsigned int nupvalues = 0) {
+		lpcd_pushobjectfunctorclosure(L, func, nupvalues);
+		lua_setfield(L, -2, name);
+		return *this;
+	}
+
+	template <typename Callee, typename Func>
+	inline Class& ObjectDirect(const char* name, const Callee* callee, Func func, unsigned int nupvalues = 0) {
+		lpcd_pushobjectdirectclosure(L, callee, func, nupvalues);
+		lua_setfield(L, -2, name);
+		return *this;
+	}
+
+	lua_State* L;
+};
+
+
+class InPlaceClass {
+public:
+	InPlaceClass(lua_State* L, const char* className, const char* baseClassName = NULL)
+		: L(L)
+	{
+		lpcd_newclassmetatable(L, className, baseClassName, true);
+		lpcd_propertymetatable_getfunctions(L, -1);
+	}
+
+	~InPlaceClass() {
+		lua_pop(L, 2);
+	}
+
+	void MetatableFunction(const char* name, lua_CFunction func, unsigned int nupvalues = 0) {
+		lua_pushcclosure(L, func, nupvalues);
+		lua_setfield(L, -3, name);
+	}
+
+	template <typename Object, typename VarType>
+	InPlaceClass& Property(const char* varName, VarType Object::* var, bool read = true, bool write = true) {
+		lpcd_propertycreate(L, -2, varName, var, read, write);
+		return *this;
+	}
+
+	template <typename Callee>
+	inline InPlaceClass& ObjectFunctor(const char* name, int (Callee::*func)(lua_State*), unsigned int nupvalues = 0) {
+		lpcd_pushinplaceobjectfunctorclosure(L, func, nupvalues);
+		lua_setfield(L, -2, name);
+		return *this;
+	}
+
+	template <typename Callee, typename Func>
+	inline InPlaceClass& ObjectDirect(const char* name, const Callee* callee, Func func, unsigned int nupvalues = 0) {
+		lpcd_pushinplaceobjectdirectclosure(L, callee, func, nupvalues);
+		lua_setfield(L, -2, name);
+		return *this;
+	}
+
+	lua_State* L;
+};
+
 
 #endif // LUAPLUS__LUAPLUSCD_H
