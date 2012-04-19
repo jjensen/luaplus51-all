@@ -19,31 +19,26 @@ LUA_EXTERN_C_END
 #include <string.h>
 
 // LuaPlus Call Dispatcher
-namespace LPCD
-{
-	struct LuaLightUserdata
-	{
+namespace LPCD {
+
+	struct LuaLightUserdata {
 		LuaLightUserdata(const void* value) :
-			m_value(value)
-		{
+			m_value(value) {
 		}
 
 		const void* m_value;
 	};
 
 
-	struct LuaUserdata
-	{
+	struct LuaUserdata {
 		LuaUserdata(const void* value) :
-			m_value(value)
-		{
+			m_value(value) {
 		}
 
 		const void* m_value;
 	};
 
-	struct LuaNil
-	{
+	struct LuaNil {
 	};
 
 	template<typename T> void Push(lua_State* L, T value);
@@ -131,10 +126,8 @@ namespace LPCD
 				luaL_argerror(L, _index_, "bad argument")
 
 	template<class RT>
-	struct ReturnSpecialization
-	{
-		static int Call(RT (*func)(), lua_State* L, int /*index*/)
-		{
+	struct ReturnSpecialization {
+		static int Call(RT (*func)(), lua_State* L, int /*index*/) {
 			RT ret = func();
 			Push(L, ret);
 			return 1;
@@ -142,8 +135,7 @@ namespace LPCD
 
 
 		template <typename P1>
-		static int Call(RT (*func)(P1), lua_State* L, int index)
-		{
+		static int Call(RT (*func)(P1), lua_State* L, int index) {
 			luaL_argassert(1, index + 0);
 
 			RT ret = func(
@@ -155,8 +147,7 @@ namespace LPCD
 
 
 		template <typename P1, typename P2>
-		static int Call(RT (*func)(P1, P2), lua_State* L, int index)
-		{
+		static int Call(RT (*func)(P1, P2), lua_State* L, int index) {
 			luaL_argassert(1, index + 0);
 			luaL_argassert(2, index + 1);
 
@@ -170,8 +161,7 @@ namespace LPCD
 
 
 		template <typename P1, typename P2, typename P3>
-		static int Call(RT (*func)(P1, P2, P3), lua_State* L, int index)
-		{
+		static int Call(RT (*func)(P1, P2, P3), lua_State* L, int index) {
 			luaL_argassert(1, index + 0);
 			luaL_argassert(2, index + 1);
 			luaL_argassert(3, index + 2);
@@ -187,8 +177,7 @@ namespace LPCD
 
 
 		template <typename P1, typename P2, typename P3, typename P4>
-		static int Call(RT (*func)(P1, P2, P3, P4), lua_State* L, int index)
-		{
+		static int Call(RT (*func)(P1, P2, P3, P4), lua_State* L, int index) {
 			luaL_argassert(1, index + 0);
 			luaL_argassert(2, index + 1);
 			luaL_argassert(3, index + 2);
@@ -207,8 +196,7 @@ namespace LPCD
 
 		template <typename P1, typename P2, typename P3, typename P4,
 					typename P5>
-		static int Call(RT (*func)(P1, P2, P3, P4, P5), lua_State* L, int index)
-		{
+		static int Call(RT (*func)(P1, P2, P3, P4, P5), lua_State* L, int index) {
 			luaL_argassert(1, index + 0);
 			luaL_argassert(2, index + 1);
 			luaL_argassert(3, index + 2);
@@ -229,8 +217,7 @@ namespace LPCD
 
 		template <typename P1, typename P2, typename P3, typename P4,
 					typename P5, typename P6>
-		static int Call(RT (*func)(P1, P2, P3, P4, P5, P6), lua_State* L, int index)
-		{
+		static int Call(RT (*func)(P1, P2, P3, P4, P5, P6), lua_State* L, int index) {
 			luaL_argassert(1, index + 0);
 			luaL_argassert(2, index + 1);
 			luaL_argassert(3, index + 2);
@@ -253,8 +240,7 @@ namespace LPCD
 
 		template <typename P1, typename P2, typename P3, typename P4,
 					typename P5, typename P6, typename P7>
-		static int Call(RT (*func)(P1, P2, P3, P4, P5, P6, P7), lua_State* L, int index)
-		{
+		static int Call(RT (*func)(P1, P2, P3, P4, P5, P6, P7), lua_State* L, int index) {
 			luaL_argassert(1, index + 0);
 			luaL_argassert(2, index + 1);
 			luaL_argassert(3, index + 2);
@@ -279,8 +265,7 @@ namespace LPCD
 
 		template <typename P1, typename P2, typename P3, typename P4,
 					typename P5, typename P6, typename P7, typename P8>
-		static int Call(RT (*func)(P1, P2, P3, P4, P5, P6, P7, P8), lua_State* L, int index)
-		{
+		static int Call(RT (*func)(P1, P2, P3, P4, P5, P6, P7, P8), lua_State* L, int index) {
 			luaL_argassert(1, index + 0);
 			luaL_argassert(2, index + 1);
 			luaL_argassert(3, index + 2);
@@ -308,8 +293,7 @@ namespace LPCD
 		template <typename P1, typename P2, typename P3, typename P4,
 					typename P5, typename P6, typename P7, typename P8,
 					typename P9>
-		static int Call(RT (*func)(P1, P2, P3, P4, P5, P6, P7, P8, P9), lua_State* L, int index)
-		{
+		static int Call(RT (*func)(P1, P2, P3, P4, P5, P6, P7, P8, P9), lua_State* L, int index) {
 			luaL_argassert(1, index + 0);
 			luaL_argassert(2, index + 1);
 			luaL_argassert(3, index + 2);
@@ -339,8 +323,7 @@ namespace LPCD
 		template <typename P1, typename P2, typename P3, typename P4,
 					typename P5, typename P6, typename P7, typename P8,
 					typename P9, typename P10>
-		static int Call(RT (*func)(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10), lua_State* L, int index)
-		{
+		static int Call(RT (*func)(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10), lua_State* L, int index) {
 			luaL_argassert(1, index + 0);
 			luaL_argassert(2, index + 1);
 			luaL_argassert(3, index + 2);
@@ -373,8 +356,7 @@ namespace LPCD
 		//////////////////////////////////////////////////////////////////////////////
 		//////////////////////////////////////////////////////////////////////////////
 		template <typename Callee>
-		static int Call(Callee& callee, RT (Callee::*func)(), lua_State* L, int /*index*/)
-		{
+		static int Call(Callee& callee, RT (Callee::*func)(), lua_State* L, int /*index*/) {
 			RT ret = (callee.*func)();
 			Push(L, ret);
 			return 1;
@@ -382,8 +364,7 @@ namespace LPCD
 
 
 		template <typename Callee>
-		static int Call(Callee& callee, RT (Callee::*func)() const, lua_State* L, int /*index*/)
-		{
+		static int Call(Callee& callee, RT (Callee::*func)() const, lua_State* L, int /*index*/) {
 			RT ret = (callee.*func)();
 			Push(L, ret);
 			return 1;
@@ -391,8 +372,7 @@ namespace LPCD
 
 
 		template <typename Callee, typename P1>
-		static int Call(Callee& callee, RT (Callee::*func)(P1), lua_State* L, int index)
-		{
+		static int Call(Callee& callee, RT (Callee::*func)(P1), lua_State* L, int index) {
 			luaL_argassert(1, index + 0);
 
 			RT ret = (callee.*func)(
@@ -404,8 +384,7 @@ namespace LPCD
 
 
 		template <typename Callee, typename P1>
-		static int Call(Callee& callee, RT (Callee::*func)(P1) const, lua_State* L, int index)
-		{
+		static int Call(Callee& callee, RT (Callee::*func)(P1) const, lua_State* L, int index) {
 			luaL_argassert(1, index + 0);
 
 			RT ret = (callee.*func)(
@@ -417,8 +396,7 @@ namespace LPCD
 
 
 		template <typename Callee, typename P1, typename P2>
-		static int Call(Callee& callee, RT (Callee::*func)(P1, P2), lua_State* L, int index)
-		{
+		static int Call(Callee& callee, RT (Callee::*func)(P1, P2), lua_State* L, int index) {
 			luaL_argassert(1, index + 0);
 			luaL_argassert(2, index + 1);
 
@@ -431,8 +409,7 @@ namespace LPCD
 		}
 
 		template <typename Callee, typename P1, typename P2>
-		static int Call(Callee& callee, RT (Callee::*func)(P1, P2) const, lua_State* L, int index)
-		{
+		static int Call(Callee& callee, RT (Callee::*func)(P1, P2) const, lua_State* L, int index) {
 			luaL_argassert(1, index + 0);
 			luaL_argassert(2, index + 1);
 
@@ -445,8 +422,7 @@ namespace LPCD
 		}
 
 		template <typename Callee, typename P1, typename P2, typename P3>
-		static int Call(Callee& callee, RT (Callee::*func)(P1, P2, P3), lua_State* L, int index)
-		{
+		static int Call(Callee& callee, RT (Callee::*func)(P1, P2, P3), lua_State* L, int index) {
 			luaL_argassert(1, index + 0);
 			luaL_argassert(2, index + 1);
 			luaL_argassert(3, index + 2);
@@ -461,8 +437,7 @@ namespace LPCD
 		}
 
 		template <typename Callee, typename P1, typename P2, typename P3>
-		static int Call(Callee& callee, RT (Callee::*func)(P1, P2, P3) const, lua_State* L, int index)
-		{
+		static int Call(Callee& callee, RT (Callee::*func)(P1, P2, P3) const, lua_State* L, int index) {
 			luaL_argassert(1, index + 0);
 			luaL_argassert(2, index + 1);
 			luaL_argassert(3, index + 2);
@@ -478,8 +453,7 @@ namespace LPCD
 
 		template <typename Callee, typename P1, typename P2, typename P3,
 					typename P4>
-		static int Call(Callee& callee, RT (Callee::*func)(P1, P2, P3, P4), lua_State* L, int index)
-		{
+		static int Call(Callee& callee, RT (Callee::*func)(P1, P2, P3, P4), lua_State* L, int index) {
 			luaL_argassert(1, index + 0);
 			luaL_argassert(2, index + 1);
 			luaL_argassert(3, index + 2);
@@ -497,8 +471,7 @@ namespace LPCD
 
 		template <typename Callee, typename P1, typename P2, typename P3,
 					typename P4>
-		static int Call(Callee& callee, RT (Callee::*func)(P1, P2, P3, P4) const, lua_State* L, int index)
-		{
+		static int Call(Callee& callee, RT (Callee::*func)(P1, P2, P3, P4) const, lua_State* L, int index) {
 			luaL_argassert(1, index + 0);
 			luaL_argassert(2, index + 1);
 			luaL_argassert(3, index + 2);
@@ -516,8 +489,7 @@ namespace LPCD
 
 		template <typename Callee, typename P1, typename P2, typename P3,
 					typename P4, typename P5>
-		static int Call(Callee& callee, RT (Callee::*func)(P1, P2, P3, P4, P5), lua_State* L, int index)
-		{
+		static int Call(Callee& callee, RT (Callee::*func)(P1, P2, P3, P4, P5), lua_State* L, int index) {
 			luaL_argassert(1, index + 0);
 			luaL_argassert(2, index + 1);
 			luaL_argassert(3, index + 2);
@@ -537,8 +509,7 @@ namespace LPCD
 
 		template <typename Callee, typename P1, typename P2, typename P3,
 					typename P4, typename P5>
-		static int Call(Callee& callee, RT (Callee::*func)(P1, P2, P3, P4, P5) const, lua_State* L, int index)
-		{
+		static int Call(Callee& callee, RT (Callee::*func)(P1, P2, P3, P4, P5) const, lua_State* L, int index) {
 			luaL_argassert(1, index + 0);
 			luaL_argassert(2, index + 1);
 			luaL_argassert(3, index + 2);
@@ -558,8 +529,7 @@ namespace LPCD
 
 		template <typename Callee, typename P1, typename P2, typename P3,
 					typename P4, typename P5, typename P6>
-		static int Call(Callee& callee, RT (Callee::*func)(P1, P2, P3, P4, P5, P6), lua_State* L, int index)
-		{
+		static int Call(Callee& callee, RT (Callee::*func)(P1, P2, P3, P4, P5, P6), lua_State* L, int index) {
 			luaL_argassert(1, index + 0);
 			luaL_argassert(2, index + 1);
 			luaL_argassert(3, index + 2);
@@ -581,8 +551,7 @@ namespace LPCD
 
 		template <typename Callee, typename P1, typename P2, typename P3,
 					typename P4, typename P5, typename P6>
-		static int Call(Callee& callee, RT (Callee::*func)(P1, P2, P3, P4, P5, P6) const, lua_State* L, int index)
-		{
+		static int Call(Callee& callee, RT (Callee::*func)(P1, P2, P3, P4, P5, P6) const, lua_State* L, int index) {
 			luaL_argassert(1, index + 0);
 			luaL_argassert(2, index + 1);
 			luaL_argassert(3, index + 2);
@@ -604,8 +573,7 @@ namespace LPCD
 
 		template <typename Callee, typename P1, typename P2, typename P3,
 					typename P4, typename P5, typename P6, typename P7>
-		static int Call(Callee& callee, RT (Callee::*func)(P1, P2, P3, P4, P5, P6, P7), lua_State* L, int index)
-		{
+		static int Call(Callee& callee, RT (Callee::*func)(P1, P2, P3, P4, P5, P6, P7), lua_State* L, int index) {
 			luaL_argassert(1, index + 0);
 			luaL_argassert(2, index + 1);
 			luaL_argassert(3, index + 2);
@@ -629,8 +597,7 @@ namespace LPCD
 
 		template <typename Callee, typename P1, typename P2, typename P3,
 					typename P4, typename P5, typename P6, typename P7>
-		static int Call(Callee& callee, RT (Callee::*func)(P1, P2, P3, P4, P5, P6, P7) const, lua_State* L, int index)
-		{
+		static int Call(Callee& callee, RT (Callee::*func)(P1, P2, P3, P4, P5, P6, P7) const, lua_State* L, int index) {
 			luaL_argassert(1, index + 0);
 			luaL_argassert(2, index + 1);
 			luaL_argassert(3, index + 2);
@@ -654,8 +621,7 @@ namespace LPCD
 
 		template <typename Callee, typename P1, typename P2, typename P3,
 					typename P4, typename P5, typename P6, typename P7, typename P8>
-		static int Call(Callee& callee, RT (Callee::*func)(P1, P2, P3, P4, P5, P6, P7, P8), lua_State* L, int index)
-		{
+		static int Call(Callee& callee, RT (Callee::*func)(P1, P2, P3, P4, P5, P6, P7, P8), lua_State* L, int index) {
 			luaL_argassert(1, index + 0);
 			luaL_argassert(2, index + 1);
 			luaL_argassert(3, index + 2);
@@ -681,8 +647,7 @@ namespace LPCD
 
 		template <typename Callee, typename P1, typename P2, typename P3,
 					typename P4, typename P5, typename P6, typename P7, typename P8>
-		static int Call(Callee& callee, RT (Callee::*func)(P1, P2, P3, P4, P5, P6, P7, P8) const, lua_State* L, int index)
-		{
+		static int Call(Callee& callee, RT (Callee::*func)(P1, P2, P3, P4, P5, P6, P7, P8) const, lua_State* L, int index) {
 			luaL_argassert(1, index + 0);
 			luaL_argassert(2, index + 1);
 			luaL_argassert(3, index + 2);
@@ -709,8 +674,7 @@ namespace LPCD
 		template <typename Callee, typename P1, typename P2, typename P3,
 					typename P4, typename P5, typename P6, typename P7, typename P8,
 					typename P9>
-		static int Call(Callee& callee, RT (Callee::*func)(P1, P2, P3, P4, P5, P6, P7, P8, P9), lua_State* L, int index)
-		{
+		static int Call(Callee& callee, RT (Callee::*func)(P1, P2, P3, P4, P5, P6, P7, P8, P9), lua_State* L, int index) {
 			luaL_argassert(1, index + 0);
 			luaL_argassert(2, index + 1);
 			luaL_argassert(3, index + 2);
@@ -739,8 +703,7 @@ namespace LPCD
 		template <typename Callee, typename P1, typename P2, typename P3,
 					typename P4, typename P5, typename P6, typename P7, typename P8,
 					typename P9>
-		static int Call(Callee& callee, RT (Callee::*func)(P1, P2, P3, P4, P5, P6, P7, P8, P9) const, lua_State* L, int index)
-		{
+		static int Call(Callee& callee, RT (Callee::*func)(P1, P2, P3, P4, P5, P6, P7, P8, P9) const, lua_State* L, int index) {
 			luaL_argassert(1, index + 0);
 			luaL_argassert(2, index + 1);
 			luaL_argassert(3, index + 2);
@@ -769,8 +732,7 @@ namespace LPCD
 		template <typename Callee, typename P1, typename P2, typename P3,
 					typename P4, typename P5, typename P6, typename P7, typename P8,
 					typename P9, typename P10>
-		static int Call(Callee& callee, RT (Callee::*func)(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10), lua_State* L, int index)
-		{
+		static int Call(Callee& callee, RT (Callee::*func)(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10), lua_State* L, int index) {
 			luaL_argassert(1, index + 0);
 			luaL_argassert(2, index + 1);
 			luaL_argassert(3, index + 2);
@@ -801,8 +763,7 @@ namespace LPCD
 		template <typename Callee, typename P1, typename P2, typename P3,
 					typename P4, typename P5, typename P6, typename P7, typename P8,
 					typename P9, typename P10>
-		static int Call(Callee& callee, RT (Callee::*func)(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10) const, lua_State* L, int index)
-		{
+		static int Call(Callee& callee, RT (Callee::*func)(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10) const, lua_State* L, int index) {
 			luaL_argassert(1, index + 0);
 			luaL_argassert(2, index + 1);
 			luaL_argassert(3, index + 2);
@@ -833,10 +794,8 @@ namespace LPCD
 
 
 	template<>
-	struct ReturnSpecialization<void>
-	{
-		static int Call(void (*func)(), lua_State* L, int /*index*/)
-		{
+	struct ReturnSpecialization<void> {
+		static int Call(void (*func)(), lua_State* L, int /*index*/) {
 			(void)L;
 			func();
 			return 0;
@@ -844,8 +803,7 @@ namespace LPCD
 
 
 		template <typename P1>
-		static int Call(void (*func)(P1), lua_State* L, int index)
-		{
+		static int Call(void (*func)(P1), lua_State* L, int index) {
 			luaL_argassert(1, index + 0);
 
 			func(
@@ -856,8 +814,7 @@ namespace LPCD
 
 
 		template <typename P1, typename P2>
-		static int Call(void (*func)(P1, P2), lua_State* L, int index)
-		{
+		static int Call(void (*func)(P1, P2), lua_State* L, int index) {
 			luaL_argassert(1, index + 0);
 			luaL_argassert(2, index + 1);
 
@@ -870,8 +827,7 @@ namespace LPCD
 
 
 		template <typename P1, typename P2, typename P3>
-		static int Call(void (*func)(P1, P2, P3), lua_State* L, int index)
-		{
+		static int Call(void (*func)(P1, P2, P3), lua_State* L, int index) {
 			luaL_argassert(1, index + 0);
 			luaL_argassert(2, index + 1);
 			luaL_argassert(3, index + 2);
@@ -885,8 +841,7 @@ namespace LPCD
 		}
 
 		template <typename P1, typename P2, typename P3, typename P4>
-		static int Call(void (*func)(P1, P2, P3, P4), lua_State* L, int index)
-		{
+		static int Call(void (*func)(P1, P2, P3, P4), lua_State* L, int index) {
 			luaL_argassert(1, index + 0);
 			luaL_argassert(2, index + 1);
 			luaL_argassert(3, index + 2);
@@ -902,8 +857,7 @@ namespace LPCD
 		}
 
 		template <typename P1, typename P2, typename P3, typename P4, typename P5>
-		static int Call(void (*func)(P1, P2, P3, P4, P5), lua_State* L, int index)
-		{
+		static int Call(void (*func)(P1, P2, P3, P4, P5), lua_State* L, int index) {
 			luaL_argassert(1, index + 0);
 			luaL_argassert(2, index + 1);
 			luaL_argassert(3, index + 2);
@@ -921,8 +875,7 @@ namespace LPCD
 		}
 
 		template <typename P1, typename P2, typename P3, typename P4, typename P5, typename P6>
-		static int Call(void (*func)(P1, P2, P3, P4, P5, P6), lua_State* L, int index)
-		{
+		static int Call(void (*func)(P1, P2, P3, P4, P5, P6), lua_State* L, int index) {
 			luaL_argassert(1, index + 0);
 			luaL_argassert(2, index + 1);
 			luaL_argassert(3, index + 2);
@@ -942,8 +895,7 @@ namespace LPCD
 		}
 
 		template <typename P1, typename P2, typename P3, typename P4, typename P5, typename P6, typename P7>
-		static int Call(void (*func)(P1, P2, P3, P4, P5, P6, P7), lua_State* L, int index)
-		{
+		static int Call(void (*func)(P1, P2, P3, P4, P5, P6, P7), lua_State* L, int index) {
 			luaL_argassert(1, index + 0);
 			luaL_argassert(2, index + 1);
 			luaL_argassert(3, index + 2);
@@ -965,8 +917,7 @@ namespace LPCD
 		}
 
 		template <typename P1, typename P2, typename P3, typename P4, typename P5, typename P6, typename P7, typename P8>
-		static int Call(void (*func)(P1, P2, P3, P4, P5, P6, P7, P8), lua_State* L, int index)
-		{
+		static int Call(void (*func)(P1, P2, P3, P4, P5, P6, P7, P8), lua_State* L, int index) {
 			luaL_argassert(1, index + 0);
 			luaL_argassert(2, index + 1);
 			luaL_argassert(3, index + 2);
@@ -991,8 +942,7 @@ namespace LPCD
 
 
 		template <typename P1, typename P2, typename P3, typename P4, typename P5, typename P6, typename P7, typename P8, typename P9>
-		static int Call(void (*func)(P1, P2, P3, P4, P5, P6, P7, P8, P9), lua_State* L, int index)
-		{
+		static int Call(void (*func)(P1, P2, P3, P4, P5, P6, P7, P8, P9), lua_State* L, int index) {
 			luaL_argassert(1, index + 0);
 			luaL_argassert(2, index + 1);
 			luaL_argassert(3, index + 2);
@@ -1019,8 +969,7 @@ namespace LPCD
 
 
 		template <typename P1, typename P2, typename P3, typename P4, typename P5, typename P6, typename P7, typename P8, typename P9, typename P10>
-		static int Call(void (*func)(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10), lua_State* L, int index)
-		{
+		static int Call(void (*func)(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10), lua_State* L, int index) {
 			luaL_argassert(1, index + 0);
 			luaL_argassert(2, index + 1);
 			luaL_argassert(3, index + 2);
@@ -1051,24 +1000,21 @@ namespace LPCD
 		//////////////////////////////////////////////////////////////////////////////
 		//////////////////////////////////////////////////////////////////////////////
 		template <typename Callee>
-		static int Call(Callee& callee, void (Callee::*func)(), lua_State* /*L*/, int /*index*/)
-		{
+		static int Call(Callee& callee, void (Callee::*func)(), lua_State* /*L*/, int /*index*/) {
 			(callee.*func)();
 			return 0;
 		}
 
 
 		template <typename Callee>
-		static int Call(Callee& callee, void (Callee::*func)() const, lua_State* /*L*/, int /*index*/)
-		{
+		static int Call(Callee& callee, void (Callee::*func)() const, lua_State* /*L*/, int /*index*/) {
 			(callee.*func)();
 			return 0;
 		}
 
 
 		template <typename Callee, typename P1>
-		static int Call(Callee& callee, void (Callee::*func)(P1), lua_State* L, int index)
-		{
+		static int Call(Callee& callee, void (Callee::*func)(P1), lua_State* L, int index) {
 			luaL_argassert(1, index + 0);
 
 			(callee.*func)(
@@ -1079,8 +1025,7 @@ namespace LPCD
 
 
 		template <typename Callee, typename P1>
-		static int Call(Callee& callee, void (Callee::*func)(P1) const, lua_State* L, int index)
-		{
+		static int Call(Callee& callee, void (Callee::*func)(P1) const, lua_State* L, int index) {
 			luaL_argassert(1, index + 0);
 
 			(callee.*func)(
@@ -1091,8 +1036,7 @@ namespace LPCD
 
 
 		template <typename Callee, typename P1, typename P2>
-		static int Call(Callee& callee, void (Callee::*func)(P1, P2), lua_State* L, int index)
-		{
+		static int Call(Callee& callee, void (Callee::*func)(P1, P2), lua_State* L, int index) {
 			luaL_argassert(1, index + 0);
 			luaL_argassert(2, index + 1);
 
@@ -1104,8 +1048,7 @@ namespace LPCD
 		}
 
 		template <typename Callee, typename P1, typename P2>
-		static int Call(Callee& callee, void (Callee::*func)(P1, P2) const, lua_State* L, int index)
-		{
+		static int Call(Callee& callee, void (Callee::*func)(P1, P2) const, lua_State* L, int index) {
 			luaL_argassert(1, index + 0);
 			luaL_argassert(2, index + 1);
 
@@ -1117,8 +1060,7 @@ namespace LPCD
 		}
 
 		template <typename Callee, typename P1, typename P2, typename P3>
-		static int Call(Callee& callee, void (Callee::*func)(P1, P2, P3), lua_State* L, int index)
-		{
+		static int Call(Callee& callee, void (Callee::*func)(P1, P2, P3), lua_State* L, int index) {
 			luaL_argassert(1, index + 0);
 			luaL_argassert(2, index + 1);
 			luaL_argassert(3, index + 2);
@@ -1132,8 +1074,7 @@ namespace LPCD
 		}
 
 		template <typename Callee, typename P1, typename P2, typename P3>
-		static int Call(Callee& callee, void (Callee::*func)(P1, P2, P3) const, lua_State* L, int index)
-		{
+		static int Call(Callee& callee, void (Callee::*func)(P1, P2, P3) const, lua_State* L, int index) {
 			luaL_argassert(1, index + 0);
 			luaL_argassert(2, index + 1);
 			luaL_argassert(3, index + 2);
@@ -1148,8 +1089,7 @@ namespace LPCD
 
 		template <typename Callee, typename P1, typename P2, typename P3,
 					typename P4>
-		static int Call(Callee& callee, void (Callee::*func)(P1, P2, P3, P4), lua_State* L, int index)
-		{
+		static int Call(Callee& callee, void (Callee::*func)(P1, P2, P3, P4), lua_State* L, int index) {
 			luaL_argassert(1, index + 0);
 			luaL_argassert(2, index + 1);
 			luaL_argassert(3, index + 2);
@@ -1166,8 +1106,7 @@ namespace LPCD
 
 		template <typename Callee, typename P1, typename P2, typename P3,
 					typename P4>
-		static int Call(Callee& callee, void (Callee::*func)(P1, P2, P3, P4) const, lua_State* L, int index)
-		{
+		static int Call(Callee& callee, void (Callee::*func)(P1, P2, P3, P4) const, lua_State* L, int index) {
 			luaL_argassert(1, index + 0);
 			luaL_argassert(2, index + 1);
 			luaL_argassert(3, index + 2);
@@ -1184,8 +1123,7 @@ namespace LPCD
 
 		template <typename Callee, typename P1, typename P2, typename P3,
 					typename P4, typename P5>
-		static int Call(Callee& callee, void (Callee::*func)(P1, P2, P3, P4, P5), lua_State* L, int index)
-		{
+		static int Call(Callee& callee, void (Callee::*func)(P1, P2, P3, P4, P5), lua_State* L, int index) {
 			luaL_argassert(1, index + 0);
 			luaL_argassert(2, index + 1);
 			luaL_argassert(3, index + 2);
@@ -1204,8 +1142,7 @@ namespace LPCD
 
 		template <typename Callee, typename P1, typename P2, typename P3,
 					typename P4, typename P5>
-		static int Call(Callee& callee, void (Callee::*func)(P1, P2, P3, P4, P5) const, lua_State* L, int index)
-		{
+		static int Call(Callee& callee, void (Callee::*func)(P1, P2, P3, P4, P5) const, lua_State* L, int index) {
 			luaL_argassert(1, index + 0);
 			luaL_argassert(2, index + 1);
 			luaL_argassert(3, index + 2);
@@ -1224,8 +1161,7 @@ namespace LPCD
 
 		template <typename Callee, typename P1, typename P2, typename P3,
 					typename P4, typename P5, typename P6>
-		static int Call(Callee& callee, void (Callee::*func)(P1, P2, P3, P4, P5, P6), lua_State* L, int index)
-		{
+		static int Call(Callee& callee, void (Callee::*func)(P1, P2, P3, P4, P5, P6), lua_State* L, int index) {
 			luaL_argassert(1, index + 0);
 			luaL_argassert(2, index + 1);
 			luaL_argassert(3, index + 2);
@@ -1246,8 +1182,7 @@ namespace LPCD
 
 		template <typename Callee, typename P1, typename P2, typename P3,
 					typename P4, typename P5, typename P6>
-		static int Call(Callee& callee, void (Callee::*func)(P1, P2, P3, P4, P5, P6) const, lua_State* L, int index)
-		{
+		static int Call(Callee& callee, void (Callee::*func)(P1, P2, P3, P4, P5, P6) const, lua_State* L, int index) {
 			luaL_argassert(1, index + 0);
 			luaL_argassert(2, index + 1);
 			luaL_argassert(3, index + 2);
@@ -1268,8 +1203,7 @@ namespace LPCD
 
 		template <typename Callee, typename P1, typename P2, typename P3,
 					typename P4, typename P5, typename P6, typename P7>
-		static int Call(Callee& callee, void (Callee::*func)(P1, P2, P3, P4, P5, P6, P7), lua_State* L, int index)
-		{
+		static int Call(Callee& callee, void (Callee::*func)(P1, P2, P3, P4, P5, P6, P7), lua_State* L, int index) {
 			luaL_argassert(1, index + 0);
 			luaL_argassert(2, index + 1);
 			luaL_argassert(3, index + 2);
@@ -1292,8 +1226,7 @@ namespace LPCD
 
 		template <typename Callee, typename P1, typename P2, typename P3,
 					typename P4, typename P5, typename P6, typename P7>
-		static int Call(Callee& callee, void (Callee::*func)(P1, P2, P3, P4, P5, P6, P7) const, lua_State* L, int index)
-		{
+		static int Call(Callee& callee, void (Callee::*func)(P1, P2, P3, P4, P5, P6, P7) const, lua_State* L, int index) {
 			luaL_argassert(1, index + 0);
 			luaL_argassert(2, index + 1);
 			luaL_argassert(3, index + 2);
@@ -1316,8 +1249,7 @@ namespace LPCD
 
 		template <typename Callee, typename P1, typename P2, typename P3,
 					typename P4, typename P5, typename P6, typename P7, typename P8>
-		static int Call(Callee& callee, void (Callee::*func)(P1, P2, P3, P4, P5, P6, P7, P8), lua_State* L, int index)
-		{
+		static int Call(Callee& callee, void (Callee::*func)(P1, P2, P3, P4, P5, P6, P7, P8), lua_State* L, int index) {
 			luaL_argassert(1, index + 0);
 			luaL_argassert(2, index + 1);
 			luaL_argassert(3, index + 2);
@@ -1342,8 +1274,7 @@ namespace LPCD
 
 		template <typename Callee, typename P1, typename P2, typename P3,
 					typename P4, typename P5, typename P6, typename P7, typename P8>
-		static int Call(Callee& callee, void (Callee::*func)(P1, P2, P3, P4, P5, P6, P7, P8) const, lua_State* L, int index)
-		{
+		static int Call(Callee& callee, void (Callee::*func)(P1, P2, P3, P4, P5, P6, P7, P8) const, lua_State* L, int index) {
 			luaL_argassert(1, index + 0);
 			luaL_argassert(2, index + 1);
 			luaL_argassert(3, index + 2);
@@ -1369,8 +1300,7 @@ namespace LPCD
 		template <typename Callee, typename P1, typename P2, typename P3,
 					typename P4, typename P5, typename P6, typename P7, typename P8,
 					typename P9>
-		static int Call(Callee& callee, void (Callee::*func)(P1, P2, P3, P4, P5, P6, P7, P8, P9), lua_State* L, int index)
-		{
+		static int Call(Callee& callee, void (Callee::*func)(P1, P2, P3, P4, P5, P6, P7, P8, P9), lua_State* L, int index) {
 			luaL_argassert(1, index + 0);
 			luaL_argassert(2, index + 1);
 			luaL_argassert(3, index + 2);
@@ -1398,8 +1328,7 @@ namespace LPCD
 		template <typename Callee, typename P1, typename P2, typename P3,
 					typename P4, typename P5, typename P6, typename P7, typename P8,
 					typename P9>
-		static int Call(Callee& callee, void (Callee::*func)(P1, P2, P3, P4, P5, P6, P7, P8, P9) const, lua_State* L, int index)
-		{
+		static int Call(Callee& callee, void (Callee::*func)(P1, P2, P3, P4, P5, P6, P7, P8, P9) const, lua_State* L, int index) {
 			luaL_argassert(1, index + 0);
 			luaL_argassert(2, index + 1);
 			luaL_argassert(3, index + 2);
@@ -1427,8 +1356,7 @@ namespace LPCD
 		template <typename Callee, typename P1, typename P2, typename P3,
 					typename P4, typename P5, typename P6, typename P7, typename P8,
 					typename P9, typename P10>
-		static int Call(Callee& callee, void (Callee::*func)(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10), lua_State* L, int index)
-		{
+		static int Call(Callee& callee, void (Callee::*func)(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10), lua_State* L, int index) {
 			luaL_argassert(1, index + 0);
 			luaL_argassert(2, index + 1);
 			luaL_argassert(3, index + 2);
@@ -1458,8 +1386,7 @@ namespace LPCD
 		template <typename Callee, typename P1, typename P2, typename P3,
 					typename P4, typename P5, typename P6, typename P7, typename P8,
 					typename P9, typename P10>
-		static int Call(Callee& callee, void (Callee::*func)(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10) const, lua_State* L, int index)
-		{
+		static int Call(Callee& callee, void (Callee::*func)(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10) const, lua_State* L, int index) {
 			luaL_argassert(1, index + 0);
 			luaL_argassert(2, index + 1);
 			luaL_argassert(3, index + 2);
@@ -1489,249 +1416,215 @@ namespace LPCD
 
 
 	template <typename RT>
-	int Call(RT (*func)(), lua_State* L, int index)
-	{
+	int Call(RT (*func)(), lua_State* L, int index) {
 		return ReturnSpecialization<RT>::Call(func, L, index);
 	}
 
 
 	template <typename RT, typename P1>
-	int Call(RT (*func)(P1), lua_State* L, int index)
-	{
+	int Call(RT (*func)(P1), lua_State* L, int index) {
 		return ReturnSpecialization<RT>::Call(func, L, index);
 	}
 
 
 	template <typename RT, typename P1, typename P2>
-	int Call(RT (*func)(P1, P2), lua_State* L, int index)
-	{
+	int Call(RT (*func)(P1, P2), lua_State* L, int index) {
 		return ReturnSpecialization<RT>::Call(func, L, index);
 	}
 
 
 	template <typename RT, typename P1, typename P2, typename P3>
-	int Call(RT (*func)(P1, P2, P3), lua_State* L, int index)
-	{
+	int Call(RT (*func)(P1, P2, P3), lua_State* L, int index) {
 		return ReturnSpecialization<RT>::Call(func, L, index);
 	}
 
 
 	template <typename RT, typename P1, typename P2, typename P3, typename P4>
-	int Call(RT (*func)(P1, P2, P3, P4), lua_State* L, int index)
-	{
+	int Call(RT (*func)(P1, P2, P3, P4), lua_State* L, int index) {
 		return ReturnSpecialization<RT>::Call(func, L, index);
 	}
 
 
 	template <typename RT, typename P1, typename P2, typename P3, typename P4,
 				typename P5>
-	int Call(RT (*func)(P1, P2, P3, P4, P5), lua_State* L, int index)
-	{
+	int Call(RT (*func)(P1, P2, P3, P4, P5), lua_State* L, int index) {
 		return ReturnSpecialization<RT>::Call(func, L, index);
 	}
 
 
 	template <typename RT, typename P1, typename P2, typename P3, typename P4,
 				typename P5, typename P6>
-	int Call(RT (*func)(P1, P2, P3, P4, P5, P6), lua_State* L, int index)
-	{
+	int Call(RT (*func)(P1, P2, P3, P4, P5, P6), lua_State* L, int index) {
 		return ReturnSpecialization<RT>::Call(func, L, index);
 	}
 
 
 	template <typename RT, typename P1, typename P2, typename P3, typename P4,
 				typename P5, typename P6, typename P7>
-	int Call(RT (*func)(P1, P2, P3, P4, P5, P6, P7), lua_State* L, int index)
-	{
+	int Call(RT (*func)(P1, P2, P3, P4, P5, P6, P7), lua_State* L, int index) {
 		return ReturnSpecialization<RT>::Call(func, L, index);
 	}
 
 
 	template <typename RT, typename P1, typename P2, typename P3, typename P4, typename P5, typename P6, typename P7, typename P8>
-	int Call(RT (*func)(P1, P2, P3, P4, P5, P6, P7, P8), lua_State* L, int index)
-	{
+	int Call(RT (*func)(P1, P2, P3, P4, P5, P6, P7, P8), lua_State* L, int index) {
 		return ReturnSpecialization<RT>::Call(func, L, index);
 	}
 
 
 	template <typename RT, typename P1, typename P2, typename P3, typename P4, typename P5, typename P6, typename P7, typename P8, typename P9>
-	int Call(RT (*func)(P1, P2, P3, P4, P5, P6, P7, P8, P9), lua_State* L, int index)
-	{
+	int Call(RT (*func)(P1, P2, P3, P4, P5, P6, P7, P8, P9), lua_State* L, int index) {
 		return ReturnSpecialization<RT>::Call(func, L, index);
 	}
 
 
 	template <typename RT, typename P1, typename P2, typename P3, typename P4, typename P5, typename P6, typename P7, typename P8, typename P9, typename P10>
-	int Call(RT (*func)(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10), lua_State* L, int index)
-	{
+	int Call(RT (*func)(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10), lua_State* L, int index) {
 		return ReturnSpecialization<RT>::Call(func, L, index);
 	}
 
 
 	template <typename Callee, typename RT>
-	int Call(Callee& callee, RT (Callee::*func)(), lua_State* L, int index)
-	{
+	int Call(Callee& callee, RT (Callee::*func)(), lua_State* L, int index) {
 		return ReturnSpecialization<RT>::Call(callee, func, L, index);
 	}
 
 
 	template <typename Callee, typename RT>
-	int Call(Callee& callee, RT (Callee::*func)() const, lua_State* L, int index)
-	{
+	int Call(Callee& callee, RT (Callee::*func)() const, lua_State* L, int index) {
 		return ReturnSpecialization<RT>::Call(callee, func, L, index);
 	}
 
 
 	template <typename Callee, typename RT, typename P1>
-	int Call(Callee& callee, RT (Callee::*func)(P1), lua_State* L, int index)
-	{
+	int Call(Callee& callee, RT (Callee::*func)(P1), lua_State* L, int index) {
 		return ReturnSpecialization<RT>::Call(callee, func, L, index);
 	}
 
 
 	template <typename Callee, typename RT, typename P1>
-	int Call(Callee& callee, RT (Callee::*func)(P1) const, lua_State* L, int index)
-	{
+	int Call(Callee& callee, RT (Callee::*func)(P1) const, lua_State* L, int index) {
 		return ReturnSpecialization<RT>::Call(callee, func, L, index);
 	}
 
 
 	template <typename Callee, typename RT, typename P1, typename P2>
-	int Call(Callee& callee, RT (Callee::*func)(P1, P2), lua_State* L, int index)
-	{
+	int Call(Callee& callee, RT (Callee::*func)(P1, P2), lua_State* L, int index) {
 		return ReturnSpecialization<RT>::Call(callee, func, L, index);
 	}
 
 
 	template <typename Callee, typename RT, typename P1, typename P2>
-	int Call(Callee& callee, RT (Callee::*func)(P1, P2) const, lua_State* L, int index)
-	{
+	int Call(Callee& callee, RT (Callee::*func)(P1, P2) const, lua_State* L, int index) {
 		return ReturnSpecialization<RT>::Call(callee, func, L, index);
 	}
 
 
 	template <typename Callee, typename RT, typename P1, typename P2, typename P3>
-	int Call(Callee& callee, RT (Callee::*func)(P1, P2, P3), lua_State* L, int index)
-	{
+	int Call(Callee& callee, RT (Callee::*func)(P1, P2, P3), lua_State* L, int index) {
 		return ReturnSpecialization<RT>::Call(callee, func, L, index);
 	}
 
 
 	template <typename Callee, typename RT, typename P1, typename P2, typename P3>
-	int Call(Callee& callee, RT (Callee::*func)(P1, P2, P3) const, lua_State* L, int index)
-	{
+	int Call(Callee& callee, RT (Callee::*func)(P1, P2, P3) const, lua_State* L, int index) {
 		return ReturnSpecialization<RT>::Call(callee, func, L, index);
 	}
 
 
 	template <typename Callee, typename RT, typename P1, typename P2, typename P3,
 				typename P4>
-	int Call(Callee& callee, RT (Callee::*func)(P1, P2, P3, P4), lua_State* L, int index)
-	{
+	int Call(Callee& callee, RT (Callee::*func)(P1, P2, P3, P4), lua_State* L, int index) {
 		return ReturnSpecialization<RT>::Call(callee, func, L, index);
 	}
 
 
 	template <typename Callee, typename RT, typename P1, typename P2, typename P3,
 				typename P4>
-	int Call(Callee& callee, RT (Callee::*func)(P1, P2, P3, P4) const, lua_State* L, int index)
-	{
+	int Call(Callee& callee, RT (Callee::*func)(P1, P2, P3, P4) const, lua_State* L, int index) {
 		return ReturnSpecialization<RT>::Call(callee, func, L, index);
 	}
 
 
 	template <typename Callee, typename RT, typename P1, typename P2, typename P3,
 				typename P4, typename P5>
-	int Call(Callee& callee, RT (Callee::*func)(P1, P2, P3, P4, P5), lua_State* L, int index)
-	{
+	int Call(Callee& callee, RT (Callee::*func)(P1, P2, P3, P4, P5), lua_State* L, int index) {
 		return ReturnSpecialization<RT>::Call(callee, func, L, index);
 	}
 
 
 	template <typename Callee, typename RT, typename P1, typename P2, typename P3,
 				typename P4, typename P5>
-	int Call(Callee& callee, RT (Callee::*func)(P1, P2, P3, P4, P5) const, lua_State* L, int index)
-	{
+	int Call(Callee& callee, RT (Callee::*func)(P1, P2, P3, P4, P5) const, lua_State* L, int index) {
 		return ReturnSpecialization<RT>::Call(callee, func, L, index);
 	}
 
 
 	template <typename Callee, typename RT, typename P1, typename P2, typename P3,
 				typename P4, typename P5, typename P6>
-	int Call(Callee& callee, RT (Callee::*func)(P1, P2, P3, P4, P5, P6), lua_State* L, int index)
-	{
+	int Call(Callee& callee, RT (Callee::*func)(P1, P2, P3, P4, P5, P6), lua_State* L, int index) {
 		return ReturnSpecialization<RT>::Call(callee, func, L, index);
 	}
 
 
 	template <typename Callee, typename RT, typename P1, typename P2, typename P3,
 				typename P4, typename P5, typename P6>
-	int Call(Callee& callee, RT (Callee::*func)(P1, P2, P3, P4, P5, P6) const, lua_State* L, int index)
-	{
+	int Call(Callee& callee, RT (Callee::*func)(P1, P2, P3, P4, P5, P6) const, lua_State* L, int index) {
 		return ReturnSpecialization<RT>::Call(callee, func, L, index);
 	}
 
 
 	template <typename Callee, typename RT, typename P1, typename P2, typename P3,
 				typename P4, typename P5, typename P6, typename P7>
-	int Call(Callee& callee, RT (Callee::*func)(P1, P2, P3, P4, P5, P6, P7), lua_State* L, int index)
-	{
+	int Call(Callee& callee, RT (Callee::*func)(P1, P2, P3, P4, P5, P6, P7), lua_State* L, int index) {
 		return ReturnSpecialization<RT>::Call(callee, func, L, index);
 	}
 
 
 	template <typename Callee, typename RT, typename P1, typename P2, typename P3,
 				typename P4, typename P5, typename P6, typename P7>
-	int Call(Callee& callee, RT (Callee::*func)(P1, P2, P3, P4, P5, P6, P7) const, lua_State* L, int index)
-	{
+	int Call(Callee& callee, RT (Callee::*func)(P1, P2, P3, P4, P5, P6, P7) const, lua_State* L, int index) {
 		return ReturnSpecialization<RT>::Call(callee, func, L, index);
 	}
 
 
 	template <typename Callee, typename RT, typename P1, typename P2, typename P3, typename P4, typename P5, typename P6, typename P7, typename P8>
-	int Call(Callee& callee, RT (Callee::*func)(P1, P2, P3, P4, P5, P6, P7, P8), lua_State* L, int index)
-	{
+	int Call(Callee& callee, RT (Callee::*func)(P1, P2, P3, P4, P5, P6, P7, P8), lua_State* L, int index) {
 		return ReturnSpecialization<RT>::Call(callee, func, L, index);
 	}
 
 
 	template <typename Callee, typename RT, typename P1, typename P2, typename P3, typename P4, typename P5, typename P6, typename P7, typename P8>
-	int Call(Callee& callee, RT (Callee::*func)(P1, P2, P3, P4, P5, P6, P7, P8) const, lua_State* L, int index)
-	{
+	int Call(Callee& callee, RT (Callee::*func)(P1, P2, P3, P4, P5, P6, P7, P8) const, lua_State* L, int index) {
 		return ReturnSpecialization<RT>::Call(callee, func, L, index);
 	}
 
 
 	template <typename Callee, typename RT, typename P1, typename P2, typename P3, typename P4, typename P5, typename P6, typename P7, typename P8, typename P9>
-	int Call(Callee& callee, RT (Callee::*func)(P1, P2, P3, P4, P5, P6, P7, P8, P9), lua_State* L, int index)
-	{
+	int Call(Callee& callee, RT (Callee::*func)(P1, P2, P3, P4, P5, P6, P7, P8, P9), lua_State* L, int index) {
 		return ReturnSpecialization<RT>::Call(callee, func, L, index);
 	}
 
 
 	template <typename Callee, typename RT, typename P1, typename P2, typename P3, typename P4, typename P5, typename P6, typename P7, typename P8, typename P9>
-	int Call(Callee& callee, RT (Callee::*func)(P1, P2, P3, P4, P5, P6, P7, P8, P9) const, lua_State* L, int index)
-	{
+	int Call(Callee& callee, RT (Callee::*func)(P1, P2, P3, P4, P5, P6, P7, P8, P9) const, lua_State* L, int index) {
 		return ReturnSpecialization<RT>::Call(callee, func, L, index);
 	}
 
 
 	template <typename Callee, typename RT, typename P1, typename P2, typename P3, typename P4, typename P5, typename P6, typename P7, typename P8, typename P9, typename P10>
-	int Call(Callee& callee, RT (Callee::*func)(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10), lua_State* L, int index)
-	{
+	int Call(Callee& callee, RT (Callee::*func)(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10), lua_State* L, int index) {
 		return ReturnSpecialization<RT>::Call(callee, func, L, index);
 	}
 
 
 	template <typename Callee, typename RT, typename P1, typename P2, typename P3, typename P4, typename P5, typename P6, typename P7, typename P8, typename P9, typename P10>
-	int Call(Callee& callee, RT (Callee::*func)(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10) const, lua_State* L, int index)
-	{
+	int Call(Callee& callee, RT (Callee::*func)(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10) const, lua_State* L, int index) {
 		return ReturnSpecialization<RT>::Call(callee, func, L, index);
 	}
 
 
-	inline unsigned char* GetFirstUpValueAsUserdata(lua_State* L)
-	{
+	inline unsigned char* GetFirstUpValueAsUserdata(lua_State* L) {
 		void* buffer;
 
 #ifndef FAST_DISPATCH
@@ -1745,11 +1638,9 @@ namespace LPCD
 
 	// The Helper class is needed for less fortunate compiler template implementations.
 	template <typename Func>
-	class DirectCallFunctionDispatchHelper
-	{
+	class DirectCallFunctionDispatchHelper {
 	public:
-		static inline int DirectCallFunctionDispatcher(lua_State* L)
-		{
+		static inline int DirectCallFunctionDispatcher(lua_State* L) {
  			unsigned char* buffer = GetFirstUpValueAsUserdata(L);
 			return Call(*(Func*)(buffer), L, 1);
 		}
@@ -1757,18 +1648,15 @@ namespace LPCD
 
 
 	template <typename Callee, typename Func>
-	class DirectCallMemberDispatcherHelper
-	{
+	class DirectCallMemberDispatcherHelper {
 	public:
-		static inline int DirectCallMemberDispatcher(lua_State* L)
-		{
+		static inline int DirectCallMemberDispatcher(lua_State* L) {
  			unsigned char* buffer = GetFirstUpValueAsUserdata(L);
 			return Call(**(Callee**)buffer, *(Func*)(buffer + sizeof(Callee*)), L, 1);
 		}
 	};
 
-	inline int lua_StateFunctionDispatcher(lua_State* L)
-	{
+	inline int lua_StateFunctionDispatcher(lua_State* L) {
 		typedef int (*Functor)(lua_State*);
  		unsigned char* buffer = GetFirstUpValueAsUserdata(L);
 		Functor& func = *(Functor*)(buffer);
@@ -1777,11 +1665,9 @@ namespace LPCD
 
 
 	template <typename Callee>
-	class lua_StateMemberDispatcherHelper
-	{
+	class lua_StateMemberDispatcherHelper {
 	public:
-		static inline int lua_StateMemberDispatcher(lua_State* L)
-		{
+		static inline int lua_StateMemberDispatcher(lua_State* L) {
 			typedef int (Callee::*Functor)(lua_State*);
  			unsigned char* buffer = GetFirstUpValueAsUserdata(L);
 			Callee& callee = **(Callee**)buffer;
@@ -1928,11 +1814,9 @@ namespace LPCD
 	}
 
 	template <typename Callee>
-	class Object_MemberDispatcherHelper
-	{
+	class Object_MemberDispatcherHelper {
 	public:
-		static inline int Object_MemberDispatcher(lua_State* L)
-		{
+		static inline int Object_MemberDispatcher(lua_State* L) {
 			typedef int (Callee::*Functor)(lua_State*);
  			unsigned char* buffer = GetFirstUpValueAsUserdata(L);
 			Functor& func = *(Functor*)(buffer);
@@ -1942,11 +1826,9 @@ namespace LPCD
 	};
 
 	template <typename Callee, typename Func, int startIndex>
-	class DirectCallObjectMemberDispatcherHelper
-	{
+	class DirectCallObjectMemberDispatcherHelper {
 	public:
-		static inline int DirectCallMemberDispatcher(lua_State* L)
-		{
+		static inline int DirectCallMemberDispatcher(lua_State* L) {
  			unsigned char* buffer = GetFirstUpValueAsUserdata(L);
 			Callee& callee = *(Callee*)GetObjectUserdata(L);
 			return Call(callee, *(Func*)buffer, L, startIndex);
@@ -1954,11 +1836,9 @@ namespace LPCD
 	};
 
 	template <typename Callee, typename Func, int startIndex>
-	class DirectCallInPlaceObjectMemberDispatcherHelper
-	{
+	class DirectCallInPlaceObjectMemberDispatcherHelper {
 	public:
-		static inline int DirectCallMemberDispatcher(lua_State* L)
-		{
+		static inline int DirectCallMemberDispatcher(lua_State* L) {
  			unsigned char* buffer = GetFirstUpValueAsUserdata(L);
 			Callee& callee = *(Callee*)GetInPlaceObjectUserdata(L);
 			return Call(callee, *(Func*)buffer, L, startIndex);
@@ -2093,19 +1973,16 @@ namespace LPCD
 	}
 
 	template <typename Object, typename VarType>
-	class PropertyMemberHelper
-	{
+	class PropertyMemberHelper {
 	public:
-		static int PropertyGet(lua_State* L)
-		{
+		static int PropertyGet(lua_State* L) {
 			Object* obj = (Object*)LPCD::GetObjectUserdata(L);
 			void* offset = lua_touserdata(L, 3);
 			LPCD::Push(L, *(VarType*)((unsigned char*)obj + (unsigned int)offset));
 			return 1;
 		}
 
-		static int PropertySet(lua_State* L)
-		{
+		static int PropertySet(lua_State* L) {
 			Object* obj = (Object*)LPCD::GetObjectUserdata(L);
 			void* offset = lua_touserdata(L, 4);
 
@@ -2118,19 +1995,16 @@ namespace LPCD
 	};
 
 	template <typename Object, typename VarType>
-	class InPlacePropertyMemberHelper
-	{
+	class InPlacePropertyMemberHelper {
 	public:
-		static int PropertyGet(lua_State* L)
-		{
+		static int PropertyGet(lua_State* L) {
 			Object* obj = (Object*)LPCD::GetInPlaceObjectUserdata(L);
 			void* offset = lua_touserdata(L, 3);
 			LPCD::Push(L, *(VarType*)((unsigned char*)obj + (unsigned int)offset));
 			return 1;
 		}
 
-		static int PropertySet(lua_State* L)
-		{
+		static int PropertySet(lua_State* L) {
 			Object* obj = (Object*)LPCD::GetInPlaceObjectUserdata(L);
 			void* offset = lua_touserdata(L, 4);
 
@@ -2143,11 +2017,9 @@ namespace LPCD
 	};
 
 	template <typename VarType>
-	class PropertyGlobalHelper
-	{
+	class PropertyGlobalHelper {
 	public:
-		static int PropertyGet(lua_State* L)
-		{
+		static int PropertyGet(lua_State* L) {
 			void* offset = lua_touserdata(L, lua_upvalueindex(1));
 
 			LPCD::Push(L, *(VarType*)offset);
@@ -2155,8 +2027,7 @@ namespace LPCD
 			return 1;
 		}
 
-		static int PropertySet(lua_State* L)
-		{
+		static int PropertySet(lua_State* L) {
 			void* offset = lua_touserdata(L, lua_upvalueindex(1));
 
 			if (!Match(TypeWrapper<VarType>(), L, 1))
