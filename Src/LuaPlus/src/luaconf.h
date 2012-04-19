@@ -126,9 +126,7 @@
 #define LUA_PATH_DEFAULT  \
         "./?.lua;"  LUA_LDIR"?.lua;"  LUA_LDIR"?/init.lua;" \
                     LUA_CDIR"?.lua;"  LUA_CDIR"?/init.lua"
-#define LUA_PATH_DEFAULT  \
-        "./?.lua;"  LUA_LDIR"?.lua;"  LUA_LDIR"?/init.lua;" \
-                     LUA_CDIR"?.lua;"  LUA_CDIR"?/init.lua"
+
 #define LUA_CPATH_DEFAULT \
     "./?" LUA_CSUFFIX ";"  LUA_CDIR"?" LUA_CSUFFIX ";" LUA_CDIR"loadall" LUA_CSUFFIX
 #else
