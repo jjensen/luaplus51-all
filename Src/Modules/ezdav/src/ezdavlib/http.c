@@ -1161,7 +1161,10 @@ http_receive_response_entity(HTTP_CONNECTION *connection, HTTP_RESPONSE *respons
 		}
 		else
 		{
-			size_t content_size_to_read = min(content_size, connection->read_count - connection->read_index);
+#ifndef min
+#define min(a,b) ((a)<(b)?(a):(b))
+#endif
+			size_t content_size_to_read = min(content_size - content_read_count, connection->read_count - connection->read_index);
 			if(response->content != NULL)
 			{
 				http_storage_write(response->content, &connection->read_buffer[connection->read_index], content_size_to_read);
