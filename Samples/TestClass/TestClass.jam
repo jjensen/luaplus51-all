@@ -1,0 +1,19 @@
+{
+
+SubDir LUAPLUS Samples TestClass ;
+
+LUAPLUS_OUTPUT_DIRECTORY = $(ALL_LOCATE_TARGET)/image ;
+C.OutputPath * : $(ALL_LOCATE_TARGET)/image ;
+
+SubInclude LUAPLUS Src LuaPlus SharedLib : LuaPlusSharedLib ;
+
+local SRCS =
+		TestClass.cpp
+;
+
+C.IncludeDirectories TestClass : $(LUAPLUS)/Src ;
+C.LinkLibraries TestClass : lua51 ;
+
+C.Application TestClass : $(SRCS) ;
+
+}
