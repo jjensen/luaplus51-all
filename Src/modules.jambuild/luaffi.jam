@@ -1,4 +1,4 @@
-if $(PLATFORM) in win32 win64  # For now
+if $(PLATFORM) in win32 win64 macosx32  # For now
 {
 
 local SRCS =
@@ -41,16 +41,19 @@ rule DynAsm TARGET : ARCHITECTURE_DEFINE : OUTPUT_HEADER : DASC_FILE {
 	_DynAsm $(OUTPUT_HEADER) : $(DASC_FILE) ;
 }
 
-C.Defines : LUA_FFI_BUILD_AS_DLL ;
-
 C.IncludeDirectories : $(LOCATE_TARGET) ;
 
 if $(PLATFORM) = win32 {
+    C.Defines : LUA_FFI_BUILD_AS_DLL ;
 	C.LinkPrebuiltLibraries : kernel32 user32 gdi32 ;
 }
 
 Lua.CModule : ffi : $(SRCS) ;
 
-DynAsm luaffi : X32WIN : call_x86.h : call_x86.dasc ;
+if $(PLATFORM) = win32 {
+    DynAsm luaffi : X32WIN : call_x86.h : call_x86.dasc ;
+} else {
+    DynAsm luaffi : X32 : call_x86.h : call_x86.dasc ;
+}
 
 }
