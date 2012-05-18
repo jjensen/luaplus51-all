@@ -556,8 +556,8 @@ bool LuaState::DumpObject(LuaStateOutFile& file, LuaObject& key, LuaObject& valu
 			// Block to search for array items.
 			{
 				// Grab index 1 and index 2 of the table.
-				LuaObject value1 = table[1];
-				LuaObject value2 = table[2];
+				LuaObject value1 = table.RawGetByIndex(1);
+				LuaObject value2 = table.RawGetByIndex(2);
 
 				// If they both exist, then there is a sequential list.
 				if (!value1.IsNil())
@@ -567,7 +567,7 @@ bool LuaState::DumpObject(LuaStateOutFile& file, LuaObject& key, LuaObject& valu
 					for (; ; ++upperIndex)
 					{
 						// Try retrieving the table entry at upperIndex.
-						LuaObject value = table[upperIndex];
+						LuaObject value = table.RawGetByIndex(upperIndex);
 
 						// If it doesn't exist, then exit the loop.
 						if (value.IsNil())
