@@ -534,6 +534,7 @@ static int l_filefind_first(lua_State *L) {
 
 	char* ptr;
 	char* slashPtr;
+	char* whichWildcard;
 
 	info->path = malloc(strlen(wildcard) + 256);
 	strcpy(info->path, wildcard);
@@ -552,7 +553,15 @@ static int l_filefind_first(lua_State *L) {
 
 	info->first = 1;
 #if defined(WIN32)
-	info->handle = FindFirstFile(origWildcard, &info->fd);
+	whichWildcard = (char*)origWildcard;
+	if (whichWildcard[strlen(whichWildcard) - 1] == '/') {
+		whichWildcard = info->path;
+		info->pathEnd[-1] = 0;
+	}
+	info->handle = FindFirstFile(whichWildcard, &info->fd);
+	if (whichWildcard == info->path) {
+		info->pathEnd[-1] = '/';
+	}
 	if (info->handle != INVALID_HANDLE_VALUE) {
 		if (info->fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
 			if (strcmp(info->fd.cFileName, ".") == 0  ||  strcmp(info->fd.cFileName, "..") == 0)
