@@ -149,10 +149,11 @@ function resource:getContentData ()
 		if not f then
 			return
 		end
+		f:setvbuf('full', 64*1024)
 
 		local block
 		repeat
-			block = f:read (32*1024)
+			block = f:read (64*1024)
 			if block then
 				coroutine.yield (block)
 			end
