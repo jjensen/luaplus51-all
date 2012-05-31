@@ -624,6 +624,15 @@ static int l_filefind_attributes(lua_State* L) {
 	struct FileFindInfo* info;
 	l_filefind_first(L);
 	info = filefind_checkmetatable(L, -1);
+#if defined(WIN32)
+	if (info->handle == INVALID_HANDLE_VALUE) {
+		info->handle = NULL;
+		return 0;
+	}
+#else
+	if (!info->dirp)
+		return 0;
+#endif
 	filefind_index_table_helper(L, info);
 	filefind_close_helper(L, info);
 	return 1;
