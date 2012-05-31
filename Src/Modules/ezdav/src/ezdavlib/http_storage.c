@@ -210,6 +210,8 @@ http_create_file_storage(HTTP_FILE_STORAGE **storage, const char *filename, cons
 		http_destroy_file_storage(new_storage);
 		return HT_MEMORY_ERROR;
 	}
+	setvbuf(new_storage->file, NULL, _IOFBF, 64 * 1024);
+
 	original_pos = ftell(new_storage->file);
 	fseek(new_storage->file, 0, SEEK_END);
 	new_storage->file_size = ftell(new_storage->file);
