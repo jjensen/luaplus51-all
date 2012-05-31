@@ -1,18 +1,29 @@
 .PHONY: all clean test
 
-LUA_CFLAGS=`pkg-config --cflags lua5.1 2>/dev/null || pkg-config --cflags lua`
+PKG_CONFIG=pkg-config
 LUA=lua
+
+LUA_CFLAGS=`$(PKG_CONFIG) --cflags lua5.1 2>/dev/null || $(PKG_CONFIG) --cflags lua`
 SOCFLAGS=-fPIC
 SOCC=$(CC) -shared $(SOCFLAGS)
-CFLAGS=-fPIC -O2 -Wall -Werror $(LUA_CFLAGS) -fvisibility=hidden -Wno-unused-function
+CFLAGS=-fPIC -g -Wall -Werror $(LUA_CFLAGS) -fvisibility=hidden -Wno-unused-function --std=gnu99
 
 MODNAME=ffi
 MODSO=$(MODNAME).so
 
-all: $(MODSO) test_cdecl.so
+all:
+	if [ `uname` = "Darwin" ]; then $(MAKE) macosx; else $(MAKE) posix; fi
+
+test:
+	if [ `uname` = "Darwin" ]; then $(MAKE) test_macosx; else $(MAKE) test_posix; fi
 
 macosx:
-	$(MAKE) all "SOCC=MACOSX_DEPLOYMENT_TARGET=10.3 $(CC) -dynamiclib -single_module -undefined dynamic_lookup $(SOCFLAGS)"
+	$(MAKE) posix "SOCC=MACOSX_DEPLOYMENT_TARGET=10.3 $(CC) -dynamiclib -single_module -undefined dynamic_lookup $(SOCFLAGS)"
+
+test_macosx:
+	$(MAKE) test_posix "SOCC=MACOSX_DEPLOYMENT_TARGET=10.3 $(CC) -dynamiclib -single_module -undefined dynamic_lookup $(SOCFLAGS)"
+
+posix: $(MODSO) test_cdecl.so
 
 clean:
 	rm -f *.o *.so call_*.h
@@ -35,8 +46,9 @@ $(MODSO): ffi.o ctype.o parser.o call.o
 test_cdecl.so: test.o
 	$(SOCC) $^ -o $@
 
-test: test_cdecl.so $(MODSO)
-	$(LUA) test.lua
+test_posix: test_cdecl.so $(MODSO)
+	LD_LIBRARY_PATH=./ $(LUA) test.lua
+
 
 
 

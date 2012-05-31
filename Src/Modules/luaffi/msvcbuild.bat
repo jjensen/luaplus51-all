@@ -2,19 +2,21 @@
 
 @setlocal
 
-@if "%1"=="test-5.2" goto :TEST_5_2
+@if "%1"=="debug-5.1" goto :DEBUG_5_1
 
-@set LUA_INCLUDE=C:\Lua5.1\include
-@set LUA_LIB=C:\Lua5.1\lib\lua5.1.lib
-@set LUA_EXE=C:\Lua5.1\lua.exe
-@set LUA_DLL=lua5.1.dll
+rem These should not have quotes
+@set LUA_INCLUDE=Z:\c\lua-5.2.0\src
+@set LUA_LIB=Z:\c\lua-5.2.0\lua5.2.lib
+@set LUA_EXE=Z:\c\lua-5.2.0\lua.exe
+rem This the name of the dll that can be handed to LoadLibrary. This should not have a path.
+@set LUA_DLL=lua5.2.dll
 @goto :DEBUG
 
-:TEST_5_2
-@set LUA_INCLUDE=C:\Lua5.2\include
-@set LUA_LIB=C:\Lua5.2\lib\lua5.2.lib
-@set LUA_EXE=C:\Lua5.2\lua.exe
-@set LUA_DLL=lua5.2.dll
+:DEBUG_5_1
+@set LUA_INCLUDE=Z:\c\lua-5.1.4\src
+@set LUA_LIB=Z:\c\lua-5.1.4\lua5.1.lib
+@set LUA_EXE=Z:\c\lua-5.1.4\lua.exe
+@set LUA_DLL=lua5.1.dll
 
 :DEBUG
 @set DO_CL=cl.exe /nologo /c /MDd /FC /Zi /Od /W3 /WX /D_CRT_SECURE_NO_DEPRECATE /DLUA_FFI_BUILD_AS_DLL /I"msvc"
@@ -22,6 +24,7 @@
 @set DO_MT=mt /nologo
 
 @if "%1"=="debug" goto :COMPILE
+@if "%1"=="debug-5.1" goto :COMPILE
 @if "%1"=="test" goto :COMPILE
 @if "%1"=="clean" goto :CLEAN
 @if "%1"=="release" goto :RELEASE
@@ -34,10 +37,10 @@
 @goto :COMPILE
 
 :COMPILE
-%LUA_EXE% dynasm\dynasm.lua -LNE -D X32WIN -o call_x86.h call_x86.dasc
-%LUA_EXE% dynasm\dynasm.lua -LNE -D X64 -o call_x64.h call_x86.dasc
-%LUA_EXE% dynasm\dynasm.lua -LNE -D X64 -D X64WIN -o call_x64win.h call_x86.dasc
-%LUA_EXE% dynasm\dynasm.lua -LNE -o call_arm.h call_arm.dasc
+"%LUA_EXE%" dynasm\dynasm.lua -LNE -D X32WIN -o call_x86.h call_x86.dasc
+"%LUA_EXE%" dynasm\dynasm.lua -LNE -D X64 -o call_x64.h call_x86.dasc
+"%LUA_EXE%" dynasm\dynasm.lua -LNE -D X64 -D X64WIN -o call_x64win.h call_x86.dasc
+"%LUA_EXE%" dynasm\dynasm.lua -LNE -o call_arm.h call_arm.dasc
 %DO_CL% /I"." /I"%LUA_INCLUDE%" /DLUA_DLL_NAME="%LUA_DLL%" call.c ctype.c ffi.c parser.c
 %DO_LINK% /DLL /OUT:ffi.dll "%LUA_LIB%" *.obj
 if exist ffi.dll.manifest^
@@ -56,9 +59,9 @@ if exist test_stdcall.dll.manifest^
 if exist test_fastcall.dll.manifest^
     %DO_MT% -manifest test_fastcall.dll.manifest -outputresource:"test_fastcall.dll;2"
 
-@if "%1"=="test" %LUA_EXE% test.lua
-@if "%1"=="test-5.2" %LUA_EXE% test.lua
-@if "%1"=="test-release" %LUA_EXE% test.lua
+@if "%1"=="test" "%LUA_EXE%" test.lua
+@if "%1"=="test-5.2" "%LUA_EXE%" test.lua
+@if "%1"=="test-release" "%LUA_EXE%" test.lua
 @goto :CLEAN_OBJ
 
 :CLEAN

@@ -76,25 +76,27 @@ windows.
 
 Todo
 ----
-- C++ classes (excluding inline c++ functions)
-- All the various gcc and msvc attributes
-- Finish and test OSX support
-- ffi.metatable
+See Github issues for the most up to date list.
+- Fix arm support - broken since the callback refactor
+- Vectors
+- C++ reference types
+- Subtracting one pointer from another
+- Variable sized members in unions (is this needed?)
 
 How it works
 ------------
-Types are represented by a ctype_t structure and an associated user value table.
-The table is shared between all related types for structs, unions, and
+Types are represented by a struct ctype structure and an associated user value
+table. The table is shared between all related types for structs, unions, and
 functions. It's members have the types of struct members, function argument
-types, etc. The ctype_t structure then contains the modifications from the
-base type (eg number of pointers, array size, etc).
+types, etc. The struct ctype structure then contains the modifications from
+the base type (eg number of pointers, array size, etc).
 
-Types are pushed into lua as a userdata containing the ctype_t with a user
-value (or fenv in 5.1) set to the shared type table.
+Types are pushed into lua as a userdata containing the struct ctype with a
+user value (or fenv in 5.1) set to the shared type table.
 
-Boxed cdata types are pushed into lua as a userdata containing the cdata_t
-structure (which contains the ctype_t of the data as its header) followed by
-the boxed data.
+Boxed cdata types are pushed into lua as a userdata containing the struct
+cdata structure (which contains the struct ctype of the data as its header)
+followed by the boxed data.
 
 The functions in ffi.c provide the cdata and ctype metatables and ffi.*
 functions which manipulate these two types.
