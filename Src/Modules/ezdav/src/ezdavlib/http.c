@@ -1330,7 +1330,10 @@ http_exec_set_response_error(HTTP_CONNECTION *connection, HTTP_RESPONSE *respons
 	if(response != NULL)
 	{
 		connection->__http_exec_error = response->status_code;
-		strncpy(connection->__http_exec_error_msg, response->status_msg, 255);
+		if (response->status_msg)
+			strncpy(connection->__http_exec_error_msg, response->status_msg, 255);
+		else
+			connection->__http_exec_error_msg[0] = 0;
 		connection->__http_exec_error_msg[255] = '\0';
 	}
 }
