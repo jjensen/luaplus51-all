@@ -1134,14 +1134,7 @@ http_receive_response_entity(HTTP_CONNECTION *connection, HTTP_RESPONSE *respons
 						content_size = c;
 
 						content_read_count = 0;
-						if (content_size == 0)
-						{
-							stage = HTTP_THE_DEVIL_TAKES_IT;
-						}
-						else
-						{
-							stage = HTTP_RECEIVING_CONTENT; /* start reading the body */
-						}
+						stage = HTTP_RECEIVING_CONTENT; /* start reading the body */
 						line_index = 0;
 					}
 					else if (content_size == 0)
