@@ -278,11 +278,13 @@ static int ezdav_dir_create_metatable(lua_State *L) {
 static int l_ezdav_dir_first(lua_State *L, HTTP_CONNECTION* connection) {
 	const char* wildcard = luaL_checkstring(L, 2);
 	const char* origWildcard = wildcard;
+	char* whichWildcard;
 
 	struct FileFindInfo* info = (struct FileFindInfo*)lua_newuserdata(L, sizeof(struct FileFindInfo));
 
 	char* ptr;
 	char* slashPtr;
+	int ret;
 
 	info->path = malloc(strlen(wildcard) + 256);
 	strcpy(info->path, wildcard);
@@ -290,6 +292,12 @@ static int l_ezdav_dir_first(lua_State *L, HTTP_CONNECTION* connection) {
 		if (*ptr == '\\')
 			*ptr = '/';
 	slashPtr = strrchr(info->path, '/');
+	if (info->path + strlen(info->path) - 1 == slashPtr) {
+		char* oldSlashPtr = slashPtr;
+		*slashPtr = 0;
+		slashPtr = strrchr(info->path, '/');
+		*oldSlashPtr = '/';
+	}
 	wildcard = slashPtr ? slashPtr + 1 : info->path;
 	info->wildcard = malloc(strlen(wildcard) + 1);
 	strcpy(info->wildcard, wildcard);
