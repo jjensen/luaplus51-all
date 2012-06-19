@@ -28,6 +28,7 @@ struct spawn_params {
   const char *cmdline;
   const char *environment;
   STARTUPINFO si;
+  int detach;
   int useshell;
 };
 
@@ -62,6 +63,7 @@ struct spawn_params *spawn_param_init(lua_State *L)
   p->L = L;
   p->cmdline = p->environment = 0;
   p->si = si;
+  p->detach = 0;
   p->useshell = 1;
   return p;
 }
@@ -112,6 +114,11 @@ void spawn_param_args(struct spawn_params *p)
   lua_replace(L, 1);              /* cmdline opts ... argtab arg */
   lua_pop(L, 2);                  /* cmdline opts ... */
   p->cmdline = lua_tostring(L, 1);
+}
+
+void spawn_param_detach(struct spawn_params *p, int detach)
+{
+  p->detach = detach;
 }
 
 void spawn_param_show(struct spawn_params *p, int show)
@@ -209,7 +216,7 @@ int spawn_param_execute(struct spawn_params *p)
 
   e = (char *)p->environment; /* strdup(p->environment); */
   /* XXX does CreateProcess modify its environment argument? */
-  ret = CreateProcess(0, c, 0, 0, TRUE, 0, e, 0, &p->si, &pi);
+  ret = CreateProcess(0, c, 0, 0, p->detach ? FALSE : TRUE, p->detach ? DETACHED_PROCESS : 0, e, 0, &p->si, &pi);
   if (ret)
 	CloseHandle(pi.hThread);
   /* if (e) free(e); */

@@ -527,6 +527,9 @@ static int ex_spawn(lua_State *L)
     lua_getfield(L, 2, "shell");          /* cmd opts ... envtab */
     spawn_param_useshell(params, lua_type(L, -1) == LUA_TBOOLEAN ? lua_toboolean(L, -1) : 1);
 
+    lua_getfield(L, 2, "detach");          /* cmd opts ... envtab */
+    spawn_param_detach(params, lua_type(L, -1) == LUA_TBOOLEAN ? lua_toboolean(L, -1) : 0);
+
     get_redirect(L, 2, "stdin", params);    /* cmd opts ... */
     get_redirect(L, 2, "stdout", params);   /* cmd opts ... */
     get_redirect(L, 2, "stderr", params);   /* cmd opts ... */

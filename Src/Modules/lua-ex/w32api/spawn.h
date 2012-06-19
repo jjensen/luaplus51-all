@@ -16,6 +16,7 @@ struct spawn_params;
 struct spawn_params *spawn_param_init(lua_State *L);
 void spawn_param_filename(struct spawn_params *p);
 void spawn_param_args(struct spawn_params *p);
+void spawn_param_detach(struct spawn_params *p, int detach);
 void spawn_param_env(struct spawn_params *p);
 void spawn_param_show(struct spawn_params *p, int show);
 void spawn_param_useshell(struct spawn_params *p, int shell);
