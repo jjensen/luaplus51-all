@@ -45,31 +45,7 @@ double ui64ToDouble(unsigned long long ui64)
 
 using namespace Misc;
 
-static void BuildFileEntry(lua_State* L, ZipEntryInfo* entry)
-{
-	lua_newtable(L);
-	lua_pushstring(L, entry->GetFilename());
-	lua_setfield(L, -2, "filename");
-
-	lua_pushnumber(L, (lua_Number)entry->GetTimeStamp());
-	lua_setfield(L, -2, "timestamp");
-
-	lua_pushnumber(L, (lua_Number)entry->GetCRC());
-	lua_setfield(L, -2, "crc");
-
-	lua_pushlstring(L, (const char*)entry->GetMD5(), 16);
-	lua_setfield(L, -2, "md5");
-
-	lua_pushnumber(L, (lua_Number)entry->GetOffset());
-	lua_setfield(L, -2, "offset");
-
-	lua_pushnumber(L, (lua_Number)entry->GetUncompressedSize());
-	lua_setfield(L, -2, "uncompressed_size");
-	lua_pushnumber(L, (lua_Number)entry->GetCompressedSize());
-	lua_setfield(L, -2, "compressed_size");
-	lua_pushnumber(L, (lua_Number)entry->GetCompressionMethod());
-	lua_setfield(L, -2, "compression_method");
-}
+static int _lziparchive_buildfileentry(lua_State* L, int archiveIndex, ZipArchive* archive, int fileEntryIndex);
 
 
 #define ARCHIVEFILEHANDLE_METATABLE "ArchiveFileHandleMetaTable"
@@ -121,7 +97,7 @@ static int lziparchive_index(lua_State* L) {
 		size_t index = lua_tointeger(L, 2);
 		luaL_argcheck(L, index >= 1  &&  index <= archive->GetFileEntryCount(), 2, "index not in range of 1..#archive");
 		ZipEntryInfo* fileEntry = archive->GetFileEntry(index - 1);
-		BuildFileEntry(L, fileEntry);
+		_lziparchive_buildfileentry(L, 1, archive, index - 1);
 		return 1;
 	}
 	key = luaL_checklstring(L, 2, NULL);
@@ -181,7 +157,7 @@ int lziparchive_openfrommemory(lua_State* L) {
 	int readOnly = 1;
 	int flags = (int)luaL_optnumber(L, 3, ZipArchive::SUPPORT_MD5);
 	const char* defaultPassword = luaL_optstring(L, 4, NULL);
-	lua_pushboolean(L, archive->Open(memFile, "filename", readOnly != 0, flags, defaultPassword) != 0);
+	lua_pushboolean(L, archive->Open(memFile, "@memory", readOnly != 0, flags, defaultPassword) != 0);
 	return 1;
 }
 
@@ -708,16 +684,32 @@ int lziparchive_fileentry(lua_State* L)
 {
 	ZipArchive* archive = lziparchive_check(L, 1);
 
-	int entryIndex = (int)luaL_optlong(L, 2, -1);
+	if (lua_type(L, 2) == LUA_TNUMBER) {
+		int entryIndex = (int)luaL_checknumber(L, 2);
 
-	ZipEntryInfo* entry;
+		ZipEntryInfo* entry;
 
-	entry = archive->GetFileEntry(entryIndex - 1);
+		entry = archive->GetFileEntry(entryIndex - 1);
 
-	if (!entry)
-		return 0;
+		if (!entry)
+			return 0;
 
-	BuildFileEntry(L, entry);
+		_lziparchive_buildfileentry(L, 1, archive, entryIndex - 1);
+	} else if (lua_type(L, 2) == LUA_TSTRING) {
+		const char* fileName = luaL_checkstring(L, 2);
+
+		size_t entryIndex = archive->FindFileEntryIndex(fileName);
+		if (entryIndex == ZipArchive::INVALID_FILE_ENTRY)
+			return 0;
+
+		ZipEntryInfo* entry = archive->GetFileEntry(entryIndex);
+		if (!entry)
+			return 0;
+
+		_lziparchive_buildfileentry(L, 1, archive, entryIndex);
+	} else {
+		luaL_argerror(L, 2, "Index must be a number or filename");
+	}
 	return 1;
 }
 
@@ -728,12 +720,15 @@ int lziparchive_findfileentry(lua_State* L)
 
 	const char* fileName = luaL_checkstring(L, 2);
 
-	ZipEntryInfo* entry = archive->FindFileEntry(fileName);
+	size_t entryIndex = archive->FindFileEntryIndex(fileName);
+	if (entryIndex == ZipArchive::INVALID_FILE_ENTRY)
+		return 0;
 
+	ZipEntryInfo* entry = archive->GetFileEntry(entryIndex);
 	if (!entry)
 		return 0;
 
-	BuildFileEntry(L, entry);
+	_lziparchive_buildfileentry(L, 1, archive, entryIndex);
 	return 1;
 }
 
@@ -817,6 +812,12 @@ static int _zafe_index_filename(lua_State* L, fileentry_info* info, ZipEntryInfo
 }
 
 
+static int _zafe_index_index(lua_State* L, fileentry_info* info, ZipEntryInfo* entry) {
+	lua_pushnumber(L, info->entryIndex);
+	return 1;
+}
+
+
 static int _zafe_index_md5(lua_State* L, fileentry_info* info, ZipEntryInfo* entry) {
 	lua_pushlstring(L, (const char*)entry->GetMD5(), 16);
 	return 1;
@@ -851,6 +852,9 @@ static int _zafe_index_table(lua_State* L, fileentry_info* info, ZipEntryInfo* e
 
 	lua_pushnumber(L, (lua_Number)entry->GetCRC());
 	lua_setfield(L, -2, "crc");
+
+	lua_pushnumber(L, info->entryIndex);
+	lua_setfield(L, -2, "index");
 
 	lua_pushlstring(L, (const char*)entry->GetMD5(), 16);
 	lua_setfield(L, -2, "md5");
@@ -927,6 +931,52 @@ static int _zafe_index(lua_State *L) {
 }
 
 
+static int _zafe_newindex_crc(lua_State* L, fileentry_info* info, ZipEntryInfo* entry) {
+	entry->SetCRC((DWORD)luaL_checknumber(L, 3));
+	return 0;
+}
+
+
+static int _zafe_newindex_md5(lua_State* L, fileentry_info* info, ZipEntryInfo* entry) {
+	unsigned char* md5 = (unsigned char*)luaL_checkstring(L, 3);
+	if (lua_objlen(L, 3) != 16)
+		luaL_argerror(L, 3, "The MD5 must be 16 bytes long");
+	entry->SetMD5(md5);
+	return 0;
+}
+
+
+static int _zafe_newindex_timestamp(lua_State* L, fileentry_info* info, ZipEntryInfo* entry) {
+	entry->SetTimeStamp((time_t)luaL_checknumber(L, 3));
+	return 0;
+}
+
+
+static const struct _zafe_index_properties_reg _zafe_newindex_properties[] = {
+	{ "crc",					_zafe_newindex_crc },
+	{ "md5",					_zafe_newindex_md5 },
+	{ "timestamp",				_zafe_newindex_timestamp },
+	{ NULL, NULL },
+};
+
+
+static int _zafe_newindex(lua_State *L) {
+	_zafe_index_property_func function;
+	fileentry_info* info = (fileentry_info*)luaL_checkudata(L, 1, ZIPARCHIVE_FILEENTRY_METATABLE);
+	const char* key = luaL_checklstring(L, 2, NULL);
+	lua_getfield(L, lua_upvalueindex(1), key);
+	function = (_zafe_index_property_func)lua_touserdata(L, -1);
+	if (function) {
+		ZipEntryInfo* entry = info->archive->GetFileEntry(info->entryIndex);
+		if (!entry)
+			luaL_error(L, "ziparchive: index %d is invalid", info->entryIndex);
+		return function(L, info, entry);
+	}
+	luaL_argerror(L, 2, "improper key");
+	return 1;
+}
+
+
 static int _lziparchive_fileentry_tostring(lua_State* L) {
 	char buffer[100];
 
@@ -947,8 +997,15 @@ static int _lziparchive_fileentry_tostring(lua_State* L) {
 		lua_pushstring(L, buffer);
 		sprintf(buffer, ", crc = %u", entry->GetCRC());
 		lua_pushstring(L, buffer);
-		sprintf(buffer, ", md5 = %u", entry->GetMD5());
-		lua_pushstring(L, buffer);
+		{
+			char hex[2 * 16 + 1];
+			int i;
+			for (i = 0; i < 16; i++)
+				sprintf(hex + 2 * i, "%02x", entry->GetMD5()[i]);
+			hex[2 * 16] = 0;
+			sprintf(buffer, ", md5 = '%s'", hex);
+			lua_pushstring(L, buffer);
+		}
 		sprintf(buffer, ", offset = %u", entry->GetOffset());
 		lua_pushstring(L, buffer);
 		sprintf(buffer, ", timestamp = %u", entry->GetTimeStamp());
@@ -982,6 +1039,17 @@ static int ziparchive_fileentry_create_metatable(lua_State *L) {
 	}
 
 	lua_pushcclosure( L, _zafe_index, 1 );
+	lua_settable(L, -3);
+
+	lua_pushliteral(L, "__newindex");						// metatable __index
+	lua_newtable(L);										// metatable __index table table
+
+	for (const _zafe_index_properties_reg* l = _zafe_newindex_properties; l->name; l++) {
+		lua_pushlightuserdata(L, (void*)l->func);
+		lua_setfield(L, -2, l->name);
+	}
+
+	lua_pushcclosure(L, _zafe_newindex, 1);
 	lua_settable(L, -3);
 
 	lua_pop(L, 1);
