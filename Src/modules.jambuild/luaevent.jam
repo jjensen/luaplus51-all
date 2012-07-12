@@ -1,0 +1,100 @@
+if $(MSVCNT)
+{
+
+local SRCS =
+        src/buffer_event.c
+        src/event_buffer.c
+        src/event_callback.c
+        src/luaevent.c
+        src/utility.c
+;
+
+SRCS +=
+       #libevent/arc4random.c
+       libevent/buffer.c
+       libevent/bufferevent-internal.h
+       libevent/bufferevent.c
+       libevent/bufferevent_async.c
+       libevent/bufferevent_filter.c
+       libevent/bufferevent_openssl.c
+       libevent/bufferevent_pair.c
+       libevent/bufferevent_ratelim.c
+       libevent/bufferevent_sock.c
+       libevent/buffer_iocp.c
+       libevent/changelist-internal.h
+       libevent/config.h.in
+       libevent/defer-internal.h
+       #libevent/devpoll.c
+       #libevent/epoll.c
+       #libevent/epoll_sub.c
+       libevent/evbuffer-internal.h
+       libevent/evdns.c
+       libevent/evdns.h
+       libevent/event-internal.h
+       libevent/event.c
+       libevent/event.h
+       libevent/event_iocp.c
+       libevent/event_tagging.c
+       libevent/evhttp.h
+       libevent/evmap-internal.h
+       libevent/evmap.c
+       #libevent/evport.c
+       libevent/evrpc-internal.h
+       libevent/evrpc.c
+       libevent/evrpc.h
+       libevent/evsignal-internal.h
+       libevent/evthread-internal.h
+       libevent/evthread.c
+       #libevent/evthread_pthread.c
+       libevent/evthread_win32.c
+       libevent/evutil.c
+       libevent/evutil.h
+       libevent/evutil_rand.c
+       libevent/ht-internal.h
+       libevent/http-internal.h
+       libevent/http.c
+       libevent/install-sh
+       libevent/iocp-internal.h
+       libevent/ipv6-internal.h
+       #libevent/kqueue.c
+       libevent/listener.c
+       libevent/log-internal.h
+       libevent/log.c
+       libevent/minheap-internal.h
+       libevent/mm-internal.h
+       #libevent/poll.c
+       libevent/ratelim-internal.h
+       #libevent/select.c
+       libevent/signal.c
+       libevent/strlcpy-internal.h
+       libevent/strlcpy.c
+       libevent/util-internal.h
+       libevent/win32select.c
+;
+
+C.ActiveTarget luaevent ;
+
+C.Defines : HAVE_CONFIG_H ;
+C.IncludeDirectories : include ;
+C.IncludeDirectories : libevent libevent/compat libevent/include ;
+C.IncludeDirectories : libevent/WIN32-Code ;
+
+if $(MSVCNT)  &&  $(PLATFORM) in win32 win64 {
+	if $(PLATFORM) = win32 {
+		C.IncludeDirectories : c:/OpenSSL-Win32/include c:/OpenSSL-Win32/include/openssl ;
+		C.LinkDirectories : c:/OpenSSL-Win32/lib/VC/static ;
+	} else {
+		C.IncludeDirectories : c:/OpenSSL-Win64/include c:/OpenSSL-Win64/include/openssl ;
+		C.LinkDirectories : c:/OpenSSL-Win64/lib/VC/static ;
+	}
+
+	#C.LinkPrebuiltLibraries : libeay32 ssleay32 ;
+	C.LinkPrebuiltLibraries : libeay32MT ssleay32MT advapi32 gdi32 user32 ;
+	C.LinkPrebuiltLibraries : shell32 ws2_32 ;
+}
+
+CopyFile luaevent : $(LUA_LDIR)/luaevent.lua : $(SUBDIR)/lua/luaevent.lua ;
+
+Lua.CModule : luaevent/core : $(SRCS) ;
+
+}
