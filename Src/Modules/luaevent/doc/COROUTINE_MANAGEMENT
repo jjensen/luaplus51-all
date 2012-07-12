@@ -1,0 +1,39 @@
+Due to the issue w/ self-resuming threads and crashing out threads, 
+a management system needs to be in place.
+
+Example thread system:
+
+MAIN
+EVENT_LOOP --------running---
+WAITING ON READ
+WAITING ON WRITE
+WAITING ON CONNECT
+
+
+Since main and the other 'waiting' threads are yielded, it is unsafe to call things arbitrarily on them 
+or resume them from themselves...
+However the EVENT_LOOP one is running and thus can execute the callbacks (which can resume the threads)
+Each of the 'waiting' events are attached to an event and contain a pointer, this pointer can be setup to point
+to a per event_base item which will be updated w/ the lua_State of whatever calls EVENT_LOOP...
+this will guarantee that the thread will be resumed from the currently running EVENT_LOOP
+
+
+Other system that's more complicated and less likely:
+
+MAIN
+EVENT_LOOP a -----running---
+
+WAITING ON READ a
+WAITING ON WRITE a
+
+EVENT_LOOP b ----yielded
+WAITING ON READ b
+
+
+Since there can only be one event_loop running per event_base, you do not have to worry about 
+cross-pollination of the different waits...
+
+NOTES:
+If the event_loop thread goes away... then the waiting coroutines will have no way to get back...
+though in this case, they are dead in the water anyways.. until a new event_loop starts...
+in which case the lua_State references has been updated...

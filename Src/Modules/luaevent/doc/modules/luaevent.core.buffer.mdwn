@@ -1,0 +1,60 @@
+----
+Functions:
+
+[[toc levels=1]]
+
+## buffer.new
+* Instantiates a new buffer object
+
+## buffer:add
+* Successively concatenates each of the arguments onto the buffer
+* Input: `(...)`
+	* Sequence of strings or buffer instances
+* Side Effects: Buffers 'add'ed are emptied of their contents (per libevent semantics)
+* Output: Amount of data added
+(QUESTION: Should add return the buffer itself so that chaining can be easy)
+
+## buffer:length (__len)
+* Output: Length of the remaining buffer contents
+
+## buffer:get\_data (__tostring)
+* Input:
+	* `()` and `__tostring` - Returns all data in the buffer
+	* `(len)` - Returns data up to `len` bytes long
+	* `(begin, len)` - Returns data beginning at `begin` up to `len` bytes long
+	* If `begin < 0`, wraps at data length.  Ex:  (-1, 1) returns last byte, (-2, 2) returns last 2 bytes
+* Output: A copy of contents from the buffer
+
+## buffer:read
+* Reads data from a file-descriptor/socket into the buffer directly
+* Input: `(fd, length)`
+	* `fd` - File descriptor to read from
+	* `length` - Amount of data to attempt to read into the buffer
+* Output: Length of data actually read into the buffer
+* Side Effects: fd/socket 'drain'ed of data
+
+## buffer:write
+* Attempts to write out all buffer's data to a file-descriptor/socket
+* Input: `(fd, length)`
+	* `fd` - File descriptor to write to
+	* `socket` - [LuaSocket](http://www.luaforge.net/projects/luasocket)-based socket handle
+* Output: Amount of data written
+* Side Effects: buffer 'drain'ed of written data
+
+## buffer:readline
+* Reads a line terminated by either '\r\n', '\n\r', '\r', or, '\n'
+* Output:
+	* If no terminator found: nil
+	* If terminator found: Line returned without terminators
+* NOTE: If a '\r' or '\n' are the last characters in the buffer, then the data is returned even if the
+potential later data would contain the paired '\n' or '\r'. (TODO: Ask libevent list on how this is handled...)
+
+## buffer:drain
+* Removes data from the buffer
+* Input: `(amt)`
+	* If `amt < 0` drains all data due to auto-casting to unsigned int and capping...
+	TODO: Add code to check this condition explicitly for safety
+	* If `amt >= 0`, drain up to amt from the buffer (no problem w/ too-large values)
+
+## buffer:close (__gc)
+* Immediately frees/closes a buffer.  Note that 

@@ -1,0 +1,19 @@
+-- Listener Scenario
+create socket, perform bind, set listening
++add read-event listener
++start loop
+
+-- Comm Scenario
+provided socket
+-inside loop
+begin coro
+	read - data not ready
+	yield sock, needRead
+end coro
+coro parent == callback
+(coro parent
+	call coro(sock, event)
+	if not ok, go back.. end
+	if newEvent ~= event then
+		unset event, reset newEvent
+	end)

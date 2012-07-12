@@ -1,0 +1,13 @@
+LuaEvent is a Lua wrapper around [libevent](http://monkey.org/~provos/libevent/).
+It provides an interface with which you can write applications that wait on
+file-descriptor events (primarily socket-based).
+
+[[API_Reference|api]]
+
+----
+Related links for this project:
+
+* LuaForge @ <http://luaforge.net/projects/luaevent/>
+* GitRepo @ <http://repo.or.cz/w/luaevent.git/>
+* ohloh @ <http://www.ohloh.net/projects/8077/>
+

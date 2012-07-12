@@ -1,0 +1,15 @@
+LuaEvent API Documentation
+----
+
+Modules:
+
+* [[modules/luaevent.core]] - Interface to core libevent functions
+	* [[modules/luaevent.core.buffer]] - Interface to libevent's evbuffer
+	* [[modules/luaevent.core.bufferevent]] - Interface to libevent's bufferevent
+* [[modules/luaevent]] - Higher level wrapper mimicking [copas](http://www.luaforge.net/projects/copas)
+
+Note: Any reference to a "File Descriptor" may in fact be one of the following:
+
+* Integer value of file descriptor
+* lightuserdata 'handle' (cast to a native integer)
+* [LuaSocket](http://www.luaforge.net/projects/luasocket)-based socket handle

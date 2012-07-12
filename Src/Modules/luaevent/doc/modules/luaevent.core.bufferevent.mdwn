@@ -1,0 +1,55 @@
+----
+Functions:
+
+[[toc levels=1]]
+
+## Read/Write/Error Callback:
+* Input: `(bufferevent, what)`
+	* `bufferevent` - Reference to the bufferevent that raised the callback
+	* `what` - What happened:
+		* == `EVBUFFER_READ` - Buffer contains at least low-watermark length and no more than high-watermark length
+		* == `EVBUFFER_WRITE` - Buffer ready to write to
+		* (other) - Error condition
+			* May be or-ed/added with `EVBUFFER_READ`/`EVBUFFER_WRITE` to specify where it happened
+			* `EVBUFFER_ERROR` - Marks error condition (need to look at 'errno' for error.. not exposed yet)
+			* `EVBUFFER_TIMEOUT` - Marks activity timeout
+			* `EVBUFFER_EOF` - Marks disconnection/end-of-file condition
+
+## bufferevent.new
+* Input: `(fd, read, write, error)`
+	* `fd` - File descriptor to watch
+	* `read` - (may be nil) - callback to call when data in buffer is above the low watermark
+	* `write` - (may be nil) - callback to call when the output buffer contains less data than the low watermark
+	* `error` - callback to call when there is an erroneous condition
+
+## bufferevent (__gc)
+* Releases the bufferevent
+	* Disconnects event buffers since they were owned by the bufferevent object in 'C' land
+	* Disconnects all references so that any erroneous callbacks don't cause failures
+
+## bufferevent:get_read
+* Obtains the input buffer associated w/ the bufferevent
+
+## bufferevent:get_write
+* Obtains the output buffer associated w/ the bufferevent
+
+## bufferevent:set_read_watermarks
+* Input: `(low, high)`
+	* `low` - Size of buffer at which an event would be fired
+	* `high` - Maximum size of buffer to read to
+
+## bufferevent:set_write_watermarks
+* Input: `(low, high)`
+	* `low` - When buffer is below this, the event will be fired
+	* `high` - N/A to libevent, user app may use this
+
+## bufferevent:set_timeouts
+* Sets timeouts for the bufferevent's events
+* Input: `(read, write)`
+	* `read` - Read readiness timeout
+	* `write` - Write readiness timeout
+
+## bufferevent:enable/disable
+* Input: `event flag`
+	* `event flag` - `EV_READ`, `EV_WRITE`, or `EV_READ|EV_WRITE`
+* Enables/Disables events from being triggered in the next round (some events may get triggered after disable is called)

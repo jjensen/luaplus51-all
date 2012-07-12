@@ -1,0 +1,85 @@
+0.4.1 - 2012-04-12
+ * Fixes event_callback handling to handle the no-return-value case better
+ * Cleans up timertest formatting
+======
+0.4.0 - 2012-04-10
+ * Fixes buffer event tests to work with current bufferevent behavior
+ * Fixed buffer event and related tests to be compatible with Lua 5.2
+ * Makes core segment compatible with Lua 5.2
+   * Remove use of 'module' in sources
+   * Remove assumption that luaevent will set globals
+     - Only 'core' will modify global table (creating luaevent.core)
+ * Fixes bug in merge for receivePartial
+======
+0.3.2 - 2011-07-06
+ * Fixed recorded version in Lua
+0.3.1 - 2011-01-15
+ * Merged all of luaevent-prosody (0.1.1) changes (missed updates)
+0.3.0 - 2011-01-15
+ * Fixed libevent 2.0 compilation errors
+ * Merged all of luaevent-prosody (0.1.0) changes
+ * Removes low-level read access to watermark & timeout values that break API
+ * Switches to watermark write accessor function to avoid API break
+======
+luaevent-prosody 0.1.1 - 2010-02-25
+ * Fix overflow with high event timeouts
+======
+luaevent-prosody 0.1.0 - 2010-02-15
+ * Fixed stack slot leak in event callbacks
+ * Fixed stack slot leak when error occurs in callback
+ * Various compilation fixes for Windows/ANSI C
+ * Silence some compiler warnings
+ + Add base:loopexit() method, with timeout support
+ + Add base:method() to discover backend in use
+ + Add core.libevent_version() to detect libevent version
+ + Add _NAME and _VERSION fields to module table
+ + base:addevent() now accepts integer fd to watch
+ + Switched from premake to standard Makefile for building
+======
+0.2.0 - 2007-09-21
+ + Reorganized project to better fit GIT
+ + Refactored and cleaned sources
+   * Broke event_callback into its own source file
+ + Added timer/timeout capabilities + minor test
+ + Added event_buffer object
+  * Can 'add' a sequence of strings/event_buffers
+  * Can 'get_data', 'length','drain','close' and create new instances
+  * Can 'readline', 'read' from file des, 'write' to file des
+  * Added lunit tests for basic functions (read/write from/to FD)
+======
+0.1.2 - 2007-08-18
++ Setup system to use new coro management as described in COROUTINE_MANAGEMENT
+  The callbacks are called from the event_loop 'thread' rather than that which they are
+  created in.  This will prevent the self-resume problem as well as dead-thread problems.
+- Recognized issues to fix in next release:
+  * Socket/event closing needs to be cleaned
+  * luaevent.lua needs refactoring
+  * luaevent.[ch] need to be cleaned up
+======
+0.1.1 - 2007-06-13
++ Fixed event-handling code to cancel events on nothing being returned
++ Added socket/object cleanup.
++ Filed bug to libevent about the strange valgrind-released errors
+- Recognized following issues:
+  Timeouts needed
+  Need to handle events setup from inside a coroutine... need to get a global Lua state from a thread...
+======
+0.1.0 - 2007-06-10 22:00 EST
+Completed mostly working version
+* Moved to a mode where addevent calls a callback  rather than it being instantiated within.
+	If the callback returns -1, then no event is ever setup,
+	Otherwise the integer value is used to setup the event.
+  This allows for using coroutine.wrap rather than a cooked-up wrapper
+* Tests work, although there are a few remaining issues:
+* Need to figure a good way of preserving the event object,
+  not sure if current method is good enough, since the socket
+  is the only anchor, and it is only held inside the coro.. 
+  circular reference, something that Lua 'handles' well.
+* Doing more than the maximum sockets the process is allows
+  causes strangeness to occur in libevent.. somehow
+  it is getting around to epoll_add which is causing valgrind
+  to barf.
+* Added cheap protection code for failures in callback handlers
+======
+0.0.0 - 2007-06-10 12:00 EST
+Initial public version, was broken due to self-resume coroutines
