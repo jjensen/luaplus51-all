@@ -1,6 +1,6 @@
 SubDir LUAPLUS ;
 
-C.Defines * : LUA_WIDESTRING=1 LUA_WIDESTRING_FILE=1 ;
+#C.Defines * : LUA_WIDESTRING=1 LUA_WIDESTRING_FILE=1 ;
 
 Workspace LuaPlus :
 		lua
