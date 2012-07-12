@@ -3186,6 +3186,8 @@ bool ZipArchive::ProcessFileList(ZipArchive::FileOrderList& fileOrderList, Proce
 			ZipArchive* cacheDrive = PFL_OpenArchive(archiveFileName, openArchives, m_flags);
 			if (cacheDrive) {
 				ZipEntryInfo* cacheFileEntry = cacheDrive->FindFileEntry(entryName);
+				if (!cacheFileEntry)
+					continue;
 				if (cacheFileEntry->GetCompressionMethod() == info.compressionMethod) {
 					ZipEntryFileHandle cacheFileHandle;
 					if (cacheDrive->FileOpen(entryName, cacheFileHandle)) {
@@ -3205,9 +3207,7 @@ bool ZipArchive::ProcessFileList(ZipArchive::FileOrderList& fileOrderList, Proce
 							return false;
 						}
 					}
-				}
-				else
-				{
+				} else {
 					ZipEntryFile cacheFile;
 					if (cacheFile.Open(*cacheDrive, entryName)) {
 						if (!filenameShown) {
