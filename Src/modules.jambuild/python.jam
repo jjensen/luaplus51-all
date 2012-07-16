@@ -32,7 +32,7 @@ if $(NT) {
 
 		HAS_PYTHON_LIB = 1 ;
 	}
-} else {
+} else if $(MACOSX) {
 	PYTHON_ROOT = /System/Library/Frameworks/Python.framework/Versions/2.7 ;
 	C.IncludeDirectories python : $(PYTHON_ROOT)/include/python2.7 ;
 	C.LinkDirectories python : $(PYTHON_ROOT)/lib ;
