@@ -1,3 +1,4 @@
+if $(NT)
 {
 
 local LIBWEBSOCKETS_SRCS =
