@@ -39,7 +39,7 @@ rule LuaApplication TARGET : OPTIONS
 		}
 		C.LinkPrebuiltLibraries : DelayImp ;
 	}
-	C.IncludeDirectories : $(LUAPLUS)/Src $(LUAPLUS)/Src/LuaPlus/Src ; # [ FSubDirPath LUAPLUS Src ] ;
+	C.IncludeDirectories : $(LUAPLUS)/Src $(LUAPLUS)/Src/LuaPlus/src ;
 	C.LinkLibraries : lua51 ;
 	if $(OS) = LINUX
 	{
