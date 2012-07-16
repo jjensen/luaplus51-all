@@ -29,7 +29,7 @@ LUA_API int  luaL_typeerror (lua_State *L, int idx, const char *tname);
 #endif /* LUA_VERSION_NUM < 502 */
 
 
-extern LB_API const char lb_libname[];
+LB_API const char lb_libname[];
 
 #define LB_LIBNAME lb_libname
 #define LB_VERSION "0.1"
