@@ -108,7 +108,7 @@ if $(MSVCNT) {
 } else if $(UNIX) {
 	C.LinkPrebuiltLibraries : stdc++ dl ;
 	if ! $(OS) in MACOS MACOSX {
-		C.LinkFlags : -Wl,-soname,luaplus51-1202.so ;
+		C.LinkFlags : -Wl,-soname,lua51.so ;
 	}
 }
 
