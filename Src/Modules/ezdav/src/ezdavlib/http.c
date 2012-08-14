@@ -1053,6 +1053,8 @@ http_receive_response_header(HTTP_CONNECTION *connection, HTTP_RESPONSE *respons
 		}
 	}
 	_http_allocator(_http_allocator_user_data, line_buffer, 0);
+	if (connection->read_count < 0)
+		return HT_NETWORK_ERROR;
 	return HT_OK;
 }
 
@@ -1181,7 +1183,7 @@ http_receive_response_entity(HTTP_CONNECTION *connection, HTTP_RESPONSE *respons
 			connection->read_index += content_size_to_read;
 		}
 	}
-	if(connection->persistent)
+	if(connection->persistent  &&  !connection->lazy)
 	{
 		if(http_has_header_field(response, "Connection", "Close"))
 		{
@@ -1189,6 +1191,8 @@ http_receive_response_entity(HTTP_CONNECTION *connection, HTTP_RESPONSE *respons
 		}
 	}
 	_http_allocator(_http_allocator_user_data, line_buffer, 0);
+	if (connection->read_count < 0)
+		return HT_NETWORK_ERROR;
 	return HT_OK;
 }
 
