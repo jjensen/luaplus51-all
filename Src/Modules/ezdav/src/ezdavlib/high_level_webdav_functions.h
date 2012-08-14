@@ -41,6 +41,8 @@ int dav_opendir(HTTP_CONNECTION *connection, const char *directory, DAV_OPENDIR_
 int dav_opendir_ex(HTTP_CONNECTION *connection, const char *directory, const char *addition_prop, DAV_OPENDIR_DATA *oddata);
 int dav_readdir(DAV_OPENDIR_DATA *oddata);
 void dav_closedir(DAV_OPENDIR_DATA *oddata);
+int dav_attributes(HTTP_CONNECTION *connection, const char *path, DAV_OPENDIR_DATA *oddata);
+int dav_attributes_ex(HTTP_CONNECTION *connection, const char *path, const char *addition_prop, DAV_OPENDIR_DATA *oddata);
 
 int dav_mkdir(HTTP_CONNECTION *connection, const char *dir);
 int dav_delete(HTTP_CONNECTION *connection, const char *resource);

@@ -1079,7 +1079,7 @@ http_receive_response_entity(HTTP_CONNECTION *connection, HTTP_RESPONSE *respons
 		is_chunked = strcmp(http_find_header_field(response, "Transfer-Encoding", ""), "chunked") == 0;
 		stage = is_chunked ? HTTP_RECEIVING_CHUNKED_HEADER : HTTP_RECEIVING_CONTENT; /* start reading the body */
 	}
-	if (content_size == 0)
+	if (content_size <= 0)
 	{
 		stage = HTTP_THE_DEVIL_TAKES_IT; /* no content */
 	}    

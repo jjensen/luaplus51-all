@@ -39,13 +39,17 @@ struct FileFindInfo {
 static int FileFindNextMatch(struct FileFindInfo* info) {
 	while (dav_readdir(&info->oddata)) {
 		if (info->oddata.filename[0]) {
-			if (davglob_WildMatch(info->wildcard, info->oddata.filename, 0)) {
-				strcpy(info->pathEnd, info->oddata.filename);
-				if (info->oddata.type == OD_DIRECTORY) {
-					if (strcmp(info->oddata.filename, ".") == 0  ||  strcmp(info->oddata.filename, "..") == 0)
-						continue;
+			if (info->wildcard) {
+				if (davglob_WildMatch(info->wildcard, info->oddata.filename, 0)) {
+					strcpy(info->pathEnd, info->oddata.filename);
+					if (info->oddata.type == OD_DIRECTORY) {
+						if (strcmp(info->oddata.filename, ".") == 0  ||  strcmp(info->oddata.filename, "..") == 0)
+							continue;
+					}
+					*info->pathEnd = 0;
+					return 1;
 				}
-				*info->pathEnd = 0;
+			} else {
 				return 1;
 			}
 		}
@@ -278,40 +282,52 @@ static int ezdav_dir_create_metatable(lua_State *L) {
 static int l_ezdav_dir_first(lua_State *L, HTTP_CONNECTION* connection) {
 	const char* wildcard = luaL_checkstring(L, 2);
 	const char* origWildcard = wildcard;
-	char* whichWildcard;
 
 	struct FileFindInfo* info = (struct FileFindInfo*)lua_newuserdata(L, sizeof(struct FileFindInfo));
 
 	char* ptr;
 	char* slashPtr;
-	int ret;
+	int hasWildcard = 0;
 
 	info->path = malloc(strlen(wildcard) + 256);
 	strcpy(info->path, wildcard);
-	for (ptr = info->path; *ptr; ++ptr)
+	for (ptr = info->path; *ptr; ++ptr) {
 		if (*ptr == '\\')
 			*ptr = '/';
+		else if (*ptr == '*'  ||  *ptr == '?')
+			hasWildcard = 1;
+	}
 	slashPtr = strrchr(info->path, '/');
-	if (info->path + strlen(info->path) - 1 == slashPtr) {
+	if (slashPtr  &&  info->path + strlen(info->path) - 1 == slashPtr) {
 		char* oldSlashPtr = slashPtr;
 		*slashPtr = 0;
 		slashPtr = strrchr(info->path, '/');
 		*oldSlashPtr = '/';
 	}
-	wildcard = slashPtr ? slashPtr + 1 : info->path;
-	info->wildcard = malloc(strlen(wildcard) + 1);
-	strcpy(info->wildcard, wildcard);
-	if (slashPtr)
-		*++slashPtr = 0;
-	else
-		info->path[0] = 0;
+	if (hasWildcard) {
+		wildcard = slashPtr ? slashPtr + 1 : info->path;
+		info->wildcard = malloc(strlen(wildcard) + 1);
+		strcpy(info->wildcard, wildcard);
+		if (slashPtr)
+			*++slashPtr = 0;
+		else
+			info->path[0] = 0;
+	} else {
+		info->wildcard = NULL;
+	}
 	info->pathEnd = info->path + strlen(info->path);
 
 	info->first = 1;
-	if (dav_opendir(connection, slashPtr ? info->path : ".", &info->oddata)) {
-		if (!FileFindNextMatch(info))
+
+	if (info->wildcard) {
+		if (dav_opendir(connection, slashPtr ? info->path : ".", &info->oddata) == HT_FALSE)
+			return 0;
+	} else {
+		if (dav_attributes(connection, info->path, &info->oddata) == HT_FALSE)
 			return 0;
 	}
+	if (!FileFindNextMatch(info))
+		return 0;
 
 	luaL_getmetatable(L, EZDAV_DIR_METATABLE);
 	lua_setmetatable(L, -2);
@@ -340,16 +356,6 @@ static int ezdav_dir_matchiter(lua_State* L) {
 	return 0;
 }
 
-/*
-static int l_ezdav_dir_attributes(lua_State* L) {
-	struct FileFindInfo* info;
-	l_ezdav_dir_first(L);
-	info = ezdav_dir_checkmetatable(L, -1);
-	ezdav_dir_index_table_helper(L, info);
-	ezdav_dir_close_helper(L, info);
-	return 1;
-}
-*/
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
@@ -591,6 +597,17 @@ static HTTP_CONNECTION* ezdav_connection_checkmetatable(lua_State *L, int index)
 }
 
 
+static int ezdav_connection_attributes(lua_State* L) {
+	HTTP_CONNECTION* connection = ezdav_connection_checkmetatable_internal(L, 1);
+	if (l_ezdav_dir_first(L, connection) == 0)
+		return 0;
+
+	luaL_getmetatable(L, EZDAV_DIR_METATABLE);
+	lua_setmetatable(L, -2);
+	return 1;
+}
+
+
 static int ezdav_connection_close(lua_State *L) {
 	HTTP_CONNECTION* connection = ezdav_connection_checkmetatable_internal(L, 1);
 	if (connection) {
@@ -687,6 +704,7 @@ static int ezdav_connection_gc(lua_State *L) {
 
 
 static const struct luaL_reg ezdav_connection_index_functions[] = {
+	{ "attributes",			ezdav_connection_attributes },
 	{ "close",				ezdav_connection_close },
 	{ "glob",				ezdav_connection_glob },
 	{ "match",				ezdav_connection_match },

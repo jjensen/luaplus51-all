@@ -426,8 +426,9 @@ dav_add_if_header_field(HTTP_CONNECTION *connection, HTTP_REQUEST *request)
 int
 dav_opendir_on_request_header(HTTP_CONNECTION *connection, HTTP_REQUEST *request, HTTP_RESPONSE *response, void *data)
 {
+	DAV_OPENDIR_DATA *oddata = (DAV_OPENDIR_DATA *) data;
 	int error = HT_OK;
-	if((error = http_add_header_field_number(request, "Depth", 1)) != HT_OK)
+	if((error = http_add_header_field_number(request, "Depth", oddata->directory_length == 0 ? 0 : 1)) != HT_OK)
 	{
 		return error;
 	}
@@ -493,7 +494,7 @@ dav_opendir_on_response_entity(HTTP_CONNECTION *connection, HTTP_REQUEST *reques
 }
 
 int
-dav_opendir_ex(HTTP_CONNECTION *connection, const char *directory, const char *additional_prop, DAV_OPENDIR_DATA *oddata)
+dav_opendir_ex_helper(HTTP_CONNECTION *connection, const char *directory, unsigned int directory_length, const char *additional_prop, DAV_OPENDIR_DATA *oddata)
 {
 	DAV_PROPFIND *propfind = NULL;
 	if(oddata == NULL || directory == NULL)
@@ -501,7 +502,7 @@ dav_opendir_ex(HTTP_CONNECTION *connection, const char *directory, const char *a
 		return HT_FALSE;
 	}
 	memset(oddata, 0, sizeof(DAV_OPENDIR_DATA));
-	oddata->directory_length = strlen(directory);
+	oddata->directory_length = directory_length;
 	oddata->additional_prop = additional_prop;
 	if(http_exec(connection, HTTP_PROPFIND, directory, 
 				dav_opendir_on_request_header, dav_opendir_on_request_entity, 
@@ -513,9 +514,27 @@ dav_opendir_ex(HTTP_CONNECTION *connection, const char *directory, const char *a
 }
 
 int
+dav_opendir_ex(HTTP_CONNECTION *connection, const char *directory, const char *additional_prop, DAV_OPENDIR_DATA *oddata)
+{
+	return dav_opendir_ex_helper(connection, directory, strlen(directory), additional_prop, oddata);
+}
+
+int
 dav_opendir(HTTP_CONNECTION *connection, const char *directory, DAV_OPENDIR_DATA *oddata)
 {
 	return dav_opendir_ex(connection, directory, NULL, oddata);
+}
+
+int
+dav_attributes_ex(HTTP_CONNECTION *connection, const char *path, const char *additional_prop, DAV_OPENDIR_DATA *oddata)
+{
+	return dav_opendir_ex_helper(connection, path, 0, additional_prop, oddata);
+}
+
+int
+dav_attributes(HTTP_CONNECTION *connection, const char *path, DAV_OPENDIR_DATA *oddata)
+{
+	return dav_attributes_ex(connection, path, NULL, oddata);
 }
 
 int
