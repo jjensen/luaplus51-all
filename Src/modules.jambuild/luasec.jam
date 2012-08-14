@@ -33,11 +33,11 @@ if $(MSVCNT)  &&  $(PLATFORM) in win32 win64 {
 	C.Defines luasec : "LUASEC_API=__declspec(dllexport)" ;
 	C.LinkPrebuiltLibraries luasec : wsock32 ;
 	if $(PLATFORM) = win32 {
-		C.IncludeDirectories : c:/OpenSSL-Win32/include c:/OpenSSL-Win32/include/openssl ;
-		C.LinkDirectories : c:/OpenSSL-Win32/lib/VC/static ;
+		C.IncludeDirectories luasec : c:/OpenSSL-Win32/include c:/OpenSSL-Win32/include/openssl ;
+		C.LinkDirectories luasec : c:/OpenSSL-Win32/lib/VC/static ;
 	} else {
-		C.IncludeDirectories : c:/OpenSSL-Win64/include c:/OpenSSL-Win64/include/openssl ;
-		C.LinkDirectories : c:/OpenSSL-Win64/lib/VC/static ;
+		C.IncludeDirectories luasec : c:/OpenSSL-Win64/include c:/OpenSSL-Win64/include/openssl ;
+		C.LinkDirectories luasec : c:/OpenSSL-Win64/lib/VC/static ;
 	}
 	C.LinkPrebuiltLibraries luasec : libeay32MT ssleay32MT advapi32 gdi32 user32 ;
 } else {
