@@ -467,7 +467,6 @@ static void close_func (LexState *ls) {
   lua_assert(luaG_checkcode(f));
   lua_assert(fs->bl == NULL);
   ls->fs = fs->prev;
-  L->top -= 2;  /* remove table and prototype from the stack */
   /* last token read was anchored in defunct function; must reanchor it */
   if (fs) anchor_token(ls);
 #if LUA_REFCOUNT
@@ -475,6 +474,7 @@ static void close_func (LexState *ls) {
   setnilvalue(L->top);
   luarc_releasetable(L, fs->h);
 #endif /* LUA_REFCOUNT */
+  L->top -= 2;  /* remove table and prototype from the stack */
 }
 
 
