@@ -286,10 +286,13 @@ ActiveProject cURL ;
 SourceGroup : libcurl : $(CURL_LIB_SRCS) ;
 SourceGroup : zlib : $(ZLIB_SRCS) ;
 
-if $(MSVCNT)  &&  $(PLATFORM) in win32 win64 {
+#if $(MSVCNT)  &&  $(PLATFORM) in win32 win64 {
 	C.Defines : __WIN32__ CURL_STATICLIB CURL_DISABLE_LDAP ;
 	C.Defines : HAVE_ZLIB_H HAVE_ZLIB HAVE_LIBZ ;
+	C.Defines : USE_LIBSSH2 HAVE_LIBSSH2 HAVE_LIBSSH2_H LIBSSH2_WIN32 LIBSSH2_LIBRARY ;
+
 	C.IncludeDirectories : ../zlib ;
+	C.IncludeDirectories : d:/libssh2/include ;
 	C.Defines : USE_SSLEAY ;
 
 	if $(PLATFORM) = win32 {
@@ -300,13 +303,14 @@ if $(MSVCNT)  &&  $(PLATFORM) in win32 win64 {
 		C.LinkDirectories : c:/OpenSSL-Win64/lib/VC/static ;
 	}
 
+	C.LinkDirectories : d:/libssh2/win32/lib ;
 	#C.LinkPrebuiltLibraries : libeay32 ssleay32 ;
-	C.LinkPrebuiltLibraries : libeay32MT ssleay32MT advapi32 gdi32 user32 ;
+	C.LinkPrebuiltLibraries : libeay32MT ssleay32MT libssh2 advapi32 gdi32 user32 ;
 
 	C.IncludeDirectories : src/curl-7.21.6/include ;
 	C.LinkPrebuiltLibraries : ws2_32 ;
 
 	Lua.CModule : : $(CURL_LIB_SRCS) $(SRCS) ;
-}
+#}
 
 }
