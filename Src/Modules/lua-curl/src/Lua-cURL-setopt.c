@@ -196,6 +196,7 @@ static struct {
   {P"http_transfer_decoding ", CURLOPT_HTTP_TRANSFER_DECODING , l_easy_setopt_long},
 #endif
   /* ftp options */
+  {P"ftpcreatemissingdirs", CURLOPT_FTP_CREATE_MISSING_DIRS, l_easy_setopt_long},
   /* protocol options */
   {P"transfertext", CURLOPT_TRANSFERTEXT, l_easy_setopt_long},
   {P"crlf", CURLOPT_CRLF, l_easy_setopt_long},
@@ -227,6 +228,11 @@ static struct {
   {P"port", CURLOPT_PORT, l_easy_setopt_long},
   {P"TCP_nodelay", CURLOPT_TCP_NODELAY, l_easy_setopt_long},
   {P"ssl_verifypeer", CURLOPT_SSL_VERIFYPEER, l_easy_setopt_long},
+  {P"dirlistonly", CURLOPT_DIRLISTONLY, l_easy_setopt_long},
+  {P"prequote", CURLOPT_PREQUOTE, l_easy_setopt_strings},
+  {P"quote", CURLOPT_QUOTE, l_easy_setopt_strings},
+  {P"postquote", CURLOPT_POSTQUOTE, l_easy_setopt_strings},
+
   /* ssl options */
   {P"sslcert", CURLOPT_SSLCERT, l_easy_setopt_string},
   {P"sslcerttype", CURLOPT_SSLCERTTYPE, l_easy_setopt_string},
