@@ -232,6 +232,10 @@ static struct {
   {P"prequote", CURLOPT_PREQUOTE, l_easy_setopt_strings},
   {P"quote", CURLOPT_QUOTE, l_easy_setopt_strings},
   {P"postquote", CURLOPT_POSTQUOTE, l_easy_setopt_strings},
+  /* ssh options */
+  {P"ssh_auth_types", CURLOPT_SSH_AUTH_TYPES, l_easy_setopt_long},
+  {P"ssh_public_keyfile", CURLOPT_SSH_PUBLIC_KEYFILE, l_easy_setopt_string},
+  {P"ssh_private_keyfile", CURLOPT_SSH_PRIVATE_KEYFILE, l_easy_setopt_string},
 
   /* ssl options */
   {P"sslcert", CURLOPT_SSLCERT, l_easy_setopt_string},
