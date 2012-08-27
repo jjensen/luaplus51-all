@@ -17,4 +17,4 @@ lua.exe ..\apps\wxluafreeze\apps\wxluafreeze.lua wxluafreeze.exe myprogram.wx.lu
 
 3) Optionally use the program "upx" to compress the executable. The wxLuaFreeze
 program is ~4.5 Mb in release mode using the MSVC6, but after compression
-it's size is ~1.5 Mbytes, about 1/3 the size!
+it's size is ~1.5 Mbytes, about 1/3 the size.

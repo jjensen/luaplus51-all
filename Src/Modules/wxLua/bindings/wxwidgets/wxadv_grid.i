@@ -23,16 +23,16 @@
 %define WXGRID_MIN_COL_WIDTH
 %define WXGRID_DEFAULT_SCROLLBAR_WIDTH
 
-%define_string wxGRID_VALUE_STRING
-%define_string wxGRID_VALUE_BOOL
-%define_string wxGRID_VALUE_NUMBER
-%define_string wxGRID_VALUE_FLOAT
-%define_string wxGRID_VALUE_CHOICE
-%define_string wxGRID_VALUE_TEXT
-%define_string wxGRID_VALUE_LONG
+%define_wxstring wxGRID_VALUE_STRING
+%define_wxstring wxGRID_VALUE_BOOL
+%define_wxstring wxGRID_VALUE_NUMBER
+%define_wxstring wxGRID_VALUE_FLOAT
+%define_wxstring wxGRID_VALUE_CHOICE
+%define_wxstring wxGRID_VALUE_TEXT
+%define_wxstring wxGRID_VALUE_LONG
 
-%define_string wxGRID_VALUE_CHOICEINT
-%define_string wxGRID_VALUE_DATETIME
+%define_wxstring wxGRID_VALUE_CHOICEINT
+%define_wxstring wxGRID_VALUE_DATETIME
 
 %wxchkver_2_8_8 %define wxGRID_AUTOSIZE
 
@@ -44,8 +44,6 @@
 
     void IncRef()
     void DecRef()
-
-    int GetRef() const // wxLua added function to help track if it needs to be refed
 
     virtual void SetParameters(const wxString& params)
 %endclass
@@ -123,15 +121,16 @@
 
     bool IsCreated()
     wxControl* GetControl()
-    // wxLua Note: This will delete the control
+    // wxLua Note: The attr will delete the control when it is destroyed.
     void SetControl(%ungc wxControl* control)
     wxGridCellAttr* GetCellAttr()
-    // wxLua Note: the attr must exist for the life of this object and it doesn't take ownership
+    // wxLua Note: the attr must exist for the life of this object since it doesn't take ownership nor call DecRef() on it.
     void SetCellAttr(wxGridCellAttr* attr)
 
     //virtual void Create(wxWindow* parent, wxWindowID id, wxEvtHandler* evtHandler)
     virtual void BeginEdit(int row, int col, wxGrid* grid)
-    virtual bool EndEdit(int row, int col, wxGrid* grid)
+    !%wxchkver_2_9_2 virtual bool EndEdit(int row, int col, wxGrid* grid)
+    %wxchkver_2_9_2 virtual bool EndEdit(int row, int col, const wxGrid *grid, const wxString& oldval, wxString *newval)
     virtual void Reset()
     //virtual wxGridCellEditor *Clone() const
     virtual void SetSize(const wxRect& rect)
@@ -219,10 +218,14 @@
     void SetSize(int num_rows, int num_cols)
     void SetOverflow(bool allow = true)
     void SetReadOnly(bool isReadOnly = true)
-    // wxLua Note: the renderer must exist for the life of this object and it doesn't take ownership, but it does call DecRef()
-    void SetRenderer(wxGridCellRenderer *renderer)
-    // wxLua Note: the editor must exist for the life of this object and it doesn't take ownership, but it does call DecRef()
-    void SetEditor(wxGridCellEditor* editor)
+
+    // wxLua calls IncRef() on the input renderer since the attr will call DecRef() on it.
+    // You should not have to worry about Inc/DecRef() of the renderer as you would in C++.
+    void SetRenderer(%IncRef wxGridCellRenderer *renderer)
+    // wxLua calls IncRef() on the input editor since the attr will call DecRef() on it.
+    // You should not have to worry about Inc/DecRef() of the editor as you would in C++.
+    void SetEditor(%IncRef wxGridCellEditor* editor)
+
     void SetKind(wxGridCellAttr::wxAttrKind kind)
     bool HasTextColour() const
     bool HasBackgroundColour() const
@@ -246,10 +249,14 @@
     void GetSize() const
 
     bool GetOverflow() const
-    wxGridCellRenderer *GetRenderer(wxGrid* grid, int row, int col) const
-    wxGridCellEditor *GetEditor(wxGrid* grid, int row, int col) const
+    // wxLua Note: The attr calls IncRef() on the returned renderer so wxLua will garbage collect it.
+    %gc wxGridCellRenderer *GetRenderer(wxGrid* grid, int row, int col) const
+    // wxLua Note: The attr calls IncRef() on the returned editor so wxLua will garbage collect it.
+    %gc wxGridCellEditor *GetEditor(wxGrid* grid, int row, int col) const
+
     bool IsReadOnly() const
     wxGridCellAttr::wxAttrKind GetKind()
+
     // wxLua Note: the attr must exist for the life of this object and it doesn't take ownership
     void SetDefAttr(wxGridCellAttr* defAttr)
 %endclass
@@ -260,11 +267,19 @@
 %class %delete wxGridCellAttrProvider, wxClientDataContainer
     wxGridCellAttrProvider()
 
-    // wxLua Note: You must call DecRef() on the returned attr.
-    wxGridCellAttr *GetAttr(int row, int col, wxGridCellAttr::wxAttrKind  kind) const
-    void SetAttr(%ungc wxGridCellAttr *attr, int row, int col)
-    void SetRowAttr(%ungc wxGridCellAttr *attr, int row)
-    void SetColAttr(%ungc wxGridCellAttr *attr, int col)
+    // wxLua Note: The attrprovider calls IncRef() on the returned attribute so wxLua will garbage collect it.
+    %gc wxGridCellAttr *GetAttr(int row, int col, wxGridCellAttr::wxAttrKind  kind) const
+
+    // wxLua calls IncRef() on the input attr since the attrprovider will call DecRef() on it.
+    // You should not have to worry about Inc/DecRef() of the attr as you would in C++.
+    void SetAttr(%IncRef wxGridCellAttr *attr, int row, int col)
+    // wxLua calls IncRef() on the input attr since the attrprovider will call DecRef() on it.
+    // You should not have to worry about Inc/DecRef() of the attr as you would in C++.
+    void SetRowAttr(%IncRef wxGridCellAttr *attr, int row)
+    // wxLua calls IncRef() on the input attr since the attrprovider will call DecRef() on it.
+    // You should not have to worry about Inc/DecRef() of the attr as you would in C++.
+    void SetColAttr(%IncRef wxGridCellAttr *attr, int col)
+
     void UpdateAttrRows( size_t pos, int numRows )
     void UpdateAttrCols( size_t pos, int numCols )
 %endclass
@@ -308,11 +323,19 @@
     void SetAttrProvider(wxGridCellAttrProvider *attrProvider)
     wxGridCellAttrProvider *GetAttrProvider() const
     virtual bool CanHaveAttributes()
-    virtual wxGridCellAttr* GetAttr( int row, int col, wxGridCellAttr::wxAttrKind  kind)
 
-    void SetAttr(%ungc wxGridCellAttr* attr, int row, int col)
-    void SetRowAttr(%ungc wxGridCellAttr *attr, int row)
-    void SetColAttr(%ungc wxGridCellAttr *attr, int col)
+    // wxLua Note: The table calls IncRef() on the returned attribute so wxLua will garbage collect it.
+    virtual %gc wxGridCellAttr* GetAttr( int row, int col, wxGridCellAttr::wxAttrKind  kind)
+
+    // wxLua calls IncRef() on the input attr since the table will call DecRef() on it.
+    // You should not have to worry about Inc/DecRef() of the attr as you would in C++.
+    void SetAttr(%IncRef wxGridCellAttr* attr, int row, int col)
+    // wxLua calls IncRef() on the input attr since the table will call DecRef() on it.
+    // You should not have to worry about Inc/DecRef() of the attr as you would in C++.
+    void SetRowAttr(%IncRef wxGridCellAttr *attr, int row)
+    // wxLua calls IncRef() on the input attr since the table will call DecRef() on it.
+    // You should not have to worry about Inc/DecRef() of the attr as you would in C++.
+    void SetColAttr(%IncRef wxGridCellAttr *attr, int col)
 %endclass
 
 // ---------------------------------------------------------------------------
@@ -347,14 +370,14 @@
     //virtual void SetValueAsDouble( int row, int col, double value );
     //virtual void SetValueAsBool( int row, int col, bool value );
     //
-    // For user defined types
-    //virtual void* GetValueAsCustom( int row, int col, const wxString& typeName );
-    //virtual void  SetValueAsCustom( int row, int col, const wxString& typeName, void* value );
+    // For user defined types - Custom values probably don't make too much sense for wxLua
+    // wxLua NOT overridable - virtual void* GetValueAsCustom( int row, int col, const wxString& typeName );
+    // wxLua NOT overridable - virtual void  SetValueAsCustom( int row, int col, const wxString& typeName, void* value );
     //
     // Overriding these is optional
     //
-    //virtual void SetView( wxGrid *grid ) { m_view = grid; }
-    //virtual wxGrid * GetView() const { return m_view; }
+    // wxLua NOT overridable - virtual void SetView( wxGrid *grid ) { m_view = grid; }
+    // wxLua NOT overridable - virtual wxGrid * GetView() const { return m_view; }
     //
     //virtual void Clear() {}
     //virtual bool InsertRows( size_t pos = 0, size_t numRows = 1 );
@@ -372,10 +395,10 @@
     // Attribute handling
     //
     // give us the attr provider to use - we take ownership of the pointer
-    //void SetAttrProvider(wxGridCellAttrProvider *attrProvider);
+    // wxLua NOT overridable - void SetAttrProvider(wxGridCellAttrProvider *attrProvider);
     //
     // get the currently used attr provider (may be NULL)
-    //wxGridCellAttrProvider *GetAttrProvider() const { return m_attrProvider; }
+    // wxLua NOT overridable - wxGridCellAttrProvider *GetAttrProvider() const { return m_attrProvider; }
     //
     // Does this table allow attributes?  Default implementation creates
     // a wxGridCellAttrProvider if necessary.
@@ -386,10 +409,10 @@
     //virtual wxGridCellAttr *GetAttr( int row, int col,
     //                                 wxGridCellAttr::wxAttrKind  kind );
     //
-    // these functions take ownership of the pointer
-    //virtual void SetAttr(wxGridCellAttr* attr, int row, int col);
-    //virtual void SetRowAttr(wxGridCellAttr *attr, int row);
-    //virtual void SetColAttr(wxGridCellAttr *attr, int col);
+    // In wxLua it would be much easier to simply store the attributes in your own Lua table and return them in GetAttr()
+    // wxLua NOT overridable - virtual void SetAttr(wxGridCellAttr* attr, int row, int col);
+    // wxLua NOT overridable - virtual void SetRowAttr(wxGridCellAttr *attr, int row);
+    // wxLua NOT overridable - virtual void SetColAttr(wxGridCellAttr *attr, int col);
 %endclass
 
 // ---------------------------------------------------------------------------
@@ -623,10 +646,18 @@
     void    DisableDragCell()
     bool    CanDragCell()
 
-    void    SetAttr(int row, int col, %ungc wxGridCellAttr *attr)
-    void    SetRowAttr(int row, %ungc wxGridCellAttr *attr)
-    void    SetColAttr(int col, %ungc wxGridCellAttr *attr)
-    wxGridCellAttr *GetOrCreateCellAttr(int row, int col) const
+    // wxLua calls IncRef() on the input attr since the table will call DecRef() on it.
+    // You should not have to worry about Inc/DecRef() of the attr as you would in C++.
+    void    SetAttr(int row, int col, %IncRef wxGridCellAttr *attr)
+    // wxLua calls IncRef() on the input attr since the table will call DecRef() on it.
+    // You should not have to worry about Inc/DecRef() of the attr as you would in C++.
+    void    SetRowAttr(int row, %IncRef wxGridCellAttr *attr)
+    // wxLua calls IncRef() on the input attr since the table will call DecRef() on it.
+    // You should not have to worry about Inc/DecRef() of the attr as you would in C++.
+    void    SetColAttr(int col, %IncRef wxGridCellAttr *attr)
+
+    // wxLua Note: The grid calls IncRef() on the returned attribute so wxLua will garbage collect it.
+    %gc wxGridCellAttr *GetOrCreateCellAttr(int row, int col) const
 
     void    SetColFormatBool(int col)
     void    SetColFormatNumber(int col)
@@ -646,6 +677,9 @@
     wxColour GetCellTextColour( int row, int col )
     wxFont   GetDefaultCellFont()
     wxFont   GetCellFont( int row, int col )
+
+    // %override [int horiz, int vert] wxGrid::GetDefaultCellAlignment( )
+    // C++ Func: void GetDefaultCellAlignment( int *horiz, int *vert )
     void     GetDefaultCellAlignment( int *horiz, int *vert )
 
     // %override [int horiz, int vert] wxGrid::GetCellAlignment( int row, int col )
@@ -690,15 +724,29 @@
     void    SetCellOverflow( int row, int col, bool allow )
     void    SetCellSize( int row, int col, int num_rows, int num_cols )
 
-    void    SetDefaultRenderer(%ungc wxGridCellRenderer *renderer)
-    void    SetCellRenderer(int row, int col, wxGridCellRenderer *renderer)
-    wxGridCellRenderer* GetDefaultRenderer() const
-    wxGridCellRenderer* GetCellRenderer(int row, int col)
+    // wxLua calls IncRef() on the input renderer since the table will call DecRef() on it.
+    // You should not have to worry about Inc/DecRef() of the attr as you would in C++.
+    void    SetDefaultRenderer(%IncRef wxGridCellRenderer *renderer)
+    // wxLua calls IncRef() on the input renderer since the table will call DecRef() on it.
+    // You should not have to worry about Inc/DecRef() of the attr as you would in C++.
+    void    SetCellRenderer(int row, int col, %IncRef wxGridCellRenderer *renderer)
 
-    void    SetDefaultEditor(%ungc wxGridCellEditor *editor)
-    void    SetCellEditor(int row, int col, wxGridCellEditor *editor)
-    wxGridCellEditor* GetDefaultEditor() const
-    wxGridCellEditor* GetCellEditor(int row, int col)
+    // wxLua Note: The grid calls IncRef() on the returned renderer so wxLua will garbage collect it.
+    %gc wxGridCellRenderer* GetDefaultRenderer() const
+    // wxLua Note: The grid calls IncRef() on the returned renderer so wxLua will garbage collect it.
+    %gc wxGridCellRenderer* GetCellRenderer(int row, int col)
+
+    // wxLua calls IncRef() on the input editor since the table will call DecRef() on it.
+    // You should not have to worry about Inc/DecRef() of the attr as you would in C++.
+    void    SetDefaultEditor(%IncRef wxGridCellEditor *editor)
+    // wxLua calls IncRef() on the input editor since the table will call DecRef() on it.
+    // You should not have to worry about Inc/DecRef() of the attr as you would in C++.
+    void    SetCellEditor(int row, int col, %IncRef wxGridCellEditor *editor)
+
+    // wxLua Note: The grid calls IncRef() on the returned editor so wxLua will garbage collect it.
+    %gc wxGridCellEditor* GetDefaultEditor() const
+    // wxLua Note: The grid calls IncRef() on the returned editor so wxLua will garbage collect it.
+    %gc wxGridCellEditor* GetCellEditor(int row, int col)
 
     wxString GetCellValue( int row, int col )
     // wxString GetCellValue( const wxGridCellCoords& coords )
@@ -734,12 +782,20 @@
     void    SetSelectionBackground(const wxColour& c)
     void    SetSelectionForeground(const wxColour& c)
 
-    void    RegisterDataType(const wxString& typeName, wxGridCellRenderer* renderer, wxGridCellEditor* editor)
-    wxGridCellEditor* GetDefaultEditorForCell(int row, int col) const
+    // wxLua calls IncRef() on the input renderer and editor since the table will call DecRef() on it.
+    // You should not have to worry about Inc/DecRef() of the attr as you would in C++.
+    void    RegisterDataType(const wxString& typeName, %IncRef wxGridCellRenderer* renderer, %IncRef wxGridCellEditor* editor)
+
+    // wxLua Note: The grid calls IncRef() on the returned editor so wxLua will garbage collect it.
+    %gc wxGridCellEditor* GetDefaultEditorForCell(int row, int col) const
     //wxGridCellEditor* GetDefaultEditorForCell(const wxGridCellCoords& coords) const
-    wxGridCellRenderer* GetDefaultRendererForCell(int row, int col) const
-    wxGridCellEditor* GetDefaultEditorForType(const wxString& typeName) const
-    wxGridCellRenderer* GetDefaultRendererForType(const wxString& typeName) const
+    // wxLua Note: The grid calls IncRef() on the returned renderer so wxLua will garbage collect it.
+    %gc wxGridCellRenderer* GetDefaultRendererForCell(int row, int col) const
+    // wxLua Note: The grid calls IncRef() on the returned editor so wxLua will garbage collect it.
+    %gc wxGridCellEditor* GetDefaultEditorForType(const wxString& typeName) const
+    // wxLua Note: The grid calls IncRef() on the returned renderer so wxLua will garbage collect it.
+    %gc wxGridCellRenderer* GetDefaultRendererForType(const wxString& typeName) const
+
     void SetMargins(int extraWidth, int extraHeight)
 
     wxWindow* GetGridWindow()
@@ -773,7 +829,7 @@
     %define_event wxEVT_GRID_EDITOR_HIDDEN      // EVT_GRID_EDITOR_HIDDEN(fn)
     %define_event wxEVT_GRID_CELL_BEGIN_DRAG    // EVT_GRID_CELL_BEGIN_DRAG(fn)
 
-    wxGridEvent(int id, wxEventType type, wxObject* obj, int row = -1, int col = -1, int x = -1, int y = -1, bool sel = true, bool control = false, bool shift = false, bool alt = false, bool meta = false)
+    !%wxchkver_2_9_0 wxGridEvent(int id, wxEventType type, wxObject* obj, int row = -1, int col = -1, int x = -1, int y = -1, bool sel = true, bool control = false, bool shift = false, bool alt = false, bool meta = false)
 
     virtual int GetRow()
     virtual int GetCol()
@@ -792,7 +848,7 @@
     %define_event wxEVT_GRID_ROW_SIZE           // EVT_GRID_CMD_ROW_SIZE(id, fn)
     %define_event wxEVT_GRID_COL_SIZE           // EVT_GRID_CMD_COL_SIZE(id, fn)
 
-    wxGridSizeEvent(int id, wxEventType type, wxObject* obj, int rowOrCol = -1, int x = -1, int y = -1, bool control = false, bool shift = false, bool alt = false, bool meta = false)
+    !%wxchkver_2_9_0 wxGridSizeEvent(int id, wxEventType type, wxObject* obj, int rowOrCol = -1, int x = -1, int y = -1, bool control = false, bool shift = false, bool alt = false, bool meta = false)
 
     int         GetRowOrCol()
     wxPoint     GetPosition()
@@ -808,7 +864,7 @@
 %class %delete wxGridRangeSelectEvent, wxNotifyEvent
     %define_event wxEVT_GRID_RANGE_SELECT       // EVT_GRID_CMD_RANGE_SELECT(id, fn)
 
-    wxGridRangeSelectEvent(int id, wxEventType type, wxObject* obj, const wxGridCellCoords& topLeft, const wxGridCellCoords& bottomRight, bool sel = true, bool control = false, bool shift = false, bool alt = false, bool meta = false)
+    !%wxchkver_2_9_0 wxGridRangeSelectEvent(int id, wxEventType type, wxObject* obj, const wxGridCellCoords& topLeft, const wxGridCellCoords& bottomRight, bool sel = true, bool control = false, bool shift = false, bool alt = false, bool meta = false)
 
     wxGridCellCoords GetTopLeftCoords()
     wxGridCellCoords GetBottomRightCoords()

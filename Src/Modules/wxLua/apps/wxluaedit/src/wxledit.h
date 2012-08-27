@@ -4,7 +4,7 @@
 // Author:      John Labenski
 // Modified by:
 // Created:     11/05/2002
-// Copyright:   (c) John Labenski
+// Copyright:   (c) 2012 John Labenski
 // Licence:     wxWidgets licence
 /////////////////////////////////////////////////////////////////////////////
 
@@ -13,13 +13,13 @@
 
 #include "wxlua/include/wxlstate.h"
 
-class WXDLLEXPORT wxMenu;
-class WXDLLEXPORT wxKeyEvent;
-class WXDLLEXPORT wxNotebook;
-class WXDLLEXPORT wxSplitterWindow;
-class WXDLLEXPORT wxToolBar;
-class WXDLLIMPEXP_WXLUA wxLuaState;
-class WXDLLIMPEXP_WXLUA wxLuaEvent;
+class WXDLLIMPEXP_FWD_CORE wxMenu;
+class WXDLLIMPEXP_FWD_CORE wxKeyEvent;
+class WXDLLIMPEXP_FWD_CORE wxNotebook;
+class WXDLLIMPEXP_FWD_CORE wxSplitterWindow;
+class WXDLLIMPEXP_FWD_CORE wxToolBar;
+class WXDLLIMPEXP_FWD_WXLUA wxLuaState;
+class WXDLLIMPEXP_FWD_WXLUA wxLuaEvent;
 class wxLuaIDE;
 
 // Note: If you get a compilation error on the next two lines you need to
@@ -30,10 +30,10 @@ class wxLuaIDE;
 // For non-Unix systems (i.e. when building without a configure script),
 // we use the following macro to do a compile-time check of wxLuaEdit version
 #if !defined(wxCHECK_STE_VERSION)
-    #error "wxStEdit version is too old, need at least version 1.2.5"
+    #error "wxStEdit version is too old, need at least version 1.6.0"
 #endif
-#if !wxCHECK_STE_VERSION(1, 2, 5)
-    #error "wxStEdit version is too old, need at least version 1.2.5"
+#if !wxCHECK_STE_VERSION(1, 6, 0)
+    #error "wxStEdit version is too old, need at least version 1.6.0"
 #endif
 
 //-----------------------------------------------------------------------------
@@ -130,6 +130,10 @@ public :
 
     // Run a string, append the string to the editor control if append_text
     bool RunString(const wxString& string, bool append_text = false);
+
+
+    // Override wxSTEditor function to get autocomplete words.
+    virtual size_t DoGetAutoCompleteKeyWords(const wxString& root, wxArrayString& words);
 
     // implementation
     void OnSTEEvent(wxSTEditorEvent& event);

@@ -2,4 +2,5 @@ CVS/
 bin.*/
 build*/
 obj/
+.svn/
 

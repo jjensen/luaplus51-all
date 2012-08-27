@@ -2829,13 +2829,13 @@ function sudokuGUI.OnKeyDownCellWindow(event)
         [wx.WXK_RIGHT]      = 1,  [wx.WXK_NUMPAD_RIGHT] = 1,
         [wx.WXK_DOWN]       = 9,  [wx.WXK_NUMPAD_DOWN]  = 9,
 
-        [wx.WXK_PAGEUP]     = -9, [wx.WXK_PRIOR] = -9,
-        [wx.WXK_PAGEDOWN]   = 9,  [wx.WXK_NEXT]  = 9,
+        [wx.WXK_PAGEUP]     = -9,
+        [wx.WXK_PAGEDOWN]   = 9,
 
         [wx.WXK_NUMPAD_HOME]     = -10,
-        [wx.WXK_NUMPAD_PAGEUP]   = -8, [wx.WXK_NUMPAD_PRIOR] = -8,
+        [wx.WXK_NUMPAD_PAGEUP]   = -8,
         [wx.WXK_NUMPAD_END]      = 8,
-        [wx.WXK_NUMPAD_PAGEDOWN] = 10, [wx.WXK_NUMPAD_NEXT]  = 10,
+        [wx.WXK_NUMPAD_PAGEDOWN] = 10,
 
         [wx.WXK_TAB]          = 1,
         [wx.WXK_RETURN]       = 1,
@@ -2915,7 +2915,7 @@ function sudokuGUI.HitTestPossibleValue(mx, my)
     for n = 1, 9 do
         rect.X = sudokuGUI.possiblePosCache.pos[n].x
         rect.Y = sudokuGUI.possiblePosCache.pos[n].y
-        if rect:Inside(mx, my) then
+        if rect:Contains(mx, my) then
             return n
         end
     end
@@ -3347,7 +3347,7 @@ function sudokuGUI.OpenPuzzle()
     local fileDialog = wx.wxFileDialog(sudokuGUI.frame, "Open file",
                                        sudokuGUI.filePath, sudokuGUI.fileName,
                                        "wxLuaSudoku files (*.sudoku)|*.sudoku|All files (*)|*",
-                                       wx.wxOPEN + wx.wxFILE_MUST_EXIST)
+                                       wx.wxFD_OPEN + wx.wxFD_FILE_MUST_EXIST)
     if fileDialog:ShowModal() == wx.wxID_OK then
         local fileName = fileDialog:GetPath()
         local fn = wx.wxFileName(fileName)
@@ -3392,7 +3392,7 @@ function sudokuGUI.SaveAsPuzzle()
     local fileDialog = wx.wxFileDialog(sudokuGUI.frame, "Save puzzle",
                                        sudokuGUI.filePath, sudokuGUI.fileName,
                                        "wxLuaSudoku files (*.sudoku)|*.sudoku|All files (*)|*",
-                                       wx.wxSAVE + wx.wxOVERWRITE_PROMPT)
+                                       wx.wxFD_SAVE + wx.wxFD_OVERWRITE_PROMPT)
     local result = false
     if fileDialog:ShowModal() == wx.wxID_OK then
         local fileName = fileDialog:GetPath()

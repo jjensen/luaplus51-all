@@ -1,0 +1,2678 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2008-06-08 17:46+0200\n"
+"PO-Revision-Date: \n"
+"Last-Translator: Troels K\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Language: Japanese\n"
+"X-Poedit-Country: JAPAN\n"
+
+#: ..\..\wxstedit\src\stedit.cpp:1617
+#: ..\..\wxstedit\src\stedit.cpp:2969
+msgid "Current EOL : "
+msgstr "現在の改行コード:"
+
+#: ..\..\wxstedit\src\stedit.cpp:1618
+msgid "Convert End of Line chars"
+msgstr "改行コードの変換"
+
+#: ..\..\wxstedit\src\stedit.cpp:1638
+msgid "Scale font sizes : -10...20 (not all fonts supported)"
+msgstr "フォントの拡大/縮小:-10...20 (サポートしていないフォントもあります)"
+
+#: ..\..\wxstedit\src\stedit.cpp:1640
+msgid "Change text font size"
+msgstr "文字の大きさを変える"
+
+#: ..\..\wxstedit\src\stedit.cpp:2206
+msgid "Unicode text file. Convert to Ansi text?"
+msgstr "Unicodeテキストファイルです。Ansiに変換しますか？"
+
+#: ..\..\wxstedit\src\stedit.cpp:2207
+msgid "Load Unicode?"
+msgstr "Unicodeを読み込みますか？"
+
+#: ..\..\wxstedit\src\stedit.cpp:2267
+#: ..\..\wxstedit\src\stedit.cpp:2321
+msgid "This file is too large for this editor, sorry."
+msgstr "このファイルは大きすぎます。すみませんが読み込めません。"
+
+#: ..\..\wxstedit\src\stedit.cpp:2268
+#: ..\..\wxstedit\src\stedit.cpp:2322
+msgid "Error loading file"
+msgstr "読み込みエラー"
+
+#: ..\..\wxstedit\src\stedit.cpp:2298
+msgid "Open file"
+msgstr "ファイルを開く"
+
+#: ..\..\wxstedit\src\stedit.cpp:2377
+msgid "Save file"
+msgstr "ファイルを保存"
+
+#: ..\..\wxstedit\src\stedit.cpp:2389
+msgid "Error opening file :'"
+msgstr "ファイルを開くときにエラーが発生しました:'"
+
+#: ..\..\wxstedit\src\stedit.cpp:2390
+msgid "Save file error"
+msgstr "保存エラー"
+
+#: ..\..\wxstedit\src\stedit.cpp:2431
+msgid "New file name"
+msgstr "新規ファイルの名前"
+
+#: ..\..\wxstedit\src\stedit.cpp:2431
+msgid "New file"
+msgstr "新規ファイル"
+
+#: ..\..\wxstedit\src\stedit.cpp:2439
+msgid "The filename contains wildcard characters."
+msgstr "ファイル名にワイルドカードが含まれています"
+
+#: ..\..\wxstedit\src\stedit.cpp:2440
+msgid "Invalid filename"
+msgstr "ファイル名として正しくありません"
+
+#: ..\..\wxstedit\src\stedit.cpp:2486
+msgid ""
+"\n"
+"Has unsaved changes.\n"
+"Would you like to save your file before closing?"
+msgstr ""
+"\n"
+"ファイルは変更されています。閉じる前に保存しますか？"
+
+#: ..\..\wxstedit\src\stedit.cpp:2487
+msgid "Unsaved changes"
+msgstr "変更"
+
+#: ..\..\wxstedit\src\stedit.cpp:2521
+msgid ""
+"\n"
+"Doesn't exist on disk anymore."
+msgstr ""
+"\n"
+"ディスクに存在しません"
+
+#: ..\..\wxstedit\src\stedit.cpp:2522
+msgid "File removed from disk"
+msgstr "ファイルがディスクから消去されました"
+
+#: ..\..\wxstedit\src\stedit.cpp:2535
+msgid "The file '"
+msgstr "ファイル'"
+
+#: ..\..\wxstedit\src\stedit.cpp:2535
+msgid ""
+"' has been modified externally.\n"
+"Would you like to reload the file?"
+msgstr ""
+"'が外部プログラムで変更されました\n"
+"再読み込みしてよろしいですか？"
+
+#: ..\..\wxstedit\src\stedit.cpp:2536
+msgid "File changed on disk"
+msgstr "ファイルに変更があります"
+
+#: ..\..\wxstedit\src\stedit.cpp:2677
+#, c-format
+msgid "Long l&ine guide column (%d)..."
+msgstr "長い行のガイド (%d)(&I).."
+
+#: ..\..\wxstedit\src\stedit.cpp:2686
+#, c-format
+msgid "&Scale font size (%d)..."
+msgstr "フォントの拡大/縮小 (%d)(&S)..."
+
+#: ..\..\wxstedit\src\stedit.cpp:2689
+#, c-format
+msgid "Set tab &width (%d)..."
+msgstr "タブ幅の設定 (%d)(&W)..."
+
+#: ..\..\wxstedit\src\stedit.cpp:2690
+#, c-format
+msgid "Set indent wi&dth (%d)..."
+msgstr "インデント幅の設定 (%d)(&D)..."
+
+#: ..\..\wxstedit\src\stedit.cpp:2691
+msgid "&EOL Mode ("
+msgstr "改行コード(&E)("
+
+#: ..\..\wxstedit\src\stedit.cpp:2836
+msgid "Level to collapse all folds to"
+msgstr "折りたたみを閉じる階層数"
+
+#: ..\..\wxstedit\src\stedit.cpp:2837
+msgid "Collapse folds to level"
+msgstr "折りたたみを閉じる"
+
+#: ..\..\wxstedit\src\stedit.cpp:2846
+msgid "Level to expand all folds to"
+msgstr "折りたたみを展開する階層数"
+
+#: ..\..\wxstedit\src\stedit.cpp:2847
+msgid "Expand folds to level"
+msgstr "折りたたみを展開する"
+
+#: ..\..\wxstedit\src\stedit.cpp:2911
+#: ..\..\wxstedit\include\wx\stedit\stedlgs.h:320
+#: ..\..\wxstedit\include\wx\stedit\stedlgs.h:329
+msgid "Editor Preferences"
+msgstr "エディタ設定"
+
+#: ..\..\wxstedit\src\stedit.cpp:2921
+msgid "Column to show long line marker"
+msgstr "幅のある行に表示するカラム"
+
+#: ..\..\wxstedit\src\stedit.cpp:2922
+msgid "Set long line marker"
+msgstr "幅のある行マーカーの設定"
+
+#: ..\..\wxstedit\src\stedit.cpp:2937
+msgid "Characters to expand tabs"
+msgstr "タブを展開する文字"
+
+#: ..\..\wxstedit\src\stedit.cpp:2938
+msgid "Set tab width"
+msgstr "タブ幅の設定"
+
+#: ..\..\wxstedit\src\stedit.cpp:2953
+msgid "Characters to indent"
+msgstr "インデントにする文字列"
+
+#: ..\..\wxstedit\src\stedit.cpp:2953
+msgid "Set indentation width"
+msgstr "インデント幅の設定"
+
+#: ..\..\wxstedit\src\stedit.cpp:2970
+msgid "Select EOL mode"
+msgstr "改行コードの選択"
+
+#: ..\..\wxstedit\src\stedit.cpp:3107
+msgid "Find dialog"
+msgstr "検索"
+
+#: ..\..\wxstedit\src\stedit.cpp:3114
+msgid "Replace dialog"
+msgstr "置換"
+
+#: ..\..\wxstedit\src\stedit.cpp:3265
+#, c-format
+msgid ""
+"Replaced %d occurances of\n"
+"'%s' with '%s'."
+msgstr "%d個の'%s'を'%s'で置換しました"
+
+#: ..\..\wxstedit\src\stedit.cpp:3269
+#: ..\..\wxstedit\src\stenoteb.cpp:1143
+msgid "Finished replacing"
+msgstr "置換が完了しました"
+
+#: ..\..\wxstedit\src\stedit.cpp:3556
+#, c-format
+msgid "Line number : 1...%d"
+msgstr "行番号:1...%d"
+
+#: ..\..\wxstedit\src\stedit.cpp:3557
+msgid "Goto line"
+msgstr "ジャンプ"
+
+#: ..\..\wxstedit\src\stedit.cpp:3571
+msgid "Print document"
+msgstr "文書を印刷"
+
+#: ..\..\wxstedit\src\stedit.cpp:3594
+#: ..\..\wxstedit\src\stedit.cpp:3631
+msgid "A print error occurred, perhaps your printer is not correctly setup?"
+msgstr "印刷エラーが発生しました。プリンタの設定が正しく行われていない可能性があります。"
+
+#: ..\..\wxstedit\src\stedit.cpp:3595
+msgid "Print error"
+msgstr "印刷エラー"
+
+#: ..\..\wxstedit\src\stedit.cpp:3608
+msgid "Preview document"
+msgstr "文書をプレビュー"
+
+#: ..\..\wxstedit\src\stedit.cpp:3632
+msgid "Print preview error"
+msgstr "プレビューエラー"
+
+#: ..\..\wxstedit\src\stedit.cpp:3637
+#: ..\..\wxstedit\src\stedit.cpp:3655
+msgid "Print Preview"
+msgstr "印刷プレビュー "
+
+#: ..\..\wxstedit\src\stedlgs.cpp:407
+msgid "Editor Colors"
+msgstr "エディタの色設定"
+
+#: ..\..\wxstedit\src\stedlgs.cpp:408
+msgid "Lexer Styles"
+msgstr "字句解析のスタイル"
+
+#: ..\..\wxstedit\src\stedlgs.cpp:409
+#: ..\..\wxstedit\src\stedlgs.cpp:1081
+msgid "Help"
+msgstr "ヘルプ"
+
+#: ..\..\wxstedit\src\stedlgs.cpp:446
+msgid "Show all styles"
+msgstr "すべてのスタイルを表示"
+
+#: ..\..\wxstedit\src\stedlgs.cpp:694
+msgid "Choose the font's foreground color"
+msgstr "フォントの前景色を選択"
+
+#: ..\..\wxstedit\src\stedlgs.cpp:711
+msgid "Choose the font's background color"
+msgstr "フォントの背景色を選択"
+
+#: ..\..\wxstedit\src\stedlgs.cpp:1052
+#: ..\..\wxstedit\src\stedlgs.cpp:1417
+msgid "Styles"
+msgstr "スタイル"
+
+#: ..\..\wxstedit\src\stedlgs.cpp:1071
+msgid "Keywords"
+msgstr "キーワード"
+
+#: ..\..\wxstedit\src\stedlgs.cpp:1374
+msgid "View"
+msgstr "ビュー"
+
+#: ..\..\wxstedit\src\stedlgs.cpp:1381
+msgid "Tabs and EOL"
+msgstr "タブと改行コード"
+
+#: ..\..\wxstedit\src\stedlgs.cpp:1388
+msgid "Folding and Wrapping"
+msgstr "折りたたみ"
+
+#: ..\..\wxstedit\src\stedlgs.cpp:1395
+msgid "Printing"
+msgstr "印刷"
+
+#: ..\..\wxstedit\src\stedlgs.cpp:1402
+msgid "Loading and Saving"
+msgstr "読込/保存"
+
+#: ..\..\wxstedit\src\stedlgs.cpp:1409
+msgid "Highlighting"
+msgstr "強調表示"
+
+#: ..\..\wxstedit\src\stedlgs.cpp:1425
+msgid "Languages"
+msgstr "言語"
+
+#: ..\..\wxstedit\src\stedlgs.cpp:1431
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1441
+msgid "Default"
+msgstr "規定値"
+
+#: ..\..\wxstedit\src\stedlgs.cpp:1433
+msgid "Reset this page's values to their default"
+msgstr "このページの設定を規定値に戻します"
+
+#: ..\..\wxstedit\src\stedlgs.cpp:1435
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:393
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:653
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1226
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1303
+msgid "OK"
+msgstr "OK"
+
+#: ..\..\wxstedit\src\stedlgs.cpp:1437
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:561
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:659
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1100
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1230
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1307
+msgid "Cancel"
+msgstr "キャンセル"
+
+#: ..\..\wxstedit\src\stedlgs.cpp:1438
+msgid "Apply"
+msgstr "適用"
+
+#: ..\..\wxstedit\src\stedlgs.cpp:2006
+msgid "Insert"
+msgstr "挿入"
+
+#: ..\..\wxstedit\src\stedlgs.cpp:2008
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:584
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:604
+msgid "Prepend"
+msgstr "前"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:43
+msgid "Highlighting and other styles"
+msgstr "強調表示とその他の設定"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:56
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:184
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1333
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1391
+msgid "ChoiceItem"
+msgstr "選択"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:57
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:58
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:59
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:60
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:61
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:62
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:86
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:87
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:88
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:89
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:90
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:91
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:92
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:93
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:94
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:95
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:186
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:187
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:188
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:189
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:190
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:191
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:192
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:193
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:194
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:195
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:196
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:197
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:198
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:199
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:200
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:201
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:610
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:611
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:612
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:613
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:614
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:629
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:630
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:631
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:632
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:633
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1275
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1276
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1277
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1278
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1279
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1334
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1335
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1336
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1337
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1338
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1339
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1340
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1393
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1394
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1395
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1396
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1397
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1398
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1399
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1400
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1401
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1402
+msgid "Item"
+msgstr "アイテム"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:72
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:79
+msgid "Font"
+msgstr "フォント"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:73
+msgid "Set non default font for style"
+msgstr "既定のフォントを使用しない"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:80
+msgid "Choose a font (unsupported fonts revert to a default)"
+msgstr "フォントを選択 (サポートされていないフォントは規定値に変換されます)"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:85
+msgid "Bitstream Vera Sans Mono*"
+msgstr "Bitstream Vera Sans Mono*"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:98
+msgid "Typical fonts (* are known to be fixed width)"
+msgstr "等幅フォント (*は幅が固定のフォントです)"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:103
+msgid "Font Size"
+msgstr "フォントの大きさ"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:104
+msgid "Set non default font size for style"
+msgstr "既定のフォントの大きさを使用しない"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:108
+msgid "Select font size in points"
+msgstr "フォントの大きさを選択"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:111
+msgid "Attributes"
+msgstr "属性"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:112
+msgid "Set non default attributes for style"
+msgstr "既定のフォントの属性を使用しない"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:117
+msgid "Bold"
+msgstr "太字"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:118
+msgid "Font is bold"
+msgstr "太字"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:121
+msgid "Italics"
+msgstr "斜体"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:122
+msgid "Font is italics"
+msgstr "斜体"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:125
+msgid "Underlined"
+msgstr "下線付き"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:126
+msgid "Font is underlined"
+msgstr "下線"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:129
+msgid "EOL Fill"
+msgstr "行末を塗りつぶす"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:130
+msgid "Fill background to end of line (unclosed strings)"
+msgstr "行末を背景色を変えて表示します (閉じていない文字列)"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:135
+msgid "Foreground color"
+msgstr "前景色"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:136
+msgid "Set non default foreground colour"
+msgstr "既定の前景色を使用しない"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:139
+msgid "Fore Color"
+msgstr "前景色"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:140
+msgid "Choose foreground color"
+msgstr "前景色を選択"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:143
+msgid "Background color"
+msgstr "背景色"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:144
+msgid "Set non default background colour"
+msgstr "既定の背景色を使用しない"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:147
+msgid "Back Color"
+msgstr "背景色"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:148
+msgid "Choose background color"
+msgstr "背景色を選択"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:173
+msgid "Language settings"
+msgstr "言語設定"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:179
+msgid "Language"
+msgstr "言語"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:185
+msgid "ACTIVE SERVER PAGES (ASP) BLAH"
+msgstr "Active Server Pages (ASP) blah"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:204
+msgid "Choose the language (lexer) to syntax highlight document"
+msgstr "この文書で強調するための言語を選択"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:207
+msgid "File patterns"
+msgstr "ファイルパターン"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:211
+msgid "File extensions associated with this language (*.cpp;*.c;*.h)"
+msgstr "この言語に関連付けられている拡張子 (*.cpp;*.c;*.h)"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:241
+msgid "File properties"
+msgstr "ファイルのプロパティ"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:247
+msgid "Filename "
+msgstr "ファイル名"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:248
+msgid "Name of the document or filename"
+msgstr "文書名またはファイル名"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:251
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:261
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:271
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:281
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:291
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:301
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:321
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:341
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:351
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:361
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:371
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:381
+msgid ":"
+msgstr ":"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:254
+msgid "path/to/the/file/and/stuff/untitled.txt"
+msgstr "path/to/the/file/and/stuff/無題.txt"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:257
+msgid "Size "
+msgstr "サイズ"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:258
+msgid "Size of the file on disk if it exists"
+msgstr "ディスク上のサイズ (存在している場合)"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:264
+msgid "100000000000000000000000000000000 bytes"
+msgstr "100000000000000000000000000000000 バイト"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:267
+msgid "Opened "
+msgstr "開く"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:268
+msgid "Time the file was opened from disk"
+msgstr "ファイルを開くのにかかった時間"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:274
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:284
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:294
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:304
+msgid "12/12/2003 00:00:00 000000000000000000000"
+msgstr "12/12/2003 00:00:00 000000000000000000000"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:277
+msgid "Modified "
+msgstr "更新日時"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:278
+msgid "Last time the file was modified on disk"
+msgstr "最後に更新された時刻"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:287
+msgid "Accessed "
+msgstr "アクセス"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:288
+msgid "Last time the file was accessed on disk (not all platforms support this)"
+msgstr "最後にアクセスした時間 (すべてのOSで動作するとは限りません)"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:297
+msgid "Created "
+msgstr "作成日時"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:298
+msgid "Time the file was created on disk (not all platforms support this)"
+msgstr "ファイルの作成日時 (すべてのOSで動作するとは限りません)"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:311
+msgid "Information"
+msgstr "情報"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:317
+msgid "Language "
+msgstr "言語"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:318
+msgid "The language used to hilight the document"
+msgstr "文書で強調表示するための言語"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:324
+msgid "Some language name that has some name like this"
+msgstr "同じ名前の言語が存在します"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:331
+msgid "Current statistics"
+msgstr "現在の統計"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:337
+msgid "Lines "
+msgstr "行数"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:338
+msgid "Number of lines in the document"
+msgstr "現在の文書内の行数"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:344
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:354
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:364
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:374
+msgid "10000000000000000000000000000000000000"
+msgstr "10000000000000000000000000000000000000"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:347
+msgid "Characters "
+msgstr "文字数"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:348
+msgid "Number of characters in the document (size)"
+msgstr "現在の文書内の文字数"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:357
+msgid "Words "
+msgstr "単語数"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:358
+msgid "Number of words in the document"
+msgstr "現在の文書内の単語数"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:367
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:838
+msgid "Tabs"
+msgstr "タブ"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:368
+msgid "Number of tab characters in the document"
+msgstr "現在の文書内のタブ文字の数"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:377
+msgid "EOL Characters "
+msgstr "改行"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:378
+msgid "Number and types of end of line characters"
+msgstr "現在の文書内の改行コードの種類と数"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:384
+msgid "CRLF (DOS/Win)=100000, CR (Mac)=100000, LF (Unix)=100000 "
+msgstr "CRLF (DOS/Win)=100000, CR (Mac)=100000, LF (Unix)=100000 "
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:424
+msgid "Find what"
+msgstr "検索文字列"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:429
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:452
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:609
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:628
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1132
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1158
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1184
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1210
+msgid "ComboItem"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:430
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:453
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1133
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1159
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1185
+msgid "Item1"
+msgstr "アイテム 1"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:431
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:454
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1079
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1134
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1160
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1186
+msgid "Item2"
+msgstr "アイテム 2"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:432
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:455
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1080
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1135
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1161
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1187
+msgid "Item3"
+msgstr "アイテム 3"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:433
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:456
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1136
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1162
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1188
+msgid "Item4"
+msgstr "アイテム 4"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:434
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:457
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1137
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1163
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1189
+msgid "Item5"
+msgstr "アイテム 5"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:435
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:458
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1138
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1164
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1190
+msgid "Item6"
+msgstr "アイテム 6"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:436
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:459
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1139
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1165
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1191
+msgid "Item7"
+msgstr "アイテム 7"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:437
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:460
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1140
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1166
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1192
+msgid "Item8"
+msgstr "アイテム 8"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:438
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:461
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1141
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1167
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1193
+msgid "Item9"
+msgstr "アイテム 9"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:439
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:462
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1142
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1168
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1194
+msgid "Item0"
+msgstr "アイテム 0"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:447
+msgid "Replace with "
+msgstr "置換文字列"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:475
+msgid "Options"
+msgstr "オプション"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:480
+msgid "&Whole word"
+msgstr "単語全体に一致(&W)"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:481
+msgid "Find string must be a whole word"
+msgstr "単語単位で探す"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:484
+msgid "&Backwards"
+msgstr "上へ検索(&B)"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:485
+msgid "Search from the bottom to the top of the document"
+msgstr "文書の下から上に向かって検索します"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:488
+msgid "Match &case"
+msgstr "大文字と小文字を区別(&C)"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:489
+msgid "Case sensitive finding"
+msgstr "大文字と小文字まで完全に一致したものを検索します"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:492
+msgid "Wra&p around"
+msgstr "折り返し検索(&P)"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:493
+msgid "Wrap search to continue searching at the top"
+msgstr "下まで検索したらまた文書上から検索をします"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:496
+msgid "Word &start"
+msgstr "単語の始まりにのみマッチ(&S)"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:497
+msgid "Find string only if it's the start of a word"
+msgstr "単語が検索文字列から始まっている場合にのみマッチします"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:500
+msgid "Rege&xpr find"
+msgstr "正規表現(&X)"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:501
+msgid "Use a regular expression to search for a string"
+msgstr "正規表現を使用して検索を行います"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:504
+msgid "Find all"
+msgstr "すべて検索"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:505
+msgid "Find all occurances of the string"
+msgstr "すべてを検索します"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:508
+msgid "Bookmark all"
+msgstr "すべてにしおりをつける"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:509
+msgid "Bookmark every occurance of find string"
+msgstr "見つかったすべての文字列にしおりをつけます"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:516
+msgid "Scope"
+msgstr "範囲"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:519
+msgid "Whole &document "
+msgstr "文書全体(&D)"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:521
+msgid "Search starts at the top of the document"
+msgstr "文書の先頭から"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:524
+msgid "From c&ursor "
+msgstr "カーソル位置から(&U)"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:525
+msgid "Search starts at current cursor location"
+msgstr "現在位置から検索"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:528
+msgid "A&ll documents "
+msgstr "すべての文書(&L)"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:529
+msgid "Search through all the open documents"
+msgstr "開いているすべての文書から検索します"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:541
+msgid "&Find"
+msgstr "検索(&F)"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:547
+msgid "R&eplace"
+msgstr "置換(&E)"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:550
+msgid "&Replace && Find"
+msgstr "検索/置換(&R)"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:551
+msgid "Replace string and find next occurance"
+msgstr "文字列の置換と次の文字列を検索します"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:554
+msgid "Replace &All"
+msgstr "すべて置換(&A)"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:587
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:623
+msgid "Append"
+msgstr "後"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:590
+msgid "At Column"
+msgstr "列に"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:596
+msgid "Surround selection"
+msgstr "選択範囲"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:617
+msgid "Text to prepend"
+msgstr "先頭に追加する文字列"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:636
+msgid "Text to append"
+msgstr "追加する文字列"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:678
+msgid "Font scaling"
+msgstr "フォント"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:683
+msgid "Text scaling factor"
+msgstr "文字の大きさ"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:687
+msgid "Scale text point size (not all fonts supported)"
+msgstr "文字の大きさを変更 (サポートしていないフォントもあります)"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:694
+msgid "Edge marker"
+msgstr "折り返し幅"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:699
+msgid "Type"
+msgstr "種類"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:704
+msgid "No marker"
+msgstr "マーカーなし"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:705
+msgid "Line"
+msgstr "行"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:706
+msgid "Background"
+msgstr "背景"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:709
+msgid "Select method to mark an edge"
+msgstr "マークをつける方法を選択してください"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:712
+msgid "Column"
+msgstr "列"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:713
+msgid "Character to show the edge marker"
+msgstr "折り返し幅で表示する文字"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:717
+msgid "Character position of edge marker"
+msgstr "折り返し幅"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:724
+msgid "Margins"
+msgstr "余白"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:727
+msgid "Show line number margin "
+msgstr "行番号に余白をつける"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:730
+msgid "Show marker margin "
+msgstr "マーカーに余白をつける"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:735
+msgid "Cursor"
+msgstr "カーソル"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:738
+msgid "Highlight cursor line background "
+msgstr "カーソルを強調表示する"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:743
+msgid "Width in pixels"
+msgstr "幅(px)"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:749
+msgid "Blink period (ms)"
+msgstr "点滅速度 (ms)"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:753
+msgid "Set the blinking rate of the cursor in milliseconds (0 for off)"
+msgstr "カーソルの点滅速度をミリセカンドで設定 (0でオフ)"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:774
+msgid "Printing options"
+msgstr "印刷オプション"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:779
+msgid "Coloring "
+msgstr "色"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:784
+msgid "Normal colors (WYSIWYG)"
+msgstr "通常色 (WYSIWYG)"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:785
+msgid "Invert light colors"
+msgstr "明るい色を反転"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:786
+msgid "Black on white"
+msgstr "白地に黒文字"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:787
+msgid "Color on white"
+msgstr "白地に色文字"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:788
+msgid "Color on white (except line nums)"
+msgstr "白地に色文字 (行番号を除く)"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:791
+msgid "Choose what colors to use for the printout"
+msgstr "印刷に使用する配色を選んでください"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:794
+msgid "Font scale"
+msgstr "フォント"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:798
+msgid "Select the printout scaling (some fonts may not scale properly)"
+msgstr "印刷に使用するフォントの大きさを選んでください (サポートしていないフォントもあります)"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:801
+msgid "Wrap lines"
+msgstr "折り返し"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:805
+msgid "Wrap long lines when printing, else cut them off"
+msgstr "長い行を印刷する際に折り返す"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:808
+msgid "Line numbers"
+msgstr "行番号"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:813
+msgid "As shown in editor"
+msgstr "表示設定に従う"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:814
+msgid "Never"
+msgstr "常に印刷しない"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:815
+msgid "Always"
+msgstr "常に印刷する"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:843
+msgid "Tab key inserts tabs not spaces,"
+msgstr "タブキーで空白ではなくタブを挿入"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:846
+msgid "Tab width"
+msgstr "タブ幅"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:850
+msgid "Number of spaces to use for a tab character"
+msgstr "タブ文字として使う空白文字数"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:857
+msgid "Indentation"
+msgstr "インデント"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:862
+msgid "Tab key indents, "
+msgstr "タブキーでインデントを行う"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:865
+msgid "Indent width"
+msgstr "インデント幅"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:869
+msgid "Number of spaces to use for indentation"
+msgstr "インデントとして使う幅"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:874
+msgid "Backspace key unindents "
+msgstr "バックスペースキーでアンインデント"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:877
+msgid "Auto indent new lines"
+msgstr "改行でオートインデント"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:880
+msgid "Show indentation guides "
+msgstr "インデントガイドを表示"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:885
+msgid "End of line mode"
+msgstr "改行コード"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:888
+msgid "End of line characters: CR=carriage return, LF=line feed "
+msgstr "改行コード: CR=キャリッジリターン, LF=ラインフィード"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:893
+msgid "Default EOL"
+msgstr "既定の改行コード"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:898
+msgid "CRLF (Dos/Windows)"
+msgstr "CRLF (Dos/Windows)"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:899
+msgid "CR (Mac)"
+msgstr "CR (Mac)"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:900
+msgid "LF (Unix)"
+msgstr "LF (Unix)"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:909
+msgid "Show invisibles"
+msgstr "表示設定"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:912
+msgid "Show EOL marker "
+msgstr "改行を表示"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:915
+msgid "Show whitespace "
+msgstr "スペースを表示"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:934
+msgid "Language highlighting"
+msgstr "強調表示"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:937
+msgid "Enable syntax highlighting"
+msgstr "強調表示を行う"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:940
+msgid "Highlight preprocessor code"
+msgstr "プリプロセッサコードを強調表示する"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:941
+msgid "Only for languages that support preprocessor statements"
+msgstr "サポートされているプリプロセッサにのみ働きます"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:944
+msgid "Highlight braces () {} []"
+msgstr "括弧を強調表示 () {} []"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:947
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1430
+msgid "Set language highlighting from file extension"
+msgstr "拡張子から強調表示を判断する"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:948
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1431
+msgid "Initialize the highlighting language when loading a file"
+msgstr "ファイル読み込みの際に強調表示するための言語を判定します"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:967
+msgid "Code folding"
+msgstr "コードの折りたたみ設定"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:970
+msgid "Show code folding margin "
+msgstr "折りたたみに余白をつける"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:971
+msgid "Show a margin to fold text (not all lexers are supported)"
+msgstr "折りたたんだ際に余白をつけて表示します (対応していない構文もあります)"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:976
+msgid "Compact folding"
+msgstr "コンパクトな折りたたみ"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:977
+msgid "Comment folding"
+msgstr "コメントを折りたたむ"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:978
+msgid "Preprocessor folding"
+msgstr "プリプロセッサを折りたたむ"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:979
+msgid "At \"else\" folding"
+msgstr "\"else\"を折りたたむ"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:980
+msgid "HTML folding"
+msgstr "HTMLを折りたたむ"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:981
+msgid "HTML preprocessor folding      "
+msgstr "HTMLプリプロセッサを折りたたむ"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:982
+msgid "Directive folding"
+msgstr "指示文を折りたたむ"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:983
+msgid "Python comment folding"
+msgstr "Pythonコメントを折りたたむ"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:984
+msgid "Python quote folding"
+msgstr "Pythonクォーテーションを折りたたむ"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:985
+msgid "Python indent fold check"
+msgstr "Pythonインデントのチェック"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:992
+msgid "Fold margin style"
+msgstr "折りたたみの表示設定"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:997
+msgid "Arrows"
+msgstr "矢印"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:998
+msgid "Circles"
+msgstr "丸"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:999
+msgid "Squares"
+msgstr "四角"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1000
+msgid "Plus minus"
+msgstr "+-"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1009
+msgid "Text wrapping"
+msgstr "文字列折り返し"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1012
+msgid "Wrap text to window"
+msgstr "ウィンドウ幅に合わせて折り返し"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1013
+msgid "Wrap text to fit in window (doesn't modify document)"
+msgstr "ウィンドウ幅に合わせて折り返して表示します （文書は変更されません)"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1018
+msgid "Marker position"
+msgstr "マーカー位置"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1023
+msgid "No wrap markers"
+msgstr "折り返しマーカーを表示しない"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1024
+msgid "At end of line"
+msgstr "行末"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1025
+msgid "At start of line"
+msgstr "行頭"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1026
+msgid "At end and start of line"
+msgstr "行末と行頭"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1031
+msgid "Marker style"
+msgstr "マーカースタイル"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1036
+msgid "At edge of window"
+msgstr "ウィンドウの端"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1037
+msgid "At end of text"
+msgstr "文字列の後"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1038
+msgid "At start of text"
+msgstr "文字列の前"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1039
+msgid "At end and start of text"
+msgstr "文字列の後と前"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1044
+msgid "Indent wrapped"
+msgstr "折り返しのインデント"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1048
+msgid "Number of characters to indent wrapped lines"
+msgstr "折り返した時のインデント幅"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1069
+msgid "Select Window(s)"
+msgstr "ウィンドウを選択"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1078
+msgid "ListItem1"
+msgstr "リストアイテム 1"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1088
+msgid "&Activate"
+msgstr "アクティブ(&A)"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1092
+msgid "&Save"
+msgstr "保存(&S)"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1095
+msgid "&Close Window(s)"
+msgstr "ウィンドウを閉じる(&C)"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1126
+msgid "Split before chars"
+msgstr "前で分割する文字列"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1127
+msgid "Characters to split text into columns before"
+msgstr "この文字列の前に空白を挿入します"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1145
+msgid "Characters to split before, ex. '){}'"
+msgstr "例 '){}'"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1148
+msgid "Format"
+msgstr "プレビュー"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1149
+msgid "Format the preview text using current configuration"
+msgstr "現在の設定で整形プレビューを表示します"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1152
+msgid "Split after chars"
+msgstr "後で分割する文字列"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1153
+msgid "Characters to split text into columns after"
+msgstr "この文字列の後ろに空白を挿入します"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1171
+msgid "Characters to split after, ex. '(,;'"
+msgstr "例 '(,;'"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1174
+msgid "Original"
+msgstr "復帰"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1175
+msgid "Show original text's formatting"
+msgstr "プレビューを元の状態に戻します"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1178
+msgid "Preserve matching"
+msgstr "変更しない文字列"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1179
+msgid "Preserve formatting between matching characters, double first character (() to preserve between two different characters"
+msgstr "これに一致した部分は形式が変更されません。異なる2種類の文字に挟まれた文字列を同様に保存するには最初の文字列を(()のように2回入力してください。"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1197
+msgid "Character pairs to preserve formatting between, ex. '\"\" ()'"
+msgstr "例 '\"\" ()'"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1200
+msgid "Update"
+msgstr "自動更新"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1202
+msgid "Automatically update the preview text"
+msgstr "自動でプレビュー画面を更新します"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1205
+msgid "Ignore after"
+msgstr "これより後は削除"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1252
+msgid "File format"
+msgstr "ファイル形式"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1257
+msgid "HTML - Hypertext"
+msgstr "HTML - Hypertext"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1258
+msgid "HTML - Hypertext (w/ CSS)"
+msgstr "HTML - Hypertext (+CSS)"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1259
+msgid "PDF - Portable Document Format"
+msgstr "PDF - Portable Document Format"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1260
+msgid "RTF - Rich Text Format"
+msgstr "RTF - リッチテキスト"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1261
+msgid "TEX - Latex"
+msgstr "TEX - Latex"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1262
+msgid "XML - Extensible Markup Language"
+msgstr "XML - Extensible Markup Language"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1269
+msgid "File name"
+msgstr "ファイル名"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1274
+msgid "This Is a Long Filename to size the dialog"
+msgstr "ダイアログの大きさに対して名前が長すぎます"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1285
+msgid "Choose file"
+msgstr "ファイルを選択"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1290
+msgid "Automatic file name extension"
+msgstr "拡張子を自動で付加する"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1328
+msgid "Choose keyword list"
+msgstr "キーワードを選択"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1355
+msgid "Default keywords"
+msgstr "既定のキーワード"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1358
+msgid "Additional keywords"
+msgstr "ユーザーキーワード"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1386
+msgid "Choose style"
+msgstr "スタイルを選択"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1392
+msgid "REGULAR EXPRESSION BLAH"
+msgstr "正規表現"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1427
+msgid "Loading files"
+msgstr "ファイル読み込み"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1436
+msgid "Load Unicode"
+msgstr "Unicodeの読み込み"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1442
+msgid "Ask if unicode"
+msgstr "Unicodeかどうかを問う"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1443
+msgid "ASCII always"
+msgstr "常にASCII"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1444
+msgid "Unicode always"
+msgstr "常にUnicode"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1453
+msgid "Saving files"
+msgstr "ファイル保存"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1456
+msgid "Remove trailing whitepace"
+msgstr "余分な空白を削除"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1459
+msgid "Convert all EOL characters"
+msgstr "改行コードを変換"
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1460
+msgid "Convert all the end of line characters to the set value"
+msgstr "すべての改行コードを設定値に変更します"
+
+#: ..\..\wxstedit\src\steexprt.cpp:150
+msgid "Overwrite file : '"
+msgstr "上書きするファイル :'"
+
+#: ..\..\wxstedit\src\steexprt.cpp:151
+#: ..\..\wxstedit\src\steexprt.cpp:174
+msgid "Export error"
+msgstr "エクスポートエラー"
+
+#: ..\..\wxstedit\src\steexprt.cpp:173
+msgid "Unable to export to file : '"
+msgstr "エクスポートできません :'"
+
+#: ..\..\wxstedit\src\steexprt.cpp:2042
+msgid "Export to file"
+msgstr "ファイルにエクスポート"
+
+#: ..\..\wxstedit\src\steframe.cpp:196
+#: ..\..\wxstedit\src\steframe.cpp:197
+msgid "Files"
+msgstr "ファイル"
+
+#: ..\..\wxstedit\src\steframe.cpp:277
+msgid "About editor"
+msgstr "バージョン情報"
+
+#: ..\..\wxstedit\src\steframe.cpp:412
+#: ..\..\wxstedit\src\steframe.cpp:866
+msgid "Root"
+msgstr "Root"
+
+#: ..\..\wxstedit\src\steframe.cpp:415
+#: ..\..\wxstedit\src\steframe.cpp:434
+msgid "Opened files"
+msgstr "開いているファイル"
+
+#: ..\..\wxstedit\src\steframe.cpp:446
+msgid "Others"
+msgstr "その他"
+
+#: ..\..\wxstedit\src\stemenum.cpp:84
+#: ..\..\wxstedit\src\stemenum.cpp:202
+msgid "&File"
+msgstr "ファイル(&F)"
+
+#: ..\..\wxstedit\src\stemenum.cpp:91
+#: ..\..\wxstedit\src\stemenum.cpp:203
+msgid "&Edit"
+msgstr "編集(&E)"
+
+#: ..\..\wxstedit\src\stemenum.cpp:98
+#: ..\..\wxstedit\src\stemenum.cpp:204
+msgid "&Tools"
+msgstr "ツール(&T)"
+
+#: ..\..\wxstedit\src\stemenum.cpp:105
+#: ..\..\wxstedit\src\stemenum.cpp:205
+msgid "&View"
+msgstr "ビュー(&V)"
+
+#: ..\..\wxstedit\src\stemenum.cpp:112
+#: ..\..\wxstedit\src\stemenum.cpp:206
+msgid "&Bookmarks"
+msgstr "しおり(&B)"
+
+#: ..\..\wxstedit\src\stemenum.cpp:119
+#: ..\..\wxstedit\src\stemenum.cpp:207
+msgid "&Preferences"
+msgstr "オプション(&P)"
+
+#: ..\..\wxstedit\src\stemenum.cpp:126
+#: ..\..\wxstedit\src\stemenum.cpp:208
+msgid "&Window"
+msgstr "ウィンドウ(&W)"
+
+#: ..\..\wxstedit\src\stemenum.cpp:132
+#: ..\..\wxstedit\src\stemenum.cpp:209
+msgid "&Help"
+msgstr "ヘルプ(&H)"
+
+#: ..\..\wxstedit\src\stemenum.cpp:149
+msgid "&Unsplit editor"
+msgstr "分割なし(&U)"
+
+#: ..\..\wxstedit\src\stemenum.cpp:149
+msgid "Unsplit the editor"
+msgstr "エディタを分割して表示しません"
+
+#: ..\..\wxstedit\src\stemenum.cpp:150
+msgid "Split editor &horizontally\tCtrl+Shift+L"
+msgstr "上下に分割(&H)\tCtrl+Shift+L"
+
+#: ..\..\wxstedit\src\stemenum.cpp:150
+msgid "Split editor horizontally"
+msgstr "エディタを上下に分割して表示します"
+
+#: ..\..\wxstedit\src\stemenum.cpp:151
+msgid "Split editor &vertically\tCtrl+Shift+T"
+msgstr "左右に分割(&V)\tCtrl+Shift+T"
+
+#: ..\..\wxstedit\src\stemenum.cpp:151
+msgid "Split editor vertically"
+msgstr "エディタを左右に分割して表示します"
+
+#: ..\..\wxstedit\src\stemenum.cpp:160
+msgid "&Add empty page"
+msgstr "空のページを作成(&A)"
+
+#: ..\..\wxstedit\src\stemenum.cpp:161
+msgid "&Open file(s)..."
+msgstr "ファイルを開く(&O)"
+
+#: ..\..\wxstedit\src\stemenum.cpp:162
+msgid "&Save all files"
+msgstr "すべて保存(&S)"
+
+#: ..\..\wxstedit\src\stemenum.cpp:169
+msgid "Previous page"
+msgstr "前のページ"
+
+#: ..\..\wxstedit\src\stemenum.cpp:170
+msgid "Next page"
+msgstr "次のページ"
+
+#: ..\..\wxstedit\src\stemenum.cpp:172
+msgid "Goto page"
+msgstr "ページを指定してジャンプ"
+
+#: ..\..\wxstedit\src\stemenum.cpp:174
+#: ..\..\wxstedit\src\stemenum.cpp:305
+msgid "Close current page"
+msgstr "現在のページを閉じる"
+
+#: ..\..\wxstedit\src\stemenum.cpp:175
+msgid "Close all pages..."
+msgstr "すべてのページを閉じる..."
+
+#: ..\..\wxstedit\src\stemenum.cpp:176
+msgid "Close page"
+msgstr "閉じる"
+
+#: ..\..\wxstedit\src\stemenum.cpp:178
+#: ..\..\wxstedit\src\stemenum.cpp:713
+msgid "&Windows..."
+msgstr "ウィンドウ管理(&W)..."
+
+#: ..\..\wxstedit\src\stemenum.cpp:178
+#: ..\..\wxstedit\src\stemenum.cpp:713
+msgid "Manage opened windows"
+msgstr "開いているウィンドウを管理"
+
+#: ..\..\wxstedit\src\stemenum.cpp:225
+msgid "New"
+msgstr "新規作成"
+
+#: ..\..\wxstedit\src\stemenum.cpp:225
+msgid "Clear editor for new file"
+msgstr "新しくファイルを作ります"
+
+#: ..\..\wxstedit\src\stemenum.cpp:229
+msgid "Open..."
+msgstr "開く..."
+
+#: ..\..\wxstedit\src\stemenum.cpp:229
+msgid "Open a file to edit"
+msgstr "ファイルを開いて編集します"
+
+#: ..\..\wxstedit\src\stemenum.cpp:233
+msgid "Save"
+msgstr "保存"
+
+#: ..\..\wxstedit\src\stemenum.cpp:233
+#: ..\..\wxstedit\src\stemenum.cpp:315
+msgid "Save current file"
+msgstr "開いているファイルを保存します"
+
+#: ..\..\wxstedit\src\stemenum.cpp:234
+msgid "Save as..."
+msgstr "名前を付けて保存..."
+
+#: ..\..\wxstedit\src\stemenum.cpp:234
+msgid "Save to a specific filename..."
+msgstr "開いているファイルに別の名前を付けて保存します"
+
+#: ..\..\wxstedit\src\stemenum.cpp:239
+#: ..\..\wxstedit\src\stemenum.cpp:320
+msgid "Save all files"
+msgstr "すべて保存"
+
+#: ..\..\wxstedit\src\stemenum.cpp:239
+msgid "Save all open files"
+msgstr "開いているすべてのファイルを保存します"
+
+#: ..\..\wxstedit\src\stemenum.cpp:246
+msgid "Cut"
+msgstr "切り取り"
+
+#: ..\..\wxstedit\src\stemenum.cpp:246
+msgid "Cut selected text"
+msgstr "選択文字列を切り取ります"
+
+#: ..\..\wxstedit\src\stemenum.cpp:247
+msgid "Copy"
+msgstr "コピー"
+
+#: ..\..\wxstedit\src\stemenum.cpp:247
+msgid "Copy selected text"
+msgstr "選択文字列をコピーします"
+
+#: ..\..\wxstedit\src\stemenum.cpp:248
+msgid "Paste"
+msgstr "貼り付け"
+
+#: ..\..\wxstedit\src\stemenum.cpp:248
+msgid "Paste text at cursor"
+msgstr "カーソル位置に文字列を貼り付けます"
+
+#: ..\..\wxstedit\src\stemenum.cpp:253
+msgid "Undo"
+msgstr "元に戻す"
+
+#: ..\..\wxstedit\src\stemenum.cpp:253
+msgid "Undo last editing"
+msgstr "最後に行った編集を元に戻します"
+
+#: ..\..\wxstedit\src\stemenum.cpp:254
+msgid "Redo"
+msgstr "やり直し"
+
+#: ..\..\wxstedit\src\stemenum.cpp:254
+#: ..\..\wxstedit\src\stemenum.cpp:435
+msgid "Redo last undo"
+msgstr "最後に行った「元に戻す」を取り消します"
+
+#: ..\..\wxstedit\src\stemenum.cpp:259
+msgid "Search direction"
+msgstr "検索方向 "
+
+#: ..\..\wxstedit\src\stemenum.cpp:259
+msgid "Search direction for next occurance in document"
+msgstr "次に検索する方向"
+
+#: ..\..\wxstedit\src\stemenum.cpp:260
+msgid "Find..."
+msgstr "検索..."
+
+#: ..\..\wxstedit\src\stemenum.cpp:260
+msgid "Find text in document..."
+msgstr "文書から文字列を検索します..."
+
+#: ..\..\wxstedit\src\stemenum.cpp:261
+msgid "Find next"
+msgstr "次を検索"
+
+#: ..\..\wxstedit\src\stemenum.cpp:261
+msgid "Find next occurance in document"
+msgstr "次を検索"
+
+#: ..\..\wxstedit\src\stemenum.cpp:262
+msgid "Replace..."
+msgstr "置換"
+
+#: ..\..\wxstedit\src\stemenum.cpp:262
+msgid "Replace text in document"
+msgstr "文書の文字列を置換します"
+
+#: ..\..\wxstedit\src\stemenum.cpp:273
+msgid "Toggle bookmark"
+msgstr "しおりをはさむ"
+
+#: ..\..\wxstedit\src\stemenum.cpp:273
+#: ..\..\wxstedit\src\stemenum.cpp:621
+msgid "Toggle a bookmark on cursor line"
+msgstr "しおりをはさむ/削除する"
+
+#: ..\..\wxstedit\src\stemenum.cpp:274
+msgid "First bookmark"
+msgstr "最初のしおりへ"
+
+#: ..\..\wxstedit\src\stemenum.cpp:274
+#: ..\..\wxstedit\src\stemenum.cpp:623
+msgid "Goto first bookmark"
+msgstr "最初のしおりに移動します"
+
+#: ..\..\wxstedit\src\stemenum.cpp:275
+msgid "Previous bookmark"
+msgstr "前のしおりへ"
+
+#: ..\..\wxstedit\src\stemenum.cpp:275
+#: ..\..\wxstedit\src\stemenum.cpp:624
+msgid "Goto previous bookmark"
+msgstr "前のしおりに移動します"
+
+#: ..\..\wxstedit\src\stemenum.cpp:276
+msgid "Next bookmark"
+msgstr "次のしおりへ"
+
+#: ..\..\wxstedit\src\stemenum.cpp:276
+#: ..\..\wxstedit\src\stemenum.cpp:625
+msgid "Goto next bookmark"
+msgstr "次のしおりに移動します"
+
+#: ..\..\wxstedit\src\stemenum.cpp:277
+msgid "Last bookmark"
+msgstr "最後のしおりへ"
+
+#: ..\..\wxstedit\src\stemenum.cpp:277
+#: ..\..\wxstedit\src\stemenum.cpp:626
+msgid "Goto last bookmark"
+msgstr "最後のしおりに移動します"
+
+#: ..\..\wxstedit\src\stemenum.cpp:278
+#: ..\..\wxstedit\src\stemenum.cpp:628
+msgid "Clear all bookmarks"
+msgstr "すべてのしおりを削除"
+
+#: ..\..\wxstedit\src\stemenum.cpp:278
+msgid "Clear bookmarks"
+msgstr "すべてのしおりを削除"
+
+#: ..\..\wxstedit\src\stemenum.cpp:293
+msgid "&New...\tCtrl-N"
+msgstr "新規作成(&N)...\tCtrl-N"
+
+#: ..\..\wxstedit\src\stemenum.cpp:293
+msgid "Clear contents and start a new file"
+msgstr "新しいファイルを作成します"
+
+#: ..\..\wxstedit\src\stemenum.cpp:298
+msgid "&Open...\tCtrl-O"
+msgstr "開く(&O)...\tCtrl-O"
+
+#: ..\..\wxstedit\src\stemenum.cpp:298
+msgid "Open file..."
+msgstr "ファイルを開く"
+
+#: ..\..\wxstedit\src\stemenum.cpp:305
+msgid "&Close current page\tCtrl-Shift-Q"
+msgstr "閉じる(&C)\tCtrl-Shift-Q"
+
+#: ..\..\wxstedit\src\stemenum.cpp:307
+msgid "Cl&ose all pages..."
+msgstr "すべて閉じる(&O)..."
+
+#: ..\..\wxstedit\src\stemenum.cpp:307
+msgid "Close all pages"
+msgstr "すべてのページを閉じる"
+
+#: ..\..\wxstedit\src\stemenum.cpp:315
+msgid "&Save \tCtrl-S"
+msgstr "上書き保存 (&S)\tCtrl-S"
+
+#: ..\..\wxstedit\src\stemenum.cpp:317
+msgid "Save &As...\tAlt-S"
+msgstr "名前を付けて保存(&A)...\tAlt-S"
+
+#: ..\..\wxstedit\src\stemenum.cpp:317
+msgid "Save as file..."
+msgstr "名前をつけて保存..."
+
+#: ..\..\wxstedit\src\stemenum.cpp:320
+msgid "Save A&ll\tCtrl-Shift-S"
+msgstr "すべて保存(&L)\tCtrl-Shift-S"
+
+#: ..\..\wxstedit\src\stemenum.cpp:329
+msgid "Expor&t..."
+msgstr "エクスポート(&T)..."
+
+#: ..\..\wxstedit\src\stemenum.cpp:329
+msgid "Export to file..."
+msgstr "ファイルにエクスポートします..."
+
+#: ..\..\wxstedit\src\stemenum.cpp:336
+msgid "Document propert&ies..."
+msgstr "文書のプロパティ(&I)..."
+
+#: ..\..\wxstedit\src\stemenum.cpp:336
+msgid "Show document properties dialog"
+msgstr "文書のプロパティダイアログを開きます"
+
+#: ..\..\wxstedit\src\stemenum.cpp:343
+msgid "&Print...\tCtrl-P"
+msgstr "印刷(&P)...\tCtrl-P"
+
+#: ..\..\wxstedit\src\stemenum.cpp:343
+msgid "Print current document"
+msgstr "現在の文書を印刷します"
+
+#: ..\..\wxstedit\src\stemenum.cpp:344
+msgid "Print pre&view...\tCtrl-Shift-P"
+msgstr "印刷プレビュー(&V)...\tCtrl-Shift-P"
+
+#: ..\..\wxstedit\src\stemenum.cpp:344
+msgid "Print preview of the current document"
+msgstr "現在の文書を印刷プレビュー表示します"
+
+#: ..\..\wxstedit\src\stemenum.cpp:345
+msgid "Printer set&up..."
+msgstr "プリンタ設定(&U)..."
+
+#: ..\..\wxstedit\src\stemenum.cpp:345
+msgid "Setup the printer"
+msgstr "プリンタの設定を行います"
+
+#: ..\..\wxstedit\src\stemenum.cpp:346
+msgid "Printer pa&ge setup..."
+msgstr "ページ設定(&G)..."
+
+#: ..\..\wxstedit\src\stemenum.cpp:346
+msgid "Setup the printout page"
+msgstr "印刷するページの設定を行います"
+
+#: ..\..\wxstedit\src\stemenum.cpp:347
+msgid "Printer options..."
+msgstr "印刷オプション..."
+
+#: ..\..\wxstedit\src\stemenum.cpp:347
+msgid "Set other printout options"
+msgstr "その他の印刷設定"
+
+#: ..\..\wxstedit\src\stemenum.cpp:353
+msgid "E&xit\tCtrl-Q"
+msgstr "終了(&X)\tCtrl-Q"
+
+#: ..\..\wxstedit\src\stemenum.cpp:353
+msgid "Exit editor"
+msgstr "エディタを終了します"
+
+#: ..\..\wxstedit\src\stemenum.cpp:374
+msgid "Cu&t   \tCtrl-X"
+msgstr "切り取り   (&T)\tCtrl-X"
+
+#: ..\..\wxstedit\src\stemenum.cpp:374
+msgid "Cut selected text to clipboard"
+msgstr "選択したテキストを切り取ってクリップボードに格納します"
+
+#: ..\..\wxstedit\src\stemenum.cpp:375
+msgid "&Copy  \tCtrl-C"
+msgstr "コピー  (&C)\tCtrl-C"
+
+#: ..\..\wxstedit\src\stemenum.cpp:375
+msgid "Copy selected text to clipboard"
+msgstr "選択したテキストをクリップボードにコピーします"
+
+#: ..\..\wxstedit\src\stemenum.cpp:377
+msgid "Copy primary\tCtrl-Shift-C"
+msgstr "前にコピー\tCtrl-Shift-C"
+
+#: ..\..\wxstedit\src\stemenum.cpp:377
+msgid "Copy selected text to primary clipboard"
+msgstr "選択したファイルをクリップボードの先頭にコピーします"
+
+#: ..\..\wxstedit\src\stemenum.cpp:381
+msgid "&Paste \tCtrl-V"
+msgstr "貼り付け (&P)\tCtrl-V"
+
+#: ..\..\wxstedit\src\stemenum.cpp:381
+msgid "Paste text from clipboard"
+msgstr "クリップボードの内容を貼り付けます"
+
+#: ..\..\wxstedit\src\stemenum.cpp:382
+msgid "Paste Rect\tAlt-Shift-V"
+msgstr "矩形貼り付け\tAlt-Shift-V"
+
+#: ..\..\wxstedit\src\stemenum.cpp:382
+msgid "Paste rectangular text from clipboard (select with Shift+Alt)"
+msgstr "クリップボードから矩形で貼り付けます (選択は Shift+Alt)"
+
+#: ..\..\wxstedit\src\stemenum.cpp:387
+msgid "Select A&ll\tCtrl-A"
+msgstr "すべて選択(&L)\tCtrl-A"
+
+#: ..\..\wxstedit\src\stemenum.cpp:387
+msgid "Selects entire document"
+msgstr "文書全体を選択します"
+
+#: ..\..\wxstedit\src\stemenum.cpp:398
+msgid "Line Cu&t \tCtrl-L"
+msgstr "行を切り取り (&T)\tCtrl-L"
+
+#: ..\..\wxstedit\src\stemenum.cpp:398
+msgid "Cut current line to clipboard"
+msgstr "現在の行をクリップボードに切り取ります"
+
+#: ..\..\wxstedit\src\stemenum.cpp:400
+msgid "Line &Copy  \tCtrl-Shift-T"
+msgstr "行をコピー  (&C)\tCtrl-Shift-T"
+
+#: ..\..\wxstedit\src\stemenum.cpp:400
+msgid "Copy current line to clipboard"
+msgstr "現在の行をクリップボードにコピーします"
+
+#: ..\..\wxstedit\src\stemenum.cpp:404
+msgid "Line &Delete \tCtrl-Shift-L"
+msgstr "行を削除 (&D)\tCtrl-Shift-L"
+
+#: ..\..\wxstedit\src\stemenum.cpp:404
+msgid "Delete current line"
+msgstr "現在の行を削除します"
+
+#: ..\..\wxstedit\src\stemenum.cpp:405
+msgid "Line &Transpose \tCtrl-T"
+msgstr "行を入れ替え (&T)\tCtrl-T"
+
+#: ..\..\wxstedit\src\stemenum.cpp:405
+msgid "Transpose current line upwards"
+msgstr "現在の行を上へ移動します"
+
+#: ..\..\wxstedit\src\stemenum.cpp:406
+msgid "Line D&uplicate \tCtrl-D"
+msgstr "行の複製 (&U)\tCtrl-D"
+
+#: ..\..\wxstedit\src\stemenum.cpp:406
+msgid "Duplicate current line"
+msgstr "行の複製"
+
+#: ..\..\wxstedit\src\stemenum.cpp:409
+msgid "L&ine Editing"
+msgstr "行単位編集(&I)"
+
+#: ..\..\wxstedit\src\stemenum.cpp:416
+msgid "&Find...\tCtrl-F"
+msgstr "検索(&F)...\tCtrl-F"
+
+#: ..\..\wxstedit\src\stemenum.cpp:416
+msgid "Find text"
+msgstr "文字列を検索します"
+
+#: ..\..\wxstedit\src\stemenum.cpp:417
+msgid "Find &Next\tF3"
+msgstr "次を検索(&N)\tF3"
+
+#: ..\..\wxstedit\src\stemenum.cpp:417
+msgid "Find next occurance"
+msgstr "次にある文字列を検索します"
+
+#: ..\..\wxstedit\src\stemenum.cpp:418
+msgid "Search F&orward\tF2"
+msgstr "前へ検索(&O)\tF2"
+
+#: ..\..\wxstedit\src\stemenum.cpp:418
+msgid "Search forward/reverse in document"
+msgstr "検索方向を切り替えます"
+
+#: ..\..\wxstedit\src\stemenum.cpp:420
+msgid "R&eplace...\tCtrl-H"
+msgstr "置換(&E)...\tCtrl-H"
+
+#: ..\..\wxstedit\src\stemenum.cpp:420
+msgid "Replace text"
+msgstr "文字列を置換します"
+
+#: ..\..\wxstedit\src\stemenum.cpp:427
+msgid "&Go To... \tCtrl-G"
+msgstr "ジャンプ... (&G)\tCtrl-G"
+
+#: ..\..\wxstedit\src\stemenum.cpp:427
+msgid "Goto line number"
+msgstr "指定した行にジャンプします"
+
+#: ..\..\wxstedit\src\stemenum.cpp:434
+msgid "&Undo \tCtrl-Z"
+msgstr "元に戻す (&U)\tCtrl-Z"
+
+#: ..\..\wxstedit\src\stemenum.cpp:434
+msgid "Undo last operation"
+msgstr "最後に行った動作を取り消します"
+
+#: ..\..\wxstedit\src\stemenum.cpp:435
+msgid "&Redo \tCtrl-Y"
+msgstr "やり直し (&R)\tCtrl-Y"
+
+#: ..\..\wxstedit\src\stemenum.cpp:442
+msgid "Readonly"
+msgstr "読み取り専用"
+
+#: ..\..\wxstedit\src\stemenum.cpp:442
+msgid "Make document readonly"
+msgstr "文書を読み取り専用にします"
+
+#: ..\..\wxstedit\src\stemenum.cpp:469
+msgid "Selection &uppercase\tCtrl-Shift-U"
+msgstr "大文字に変換(&U)\tCtrl-Shift-U"
+
+#: ..\..\wxstedit\src\stemenum.cpp:469
+msgid "Convert the selected text to uppercase"
+msgstr "選択範囲を大文字に変換します"
+
+#: ..\..\wxstedit\src\stemenum.cpp:470
+msgid "Selection &lowercase\tCtrl-U"
+msgstr "小文字に変換(&L)\tCtrl-U"
+
+#: ..\..\wxstedit\src\stemenum.cpp:470
+msgid "Convert the selected text to lowercase"
+msgstr "選択した範囲を小文字に変換します"
+
+#: ..\..\wxstedit\src\stemenum.cpp:477
+msgid "&Increase indent"
+msgstr "インデント(&I)"
+
+#: ..\..\wxstedit\src\stemenum.cpp:477
+msgid "Increase indent of selected text or current line"
+msgstr "選択行または現在の行にインデントを追加します"
+
+#: ..\..\wxstedit\src\stemenum.cpp:478
+msgid "&Decrease indent"
+msgstr "逆インデント(&D)"
+
+#: ..\..\wxstedit\src\stemenum.cpp:478
+msgid "Decrease indent of selected text or current line"
+msgstr "選択行または現在の行からインデントを減らします"
+
+#: ..\..\wxstedit\src\stemenum.cpp:485
+msgid "&Join selected lines\tCtrl-J"
+msgstr "選択行を結合(&J)\tCtrl-J"
+
+#: ..\..\wxstedit\src\stemenum.cpp:485
+msgid "Join selected lines together"
+msgstr "選択行を一つの行にまとめます"
+
+#: ..\..\wxstedit\src\stemenum.cpp:486
+msgid "&Split selected lines\tCtrl-K"
+msgstr "選択行を分割(&S)\tCtrl-K"
+
+#: ..\..\wxstedit\src\stemenum.cpp:486
+msgid "Split selected lines to edge marker"
+msgstr "選択行を折り返し幅で改行します"
+
+#: ..\..\wxstedit\src\stemenum.cpp:493
+msgid "Convert &tabs to spaces"
+msgstr "タブをスペースに変換(&T)"
+
+#: ..\..\wxstedit\src\stemenum.cpp:493
+msgid "Convert tabs to spaces in selection or current line"
+msgstr "選択範囲または現在の行のタブをスペースに変換します"
+
+#: ..\..\wxstedit\src\stemenum.cpp:494
+msgid "Convert s&paces to tabs"
+msgstr "スペースをタブに変換(&P)"
+
+#: ..\..\wxstedit\src\stemenum.cpp:494
+msgid "Convert spaces to tabs in selection or current line"
+msgstr "選択範囲または現在の行のスペースをタブに変換します"
+
+#: ..\..\wxstedit\src\stemenum.cpp:501
+msgid "Convert &EOL characters..."
+msgstr "改行コード変換(&E)..."
+
+#: ..\..\wxstedit\src\stemenum.cpp:501
+msgid "Convert all end of line characters in doc"
+msgstr "文書内のすべての改行コードを変換します"
+
+#: ..\..\wxstedit\src\stemenum.cpp:508
+msgid "Remove trailing &whitespace\tCtrl-W"
+msgstr "余分な空白を削除(&W)\tCtrl-W"
+
+#: ..\..\wxstedit\src\stemenum.cpp:508
+msgid "Remove whitespace at the ends of lines"
+msgstr "行末の空白を削除します"
+
+#: ..\..\wxstedit\src\stemenum.cpp:515
+msgid "I&nsert text...\tCtrl-I"
+msgstr "テキスト挿入(&N)...\tCtrl-I"
+
+#: ..\..\wxstedit\src\stemenum.cpp:515
+msgid "Prepend, Append, or insert text at column..."
+msgstr "前後に文字列を挿入します..."
+
+#: ..\..\wxstedit\src\stemenum.cpp:522
+msgid "&Columnize..."
+msgstr "整形(&C)..."
+
+#: ..\..\wxstedit\src\stemenum.cpp:522
+msgid "Reformat selected lines in columns..."
+msgstr "選択文字列を整形します..."
+
+#: ..\..\wxstedit\src\stemenum.cpp:543
+msgid "&Wrap text to window"
+msgstr "ウィンドウ幅で折り返し(&W)"
+
+#: ..\..\wxstedit\src\stemenum.cpp:543
+msgid "Wrap the text to fit inside window"
+msgstr "文字列をウィンドウ幅に合わせて折り返します"
+
+#: ..\..\wxstedit\src\stemenum.cpp:550
+msgid "Show &EOL"
+msgstr "改行を表示(&E)"
+
+#: ..\..\wxstedit\src\stemenum.cpp:550
+msgid "Show end of line symbols"
+msgstr "改行マークを表示します"
+
+#: ..\..\wxstedit\src\stemenum.cpp:551
+msgid "Show whi&tespace"
+msgstr "空白を表示(&T)"
+
+#: ..\..\wxstedit\src\stemenum.cpp:551
+msgid "Show whitespace using symbols"
+msgstr "スペースを表示します"
+
+#: ..\..\wxstedit\src\stemenum.cpp:556
+msgid "Show indent &guides"
+msgstr "インデントを表示(&G)"
+
+#: ..\..\wxstedit\src\stemenum.cpp:556
+msgid "Show indentation column guides"
+msgstr "インデントにガイドを表示します"
+
+#: ..\..\wxstedit\src\stemenum.cpp:557
+msgid "Show l&ong line guide"
+msgstr "長い行にガイドを表示(&O)"
+
+#: ..\..\wxstedit\src\stemenum.cpp:557
+msgid "Show column guide for long lines"
+msgstr "幅のある行にガイドを表示します"
+
+#: ..\..\wxstedit\src\stemenum.cpp:558
+msgid "Set long l&ine guide column..."
+msgstr "長い行のガイドを設定(&I)"
+
+#: ..\..\wxstedit\src\stemenum.cpp:558
+msgid "Set column long line guide..."
+msgstr "幅のある行にガイドを表示します..."
+
+#: ..\..\wxstedit\src\stemenum.cpp:559
+msgid "&Guides"
+msgstr "ガイド(&G)"
+
+#: ..\..\wxstedit\src\stemenum.cpp:564
+msgid "Show &line number margin"
+msgstr "行番号に余白をつける(&L)"
+
+#: ..\..\wxstedit\src\stemenum.cpp:564
+msgid "Show line number margin"
+msgstr "行番号に余白をつける"
+
+#: ..\..\wxstedit\src\stemenum.cpp:565
+msgid "Show &marker margin"
+msgstr "マーカーに余白をつける(&M)"
+
+#: ..\..\wxstedit\src\stemenum.cpp:565
+msgid "Show a margin for markers"
+msgstr "マーカーに余白をつける"
+
+#: ..\..\wxstedit\src\stemenum.cpp:566
+msgid "Show &folding margin"
+msgstr "折りたたみに余白をつける(&F)"
+
+#: ..\..\wxstedit\src\stemenum.cpp:566
+msgid "Show code folding margin"
+msgstr "スクリプト・コード内の折りたたみに余白をつけます"
+
+#: ..\..\wxstedit\src\stemenum.cpp:567
+msgid "&Margins"
+msgstr "余白(&M)"
+
+#: ..\..\wxstedit\src\stemenum.cpp:575
+msgid "To&ggle current fold"
+msgstr "現在位置を開閉(&G)"
+
+#: ..\..\wxstedit\src\stemenum.cpp:575
+msgid "Toggle the current fold level"
+msgstr "現在の階層の開閉を切り替えます"
+
+#: ..\..\wxstedit\src\stemenum.cpp:576
+msgid "&Collapse folds below level..."
+msgstr "下の階層をすべて閉じる(&C)"
+
+#: ..\..\wxstedit\src\stemenum.cpp:576
+msgid "Collapse all folds below the level in document"
+msgstr "この文書の中で下の階層にある折りたたみをすべて閉じます"
+
+#: ..\..\wxstedit\src\stemenum.cpp:577
+msgid "E&xpand folds above level..."
+msgstr "上の階層をすべて開く(&X)"
+
+#: ..\..\wxstedit\src\stemenum.cpp:577
+msgid "Expand all folds above the level in document"
+msgstr "この文書の中で上の階層にある折りたたみをすべて展開します"
+
+#: ..\..\wxstedit\src\stemenum.cpp:578
+msgid "&Collapse all folds"
+msgstr "すべて閉じる(&C)"
+
+#: ..\..\wxstedit\src\stemenum.cpp:578
+msgid "Collapse all folds in document"
+msgstr "文書内の折りたたみをすべて閉じます"
+
+#: ..\..\wxstedit\src\stemenum.cpp:579
+msgid "E&xpand all folds"
+msgstr "すべて展開(&X)"
+
+#: ..\..\wxstedit\src\stemenum.cpp:579
+msgid "Expand all folds in document"
+msgstr "文書内の折りたたみをすべて展開します"
+
+#: ..\..\wxstedit\src\stemenum.cpp:580
+msgid "&Folding"
+msgstr "折りたたみ(&F)"
+
+#: ..\..\wxstedit\src\stemenum.cpp:587
+msgid "S&yntax coloring"
+msgstr "構文を強調表示(&Y)"
+
+#: ..\..\wxstedit\src\stemenum.cpp:587
+msgid "Hilight document based on the syntax"
+msgstr "構文に基づいて強調表示を行います"
+
+#: ..\..\wxstedit\src\stemenum.cpp:594
+msgid "&Scale font size..."
+msgstr "文字の拡大/縮小(&S)"
+
+#: ..\..\wxstedit\src\stemenum.cpp:594
+msgid "Increase or decrease the size of the text"
+msgstr "文字の大きさを拡大/縮小します"
+
+#: ..\..\wxstedit\src\stemenum.cpp:601
+msgid "Show f&ullscreen\tF11"
+msgstr "全画面表示(&U)\tF11"
+
+#: ..\..\wxstedit\src\stemenum.cpp:601
+msgid "Show the editor fullscreen"
+msgstr "エディタを全画面表示にします"
+
+#: ..\..\wxstedit\src\stemenum.cpp:621
+msgid "&Toggle bookmark\tF4"
+msgstr "しおりをはさむ(&T)\tF4"
+
+#: ..\..\wxstedit\src\stemenum.cpp:623
+msgid "&First bookmark\tShift+F5"
+msgstr "最初のしおりへ(&F)\tShift+F5"
+
+#: ..\..\wxstedit\src\stemenum.cpp:624
+msgid "&Previous bookmark\tF5"
+msgstr "前のしおりへ(&P)\tF5"
+
+#: ..\..\wxstedit\src\stemenum.cpp:625
+msgid "&Next bookmark\tF6"
+msgstr "次のしおりへ(&N)\tF6"
+
+#: ..\..\wxstedit\src\stemenum.cpp:626
+msgid "&Last bookmark\tShift+F6"
+msgstr "最後のしおりへ(&L)\tShift+F6"
+
+#: ..\..\wxstedit\src\stemenum.cpp:628
+msgid "&Clear all bookmarks\tShift+F4"
+msgstr "すべてのしおりを削除(&C)\tShift+F4"
+
+#: ..\..\wxstedit\src\stemenum.cpp:642
+msgid "Show &preference dialog..."
+msgstr "設定ダイアログ(&P)..."
+
+#: ..\..\wxstedit\src\stemenum.cpp:642
+msgid "Show preference dialog..."
+msgstr "設定ダイアログを表示します..."
+
+#: ..\..\wxstedit\src\stemenum.cpp:649
+msgid "Use &tabs"
+msgstr "タブ文字を使用(&T)"
+
+#: ..\..\wxstedit\src\stemenum.cpp:649
+msgid "Tab key inserts a tab character"
+msgstr "タブキーでスペースではなくタブ文字を入力します"
+
+#: ..\..\wxstedit\src\stemenum.cpp:650
+msgid "Tab &indents"
+msgstr "タブでインデント(&I)"
+
+#: ..\..\wxstedit\src\stemenum.cpp:650
+msgid "Tab key indents"
+msgstr "タブキーでインデントを行います"
+
+#: ..\..\wxstedit\src\stemenum.cpp:651
+msgid "&Backspace unindents"
+msgstr "BSでアンインデント(&B)"
+
+#: ..\..\wxstedit\src\stemenum.cpp:651
+msgid "Backspace key unindents"
+msgstr "バックスペースキーでアンインデントを行います"
+
+#: ..\..\wxstedit\src\stemenum.cpp:652
+msgid "&Auto indent"
+msgstr "オートインデント(&A)"
+
+#: ..\..\wxstedit\src\stemenum.cpp:652
+msgid "Indent new lines to previous indentation"
+msgstr "新しい行に移った時に前の行と同じインデントを設定します"
+
+#: ..\..\wxstedit\src\stemenum.cpp:654
+msgid "Set tab &width..."
+msgstr "タブ幅の設定(&W)..."
+
+#: ..\..\wxstedit\src\stemenum.cpp:654
+msgid "Set the number of spaces to show for tab character"
+msgstr "タブとして表示する空白の数を設定します"
+
+#: ..\..\wxstedit\src\stemenum.cpp:655
+msgid "Set indent wi&dth..."
+msgstr "インデント幅の設定(&D)..."
+
+#: ..\..\wxstedit\src\stemenum.cpp:655
+msgid "Set the number of spaces to use for indentation"
+msgstr "インデントとして使用する空白の数を設定します"
+
+#: ..\..\wxstedit\src\stemenum.cpp:662
+msgid "&EOL Mode..."
+msgstr "改行コード(&E)"
+
+#: ..\..\wxstedit\src\stemenum.cpp:662
+msgid "Set the end of line mode"
+msgstr "改行コードを設定"
+
+#: ..\..\wxstedit\src\stemenum.cpp:669
+msgid "Save preferences"
+msgstr "設定を保存"
+
+#: ..\..\wxstedit\src\stemenum.cpp:669
+msgid "Save current preferences"
+msgstr "現在の設定を保存します"
+
+#: ..\..\wxstedit\src\stemenum.cpp:697
+msgid "&Show sidebar"
+msgstr "サイドバーの表示(&S)"
+
+#: ..\..\wxstedit\src\stemenum.cpp:697
+msgid "Show the sidebar panel"
+msgstr "サイドバーパネルを表示します"
+
+#: ..\..\wxstedit\src\stemenum.cpp:704
+msgid "Pr&evious page\tShift+F8"
+msgstr "前のページへ(&E)\tShift+F8"
+
+#: ..\..\wxstedit\src\stemenum.cpp:704
+msgid "Goto previous page"
+msgstr "前のページに移動します"
+
+#: ..\..\wxstedit\src\stemenum.cpp:705
+msgid "Ne&xt page\tF8"
+msgstr "次のページへ(&X)\tF8"
+
+#: ..\..\wxstedit\src\stemenum.cpp:705
+msgid "Goto next page"
+msgstr "次のページに移動します"
+
+#: ..\..\wxstedit\src\stemenum.cpp:733
+msgid "&About..."
+msgstr "バージョン情報(&A)..."
+
+#: ..\..\wxstedit\src\stemenum.cpp:733
+msgid "About this program"
+msgstr "バージョン情報"
+
+#: ..\..\wxstedit\src\stemenum.cpp:752
+msgid "Tab character"
+msgstr "タブ文字"
+
+#: ..\..\wxstedit\src\stemenum.cpp:753
+msgid "Carriage return"
+msgstr "キャリッジリターン"
+
+#: ..\..\wxstedit\src\stemenum.cpp:754
+msgid "Line feed"
+msgstr "改行"
+
+#: ..\..\wxstedit\src\stemenum.cpp:759
+msgid "Any character"
+msgstr "文字 \t."
+
+#: ..\..\wxstedit\src\stemenum.cpp:760
+msgid "Character in range"
+msgstr "範囲内の文字 \t[]"
+
+#: ..\..\wxstedit\src\stemenum.cpp:761
+msgid "Character not in range"
+msgstr "範囲にない文字 \t[^]"
+
+#: ..\..\wxstedit\src\stemenum.cpp:762
+msgid "Beginning of line"
+msgstr "行頭 \t^"
+
+#: ..\..\wxstedit\src\stemenum.cpp:763
+msgid "End of line"
+msgstr "行末 \t$"
+
+#: ..\..\wxstedit\src\stemenum.cpp:764
+msgid "Tagged expression"
+msgstr "タグつき表記"
+
+#: ..\..\wxstedit\src\stemenum.cpp:765
+msgid "0 or more matches"
+msgstr "0回以上にマッチ \t*"
+
+#: ..\..\wxstedit\src\stemenum.cpp:766
+msgid "1 or more matches"
+msgstr "1回以上にマッチ \t+"
+
+#: ..\..\wxstedit\src\stemenum.cpp:767
+msgid "0 or 1 matches"
+msgstr "0または1にマッチ \t?"
+
+#: ..\..\wxstedit\src\stemenum.cpp:769
+msgid "Alphanumeric characters"
+msgstr "英数字"
+
+#: ..\..\wxstedit\src\stemenum.cpp:770
+msgid "Alphabetical characters"
+msgstr "アルファベット"
+
+#: ..\..\wxstedit\src\stemenum.cpp:771
+msgid "Numeric characters"
+msgstr "数字"
+
+#: ..\..\wxstedit\src\stemenum.cpp:772
+msgid "Tab characters"
+msgstr "タブ文字 \t\\t"
+
+#: ..\..\wxstedit\src\stemenum.cpp:774
+msgid "Regexp"
+msgstr "正規表現"
+
+#: ..\..\wxstedit\src\stenoteb.cpp:277
+#: ..\..\wxstedit\src\stenoteb.cpp:302
+msgid ""
+"Maximum number of notebook pages exceeded,\n"
+"please close one first."
+msgstr ""
+"一度に開ける最大文書数を超えています\n"
+"どれか一つをまず閉じてください"
+
+#: ..\..\wxstedit\src\stenoteb.cpp:278
+#: ..\..\wxstedit\src\stenoteb.cpp:303
+msgid "Too many pages opened"
+msgstr "ページを開きすぎです"
+
+#: ..\..\wxstedit\src\stenoteb.cpp:610
+msgid "Close all pages?"
+msgstr "すべてのページを閉じますか？"
+
+#: ..\..\wxstedit\src\stenoteb.cpp:610
+msgid "Confim closing"
+msgstr "閉じるの確認"
+
+#: ..\..\wxstedit\src\stenoteb.cpp:704
+msgid "Open file into new notebook page"
+msgstr "ファイルを新規ノートブックページに開く"
+
+#: ..\..\wxstedit\src\stenoteb.cpp:757
+msgid "Open file(s) into new notebook page"
+msgstr "ファイルを新しいページに開きます"
+
+#: ..\..\wxstedit\src\stenoteb.cpp:774
+msgid "Loading files..."
+msgstr "読込中..."
+
+#: ..\..\wxstedit\src\stenoteb.cpp:1140
+#, c-format
+msgid ""
+"Replaced %d occurances of\n"
+"'%s' with '%s'\n"
+"in %d documents."
+msgstr ""
+"%dの'%s' を \n"
+"'%s' で置き換えます\n"
+"総数:%d"
+
+#: ..\..\wxstedit\src\steprint.cpp:147
+msgid ""
+"The font cannot be properly scaled for the printout\n"
+"and the output may be corrupted.\n"
+"Press cancel to not see this warning again."
+msgstr ""
+"このフォントは拡大/縮小しての印刷に対応していません\n"
+"出力がくずれるおそれがあります\n"
+"キャンセルをクリックすると今後この警告を表示しません"
+
+#: ..\..\wxstedit\src\steprint.cpp:148
+msgid "Unscalable font"
+msgstr "非スケーラブル・フォント"
+
+#: ..\..\wxstedit\src\steprint.cpp:272
+msgid "Formatting printout"
+msgstr "フォーマット印刷"
+
+#: ..\..\wxstedit\src\steprint.cpp:272
+msgid "Page 1 of ?"
+msgstr "1 / ? ページ"
+
+#: ..\..\wxstedit\src\steprint.cpp:292
+#, c-format
+msgid "Page %d of %d"
+msgstr "%d / %d ページ"
+
+#: ..\..\wxstedit\src\steprint.cpp:379
+msgid "Printout options"
+msgstr "印刷オプション"
+
+#: ..\..\wxstedit\src\stestyls.cpp:751
+msgid ""
+"Error loading editor config data, would you like to repair it?\n"
+"\n"
+msgstr ""
+"エディタの設定データを読み込み中にエラーが発生しました\n"
+"修復しますか？\n"
+
+#: ..\..\wxstedit\src\stestyls.cpp:754
+msgid "Config load error"
+msgstr "設定の読み込みエラー"
+
+#: ..\..\wxstedit\src\stestyls.cpp:787
+msgid "Unknown style name in '"
+msgstr "不明なスタイル名 '"
+
+#: ..\..\wxstedit\src\stestyls.cpp:798
+msgid "Empty style option '"
+msgstr "空のスタイルオプション '"
+
+#: ..\..\wxstedit\src\stestyls.cpp:798
+msgid "' in style '"
+msgstr "' スタイル適用 '"
+
+#: ..\..\wxstedit\src\stestyls.cpp:813
+msgid "Invalid foreground colour in style '"
+msgstr "正しくありません:スタイル設定の前景色'"
+
+#: ..\..\wxstedit\src\stestyls.cpp:823
+msgid "Invalid background colour in style '"
+msgstr "正しくありません:スタイル設定の背景色'"
+
+#: ..\..\wxstedit\src\stestyls.cpp:838
+msgid "Invalid font size in style '"
+msgstr "正しくありません:スタイル設定の大きさ'"
+
+#: ..\..\wxstedit\src\stestyls.cpp:879
+msgid "Invalid letter case for style '"
+msgstr "正しくありません:スタイル設定の文字種'"
+
+#: ..\..\wxstedit\src\stestyls.cpp:891
+msgid "Invalid indicator style in '"
+msgstr "正しくありません:インジケータのスタイル'"
+
+#: ..\..\wxstedit\src\stestyls.cpp:901
+msgid "Invalid marker style in '"
+msgstr "正しくありません:マーカーのスタイル'"
+
+#: ..\..\wxstedit\src\stestyls.cpp:905
+msgid "Style set for non indicator or marker in '"
+msgstr "インジケータ/マーカーにスタイルを設定しました'"
+
+#: ..\..\wxstedit\include\wx\stedit\stedlgs.h:425
+msgid "Insert Text"
+msgstr "挿入文字列"
+
+#: ..\..\wxstedit\include\wx\stedit\stedlgs.h:490
+msgid "Columnize Text"
+msgstr "テキスト整形"
+
+#: ..\..\wxstedit\include\wx\stedit\steexprt.h:83
+msgid "Export file"
+msgstr "エクスポート"
+

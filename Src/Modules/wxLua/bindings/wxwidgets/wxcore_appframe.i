@@ -52,7 +52,7 @@
     // virtual int OnRun() nothing we can do here
     bool Pending()
     // !%wxchkver_2_6 bool SendIdleEvents()
-    %wxchkver_2_6 bool SendIdleEvents(wxWindow* win, wxIdleEvent& event)
+    %wxchkver_2_6 && !%wxchkver_2_9_2 bool SendIdleEvents(wxWindow* win, wxIdleEvent& event)
     void SetAppName(const wxString& name)
     //!%wxchkver_2_4&(%win|%mac) void SetAuto3D(const bool auto3D)
     void SetClassName(const wxString& name)
@@ -90,13 +90,16 @@
 %class wxTopLevelWindow, wxWindow
     // No constructors, virtual base class, use wxFrame or wxDialog
 
+    bool CanSetTransparent()
+    bool EnableCloseButton(bool enable = true)
     %wxchkver_2_8 wxWindow* GetDefaultItem() const
     wxIcon GetIcon() const
     //const wxIconBundle& GetIcons() const
     wxString GetTitle() const
     %wxchkver_2_8 wxWindow* GetTmpDefaultItem() const
-    void Iconize(bool iconize)
     bool IsActive() const
+    bool IsAlwaysMaximized() const
+    void Iconize(bool iconize)
     bool IsFullScreen() const
     bool IsIconized() const
     bool IsMaximized() const
@@ -105,12 +108,18 @@
     %wxchkver_2_8 wxWindow* SetDefaultItem(wxWindow *win)
     void SetIcon(const wxIcon& icon)
     void SetIcons(const wxIconBundle& icons)
-    //void SetLeftMenu(int id = wxID_ANY, const wxString& label = wxEmptyString, wxMenu * subMenu = NULL)
+    //void SetLeftMenu(int id = wxID_ANY, const wxString& label = wxEmptyString, wxMenu * subMenu = NULL) // for phones
     //void SetRightMenu(int id = wxID_ANY, const wxString& label = wxEmptyString, wxMenu * subMenu = NULL)
+    void SetMaxSize(const wxSize& size)
+    void SetMinSize(const wxSize& size)
+    void SetSizeHints(int minW, int minH, int maxW=-1, int maxH=-1, int incW=-1, int incH=-1)
+    void SetSizeHints(const wxSize& minSize, const wxSize& maxSize=wxDefaultSize, const wxSize& incSize=wxDefaultSize)
     bool SetShape(const wxRegion& region)
     virtual void SetTitle(const wxString& title)
+    virtual bool SetTransparent(int alpha)
+    //virtual bool ShouldPreventAppExit() const // must be overridden
     %wxchkver_2_8 wxWindow* SetTmpDefaultItem(wxWindow *win)
-    %win bool ShowFullScreen(bool show, long style = wxFULLSCREEN_ALL)
+    bool ShowFullScreen(bool show, long style = wxFULLSCREEN_ALL)
 %endclass
 
 %endif //wxLUA_USE_wxFrame|wxLUA_USE_wxDialog
@@ -141,7 +150,7 @@
 %define wxFRAME_EX_CONTEXTHELP
 %wxchkver_2_6 %define wxFRAME_SHAPED
 %wxchkver_2_6 %define wxFRAME_EX_METAL
-%define wxTHICK_FRAME
+// %define wxTHICK_FRAME %wxcompat_2_6 use %wxchkver_2_6
 
 %class wxFrame, wxTopLevelWindow
     wxFrame()

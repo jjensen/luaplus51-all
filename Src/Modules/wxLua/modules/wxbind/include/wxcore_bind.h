@@ -390,6 +390,14 @@ extern WXDLLIMPEXP_BINDWXCORE wxLuaBinding* wxLuaBinding_wxcore_init();
     #include "wx/gdicmn.h"
 #endif // wxLUA_USE_wxPointSizeRect
 
+#if wxLUA_USE_wxPopupTransientWindow
+    #include "wx/popupwin.h"
+#endif // wxLUA_USE_wxPopupTransientWindow
+
+#if wxLUA_USE_wxPopupWindow
+    #include "wx/popupwin.h"
+#endif // wxLUA_USE_wxPopupWindow
+
 #if wxLUA_USE_wxPrint && wxUSE_PRINTING_ARCHITECTURE
     #include "wx/print.h"
     #include "wx/printdlg.h"
@@ -496,7 +504,7 @@ extern WXDLLIMPEXP_BINDWXCORE wxLuaBinding* wxLuaBinding_wxcore_init();
 #endif // wxUSE_FONTDLG && wxLUA_USE_wxFontDialog
 
 #if wxUSE_PROGRESSDLG && wxLUA_USE_wxProgressDialog
-    #include "wx/generic/progdlgg.h"
+    #include "wx/progdlg.h"
 #endif // wxUSE_PROGRESSDLG && wxLUA_USE_wxProgressDialog
 
 #if wxUSE_STREAMS && wxUSE_FILESYSTEM
@@ -638,6 +646,10 @@ extern WXDLLIMPEXP_BINDWXCORE wxLuaBinding* wxLuaBinding_wxcore_init();
 #if (wxLUA_USE_wxLog && wxUSE_LOG) && (wxUSE_LOGGUI)
     extern WXDLLIMPEXP_DATA_BINDWXCORE(int) wxluatype_wxLogGui;
 #endif // (wxLUA_USE_wxLog && wxUSE_LOG) && (wxUSE_LOGGUI)
+
+#if (wxLUA_USE_wxPointSizeRect) && (wxCHECK_VERSION(2,9,0))
+    extern WXDLLIMPEXP_DATA_BINDWXCORE(int) wxluatype_wxPointList;
+#endif // (wxLUA_USE_wxPointSizeRect) && (wxCHECK_VERSION(2,9,0))
 
 #if (wxLUA_USE_wxPrint && wxUSE_PRINTING_ARCHITECTURE) && (defined(__WXMSW__) || defined(__WXMAC__))
     extern WXDLLIMPEXP_DATA_BINDWXCORE(int) wxluatype_wxPrinterDC;
@@ -885,6 +897,7 @@ extern WXDLLIMPEXP_DATA_BINDWXCORE(int) wxluatype_wxWindowUpdateLocker;
     extern WXDLLIMPEXP_DATA_BINDWXCORE(int) wxluatype_wxDataObjectComposite;
     extern WXDLLIMPEXP_DATA_BINDWXCORE(int) wxluatype_wxDataObjectSimple;
     extern WXDLLIMPEXP_DATA_BINDWXCORE(int) wxluatype_wxFileDataObject;
+    extern WXDLLIMPEXP_DATA_BINDWXCORE(int) wxluatype_wxLuaDataObjectSimple;
     extern WXDLLIMPEXP_DATA_BINDWXCORE(int) wxluatype_wxTextDataObject;
 #endif // wxLUA_USE_wxDataObject && wxUSE_DATAOBJ
 
@@ -1040,6 +1053,14 @@ extern WXDLLIMPEXP_DATA_BINDWXCORE(int) wxluatype_wxWindowUpdateLocker;
     extern WXDLLIMPEXP_DATA_BINDWXCORE(int) wxluatype_wxRect;
     extern WXDLLIMPEXP_DATA_BINDWXCORE(int) wxluatype_wxSize;
 #endif // wxLUA_USE_wxPointSizeRect
+
+#if wxLUA_USE_wxPopupTransientWindow
+    extern WXDLLIMPEXP_DATA_BINDWXCORE(int) wxluatype_wxPopupTransientWindow;
+#endif // wxLUA_USE_wxPopupTransientWindow
+
+#if wxLUA_USE_wxPopupWindow
+    extern WXDLLIMPEXP_DATA_BINDWXCORE(int) wxluatype_wxPopupWindow;
+#endif // wxLUA_USE_wxPopupWindow
 
 #if wxLUA_USE_wxPrint && wxUSE_PRINTING_ARCHITECTURE
     extern WXDLLIMPEXP_DATA_BINDWXCORE(int) wxluatype_wxPageSetupDialog;

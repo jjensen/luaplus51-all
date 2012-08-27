@@ -730,7 +730,7 @@
 %define wxSL_HORIZONTAL
 %define wxSL_LABELS
 %define wxSL_LEFT
-%define wxSL_NOTIFY_DRAG
+// %define wxSL_NOTIFY_DRAG %wxcompat_2_6 obsolete
 %define wxSL_RIGHT
 %define wxSL_SELRANGE
 %define wxSL_TOP
@@ -854,7 +854,7 @@
 %define wxTE_CENTRE
 %define wxTE_RIGHT
 %define wxTE_DONTWRAP
-%define wxTE_LINEWRAP
+// %define wxTE_LINEWRAP %wxcompat_2_6 obsolete use wxTE_CHARWRAP
 %define wxTE_CHARWRAP
 %define wxTE_WORDWRAP
 %define wxTE_BESTWRAP
@@ -1070,12 +1070,14 @@
     wxTreeCtrl(wxWindow* parent, wxWindowID id, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = wxTR_DEFAULT_STYLE, const wxValidator& validator = wxDefaultValidator, const wxString& name = "wxTreeCtrl")
     bool Create(wxWindow* parent, wxWindowID id, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = wxTR_HAS_BUTTONS, const wxValidator& validator = wxDefaultValidator, const wxString& name = "wxTreeCtrl")
 
-    wxTreeItemId AddRoot(const wxString& text, int image = -1, int selImage = -1, wxTreeItemData* data = NULL)
-    wxTreeItemId AppendItem(const wxTreeItemId& parent, const wxString& text, int image = -1, int selImage = -1, wxTreeItemData* data = NULL)
+    wxTreeItemId AddRoot(const wxString& text, int image = -1, int selImage = -1, %ungc wxLuaTreeItemData* data = NULL)
+    wxTreeItemId AppendItem(const wxTreeItemId& parent, const wxString& text, int image = -1, int selImage = -1, %ungc wxLuaTreeItemData* data = NULL)
     //void AssignButtonsImageList(wxImageList* imageList)
     void AssignImageList(%ungc wxImageList* imageList)
     void AssignStateImageList(%ungc wxImageList* imageList)
     void Collapse(const wxTreeItemId& item)
+    void CollapseAll()
+    void CollapseAllChildren(const wxTreeItemId& item)
     void CollapseAndReset(const wxTreeItemId& item)
     void Delete(const wxTreeItemId& item)
     void DeleteAllItems()
@@ -1084,11 +1086,13 @@
     %win void EndEditLabel(const wxTreeItemId& item, bool discardChanges = false)
     void EnsureVisible(const wxTreeItemId& item)
     void Expand(const wxTreeItemId& item)
+    void ExpandAll()
+    void ExpandAllChildren(const wxTreeItemId& item)
     bool GetBoundingRect(const wxTreeItemId& item, wxRect& rect, bool textOnly = false) const
     //wxImageList* GetButtonsImageList() const
     size_t GetChildrenCount(const wxTreeItemId& item, bool recursively = true) const
     int GetCount() const
-    //wxTextCtrl* GetEditControl() const
+    //wxTextCtrl* GetEditControl() const // MSW only
 
     // %override [wxTreeItemId, wxTreeItemIdValue cookie] wxTreeCtrl::GetFirstChild(const wxTreeItemId& item)
     // C++ Func: wxTreeItemId GetFirstChild(const wxTreeItemId& item, wxTreeItemIdValue& cookie) const
@@ -1098,7 +1102,7 @@
     wxImageList* GetImageList() const
     int GetIndent() const
     wxColour GetItemBackgroundColour(const wxTreeItemId& item) const
-    wxTreeItemData* GetItemData(const wxTreeItemId& item) const
+    wxLuaTreeItemData* GetItemData(const wxTreeItemId& item) const
     wxFont GetItemFont(const wxTreeItemId& item) const
     int GetItemImage(const wxTreeItemId& item, wxTreeItemIcon which = wxTreeItemIcon_Normal) const
     wxString GetItemText(const wxTreeItemId& item) const
@@ -1107,7 +1111,7 @@
 
     // %override [wxTreeItemId, wxTreeItemIdValue cookie] wxTreeCtrl::GetNextChild(const wxTreeItemId& item, long cookie)
     // C++ Func: wxTreeItemId GetNextChild(const wxTreeItemId& item, wxTreeItemIdValue& cookie) const
-    wxTreeItemId GetNextChild(const wxTreeItemId& item, long cookie) const
+    wxTreeItemId GetNextChild(const wxTreeItemId& item, wxTreeItemIdValue& cookie) const
 
     wxTreeItemId GetNextSibling(const wxTreeItemId& item) const
     wxTreeItemId GetNextVisible(const wxTreeItemId& item) const
@@ -1115,7 +1119,8 @@
     wxTreeItemId GetPrevSibling(const wxTreeItemId& item) const
     wxTreeItemId GetPrevVisible(const wxTreeItemId& item) const
     wxTreeItemId GetRootItem() const
-    //!%wxchkver_2_6|%wxcompat_2_4 int GetItemSelectedImage(const wxTreeItemId& item) const
+    bool GetQuickBestSize() const
+    //!%wxchkver_2_6|%wxcompat_2_4 int GetItemSelectedImage(const wxTreeItemId& item) const // obsolete function
     wxTreeItemId GetSelection() const
 
     // %override [size_t, Lua table of wxTreeItemIds] wxTreeCtrl::GetSelections()
@@ -1128,15 +1133,16 @@
     // C++ Func: wxTreeItemId HitTest(const wxPoint& point, int& flags)
     wxTreeItemId HitTest(const wxPoint& point)
 
-    wxTreeItemId InsertItem(const wxTreeItemId& parent, const wxTreeItemId& previous, const wxString& text, int image = -1, int selImage = -1, wxTreeItemData* data = NULL)
-    wxTreeItemId InsertItem(const wxTreeItemId& parent, size_t before, const wxString& text, int image = -1, int selImage = -1, wxTreeItemData* data = NULL)
+    wxTreeItemId InsertItem(const wxTreeItemId& parent, const wxTreeItemId& previous, const wxString& text, int image = -1, int selImage = -1, %ungc wxLuaTreeItemData* data = NULL)
+    wxTreeItemId InsertItem(const wxTreeItemId& parent, size_t before, const wxString& text, int image = -1, int selImage = -1, %ungc wxLuaTreeItemData* data = NULL)
     bool IsBold(const wxTreeItemId& item) const
+    bool IsEmpty() const
     bool IsExpanded(const wxTreeItemId& item) const
     bool IsSelected(const wxTreeItemId& item) const
     bool IsVisible(const wxTreeItemId& item) const
     bool ItemHasChildren(const wxTreeItemId& item) const
     //int OnCompareItems(const wxTreeItemId& item1, const wxTreeItemId& item2)
-    wxTreeItemId PrependItem(const wxTreeItemId& parent, const wxString& text, int image = -1, int selImage = -1, wxTreeItemData* data = NULL)
+    wxTreeItemId PrependItem(const wxTreeItemId& parent, const wxString& text, int image = -1, int selImage = -1, %ungc wxLuaTreeItemData* data = NULL)
     void ScrollTo(const wxTreeItemId& item)
     void SelectItem(const wxTreeItemId& item, bool select = true)
     //void SetButtonsImageList(wxImageList* imageList)
@@ -1144,14 +1150,15 @@
     void SetImageList(wxImageList* imageList)
     void SetItemBackgroundColour(const wxTreeItemId& item, const wxColour& col)
     void SetItemBold(const wxTreeItemId& item, bool bold = true)
-    void SetItemData(const wxTreeItemId& item, wxTreeItemData* data)
+    void SetItemData(const wxTreeItemId& item, %ungc wxLuaTreeItemData* data)
     void SetItemDropHighlight(const wxTreeItemId& item, boolhighlight = true)
     void SetItemFont(const wxTreeItemId& item, const wxFont& font)
     void SetItemHasChildren(const wxTreeItemId& item, bool hasChildren = true)
     void SetItemImage(const wxTreeItemId& item, int image, wxTreeItemIcon which = wxTreeItemIcon_Normal)
-    //!%wxchkver_2_6|%wxcompat_2_4 void SetItemSelectedImage(const wxTreeItemId& item, int selImage)
+    //!%wxchkver_2_6|%wxcompat_2_4 void SetItemSelectedImage(const wxTreeItemId& item, int selImage) // obsolete function
     void SetItemText(const wxTreeItemId& item, const wxString& text)
     void SetItemTextColour(const wxTreeItemId& item, const wxColour& col)
+    void SetQuickBestSize(bool quickBestSize)
     void SetStateImageList(wxImageList* imageList)
     // void SetWindowStyle(long styles) - see wxWindow
     void SortChildren(const wxTreeItemId& item)
@@ -1185,18 +1192,12 @@
 // ---------------------------------------------------------------------------
 // wxTreeItemIdValue - wxTreeCtrl
 
-//%if %wxchkver_2_6
-//%class wxTreeItemIdValue
-//%endclass
-//%endif
+// FAKE typedef, actually typedef void* wxTreeItemIdValue
+// Since we override the functions that use it we handle it as a pointer.
+%typedef double wxTreeItemIdValue
 
 // ---------------------------------------------------------------------------
 // wxTreeItemId - wxTreeCtrl
-
-%enum wxTreeItemIdValue
-    // FAKE enum, actually typedef void* wxTreeItemIdValue
-    // but Lua only uses double. This gets around compiler errors/warnings
-%endenum
 
 %class %delete wxTreeItemId
     wxTreeItemId()
@@ -1242,10 +1243,10 @@
 // ---------------------------------------------------------------------------
 // wxTreeItemData - wxTreeCtrl, see also wxLuaTreeItemData
 //
-// No %delete since the wxTreeCtrl should do it and you should only create one
-// of these if you're going to attach it to a wxTreeCtrl to avoid memory leaks.
+// No %delete since the wxTreeCtrl will delete it when set as the data for an item.
+// Only create a wxTreeItemData if you're going to attach it to a wxTreeCtrl item to avoid memory leaks.
 
-%class wxTreeItemData, wxClientData
+%class %delete wxTreeItemData, wxClientData
     wxTreeItemData()
 
     wxTreeItemId GetId()
@@ -1253,18 +1254,26 @@
 %endclass
 
 // ---------------------------------------------------------------------------
-// wxLuaTreeItemData
+// wxLuaTreeItemData -
 //
-// No %delete since the wxTreeCtrl should do it and you should only create one
-// of these if you're going to attach it to a wxTreeCtrl to avoid memory leaks.
+// No %delete since the wxTreeCtrl will delete it when set as the data for an item.
+// Only create a wxLuaTreeItemData if you're going to attach it to a wxTreeCtrl item to avoid memory leaks.
 
 %include "wxbind/include/wxcore_wxlcore.h"
 
-%class wxLuaTreeItemData, wxTreeItemData
-    wxLuaTreeItemData(double value = 0)
+%class %delete wxLuaTreeItemData, wxTreeItemData
+    wxLuaTreeItemData()
 
-    double GetValue() const;
-    void   SetValue(double value);
+    // %override wxLuaTreeItemData(any)
+    // C++ Func: wxLuaTreeItemData(wxLuaObject* obj)
+    wxLuaTreeItemData(any)
+
+    // %override any wxLuaTreeItemData::GetData() const
+    // C++ Func: wxLuaObject* GetData() const
+    any  GetData() const;
+    // %override void wxLuaTreeItemData::SetData(any)
+    // C++ Func: void SetData(wxLuaObject* obj)
+    void SetData(any);
 %endclass
 
 
@@ -1323,7 +1332,8 @@
     wxDIRCTRL_EDIT_LABELS
 %endenum
 
-%define_string wxDirDialogDefaultFolderStr
+%wxchkver_2_9_0 %define_string wxDirDialogDefaultFolderStr
+!%wxchkver_2_9_0 %define_wxstring wxDirDialogDefaultFolderStr
 
 %class wxGenericDirCtrl, wxControl
     wxGenericDirCtrl()

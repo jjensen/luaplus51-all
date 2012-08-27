@@ -29,7 +29,11 @@
 
     // %override bool AdjustPagebreak(int pagebreak, wxArrayInt& known_pagebreaks)
     // C++ Func: bool AdjustPagebreak(int pagebreak, wxArrayInt& known_pagebreaks)
-    %not_overload %wxchkver_2_8 virtual bool AdjustPagebreak(int pagebreak, wxArrayInt& known_pagebreaks)
+    %not_overload %wxchkver_2_8 & !%wxchkver_2_9_4 virtual bool AdjustPagebreak(int pagebreak, wxArrayInt& known_pagebreaks)
+
+    // %override bool AdjustPagebreak(int pagebreak, wxArrayInt& known_pagebreaks, int pageHeight)
+    // C++ Func: bool AdjustPagebreak(int pagebreak, wxArrayInt& known_pagebreaks, int pageHeight)
+    %not_overload %wxchkver_2_9_4 virtual bool AdjustPagebreak(int pagebreak, wxArrayInt& known_pagebreaks, int pageHeight)
 
     //virtual void Draw(wxDC& dc, int x, int y, int view_y1, int view_y2, wxHtmlRenderingInfo& info)
     //virtual void DrawInvisible(wxDC& dc, int x, int y, wxHtmlRenderingInfo& info)
@@ -184,7 +188,7 @@
 
 %include "wx/html/htmltag.h"
 
-%class wxHtmlTag, wxObject
+%class wxHtmlTag // !%wxchkver_2_9_2 wxObject
     //wxHtmlTag(const wxString& source, int pos, int end_pos, wxHtmlTagsCache* cache)
 
     const wxString GetAllParams() const
@@ -301,7 +305,8 @@
     //void AddTag(const wxHtmlTag& tag)
     //void AddTagHandler(wxHtmlTagHandler *handler)
     //void AddWord(const wxString &txt) - not in 2.6?
-    void DoParsing(int begin_pos, int end_pos)
+    %wxchkver_2_9_2 void DoParsing(const wxString::const_iterator& begin_pos, const wxString::const_iterator& end_pos)
+    !%wxchkver_2_9_2 void DoParsing(int begin_pos, int end_pos)
     void DoParsing()
     virtual void DoneParser()
     //virtual wxObject* GetProduct()

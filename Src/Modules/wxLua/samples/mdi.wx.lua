@@ -4,7 +4,7 @@
 -- Author:      J Winwood
 -- Modified by:
 -- Created:     16/11/2001
--- RCS-ID:      $Id: mdi.wx.lua,v 1.15 2008/01/22 04:45:39 jrl1 Exp $
+-- RCS-ID:      $Id: mdi.wx.lua,v 1.16 2011/06/15 02:45:54 jrl1 Exp $
 -- Copyright:   (c) 2001 Lomtick Software. All rights reserved.
 -- Licence:     wxWidgets licence
 -----------------------------------------------------------------------------
@@ -31,7 +31,7 @@ function CreateChild()
         dc:DrawRectangle(10, 10, 300, 300);
         dc:DrawRoundedRectangle(20, 20, 280, 280, 20);
         dc:DrawEllipse(30, 30, 260, 260);
-        dc:DrawText("A test string for window Id "..tostring(win:GetId()), 50, 150);
+        dc:DrawText("Test string for window Id "..tostring(win:GetId()), 40, 150);
         dc:delete() -- ALWAYS delete() any wxDCs created when done
     end
     child:Connect(wx.wxEVT_PAINT, OnPaint)

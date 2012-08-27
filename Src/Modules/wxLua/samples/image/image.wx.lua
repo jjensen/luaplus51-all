@@ -5,7 +5,7 @@
 // Author:      Robert Roebling
 // Modified by:
 // Created:     1998
-// RCS-ID:      $Id: image.wx.lua,v 1.3 2008/01/22 04:45:39 jrl1 Exp $
+// RCS-ID:      $Id: image.wx.lua,v 1.4 2011/11/15 04:59:13 jrl1 Exp $
 // Copyright:   (c) 1998-2005 Robert Roebling
 // License:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
@@ -14,7 +14,6 @@
 -- Load the wxLua module, does nothing if running from wxLua, wxLuaFreeze, or wxLuaEdit
 package.cpath = package.cpath..";./?.dll;./?.so;../lib/?.so;../lib/vc_dll/?.dll;../lib/bcc_dll/?.dll;../lib/mingw_dll/?.dll;"
 wx = require("wx")
-
 
 USE_QUITE_SLOW = true
 
@@ -29,6 +28,7 @@ local setmetatable = setmetatable
 local require = require
 local table = table
 local string = string
+local math = math
 local print = print
 local USE_QUITE_SLOW = USE_QUITE_SLOW
 module"MyCanvas"
@@ -442,9 +442,9 @@ local function CreateAntiAliasedBitmap(T)
                         string.byte(orig_data, i3+2) +
                         string.byte(orig_data, i4+2)
 
-                red   = red/4
-                green = green/4
-                blue  = blue/4
+                red   = math.floor(red/4   + 0.5)
+                green = math.floor(green/4 + 0.5)
+                blue  = math.floor(blue/4  + 0.5)
             end
 
             anti:SetRGB( x, y, red, green, blue )

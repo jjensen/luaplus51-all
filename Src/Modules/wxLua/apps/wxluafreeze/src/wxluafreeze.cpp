@@ -3,7 +3,7 @@
 // Author:      John Labenski
 // Created:     04/02/2006
 // RCS-ID:
-// Copyright:   (c) John Labenski, 2006
+// Copyright:   (c) 2012 John Labenski
 // Licence:     wxWidgets licence
 //----------------------------------------------------------------------------
 
@@ -11,14 +11,14 @@
 //    #pragma implementation "wxlua.h"
 //#endif
 
-#include "wx/wxprec.h"
+#include <wx/wxprec.h>
 
 #ifdef __BORLANDC__
     #pragma hdrstop
 #endif
 
 #ifndef WX_PRECOMP
-    #include "wx/wx.h"
+    #include <wx/wx.h>
 #endif
 
 #ifdef __WXGTK__
@@ -26,10 +26,10 @@
 #endif
 
 //#include "wx/cmdline.h"
-#include "wx/app.h"
-#include "wx/image.h"
-#include "wx/file.h"
-#include "wx/filename.h"
+#include <wx/app.h>
+#include <wx/image.h>
+#include <wx/file.h>
+#include <wx/filename.h>
 #include "wxlua/include/wxlua.h"
 #include "wxlua/include/wxlstate.h"
 
@@ -122,7 +122,7 @@ bool wxLuaFreezeApp::OnInit()
 
 
     // When this function returns wxApp:MainLoop() will be called by wxWidgets
-    // and so we want the Lua code wx.wxGetApp:MailLoop() to not
+    // and so we want the Lua code wx.wxGetApp:MainLoop() to not
     // prematurely start it.
     wxLuaState::sm_wxAppMainLoop_will_run = true;
 
@@ -143,7 +143,7 @@ bool wxLuaFreezeApp::OnInit()
         {
             OutputPrint(wxString::Format(wxT("Expecting '<wxLuaFreeze:[script length]>' at end of '%s'.\n")
                                          wxT("Did you forget to run wxluafreeze.lua to attach your script?\n")
-                                         wxT("You may run wxLua programs by specifying them on the command line."),
+                                         wxT("You may also run wxLua programs by specifying them on the command line."),
                                          m_fileName.c_str()));
         }
     }

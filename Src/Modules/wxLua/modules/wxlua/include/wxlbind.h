@@ -3,7 +3,7 @@
 // Purpose:     wxLuaBinding
 // Author:      Ray Gilbert, John Labenski, J Winwood
 // Created:     14/11/2001
-// Copyright:   Ray Gilbert
+// Copyright:   (c) 2012 John Labenski, Ray Gilbert
 // Licence:     wxWidgets licence
 /////////////////////////////////////////////////////////////////////////////
 
@@ -16,9 +16,9 @@
     #undef GetObject // MSVC defines this
 #endif
 
-class WXDLLIMPEXP_WXLUA wxLuaBinding;
-class WXDLLIMPEXP_WXLUA wxLuaState;
-struct WXDLLIMPEXP_WXLUA wxLuaBindClass;
+class WXDLLIMPEXP_FWD_WXLUA wxLuaBinding;
+class WXDLLIMPEXP_FWD_WXLUA wxLuaState;
+struct WXDLLIMPEXP_FWD_WXLUA wxLuaBindClass;
 
 // ----------------------------------------------------------------------------
 // wxLua binding defines, enums, and structs
@@ -51,11 +51,15 @@ struct WXDLLIMPEXP_WXLUA wxLuaBindClass;
 #define WXLUA_TTHREAD          10 // LUA_TTHREAD 8
 #define WXLUA_TINTEGER         11 // LUA_TNUMBER but integer only, not a LUA_TXXX
 #define WXLUA_TCFUNCTION       12 // LUA_TFUNCTION & lua_iscfunction(), not a LUA_TXXX
+#define WXLUA_TPOINTER         13 // LUA_TLIGHTUSERDATA || LUA_TUSERDATA ||
+                                  // LUA_TFUNCTION || LUA_TTABLE || LUA_TTHREAD
+                                  // any valid type for lua_topointer(), not a LUA_TXXX
+#define WXLUA_TANY             14 // Any data type is valid, not a LUA_TXXX
 
-#define WXLUA_T_MAX            12 // Max of the Lua WXLUA_TXXX values
+#define WXLUA_T_MAX            14 // Max of the Lua WXLUA_TXXX values
 #define WXLUA_T_MIN            0  // Min of the Lua WXLUA_TXXX values
 
-#define WXLUATYPE_NULL         13 // C++ NULL, is full wxLua type with metatable
+#define WXLUATYPE_NULL         15 // C++ NULL, is full wxLua type with metatable
 
 // Check that the Lua LUA_TXXX types are what they used to be
 #if (LUA_TNONE     != -1) || (LUA_TNIL           != 0) || \
@@ -63,7 +67,7 @@ struct WXDLLIMPEXP_WXLUA wxLuaBindClass;
     (LUA_TNUMBER   != 3)  || (LUA_TSTRING        != 4) || \
     (LUA_TTABLE    != 5)  || (LUA_TFUNCTION      != 6) || \
     (LUA_TUSERDATA != 7)  || (LUA_TTHREAD        != 8)
-#   error "Lua has changed it's LUA_TXXX defines."
+#   error "Lua has changed its LUA_TXXX defines."
 #endif
 
 // Is this wxLua type one of the basic Lua types
@@ -94,6 +98,8 @@ extern WXDLLIMPEXP_DATA_WXLUA(int) wxluatype_TUSERDATA;
 extern WXDLLIMPEXP_DATA_WXLUA(int) wxluatype_TTHREAD;
 extern WXDLLIMPEXP_DATA_WXLUA(int) wxluatype_TINTEGER;
 extern WXDLLIMPEXP_DATA_WXLUA(int) wxluatype_TCFUNCTION;
+extern WXDLLIMPEXP_DATA_WXLUA(int) wxluatype_TPOINTER;
+extern WXDLLIMPEXP_DATA_WXLUA(int) wxluatype_TANY;
 
 // The NULL wxLua type is not part of the bindings, but is installed
 // by the wxLuaState since it may be used by various bindings and does not
@@ -185,13 +191,22 @@ struct WXDLLIMPEXP_WXLUA wxLuaBindNumber
 
 struct WXDLLIMPEXP_WXLUA wxLuaBindString
 {
-    const char*   name;        // name
-    const wxChar* value;       // string value
+    const char*   name;          // name
+    const char*   c_string;      // string value
+    const wxChar* wxchar_string; // string value
 };
 
 // ----------------------------------------------------------------------------
 // wxLuaBindEvent - Defines a wxWidgets wxEventType for wxLua
 // ----------------------------------------------------------------------------
+
+#if (wxVERSION_NUMBER >= 2900)
+    // In 2.9 wxEVT_XXX are declared as wxEventTypeTag<E.G. wxCommandEvent> wxEVT_XXX;
+    // The operator const wxEventType& is used to get the int wxEventType.
+    #define WXLUA_GET_wxEventType_ptr(wxEVT_XXX) &((const wxEventType&)(wxEVT_XXX))
+#else
+    #define WXLUA_GET_wxEventType_ptr(wxEVT_XXX) &(wxEVT_XXX)
+#endif
 
 struct WXDLLIMPEXP_WXLUA wxLuaBindEvent
 {

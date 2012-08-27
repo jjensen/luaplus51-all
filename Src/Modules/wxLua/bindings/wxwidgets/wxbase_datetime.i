@@ -131,21 +131,62 @@
     Inv_WeekDay
 %endenum
 
+%enum wxDateTime::Year
+    Inv_Year
+%endenum
+
+%enum wxDateTime::NameFlags
+    Name_Full
+    Name_Abbr
+%endenum
+
+%enum wxDateTime::WeekFlags
+    Default_First
+    Monday_First
+    Sunday_First
+%endenum
+
+%class %delete wxDateTime::TimeZone
+    wxDateTime::TimeZone(wxDateTime::TZ tz)
+
+    static wxDateTime::TimeZone Make(long offset)
+    long GetOffset() const
+%endclass
+
+
 %typedef unsigned short wxDateTime::wxDateTime_t
 
 %class %delete wxDateTime
     %define_object wxDefaultDateTime
 
+    static void SetCountry(wxDateTime::Country country)
+    static wxDateTime::Country GetCountry()
+    static bool IsWestEuropeanCountry(wxDateTime::Country country = wxDateTime::Country_Default)
+
+    static int GetCurrentYear(wxDateTime::Calendar cal = wxDateTime::Gregorian)
+    static int ConvertYearToBC(int year)
+    static wxDateTime::Month GetCurrentMonth(wxDateTime::Calendar cal = wxDateTime::Gregorian)
+    static bool IsLeapYear(int year = wxDateTime::Inv_Year, wxDateTime::Calendar cal = wxDateTime::Gregorian)
+    static int GetCentury(int year)
+    static wxDateTime::wxDateTime_t GetNumberOfDays(int year, wxDateTime::Calendar cal = wxDateTime::Gregorian)
+    static wxDateTime::wxDateTime_t GetNumberOfDays(wxDateTime::Month month, int year = wxDateTime::Inv_Year, wxDateTime::Calendar cal = wxDateTime::Gregorian)
+    static wxString GetMonthName(wxDateTime::Month month, wxDateTime::NameFlags flags = wxDateTime::Name_Full)
+    static wxString GetWeekDayName(wxDateTime::WeekDay weekday, wxDateTime::NameFlags flags = wxDateTime::Name_Full)
+    //static void GetAmPmStrings(wxString *am, wxString *pm)
+    static bool IsDSTApplicable(int year = wxDateTime::Inv_Year, wxDateTime::Country country = wxDateTime::Country_Default)
+    static wxDateTime GetBeginDST(int year = wxDateTime::Inv_Year, wxDateTime::Country country = wxDateTime::Country_Default)
+    static wxDateTime GetEndDST(int year = wxDateTime::Inv_Year, wxDateTime::Country country = wxDateTime::Country_Default)
+    static wxDateTime Now()
+    static wxDateTime UNow()
+    static wxDateTime Today()
+
+
     wxDateTime()
+    wxDateTime(const wxDateTime& dateTime)
     wxDateTime(time_t dateTime) // use with Lua's os.time() on MSW, Linux, others?
     %rename wxDateTimeFromJDN wxDateTime(double dateTime)
     %rename wxDateTimeFromHMS wxDateTime(int hour, int minute, int second, int millisec)
     %rename wxDateTimeFromDMY wxDateTime(int day, wxDateTime::Month month = wxDateTime::Inv_Month, int year = wxDateTime::Inv_Year, int hour = 0, int minute = 0, int second = 0, int millisec = 0)
-
-    static wxDateTime Now()
-    static wxDateTime UNow()
-    static wxDateTime Today()
-    static void SetCountry(wxDateTime::Country country)
 
     wxDateTime& SetToCurrent()
     wxDateTime& Set(time_t time) // use with Lua's os.time() on MSW, Linux, others?
@@ -153,13 +194,15 @@
     %rename SetToHMS wxDateTime& Set(int hour, int minute, int second, int millisec)
     %rename SetToDMY wxDateTime& Set(int day, wxDateTime::Month month = wxDateTime::Inv_Month, int year = wxDateTime::Inv_Year, int hour = 0, int minute = 0, int second = 0, int millisec = 0)
     wxDateTime& ResetTime()
-    wxDateTime& SetDay(int day)
-    wxDateTime& SetMonth(wxDateTime::Month month)
+    wxDateTime GetDateOnly() const
     wxDateTime& SetYear(int year)
+    wxDateTime& SetMonth(wxDateTime::Month month)
+    wxDateTime& SetDay(int day)
     wxDateTime& SetHour(int hour)
     wxDateTime& SetMinute(int minute)
     wxDateTime& SetSecond(int second)
     wxDateTime& SetMillisecond(int millisecond)
+
     bool IsWorkDay(wxDateTime::Country country = wxDateTime::Country_Default) const
     bool IsEqualTo(const wxDateTime& datetime) const
     bool IsEarlierThan(const wxDateTime& datetime) const
@@ -171,6 +214,7 @@
     bool IsEqualUpTo(const wxDateTime& dt, const wxTimeSpan& ts) const
     bool IsValid()
     long GetTicks()
+
     wxDateTime& SetToWeekDayInSameWeek(wxDateTime::WeekDay weekday)
     wxDateTime  GetWeekDayInSameWeek(wxDateTime::WeekDay weekday) const
     wxDateTime& SetToNextWeekDay(wxDateTime::WeekDay weekday)
@@ -181,8 +225,10 @@
     wxDateTime GetWeekDay(wxDateTime::WeekDay weekday, int n = 1, wxDateTime::Month month = wxDateTime::Inv_Month, int year = wxDateTime::Inv_Year) const
     bool SetToLastWeekDay(wxDateTime::WeekDay weekday, wxDateTime::Month month = wxDateTime::Inv_Month, int year = wxDateTime::Inv_Year)
     wxDateTime GetLastWeekDay(wxDateTime::WeekDay weekday, wxDateTime::Month month = wxDateTime::Inv_Month, int year = wxDateTime::Inv_Year)
+
     !%wxchkver_2_6 bool SetToTheWeek(wxDateTime::wxDateTime_t numWeek, wxDateTime::WeekDay weekday = wxDateTime::Mon)
     !%wxchkver_2_6 wxDateTime GetWeek(wxDateTime::wxDateTime_t numWeek, wxDateTime::WeekDay weekday = wxDateTime::Mon) const
+
     %wxchkver_2_6 static wxDateTime SetToWeekOfYear(int year, wxDateTime::wxDateTime_t numWeek, wxDateTime::WeekDay weekday = wxDateTime::Mon)
     wxDateTime& SetToLastMonthDay(wxDateTime::Month month = wxDateTime::Inv_Month, int year = wxDateTime::Inv_Year)
     wxDateTime GetLastMonthDay(wxDateTime::Month month = wxDateTime::Inv_Month, int year = wxDateTime::Inv_Year) const
@@ -193,18 +239,95 @@
     double GetModifiedJulianDayNumber() const
     double GetMJD() const
     double GetRataDie() const
+
+    wxDateTime ToTimezone(const wxDateTime::TimeZone& tz, bool noDST = false) const
+    wxDateTime& MakeTimezone(const wxDateTime::TimeZone& tz, bool noDST = false)
+    wxDateTime FromTimezone(const wxDateTime::TimeZone& tz, bool noDST = false) const
+    wxDateTime& MakeFromTimezone(const wxDateTime::TimeZone& tz, bool noDST = false)
+
+    wxDateTime ToUTC(bool noDST = false) const
+    wxDateTime& MakeUTC(bool noDST = false)
     wxDateTime ToGMT(bool noDST = false) const
     wxDateTime& MakeGMT(bool noDST = false)
+    wxDateTime FromUTC(bool noDST = false) const
+    wxDateTime& MakeFromUTC(bool noDST = false)
     int IsDST(wxDateTime::Country country = wxDateTime::Country_Default) const
+
+    bool IsValid() const
+    //Tm GetTm(const wxDateTime::TimeZone& tz = wxDateTime::Local) const
+    time_t GetTicks() const
+    int GetCentury(const wxDateTime::TimeZone& tz = wxLua_wxDateTime_TimeZone_Local) const
+    int GetYear(const wxDateTime::TimeZone& tz = wxLua_wxDateTime_TimeZone_Local) const
+    wxDateTime::Month GetMonth(const wxDateTime::TimeZone& tz = wxLua_wxDateTime_TimeZone_Local) const
+    wxDateTime::wxDateTime_t GetDay(const wxDateTime::TimeZone& tz = wxLua_wxDateTime_TimeZone_Local) const
+    wxDateTime::WeekDay GetWeekDay(const wxDateTime::TimeZone& tz = wxLua_wxDateTime_TimeZone_Local) const
+    wxDateTime::wxDateTime_t GetHour(const wxDateTime::TimeZone& tz = wxLua_wxDateTime_TimeZone_Local) const
+    wxDateTime::wxDateTime_t GetMinute(const wxDateTime::TimeZone& tz = wxLua_wxDateTime_TimeZone_Local) const
+    wxDateTime::wxDateTime_t GetSecond(const wxDateTime::TimeZone& tz = wxLua_wxDateTime_TimeZone_Local) const
+    wxDateTime::wxDateTime_t GetMillisecond(const wxDateTime::TimeZone& tz = wxLua_wxDateTime_TimeZone_Local) const
+
+    wxDateTime::wxDateTime_t GetDayOfYear(const wxDateTime::TimeZone& tz = wxLua_wxDateTime_TimeZone_Local) const
+    wxDateTime::wxDateTime_t GetWeekOfYear(wxDateTime::WeekFlags flags = wxDateTime::Monday_First, const wxDateTime::TimeZone& tz = wxLua_wxDateTime_TimeZone_Local) const
+    wxDateTime::wxDateTime_t GetWeekOfMonth(wxDateTime::WeekFlags flags = wxDateTime::Monday_First, const wxDateTime::TimeZone& tz = wxLua_wxDateTime_TimeZone_Local) const
+    bool IsWorkDay(wxDateTime::Country country = wxDateTime::Country_Default) const
+    //bool IsGregorianDate(GregorianAdoption country = Gr_Standard) const;
+
+    wxDateTime& SetFromDOS(unsigned long ddt);
+    unsigned long GetAsDOS() const;
+
+    bool IsEqualTo(const wxDateTime& datetime) const;
+    bool IsEarlierThan(const wxDateTime& datetime) const;
+    bool IsLaterThan(const wxDateTime& datetime) const;
+    bool IsStrictlyBetween(const wxDateTime& t1, const wxDateTime& t2) const;
+    bool IsBetween(const wxDateTime& t1, const wxDateTime& t2) const;
+    bool IsSameDate(const wxDateTime& dt) const;
+    bool IsSameTime(const wxDateTime& dt) const;
+    bool IsEqualUpTo(const wxDateTime& dt, const wxTimeSpan& ts) const;
+
+    %operator bool operator<(const wxDateTime& dt) const
+    %operator bool operator<=(const wxDateTime& dt) const
+    %operator bool operator>(const wxDateTime& dt) const
+    %operator bool operator>=(const wxDateTime& dt) const
+    %operator bool operator==(const wxDateTime& dt) const
+    %operator bool operator!=(const wxDateTime& dt) const
+
     wxDateTime& Add(const wxTimeSpan& diff)
     wxDateTime& Add(const wxDateSpan& diff)
     wxDateTime& Subtract(const wxTimeSpan& diff)
     wxDateTime& Subtract(const wxDateSpan& diff)
-    wxString ParseRfc822Date(wxString date)
-    wxString ParseFormat(wxString date, wxString format = "%c", const wxDateTime& dateDef = wxDefaultDateTime)
-    wxString ParseDateTime(wxString datetime)
-    wxString ParseDate(wxString date)
-    wxString ParseTime(wxString time)
+
+    // ALL of the ParseXXX() functions in wx29 that take a 'wxString::const_iterator *end'
+    // return the remainder of the input string after the error occurred if possible or
+    // the whole string. Only a bool value of true is returned on success.
+
+    // %override [bool, lua String remainder on error] ParseRfc822Date(const wxString& date)
+    // C++ Func: bool ParseRfc822Date(const wxString& date, wxString::const_iterator *end)
+    %wxchkver_2_9 bool ParseRfc822Date(const wxString& date)
+    // %override [bool, lua String remainder on error] ParseFormat(const wxString& date, wxString format, const wxDateTime& dateDef)
+    // C++ Func: bool ParseFormat(const wxString& date, wxString format, const wxDateTime& dateDef, wxString::const_iterator *end)
+    %wxchkver_2_9 bool ParseFormat(const wxString& date, wxString format, const wxDateTime& dateDef)
+    // %override [bool, lua String remainder on error] ParseFormat(const wxString& date, wxString format)
+    // C++ Func: bool ParseFormat(const wxString& date, wxString format, wxString::const_iterator *end)
+    %wxchkver_2_9 bool ParseFormat(const wxString& date, wxString format)
+    // %override [bool, lua String remainder on error] ParseFormat(const wxString& date)
+    // C++ Func: bool ParseFormat(const wxString& date, wxString::const_iterator *end)
+    %wxchkver_2_9 bool ParseFormat(const wxString& date)
+    // %override [bool, lua String remainder on error] ParseDateTime(const wxString& date)
+    // C++ Func: bool ParseDateTime(const wxString& date, wxString::const_iterator *end)
+    %wxchkver_2_9 bool ParseDateTime(const wxString& datetime)
+    // %override [bool, lua String remainder on error] ParseDate(const wxString& date)
+    // C++ Func: bool ParseDate(const wxString& date, wxString::const_iterator *end)
+    %wxchkver_2_9 bool ParseDate(const wxString& date)
+    // %override [bool, lua String remainder on error] ParseTime(const wxString& date)
+    // C++ Func: bool ParseTime(const wxString& date, wxString::const_iterator *end)
+    %wxchkver_2_9 bool ParseTime(const wxString& time)
+
+    !%wxchkver_2_9 wxString ParseRfc822Date(wxString date)
+    !%wxchkver_2_9 wxString ParseFormat(wxString date, wxString format = "%c", const wxDateTime& dateDef = wxDefaultDateTime)
+    !%wxchkver_2_9 wxString ParseDateTime(wxString datetime)
+    !%wxchkver_2_9 wxString ParseDate(wxString date)
+    !%wxchkver_2_9 wxString ParseTime(wxString time)
+
     wxString FormatDate() const
     wxString FormatTime() const
     wxString FormatISODate() const
@@ -873,9 +996,11 @@
     //
     // domains are searched in the last to first order, i.e. catalogs
     // added later override those added before.
-    virtual wxString GetString(const wxString& szOrigString, const wxChar* szDomain = NULL) const;
+    %wxchkver_2_9  virtual wxString GetString(const wxString& szOrigString, const wxString& szDomain = "") const;
+    !%wxchkver_2_9 virtual wxString GetString(const wxString& szOrigString, const wxChar* szDomain = NULL) const;
     // plural form version of the same:
-    virtual wxString GetString(const wxString& szOrigString, const wxString& szOrigString2, size_t n, const wxChar* szDomain = NULL) const;
+    %wxchkver_2_9  virtual wxString GetString(const wxString& szOrigString, const wxString& szOrigString2, size_t n, const wxString& szDomain = "") const;
+    !%wxchkver_2_9 virtual wxString GetString(const wxString& szOrigString, const wxString& szOrigString2, size_t n, const wxChar* szDomain = NULL) const;
 
     // Returns the current short name for the locale
     const wxString& GetName() const
@@ -886,10 +1011,12 @@
 
 %function wxLocale* wxGetLocale()
 
-%wxchkver_2_8  %function wxString wxGetTranslation(const wxString& sz, const wxChar* domain=NULL)
+%wxchkver_2_9  %function wxString wxGetTranslation(const wxString& sz, const wxString& domain = "")
+!%wxchkver_2_9 && %wxchkver_2_8  %function wxString wxGetTranslation(const wxString& sz, const wxChar* domain=NULL)
 !%wxchkver_2_8 %function wxString wxGetTranslation(const wxString& sz)
 
-%wxchkver_2_8  %rename wxGetTranslationPlural %function wxString wxGetTranslation(const wxString& sz1, const wxString& sz2, size_t n, const wxChar* domain=NULL)
+%wxchkver_2_9  %rename wxGetTranslationPlural %function wxString wxGetTranslation(const wxString& sz1, const wxString& sz2, size_t n, const wxString& domain = "")
+!%wxchkver_2_9 && %wxchkver_2_8  %rename wxGetTranslationPlural %function wxString wxGetTranslation(const wxString& sz1, const wxString& sz2, size_t n, const wxChar* domain=NULL)
 !%wxchkver_2_8 %rename wxGetTranslationPlural %function wxString wxGetTranslation(const wxString& sz1, const wxString& sz2, size_t n)
 
 %endif //wxUSE_INTL

@@ -230,7 +230,7 @@ static wxLuaBindCFunc s_wxluafunc_wxLua_wxPlatformInfo_Get[1] = {{ wxLua_wxPlatf
 static int LUACALL wxLua_wxPlatformInfo_Get(lua_State *L)
 {
     // call Get
-    const wxPlatformInfo* returns = &wxPlatformInfo::Get();
+    const wxPlatformInfo* returns = (const wxPlatformInfo*)&wxPlatformInfo::Get();
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxPlatformInfo);
 
@@ -1271,7 +1271,13 @@ static int LUACALL wxLua_wxLog_SetTimestamp(lua_State *L)
 {
     // docs say that using NULL will disable time stamping. The actual arg is "const wxChar* ts"
     if (lua_isnoneornil(L, 1))
+    {
+#if wxCHECK_VERSION(2, 9, 0)
+        wxLog::SetTimestamp(wxEmptyString);
+#else
         wxLog::SetTimestamp(NULL);
+#endif
+    }
     else
     {
         // const wxString ts

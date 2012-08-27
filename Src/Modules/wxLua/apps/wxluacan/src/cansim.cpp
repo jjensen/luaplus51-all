@@ -4,18 +4,16 @@
     Copyright: 2001-2004 (C) XX
 
     Licence: wxWidgets Licence
-
-    RCS-ID: $Id: cansim.cpp,v 1.17 2010/08/12 23:40:33 jrl1 Exp $
 */
 
-#include "wx/wxprec.h"
+#include <wx/wxprec.h>
 
 #ifdef __BORLANDC__
     #pragma hdrstop
 #endif
 
 #ifndef WX_PRECOMP
-    #include "wx/wx.h"
+    #include <wx/wx.h>
 #endif
 
 // Include private headers
@@ -23,7 +21,7 @@
 
 // Include icon header
 #if defined(__WXGTK__) || defined(__WXMOTIF__) || defined(__WXMAC__)
-    #include "art/wxluasmall.xpm"
+    #include "art/wxlualogo.xpm"
 #endif
 
 // Declare the binding initialization functions
@@ -36,8 +34,6 @@
 #include "wxbind/include/wxbinddefs.h"
 WXLUA_DECLARE_BIND_STD
 extern wxLuaBinding* wxLuaBinding_wxluacan_init();
-
-// WDR: class implementations
 
 //------------------------------------------------------------------------------
 // MyFrame
@@ -78,7 +74,7 @@ MyFrame::MyFrame( wxWindow *parent, wxWindowID id, const wxString &title,
     CreateStatusBar(1);
     SetStatusText( _T("Welcome to a2dCanvas sample!") );
 
-    SetIcon(wxICON(wxLuaSmall));
+    SetIcon(wxICON(wxlualogo));
 
     m_interp = wxLuaState(this, wxID_ANY);
 
@@ -98,7 +94,7 @@ MyFrame::MyFrame( wxWindow *parent, wxWindowID id, const wxString &title,
     //defines the minimum x and y to show and the number of world units per pixel in x and y
     m_canvas->SetMappingUpp( m_xOrigin, m_yOrigin, m_xScale, m_yScale );
 
-    // Add some initial objects to the canvas 
+    // Add some initial objects to the canvas
     wxlCanObjRect* rect = new wxlCanObjRect( 170, 170,200, -120 );
     rect->SetPen(*wxGREEN_PEN);
     rect->SetBrush( wxBrush( wxColour(70, 124, 71) ) );

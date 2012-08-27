@@ -17,6 +17,24 @@
 // WXDLLIMPEXP macros for the wxWidgets bindings
 // ----------------------------------------------------------------------------
 
+#ifdef WXMAKINGDLL_WXBIND
+    #define WXMAKINGDLL_WXBINDADV
+    #define WXMAKINGDLL_WXBINDAUI
+    #define WXMAKINGDLL_WXBINDBASE
+    #define WXMAKINGDLL_WXBINDCORE
+    #define WXMAKINGDLL_WXBINDGL
+    #define WXMAKINGDLL_WXBINDHTML
+    #define WXMAKINGDLL_WXBINDMEDIA
+    #define WXMAKINGDLL_WXBINDNET
+    #define WXMAKINGDLL_WXBINDRICHTEXT
+    #define WXMAKINGDLL_WXBINDSTC
+    #define WXMAKINGDLL_WXBINDXML
+    #define WXMAKINGDLL_WXBINDXRC
+#endif // WXMAKINGDLL_WXBIND
+
+
+// --------------------------------------------------------------------------
+
 #if defined(WXMAKINGDLL_BINDWXADV) || defined(WXMAKINGDLL_WXBINDADV)
     #define WXDLLIMPEXP_BINDWXADV WXEXPORT
     #define WXDLLIMPEXP_DATA_BINDWXADV(type) WXEXPORT type
@@ -27,6 +45,15 @@
     #define WXDLLIMPEXP_BINDWXADV
     #define WXDLLIMPEXP_DATA_BINDWXADV(type) type
 #endif
+
+// Forward declare classes with this macro
+#if defined(HAVE_VISIBILITY) || (defined(__WINDOWS__) && defined(__GNUC__))
+    #define WXDLLIMPEXP_FWD_BINDWXADV
+#else
+    #define WXDLLIMPEXP_FWD_BINDWXADV WXDLLIMPEXP_BINDWXADV
+#endif
+
+// --------------------------------------------------------------------------
 
 #if defined(WXMAKINGDLL_BINDWXAUI) || defined(WXMAKINGDLL_WXBINDAUI)
     #define WXDLLIMPEXP_BINDWXAUI WXEXPORT
@@ -39,6 +66,15 @@
     #define WXDLLIMPEXP_DATA_BINDWXAUI(type) type
 #endif
 
+// Forward declare classes with this macro
+#if defined(HAVE_VISIBILITY) || (defined(__WINDOWS__) && defined(__GNUC__))
+    #define WXDLLIMPEXP_FWD_BINDWXAUI
+#else
+    #define WXDLLIMPEXP_FWD_BINDWXAUI WXDLLIMPEXP_BINDWXAUI
+#endif
+
+// --------------------------------------------------------------------------
+
 #if defined(WXMAKINGDLL_BINDWXBASE) || defined(WXMAKINGDLL_WXBINDBASE)
     #define WXDLLIMPEXP_BINDWXBASE WXEXPORT
     #define WXDLLIMPEXP_DATA_BINDWXBASE(type) WXEXPORT type
@@ -49,6 +85,15 @@
     #define WXDLLIMPEXP_BINDWXBASE
     #define WXDLLIMPEXP_DATA_BINDWXBASE(type) type
 #endif
+
+// Forward declare classes with this macro
+#if defined(HAVE_VISIBILITY) || (defined(__WINDOWS__) && defined(__GNUC__))
+    #define WXDLLIMPEXP_FWD_BINDWXBASE
+#else
+    #define WXDLLIMPEXP_FWD_BINDWXBASE WXDLLIMPEXP_BINDWXBASE
+#endif
+
+// --------------------------------------------------------------------------
 
 #if defined(WXMAKINGDLL_BINDWXCORE) || defined(WXMAKINGDLL_WXBINDCORE)
     #define WXDLLIMPEXP_BINDWXCORE WXEXPORT
@@ -61,6 +106,15 @@
     #define WXDLLIMPEXP_DATA_BINDWXCORE(type) type
 #endif
 
+// Forward declare classes with this macro
+#if defined(HAVE_VISIBILITY) || (defined(__WINDOWS__) && defined(__GNUC__))
+    #define WXDLLIMPEXP_FWD_BINDWXCORE
+#else
+    #define WXDLLIMPEXP_FWD_BINDWXCORE WXDLLIMPEXP_BINDWXCORE
+#endif
+
+// --------------------------------------------------------------------------
+
 #if defined(WXMAKINGDLL_BINDWXGL) || defined(WXMAKINGDLL_WXBINDGL)
     #define WXDLLIMPEXP_BINDWXGL WXEXPORT
     #define WXDLLIMPEXP_DATA_BINDWXGL(type) WXEXPORT type
@@ -71,6 +125,15 @@
     #define WXDLLIMPEXP_BINDWXGL
     #define WXDLLIMPEXP_DATA_BINDWXGL(type) type
 #endif
+
+// Forward declare classes with this macro
+#if defined(HAVE_VISIBILITY) || (defined(__WINDOWS__) && defined(__GNUC__))
+    #define WXDLLIMPEXP_FWD_BINDWXGL
+#else
+    #define WXDLLIMPEXP_FWD_BINDWXGL WXDLLIMPEXP_BINDWXGL
+#endif
+
+// --------------------------------------------------------------------------
 
 #if defined(WXMAKINGDLL_BINDWXHTML) || defined(WXMAKINGDLL_WXBINDHTML)
     #define WXDLLIMPEXP_BINDWXHTML WXEXPORT
@@ -83,6 +146,15 @@
     #define WXDLLIMPEXP_DATA_BINDWXHTML(type) type
 #endif
 
+// Forward declare classes with this macro
+#if defined(HAVE_VISIBILITY) || (defined(__WINDOWS__) && defined(__GNUC__))
+    #define WXDLLIMPEXP_FWD_BINDWXHTML
+#else
+    #define WXDLLIMPEXP_FWD_BINDWXHTML WXDLLIMPEXP_BINDWXHTML
+#endif
+
+// --------------------------------------------------------------------------
+
 #if defined(WXMAKINGDLL_BINDWXMEDIA) || defined(WXMAKINGDLL_WXBINDMEDIA)
     #define WXDLLIMPEXP_BINDWXMEDIA WXEXPORT
     #define WXDLLIMPEXP_DATA_BINDWXMEDIA(type) WXEXPORT type
@@ -93,6 +165,15 @@
     #define WXDLLIMPEXP_BINDWXMEDIA
     #define WXDLLIMPEXP_DATA_BINDWXMEDIA(type) type
 #endif
+
+// Forward declare classes with this macro
+#if defined(HAVE_VISIBILITY) || (defined(__WINDOWS__) && defined(__GNUC__))
+    #define WXDLLIMPEXP_FWD_BINDWXMEDIA
+#else
+    #define WXDLLIMPEXP_FWD_BINDWXMEDIA WXDLLIMPEXP_BINDWXMEDIA
+#endif
+
+// --------------------------------------------------------------------------
 
 #if defined(WXMAKINGDLL_BINDWXNET) || defined(WXMAKINGDLL_WXBINDNET)
     #define WXDLLIMPEXP_BINDWXNET WXEXPORT
@@ -105,6 +186,15 @@
     #define WXDLLIMPEXP_DATA_BINDWXNET(type) type
 #endif
 
+// Forward declare classes with this macro
+#if defined(HAVE_VISIBILITY) || (defined(__WINDOWS__) && defined(__GNUC__))
+    #define WXDLLIMPEXP_FWD_BINDWXNET
+#else
+    #define WXDLLIMPEXP_FWD_BINDWXNET WXDLLIMPEXP_BINDWXNET
+#endif
+
+// --------------------------------------------------------------------------
+
 #if defined(WXMAKINGDLL_BINDWXRICHTEXT) || defined(WXMAKINGDLL_WXBINDRICHTEXT)
     #define WXDLLIMPEXP_BINDWXRICHTEXT WXEXPORT
     #define WXDLLIMPEXP_DATA_BINDWXRICHTEXT(type) WXEXPORT type
@@ -115,6 +205,15 @@
     #define WXDLLIMPEXP_BINDWXRICHTEXT
     #define WXDLLIMPEXP_DATA_BINDWXRICHTEXT(type) type
 #endif
+
+// Forward declare classes with this macro
+#if defined(HAVE_VISIBILITY) || (defined(__WINDOWS__) && defined(__GNUC__))
+    #define WXDLLIMPEXP_FWD_BINDWXRICHTEXT
+#else
+    #define WXDLLIMPEXP_FWD_BINDWXRICHTEXT WXDLLIMPEXP_BINDWXRICHTEXT
+#endif
+
+// --------------------------------------------------------------------------
 
 #if defined(WXMAKINGDLL_BINDWXSTC) || defined(WXMAKINGDLL_WXBINDSTC)
     #define WXDLLIMPEXP_BINDWXSTC WXEXPORT
@@ -127,6 +226,15 @@
     #define WXDLLIMPEXP_DATA_BINDWXSTC(type) type
 #endif
 
+// Forward declare classes with this macro
+#if defined(HAVE_VISIBILITY) || (defined(__WINDOWS__) && defined(__GNUC__))
+    #define WXDLLIMPEXP_FWD_BINDWXSTC
+#else
+    #define WXDLLIMPEXP_FWD_BINDWXSTC WXDLLIMPEXP_BINDWXSTC
+#endif
+
+// --------------------------------------------------------------------------
+
 #if defined(WXMAKINGDLL_BINDWXXML) || defined(WXMAKINGDLL_WXBINDXML)
     #define WXDLLIMPEXP_BINDWXXML WXEXPORT
     #define WXDLLIMPEXP_DATA_BINDWXXML(type) WXEXPORT type
@@ -137,6 +245,15 @@
     #define WXDLLIMPEXP_BINDWXXML
     #define WXDLLIMPEXP_DATA_BINDWXXML(type) type
 #endif
+
+// Forward declare classes with this macro
+#if defined(HAVE_VISIBILITY) || (defined(__WINDOWS__) && defined(__GNUC__))
+    #define WXDLLIMPEXP_FWD_BINDWXXML
+#else
+    #define WXDLLIMPEXP_FWD_BINDWXXML WXDLLIMPEXP_BINDWXXML
+#endif
+
+// --------------------------------------------------------------------------
 
 #if defined(WXMAKINGDLL_BINDWXXRC) || defined(WXMAKINGDLL_WXBINDXRC)
     #define WXDLLIMPEXP_BINDWXXRC WXEXPORT
@@ -149,7 +266,14 @@
     #define WXDLLIMPEXP_DATA_BINDWXXRC(type) type
 #endif
 
+// Forward declare classes with this macro
+#if defined(HAVE_VISIBILITY) || (defined(__WINDOWS__) && defined(__GNUC__))
+    #define WXDLLIMPEXP_FWD_BINDWXXRC
+#else
+    #define WXDLLIMPEXP_FWD_BINDWXXRC WXDLLIMPEXP_BINDWXXRC
+#endif
 
+// --------------------------------------------------------------------------
 // Declare this here to avoid having to include the socket headers when
 // using WXLUA_DECLARE_BIND_ALL
 
@@ -163,6 +287,13 @@
     #else // not making nor using DLL
         #define WXDLLIMPEXP_WXLUASOCKET
         #define WXDLLIMPEXP_DATA_WXLUASOCKET(type) type
+    #endif
+
+    // Forward declare all wxLua classes with this macro
+    #if defined(HAVE_VISIBILITY) || (defined(__WINDOWS__) && defined(__GNUC__))
+        #define WXDLLIMPEXP_FWD_WXLUASOCKET
+    #else
+        #define WXDLLIMPEXP_FWD_WXLUASOCKET WXDLLIMPEXP_WXLUASOCKET
     #endif
 #endif // WXDLLIMPEXP_WXLUASOCKET
 
@@ -373,6 +504,7 @@
     WXLUA_DECLARE_BIND_WXHTML \
     WXLUA_DECLARE_BIND_WXAUI \
     WXLUA_DECLARE_BIND_WXMEDIA \
+    WXLUA_DECLARE_BIND_WXRICHTEXT \
     WXLUA_DECLARE_BIND_WXGL \
     WXLUA_DECLARE_BIND_WXSTC
 
@@ -400,6 +532,7 @@
     WXLUA_IMPLEMENT_BIND_WXHTML \
     WXLUA_IMPLEMENT_BIND_WXAUI \
     WXLUA_IMPLEMENT_BIND_WXMEDIA \
+    WXLUA_IMPLEMENT_BIND_WXRICHTEXT \
     WXLUA_IMPLEMENT_BIND_WXGL \
     WXLUA_IMPLEMENT_BIND_WXSTC
 

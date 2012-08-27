@@ -3,7 +3,7 @@
 // Purpose:         wxLua Socket interfaces
 // Author:          J. Winwood, John Labenski, Ray Gilbert
 // Created:         March 2002
-// Copyright:       (c) 2002 Lomtick Software. All rights reserved.
+// Copyright:       (c) 2012 John Labenski, 2002 Lomtick Software. All rights reserved.
 // Licence:         wxWidgets licence.
 /////////////////////////////////////////////////////////////////////////////
 
@@ -12,7 +12,7 @@
 
 #include "wxluasocket/include/wxluasocketdefs.h"
 
-class WXDLLIMPEXP_WXLUADEBUG wxLuaDebugData;
+class WXDLLIMPEXP_FWD_WXLUADEBUG wxLuaDebugData;
 
 #ifdef WIN32
     typedef int socklen_t;
@@ -196,7 +196,7 @@ private:
 // ----------------------------------------------------------------------------
 // wxLuawxSocket - Handles Debugger/Debuggee IO
 // ----------------------------------------------------------------------------
-#include "wx/socket.h"
+#include <wx/socket.h>
 
 class WXDLLIMPEXP_WXLUASOCKET wxLuawxSocket : public wxLuaSocketBase
 {

@@ -34,7 +34,7 @@ static int LUACALL wxLua_function_CompileLuaScript(lua_State *L)
 // %function LuaTable GetTrackedWindowInfo(bool as_string = false)
 static int LUACALL wxLua_function_GetTrackedWindowInfo(lua_State *L)
 {
-    bool as_string = lua_toboolean(L, 1); // ok if nil
+    bool as_string = (0 != lua_toboolean(L, 1)); // ok if nil
     if (as_string)
         wxlua_pushwxString(L, wxlua_concatwxArrayString(wxluaW_gettrackedwindowinfo(L)));
     else
@@ -48,7 +48,7 @@ static int LUACALL wxLua_function_GetTrackedWindowInfo(lua_State *L)
 // %function LuaTable GetGCUserdataInfo(bool as_string = false)
 static int LUACALL wxLua_function_GetGCUserdataInfo(lua_State *L)
 {
-    bool as_string = lua_toboolean(L, 1); // ok if nil
+    bool as_string = (0 != lua_toboolean(L, 1)); // ok if nil
     if (as_string)
         wxlua_pushwxString(L, wxlua_concatwxArrayString(wxluaO_getgcobjectinfo(L)));
     else
@@ -62,7 +62,7 @@ static int LUACALL wxLua_function_GetGCUserdataInfo(lua_State *L)
 // %function LuaTable GetTrackedObjectInfo(bool as_string = false)
 static int LUACALL wxLua_function_GetTrackedObjectInfo(lua_State *L)
 {
-    bool as_string = lua_toboolean(L, 1); // ok if nil
+    bool as_string = (0 != lua_toboolean(L, 1)); // ok if nil
     if (as_string)
         wxlua_pushwxString(L, wxlua_concatwxArrayString(wxluaO_gettrackedweakobjectinfo(L)));
     else
@@ -77,7 +77,7 @@ static int LUACALL wxLua_function_GetTrackedObjectInfo(lua_State *L)
 static int LUACALL wxLua_function_GetTrackedEventCallbackInfo(lua_State *L)
 {
     wxLuaState wxlState(L);
-    bool as_string = lua_toboolean(L, 1); // ok if nil
+    bool as_string = (0 != lua_toboolean(L, 1)); // ok if nil
     if (as_string)
         wxlua_pushwxString(L, wxlua_concatwxArrayString(wxlState.GetTrackedEventCallbackInfo()));
     else
@@ -92,7 +92,7 @@ static int LUACALL wxLua_function_GetTrackedEventCallbackInfo(lua_State *L)
 static int LUACALL wxLua_function_GetTrackedWinDestroyCallbackInfo(lua_State *L)
 {
     wxLuaState wxlState(L);
-    bool as_string = lua_toboolean(L, 1); // ok if nil
+    bool as_string = (0 != lua_toboolean(L, 1)); // ok if nil
     if (as_string)
         wxlua_pushwxString(L, wxlua_concatwxArrayString(wxlState.GetTrackedWinDestroyCallbackInfo()));
     else
@@ -237,10 +237,10 @@ static int LUACALL wxLua_function_GetBindings(lua_State *L)
     lua_newtable(L); // the table that we return
 
     int idx = 1;
-    
+
     wxLuaBindingArray& wxlbArray = wxLuaBinding::GetBindingArray();
     size_t n, count = wxlbArray.GetCount();
-    
+
     for (n = 0; n < count; n++, idx++)
     {
         // Push function to access the binding info
@@ -783,7 +783,10 @@ int LUACALL wxluabind_wxLuaBinding__index(lua_State* L)
                 lua_pushstring(L, wxlString->name);
                 lua_rawset(L, -3);
                 lua_pushstring(L, "value");
-                lua_pushstring(L, wx2lua(wxlString->value));
+                if (wxlString->wxchar_string != NULL)
+                    lua_pushstring(L, wx2lua(wxlString->wxchar_string));
+                else
+                    lua_pushstring(L, wxlString->c_string);
                 lua_rawset(L, -3);
 
                 lua_rawseti(L, -2, idx + 1);
@@ -918,7 +921,7 @@ static int LUACALL wxLua_wxLuaObject_SetObject(lua_State *L)
     // get this
     wxLuaObject *self = (wxLuaObject *)wxluaT_getuserdatatype(L, 1, wxluatype_wxLuaObject);
     // call SetObject
-    self->SetObject(L, 1);
+    self->SetObject(L, 2);
     // return the number of parameters
     return 0;
 }

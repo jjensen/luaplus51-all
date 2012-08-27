@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="mdiedit" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Win32 DLL Unicode Debug">
+				<Option output="..\bin\mdiedit_d.gcc.exe" prefix_auto="0" extension_auto="0" />
+				<Option object_output="..\gcc\debug\mdiedit\unicode" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-Wall" />
+					<Add option="-g" />
+					<Add option="-D__WXDEBUG__" />
+					<Add option="-DWXUSINGDLL" />
+					<Add option="-DwxUSE_UNICODE=1" />
+					<Add directory="$(WXWIN)\lib\vc_dll\mswud" />
+					<Add directory="$(WXWIN)\include" />
+				</Compiler>
+				<Linker>
+					<Add library="libwxpngd" />
+					<Add library="libwxzlibd" />
+				</Linker>
+			</Target>
+			<Target title="Win32 DLL Debug">
+				<Option output="..\bin\mdiedit95d.gcc.exe" prefix_auto="0" extension_auto="0" />
+				<Option object_output="..\gcc\debug\mdiedit" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-Wall" />
+					<Add option="-g" />
+					<Add option="-D__WXDEBUG__" />
+					<Add option="-DWXUSINGDLL" />
+					<Add directory="$(#WX.lib)\gcc_dll$(WX_CFG)\mswd" />
+				</Compiler>
+				<Linker>
+					<Add library="libsteditd_gcc_custom" />
+					<Add library="libwxmsw28d_stc_gcc_custom" />
+					<Add library="libwxmsw28d_xrc.a" />
+					<Add library="libwxbase28d_xml.a" />
+					<Add library="libwxbase28d_net.a" />
+					<Add library="libwxmsw28d_adv.a" />
+					<Add library="libwxmsw28d_html.a" />
+					<Add library="libwxmsw28d_core.a" />
+					<Add library="libwxbase28d.a" />
+					<Add library="libwxpngd" />
+					<Add library="libwxzlibd" />
+					<Add directory="$(#WX.lib)\gcc_dll$(WX_CFG)" />
+				</Linker>
+			</Target>
+			<Target title="Win32 Unicode Release">
+				<Option output="..\bin\mdiedit.exe" prefix_auto="0" extension_auto="0" />
+				<Option object_output="..\gcc\release\mdiedit\unicode" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+					<Add option="-Wall" />
+					<Add option="-DwxUSE_UNICODE=1" />
+					<Add directory="$(WXWIN)\lib\vc_lib\mswu" />
+					<Add directory="$(WXWIN)\include" />
+				</Compiler>
+				<Linker>
+					<Add library="libwxpng" />
+					<Add library="libwxzlib" />
+				</Linker>
+			</Target>
+			<Target title="Win32 Release">
+				<Option output="..\bin\mdiedit95.exe" prefix_auto="0" extension_auto="0" />
+				<Option object_output="..\gcc\release\mdiedit" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+					<Add option="-Wall" />
+					<Add directory="$(WXWIN)\lib\vc_lib\msw" />
+					<Add directory="$(WXWIN)\include" />
+				</Compiler>
+				<Linker>
+					<Add library="libwxpng" />
+					<Add library="libwxzlib" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add directory="$(#WX.include)" />
+			<Add directory="$(#WX)\src\zlib" />
+			<Add directory="$(#WX)\src\png" />
+			<Add directory="..\..\include" />
+			<Add directory="$(#WX)\contrib\include" />
+		</Compiler>
+		<ResourceCompiler>
+			<Add directory="$(#WX.include)" />
+		</ResourceCompiler>
+		<Linker>
+			<Add directory="$(#WX.lib)" />
+			<Add directory="..\..\lib\gcc_lib" />
+		</Linker>
+		<Unit filename="app.cpp" />
+		<Unit filename="app.h" />
+		<Unit filename="appdoc.cpp" />
+		<Unit filename="mdiedit.rc">
+			<Option compilerVar="WINDRES" />
+		</Unit>
+		<Unit filename="precomp.h">
+			<Option compile="1" />
+			<Option weight="0" />
+		</Unit>
+		<Unit filename="stedocview.cpp" />
+		<Unit filename="..\stedit\stedoc.cpp" />
+		<Extensions>
+			<code_completion />
+			<envvars />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

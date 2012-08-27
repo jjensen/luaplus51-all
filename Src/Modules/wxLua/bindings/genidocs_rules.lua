@@ -234,9 +234,11 @@ htmlHeader = [[
     <meta content="text/html; charset=ISO-8859-1" http-equiv="content-type">
     <title>wxLua Reference Manual</title>
     <meta content="John Labenski" name="author">
+    <META content="wxLua Reference Manual" name="description">
+    <LINK rel="stylesheet" type="text/css" href="wxlua.css">
 </head>
 <body>
 
-<h1>wxLua 2.8.10.0 Reference Manual for wxWidgets 2.8.10</h1>
+<h1>wxLua 2.8.12.2 Reference Manual for wxWidgets 2.8.12</h1>
 ]]
 

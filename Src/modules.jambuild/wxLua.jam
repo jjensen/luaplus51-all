@@ -121,7 +121,7 @@ local SRCS =
 IncludeModule c/wxwidgets ;
 
 if $(wxWidgets_FOUND) {
-	C.UseWxWidgets : xrc html adv net xml core base aui media stc : linklibs ;
+	C.UseWxWidgets : xrc xml net media propgrid richtext aui scintilla stc html adv core base gl : linklibs ;
 
 	C.Defines : WXMAKINGDLL_LUAMODULE ISOLATION_AWARE_ENABLED ;
 
@@ -141,7 +141,7 @@ if $(wxWidgets_FOUND) {
 		C.C++Flags : /EHsc ;
 	}
 
-	C.LinkPrebuiltLibraries : comctl32 winmm ;
+	C.LinkPrebuiltLibraries : comctl32 winmm winspool ;
 	Lua.CModule : : $(SRCS) ;
 } # wxWidgets_FOUND
 

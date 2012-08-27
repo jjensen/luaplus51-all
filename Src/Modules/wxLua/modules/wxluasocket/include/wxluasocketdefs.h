@@ -1,11 +1,10 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name:        wxluadebugdefs.h
 // Purpose:     definitions for wxLuaDebug module
-// Author:      Francesco Montorsi
+// Author:      John Labenski, Francesco Montorsi
 // Modified by:
 // Created:     20/5/2006
-// RCS-ID:      $Id: wxluasocketdefs.h,v 1.5 2007/05/21 01:08:00 jrl1 Exp $
-// Copyright:   (c) Francesco Montorsi
+// Copyright:   (c) John Labenski, Francesco Montorsi
 // Licence:     wxWidgets licence
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -30,6 +29,13 @@
 #else // not making nor using DLL
     #define WXDLLIMPEXP_WXLUASOCKET
     #define WXDLLIMPEXP_DATA_WXLUASOCKET(type) type
+#endif
+
+// Forward declare all wxLua classes with this macro
+#if defined(HAVE_VISIBILITY) || (defined(__WINDOWS__) && defined(__GNUC__))
+    #define WXDLLIMPEXP_FWD_WXLUASOCKET
+#else
+    #define WXDLLIMPEXP_FWD_WXLUASOCKET WXDLLIMPEXP_WXLUASOCKET
 #endif
 
 // ----------------------------------------------------------------------------

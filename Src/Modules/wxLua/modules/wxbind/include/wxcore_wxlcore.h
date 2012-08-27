@@ -12,8 +12,43 @@
 #include "wxbind/include/wxbinddefs.h"
 #include "wxluasetup.h"
 
-class WXDLLIMPEXP_WXLUA wxLuaObject;
+class WXDLLIMPEXP_FWD_WXLUA wxLuaObject;
 
+
+#if (wxVERSION_NUMBER < 2900)
+    typedef int wxPenCap;
+    typedef int wxPenJoin;
+    typedef int wxPenStyle;
+
+    typedef int wxRasterOperationMode;
+    typedef int wxPolygonFillMode;
+    typedef int wxFloodFillStyle;
+    typedef int wxMappingMode;
+    typedef int wxImageResizeQuality;
+#endif
+
+// ----------------------------------------------------------------------------
+// wxLuaDataObjectSimple
+// ----------------------------------------------------------------------------
+#if wxLUA_USE_wxDataObject && wxUSE_DATAOBJ
+
+#include <wx/dataobj.h>
+
+class wxLuaDataObjectSimple : public wxDataObjectSimple
+{
+public:
+    wxLuaDataObjectSimple(const wxLuaState& wxlState,
+                          const wxDataFormat& format = wxFormatInvalid);
+
+    virtual size_t GetDataSize() const;
+    virtual bool GetDataHere(void* buf) const;
+    virtual bool SetData(size_t len, const void* buf);
+
+private:
+    mutable wxLuaState m_wxlState;
+};
+
+#endif // wxLUA_USE_wxDataObject && wxUSE_DATAOBJ
 
 // ----------------------------------------------------------------------------
 // wxLuaPrintout
@@ -99,12 +134,16 @@ private:
 class WXDLLIMPEXP_BINDWXCORE wxLuaTreeItemData : public wxTreeItemData
 {
 public:
-	wxLuaTreeItemData(double value = 0) : m_value(value) {}
-	double GetValue() const { return m_value; }
-	void SetValue(double value) { m_value = value; }
+	wxLuaTreeItemData() : m_data(NULL) {}
+	wxLuaTreeItemData(wxLuaObject* obj) : m_data(obj) {}
+
+    virtual ~wxLuaTreeItemData() { if (m_data) delete m_data; }
+
+	wxLuaObject* GetData() const { return m_data; }
+	void         SetData(wxLuaObject* obj) { if (m_data) delete m_data; m_data = obj; }
 
 private:
-	double m_value;
+	wxLuaObject* m_data;
 };
 
 #endif //wxLUA_USE_wxTreeCtrl && wxUSE_TREECTRL

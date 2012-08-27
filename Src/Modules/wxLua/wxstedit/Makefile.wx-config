@@ -1,0 +1,27 @@
+# Makefile to build the library and sample using the 'wx-config' script
+# to get the proper build settings for wxWidgets, e.g. wx-config --cxxflags
+# You can override the location of the 'wx-config' script by running 
+# $make WXCONFIG=/home/user/path/to/wxWidgets/.../wx-config
+
+#----------------------------------------------------------------------------
+
+# Always try to build all targets, let the other Makefiles do dep checking
+.PHONY: all clean lib samples
+
+#----------------------------------------------------------------------------
+
+all: lib samples
+
+#----------------------------------------------------------------------------
+
+lib:
+	@(cd src && make)
+
+samples:
+	@(cd samples/stedit && make)
+
+#----------------------------------------------------------------------------
+
+clean:
+	@(cd src && make clean)
+	@(cd samples/stedit && make clean)

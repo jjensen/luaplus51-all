@@ -1,0 +1,1142 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+
+  <meta name="generator" content="HTML Tidy for Linux/x86 (vers 1 September 2005), see www.w3.org">
+
+  <meta http-equiv="Content-Type" content="text/html">
+  <title>wxstedit.html</title>
+
+
+  <meta content="John Labenski" name="author">
+
+  <meta content="readme.html for wxStEdit library" name="description">
+
+</head>
+
+
+<body style="background-color: rgb(255, 255, 200);">
+
+<h1>wxStEditor</h1>
+
+<span style="font-weight: bold;">Copyright : 2006, John
+Labenski,
+Otto Wyss.</span><br>
+
+<span style="font-weight: bold;">License
+: wxWindows license.</span><br>
+
+<br>
+
+<span style="font-style: italic;">This library/program is
+free
+software; you can redistribute it and/or modify it under the terms of
+the wxWindows License; either version 3 of the License, or (at your
+option) any later version.</span><br style="font-style: italic;">
+
+<br style="font-style: italic;">
+
+<span style="font-style: italic;">This library/program is
+distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE. See the wxWindows License for more
+details.</span><br>
+
+<br>
+
+If you use this
+program/library and find any bugs or have added any features that you
+feel may be generally useful, please feel free to contact the author by
+e-mail at jrl1[at]sourceforge[dot]net.<br>
+
+<h2>Overview :</h2>
+
+The
+wxStEditor is a library and sample program for the wxWidgets's
+wxStyledTextCtrl wrapper around the Scintilla text editor widget. This
+program is meant to be a demonstration of the wxStEdit library and has
+turned out to be a fairly capable syntax highlighting text editor with
+a number of advanced features.<br>
+
+<br>
+
+What does the ST
+in wxStEditor stand for? Either styled text or Scintilla text, your
+choice.<br>
+
+<br>
+
+The core for the editor was originally
+based on Otto Wyss's wxGuide editor.<br>
+
+<h2>References :</h2>
+
+http://wxcode.sourceforge.net<br>
+
+http://www.wxwidgets.org<br>
+
+http://www.scintilla.org<br>
+
+http://bakefile.sourceforge.net
+<h2>Features : (at a glance)</h2>
+
+<ul type="disc">
+
+  <li align="left">Loading
+and saving text files as ASCII or Unicode<br>
+
+  </li>
+
+  <li align="left">Exporting as HTML, HTML w/ CSS, PDF,
+RTF, TEX,
+XML</li>
+
+  <li align="left">Printing with styling or
+as black &amp; white</li>
+
+  <li align="left">Syntax
+highlighting for over 70 different programming languages or document
+types</li>
+
+  <li align="left">Rectangular selection,
+copy, and paste</li>
+
+  <li align="left">Various text
+tools</li>
+
+  <ul>
+
+    <li align="left">Indent/Unindent blocks of
+lines</li>
+
+    <li align="left">Join/Split selected
+lines</li>
+
+    <li align="left">Tabs &lt;--&gt;
+Spaces</li>
+
+    <li align="left">Convert End Of Line
+(EOL) characters for DOS/Win, UNIX, Mac</li>
+
+    <li align="left">Remove
+trailing whitespace on save</li>
+
+    <li align="left">Columnize
+selected blocks of text</li>
+
+  </ul>
+
+  <li align="left">Margins for line numbers, bookmarks,
+code
+folding</li>
+
+  <li align="left">View special
+characters, whitespace, and EOL chars</li>
+
+  <li align="left">Bookmarks</li>
+
+  <li align="left">Styles and colors for different text
+elements can all be changed</li>
+
+  <li align="left">Documents
+can be split vertically or horizontally to show two parts at once</li>
+
+</ul>
+
+<h2>Running the Editor</h2>
+
+The editor accepts
+a few command line options. In MS Window the options are /x while in
+UNIX they use -x, where 'x' is the option.<br>
+
+<ul>
+
+  <li>-h
+: Show help on running the editor from the command line</li>
+
+  <li>-1
+: Run the editor in a single file mode</li>
+
+  <li>-r
+[filename wildcards] : Recursively load file using wildcards</li>
+
+  <ul>
+
+    <li>Example : 'wxstedit -r *.h *.cpp' will load all
+files in the current and child directories that have the .h and .cpp
+extensions</li>
+
+    <li>If it fails to load your files you may
+need to put double quotes (") around your filenames.</li>
+
+  </ul>
+
+  <li>-c [config filename] : Load the configuration
+options from the given file, if no file is given then do not load the
+configuration at all.</li>
+
+</ul>
+
+<h2>Editors</h2>
+
+You
+enter text in the editors as you would with any typical editor. A popup
+menu is shown by right clicking the mouse in the editor window, please
+review the "Menu Items" section for details.<br>
+
+<h2>Key
+and Mouse Mapping</h2>
+
+The keys used for editing are typical,
+arrow keys move around, page up/down to move by full pages. Some of the
+more specialized keys are shown below, other "hotkeys" are shown in the
+menu items of the editor.<br>
+
+<ul>
+
+  <li>Selecting
+text : Hold down Shift when moving the cursor or drag the mouse with
+the left button down. Many of the accelerators below work with
+Shift key to quickly select blocks of text.</li>
+
+  <li>Rectangular selection :
+Hold down Shift+Alt when moving the cursor or dragging the mouse</li>
+
+  <li>Duplicate selection : Ctrl+D</li>
+
+  <li>Move by full words</li>
+
+  <ul>
+
+    <li>Move to end of current word : Ctrl+Right arrow</li>
+
+    <li>Move to start of current word : Ctrl+Left arrow</li>
+
+    <li>Move to end of current word part : Ctrl+/ </li>
+
+    <li>Move to start of current word part : Ctrl+\ </li>
+
+  </ul>
+
+  <li>Paragraph movement</li>
+
+  <ul>
+
+    <li>Move up a paragraph : Ctrl+[</li>
+
+    <li>Move down a paragraph : Ctrl+]</li>
+
+  </ul>
+
+  <li>Move
+left by tabs : Shift+Tab</li>
+
+  <li>Goto start of text : Ctrl+Home</li>
+
+  <li>Goto end of text : Ctrl+End</li>
+
+  <li>Goto start of display line : Alt+Home</li>
+
+  <li>Goto end of display line : Alt+End</li>
+
+  <li>Clear selection : Escape
+or left click the mouse in an unselected region of the editor.</li>
+
+  <li>Cut : Ctrl+X or Ctrl+Delete</li>
+
+  <li>Copy
+: Ctrl+C or Ctrl+Insert</li>
+
+  <li>Paste : Ctrl+V or
+Shift+Insert</li>
+
+  <li>Delete to word edge</li>
+
+  <ul>
+
+    <li>Shift+Backspace deletes word to left</li>
+
+    <li>Ctrl+Delete deletes word to right</li>
+
+  </ul>
+
+  <li>Delete to text edge</li>
+
+  <ul>
+
+    <li>Ctrl+Shift+Backspace deletes line to beginning</li>
+
+    <li>Ctrl+Shift+Delete deletes line to end</li>
+
+  </ul>
+
+  <li>Block (un)indentation</li>
+
+  <ul>
+
+    <li>Indent block : Select multiple lines and press Tab</li>
+
+  </ul>
+
+  <ul>
+
+    <li>Undent block : Select multiple lines and press Shift+Tab</li>
+
+  </ul>
+
+  <li>Changing font size</li>
+
+  <ul>
+
+    <li>Increase font size : Ctrl+Numpad+</li>
+
+  </ul>
+
+  <ul>
+
+    <li>Decrease font size : Ctrl+Numpad-</li>
+
+  </ul>
+
+  <ul>
+
+    <li>Default font size : Ctrl+Numpad/</li>
+
+  </ul>
+
+  <li>Scrolling</li>
+
+  <ul>
+
+    <li>Scroll up : Ctrl+Up arrow</li>
+
+    <li>Scroll down : Ctrl+Down arrow</li>
+
+  </ul>
+
+  <li>Line editing</li>
+
+  <ul>
+
+    <li>Line cut : Ctrl+L</li>
+
+    <li>Line copy : Ctrl+Shift+T</li>
+
+    <li>Line delete : Ctrl+Shift+L</li>
+
+    <li>Line transpose (swap) : Ctrl+T</li>
+
+  </ul>
+
+</ul>
+
+<h2>Splitting Editors</h2>
+
+The
+editors can be split vertically or horizontally to view two parts of
+the same document at once. You can edit in either part. There are menu
+items to do this in the "Window" menu or you can use the splitter
+buttons located on top of the vertical scrollbar or on the right of the
+horizontal scrollbar. To unsplit the editor just drag the splitter bar
+to the side so that that editor in the position you want to save takes
+the full window.
+<h2>Notebook</h2>
+
+The notebook menu is
+accessed by right clicking the mouse on the notebook tabs. The items in
+this menu are fairly straightforward, please review the "Menu Items"
+section for details.<br>
+
+<br>
+
+You can close a notebook
+page quickly by middle clicking on the tab you want to close.
+<h2>Menu
+Items :</h2>
+
+Help is also given for the menu items in the
+statusbar. Note that menu items that end with "..." will popup a dialog
+which you can cancel to not take any action.<br>
+
+<ul>
+
+  <li>
+    <h3>File</h3>
+
+  </li>
+
+  <ul>
+
+    <li>New... : Create a new empty document.</li>
+
+    <li>Open...
+: Open a document from disk.</li>
+
+    <li>Close current page :
+If you have multiple documents open, close the focused one.</li>
+
+    <li>Close
+all pages... : Close all currently opened documents.</li>
+
+    <li>Save
+: Save the currently focused document.</li>
+
+    <ul>
+
+      <li>If you try to save a document created using "New"
+you will be asked what name and directory to save it with as a
+precaution that you won't overwrite an existing file with the same name.</li>
+
+    </ul>
+
+    <li>Save as... : Save the currently
+focused document to a different filename.</li>
+
+    <li>Save
+all : Save all opened documents if they have been modified.</li>
+
+    <li>Export...
+: Export the document to a HTML, HTML w/ CSS, PDF, RTF, TEX, XML file.</li>
+
+    <li>Document properties... : Show properties about the
+current
+document, filename, size, disk properties (if loaded/saved from/to
+disk), word count...</li>
+
+    <li>Print... : Print the current
+document.</li>
+
+    <li>Print preview... : Preview what the
+current document would look like if printed.</li>
+
+    <li>Printer
+setup... : Setup the printer to use for printing.</li>
+
+    <li>Printer
+page setup... : Setup the page properties for the printer.</li>
+
+    <li>Printer
+options... : Options on how to print the document, colorized or not,
+font scaling, line wrap, line numbers.</li>
+
+    <li>Exit :
+Exit the program, you will be asked to save any modified documents.</li>
+
+    <li>Recent files : Recently opened files are stored in this
+list
+for easy access.</li>
+
+  </ul>
+
+  <li>
+    <h3>Edit</h3>
+
+  </li>
+
+  <ul>
+
+    <li>Cut : Cut the selected text to the clipboard.</li>
+
+    <li>Copy : Copy the selected text to the clipboard.</li>
+
+    <li>Copy
+primary : UNIX only, copy the selected text to the primary clipboard
+which you can typically use the middle mouse button to paste it with.</li>
+
+    <li>Paste : Paste text from the clipboard at the cursor
+location.
+In Unix you can paste from the primary clipboard using the middle mouse
+button.</li>
+
+    <li>Paste rect : Paste text from the
+clipboard at the cursor location, preserving the linefeeds in the text
+so that the left hand side always starts at the cursor column.
+Rectangular selection is made by holding down Shift+Alt while dragging
+with the left mouse button down or moving the cursor with the keyboard.</li>
+
+    <li>Select all : Select all the text in the document.</li>
+
+    <li>Line
+editing</li>
+
+    <ul>
+
+      <li>Line cut : Cut the current whole line to the
+clipboard.</li>
+
+      <li>Line copy : Copy the current whole
+line to the clipboard.</li>
+
+      <li>Line delete : Delete the
+current whole line.</li>
+
+      <li>Line transpose : Swap the
+current line with the line above it.</li>
+
+      <li>Line
+duplicate : Add another copy of the current line below the current line.</li>
+
+    </ul>
+
+    <li>Find... : Popup a dialog to find
+text with.</li>
+
+    <li>Find next : Find the next occurrence
+of the last found find string.</li>
+
+    <li>Search forward :
+Which direction to search next in, either up or down the page.</li>
+
+    <li>Replace... : Popup a dialog to replace text with.</li>
+
+    <li>Go
+to... : Goto a specific line in the document.</li>
+
+    <li>Undo
+: Undo the last change made to the document.</li>
+
+    <li>Redo
+: Redo the last undo.</li>
+
+    <li>Readonly : Make the
+document readonly so that no changes can be made by typing.</li>
+
+  </ul>
+
+  <li>
+    <h3>Tools</h3>
+
+  </li>
+
+  <ul>
+
+    <li>Selection uppercase : Convert the currently
+selected text to all uppercase letters.</li>
+
+    <li>Selection
+lowercase : Convert the currently selected text to all lowercase
+letters.</li>
+
+    <li>Increase indent : Indent the selected
+lines by the indentation setting, see "Set indent width".</li>
+
+    <li>Decrease
+indent : Unindent the selected lines by the indentation setting, see
+"Set indent width".</li>
+
+    <li>Join selected lines : Make a
+number of selected lines into a single line.</li>
+
+    <li>Split
+selected lines : Split selected lines or the current line at the "Long
+line guide column".</li>
+
+    <li>Convert tabs to spaces :
+Convert tab characters into a number space characters set by "Set tab
+width". If no selection then convert only the current line, else the
+selected text.</li>
+
+    <li>Convert spaces to tabs : Convert a
+number space characters set by "Set tab width" into tab characters. If
+no selection then convert only the current line, else the selected text.</li>
+
+    <li>Convert EOL characters... : Convert the End Of Line
+characters for the whole document into the EOL characters for different
+operating systems.</li>
+
+    <ul>
+
+      <li>[CR = Carriage Return, LF = Line Feed] DOS/Win =
+CRLF, UNIX = LF, Mac = CR</li>
+
+    </ul>
+
+    <li>Remove
+trailing whitespace : Remove any whitespace, tabs or spaces, at the end
+of the current line if no selection or in the selected lines.</li>
+
+    <li>Insert text... : Popup a dialog to automate inserting
+text
+into the document in a variety of ways.</li>
+
+    <ul>
+
+      <li>Prepend : Insert the text at the start of the
+selected lines or the current line.</li>
+
+      <li>Append :
+Insert the text at the end of the selected lines or the current line.</li>
+
+      <li>At column : Insert at a specified column of the
+selected
+lines or the current line.</li>
+
+      <li>Surround selection :
+Insert text at the start and end of the selection of the selected lines
+or the current line.</li>
+
+    </ul>
+
+    <li>Columnize...
+: Popup a dialog to turn the selected lines, must be more than one,
+into equally spaced columns.</li>
+
+    <ul>
+
+      <li>Split before chars : Enter a list of characters
+to split the text into columns before.</li>
+
+      <ul>
+
+        <li>Example : '-' will break the text 'how-are you'
+into 'how -are you'</li>
+
+      </ul>
+
+      <li>Split
+after chars : Enter a list of characters to split the text into columns
+after.</li>
+
+      <ul>
+
+        <li>Example : '-' will break the text 'how-are you'
+into 'how- are you'</li>
+
+        <li>If both split before and
+after are '-' the result is 'how - are you'</li>
+
+      </ul>
+
+      <li>Preserve matching : Enter a space separated list of
+characters to maintain the original formatting between.</li>
+
+      <ul>
+
+        <li>Example: '"" ()' will preserve the formatting
+and
+treat as a single column "quoted text" even if it has spaces and also
+(text between opening and closing parentheses).</li>
+
+      </ul>
+
+    </ul>
+
+  </ul>
+
+  <li>
+    <h3>View</h3>
+
+  </li>
+
+  <ul>
+
+    <li>Wrap text to window : Wrap the text in the
+document to fit in the window, the text itself isn't modified only how
+it's displayed.</li>
+
+    <li>Show EOL : Show what characters
+are used for the End Of Line characters.</li>
+
+    <li>Show
+whitespace : Show markings for whitespace characters like spaces and
+tabs.</li>
+
+    <li>Guides</li>
+
+    <ul>
+
+      <li>Show indent guides : Show vertical lines set
+every "Set indent width" to denote indentation level.</li>
+
+      <li>Show
+long line guides : Show a marker at the "Long line guide column",
+typically 80 so you know if you're beyond it.</li>
+
+      <li>Long
+line guide column : Set the column to show a marker for long lines.</li>
+
+    </ul>
+
+    <li>Margins</li>
+
+    <ul>
+
+      <li>Show line number margin : Show the line numbers
+on the left hand side.</li>
+
+      <li>Show marker margin : Show
+a margin for markers like bookmarks.</li>
+
+      <li>Show folding
+margin : Show a margin for code folding. Some lexers for the
+programming languages allow for hiding or showing code between
+if...else...end statements for example. If you have this margin shown
+and have selected the appropriate language in the preferences, but no
+folding symbols appear then unfortunately it's not supported for that
+language.</li>
+
+    </ul>
+
+    <li>Folding</li>
+
+    <ul>
+
+      <li>Toggle current fold : Expand or collapse the fold
+on the cursor line if any.</li>
+
+      <li>Collapse folds below
+level... : Hide all code that can be folded below this level.</li>
+
+      <li>Expand folds above level... : Show all code that
+can be
+folded above this level.</li>
+
+      <li>Collapse all folds :
+Hide all code that can be folded.</li>
+
+      <li>Expand all
+folds : Show all folded code.</li>
+
+    </ul>
+
+    <li>Scale
+font size : Add or subtract the point size to the current size of the
+font. This is useful for temporarily increasing or decreasing the size.
+You can change it more permanently in the preferences dialog. Note that
+some fonts do not support all point sizes and so if you increment this
+and nothing happens, the font has reverted to one of the available
+sizes.</li>
+
+    <li>Show fullscreen : Expand the window to
+take the size of the desktop, uncheck this to restore the original size.</li>
+
+  </ul>
+
+  <li>
+    <h3>Bookmarks</h3>
+
+  </li>
+
+  <ul>
+
+    <li>Toggle bookmark : Place or remove a bookmark for
+this line, see "Show marker margin".</li>
+
+    <li>First
+bookmark : Go to the first bookmark in the document.</li>
+
+    <li>Previous
+bookmark : Go to a bookmark higher up in the document than the cursor
+line.</li>
+
+    <li>Next bookmark : Go to a bookmark after the
+cursor line.</li>
+
+    <li>Last bookmark : Go to the last
+bookmark in the document.</li>
+
+    <li>Clear all bookmarks :
+Remove all bookmarks in the current document.</li>
+
+  </ul>
+
+  <li>
+    <h3>Preferences</h3>
+
+  </li>
+
+  <ul>
+
+    <li>Show preferences dialog... : Show a dialog to set
+a variety of preferences for the editor. See the "Preferences Dialog"
+section of this document.</li>
+
+    <li>Use tabs : The tab key
+inserts a tab character instead of spaces, see "Set tab width".</li>
+
+    <li>Tab indents : The tab key indents to the "Set indent
+width"
+instead of a fixed tab width.</li>
+
+    <li>Backspace unindents
+: If indented, the backspace key moves to the previous indentation
+level instead of back a single space.</li>
+
+    <li>Auto indent
+: When pressing enter, the next line is indented to the previous line's
+indentation level.</li>
+
+    <li>Set tab width : Set the number
+of spaces to show for tab characters or to insert for a tab character.
+Tab characters are typically eight characters, but sometimes that's too
+wide.</li>
+
+    <li>Set indent width : Set the number of spaces
+to show for the indent level or to use for indentation.</li>
+
+    <li>EOL
+Mode : Set what End Of Line characters to use from this point on, see
+"Convert EOL characters..." to change the mode for whole document.</li>
+
+    <li>Save preferences : Save the currently selected
+preferences.
+When you have the editor setup in a way that you'll be using it most
+often you should save your preferences and it will always start in that
+state. The editor does not save the preferences every time you exit to
+preserve your "default" settings.</li>
+
+  </ul>
+
+  <li>
+    <h3>Window</h3>
+
+  </li>
+
+  <ul>
+
+    <li>Unsplit editor : If the current editor is split,
+then return it back to a single pane.</li>
+
+    <li>Split
+editor horizontally : Divide the current editor horizontally, you can
+edit in both parts.</li>
+
+    <li>Split editor vertically :
+Divide the current editor vertically, you can edit in both parts.</li>
+
+    <li>Show sidebar : Show a listbox of the currently opened
+files
+to make switching between them easier.</li>
+
+    <li>Previous
+page : Go to the previous page in the notebook.</li>
+
+    <li>Next
+page : Go to the next page in the notebook.</li>
+
+    <li>Windows...
+: Show a dialog to select a different page in the notebook or to save
+the selected pages.</li>
+
+  </ul>
+
+  <li>
+    <h3>Help</h3>
+
+  </li>
+
+  <ul>
+
+    <li>About... : A simple about dialog.</li>
+
+    <li>Test
+STE Shell... : Just for programmers, this demonstrates a "shell" type
+widget that the wxStEditor library provides for use as a console type
+widget, like a DOS prompt. This demo does nothing "useful".</li>
+
+  </ul>
+
+</ul>
+
+<h2>Preferences Dialog</h2>
+
+The
+preferences dialog allows you to change a variety of preferences for
+the editor.<br>
+
+<ul>
+
+  <li>
+    <h3>View</h3>
+
+  </li>
+
+  <ul>
+
+    <li>Font scaling : Add or subtract the point size to
+the current size of the font. This is useful for temporarily increasing
+or decreasing the size. You can change it more permanently in the
+preferences dialog. Note that some fonts do not support all point sizes
+and so if you increment this and nothing happens, the font has reverted
+to one of the available sizes.</li>
+
+    <li>Edge marker : A
+"Long line marker" can be set at any column to mark it to aid in
+formatting your text. The marker can either be a vertical line or text
+beyond the line can be highlighted with the "Edge style" foreground
+color.</li>
+
+    <li>Margins : Show or hide the line and marker
+margins, see "Folding and Wrapping" for code folding margin.</li>
+
+    <li>Cursor</li>
+
+    <ul>
+
+      <li>You can choose to highlight the background of the
+whole line that the cursor is on using the "Caret color" style.</li>
+
+      <li>Set the width and blinking rate of the cursor, set
+the
+blinking period to 0 turn blinking off. Note 1000 milliseconds = 1
+second.</li>
+
+    </ul>
+
+  </ul>
+
+  <li>
+    <h3>Tabs and EOL</h3>
+
+  </li>
+
+  <ul>
+
+    <li>These topics are covered in "Menu Items" under
+"Preferences".</li>
+
+  </ul>
+
+  <li>
+    <h3>Folding
+and Wrapping</h3>
+
+  </li>
+
+  <ul>
+
+    <li>Show code folding margin : Show a margin to
+hide/show code between if...else...end statements for example.</li>
+
+    <ul>
+
+      <li>Compact : Also fold in the empty lines.</li>
+
+      <li>Comment : Allow folding of block (multiline)
+comments.</li>
+
+      <li>Preprocessor : Allow folding of preprocessor
+statements if
+the programming language selected has them.</li>
+
+      <li>At
+"else" : Add another fold marker at "else" statements instead of just
+at the toplevel "if" statement.</li>
+
+      <li>HTML : Allow
+folding for HTML.</li>
+
+      <li>HTML preprocessor : Allow
+folding for HTML preprocessor code.</li>
+
+      <li>Directive :
+Allow folding of directive lines in POVray.</li>
+
+      <li>Python
+comment : Allow folding of python comments.</li>
+
+      <li>Python
+quote : Allow folding of quoted text in python.</li>
+
+      <li>Python
+index : Allow folding of indented text in python.</li>
+
+    </ul>
+
+    <li>Fold margin style : A variety of symbols sets to
+use for marking folded lines, choose the one you like.</li>
+
+    <li>Wrap
+text to window : Wrap the text in the document to fit in the window,
+the text itself isn't modified only how it's displayed.</li>
+
+    <ul>
+
+      <li>Marker position : Where put to the marker to
+indicate that the line has been wrapped.</li>
+
+      <li>Marker
+style : How to mark the line to indicate that it's been wrapped.</li>
+
+      <li>Indent wrapped : How many spaces to indent wrapped
+lines.</li>
+
+    </ul>
+
+  </ul>
+
+  <li>
+    <h3>Printing</h3>
+
+  </li>
+
+  <ul>
+
+    <li>Setup how the document is to be printed.</li>
+
+    <li>Note about font scaling : See also the note in "View -
+Font
+scaling". If the printing layout detects that the currently used font
+is not scaled to the calculated value a dialog is shown to warn you
+that the layout may not be correct. In some cases you can ignore this
+warning since the font is nearly scaled correctly and the result will
+look ok, in other cases it may be necessary to choose a different font
+in the "Styles" tab that can be scaled correctly for the printout.</li>
+
+  </ul>
+
+  <li>
+    <h3>Loading and Saving</h3>
+
+  </li>
+
+  <ul>
+
+    <li>Set language highlighting from file extension :
+When loading a file try to detect the file type from the extension and
+choose the appropriate language to use. See "Languages" tab.</li>
+
+    <li>Load Unicode : When loading files "default" means try
+to
+detect if the file is Unicode and load it as such, else you can have it
+ask what to do, always load files as ASCII, or always load files as
+Unicode.</li>
+
+    <li>Remove trailing whitespace : When saving
+always remove any extra whitespace at the end of lines to "clean up"
+the document.</li>
+
+    <li>Convert all EOL characters : When
+saving always convert all EOL characters to the currently set EOL
+character, see "Tabs and EOL" tab, to "clean up" the document.</li>
+
+  </ul>
+
+  <li>
+    <h3>Highlighting</h3>
+
+  </li>
+
+  <ul>
+
+    <li>Enable syntax highlighting : Highlight (colorize)
+the document based on the currently selected language.</li>
+
+    <li>Highlight
+preprocessor code : If the selected language supports preprocessor
+code, highlight it.</li>
+
+    <li>Highlight braces : When
+editing and moving the cursor around hilight matching and mismatched
+braces using the "Brace hilight" and "Brace mismatch" styles.</li>
+
+    <li>Set language highlighting from file extension : See
+"Loading
+and Saving".</li>
+
+  </ul>
+
+  <li>
+    <h3>Styles</h3>
+
+  </li>
+
+  <ul>
+
+    <li>This editor supports syntax highlighting for a
+number of different programming languages. In order to make it easy to
+create your own color and style theme, a single generic list of styles
+is used. This is because some languages have rather esoteric idioms and
+if this editor catered to each and every one there would be hundreds of
+different styles to have to adjust. The list tries to encompass most of
+the common styles for all the language lexers (code parsers).
+Therefore, the names given to the styles are meant only as hints as to
+what the style will be used for and you can map any editor style to any
+lexer style. For more information you should examine the "Languages"
+tab where you can change the mapping of the editor and lexer styles.<br>
+
+    </li>
+
+    <li>Select the style you want to change by clicking on the
+margin
+or double clicking the line. You can change the individual attributes
+for a style by checking the checkboxes to the left or uncheck them to
+use the attribute value from the "Default Style" in the "Lexer Styles".
+It is a good idea to set the "Default Style" first so that you only set
+the values for the other styles that you want to be different.
+Attributes that do not apply for specific styles are disabled.<br>
+
+    </li>
+
+    <li>The "Editor Colors" page allows you to change the
+overall
+appearance of the editor for any language.</li>
+
+    <li>The
+"Lexer Styles" page shows a list of styles to allow you to adjust them
+all at once to easily create a theme that'll look good for any
+language. You can also select particular languages to see what styles
+they use and get a feel for what they would look like. The styles that
+are used for the currently set lexer in the "Languages" tab are shown
+with a white cross in the margin.</li>
+
+  </ul>
+
+  <li>
+    <h3>Languages</h3>
+
+  </li>
+
+  <ul>
+
+    <li>Language : Choose a language to highlight the
+current document with.</li>
+
+    <li>File patterns : A
+semicolon ';' separated list of file patterns to use to detect what
+language to use for that type of file.</li>
+
+    <ul>
+
+      <li>Example : "*.c;*.cpp;*.h" for C/C++ will treat
+any file name that ends with .c, .cpp, or .h as a C/C++ file.</li>
+
+    </ul>
+
+    <li>This editor supports syntax
+highlighting for a number of different programming languages. Choose
+the language lexer you want to use for the current document using the
+"Language" choice control. The file patterns are a semicolon ';'
+separated list of file patterns to detect what language to use for
+different file types. For example; C/C++ has the patterns
+'*.c;*.cpp;*.h' which means that files ending with .c, .cpp, .h will be
+lexed using C/C++ programming language.<br>
+
+    </li>
+
+    <li>The
+"Styles" tab allows you to change the mapping between the editor styles
+on the left and the lexer styles on the right. See the overall "Styles"
+tab to adjust the look of the editor styles and to learn about the
+names given to the editor styles. Use the "Choose style" choice control
+to select a different editor style, note that the names of the editor
+styles are just hints for what they're most used for and can be
+arbitrarily mapped to any lexer style. Select a different lexer style
+to modify by clicking on the margin or double clicking on the
+appropriate line.<br>
+
+    </li>
+
+    <li>The "Keywords" tab
+allows you to view the special keywords for the language. Different
+languages may have different numbers of keyword sets and each one can
+be given their own styling. You may add your own additional keywords by
+entering them as a space separated list into the "Additional keywords"
+text control.</li>
+
+  </ul>
+
+</ul>
+
+</body>
+</html>

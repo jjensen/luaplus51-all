@@ -10,7 +10,7 @@
 -----------------------------------------------------------------------------
 -- Thanks to John Labenski for his suggestions
 ------------------------------------------------------------------------------
-version = 0.9
+version = 1.0
 package.cpath = package.cpath..";./?.dll;./?.so;../lib/?.so;../lib/vc_dll/?.dll;../lib/bcc_dll/?.dll;../lib/mingw_dll/?.dll;"
 
 require("wx")
@@ -31,9 +31,8 @@ local levelMenu
 
 local wallThickness = 5
 
-local joyStick1 =  wx.wxJoystick(wx.wxJOYSTICK1)
+local joyStick1 = wx.wxJoystick(wx.wxJOYSTICK1)
 local joyStick2 = wx.wxJoystick(wx.wxJOYSTICK2)
-
 
 local redrawRequired = true
 local frame          = nil   -- the main wxFrame
@@ -65,6 +64,9 @@ local soundTata    = wx.wxSound(wx.wxGetOSDirectory()..[[\media\tada.wav]])
 local soundRecycle = wx.wxSound(wx.wxGetOSDirectory()..[[\media\recycle.wav]])
 logNo:delete();
 
+--~-- This code was added for window 7 without it the joysticks do not work after the first sound is played
+if soundTata:IsOk() then soundTata:Play() soundTata:Stop() 
+elseif soundRecycle:IsOk() then soundRecycle:Play() soundRecycle:Stop() end
 
 function distance(m)
     local rd, cd = Present:Offet(m[1], m[2])
@@ -230,7 +232,7 @@ function Game:Init()
     until distance({0,0}) > 20
     self.post = {}
     for i= 1, 10 + self.maxHoleMoved  do
-        local post = Occupant:new{bitmap = bitmapPost}
+        local post = Occupant:new({bitmap = bitmapPost})
         repeat until self:Place(post, self:RandomRC())
         table.insert(self.post, post)
     end
@@ -249,8 +251,8 @@ end
 
 function main()
     bitmapPost = wx.wxBitmap(xpm('wall'))
-    Person = Occupant:new{bitmap = wx.wxBitmap(xpm('Person'))}
-    Present = Occupant:new{bitmap = wx.wxBitmap(xpm('Present'))}       
+    Person = Occupant:new({bitmap = wx.wxBitmap(xpm('Person'))})
+    Present = Occupant:new({bitmap = wx.wxBitmap(xpm('Present'))})       
     frame = wx.wxFrame( wx.NULL, wx.wxID_ANY, "wxLua Catch the present", 
                        wx.wxDefaultPosition, wx.wxDefaultSize,
                        wx.wxCAPTION+wx.wxSYSTEM_MENU+wx.wxCLOSE_BOX+wx.wxMINIMIZE_BOX)
@@ -282,7 +284,7 @@ function main()
     frame:SetMenuBar(menuBar)
     if (wx.wxJoystick.GetNumberJoysticks() == 0) then menuBar:EnableTop(2, false) end
     -- Create the statusbar
-    local statusBar = frame:CreateStatusBar(2)
+    local statusBar = frame:CreateStatusBar(1)
     frame:SetStatusText("Welcome to Catch.")
 
     panel = wx.wxPanel(frame, wx.wxID_ANY, wx.wxDefaultPosition, wx.wxDefaultSize, wx.wxWANTS_CHARS)
@@ -311,6 +313,7 @@ function main()
                 offScreenBitmap = nil
             end
             soundTata:delete()
+            soundRecycle:delete()
             if timer then
                 timer:Stop() -- always stop before exiting or deleting it
                 timer:delete()
@@ -327,7 +330,6 @@ function main()
         function (event)
             frame:Close(true)
         end )
-
 
     -- -----------------------------------------------------------------------
     -- Game type menu
@@ -371,11 +373,10 @@ function main()
         end )
         
     frame:Center()
-    frame:Show(true)
-    
+    frame:Show(true)    
     
     if (not joyStick1:IsOk() and joyStick2:IsOk()) then
-            wx.wxMessageBox('Only one joystick and joystick id is set to 2\n change id to one or program will not work','Catch')
+        wx.wxMessageBox('Only one joystick and joystick id is set to 2\n change id to one or program will not work','Catch')
     end
 end
 
@@ -409,11 +410,13 @@ end
 function Game:DrawOffScreenBitMap(bmp)
     local dc = wx.wxMemoryDC()       -- create off screen dc to draw on
     dc:SelectObject(bmp)             -- select our bitmap to draw into
-    dc:SetBackground(wx.wxBrush('turquoise', wx.wxSOLID))
+    local brush = wx.wxBrush('turquoise', wx.wxSOLID)
+    dc:SetBackground(brush)
     dc:Clear()
     self:Draw(dc)
     dc:SelectObject(wx.wxNullBitmap) -- always release bitmap
-    dc:delete() -- ALWAYS delete() any wxDCs created when done
+    dc:delete()    -- ALWAYS delete() any wxDCs created when done
+    brush:delete() -- ALWAYS delete() all GDI objects
 end
 
 function OnPaint(event)

@@ -3,18 +3,18 @@
 // Purpose:       wxLuaBinding
 // Author:        Ray Gilbert, John Labenski, J Winwood
 // Created:       14/11/2001
-// Copyright:
+// Copyright:     (c) 2012 John Labenski
 // Licence:       wxWidgets licence
 /////////////////////////////////////////////////////////////////////////////
 
-#include "wx/wxprec.h"
+#include <wx/wxprec.h>
 
 #ifdef __BORLANDC__
     #pragma hdrstop
 #endif
 
 #ifndef WX_PRECOMP
-    #include "wx/wx.h"
+    #include <wx/wx.h>
 #endif
 
 #include "wxlua/include/wxlbind.h"
@@ -40,6 +40,8 @@ int wxluatype_TUSERDATA      = WXLUA_TUSERDATA;      // raw data
 int wxluatype_TTHREAD        = WXLUA_TTHREAD;
 int wxluatype_TINTEGER       = WXLUA_TINTEGER;
 int wxluatype_TCFUNCTION     = WXLUA_TCFUNCTION;
+int wxluatype_TPOINTER       = WXLUA_TPOINTER;
+int wxluatype_TANY           = WXLUA_TANY;
 
 int wxluatype_NULL           = WXLUATYPE_NULL;
 
@@ -61,10 +63,9 @@ int* p_wxluatype_wxArrayInt          = &wxluatype_TUNKNOWN;
 IMPLEMENT_ABSTRACT_CLASS(wxLuaObject, wxObject)
 
 wxLuaObject::wxLuaObject(const wxLuaState& wxlState, int stack_idx)
-            : m_wxlState(new wxLuaState(wxlState)),
+            : m_wxlState(new wxLuaState(wxlState.GetLuaState(), wxLUASTATE_GETSTATE|wxLUASTATE_ROOTSTATE)),
               m_alloc_flag(wxLUAOBJECT_NONE),
               m_int(0) // GCC only wants one initializer
-
 {
     // set up the reference to the item on the stack
     m_reference = m_wxlState->wxluaR_Ref(stack_idx, &wxlua_lreg_refs_key);
@@ -72,9 +73,8 @@ wxLuaObject::wxLuaObject(const wxLuaState& wxlState, int stack_idx)
 wxLuaObject::wxLuaObject(lua_State* L, int stack_idx)
             : m_alloc_flag(wxLUAOBJECT_NONE),
               m_int(0) // GCC only wants one initializer
-
 {
-    m_wxlState = new wxLuaState(L, wxLUASTATE_GETSTATE);
+    m_wxlState = new wxLuaState(L, wxLUASTATE_GETSTATE|wxLUASTATE_ROOTSTATE);
 
     // set up the reference to the item on the stack
     m_reference = m_wxlState->wxluaR_Ref(stack_idx, &wxlua_lreg_refs_key);
@@ -87,8 +87,8 @@ wxLuaObject::~wxLuaObject()
         m_wxlState->wxluaR_Unref(m_reference, &wxlua_lreg_refs_key);
         m_reference = LUA_NOREF;
     }
-    else if (!m_wxlState->IsClosing())
-        wxPrintf(wxT("~wxLuaObject %d %d %d\n"), (int)m_reference, (int)m_wxlState->Ok(), (int)m_wxlState->IsClosing());
+    //else if (!m_wxlState->IsClosing())
+    //    wxPrintf(wxT("~wxLuaObject %d %d %d\n"), (int)m_reference, (int)m_wxlState->Ok(), (int)m_wxlState->IsClosing());
 
     if (m_alloc_flag == wxLUAOBJECT_STRING)
         delete m_string;
@@ -100,7 +100,7 @@ wxLuaObject::~wxLuaObject()
 
 void wxLuaObject::RemoveReference(lua_State* L)
 {
-    // If a refererence exists, remove it, but don't bother if Lua is being closed
+    // If a reference exists, remove it, but don't bother if Lua is being closed
     if ((m_reference != LUA_NOREF) && m_wxlState->Ok() && !m_wxlState->IsClosing())
         wxluaR_unref(L, m_reference, &wxlua_lreg_refs_key);
 
@@ -228,9 +228,9 @@ wxArrayInt *wxLuaObject::GetArrayPtr(lua_State* L)
 class wxLuaSmartwxArrayStringRefData : public wxObjectRefData
 {
 public:
-    wxLuaSmartwxArrayStringRefData(wxArrayString* arr, int del) : m_arr(arr), m_delete(del)
+    wxLuaSmartwxArrayStringRefData(wxArrayString* arr, bool del) : m_arr(arr), m_delete(del)
     {
-        if (!m_arr) { m_arr = new wxArrayString; m_delete = true; } // always exists
+        if (m_arr == NULL) { m_arr = new wxArrayString; m_delete = true; } // always exists
     }
 
     virtual ~wxLuaSmartwxArrayStringRefData() { if (m_delete) delete m_arr; }
@@ -255,9 +255,9 @@ wxArrayString* wxLuaSmartwxArrayString::GetArray() const
 class wxLuaSmartwxSortedArrayStringRefData : public wxObjectRefData
 {
 public:
-    wxLuaSmartwxSortedArrayStringRefData(wxSortedArrayString* arr, int del) : m_arr(arr), m_delete(del)
+    wxLuaSmartwxSortedArrayStringRefData(wxSortedArrayString* arr, bool del) : m_arr(arr), m_delete(del)
     {
-        if (!m_arr) { m_arr = new wxSortedArrayString; m_delete = true; } // always exists
+        if (m_arr == NULL) { m_arr = new wxSortedArrayString; m_delete = true; } // always exists
     }
 
     virtual ~wxLuaSmartwxSortedArrayStringRefData() { if (m_delete) delete m_arr; }
@@ -282,9 +282,9 @@ wxSortedArrayString* wxLuaSmartwxSortedArrayString::GetArray() const
 class wxLuaSmartwxArrayIntRefData : public wxObjectRefData
 {
 public:
-    wxLuaSmartwxArrayIntRefData(wxArrayInt* arr, int del) : m_arr(arr), m_delete(del)
+    wxLuaSmartwxArrayIntRefData(wxArrayInt* arr, bool del) : m_arr(arr), m_delete(del)
     {
-        if (!m_arr) { m_arr = new wxArrayInt; m_delete = true; } // always exists
+        if (m_arr == NULL) { m_arr = new wxArrayInt; m_delete = true; } // always exists
     }
 
     virtual ~wxLuaSmartwxArrayIntRefData() { if (m_delete) delete m_arr; }
@@ -361,7 +361,7 @@ int LUACALL wxlua_wxLuaBindClass__gc(lua_State *L)
 
 int LUACALL wxlua_wxLuaBindClass__index(lua_State *L)
 {
-    // This function is called for the __index metable of the wxLua userdata
+    // This function is called for the __index metatable of the wxLua userdata
     // for class instances.
 
     // Lua stack : 1 = userdata, 2 = key; userdata:key()
@@ -409,7 +409,7 @@ int LUACALL wxlua_wxLuaBindClass__index(lua_State *L)
         {
             wxLuaBindMethod* wxlMethod = wxLuaBinding::GetClassMethod(wxlClass, name, WXLUAMETHOD_METHOD|WXLUAMETHOD_GETPROP, true);
 
-            if (wxlMethod != NULL)
+            if ((wxlMethod != NULL) && (wxlMethod->wxluacfuncs != NULL))
             {
                 if (WXLUA_HASBIT(wxlMethod->method_type, WXLUAMETHOD_GETPROP))
                 {
@@ -515,10 +515,9 @@ int LUACALL wxlua_wxLuaBindClass__newindex(lua_State *L)
 
             (*wxlMethod->wxluacfuncs[0].lua_cfunc)(L);
         }
-
-        // Maybe this is an undeclared property? Prepend 'Set' and try again.
-        if (!found)
+        else
         {
+            // Maybe this is an undeclared property? Prepend 'Set' and try again.
             int len = strlen(name);
             wxCharBuffer buf(len + 4);
             char* str = buf.data();
@@ -1172,7 +1171,10 @@ void wxLuaBinding::DoRegisterBinding(const wxLuaState& wxlState) const
     for (n = 0; n < m_stringCount; ++n, ++wxlString)
     {
         lua_pushstring(L, wxlString->name);
-        lua_pushstring(L, wx2lua(wxlString->value));
+        if (wxlString->wxchar_string != NULL)
+            lua_pushstring(L, wx2lua(wxlString->wxchar_string));
+        else
+            lua_pushstring(L, wxlString->c_string);
         lua_rawset(L, -3);
     }
 
@@ -1615,7 +1617,7 @@ void wxLuaBinding::InitAllBindings(bool force_update)
     size_t n, i, j, k, binding_count = sm_bindingArray.GetCount();
 
     // update if a binding was added or removed
-    if ((sm_bindingArray_initialized == binding_count) && !force_update)
+    if (((size_t)sm_bindingArray_initialized == binding_count) && !force_update)
         return;
 
     // set the base class wxLuaBindClass* using the base class names of the parent wxLuaBindClass

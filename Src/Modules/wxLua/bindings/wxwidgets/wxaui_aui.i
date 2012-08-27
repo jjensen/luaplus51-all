@@ -112,10 +112,12 @@
 
 %class %delete wxAuiTabContainerButton
     %member int id;               // button's id
-    %member int cur_state;        // current state (normal, hover, pressed, etc.)
+    !%wxchkver_2_9_3 %member int cur_state;        // current state (normal, hover, pressed, etc.)
+    %wxchkver_2_9_3  %member int curState;
     %member int location;         // buttons location (wxLEFT, wxRIGHT, or wxCENTER)
     %member wxBitmap bitmap;      // button's hover bitmap
-    %member wxBitmap dis_bitmap;  // button's disabled bitmap
+    !%wxchkver_2_9_3 %member wxBitmap dis_bitmap;  // button's disabled bitmap
+    %wxchkver_2_9_3  %member wxBitmap disBitmap;
     %member wxRect rect;          // button's hit rectangle
 %endclass
 
@@ -180,7 +182,7 @@
 
     wxAuiTabCtrl(wxWindow* parent,  wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = 0);
 
-    void SetArtProvider(wxAuiTabArt* art);
+    void SetArtProvider(%ungc wxAuiTabArt* art);
     wxAuiTabArt* GetArtProvider() const;
 
     void SetFlags(unsigned int flags);
@@ -230,7 +232,7 @@
     bool Create(wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = 0);
 
     void SetWindowStyleFlag(long style);
-    void SetArtProvider(wxAuiTabArt* art);
+    void SetArtProvider(%ungc wxAuiTabArt* art);
     wxAuiTabArt* GetArtProvider() const;
 
     virtual void SetUniformBitmapSize(const wxSize& size);
@@ -622,7 +624,7 @@
 // ---------------------------------------------------------------------------
 // wxAuiManager
 
-%class wxAuiManager, wxEvtHandler
+%class %delete wxAuiManager, wxEvtHandler
 
     wxAuiManager(wxWindow* managed_wnd = NULL, unsigned int flags = wxAUI_MGR_DEFAULT);
 
@@ -804,7 +806,7 @@
 
     void SetChildMenuBar(wxAuiMDIChildFrame *pChild);
 
-    virtual bool ProcessEvent(wxEvent& event);
+    !%wxchkver_2_9_2 virtual bool ProcessEvent(wxEvent& event);
 
     wxAuiMDIChildFrame *GetActiveChild() const;
     void SetActiveChild(wxAuiMDIChildFrame* pChildFrame);

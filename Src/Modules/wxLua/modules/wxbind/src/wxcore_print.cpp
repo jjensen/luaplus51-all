@@ -553,7 +553,7 @@ static int LUACALL wxLua_wxPrinter_GetPrintDialogData(lua_State *L)
     // get this
     wxPrinter * self = (wxPrinter *)wxluaT_getuserdatatype(L, 1, wxluatype_wxPrinter);
     // call GetPrintDialogData
-    wxPrintDialogData* returns = &self->GetPrintDialogData();
+    wxPrintDialogData* returns = (wxPrintDialogData*)&self->GetPrintDialogData();
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxPrintDialogData);
 
@@ -1767,7 +1767,7 @@ static int LUACALL wxLua_wxPageSetupDialogData_GetPrintData(lua_State *L)
     // get this
     wxPageSetupDialogData * self = (wxPageSetupDialogData *)wxluaT_getuserdatatype(L, 1, wxluatype_wxPageSetupDialogData);
     // call GetPrintData
-    wxPrintData* returns = &self->GetPrintData();
+    wxPrintData* returns = (wxPrintData*)&self->GetPrintData();
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxPrintData);
 
@@ -2109,7 +2109,7 @@ static int LUACALL wxLua_wxPageSetupDialog_GetPageSetupDialogData(lua_State *L)
     // get this
     wxPageSetupDialog * self = (wxPageSetupDialog *)wxluaT_getuserdatatype(L, 1, wxluatype_wxPageSetupDialog);
     // call GetPageSetupDialogData
-    wxPageSetupDialogData* returns = &self->GetPageSetupDialogData();
+    wxPageSetupDialogData* returns = (wxPageSetupDialogData*)&self->GetPageSetupDialogData();
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxPageSetupDialogData);
 
@@ -2132,6 +2132,9 @@ static int LUACALL wxLua_wxPageSetupDialog_ShowModal(lua_State *L)
     return 1;
 }
 
+static wxLuaArgType s_wxluatypeArray_wxLua_wxPageSetupDialog_delete[] = { &wxluatype_wxPageSetupDialog, NULL };
+static wxLuaBindCFunc s_wxluafunc_wxLua_wxPageSetupDialog_delete[1] = {{ wxlua_userdata_delete, WXLUAMETHOD_METHOD|WXLUAMETHOD_DELETE, 1, 1, s_wxluatypeArray_wxLua_wxPageSetupDialog_delete }};
+
 static wxLuaArgType s_wxluatypeArray_wxLua_wxPageSetupDialog_constructor[] = { &wxluatype_wxWindow, &wxluatype_wxPageSetupDialogData, NULL };
 static int LUACALL wxLua_wxPageSetupDialog_constructor(lua_State *L);
 static wxLuaBindCFunc s_wxluafunc_wxLua_wxPageSetupDialog_constructor[1] = {{ wxLua_wxPageSetupDialog_constructor, WXLUAMETHOD_CONSTRUCTOR, 1, 2, s_wxluatypeArray_wxLua_wxPageSetupDialog_constructor }};
@@ -2146,6 +2149,8 @@ static int LUACALL wxLua_wxPageSetupDialog_constructor(lua_State *L)
     wxWindow * parent = (wxWindow *)wxluaT_getuserdatatype(L, 1, wxluatype_wxWindow);
     // call constructor
     wxPageSetupDialog* returns = new wxPageSetupDialog(parent, data);
+    // add to tracked memory list
+    wxluaO_addgcobject(L, returns, wxluatype_wxPageSetupDialog);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxPageSetupDialog);
 
@@ -2165,6 +2170,7 @@ void wxLua_wxPageSetupDialog_delete_function(void** p)
 wxLuaBindMethod wxPageSetupDialog_methods[] = {
     { "GetPageSetupDialogData", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxPageSetupDialog_GetPageSetupDialogData, 1, NULL },
     { "ShowModal", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxPageSetupDialog_ShowModal, 1, NULL },
+    { "delete", WXLUAMETHOD_METHOD|WXLUAMETHOD_DELETE, s_wxluafunc_wxLua_wxPageSetupDialog_delete, 1, NULL },
     { "wxPageSetupDialog", WXLUAMETHOD_CONSTRUCTOR, s_wxluafunc_wxLua_wxPageSetupDialog_constructor, 1, NULL },
 
     { 0, 0, 0, 0 },
@@ -2211,7 +2217,7 @@ static int LUACALL wxLua_wxPrintDialog_GetPrintData(lua_State *L)
     // get this
     wxPrintDialog * self = (wxPrintDialog *)wxluaT_getuserdatatype(L, 1, wxluatype_wxPrintDialog);
     // call GetPrintData
-    wxPrintData* returns = &self->GetPrintData();
+    wxPrintData* returns = (wxPrintData*)&self->GetPrintData();
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxPrintData);
 
@@ -2227,7 +2233,7 @@ static int LUACALL wxLua_wxPrintDialog_GetPrintDialogData(lua_State *L)
     // get this
     wxPrintDialog * self = (wxPrintDialog *)wxluaT_getuserdatatype(L, 1, wxluatype_wxPrintDialog);
     // call GetPrintDialogData
-    wxPrintDialogData* returns = &self->GetPrintDialogData();
+    wxPrintDialogData* returns = (wxPrintDialogData*)&self->GetPrintDialogData();
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxPrintDialogData);
 
@@ -2250,6 +2256,9 @@ static int LUACALL wxLua_wxPrintDialog_ShowModal(lua_State *L)
     return 1;
 }
 
+static wxLuaArgType s_wxluatypeArray_wxLua_wxPrintDialog_delete[] = { &wxluatype_wxPrintDialog, NULL };
+static wxLuaBindCFunc s_wxluafunc_wxLua_wxPrintDialog_delete[1] = {{ wxlua_userdata_delete, WXLUAMETHOD_METHOD|WXLUAMETHOD_DELETE, 1, 1, s_wxluatypeArray_wxLua_wxPrintDialog_delete }};
+
 static wxLuaArgType s_wxluatypeArray_wxLua_wxPrintDialog_constructor[] = { &wxluatype_wxWindow, &wxluatype_wxPrintDialogData, NULL };
 static int LUACALL wxLua_wxPrintDialog_constructor(lua_State *L);
 static wxLuaBindCFunc s_wxluafunc_wxLua_wxPrintDialog_constructor[1] = {{ wxLua_wxPrintDialog_constructor, WXLUAMETHOD_CONSTRUCTOR, 1, 2, s_wxluatypeArray_wxLua_wxPrintDialog_constructor }};
@@ -2264,6 +2273,8 @@ static int LUACALL wxLua_wxPrintDialog_constructor(lua_State *L)
     wxWindow * parent = (wxWindow *)wxluaT_getuserdatatype(L, 1, wxluatype_wxWindow);
     // call constructor
     wxPrintDialog* returns = new wxPrintDialog(parent, data);
+    // add to tracked memory list
+    wxluaO_addgcobject(L, returns, wxluatype_wxPrintDialog);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxPrintDialog);
 
@@ -2288,6 +2299,7 @@ wxLuaBindMethod wxPrintDialog_methods[] = {
     { "GetPrintData", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxPrintDialog_GetPrintData, 1, NULL },
     { "GetPrintDialogData", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxPrintDialog_GetPrintDialogData, 1, NULL },
     { "ShowModal", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxPrintDialog_ShowModal, 1, NULL },
+    { "delete", WXLUAMETHOD_METHOD|WXLUAMETHOD_DELETE, s_wxluafunc_wxLua_wxPrintDialog_delete, 1, NULL },
     { "wxPrintDialog", WXLUAMETHOD_CONSTRUCTOR, s_wxluafunc_wxLua_wxPrintDialog_constructor, 1, NULL },
 
     { 0, 0, 0, 0 },
@@ -2539,7 +2551,7 @@ static int LUACALL wxLua_wxPrintDialogData_GetPrintData(lua_State *L)
     // get this
     wxPrintDialogData * self = (wxPrintDialogData *)wxluaT_getuserdatatype(L, 1, wxluatype_wxPrintDialogData);
     // call GetPrintData
-    wxPrintData* returns = &self->GetPrintData();
+    wxPrintData* returns = (wxPrintData*)&self->GetPrintData();
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxPrintData);
 
@@ -3636,9 +3648,29 @@ int wxPreviewFrame_methodCount = sizeof(wxPreviewFrame_methods)/sizeof(wxLuaBind
 // Lua MetaTable Tag for Class 'wxPostScriptDC'
 int wxluatype_wxPostScriptDC = WXLUA_TUNKNOWN;
 
+#if (wxCHECK_VERSION(2,9,2)) && ((wxLUA_USE_wxPrint && wxUSE_PRINTING_ARCHITECTURE) && (wxUSE_POSTSCRIPT))
+static wxLuaArgType s_wxluatypeArray_wxLua_wxPostScriptDC_GetResolution1[] = { &wxluatype_wxPostScriptDC, NULL };
+static int LUACALL wxLua_wxPostScriptDC_GetResolution1(lua_State *L);
+// static wxLuaBindCFunc s_wxluafunc_wxLua_wxPostScriptDC_GetResolution1[1] = {{ wxLua_wxPostScriptDC_GetResolution1, WXLUAMETHOD_METHOD, 1, 1, s_wxluatypeArray_wxLua_wxPostScriptDC_GetResolution1 }};
+//     %wxchkver_2_9_2 int GetResolution()
+static int LUACALL wxLua_wxPostScriptDC_GetResolution1(lua_State *L)
+{
+    // get this
+    wxPostScriptDC * self = (wxPostScriptDC *)wxluaT_getuserdatatype(L, 1, wxluatype_wxPostScriptDC);
+    // call GetResolution
+    int returns = (self->GetResolution());
+    // push the result number
+    lua_pushnumber(L, returns);
+
+    return 1;
+}
+
+#endif // (wxCHECK_VERSION(2,9,2)) && ((wxLUA_USE_wxPrint && wxUSE_PRINTING_ARCHITECTURE) && (wxUSE_POSTSCRIPT))
+
+#if (!wxCHECK_VERSION(2,9,2)) && ((wxLUA_USE_wxPrint && wxUSE_PRINTING_ARCHITECTURE) && (wxUSE_POSTSCRIPT))
 static int LUACALL wxLua_wxPostScriptDC_GetResolution(lua_State *L);
-static wxLuaBindCFunc s_wxluafunc_wxLua_wxPostScriptDC_GetResolution[1] = {{ wxLua_wxPostScriptDC_GetResolution, WXLUAMETHOD_METHOD|WXLUAMETHOD_STATIC, 0, 0, g_wxluaargtypeArray_None }};
-//     static int GetResolution()
+// static wxLuaBindCFunc s_wxluafunc_wxLua_wxPostScriptDC_GetResolution[1] = {{ wxLua_wxPostScriptDC_GetResolution, WXLUAMETHOD_METHOD|WXLUAMETHOD_STATIC, 0, 0, g_wxluaargtypeArray_None }};
+//     !%wxchkver_2_9_2 static int GetResolution()
 static int LUACALL wxLua_wxPostScriptDC_GetResolution(lua_State *L)
 {
     // call GetResolution
@@ -3652,7 +3684,7 @@ static int LUACALL wxLua_wxPostScriptDC_GetResolution(lua_State *L)
 static wxLuaArgType s_wxluatypeArray_wxLua_wxPostScriptDC_SetResolution[] = { &wxluatype_TNUMBER, NULL };
 static int LUACALL wxLua_wxPostScriptDC_SetResolution(lua_State *L);
 static wxLuaBindCFunc s_wxluafunc_wxLua_wxPostScriptDC_SetResolution[1] = {{ wxLua_wxPostScriptDC_SetResolution, WXLUAMETHOD_METHOD|WXLUAMETHOD_STATIC, 1, 1, s_wxluatypeArray_wxLua_wxPostScriptDC_SetResolution }};
-//     static void SetResolution(int ppi)
+//     !%wxchkver_2_9_2 static void SetResolution(int ppi)
 static int LUACALL wxLua_wxPostScriptDC_SetResolution(lua_State *L)
 {
     // int ppi
@@ -3662,6 +3694,8 @@ static int LUACALL wxLua_wxPostScriptDC_SetResolution(lua_State *L)
 
     return 0;
 }
+
+#endif // (!wxCHECK_VERSION(2,9,2)) && ((wxLUA_USE_wxPrint && wxUSE_PRINTING_ARCHITECTURE) && (wxUSE_POSTSCRIPT))
 
 static wxLuaArgType s_wxluatypeArray_wxLua_wxPostScriptDC_delete[] = { &wxluatype_wxPostScriptDC, NULL };
 static wxLuaBindCFunc s_wxluafunc_wxLua_wxPostScriptDC_delete[1] = {{ wxlua_userdata_delete, WXLUAMETHOD_METHOD|WXLUAMETHOD_DELETE, 1, 1, s_wxluatypeArray_wxLua_wxPostScriptDC_delete }};
@@ -3690,6 +3724,23 @@ static int LUACALL wxLua_wxPostScriptDC_constructor(lua_State *L)
 
 
 
+#if ((wxCHECK_VERSION(2,9,2)) && ((wxLUA_USE_wxPrint && wxUSE_PRINTING_ARCHITECTURE) && (wxUSE_POSTSCRIPT)))||((!wxCHECK_VERSION(2,9,2)) && ((wxLUA_USE_wxPrint && wxUSE_PRINTING_ARCHITECTURE) && (wxUSE_POSTSCRIPT)))
+// function overload table
+static wxLuaBindCFunc s_wxluafunc_wxLua_wxPostScriptDC_GetResolution_overload[] =
+{
+
+#if (wxCHECK_VERSION(2,9,2)) && ((wxLUA_USE_wxPrint && wxUSE_PRINTING_ARCHITECTURE) && (wxUSE_POSTSCRIPT))
+    { wxLua_wxPostScriptDC_GetResolution1, WXLUAMETHOD_METHOD, 1, 1, s_wxluatypeArray_wxLua_wxPostScriptDC_GetResolution1 },
+#endif // (wxCHECK_VERSION(2,9,2)) && ((wxLUA_USE_wxPrint && wxUSE_PRINTING_ARCHITECTURE) && (wxUSE_POSTSCRIPT))
+
+#if (!wxCHECK_VERSION(2,9,2)) && ((wxLUA_USE_wxPrint && wxUSE_PRINTING_ARCHITECTURE) && (wxUSE_POSTSCRIPT))
+    { wxLua_wxPostScriptDC_GetResolution, WXLUAMETHOD_METHOD|WXLUAMETHOD_STATIC, 0, 0, g_wxluaargtypeArray_None },
+#endif // (!wxCHECK_VERSION(2,9,2)) && ((wxLUA_USE_wxPrint && wxUSE_PRINTING_ARCHITECTURE) && (wxUSE_POSTSCRIPT))
+};
+static int s_wxluafunc_wxLua_wxPostScriptDC_GetResolution_overload_count = sizeof(s_wxluafunc_wxLua_wxPostScriptDC_GetResolution_overload)/sizeof(wxLuaBindCFunc);
+
+#endif // ((wxCHECK_VERSION(2,9,2)) && ((wxLUA_USE_wxPrint && wxUSE_PRINTING_ARCHITECTURE) && (wxUSE_POSTSCRIPT)))||((!wxCHECK_VERSION(2,9,2)) && ((wxLUA_USE_wxPrint && wxUSE_PRINTING_ARCHITECTURE) && (wxUSE_POSTSCRIPT)))
+
 void wxLua_wxPostScriptDC_delete_function(void** p)
 {
     wxPostScriptDC* o = (wxPostScriptDC*)(*p);
@@ -3698,8 +3749,14 @@ void wxLua_wxPostScriptDC_delete_function(void** p)
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxPostScriptDC_methods[] = {
-    { "GetResolution", WXLUAMETHOD_METHOD|WXLUAMETHOD_STATIC, s_wxluafunc_wxLua_wxPostScriptDC_GetResolution, 1, NULL },
+#if ((wxCHECK_VERSION(2,9,2)) && ((wxLUA_USE_wxPrint && wxUSE_PRINTING_ARCHITECTURE) && (wxUSE_POSTSCRIPT)))||((!wxCHECK_VERSION(2,9,2)) && ((wxLUA_USE_wxPrint && wxUSE_PRINTING_ARCHITECTURE) && (wxUSE_POSTSCRIPT)))
+    { "GetResolution", WXLUAMETHOD_METHOD|WXLUAMETHOD_STATIC, s_wxluafunc_wxLua_wxPostScriptDC_GetResolution_overload, s_wxluafunc_wxLua_wxPostScriptDC_GetResolution_overload_count, 0 },
+#endif // ((wxCHECK_VERSION(2,9,2)) && ((wxLUA_USE_wxPrint && wxUSE_PRINTING_ARCHITECTURE) && (wxUSE_POSTSCRIPT)))||((!wxCHECK_VERSION(2,9,2)) && ((wxLUA_USE_wxPrint && wxUSE_PRINTING_ARCHITECTURE) && (wxUSE_POSTSCRIPT)))
+
+#if (!wxCHECK_VERSION(2,9,2)) && ((wxLUA_USE_wxPrint && wxUSE_PRINTING_ARCHITECTURE) && (wxUSE_POSTSCRIPT))
     { "SetResolution", WXLUAMETHOD_METHOD|WXLUAMETHOD_STATIC, s_wxluafunc_wxLua_wxPostScriptDC_SetResolution, 1, NULL },
+#endif // (!wxCHECK_VERSION(2,9,2)) && ((wxLUA_USE_wxPrint && wxUSE_PRINTING_ARCHITECTURE) && (wxUSE_POSTSCRIPT))
+
     { "delete", WXLUAMETHOD_METHOD|WXLUAMETHOD_DELETE, s_wxluafunc_wxLua_wxPostScriptDC_delete, 1, NULL },
 
 #if (wxLUA_USE_wxPrint && wxUSE_PRINTING_ARCHITECTURE) && ((wxLUA_USE_wxPrint && wxUSE_PRINTING_ARCHITECTURE) && (wxUSE_POSTSCRIPT))

@@ -364,7 +364,7 @@ static int LUACALL wxLua_wxColourDialog_GetColourData(lua_State *L)
     // get this
     wxColourDialog * self = (wxColourDialog *)wxluaT_getuserdatatype(L, 1, wxluatype_wxColourDialog);
     // call GetColourData
-    wxColourData* returns = &self->GetColourData();
+    wxColourData* returns = (wxColourData*)&self->GetColourData();
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxColourData);
 
@@ -1448,7 +1448,7 @@ static int LUACALL wxLua_wxSingleChoiceDialog_constructor(lua_State *L)
     // wxWindow parent
     wxWindow * parent = (wxWindow *)wxluaT_getuserdatatype(L, 1, wxluatype_wxWindow);
     // call constructor
-    wxSingleChoiceDialog *returns = new wxSingleChoiceDialog(parent, message, caption, choices, NULL, style, *pos);
+    wxSingleChoiceDialog *returns = new wxSingleChoiceDialog(parent, message, caption, choices, (char**)NULL, style, *pos);
     // add to tracked window list
     if (returns && returns->IsKindOf(CLASSINFO(wxWindow)))
         wxluaW_addtrackedwindow(L, (wxWindow*)returns);
@@ -1666,7 +1666,7 @@ static int LUACALL wxLua_wxFontDialog_GetFontData(lua_State *L)
     // get this
     wxFontDialog * self = (wxFontDialog *)wxluaT_getuserdatatype(L, 1, wxluatype_wxFontDialog);
     // call GetFontData
-    wxFontData* returns = &self->GetFontData();
+    wxFontData* returns = (wxFontData*)&self->GetFontData();
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxFontData);
 

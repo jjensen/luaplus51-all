@@ -1,18 +1,17 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Name:        wxluadebugdefs.h
 // Purpose:     definitions for wxLuaDebug module
-// Author:      Francesco Montorsi
+// Author:      John Labenski, Francesco Montorsi
 // Modified by:
 // Created:     20/5/2006
-// RCS-ID:      $Id: wxluadebugdefs.h,v 1.3 2006/09/04 18:07:55 jrl1 Exp $
-// Copyright:   (c) Francesco Montorsi
+// Copyright:   (c) 2012 John Labenski, Francesco Montorsi
 // Licence:     wxWidgets licence
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifndef __WX_WXLUADEBUGDEFS_H__
 #define __WX_WXLUADEBUGDEFS_H__
 
-#include "wx/defs.h"
+#include <wx/defs.h>
 
 #include "wxlua/include/wxldefs.h"
 
@@ -30,5 +29,13 @@
     #define WXDLLIMPEXP_WXLUADEBUG
     #define WXDLLIMPEXP_DATA_WXLUADEBUG(type) type
 #endif
+
+// Forward declare all wxStEdit classes with this macro
+#if defined(HAVE_VISIBILITY) || (defined(__WINDOWS__) && defined(__GNUC__))
+    #define WXDLLIMPEXP_FWD_WXLUADEBUG
+#else
+    #define WXDLLIMPEXP_FWD_WXLUADEBUG WXDLLIMPEXP_WXLUADEBUG
+#endif
+
 
 #endif  // __WX_WXLUADEBUGDEFS_H__

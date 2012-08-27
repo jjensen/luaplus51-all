@@ -1,0 +1,2701 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2011-11-01 20:01+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ..\..\wxstedit\src\stedit.cpp:1601 ..\..\wxstedit\src\stedit.cpp:3133
+msgid "Current EOL : "
+msgstr ""
+
+#: ..\..\wxstedit\src\stedit.cpp:1602
+msgid "Convert End of Line chars"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedit.cpp:1622
+msgid "Scale font sizes : -10...20 (not all fonts supported)"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedit.cpp:1624
+msgid "Change text font size"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedit.cpp:2188
+msgid "Unicode text file. Convert to Ansi text?"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedit.cpp:2189
+msgid "Load Unicode?"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedit.cpp:2235
+msgid "Bad encoding."
+msgstr ""
+
+#: ..\..\wxstedit\src\stedit.cpp:2236 ..\..\wxstedit\src\stedit.cpp:2272
+#: ..\..\wxstedit\src\stedit.cpp:2325
+msgid "Error loading file"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedit.cpp:2271 ..\..\wxstedit\src\stedit.cpp:2324
+msgid "This file is too large for this editor, sorry."
+msgstr ""
+
+#: ..\..\wxstedit\src\stedit.cpp:2303 ..\..\wxstedit\src\stemenum.cpp:419
+msgid "Open file"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedit.cpp:2470
+msgid "Save file"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedit.cpp:2485
+#, c-format
+msgid "Error opening file :'%s'"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedit.cpp:2486
+msgid "Save file error"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedit.cpp:2526
+msgid "New file name"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedit.cpp:2526
+msgid "New file"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedit.cpp:2534
+msgid "The filename contains wildcard characters."
+msgstr ""
+
+#: ..\..\wxstedit\src\stedit.cpp:2535
+msgid "Invalid filename"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedit.cpp:2559
+msgid "Discard changes and load last saved version ?"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedit.cpp:2595
+#, c-format
+msgid ""
+"%s\n"
+"Has unsaved changes.\n"
+"Would you like to save your file before closing?"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedit.cpp:2597
+msgid "Unsaved changes"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedit.cpp:2633
+#, c-format
+msgid ""
+"%s\n"
+"Doesn't exist on disk anymore."
+msgstr ""
+
+#: ..\..\wxstedit\src\stedit.cpp:2635
+msgid "File removed from disk"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedit.cpp:2648
+#, c-format
+msgid ""
+"The file '%s' has been modified externally.\n"
+"Would you like to reload the file?"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedit.cpp:2650
+msgid "File changed on disk"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedit.cpp:2809
+#, c-format
+msgid "Long l&ine guide column (%d)..."
+msgstr ""
+
+#: ..\..\wxstedit\src\stedit.cpp:2818
+#, c-format
+msgid "&Scale font size (%d)..."
+msgstr ""
+
+#: ..\..\wxstedit\src\stedit.cpp:2824
+#, c-format
+msgid "Set tab &width (%d)..."
+msgstr ""
+
+#: ..\..\wxstedit\src\stedit.cpp:2825
+#, c-format
+msgid "Set indent wi&dth (%d)..."
+msgstr ""
+
+#: ..\..\wxstedit\src\stedit.cpp:2826
+msgid "&EOL Mode ("
+msgstr ""
+
+#: ..\..\wxstedit\src\stedit.cpp:3001
+msgid "Level to collapse all folds to"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedit.cpp:3002
+msgid "Collapse folds to level"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedit.cpp:3011
+msgid "Level to expand all folds to"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedit.cpp:3012
+msgid "Expand folds to level"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedit.cpp:3085
+msgid "Column to show long line marker"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedit.cpp:3086
+msgid "Set long line marker"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedit.cpp:3101
+msgid "Characters to expand tabs"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedit.cpp:3102
+msgid "Set tab width"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedit.cpp:3117
+msgid "Characters to indent"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedit.cpp:3117
+msgid "Set indentation width"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedit.cpp:3134
+msgid "Select EOL mode"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedit.cpp:3431
+#, c-format
+msgid ""
+"Replaced %d occurances of\n"
+"'%s' with '%s'."
+msgstr ""
+
+#: ..\..\wxstedit\src\stedit.cpp:3435 ..\..\wxstedit\src\stenoteb.cpp:1190
+msgid "Finished replacing"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedit.cpp:3724
+#, c-format
+msgid "Line number : 1...%d"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedit.cpp:3725
+msgid "Goto line"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedit.cpp:3739
+msgid "Print document"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedit.cpp:3762 ..\..\wxstedit\src\stedit.cpp:3799
+msgid "A print error occurred, perhaps your printer is not correctly setup?"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedit.cpp:3763
+msgid "Print error"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedit.cpp:3776
+msgid "Preview document"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedit.cpp:3800
+msgid "Print preview error"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs.cpp:406
+msgid "Editor Colors"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs.cpp:407
+msgid "Lexer Styles"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs.cpp:408 ..\..\wxstedit\src\stedlgs.cpp:1073
+msgid "Help"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs.cpp:443
+msgid "Show all styles"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs.cpp:686
+msgid "Choose the font's foreground color"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs.cpp:703
+msgid "Choose the font's background color"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs.cpp:1044 ..\..\wxstedit\src\stedlgs.cpp:1421
+msgid "Styles"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs.cpp:1063
+msgid "Keywords"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs.cpp:1334
+msgid "Editor Preferences"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs.cpp:1378
+msgid "View"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs.cpp:1385
+msgid "Tabs / EOL"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs.cpp:1392
+msgid "Fold / Wrap"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs.cpp:1399
+msgid "Printing"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs.cpp:1406
+msgid "Load / Save"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs.cpp:1413
+msgid "Highlighting"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs.cpp:1429
+msgid "Languages"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs.cpp:1439 ..\..\wxstedit\src\stedlgs_wdr.cpp:1437
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1480
+msgid "Default"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs.cpp:1441
+msgid "Reset this page's values to their default"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs.cpp:1582
+msgid "Cl&ose"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs.cpp:1598
+#, c-format
+msgid "%s bytes"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs.cpp:1609 ..\..\wxstedit\src\stedlgs.cpp:1615
+#: ..\..\wxstedit\src\stedlgs.cpp:1616 ..\..\wxstedit\src\stedlgs.cpp:1617
+#: ..\..\wxstedit\src\stedlgs.cpp:1619
+msgid "<Unknown>"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs.cpp:1614
+msgid "Not originally loaded from disk"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs.cpp:1642
+msgid "None"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs.cpp:1652
+#, c-format
+msgid "%s with BOM"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs.cpp:1684
+msgid "none"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs.cpp:1863
+msgid "Insert Text"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs.cpp:2093 ..\..\wxstedit\src\wxext.cpp:247
+msgid "Insert"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs.cpp:2095 ..\..\wxstedit\src\stedlgs_wdr.cpp:600
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:619
+msgid "Prepend"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs.cpp:2156
+msgid "Columnize Text"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:30
+msgid "Highlighting and other styles"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:42
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:176
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1325
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1385
+msgid "ChoiceItem"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:43 ..\..\wxstedit\src\stedlgs_wdr.cpp:44
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:45 ..\..\wxstedit\src\stedlgs_wdr.cpp:46
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:47 ..\..\wxstedit\src\stedlgs_wdr.cpp:48
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:71 ..\..\wxstedit\src\stedlgs_wdr.cpp:72
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:73 ..\..\wxstedit\src\stedlgs_wdr.cpp:74
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:75 ..\..\wxstedit\src\stedlgs_wdr.cpp:76
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:77 ..\..\wxstedit\src\stedlgs_wdr.cpp:78
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:79 ..\..\wxstedit\src\stedlgs_wdr.cpp:80
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:178
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:179
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:180
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:181
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:182
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:183
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:184
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:185
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:186
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:187
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:188
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:189
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:190
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:191
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:192
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:193
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:625
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:626
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:627
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:628
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:629
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:644
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:645
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:646
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:647
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:648
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1279
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1280
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1281
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1282
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1283
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1326
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1327
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1328
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1329
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1330
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1331
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1332
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1387
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1388
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1389
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1390
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1391
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1392
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1393
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1394
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1395
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1396
+msgid "Item"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:58 ..\..\wxstedit\src\stedlgs_wdr.cpp:64
+msgid "Font"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:59
+msgid "Set non default font for style"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:65
+msgid "Choose a font (unsupported fonts revert to a default)"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:70
+msgid "Bitstream Vera Sans Mono*"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:83
+msgid "Typical fonts (* are known to be fixed width)"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:90
+msgid "Font Size"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:91
+msgid "Set non default font size for style"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:95
+msgid "Select font size in points"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:98
+msgid "Attributes"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:99
+msgid "Set non default attributes for style"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:104
+msgid "Bold"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:105
+msgid "Font is bold"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:108
+msgid "Italics"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:109
+msgid "Font is italics"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:112
+msgid "Underlined"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:113
+msgid "Font is underlined"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:116
+msgid "EOL Fill"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:117
+msgid "Fill background to end of line (unclosed strings)"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:122
+msgid "Foreground color"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:123
+msgid "Set non default foreground colour"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:126
+msgid "Fore Color"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:127
+msgid "Choose foreground color"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:130
+msgid "Background color"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:131
+msgid "Set non default background colour"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:134
+msgid "Back Color"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:135
+msgid "Choose background color"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:166
+msgid "Language settings"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:171
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:321
+msgid "Language"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:177
+msgid "ACTIVE SERVER PAGES (ASP) BLAH"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:196
+msgid "Choose the language (lexer) to syntax highlight document"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:199
+msgid "File patterns"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:203
+msgid "File extensions associated with this language (*.cpp;*.c;*.h)"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:235
+msgid "File properties"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:240
+msgid "Filename"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:241
+msgid "Name of the document or filename"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:244
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:254
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:264
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:274
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:284
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:294
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:304
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:325
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:335
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:356
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:366
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:376
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:386
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:396
+msgid ":"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:247
+msgid "path/to/the/file/and/stuff/untitled.txt"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:250
+msgid "Size"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:251
+msgid "Size of the file on disk if it exists"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:257
+msgid "100000000000000000000000000000000 bytes"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:260
+msgid "Opened"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:261
+msgid "Time the file was opened from disk"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:267
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:277
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:287
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:297
+msgid "12/12/2003 00:00:00 000000000000000000000"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:270
+msgid "Modified"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:271
+msgid "Last time the file was modified on disk"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:280
+msgid "Accessed"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:281
+msgid ""
+"Last time the file was accessed on disk (not all platforms support this)"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:290
+msgid "Created"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:291
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:301
+msgid "Time the file was created on disk (not all platforms support this)"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:300
+msgid "File Type"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:307
+msgid "<mime type>"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:316
+msgid "Information"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:322
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:332
+msgid "The language used to hilight the document"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:328
+msgid "Some language name that has some name like this"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:331
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1475
+msgid "Encoding"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:338
+msgid "<utf8>"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:347
+msgid "Current statistics"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:352
+msgid "Lines"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:353
+msgid "Number of lines in the document"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:359
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:369
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:379
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:389
+msgid "10000000000000000000000000000000000000"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:362
+msgid "Characters"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:363
+msgid "Number of characters in the document (size)"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:372
+msgid "Words"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:373
+msgid "Number of words in the document"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:382
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:839
+msgid "Tabs"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:383
+msgid "Number of tab characters in the document"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:392
+msgid "EOL Characters"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:393
+msgid "Number and types of end of line characters"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:399
+msgid "CRLF (DOS/Win)=100000, CR (Mac)=100000, LF (Unix)=100000 "
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:428
+msgid "Find what"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:433
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:456
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:624
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:643
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1135
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1161
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1187
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1213
+msgid "ComboItem"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:434
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:457
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1136
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1162
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1188
+msgid "Item1"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:435
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:458
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1078
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1137
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1163
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1189
+msgid "Item2"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:436
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:459
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1079
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1138
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1164
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1190
+msgid "Item3"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:437
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:460
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1139
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1165
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1191
+msgid "Item4"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:438
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:461
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1140
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1166
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1192
+msgid "Item5"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:439
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:462
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1141
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1167
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1193
+msgid "Item6"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:440
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:463
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1142
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1168
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1194
+msgid "Item7"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:441
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:464
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1143
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1169
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1195
+msgid "Item8"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:442
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:465
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1144
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1170
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1196
+msgid "Item9"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:443
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:466
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1145
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1171
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1197
+msgid "Item0"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:451
+msgid "Replace with "
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:480
+msgid "Options"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:485
+msgid "&Whole word"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:486
+msgid "Find string must be a whole word"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:489
+msgid "&Backwards"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:490
+msgid "Search from the bottom to the top of the document"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:493
+msgid "Match &case"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:494
+msgid "Case sensitive finding"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:497
+msgid "Wra&p around"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:498
+msgid "Wrap search to continue searching at the top"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:501
+msgid "Word &start"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:502
+msgid "Find string only if it's the start of a word"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:505
+msgid "Rege&xpr find"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:506
+msgid "Use a regular expression to search for a string"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:509
+msgid "Find all"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:510
+msgid "Find all occurances of the string"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:513
+msgid "Bookmark all"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:514
+msgid "Bookmark every occurance of find string"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:521
+msgid "Scope"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:524
+msgid "Whole &document "
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:526
+msgid "Search starts at the top of the document"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:529
+msgid "From c&ursor "
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:530
+msgid "Search starts at current cursor location"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:533
+msgid "A&ll documents "
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:534
+msgid "Search through all the open documents"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:549
+msgid "&Find"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:555
+msgid "R&eplace"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:558
+msgid "&Replace && Find"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:559
+msgid "Replace string and find next occurance"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:562
+msgid "Replace &All"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:569
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1098
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1235
+msgid "Cancel"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:603
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:638
+msgid "Append"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:606
+msgid "At Column"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:612
+msgid "Surround selection"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:632
+msgid "Text to prepend"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:651
+msgid "Text to append"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:679
+msgid "Font scaling"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:684
+msgid "Text scaling factor"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:688
+msgid "Scale text point size (not all fonts supported)"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:695
+msgid "Edge marker"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:700
+msgid "Type"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:705
+msgid "No marker"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:706
+msgid "Line"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:707
+msgid "Background"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:710
+msgid "Select method to mark an edge"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:713
+msgid "Column"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:714
+msgid "Character to show the edge marker"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:718
+msgid "Character position of edge marker"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:725
+msgid "Margins"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:728
+msgid "Show line number margin "
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:731
+msgid "Show marker margin "
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:736
+msgid "Cursor"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:739
+msgid "Highlight cursor line background "
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:744
+msgid "Width in pixels"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:750
+msgid "Blink period (ms)"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:754
+msgid "Set the blinking rate of the cursor in milliseconds (0 for off)"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:775
+msgid "Printing options"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:780
+msgid "Coloring "
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:785
+msgid "Normal colors (WYSIWYG)"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:786
+msgid "Invert light colors"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:787
+msgid "Black on white"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:788
+msgid "Color on white"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:789
+msgid "Color on white (except line nums)"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:792
+msgid "Choose what colors to use for the printout"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:795
+msgid "Font scale"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:799
+msgid "Select the printout scaling (some fonts may not scale properly)"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:802
+msgid "Wrap lines"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:806
+msgid "Wrap long lines when printing, else cut them off"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:809
+msgid "Line numbers"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:814
+msgid "As shown in editor"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:815
+msgid "Never"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:816
+msgid "Always"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:844
+msgid "Tab key inserts tabs not spaces,"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:847
+msgid "Tab width"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:851
+msgid "Number of spaces to use for a tab character"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:858
+msgid "Indentation"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:863
+msgid "Tab key indents, "
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:866
+msgid "Indent width"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:870
+msgid "Number of spaces to use for indentation"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:875
+msgid "Backspace key unindents "
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:878
+msgid "Auto indent new lines"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:881
+msgid "Show indentation guides "
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:886
+msgid "End of line mode"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:889
+msgid "End of line characters: CR=carriage return, LF=line feed "
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:894
+msgid "Default EOL"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:899
+msgid "CRLF (Dos/Windows)"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:900
+msgid "CR (Mac)"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:901
+msgid "LF (Unix)"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:910
+msgid "Show invisibles"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:913
+msgid "Show EOL marker "
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:916
+msgid "Show whitespace "
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:935
+msgid "Language highlighting"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:938
+msgid "Enable syntax highlighting"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:941
+msgid "Highlight preprocessor code"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:942
+msgid "Only for languages that support preprocessor statements"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:945
+msgid "Highlight braces () {} []"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:948
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1426
+msgid "Set language highlighting from file extension"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:949
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1427
+msgid "Initialize the highlighting language when loading a file"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:968
+msgid "Code folding"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:971
+msgid "Show code folding margin "
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:972
+msgid "Show a margin to fold text (not all lexers are supported)"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:977
+msgid "Compact folding"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:978
+msgid "Comment folding"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:979
+msgid "Preprocessor folding"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:980
+msgid "At \"else\" folding"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:981
+msgid "HTML folding"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:982
+msgid "HTML preprocessor folding      "
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:983
+msgid "Directive folding"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:984
+msgid "Python comment folding"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:985
+msgid "Python quote folding"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:986
+msgid "Python indent fold check"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:993
+msgid "Fold margin style"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:998
+msgid "Arrows"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:999
+msgid "Circles"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1000
+msgid "Squares"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1001
+msgid "Plus minus"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1010
+msgid "Text wrapping"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1013
+msgid "Wrap text to window"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1014
+msgid "Wrap text to fit in window (doesn't modify document)"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1019
+msgid "Marker position"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1024
+msgid "No wrap markers"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1025
+msgid "At end of line"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1026
+msgid "At start of line"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1027
+msgid "At end and start of line"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1032
+msgid "Marker style"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1037
+msgid "At edge of window"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1038
+msgid "At end of text"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1039
+msgid "At start of text"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1040
+msgid "At end and start of text"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1045
+msgid "Indent wrapped"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1049
+msgid "Number of characters to indent wrapped lines"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1070
+msgid "Select Window(s)"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1077
+msgid "ListItem1"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1086
+msgid "&Activate"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1090
+msgid "&Save"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1093
+msgid "&Close Window(s)"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1129
+msgid "Split before chars"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1130
+msgid "Characters to split text into columns before"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1148
+msgid "Characters to split before, ex. '){}'"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1151
+msgid "Format"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1152
+msgid "Format the preview text using current configuration"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1155
+msgid "Split after chars"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1156
+msgid "Characters to split text into columns after"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1174
+msgid "Characters to split after, ex. '(,;'"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1177
+msgid "Original"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1178
+msgid "Show original text's formatting"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1181
+msgid "Preserve matching"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1182
+msgid ""
+"Preserve formatting between matching characters, double first character (() "
+"to preserve between two different characters"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1200
+msgid "Character pairs to preserve formatting between, ex. '\"\" ()'"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1203
+msgid "Update"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1205
+msgid "Automatically update the preview text"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1208
+msgid "Ignore after"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1231
+msgid "OK"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1256
+msgid "File format"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1261
+msgid "HTML - Hypertext"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1262
+msgid "HTML - Hypertext (w/ CSS)"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1263
+msgid "PDF - Portable Document Format"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1264
+msgid "RTF - Rich Text Format"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1265
+msgid "TEX - Latex"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1266
+msgid "XML - Extensible Markup Language"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1273
+msgid "File name"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1278
+msgid "This Is a Long Filename to size the dialog"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1289
+msgid "Choose file"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1294
+msgid "Automatic file name extension"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1320
+msgid "Choose keyword list"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1344
+msgid "Default keywords"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1347
+msgid "Additional keywords"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1380
+msgid "Choose style"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1386
+msgid "REGULAR EXPRESSION BLAH"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1423
+msgid "Loading files"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1432
+msgid "Load Unicode"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1438
+msgid "Ask if unicode"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1439
+msgid "ASCII always"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1440
+msgid "Unicode always"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1449
+msgid "Saving files"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1452
+msgid "Remove trailing whitepace"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1455
+msgid "Convert all EOL characters"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1456
+msgid "Convert all the end of line characters to the set value"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1481
+msgid "UTF8"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1482
+msgid "Unicode"
+msgstr ""
+
+#: ..\..\wxstedit\src\stedlgs_wdr.cpp:1483
+msgid "OEM"
+msgstr ""
+
+#: ..\..\wxstedit\src\steexprt.cpp:142
+#, c-format
+msgid "Overwrite file : '%s'?\n"
+msgstr ""
+
+#: ..\..\wxstedit\src\steexprt.cpp:144 ..\..\wxstedit\src\steexprt.cpp:168
+msgid "Export error"
+msgstr ""
+
+#: ..\..\wxstedit\src\steexprt.cpp:166
+#, c-format
+msgid "Unable to export to file : '%s'.\n"
+msgstr ""
+
+#: ..\..\wxstedit\src\steexprt.cpp:1964
+msgid "Export file"
+msgstr ""
+
+#: ..\..\wxstedit\src\steexprt.cpp:2043
+msgid "|All files (*)|*"
+msgstr ""
+
+#: ..\..\wxstedit\src\steexprt.cpp:2056 ..\..\wxstedit\src\stemenum.cpp:453
+msgid "Export to file"
+msgstr ""
+
+#: ..\..\wxstedit\src\steframe.cpp:149
+msgid "Open &Recent"
+msgstr ""
+
+#: ..\..\wxstedit\src\steframe.cpp:199 ..\..\wxstedit\src\steframe.cpp:200
+msgid "Files"
+msgstr ""
+
+#: ..\..\wxstedit\src\steframe.cpp:398 ..\..\wxstedit\src\steframe.cpp:880
+msgid "Root"
+msgstr ""
+
+#: ..\..\wxstedit\src\steframe.cpp:401 ..\..\wxstedit\src\steframe.cpp:420
+msgid "Opened files"
+msgstr ""
+
+#: ..\..\wxstedit\src\steframe.cpp:432
+msgid "Others"
+msgstr ""
+
+#: ..\..\wxstedit\src\steframe.cpp:668
+#, c-format
+msgid "Error opening file: '%s'"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:185 ..\..\wxstedit\src\stemenum.cpp:307
+msgid "&View"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:192 ..\..\wxstedit\src\stemenum.cpp:308
+msgid "&Search"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:199 ..\..\wxstedit\src\stemenum.cpp:309
+msgid "&Tools"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:206 ..\..\wxstedit\src\stemenum.cpp:310
+msgid "&Insert"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:213 ..\..\wxstedit\src\stemenum.cpp:311
+msgid "&Bookmarks"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:227 ..\..\wxstedit\src\stemenum.cpp:313
+msgid "&Window"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:249
+msgid "&Unsplit editor"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:249
+msgid "Unsplit the editor"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:250
+msgid "Split editor &horizontally"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:250
+msgid "Split editor horizontally"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:251
+msgid "Split editor &vertically"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:251
+msgid "Split editor vertically"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:260
+msgid "&Add empty page"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:261
+msgid "&Open file(s)..."
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:262
+msgid "&Save all files"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:269
+msgid "Previous page"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:270
+msgid "Next page"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:272
+msgid "Goto page"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:274 ..\..\wxstedit\src\stemenum.cpp:426
+msgid "Close current page"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:275 ..\..\wxstedit\src\stemenum.cpp:429
+msgid "Close all pages..."
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:276
+msgid "Close page"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:278 ..\..\wxstedit\src\stemenum.cpp:895
+msgid "&Windows..."
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:278 ..\..\wxstedit\src\stemenum.cpp:895
+msgid "Manage opened windows"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:335
+msgid "Clear editor for new file"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:339
+msgid "Open a file to edit"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:343 ..\..\wxstedit\src\stemenum.cpp:438
+msgid "Save current file"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:344
+msgid "Save to a specific filename"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:349 ..\..\wxstedit\src\stemenum.cpp:443
+msgid "Save all files"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:349
+msgid "Save all open files"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:356
+msgid "Cut selected text"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:357
+msgid "Copy selected text"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:358
+msgid "Paste text at cursor"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:363
+msgid "Undo last editing"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:364 ..\..\wxstedit\src\stemenum.cpp:502
+msgid "Redo last undo"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:370
+msgid "Find text in document..."
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:371
+msgid "Find next"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:371
+msgid "Find next occurance in document"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:372
+msgid "Find previous"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:372
+msgid "Find previous occurance in document"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:373
+msgid "Replace text in document"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:384
+msgid "Toggle bookmark"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:384 ..\..\wxstedit\src\stemenum.cpp:806
+msgid "Toggle a bookmark on cursor line"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:385
+msgid "First bookmark"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:385 ..\..\wxstedit\src\stemenum.cpp:808
+msgid "Goto first bookmark"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:386
+msgid "Previous bookmark"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:386 ..\..\wxstedit\src\stemenum.cpp:809
+msgid "Goto previous bookmark"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:387
+msgid "Next bookmark"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:387 ..\..\wxstedit\src\stemenum.cpp:810
+msgid "Goto next bookmark"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:388
+msgid "Last bookmark"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:388 ..\..\wxstedit\src\stemenum.cpp:811
+msgid "Goto last bookmark"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:389
+msgid "Clear bookmarks"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:389 ..\..\wxstedit\src\stemenum.cpp:813
+msgid "Clear all bookmarks"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:414
+msgid "Clear contents and start a new file"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:426
+msgid "&Close current page"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:429
+msgid "Close all pages"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:440
+msgid "Save as file"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:443
+msgid "Save A&ll"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:446
+msgid "Revert to saved version of the file"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:453
+msgid "E&xport..."
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:460
+msgid "Show document properties dialog"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:467
+msgid "Print current document"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:468
+msgid "Print preview of the current document"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:472
+msgid "Printer set&up..."
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:472
+msgid "Setup the printer"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:474
+msgid "Printer pa&ge setup..."
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:474
+msgid "Setup the printout page"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:475
+msgid "Printer options..."
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:475
+msgid "Set other printout options"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:481
+msgid "Exit editor"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:501
+msgid "Undo last operation"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:510
+msgid "Cut selected text to clipboard"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:511
+msgid "Copy selected text to clipboard"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:512
+msgid "Copy as &HTML"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:512
+msgid "Copy selected text to clipboard with text markup"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:514
+msgid "Copy primary"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:514
+msgid "Copy selected text to primary clipboard"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:518
+msgid "Paste text from clipboard"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:519
+msgid "Paste &Rect"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:519
+msgid "Paste rectangular text from clipboard (select with Shift+Alt)"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:524
+msgid "Paste as &New"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:524
+msgid "Paste text from clipboard into new notebook tab"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:530 ..\..\wxstedit\src\wxext.cpp:253
+msgid "Del"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:530
+msgid "Delete selection"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:535
+msgid "Selects entire document"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:544
+msgid "Line Cu&t"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:544
+msgid "Cut current line to clipboard"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:546
+msgid "Line &Copy"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:546
+msgid "Copy current line to clipboard"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:550
+msgid "Line &Delete"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:550
+msgid "Delete current line"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:551
+msgid "Line &Transpose"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:551
+msgid "Transpose current line upwards"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:552
+msgid "Line D&uplicate"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:552
+msgid "Duplicate current line"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:555
+msgid "L&ine Editing"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:562 ..\..\wxstedit\src\stenoteb.cpp:120
+msgid "Read only"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:562
+msgid "Make document read only"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:569
+msgid "Complete w&ord"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:569
+msgid "Complete word at cursor"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:577
+msgid "Copy &path"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:577
+msgid "Copy full path to clipboard"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:598
+msgid "Find text"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:599
+msgid "Find &Next"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:599
+msgid "Find next occurance"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:600
+msgid "Find &Previous"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:600
+msgid "Find previous occurance"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:601
+msgid "Search For&ward"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:601
+msgid "Search forward/reverse in document"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:603
+msgid "Replace text"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:610
+msgid "&Go To..."
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:610
+msgid "Goto line number"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:635
+msgid "Selection &uppercase"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:635
+msgid "Convert the selected text to uppercase"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:636
+msgid "Selection &lowercase"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:636
+msgid "Convert the selected text to lowercase"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:643
+msgid "&Increase indent"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:643
+msgid "Increase indent of selected text or current line"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:644
+msgid "&Decrease indent"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:644
+msgid "Decrease indent of selected text or current line"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:651
+msgid "&Join selected lines"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:651
+msgid "Join selected lines together"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:652
+msgid "&Split selected lines"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:652
+msgid "Split selected lines to edge marker"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:659
+msgid "Convert &tabs to spaces"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:659
+msgid "Convert tabs to spaces in selection or current line"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:660
+msgid "Convert s&paces to tabs"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:660
+msgid "Convert spaces to tabs in selection or current line"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:667
+msgid "Convert &EOL characters..."
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:667
+msgid "Convert all end of line characters in doc"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:674
+msgid "Remove trailing &whitespace"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:674
+msgid "Remove whitespace at the ends of lines"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:675
+msgid "Remove w&hitespace at cursor"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:675
+msgid "Remove whitespace before and after cursor"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:682
+msgid "&Columnize..."
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:682
+msgid "Reformat selected lines in columns..."
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:704
+msgid "I&nsert text..."
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:704
+msgid "Prepend, Append, or insert text at column..."
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:709
+msgid "Insert &date and time"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:709
+msgid "Insert date and time"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:728
+msgid "&Wrap text to window"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:728
+msgid "Wrap the text to fit inside window"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:735
+msgid "&Nonprinting Characters"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:735
+msgid "Show end of line symbols and whitespace"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:736
+msgid "&EOL"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:736
+msgid "Show end of line symbols"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:737
+msgid "Whi&tespace"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:737
+msgid "Show whitespace using symbols"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:742
+msgid "Show indent &guides"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:742
+msgid "Show indentation column guides"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:743
+msgid "Show l&ong line guide"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:743
+msgid "Show column guide for long lines"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:744
+msgid "Set long l&ine guide column..."
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:744
+msgid "Set column long line guide..."
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:745
+msgid "&Guides"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:750
+msgid "Show &line number margin"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:750
+msgid "Show line number margin"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:751
+msgid "Show &marker margin"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:751
+msgid "Show a margin for markers"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:752
+msgid "Show &folding margin"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:752
+msgid "Show code folding margin"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:753
+msgid "&Margins"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:761
+msgid "To&ggle current fold"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:761
+msgid "Toggle the current fold level"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:762
+msgid "&Collapse folds below level..."
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:762
+msgid "Collapse all folds below the level in document"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:763
+msgid "E&xpand folds above level..."
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:763
+msgid "Expand all folds above the level in document"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:764
+msgid "&Collapse all folds"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:764
+msgid "Collapse all folds in document"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:765
+msgid "E&xpand all folds"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:765
+msgid "Expand all folds in document"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:766
+msgid "&Folding"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:773
+msgid "S&yntax coloring"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:773
+msgid "Hilight document based on the syntax"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:780
+msgid "&Scale font size..."
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:780
+msgid "Increase or decrease the size of the text"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:787
+msgid "Show f&ullscreen"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:787
+msgid "Show the editor fullscreen"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:806
+msgid "&Toggle bookmark"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:808
+msgid "&First bookmark"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:809
+msgid "&Previous bookmark"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:810
+msgid "&Next bookmark"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:811
+msgid "&Last bookmark"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:813
+msgid "&Clear all bookmarks"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:826
+msgid "Show &preference dialog..."
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:826
+msgid "Show preference dialog..."
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:833
+msgid "Use &tabs"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:833
+msgid "Tab key inserts a tab character"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:834
+msgid "Tab &indents"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:834
+msgid "Tab key indents"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:835
+msgid "&Backspace unindents"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:835
+msgid "Backspace key unindents"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:836
+msgid "&Auto indent"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:836
+msgid "Indent new lines to previous indentation"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:838
+msgid "Set tab &width..."
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:838
+msgid "Set the number of spaces to show for tab character"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:839
+msgid "Set indent wi&dth..."
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:839
+msgid "Set the number of spaces to use for indentation"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:846
+msgid "&EOL Mode..."
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:846
+msgid "Set the end of line mode"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:853
+msgid "Save preferences"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:853
+msgid "Save current preferences"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:879
+msgid "&Show sidebar"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:879
+msgid "Show the sidebar panel"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:886
+msgid "Pr&evious page"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:886
+msgid "Goto previous page"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:887
+msgid "Ne&xt page"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:887
+msgid "Goto next page"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:900
+msgid "&Close"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:916
+msgid "About this program"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:935
+msgid "Tab character"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:936
+msgid "Carriage return"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:937
+msgid "Line feed"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:942
+msgid "Any character"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:943
+msgid "Character in range"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:944
+msgid "Character not in range"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:945
+msgid "Beginning of line"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:946
+msgid "End of line"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:947
+msgid "Tagged expression"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:948
+msgid "0 or more matches"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:949
+msgid "1 or more matches"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:950
+msgid "0 or 1 matches"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:952
+msgid "Alphanumeric characters"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:953
+msgid "Alphabetical characters"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:954
+msgid "Numeric characters"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:955
+msgid "Tab characters"
+msgstr ""
+
+#: ..\..\wxstedit\src\stemenum.cpp:957
+msgid "Regexp"
+msgstr ""
+
+#: ..\..\wxstedit\src\stenoteb.cpp:283 ..\..\wxstedit\src\stenoteb.cpp:307
+msgid ""
+"Maximum number of notebook pages exceeded,\n"
+"please close one first."
+msgstr ""
+
+#: ..\..\wxstedit\src\stenoteb.cpp:284 ..\..\wxstedit\src\stenoteb.cpp:308
+msgid "Too many pages opened"
+msgstr ""
+
+#: ..\..\wxstedit\src\stenoteb.cpp:622
+msgid "Close all pages?"
+msgstr ""
+
+#: ..\..\wxstedit\src\stenoteb.cpp:622
+msgid "Confim closing"
+msgstr ""
+
+#: ..\..\wxstedit\src\stenoteb.cpp:641
+msgid "Windows"
+msgstr ""
+
+#: ..\..\wxstedit\src\stenoteb.cpp:728
+msgid "Open file into new notebook page"
+msgstr ""
+
+#: ..\..\wxstedit\src\stenoteb.cpp:785
+msgid "Open file(s) into new notebook page"
+msgstr ""
+
+#: ..\..\wxstedit\src\stenoteb.cpp:804
+msgid "Loading files..."
+msgstr ""
+
+#: ..\..\wxstedit\src\stenoteb.cpp:1187
+#, c-format
+msgid ""
+"Replaced %d occurances of\n"
+"'%s' with '%s'\n"
+"in %d documents."
+msgstr ""
+
+#: ..\..\wxstedit\src\steprint.cpp:133
+msgid ""
+"The font cannot be properly scaled for the printout\n"
+"and the output may be corrupted.\n"
+"Press cancel to not see this warning again."
+msgstr ""
+
+#: ..\..\wxstedit\src\steprint.cpp:134
+msgid "Unscalable font"
+msgstr ""
+
+#: ..\..\wxstedit\src\steprint.cpp:261
+msgid "Formatting printout"
+msgstr ""
+
+#: ..\..\wxstedit\src\steprint.cpp:261
+msgid "Page 1 of ?"
+msgstr ""
+
+#: ..\..\wxstedit\src\steprint.cpp:284
+#, c-format
+msgid "Page %d of %d"
+msgstr ""
+
+#: ..\..\wxstedit\src\steprint.cpp:371
+msgid "Printer options"
+msgstr ""
+
+#: ..\..\wxstedit\src\stestyls.cpp:734
+msgid ""
+"Error loading editor config data, would you like to repair it?\n"
+"\n"
+msgstr ""
+
+#: ..\..\wxstedit\src\stestyls.cpp:737
+msgid "Config load error"
+msgstr ""
+
+#: ..\..\wxstedit\src\stestyls.cpp:770
+msgid "Unknown style name in '"
+msgstr ""
+
+#: ..\..\wxstedit\src\stestyls.cpp:782
+msgid "Empty style option '"
+msgstr ""
+
+#: ..\..\wxstedit\src\stestyls.cpp:782
+msgid "' in style '"
+msgstr ""
+
+#: ..\..\wxstedit\src\stestyls.cpp:797
+msgid "Invalid foreground colour in style '"
+msgstr ""
+
+#: ..\..\wxstedit\src\stestyls.cpp:807
+msgid "Invalid background colour in style '"
+msgstr ""
+
+#: ..\..\wxstedit\src\stestyls.cpp:822
+msgid "Invalid font size in style '"
+msgstr ""
+
+#: ..\..\wxstedit\src\stestyls.cpp:863
+msgid "Invalid letter case for style '"
+msgstr ""
+
+#: ..\..\wxstedit\src\stestyls.cpp:875
+msgid "Invalid indicator style in '"
+msgstr ""
+
+#: ..\..\wxstedit\src\stestyls.cpp:885
+msgid "Invalid marker style in '"
+msgstr ""
+
+#: ..\..\wxstedit\src\stestyls.cpp:889
+msgid "Style set for non indicator or marker in '"
+msgstr ""
+
+#: ..\..\wxstedit\src\wxext.cpp:232
+msgid "Ctrl"
+msgstr ""
+
+#: ..\..\wxstedit\src\wxext.cpp:237
+msgid "Alt"
+msgstr ""
+
+#: ..\..\wxstedit\src\wxext.cpp:242
+msgid "Shift"
+msgstr ""
+
+#: ..\..\wxstedit\src\wxext.cpp:248
+msgid "PgUp"
+msgstr ""
+
+#: ..\..\wxstedit\src\wxext.cpp:249
+msgid "PgDn"
+msgstr ""
+
+#: ..\..\wxstedit\src\wxext.cpp:250
+msgid "Home"
+msgstr ""
+
+#: ..\..\wxstedit\src\wxext.cpp:251
+msgid "End"
+msgstr ""
+
+#: ..\..\wxstedit\src\wxext.cpp:252
+msgid "Return"
+msgstr ""
+
+#: ..\..\wxstedit\src\wxext.cpp:254
+msgid "Num+"
+msgstr ""
+
+#: ..\..\wxstedit\src\wxext.cpp:255
+msgid "Num-"
+msgstr ""
+
+#: ..\..\wxstedit\src\wxext.cpp:282
+msgid "&About..."
+msgstr ""
+
+#: ..\..\wxstedit\src\wxext.cpp:283
+msgid "&Open..."
+msgstr ""
+
+#: ..\..\wxstedit\src\wxext.cpp:284
+msgid "Select &All"
+msgstr ""
+
+#: ..\..\wxstedit\src\wxext.cpp:285
+msgid "&Find..."
+msgstr ""
+
+#: ..\..\wxstedit\src\wxext.cpp:286
+msgid "Rep&lace..."
+msgstr ""
+
+#: ..\..\wxstedit\src\wxext.cpp:287
+msgid "Re&vert..."
+msgstr ""
+
+#: ..\..\wxstedit\src\wxext.cpp:288
+msgid "Proper&ties..."
+msgstr ""

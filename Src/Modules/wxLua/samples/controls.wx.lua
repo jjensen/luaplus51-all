@@ -86,13 +86,14 @@ ID_SPLITTERWINDOW   = 1034
 ID_STATICBITMAP     = 1035
 ID_STATICBOX        = 1036
 ID_STATICLINE       = 1037
-ID_TEXTCTRL         = 1038
-ID_TOGGLEBUTTON     = 1039
-ID_TOOLBAR          = 1040
-ID_TOOLBOOK         = 1041
-ID_TREEBOOK         = 1042
-ID_TREECTRL         = 1043
-ID_WINDOW           = 1044
+ID_STATICTEXT       = 1038
+ID_TEXTCTRL         = 1039
+ID_TOGGLEBUTTON     = 1040
+ID_TOOLBAR          = 1041
+ID_TOOLBOOK         = 1042
+ID_TREEBOOK         = 1043
+ID_TREECTRL         = 1044
+ID_WINDOW           = 1045
 
 -- ---------------------------------------------------------------------------
 -- Gather up some data from the bindings
@@ -432,7 +433,7 @@ function CreateControlsWindow(parent)
         c2:delete()
     end
 
-    local flexSizer = wx.wxFlexGridSizer(50, 2, 5, 5)
+    local flexSizer = wx.wxFlexGridSizer(0, 2, 5, 5)
     flexSizer:AddGrowableCol(1)
 
     local control = nil -- not used outside of this function
@@ -827,8 +828,13 @@ function CreateControlsWindow(parent)
 
     -- -----------------------------------------------------------------------
 
+    control = wx.wxStaticText(scrollWin, ID_STATICTEXT, "Text for the wxStaticText control")
+    AddControl("wxStaticText", control)
+
+    -- -----------------------------------------------------------------------
+
     do
-    local p = wx.wxStaticText(scrollWin, wx.wxID_ANY, "See taskbar for icon")
+    local p = wx.wxStaticText(scrollWin, wx.wxID_ANY, "See OS taskbar for lightbulb icon")
     taskbarIcon = wx.wxTaskBarIcon()
     local icon = wx.wxIcon()
     icon:CopyFromBitmap(bmp)

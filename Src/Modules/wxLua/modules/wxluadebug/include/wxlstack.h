@@ -3,26 +3,26 @@
 // Purpose:      Interface to display the Lua stack in wxLua
 // Author:       J. Winwood, John Labenski
 // Created:      April 2002
-// Copyright:    (c) 2002. Lomtick Software. All rights reserved.
+// Copyright:    (c) 2012 John Labenski, 2002. Lomtick Software. All rights reserved.
 // Licence:      wxWidgets license.
 /////////////////////////////////////////////////////////////////////////////
 
 #ifndef _WX_LUA_STACKTREE_H_
 #define _WX_LUA_STACKTREE_H_
 
-#include "wx/dialog.h"
-#include "wx/listctrl.h"
-#include "wx/treectrl.h"
+#include <wx/dialog.h>
+#include <wx/listctrl.h>
+#include <wx/treectrl.h>
 
-class WXDLLEXPORT wxListCtrl;
-class WXDLLEXPORT wxListEvent;
-class WXDLLEXPORT wxSplitterWindow;
-class WXDLLEXPORT wxProgressDialog;
+class WXDLLIMPEXP_FWD_CORE wxListCtrl;
+class WXDLLIMPEXP_FWD_CORE wxListEvent;
+class WXDLLIMPEXP_FWD_CORE wxSplitterWindow;
+class WXDLLIMPEXP_FWD_CORE wxProgressDialog;
 
 #include "wxluadebug/include/wxluadebugdefs.h"
 #include "wxluadebug/include/wxldebug.h"
 
-class WXDLLIMPEXP_WXLUADEBUG wxLuaDebugData;
+class WXDLLIMPEXP_FWD_WXLUADEBUG wxLuaDebugData;
 
 // ----------------------------------------------------------------------------
 // wxWindowIds for the wxLuaStackDialog
@@ -43,11 +43,12 @@ enum
     ID_WXLUA_STACK_LISTCTRL,
     ID_WXLUA_STACK_TREECTRL,
 
-    ID_WXLUA_STACK_LISTMENU_COPY0,
-    ID_WXLUA_STACK_LISTMENU_COPY1,
-    ID_WXLUA_STACK_LISTMENU_COPY2,
-    ID_WXLUA_STACK_LISTMENU_COPY3,
-    ID_WXLUA_STACK_LISTMENU_COPY4,
+    ID_WXLUA_STACK_LISTMENU_COPY_ROW,
+    ID_WXLUA_STACK_LISTMENU_COPY_COL0,
+    ID_WXLUA_STACK_LISTMENU_COPY_COL1,
+    ID_WXLUA_STACK_LISTMENU_COPY_COL2,
+    ID_WXLUA_STACK_LISTMENU_COPY_COL3,
+    ID_WXLUA_STACK_LISTMENU_COPY_COL4,
 
     ID_WXLUA_STACK_FINDMENU_CASE,
     ID_WXLUA_STACK_FINDMENU_WHOLE_STRING,
@@ -80,7 +81,7 @@ public:
     int             m_item_idx;          // this item # in m_parentDebugData
     int             m_level;             // depth into the Lua tables
     wxLuaDebugData  m_parentDebugData;   // ref of parent's data
-    wxLuaDebugData  m_childrenDebugData; // valid if this item has children, e.g. a table   
+    wxLuaDebugData  m_childrenDebugData; // valid if this item has children, e.g. a table
     wxTreeItemId    m_treeId;            // valid if this item is in the treectrl, e.g. a table
 };
 
@@ -152,7 +153,7 @@ public:
         LIST_COL_KEY_TYPE,
         LIST_COL_VALUE_TYPE,
         LIST_COL_VALUE,
-        
+
         LIST_COL__MAX
     };
 

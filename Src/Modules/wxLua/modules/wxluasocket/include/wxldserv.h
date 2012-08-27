@@ -2,15 +2,15 @@
 // Purpose:     Implements the debugger end of wxLua debugging session
 // Author:      J. Winwood, John Labenski, Ray Gilbert
 // Created:     May 2002
-// Copyright:   (c) 2002 Lomtick Software. All rights reserved.
+// Copyright:   (c) 2012 John Labenski, 2002 Lomtick Software. All rights reserved.
 // Licence:     wxWidgets licence
 /////////////////////////////////////////////////////////////////////////////
 
 #ifndef WX_LUA_DEBUG_SERVER_H
 #define WX_LUA_DEBUG_SERVER_H
 
-#include "wx/process.h"
-#include "wx/thread.h"
+#include <wx/process.h>
+#include <wx/thread.h>
 #include "wxluasocket/include/wxluasocketdefs.h"
 #include "wxluasocket/include/wxlsock.h"
 #include "wxluadebug/include/wxldebug.h"
@@ -317,10 +317,10 @@ public:
 
     bool WaitForConnect(int timeOut);
 
-    wxLuaSocket      *m_serverSocket;
-    wxLuaSocket      *m_acceptedSocket;
-    wxLuaDebuggerCServer::LuaThread *m_pThread;
-    bool              m_shutdown;
+    wxLuaSocket*                     m_serverSocket;
+    wxLuaSocket*                     m_acceptedSocket;
+    wxLuaDebuggerCServer::LuaThread* m_pThread;
+    bool                             m_shutdown;
 
 private:
     DECLARE_ABSTRACT_CLASS(wxLuaDebuggerCServer)
@@ -391,24 +391,24 @@ public:
     void SetMessage(const wxString &message);
     void SetDebugData(long nReference, const wxLuaDebugData& pDebugData = wxNullLuaDebugData);
 
-    int      GetLineNumber() const  { return m_line_number;}
-    wxString GetFileName() const    { return m_fileName; }
-    wxString GetMessage() const     { return m_strMessage; } // check HasMessage
-    bool     HasMessage() const     { return m_has_message; }
-    long     GetReference() const   { return m_lua_ref; }    // Lua reference
+    int      GetLineNumber() const      { return m_line_number;}
+    wxString GetFileName() const        { return m_fileName; }
+    wxString GetMessage() const         { return m_strMessage; } // check HasMessage
+    bool     HasMessage() const         { return m_has_message; }
+    long     GetReference() const       { return m_lua_ref; }    // Lua reference
     wxLuaDebugData GetDebugData() const { return m_debugData; }
-    bool     GetEnabledFlag() const { return m_enabled_flag; }
+    bool     GetEnabledFlag() const     { return m_enabled_flag; }
 
 protected:
-    virtual wxEvent* Clone() const { return new wxLuaDebuggerEvent(*this); }
+    virtual wxEvent* Clone() const      { return new wxLuaDebuggerEvent(*this); }
 
-    int      m_line_number;
-    wxString m_fileName;
-    wxString m_strMessage;
-    bool     m_has_message;
-    long     m_lua_ref;
+    int            m_line_number;
+    wxString       m_fileName;
+    wxString       m_strMessage;
+    bool           m_has_message;
+    long           m_lua_ref;
     wxLuaDebugData m_debugData;
-    bool     m_enabled_flag;
+    bool           m_enabled_flag;
 
 private:
     DECLARE_DYNAMIC_CLASS(wxLuaDebuggerEvent)

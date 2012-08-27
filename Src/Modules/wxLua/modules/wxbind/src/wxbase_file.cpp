@@ -3376,9 +3376,9 @@ static int LUACALL wxLua_wxDir_GetAllFiles(lua_State *L)
     // get number of arguments
     int argCount = lua_gettop(L);
     // int flags = wxDIR_DEFAULT
-    int flags = (argCount >= 4 ? (int)wxlua_getintegertype(L, 3) : wxDIR_DEFAULT);
+    int flags = (argCount >= 3 ? (int)wxlua_getintegertype(L, 3) : wxDIR_DEFAULT);
     // const wxString& filespec = ""
-    wxString filespec = (argCount >= 3 ? wxlua_getwxStringtype(L, 2) : wxString(wxT("")));
+    wxString filespec = (argCount >= 2 ? wxlua_getwxStringtype(L, 2) : wxString(wxT("")));
     // wxArrayString *files
     wxArrayString files;
     // const wxString& dirname
@@ -4698,10 +4698,12 @@ static int LUACALL wxLua_wxMimeTypesManager_IsOfType(lua_State *L)
     return 1;
 }
 
+
+#if !wxCHECK_VERSION(2,9,0)
 static wxLuaArgType s_wxluatypeArray_wxLua_wxMimeTypesManager_ReadMailcap[] = { &wxluatype_wxMimeTypesManager, &wxluatype_TSTRING, &wxluatype_TBOOLEAN, NULL };
 static int LUACALL wxLua_wxMimeTypesManager_ReadMailcap(lua_State *L);
 static wxLuaBindCFunc s_wxluafunc_wxLua_wxMimeTypesManager_ReadMailcap[1] = {{ wxLua_wxMimeTypesManager_ReadMailcap, WXLUAMETHOD_METHOD, 2, 3, s_wxluatypeArray_wxLua_wxMimeTypesManager_ReadMailcap }};
-//     bool ReadMailcap(const wxString& filename, bool fallback = false);
+//     !%wxchkver_2_9 bool ReadMailcap(const wxString& filename, bool fallback = false);
 static int LUACALL wxLua_wxMimeTypesManager_ReadMailcap(lua_State *L)
 {
     // get number of arguments
@@ -4723,7 +4725,7 @@ static int LUACALL wxLua_wxMimeTypesManager_ReadMailcap(lua_State *L)
 static wxLuaArgType s_wxluatypeArray_wxLua_wxMimeTypesManager_ReadMimeTypes[] = { &wxluatype_wxMimeTypesManager, &wxluatype_TSTRING, NULL };
 static int LUACALL wxLua_wxMimeTypesManager_ReadMimeTypes(lua_State *L);
 static wxLuaBindCFunc s_wxluafunc_wxLua_wxMimeTypesManager_ReadMimeTypes[1] = {{ wxLua_wxMimeTypesManager_ReadMimeTypes, WXLUAMETHOD_METHOD, 2, 2, s_wxluatypeArray_wxLua_wxMimeTypesManager_ReadMimeTypes }};
-//     bool ReadMimeTypes(const wxString& filename);
+//     !%wxchkver_2_9 bool ReadMimeTypes(const wxString& filename);
 static int LUACALL wxLua_wxMimeTypesManager_ReadMimeTypes(lua_State *L)
 {
     // const wxString filename
@@ -4737,6 +4739,8 @@ static int LUACALL wxLua_wxMimeTypesManager_ReadMimeTypes(lua_State *L)
 
     return 1;
 }
+
+#endif // !wxCHECK_VERSION(2,9,0)
 
 static wxLuaArgType s_wxluatypeArray_wxLua_wxMimeTypesManager_Unassociate[] = { &wxluatype_wxMimeTypesManager, &wxluatype_wxFileType, NULL };
 static int LUACALL wxLua_wxMimeTypesManager_Unassociate(lua_State *L);
@@ -4778,8 +4782,12 @@ wxLuaBindMethod wxMimeTypesManager_methods[] = {
     { "GetFileTypeFromMimeType", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxMimeTypesManager_GetFileTypeFromMimeType, 1, NULL },
     { "Initialize", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxMimeTypesManager_Initialize, 1, NULL },
     { "IsOfType", WXLUAMETHOD_METHOD|WXLUAMETHOD_STATIC, s_wxluafunc_wxLua_wxMimeTypesManager_IsOfType, 1, NULL },
+
+#if !wxCHECK_VERSION(2,9,0)
     { "ReadMailcap", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxMimeTypesManager_ReadMailcap, 1, NULL },
     { "ReadMimeTypes", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxMimeTypesManager_ReadMimeTypes, 1, NULL },
+#endif // !wxCHECK_VERSION(2,9,0)
+
     { "Unassociate", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxMimeTypesManager_Unassociate, 1, NULL },
     { 0, 0, 0, 0 },
 };
@@ -5023,7 +5031,7 @@ static int LUACALL wxLua_wxInputStream_Read1(lua_State *L)
     // get this
     wxInputStream * self = (wxInputStream *)wxluaT_getuserdatatype(L, 1, wxluatype_wxInputStream);
     // call Read
-    wxInputStream* returns = &self->Read(*stream_in);
+    wxInputStream* returns = (wxInputStream*)&self->Read(*stream_in);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxInputStream);
 
@@ -5308,7 +5316,7 @@ static int LUACALL wxLua_wxOutputStream_Write1(lua_State *L)
     // get this
     wxOutputStream * self = (wxOutputStream *)wxluaT_getuserdatatype(L, 1, wxluatype_wxOutputStream);
     // call Write
-    wxOutputStream* returns = &self->Write(*stream_in);
+    wxOutputStream* returns = (wxOutputStream*)&self->Write(*stream_in);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxOutputStream);
 
@@ -6386,11 +6394,12 @@ int wxluatype_wxFileSystem = WXLUA_TUNKNOWN;
 static wxLuaArgType s_wxluatypeArray_wxLua_wxFileSystem_AddHandler[] = { &wxluatype_wxFileSystemHandler, NULL };
 static int LUACALL wxLua_wxFileSystem_AddHandler(lua_State *L);
 static wxLuaBindCFunc s_wxluafunc_wxLua_wxFileSystem_AddHandler[1] = {{ wxLua_wxFileSystem_AddHandler, WXLUAMETHOD_METHOD|WXLUAMETHOD_STATIC, 1, 1, s_wxluatypeArray_wxLua_wxFileSystem_AddHandler }};
-//     static void AddHandler(wxFileSystemHandler *handler);
+//     static void AddHandler(%ungc wxFileSystemHandler *handler);
 static int LUACALL wxLua_wxFileSystem_AddHandler(lua_State *L)
 {
     // wxFileSystemHandler handler
     wxFileSystemHandler * handler = (wxFileSystemHandler *)wxluaT_getuserdatatype(L, 1, wxluatype_wxFileSystemHandler);
+    if (wxluaO_isgcobject(L, handler)) wxluaO_undeletegcobject(L, handler);
     // call AddHandler
     wxFileSystem::AddHandler(handler);
 
@@ -6546,7 +6555,7 @@ static int LUACALL wxLua_wxFileSystem_HasHandlerForPath(lua_State *L)
 static wxLuaArgType s_wxluatypeArray_wxLua_wxFileSystem_OpenFile[] = { &wxluatype_wxFileSystem, &wxluatype_TSTRING, &wxluatype_TNUMBER, NULL };
 static int LUACALL wxLua_wxFileSystem_OpenFile(lua_State *L);
 static wxLuaBindCFunc s_wxluafunc_wxLua_wxFileSystem_OpenFile[1] = {{ wxLua_wxFileSystem_OpenFile, WXLUAMETHOD_METHOD, 2, 3, s_wxluatypeArray_wxLua_wxFileSystem_OpenFile }};
-//     wxFSFile* OpenFile(const wxString& location, int flags = wxFS_READ);
+//     %gc wxFSFile* OpenFile(const wxString& location, int flags = wxFS_READ);
 static int LUACALL wxLua_wxFileSystem_OpenFile(lua_State *L)
 {
     // get number of arguments
@@ -6559,6 +6568,7 @@ static int LUACALL wxLua_wxFileSystem_OpenFile(lua_State *L)
     wxFileSystem * self = (wxFileSystem *)wxluaT_getuserdatatype(L, 1, wxluatype_wxFileSystem);
     // call OpenFile
     wxFSFile* returns = (wxFSFile*)self->OpenFile(location, flags);
+    if (!wxluaO_isgcobject(L, returns)) wxluaO_addgcobject(L, returns, wxluatype_wxFSFile);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxFSFile);
 
@@ -6568,13 +6578,14 @@ static int LUACALL wxLua_wxFileSystem_OpenFile(lua_State *L)
 static wxLuaArgType s_wxluatypeArray_wxLua_wxFileSystem_RemoveHandler[] = { &wxluatype_wxFileSystemHandler, NULL };
 static int LUACALL wxLua_wxFileSystem_RemoveHandler(lua_State *L);
 static wxLuaBindCFunc s_wxluafunc_wxLua_wxFileSystem_RemoveHandler[1] = {{ wxLua_wxFileSystem_RemoveHandler, WXLUAMETHOD_METHOD|WXLUAMETHOD_STATIC, 1, 1, s_wxluatypeArray_wxLua_wxFileSystem_RemoveHandler }};
-//     static wxFileSystemHandler* RemoveHandler(wxFileSystemHandler *handler);
+//     static %gc wxFileSystemHandler* RemoveHandler(wxFileSystemHandler *handler);
 static int LUACALL wxLua_wxFileSystem_RemoveHandler(lua_State *L)
 {
     // wxFileSystemHandler handler
     wxFileSystemHandler * handler = (wxFileSystemHandler *)wxluaT_getuserdatatype(L, 1, wxluatype_wxFileSystemHandler);
     // call RemoveHandler
     wxFileSystemHandler* returns = (wxFileSystemHandler*)wxFileSystem::RemoveHandler(handler);
+    if (!wxluaO_isgcobject(L, returns)) wxluaO_addgcobject(L, returns, wxluatype_wxFileSystemHandler);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxFileSystemHandler);
 

@@ -11,6 +11,9 @@
 package.cpath = package.cpath..";./?.dll;./?.so;../lib/?.so;../lib/vc_dll/?.dll;../lib/bcc_dll/?.dll;../lib/mingw_dll/?.dll;"
 require("wx")
 
+-- Test that we can get the value from a wxLuaObject in a coroutine
+wxlobj = wxlua.wxLuaObject("Created in main lua_State")
+
 -------------------------------------------------------------------------------
 -- ProgressWindow
 -------------------------------------------------------------------------------
@@ -30,11 +33,25 @@ ProgressWindow = {
 -- 'initialLabel' is the string that will be initially shown in the window.
 function ProgressWindow:new(parent, workCoroutine, caption, initialLabel)
 
-    -- simple little sanity test to ensure that we can call binding functions
+    -- Sanity test to ensure that we can call binding functions
     -- fails on r:SetX if wx bindings aren't installed correctly for the coroutine
     local r = wx.wxRect(1,2,3,4)
-    r:SetX(1)
+    r:SetX(10)
+    assert((r:GetX() == 10) and (r:GetY() == 2))
 
+    -- Test that wxLuaObjects also work in coroutines
+    local co_wxlobj = wxlua.wxLuaObject("hello")
+    assert(co_wxlobj:GetObject() == "hello")
+    co_wxlobj:SetObject(r)
+    assert(co_wxlobj:GetObject():GetX() == 10)
+
+    -- Test that wxLuaObjects created in main lua_State still work in coroutines
+    assert(wxlobj:GetObject() == "Created in main lua_State")
+
+    -- Test that wxLuaObjects created in coroutine can be accessed in main lua_State
+    self.wxlobj = wxlua.wxLuaObject("Created in coroutine")
+
+    -- Create a Lua 'class' object to store the coroutine's data
     local o = { }
     setmetatable(o, self)
     self.__index = self
@@ -147,6 +164,8 @@ frame:Connect(ID_THE_BUTTON, wx.wxEVT_COMMAND_BUTTON_CLICKED,
             wndProgress.dialog:ShowModal(true)
 
             wndProgress.dialog:Destroy()
+
+            assert(wndProgress.wxlobj:GetObject() == "Created in coroutine")
         end)
 
 

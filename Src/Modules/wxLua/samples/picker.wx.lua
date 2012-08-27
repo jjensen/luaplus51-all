@@ -71,8 +71,10 @@ end
 -- ---------------------------------------------------------------------------
 function OnDatePicker(event)
     local evt_type = event:GetEventType()
-    local val = event:GetDate():Format()
-
+    local val = "Invalid DateTime" -- can be invalid for wxDP_ALLOWNONE style
+    if event:GetDate():IsValid() then
+        val = event:GetDate():Format()
+    end
     local s = string.format("%s wxDateEvent type: %s=%d id: %d GetDate = '%s'\n\n", wx.wxNow(), wxEVT_Names[evt_type], evt_type, event:GetId(), val)
     textCtrl:AppendText(s)
 end
@@ -113,7 +115,7 @@ function CreatePickerWindow(parent)
     scrollWin:SetScrollbars(15, 15, 400, 600, 0, 0, false)
 
     local mainSizer = wx.wxBoxSizer(wx.wxVERTICAL)
-    local flexSizer = wx.wxFlexGridSizer(20, 2, 5, 5)
+    local flexSizer = wx.wxFlexGridSizer(0, 2, 5, 5)
     flexSizer:AddGrowableCol(1)
 
     local statText = nil -- not used outside of this function
@@ -163,7 +165,7 @@ function CreatePickerWindow(parent)
     if wx.__WXMSW__ then
         datePicker = wx.wxDatePickerCtrl(scrollWin, ID_DATEPICKER2, wx.wxDefaultDateTime,
                                          wx.wxDefaultPosition, wx.wxDefaultSize,
-                                         wx. wxDP_SPIN)
+                                         wx.wxDP_SPIN)
     else
         datePicker = wx.wxStaticText(scrollWin, wx.wxID_ANY, "Supported in MSW only")
     end

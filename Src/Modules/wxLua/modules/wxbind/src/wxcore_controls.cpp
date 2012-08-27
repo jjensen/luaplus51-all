@@ -4306,7 +4306,14 @@ struct wxLua_LCF_data // wrap up the wxLuaState, lua_tag, and the compare data
     long data;
 };
 
-int wxCALLBACK wxLua_ListCompareFunction(long item1, long item2, long sortData)
+// type of compare function for wxListCtrl sort operation (as of 2.9.3)
+//typedef int (wxCALLBACK *wxListCtrlCompare)(wxIntPtr item1, wxIntPtr item2, wxIntPtr sortData);
+
+#if !wxCHECK_VERSION(2, 8, 9)
+    typedef long wxIntPtr;
+#endif
+
+int wxCALLBACK wxLua_ListCompareFunction(wxIntPtr item1, wxIntPtr item2, wxIntPtr sortData)
 {
     wxLua_LCF_data* LCF_data = (wxLua_LCF_data*)sortData;
 
@@ -4343,7 +4350,7 @@ static int LUACALL wxLua_wxListCtrl_SortItems(lua_State *L)
         LCF_data.lua_tag = luaL_ref(L, LUA_REGISTRYINDEX); // ref function and pop it from stack
     }
     else
-        wxlua_argerror(L, 2, wxT("a 'lua function(long item1, long item2, long data)'"));
+        wxlua_argerror(L, 2, wxT("a 'Lua function(long item1, long item2, long data)'"));
 
     // get this
     wxListCtrl *self = (wxListCtrl *)wxluaT_getuserdatatype(L, 1, wxluatype_wxListCtrl);
@@ -5614,7 +5621,7 @@ static int LUACALL wxLua_wxListEvent_GetItem(lua_State *L)
     // get this
     wxListEvent * self = (wxListEvent *)wxluaT_getuserdatatype(L, 1, wxluatype_wxListEvent);
     // call GetItem
-    const wxListItem* returns = &self->GetItem();
+    const wxListItem* returns = (const wxListItem*)&self->GetItem();
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxListItem);
 
@@ -8160,7 +8167,7 @@ static int LUACALL wxLua_wxTextCtrl_GetDefaultStyle(lua_State *L)
     // get this
     wxTextCtrl * self = (wxTextCtrl *)wxluaT_getuserdatatype(L, 1, wxluatype_wxTextCtrl);
     // call GetDefaultStyle
-    const wxTextAttr* returns = &self->GetDefaultStyle();
+    const wxTextAttr* returns = (const wxTextAttr*)&self->GetDefaultStyle();
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxTextAttr);
 
@@ -9096,7 +9103,7 @@ static int LUACALL wxLua_wxTextAttr_GetTabs(lua_State *L)
     // get this
     wxTextAttr * self = (wxTextAttr *)wxluaT_getuserdatatype(L, 1, wxluatype_wxTextAttr);
     // call GetTabs
-    const wxArrayInt* returns = &self->GetTabs();
+    const wxArrayInt* returns = (const wxArrayInt*)&self->GetTabs();
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxArrayInt);
 
@@ -9554,7 +9561,7 @@ static int LUACALL wxLua_wxTextUrlEvent_GetMouseEvent(lua_State *L)
     // get this
     wxTextUrlEvent * self = (wxTextUrlEvent *)wxluaT_getuserdatatype(L, 1, wxluatype_wxTextUrlEvent);
     // call GetMouseEvent
-    const wxMouseEvent* returns = &self->GetMouseEvent();
+    const wxMouseEvent* returns = (const wxMouseEvent*)&self->GetMouseEvent();
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxMouseEvent);
 
@@ -9653,22 +9660,23 @@ int wxTextUrlEvent_methodCount = sizeof(wxTextUrlEvent_methods)/sizeof(wxLuaBind
 // Lua MetaTable Tag for Class 'wxTreeCtrl'
 int wxluatype_wxTreeCtrl = WXLUA_TUNKNOWN;
 
-static wxLuaArgType s_wxluatypeArray_wxLua_wxTreeCtrl_AddRoot[] = { &wxluatype_wxTreeCtrl, &wxluatype_TSTRING, &wxluatype_TNUMBER, &wxluatype_TNUMBER, &wxluatype_wxTreeItemData, NULL };
+static wxLuaArgType s_wxluatypeArray_wxLua_wxTreeCtrl_AddRoot[] = { &wxluatype_wxTreeCtrl, &wxluatype_TSTRING, &wxluatype_TNUMBER, &wxluatype_TNUMBER, &wxluatype_wxLuaTreeItemData, NULL };
 static int LUACALL wxLua_wxTreeCtrl_AddRoot(lua_State *L);
 static wxLuaBindCFunc s_wxluafunc_wxLua_wxTreeCtrl_AddRoot[1] = {{ wxLua_wxTreeCtrl_AddRoot, WXLUAMETHOD_METHOD, 2, 5, s_wxluatypeArray_wxLua_wxTreeCtrl_AddRoot }};
-//     wxTreeItemId AddRoot(const wxString& text, int image = -1, int selImage = -1, wxTreeItemData* data = NULL)
+//     wxTreeItemId AddRoot(const wxString& text, int image = -1, int selImage = -1, %ungc wxLuaTreeItemData* data = NULL)
 static int LUACALL wxLua_wxTreeCtrl_AddRoot(lua_State *L)
 {
     // get number of arguments
     int argCount = lua_gettop(L);
-    // wxTreeItemData data = NULL
-    wxTreeItemData * data = (argCount >= 5 ? (wxTreeItemData *)wxluaT_getuserdatatype(L, 5, wxluatype_wxTreeItemData) : NULL);
+    // wxLuaTreeItemData data = NULL
+    wxLuaTreeItemData * data = (argCount >= 5 ? (wxLuaTreeItemData *)wxluaT_getuserdatatype(L, 5, wxluatype_wxLuaTreeItemData) : NULL);
     // int selImage = -1
     int selImage = (argCount >= 4 ? (int)wxlua_getnumbertype(L, 4) : -1);
     // int image = -1
     int image = (argCount >= 3 ? (int)wxlua_getnumbertype(L, 3) : -1);
     // const wxString text
     const wxString text = wxlua_getwxStringtype(L, 2);
+    if (wxluaO_isgcobject(L, data)) wxluaO_undeletegcobject(L, data);
     // get this
     wxTreeCtrl * self = (wxTreeCtrl *)wxluaT_getuserdatatype(L, 1, wxluatype_wxTreeCtrl);
     // call AddRoot
@@ -9682,16 +9690,16 @@ static int LUACALL wxLua_wxTreeCtrl_AddRoot(lua_State *L)
     return 1;
 }
 
-static wxLuaArgType s_wxluatypeArray_wxLua_wxTreeCtrl_AppendItem[] = { &wxluatype_wxTreeCtrl, &wxluatype_wxTreeItemId, &wxluatype_TSTRING, &wxluatype_TNUMBER, &wxluatype_TNUMBER, &wxluatype_wxTreeItemData, NULL };
+static wxLuaArgType s_wxluatypeArray_wxLua_wxTreeCtrl_AppendItem[] = { &wxluatype_wxTreeCtrl, &wxluatype_wxTreeItemId, &wxluatype_TSTRING, &wxluatype_TNUMBER, &wxluatype_TNUMBER, &wxluatype_wxLuaTreeItemData, NULL };
 static int LUACALL wxLua_wxTreeCtrl_AppendItem(lua_State *L);
 static wxLuaBindCFunc s_wxluafunc_wxLua_wxTreeCtrl_AppendItem[1] = {{ wxLua_wxTreeCtrl_AppendItem, WXLUAMETHOD_METHOD, 3, 6, s_wxluatypeArray_wxLua_wxTreeCtrl_AppendItem }};
-//     wxTreeItemId AppendItem(const wxTreeItemId& parent, const wxString& text, int image = -1, int selImage = -1, wxTreeItemData* data = NULL)
+//     wxTreeItemId AppendItem(const wxTreeItemId& parent, const wxString& text, int image = -1, int selImage = -1, %ungc wxLuaTreeItemData* data = NULL)
 static int LUACALL wxLua_wxTreeCtrl_AppendItem(lua_State *L)
 {
     // get number of arguments
     int argCount = lua_gettop(L);
-    // wxTreeItemData data = NULL
-    wxTreeItemData * data = (argCount >= 6 ? (wxTreeItemData *)wxluaT_getuserdatatype(L, 6, wxluatype_wxTreeItemData) : NULL);
+    // wxLuaTreeItemData data = NULL
+    wxLuaTreeItemData * data = (argCount >= 6 ? (wxLuaTreeItemData *)wxluaT_getuserdatatype(L, 6, wxluatype_wxLuaTreeItemData) : NULL);
     // int selImage = -1
     int selImage = (argCount >= 5 ? (int)wxlua_getnumbertype(L, 5) : -1);
     // int image = -1
@@ -9700,6 +9708,7 @@ static int LUACALL wxLua_wxTreeCtrl_AppendItem(lua_State *L)
     const wxString text = wxlua_getwxStringtype(L, 3);
     // const wxTreeItemId parent
     const wxTreeItemId * parent = (const wxTreeItemId *)wxluaT_getuserdatatype(L, 2, wxluatype_wxTreeItemId);
+    if (wxluaO_isgcobject(L, data)) wxluaO_undeletegcobject(L, data);
     // get this
     wxTreeCtrl * self = (wxTreeCtrl *)wxluaT_getuserdatatype(L, 1, wxluatype_wxTreeCtrl);
     // call AppendItem
@@ -9763,6 +9772,36 @@ static int LUACALL wxLua_wxTreeCtrl_Collapse(lua_State *L)
     wxTreeCtrl * self = (wxTreeCtrl *)wxluaT_getuserdatatype(L, 1, wxluatype_wxTreeCtrl);
     // call Collapse
     self->Collapse(*item);
+
+    return 0;
+}
+
+static wxLuaArgType s_wxluatypeArray_wxLua_wxTreeCtrl_CollapseAll[] = { &wxluatype_wxTreeCtrl, NULL };
+static int LUACALL wxLua_wxTreeCtrl_CollapseAll(lua_State *L);
+static wxLuaBindCFunc s_wxluafunc_wxLua_wxTreeCtrl_CollapseAll[1] = {{ wxLua_wxTreeCtrl_CollapseAll, WXLUAMETHOD_METHOD, 1, 1, s_wxluatypeArray_wxLua_wxTreeCtrl_CollapseAll }};
+//     void CollapseAll()
+static int LUACALL wxLua_wxTreeCtrl_CollapseAll(lua_State *L)
+{
+    // get this
+    wxTreeCtrl * self = (wxTreeCtrl *)wxluaT_getuserdatatype(L, 1, wxluatype_wxTreeCtrl);
+    // call CollapseAll
+    self->CollapseAll();
+
+    return 0;
+}
+
+static wxLuaArgType s_wxluatypeArray_wxLua_wxTreeCtrl_CollapseAllChildren[] = { &wxluatype_wxTreeCtrl, &wxluatype_wxTreeItemId, NULL };
+static int LUACALL wxLua_wxTreeCtrl_CollapseAllChildren(lua_State *L);
+static wxLuaBindCFunc s_wxluafunc_wxLua_wxTreeCtrl_CollapseAllChildren[1] = {{ wxLua_wxTreeCtrl_CollapseAllChildren, WXLUAMETHOD_METHOD, 2, 2, s_wxluatypeArray_wxLua_wxTreeCtrl_CollapseAllChildren }};
+//     void CollapseAllChildren(const wxTreeItemId& item)
+static int LUACALL wxLua_wxTreeCtrl_CollapseAllChildren(lua_State *L)
+{
+    // const wxTreeItemId item
+    const wxTreeItemId * item = (const wxTreeItemId *)wxluaT_getuserdatatype(L, 2, wxluatype_wxTreeItemId);
+    // get this
+    wxTreeCtrl * self = (wxTreeCtrl *)wxluaT_getuserdatatype(L, 1, wxluatype_wxTreeCtrl);
+    // call CollapseAllChildren
+    self->CollapseAllChildren(*item);
 
     return 0;
 }
@@ -9937,6 +9976,36 @@ static int LUACALL wxLua_wxTreeCtrl_Expand(lua_State *L)
     return 0;
 }
 
+static wxLuaArgType s_wxluatypeArray_wxLua_wxTreeCtrl_ExpandAll[] = { &wxluatype_wxTreeCtrl, NULL };
+static int LUACALL wxLua_wxTreeCtrl_ExpandAll(lua_State *L);
+static wxLuaBindCFunc s_wxluafunc_wxLua_wxTreeCtrl_ExpandAll[1] = {{ wxLua_wxTreeCtrl_ExpandAll, WXLUAMETHOD_METHOD, 1, 1, s_wxluatypeArray_wxLua_wxTreeCtrl_ExpandAll }};
+//     void ExpandAll()
+static int LUACALL wxLua_wxTreeCtrl_ExpandAll(lua_State *L)
+{
+    // get this
+    wxTreeCtrl * self = (wxTreeCtrl *)wxluaT_getuserdatatype(L, 1, wxluatype_wxTreeCtrl);
+    // call ExpandAll
+    self->ExpandAll();
+
+    return 0;
+}
+
+static wxLuaArgType s_wxluatypeArray_wxLua_wxTreeCtrl_ExpandAllChildren[] = { &wxluatype_wxTreeCtrl, &wxluatype_wxTreeItemId, NULL };
+static int LUACALL wxLua_wxTreeCtrl_ExpandAllChildren(lua_State *L);
+static wxLuaBindCFunc s_wxluafunc_wxLua_wxTreeCtrl_ExpandAllChildren[1] = {{ wxLua_wxTreeCtrl_ExpandAllChildren, WXLUAMETHOD_METHOD, 2, 2, s_wxluatypeArray_wxLua_wxTreeCtrl_ExpandAllChildren }};
+//     void ExpandAllChildren(const wxTreeItemId& item)
+static int LUACALL wxLua_wxTreeCtrl_ExpandAllChildren(lua_State *L)
+{
+    // const wxTreeItemId item
+    const wxTreeItemId * item = (const wxTreeItemId *)wxluaT_getuserdatatype(L, 2, wxluatype_wxTreeItemId);
+    // get this
+    wxTreeCtrl * self = (wxTreeCtrl *)wxluaT_getuserdatatype(L, 1, wxluatype_wxTreeCtrl);
+    // call ExpandAllChildren
+    self->ExpandAllChildren(*item);
+
+    return 0;
+}
+
 
 #if (wxLUA_USE_wxTreeCtrl && wxUSE_TREECTRL) && (wxLUA_USE_wxPointSizeRect)
 static wxLuaArgType s_wxluatypeArray_wxLua_wxTreeCtrl_GetBoundingRect[] = { &wxluatype_wxTreeCtrl, &wxluatype_wxTreeItemId, &wxluatype_wxRect, &wxluatype_TBOOLEAN, NULL };
@@ -10007,15 +10076,11 @@ static wxLuaArgType s_wxluatypeArray_wxLua_wxTreeCtrl_GetFirstChild[] = { &wxlua
 static int LUACALL wxLua_wxTreeCtrl_GetFirstChild(lua_State *L);
 static wxLuaBindCFunc s_wxluafunc_wxLua_wxTreeCtrl_GetFirstChild[1] = {{ wxLua_wxTreeCtrl_GetFirstChild, WXLUAMETHOD_METHOD, 2, 2, s_wxluatypeArray_wxLua_wxTreeCtrl_GetFirstChild }};
 // %override wxLua_wxTreeCtrl_GetFirstChild
-// wxTreeItemId GetFirstChild(const wxTreeItemId& item, long& cookie) const
+// wxTreeItemId GetFirstChild(const wxTreeItemId& item, wxTreeItemIdValue& cookie) const
 static int LUACALL wxLua_wxTreeCtrl_GetFirstChild(lua_State *L)
 {
-#if wxCHECK_VERSION(2, 5, 0)
     wxTreeItemIdValue cookie = 0;
-#else
-    // long& cookie
-    long cookie = 0;
-#endif
+
     // const wxTreeItemId& item
     const wxTreeItemId *item = (wxTreeItemId *)wxluaT_getuserdatatype(L, 2, wxluatype_wxTreeItemId);
     // get this
@@ -10027,12 +10092,8 @@ static int LUACALL wxLua_wxTreeCtrl_GetFirstChild(lua_State *L)
     wxluaO_addgcobject(L, (void*)returns, wxluatype_wxTreeItemId);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxTreeItemId);
-#if wxCHECK_VERSION(2, 5, 0)
-    lua_pushnumber(L, (long)cookie); // wxTreeItemIdValue is void*
-#else
     // push the cookie
-    lua_pushnumber(L, cookie);
-#endif
+    lua_pushlightuserdata(L, cookie); // wxTreeItemIdValue is void*
     // return the number of parameters
     return 2;
 }
@@ -10121,7 +10182,7 @@ static int LUACALL wxLua_wxTreeCtrl_GetItemBackgroundColour(lua_State *L)
 static wxLuaArgType s_wxluatypeArray_wxLua_wxTreeCtrl_GetItemData[] = { &wxluatype_wxTreeCtrl, &wxluatype_wxTreeItemId, NULL };
 static int LUACALL wxLua_wxTreeCtrl_GetItemData(lua_State *L);
 static wxLuaBindCFunc s_wxluafunc_wxLua_wxTreeCtrl_GetItemData[1] = {{ wxLua_wxTreeCtrl_GetItemData, WXLUAMETHOD_METHOD, 2, 2, s_wxluatypeArray_wxLua_wxTreeCtrl_GetItemData }};
-//     wxTreeItemData* GetItemData(const wxTreeItemId& item) const
+//     wxLuaTreeItemData* GetItemData(const wxTreeItemId& item) const
 static int LUACALL wxLua_wxTreeCtrl_GetItemData(lua_State *L)
 {
     // const wxTreeItemId item
@@ -10129,9 +10190,9 @@ static int LUACALL wxLua_wxTreeCtrl_GetItemData(lua_State *L)
     // get this
     wxTreeCtrl * self = (wxTreeCtrl *)wxluaT_getuserdatatype(L, 1, wxluatype_wxTreeCtrl);
     // call GetItemData
-    wxTreeItemData* returns = (wxTreeItemData*)self->GetItemData(*item);
+    wxLuaTreeItemData* returns = (wxLuaTreeItemData*)self->GetItemData(*item);
     // push the result datatype
-    wxluaT_pushuserdatatype(L, returns, wxluatype_wxTreeItemData);
+    wxluaT_pushuserdatatype(L, returns, wxluatype_wxLuaTreeItemData);
 
     return 1;
 }
@@ -10272,19 +10333,15 @@ static int LUACALL wxLua_wxTreeCtrl_GetLastChild(lua_State *L)
     return 1;
 }
 
-static wxLuaArgType s_wxluatypeArray_wxLua_wxTreeCtrl_GetNextChild[] = { &wxluatype_wxTreeCtrl, &wxluatype_wxTreeItemId, &wxluatype_TNUMBER, NULL };
+static wxLuaArgType s_wxluatypeArray_wxLua_wxTreeCtrl_GetNextChild[] = { &wxluatype_wxTreeCtrl, &wxluatype_wxTreeItemId, &wxluatype_TLIGHTUSERDATA, NULL };
 static int LUACALL wxLua_wxTreeCtrl_GetNextChild(lua_State *L);
 static wxLuaBindCFunc s_wxluafunc_wxLua_wxTreeCtrl_GetNextChild[1] = {{ wxLua_wxTreeCtrl_GetNextChild, WXLUAMETHOD_METHOD, 3, 3, s_wxluatypeArray_wxLua_wxTreeCtrl_GetNextChild }};
 // %override wxLua_wxTreeCtrl_GetNextChild
-// wxTreeItemId GetNextChild(const wxTreeItemId& item, long& cookie) const
+// wxTreeItemId GetNextChild(const wxTreeItemId& item, wxTreeItemIdValue& cookie) const
 static int LUACALL wxLua_wxTreeCtrl_GetNextChild(lua_State *L)
 {
-#if wxCHECK_VERSION(2, 5, 0)
-    wxTreeItemIdValue cookie = (wxTreeItemIdValue)(long)wxlua_getintegertype(L, 3);
-#else
-    // long& cookie
-    long cookie = (long)lua_tonumber(L, 3);
-#endif
+    wxTreeItemIdValue cookie = (wxTreeItemIdValue)wxlua_getpointertype(L, 3);
+
     // const wxTreeItemId& item
     const wxTreeItemId *item = (wxTreeItemId *)wxluaT_getuserdatatype(L, 2, wxluatype_wxTreeItemId);
     // get this
@@ -10296,12 +10353,8 @@ static int LUACALL wxLua_wxTreeCtrl_GetNextChild(lua_State *L)
     wxluaO_addgcobject(L, returns, wxluatype_wxTreeItemId);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxTreeItemId);
-#if wxCHECK_VERSION(2, 5, 0)
-    lua_pushnumber(L, (long)cookie);
-#else
     // push the cookie
-    lua_pushnumber(L, cookie);
-#endif
+    lua_pushlightuserdata(L, cookie); // wxTreeItemIdValue is void*
     // return the number of parameters
     return 2;
 }
@@ -10387,6 +10440,22 @@ static int LUACALL wxLua_wxTreeCtrl_GetPrevVisible(lua_State *L)
     wxluaO_addgcobject(L, returns, wxluatype_wxTreeItemId);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxTreeItemId);
+
+    return 1;
+}
+
+static wxLuaArgType s_wxluatypeArray_wxLua_wxTreeCtrl_GetQuickBestSize[] = { &wxluatype_wxTreeCtrl, NULL };
+static int LUACALL wxLua_wxTreeCtrl_GetQuickBestSize(lua_State *L);
+static wxLuaBindCFunc s_wxluafunc_wxLua_wxTreeCtrl_GetQuickBestSize[1] = {{ wxLua_wxTreeCtrl_GetQuickBestSize, WXLUAMETHOD_METHOD, 1, 1, s_wxluatypeArray_wxLua_wxTreeCtrl_GetQuickBestSize }};
+//     bool GetQuickBestSize() const
+static int LUACALL wxLua_wxTreeCtrl_GetQuickBestSize(lua_State *L)
+{
+    // get this
+    wxTreeCtrl * self = (wxTreeCtrl *)wxluaT_getuserdatatype(L, 1, wxluatype_wxTreeCtrl);
+    // call GetQuickBestSize
+    bool returns = (self->GetQuickBestSize());
+    // push the result flag
+    lua_pushboolean(L, returns);
 
     return 1;
 }
@@ -10507,16 +10576,16 @@ static int LUACALL wxLua_wxTreeCtrl_HitTest(lua_State *L)
 
 #endif // (wxLUA_USE_wxTreeCtrl && wxUSE_TREECTRL) && (wxLUA_USE_wxPointSizeRect)
 
-static wxLuaArgType s_wxluatypeArray_wxLua_wxTreeCtrl_InsertItem1[] = { &wxluatype_wxTreeCtrl, &wxluatype_wxTreeItemId, &wxluatype_TINTEGER, &wxluatype_TSTRING, &wxluatype_TNUMBER, &wxluatype_TNUMBER, &wxluatype_wxTreeItemData, NULL };
+static wxLuaArgType s_wxluatypeArray_wxLua_wxTreeCtrl_InsertItem1[] = { &wxluatype_wxTreeCtrl, &wxluatype_wxTreeItemId, &wxluatype_TINTEGER, &wxluatype_TSTRING, &wxluatype_TNUMBER, &wxluatype_TNUMBER, &wxluatype_wxLuaTreeItemData, NULL };
 static int LUACALL wxLua_wxTreeCtrl_InsertItem1(lua_State *L);
 // static wxLuaBindCFunc s_wxluafunc_wxLua_wxTreeCtrl_InsertItem1[1] = {{ wxLua_wxTreeCtrl_InsertItem1, WXLUAMETHOD_METHOD, 4, 7, s_wxluatypeArray_wxLua_wxTreeCtrl_InsertItem1 }};
-//     wxTreeItemId InsertItem(const wxTreeItemId& parent, size_t before, const wxString& text, int image = -1, int selImage = -1, wxTreeItemData* data = NULL)
+//     wxTreeItemId InsertItem(const wxTreeItemId& parent, size_t before, const wxString& text, int image = -1, int selImage = -1, %ungc wxLuaTreeItemData* data = NULL)
 static int LUACALL wxLua_wxTreeCtrl_InsertItem1(lua_State *L)
 {
     // get number of arguments
     int argCount = lua_gettop(L);
-    // wxTreeItemData data = NULL
-    wxTreeItemData * data = (argCount >= 7 ? (wxTreeItemData *)wxluaT_getuserdatatype(L, 7, wxluatype_wxTreeItemData) : NULL);
+    // wxLuaTreeItemData data = NULL
+    wxLuaTreeItemData * data = (argCount >= 7 ? (wxLuaTreeItemData *)wxluaT_getuserdatatype(L, 7, wxluatype_wxLuaTreeItemData) : NULL);
     // int selImage = -1
     int selImage = (argCount >= 6 ? (int)wxlua_getnumbertype(L, 6) : -1);
     // int image = -1
@@ -10527,6 +10596,7 @@ static int LUACALL wxLua_wxTreeCtrl_InsertItem1(lua_State *L)
     size_t before = (size_t)wxlua_getuintegertype(L, 3);
     // const wxTreeItemId parent
     const wxTreeItemId * parent = (const wxTreeItemId *)wxluaT_getuserdatatype(L, 2, wxluatype_wxTreeItemId);
+    if (wxluaO_isgcobject(L, data)) wxluaO_undeletegcobject(L, data);
     // get this
     wxTreeCtrl * self = (wxTreeCtrl *)wxluaT_getuserdatatype(L, 1, wxluatype_wxTreeCtrl);
     // call InsertItem
@@ -10540,16 +10610,16 @@ static int LUACALL wxLua_wxTreeCtrl_InsertItem1(lua_State *L)
     return 1;
 }
 
-static wxLuaArgType s_wxluatypeArray_wxLua_wxTreeCtrl_InsertItem[] = { &wxluatype_wxTreeCtrl, &wxluatype_wxTreeItemId, &wxluatype_wxTreeItemId, &wxluatype_TSTRING, &wxluatype_TNUMBER, &wxluatype_TNUMBER, &wxluatype_wxTreeItemData, NULL };
+static wxLuaArgType s_wxluatypeArray_wxLua_wxTreeCtrl_InsertItem[] = { &wxluatype_wxTreeCtrl, &wxluatype_wxTreeItemId, &wxluatype_wxTreeItemId, &wxluatype_TSTRING, &wxluatype_TNUMBER, &wxluatype_TNUMBER, &wxluatype_wxLuaTreeItemData, NULL };
 static int LUACALL wxLua_wxTreeCtrl_InsertItem(lua_State *L);
 // static wxLuaBindCFunc s_wxluafunc_wxLua_wxTreeCtrl_InsertItem[1] = {{ wxLua_wxTreeCtrl_InsertItem, WXLUAMETHOD_METHOD, 4, 7, s_wxluatypeArray_wxLua_wxTreeCtrl_InsertItem }};
-//     wxTreeItemId InsertItem(const wxTreeItemId& parent, const wxTreeItemId& previous, const wxString& text, int image = -1, int selImage = -1, wxTreeItemData* data = NULL)
+//     wxTreeItemId InsertItem(const wxTreeItemId& parent, const wxTreeItemId& previous, const wxString& text, int image = -1, int selImage = -1, %ungc wxLuaTreeItemData* data = NULL)
 static int LUACALL wxLua_wxTreeCtrl_InsertItem(lua_State *L)
 {
     // get number of arguments
     int argCount = lua_gettop(L);
-    // wxTreeItemData data = NULL
-    wxTreeItemData * data = (argCount >= 7 ? (wxTreeItemData *)wxluaT_getuserdatatype(L, 7, wxluatype_wxTreeItemData) : NULL);
+    // wxLuaTreeItemData data = NULL
+    wxLuaTreeItemData * data = (argCount >= 7 ? (wxLuaTreeItemData *)wxluaT_getuserdatatype(L, 7, wxluatype_wxLuaTreeItemData) : NULL);
     // int selImage = -1
     int selImage = (argCount >= 6 ? (int)wxlua_getnumbertype(L, 6) : -1);
     // int image = -1
@@ -10560,6 +10630,7 @@ static int LUACALL wxLua_wxTreeCtrl_InsertItem(lua_State *L)
     const wxTreeItemId * previous = (const wxTreeItemId *)wxluaT_getuserdatatype(L, 3, wxluatype_wxTreeItemId);
     // const wxTreeItemId parent
     const wxTreeItemId * parent = (const wxTreeItemId *)wxluaT_getuserdatatype(L, 2, wxluatype_wxTreeItemId);
+    if (wxluaO_isgcobject(L, data)) wxluaO_undeletegcobject(L, data);
     // get this
     wxTreeCtrl * self = (wxTreeCtrl *)wxluaT_getuserdatatype(L, 1, wxluatype_wxTreeCtrl);
     // call InsertItem
@@ -10585,6 +10656,22 @@ static int LUACALL wxLua_wxTreeCtrl_IsBold(lua_State *L)
     wxTreeCtrl * self = (wxTreeCtrl *)wxluaT_getuserdatatype(L, 1, wxluatype_wxTreeCtrl);
     // call IsBold
     bool returns = (self->IsBold(*item));
+    // push the result flag
+    lua_pushboolean(L, returns);
+
+    return 1;
+}
+
+static wxLuaArgType s_wxluatypeArray_wxLua_wxTreeCtrl_IsEmpty[] = { &wxluatype_wxTreeCtrl, NULL };
+static int LUACALL wxLua_wxTreeCtrl_IsEmpty(lua_State *L);
+static wxLuaBindCFunc s_wxluafunc_wxLua_wxTreeCtrl_IsEmpty[1] = {{ wxLua_wxTreeCtrl_IsEmpty, WXLUAMETHOD_METHOD, 1, 1, s_wxluatypeArray_wxLua_wxTreeCtrl_IsEmpty }};
+//     bool IsEmpty() const
+static int LUACALL wxLua_wxTreeCtrl_IsEmpty(lua_State *L)
+{
+    // get this
+    wxTreeCtrl * self = (wxTreeCtrl *)wxluaT_getuserdatatype(L, 1, wxluatype_wxTreeCtrl);
+    // call IsEmpty
+    bool returns = (self->IsEmpty());
     // push the result flag
     lua_pushboolean(L, returns);
 
@@ -10663,16 +10750,16 @@ static int LUACALL wxLua_wxTreeCtrl_ItemHasChildren(lua_State *L)
     return 1;
 }
 
-static wxLuaArgType s_wxluatypeArray_wxLua_wxTreeCtrl_PrependItem[] = { &wxluatype_wxTreeCtrl, &wxluatype_wxTreeItemId, &wxluatype_TSTRING, &wxluatype_TNUMBER, &wxluatype_TNUMBER, &wxluatype_wxTreeItemData, NULL };
+static wxLuaArgType s_wxluatypeArray_wxLua_wxTreeCtrl_PrependItem[] = { &wxluatype_wxTreeCtrl, &wxluatype_wxTreeItemId, &wxluatype_TSTRING, &wxluatype_TNUMBER, &wxluatype_TNUMBER, &wxluatype_wxLuaTreeItemData, NULL };
 static int LUACALL wxLua_wxTreeCtrl_PrependItem(lua_State *L);
 static wxLuaBindCFunc s_wxluafunc_wxLua_wxTreeCtrl_PrependItem[1] = {{ wxLua_wxTreeCtrl_PrependItem, WXLUAMETHOD_METHOD, 3, 6, s_wxluatypeArray_wxLua_wxTreeCtrl_PrependItem }};
-//     wxTreeItemId PrependItem(const wxTreeItemId& parent, const wxString& text, int image = -1, int selImage = -1, wxTreeItemData* data = NULL)
+//     wxTreeItemId PrependItem(const wxTreeItemId& parent, const wxString& text, int image = -1, int selImage = -1, %ungc wxLuaTreeItemData* data = NULL)
 static int LUACALL wxLua_wxTreeCtrl_PrependItem(lua_State *L)
 {
     // get number of arguments
     int argCount = lua_gettop(L);
-    // wxTreeItemData data = NULL
-    wxTreeItemData * data = (argCount >= 6 ? (wxTreeItemData *)wxluaT_getuserdatatype(L, 6, wxluatype_wxTreeItemData) : NULL);
+    // wxLuaTreeItemData data = NULL
+    wxLuaTreeItemData * data = (argCount >= 6 ? (wxLuaTreeItemData *)wxluaT_getuserdatatype(L, 6, wxluatype_wxLuaTreeItemData) : NULL);
     // int selImage = -1
     int selImage = (argCount >= 5 ? (int)wxlua_getnumbertype(L, 5) : -1);
     // int image = -1
@@ -10681,6 +10768,7 @@ static int LUACALL wxLua_wxTreeCtrl_PrependItem(lua_State *L)
     const wxString text = wxlua_getwxStringtype(L, 3);
     // const wxTreeItemId parent
     const wxTreeItemId * parent = (const wxTreeItemId *)wxluaT_getuserdatatype(L, 2, wxluatype_wxTreeItemId);
+    if (wxluaO_isgcobject(L, data)) wxluaO_undeletegcobject(L, data);
     // get this
     wxTreeCtrl * self = (wxTreeCtrl *)wxluaT_getuserdatatype(L, 1, wxluatype_wxTreeCtrl);
     // call PrependItem
@@ -10808,16 +10896,17 @@ static int LUACALL wxLua_wxTreeCtrl_SetItemBold(lua_State *L)
     return 0;
 }
 
-static wxLuaArgType s_wxluatypeArray_wxLua_wxTreeCtrl_SetItemData[] = { &wxluatype_wxTreeCtrl, &wxluatype_wxTreeItemId, &wxluatype_wxTreeItemData, NULL };
+static wxLuaArgType s_wxluatypeArray_wxLua_wxTreeCtrl_SetItemData[] = { &wxluatype_wxTreeCtrl, &wxluatype_wxTreeItemId, &wxluatype_wxLuaTreeItemData, NULL };
 static int LUACALL wxLua_wxTreeCtrl_SetItemData(lua_State *L);
 static wxLuaBindCFunc s_wxluafunc_wxLua_wxTreeCtrl_SetItemData[1] = {{ wxLua_wxTreeCtrl_SetItemData, WXLUAMETHOD_METHOD, 3, 3, s_wxluatypeArray_wxLua_wxTreeCtrl_SetItemData }};
-//     void SetItemData(const wxTreeItemId& item, wxTreeItemData* data)
+//     void SetItemData(const wxTreeItemId& item, %ungc wxLuaTreeItemData* data)
 static int LUACALL wxLua_wxTreeCtrl_SetItemData(lua_State *L)
 {
-    // wxTreeItemData data
-    wxTreeItemData * data = (wxTreeItemData *)wxluaT_getuserdatatype(L, 3, wxluatype_wxTreeItemData);
+    // wxLuaTreeItemData data
+    wxLuaTreeItemData * data = (wxLuaTreeItemData *)wxluaT_getuserdatatype(L, 3, wxluatype_wxLuaTreeItemData);
     // const wxTreeItemId item
     const wxTreeItemId * item = (const wxTreeItemId *)wxluaT_getuserdatatype(L, 2, wxluatype_wxTreeItemId);
+    if (wxluaO_isgcobject(L, data)) wxluaO_undeletegcobject(L, data);
     // get this
     wxTreeCtrl * self = (wxTreeCtrl *)wxluaT_getuserdatatype(L, 1, wxluatype_wxTreeCtrl);
     // call SetItemData
@@ -10945,6 +11034,23 @@ static int LUACALL wxLua_wxTreeCtrl_SetItemTextColour(lua_State *L)
 }
 
 #endif // (wxLUA_USE_wxTreeCtrl && wxUSE_TREECTRL) && (wxLUA_USE_wxColourPenBrush)
+
+static wxLuaArgType s_wxluatypeArray_wxLua_wxTreeCtrl_SetQuickBestSize[] = { &wxluatype_wxTreeCtrl, &wxluatype_TBOOLEAN, NULL };
+static int LUACALL wxLua_wxTreeCtrl_SetQuickBestSize(lua_State *L);
+static wxLuaBindCFunc s_wxluafunc_wxLua_wxTreeCtrl_SetQuickBestSize[1] = {{ wxLua_wxTreeCtrl_SetQuickBestSize, WXLUAMETHOD_METHOD, 2, 2, s_wxluatypeArray_wxLua_wxTreeCtrl_SetQuickBestSize }};
+//     void SetQuickBestSize(bool quickBestSize)
+static int LUACALL wxLua_wxTreeCtrl_SetQuickBestSize(lua_State *L)
+{
+    // bool quickBestSize
+    bool quickBestSize = wxlua_getbooleantype(L, 2);
+    // get this
+    wxTreeCtrl * self = (wxTreeCtrl *)wxluaT_getuserdatatype(L, 1, wxluatype_wxTreeCtrl);
+    // call SetQuickBestSize
+    self->SetQuickBestSize(quickBestSize);
+
+    return 0;
+}
+
 
 #if (wxLUA_USE_wxTreeCtrl && wxUSE_TREECTRL) && (wxLUA_USE_wxImageList)
 static wxLuaArgType s_wxluatypeArray_wxLua_wxTreeCtrl_SetStateImageList[] = { &wxluatype_wxTreeCtrl, &wxluatype_wxImageList, NULL };
@@ -11153,6 +11259,8 @@ wxLuaBindMethod wxTreeCtrl_methods[] = {
 #endif // (wxLUA_USE_wxTreeCtrl && wxUSE_TREECTRL) && (wxLUA_USE_wxImageList)
 
     { "Collapse", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxTreeCtrl_Collapse, 1, NULL },
+    { "CollapseAll", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxTreeCtrl_CollapseAll, 1, NULL },
+    { "CollapseAllChildren", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxTreeCtrl_CollapseAllChildren, 1, NULL },
     { "CollapseAndReset", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxTreeCtrl_CollapseAndReset, 1, NULL },
 
 #if ((wxLUA_USE_wxTreeCtrl && wxUSE_TREECTRL) && (wxLUA_USE_wxValidator && wxUSE_VALIDATORS)) && (wxLUA_USE_wxPointSizeRect)
@@ -11170,6 +11278,8 @@ wxLuaBindMethod wxTreeCtrl_methods[] = {
 
     { "EnsureVisible", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxTreeCtrl_EnsureVisible, 1, NULL },
     { "Expand", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxTreeCtrl_Expand, 1, NULL },
+    { "ExpandAll", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxTreeCtrl_ExpandAll, 1, NULL },
+    { "ExpandAllChildren", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxTreeCtrl_ExpandAllChildren, 1, NULL },
 
 #if (wxLUA_USE_wxTreeCtrl && wxUSE_TREECTRL) && (wxLUA_USE_wxPointSizeRect)
     { "GetBoundingRect", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxTreeCtrl_GetBoundingRect, 1, NULL },
@@ -11214,6 +11324,7 @@ wxLuaBindMethod wxTreeCtrl_methods[] = {
     { "GetNextVisible", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxTreeCtrl_GetNextVisible, 1, NULL },
     { "GetPrevSibling", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxTreeCtrl_GetPrevSibling, 1, NULL },
     { "GetPrevVisible", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxTreeCtrl_GetPrevVisible, 1, NULL },
+    { "GetQuickBestSize", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxTreeCtrl_GetQuickBestSize, 1, NULL },
     { "GetRootItem", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxTreeCtrl_GetRootItem, 1, NULL },
     { "GetSelection", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxTreeCtrl_GetSelection, 1, NULL },
     { "GetSelections", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxTreeCtrl_GetSelections, 1, NULL },
@@ -11231,6 +11342,7 @@ wxLuaBindMethod wxTreeCtrl_methods[] = {
 #endif // (wxLUA_USE_wxTreeCtrl && wxUSE_TREECTRL)
 
     { "IsBold", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxTreeCtrl_IsBold, 1, NULL },
+    { "IsEmpty", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxTreeCtrl_IsEmpty, 1, NULL },
     { "IsExpanded", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxTreeCtrl_IsExpanded, 1, NULL },
     { "IsSelected", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxTreeCtrl_IsSelected, 1, NULL },
     { "IsVisible", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxTreeCtrl_IsVisible, 1, NULL },
@@ -11264,6 +11376,8 @@ wxLuaBindMethod wxTreeCtrl_methods[] = {
 #if (wxLUA_USE_wxTreeCtrl && wxUSE_TREECTRL) && (wxLUA_USE_wxColourPenBrush)
     { "SetItemTextColour", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxTreeCtrl_SetItemTextColour, 1, NULL },
 #endif // (wxLUA_USE_wxTreeCtrl && wxUSE_TREECTRL) && (wxLUA_USE_wxColourPenBrush)
+
+    { "SetQuickBestSize", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxTreeCtrl_SetQuickBestSize, 1, NULL },
 
 #if (wxLUA_USE_wxTreeCtrl && wxUSE_TREECTRL) && (wxLUA_USE_wxImageList)
     { "SetStateImageList", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxTreeCtrl_SetStateImageList, 1, NULL },
@@ -11486,6 +11600,9 @@ static int LUACALL wxLua_wxTreeItemData_SetId(lua_State *L)
     return 0;
 }
 
+static wxLuaArgType s_wxluatypeArray_wxLua_wxTreeItemData_delete[] = { &wxluatype_wxTreeItemData, NULL };
+static wxLuaBindCFunc s_wxluafunc_wxLua_wxTreeItemData_delete[1] = {{ wxlua_userdata_delete, WXLUAMETHOD_METHOD|WXLUAMETHOD_DELETE, 1, 1, s_wxluatypeArray_wxLua_wxTreeItemData_delete }};
+
 static int LUACALL wxLua_wxTreeItemData_constructor(lua_State *L);
 static wxLuaBindCFunc s_wxluafunc_wxLua_wxTreeItemData_constructor[1] = {{ wxLua_wxTreeItemData_constructor, WXLUAMETHOD_CONSTRUCTOR, 0, 0, g_wxluaargtypeArray_None }};
 //     wxTreeItemData()
@@ -11493,6 +11610,8 @@ static int LUACALL wxLua_wxTreeItemData_constructor(lua_State *L)
 {
     // call constructor
     wxTreeItemData* returns = new wxTreeItemData();
+    // add to tracked memory list
+    wxluaO_addgcobject(L, returns, wxluatype_wxTreeItemData);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxTreeItemData);
 
@@ -11512,6 +11631,7 @@ void wxLua_wxTreeItemData_delete_function(void** p)
 wxLuaBindMethod wxTreeItemData_methods[] = {
     { "GetId", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxTreeItemData_GetId, 1, NULL },
     { "SetId", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxTreeItemData_SetId, 1, NULL },
+    { "delete", WXLUAMETHOD_METHOD|WXLUAMETHOD_DELETE, s_wxluafunc_wxLua_wxTreeItemData_delete, 1, NULL },
     { "wxTreeItemData", WXLUAMETHOD_CONSTRUCTOR, s_wxluafunc_wxLua_wxTreeItemData_constructor, 1, NULL },
 
     { 0, 0, 0, 0 },
@@ -11530,50 +11650,81 @@ int wxTreeItemData_methodCount = sizeof(wxTreeItemData_methods)/sizeof(wxLuaBind
 // Lua MetaTable Tag for Class 'wxLuaTreeItemData'
 int wxluatype_wxLuaTreeItemData = WXLUA_TUNKNOWN;
 
-static wxLuaArgType s_wxluatypeArray_wxLua_wxLuaTreeItemData_GetValue[] = { &wxluatype_wxLuaTreeItemData, NULL };
-static int LUACALL wxLua_wxLuaTreeItemData_GetValue(lua_State *L);
-static wxLuaBindCFunc s_wxluafunc_wxLua_wxLuaTreeItemData_GetValue[1] = {{ wxLua_wxLuaTreeItemData_GetValue, WXLUAMETHOD_METHOD, 1, 1, s_wxluatypeArray_wxLua_wxLuaTreeItemData_GetValue }};
-//     double GetValue() const;
-static int LUACALL wxLua_wxLuaTreeItemData_GetValue(lua_State *L)
+static wxLuaArgType s_wxluatypeArray_wxLua_wxLuaTreeItemData_GetData[] = { &wxluatype_wxLuaTreeItemData, NULL };
+static int LUACALL wxLua_wxLuaTreeItemData_GetData(lua_State *L);
+static wxLuaBindCFunc s_wxluafunc_wxLua_wxLuaTreeItemData_GetData[1] = {{ wxLua_wxLuaTreeItemData_GetData, WXLUAMETHOD_METHOD, 1, 1, s_wxluatypeArray_wxLua_wxLuaTreeItemData_GetData }};
+// %override wxLua_wxLuaTreeItemData_GetData
+//     wxLuaObject* GetData() const;
+static int LUACALL wxLua_wxLuaTreeItemData_GetData(lua_State *L)
 {
     // get this
     wxLuaTreeItemData * self = (wxLuaTreeItemData *)wxluaT_getuserdatatype(L, 1, wxluatype_wxLuaTreeItemData);
-    // call GetValue
-    double returns = (self->GetValue());
-    // push the result number
-    lua_pushnumber(L, returns);
+    // call GetData
+    wxLuaObject* returns = (wxLuaObject*)self->GetData();
+    // push the result datatype
+    if ((returns == NULL) || !returns->GetObject(L))
+        lua_pushnil(L);
 
     return 1;
 }
 
-static wxLuaArgType s_wxluatypeArray_wxLua_wxLuaTreeItemData_SetValue[] = { &wxluatype_wxLuaTreeItemData, &wxluatype_TNUMBER, NULL };
-static int LUACALL wxLua_wxLuaTreeItemData_SetValue(lua_State *L);
-static wxLuaBindCFunc s_wxluafunc_wxLua_wxLuaTreeItemData_SetValue[1] = {{ wxLua_wxLuaTreeItemData_SetValue, WXLUAMETHOD_METHOD, 2, 2, s_wxluatypeArray_wxLua_wxLuaTreeItemData_SetValue }};
-//     void   SetValue(double value);
-static int LUACALL wxLua_wxLuaTreeItemData_SetValue(lua_State *L)
+
+static wxLuaArgType s_wxluatypeArray_wxLua_wxLuaTreeItemData_SetData[] = { &wxluatype_wxLuaTreeItemData, &wxluatype_TANY, NULL };
+static int LUACALL wxLua_wxLuaTreeItemData_SetData(lua_State *L);
+static wxLuaBindCFunc s_wxluafunc_wxLua_wxLuaTreeItemData_SetData[1] = {{ wxLua_wxLuaTreeItemData_SetData, WXLUAMETHOD_METHOD, 2, 2, s_wxluatypeArray_wxLua_wxLuaTreeItemData_SetData }};
+// %override wxLua_wxLuaTreeItemData_SetData
+//     void         SetData(%ungc wxLuaObject* obj); // obj is deleted when tree item data is deleted
+static int LUACALL wxLua_wxLuaTreeItemData_SetData(lua_State *L)
 {
-    // double value
-    double value = (double)wxlua_getnumbertype(L, 2);
+    // wxLuaObject obj
+    //wxLuaObject * obj = (wxLuaObject *)wxluaT_getuserdatatype(L, 2, wxluatype_wxLuaObject);
+    //if (wxluaO_isgcobject(L, obj)) wxluaO_undeletegcobject(L, obj);
+    wxLuaObject* obj = new wxLuaObject(L, 2);
+
     // get this
     wxLuaTreeItemData * self = (wxLuaTreeItemData *)wxluaT_getuserdatatype(L, 1, wxluatype_wxLuaTreeItemData);
-    // call SetValue
-    self->SetValue(value);
+    // call SetData
+    self->SetData(obj);
 
     return 0;
 }
 
-static wxLuaArgType s_wxluatypeArray_wxLua_wxLuaTreeItemData_constructor[] = { &wxluatype_TNUMBER, NULL };
+
+static wxLuaArgType s_wxluatypeArray_wxLua_wxLuaTreeItemData_delete[] = { &wxluatype_wxLuaTreeItemData, NULL };
+static wxLuaBindCFunc s_wxluafunc_wxLua_wxLuaTreeItemData_delete[1] = {{ wxlua_userdata_delete, WXLUAMETHOD_METHOD|WXLUAMETHOD_DELETE, 1, 1, s_wxluatypeArray_wxLua_wxLuaTreeItemData_delete }};
+
+static wxLuaArgType s_wxluatypeArray_wxLua_wxLuaTreeItemData_constructor1[] = { &wxluatype_TANY, NULL };
+static int LUACALL wxLua_wxLuaTreeItemData_constructor1(lua_State *L);
+// static wxLuaBindCFunc s_wxluafunc_wxLua_wxLuaTreeItemData_constructor1[1] = {{ wxLua_wxLuaTreeItemData_constructor1, WXLUAMETHOD_CONSTRUCTOR, 1, 1, s_wxluatypeArray_wxLua_wxLuaTreeItemData_constructor1 }};
+// %override wxLua_wxLuaTreeItemData_constructor1
+//     wxLuaTreeItemData(%ungc wxLuaObject* obj) // obj is deleted when tree item data is deleted
+static int LUACALL wxLua_wxLuaTreeItemData_constructor1(lua_State *L)
+{
+    // wxLuaObject obj
+    //wxLuaObject * obj = (wxLuaObject *)wxluaT_getuserdatatype(L, 1, wxluatype_wxLuaObject);
+    //if (wxluaO_isgcobject(L, obj)) wxluaO_undeletegcobject(L, obj);
+    wxLuaObject* obj = new wxLuaObject(L, 1);
+
+    // call constructor
+    wxLuaTreeItemData* returns = new wxLuaTreeItemData(obj);
+    // add to tracked memory list
+    wxluaO_addgcobject(L, returns, wxluatype_wxLuaTreeItemData);
+    // push the constructed class pointer
+    wxluaT_pushuserdatatype(L, returns, wxluatype_wxLuaTreeItemData);
+
+    return 1;
+}
+
+
 static int LUACALL wxLua_wxLuaTreeItemData_constructor(lua_State *L);
-static wxLuaBindCFunc s_wxluafunc_wxLua_wxLuaTreeItemData_constructor[1] = {{ wxLua_wxLuaTreeItemData_constructor, WXLUAMETHOD_CONSTRUCTOR, 0, 1, s_wxluatypeArray_wxLua_wxLuaTreeItemData_constructor }};
-//     wxLuaTreeItemData(double value = 0)
+// static wxLuaBindCFunc s_wxluafunc_wxLua_wxLuaTreeItemData_constructor[1] = {{ wxLua_wxLuaTreeItemData_constructor, WXLUAMETHOD_CONSTRUCTOR, 0, 0, g_wxluaargtypeArray_None }};
+//     wxLuaTreeItemData()
 static int LUACALL wxLua_wxLuaTreeItemData_constructor(lua_State *L)
 {
-    // get number of arguments
-    int argCount = lua_gettop(L);
-    // double value = 0
-    double value = (argCount >= 1 ? (double)wxlua_getnumbertype(L, 1) : 0);
     // call constructor
-    wxLuaTreeItemData* returns = new wxLuaTreeItemData(value);
+    wxLuaTreeItemData* returns = new wxLuaTreeItemData();
+    // add to tracked memory list
+    wxluaO_addgcobject(L, returns, wxluatype_wxLuaTreeItemData);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxLuaTreeItemData);
 
@@ -11583,6 +11734,17 @@ static int LUACALL wxLua_wxLuaTreeItemData_constructor(lua_State *L)
 
 
 
+#if (wxLUA_USE_wxTreeCtrl && wxUSE_TREECTRL)
+// function overload table
+static wxLuaBindCFunc s_wxluafunc_wxLua_wxLuaTreeItemData_constructor_overload[] =
+{
+    { wxLua_wxLuaTreeItemData_constructor1, WXLUAMETHOD_CONSTRUCTOR, 1, 1, s_wxluatypeArray_wxLua_wxLuaTreeItemData_constructor1 },
+    { wxLua_wxLuaTreeItemData_constructor, WXLUAMETHOD_CONSTRUCTOR, 0, 0, g_wxluaargtypeArray_None },
+};
+static int s_wxluafunc_wxLua_wxLuaTreeItemData_constructor_overload_count = sizeof(s_wxluafunc_wxLua_wxLuaTreeItemData_constructor_overload)/sizeof(wxLuaBindCFunc);
+
+#endif // (wxLUA_USE_wxTreeCtrl && wxUSE_TREECTRL)
+
 void wxLua_wxLuaTreeItemData_delete_function(void** p)
 {
     wxLuaTreeItemData* o = (wxLuaTreeItemData*)(*p);
@@ -11591,9 +11753,13 @@ void wxLua_wxLuaTreeItemData_delete_function(void** p)
 
 // Map Lua Class Methods to C Binding Functions
 wxLuaBindMethod wxLuaTreeItemData_methods[] = {
-    { "GetValue", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxLuaTreeItemData_GetValue, 1, NULL },
-    { "SetValue", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxLuaTreeItemData_SetValue, 1, NULL },
-    { "wxLuaTreeItemData", WXLUAMETHOD_CONSTRUCTOR, s_wxluafunc_wxLua_wxLuaTreeItemData_constructor, 1, NULL },
+    { "GetData", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxLuaTreeItemData_GetData, 1, NULL },
+    { "SetData", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxLuaTreeItemData_SetData, 1, NULL },
+    { "delete", WXLUAMETHOD_METHOD|WXLUAMETHOD_DELETE, s_wxluafunc_wxLua_wxLuaTreeItemData_delete, 1, NULL },
+
+#if (wxLUA_USE_wxTreeCtrl && wxUSE_TREECTRL)
+    { "wxLuaTreeItemData", WXLUAMETHOD_CONSTRUCTOR, s_wxluafunc_wxLua_wxLuaTreeItemData_constructor_overload, s_wxluafunc_wxLua_wxLuaTreeItemData_constructor_overload_count, 0 },
+#endif // (wxLUA_USE_wxTreeCtrl && wxUSE_TREECTRL)
 
     { 0, 0, 0, 0 },
 };

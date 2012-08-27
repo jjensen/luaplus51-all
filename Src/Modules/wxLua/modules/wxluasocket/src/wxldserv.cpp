@@ -3,7 +3,7 @@
 // Purpose:     Provide remote debugging support for wxLua.
 // Author:      J. Winwood, John Labenski, Ray Gilbert
 // Created:     May 2002.
-// Copyright:   (c) 2002 Lomtick Software. All rights reserved.
+// Copyright:   (c) 2012 John Labenski, 2002 Lomtick Software. All rights reserved.
 // Licence:     wxWidgets licence
 /////////////////////////////////////////////////////////////////////////////
 
@@ -531,7 +531,7 @@ bool wxLuaDebuggerBase::CheckSocketRead(bool read_ok, const wxString& msg)
     if (!read_ok)
     {
         wxLuaDebuggerEvent debugEvent(wxEVT_WXLUA_DEBUGGER_DEBUGGEE_DISCONNECTED, this);
-        debugEvent.SetMessage(wxString::Format(wxT("Failed reading from the debugger socket. %s\n"), msg.c_str(), GetSocketErrorMsg().c_str()));
+        debugEvent.SetMessage(wxString::Format(wxT("Failed reading from the debugger socket. %s %s\n"), msg.c_str(), GetSocketErrorMsg().c_str()));
         SendEvent(debugEvent);
     }
 
@@ -643,8 +643,10 @@ void *wxLuaDebuggerCServer::LuaThread::Entry()
 
 void wxLuaDebuggerCServer::LuaThread::OnExit()
 {
-    wxThread::OnExit();
+#if !wxCHECK_VERSION(2,9,0)
+    wxThread::OnExit(); // in 2.9 there is OnKill() and OnDelete()
     //m_pServer->m_pThread = NULL;
+#endif
 }
 
 // ----------------------------------------------------------------------------

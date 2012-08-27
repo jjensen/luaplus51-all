@@ -15,10 +15,10 @@ else
 	LUA=$(WXLUA_DIR)/bin/lua
 endif
 
+ALL_BINDINGS = wxbase wxcore wxadv wxaui wxgl wxhtml wxnet wxmedia wxstc wxxml wxxrc wxrichtext wxlua wxluasocket wxluacan wxdatatypes
 
 # These have to be in order of their dependencies
-all: wxbase wxcore wxadv wxaui wxgl wxhtml wxnet wxmedia wxstc wxxml wxxrc wxrichtext wxlua wxluasocket wxluacan wxdatatypes
-
+all: $(ALL_BINDINGS)
 
 wxadv:
 	@echo Building wxAdv
@@ -84,7 +84,7 @@ wxdatatypes:
 
 
 wxluacan:
-	@echo "Building wxLuaCan (ps. did you forget to run make -B)"
+	@echo Building wxLuaCan
 	@(cd $(WXLUA_DIR)/apps/wxluacan/src && make -e LUA=../../$(LUA) genwxbind)
 
 
@@ -95,3 +95,5 @@ genidocs:
 
 # do nothing to clean
 clean:
+
+.PHONY: all genidocs $(ALL_BINDINGS)

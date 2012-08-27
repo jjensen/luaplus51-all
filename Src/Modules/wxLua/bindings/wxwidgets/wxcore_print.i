@@ -398,7 +398,7 @@
 
 //%typedef wxPageSetupDialogBase wxPageSetupDialog
 
-%class wxPageSetupDialog, wxObject // NOT a wxDialog in 2.6
+%class %delete wxPageSetupDialog, wxObject // NOT a wxDialog in 2.8
     wxPageSetupDialog(wxWindow* parent, wxPageSetupDialogData* data = NULL)
 
     wxPageSetupDialogData& GetPageSetupDialogData()
@@ -408,7 +408,7 @@
 // ---------------------------------------------------------------------------
 // wxPrintDialog
 
-%class wxPrintDialog, wxObject // NOT a wxDialog in 2.6
+%class %delete wxPrintDialog, wxObject // NOT a wxDialog in 2.8
     wxPrintDialog(wxWindow* parent, wxPrintDialogData* data = NULL)
 
     wxPrintDialogData& GetPrintDialogData()
@@ -548,8 +548,9 @@
 %class %delete wxPostScriptDC, wxDC
     wxPostScriptDC(const wxPrintData& printData)
 
-    static void SetResolution(int ppi)
-    static int GetResolution()
+    !%wxchkver_2_9_2 static void SetResolution(int ppi)
+    !%wxchkver_2_9_2 static int GetResolution()
+    %wxchkver_2_9_2 int GetResolution()
 %endclass
 
 %endif //wxUSE_POSTSCRIPT

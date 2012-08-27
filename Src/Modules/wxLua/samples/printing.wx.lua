@@ -5,7 +5,7 @@
 -- Modified by:
 -- Created:     4/7/2002
 -- Modified
--- RCS-ID:      $Id: printing.wx.lua,v 1.19 2008/02/22 19:04:32 jrl1 Exp $
+-- RCS-ID:      $Id: printing.wx.lua,v 1.20 2011/11/16 04:40:48 jrl1 Exp $
 -- Copyright:   (c) 2002 J Winwood. All rights reserved.
 -- Licence:     wxWidgets licence
 -----------------------------------------------------------------------------
@@ -193,20 +193,23 @@ function PrintPreview()
 end
 
 function PrintSetup()
-    -- NOTE : this function crashes in wxWidgets GTK wxWidgets 2.8.2
+    -- NOTE : This function crashes in wxWidgets GTK wxWidgets 2.8.12
+    --        The wxWidgets print sample doesn't even demonstate this.
     local printDialogData = wx.wxPrintDialogData(printData)
     local printerDialog   = wx.wxPrintDialog(frame, printDialogData)
-    --printerDialog:GetPrintDialogData():SetSetupDialog(true)
-    printerDialog:ShowModal()
-    printData = printerDialog:GetPrintDialogData():GetPrintData():Copy()
+    printerDialog:GetPrintDialogData():SetSetupDialog(true)
+    if (printerDialog:ShowModal() == wx.wxID_OK) then
+        printData = printerDialog:GetPrintDialogData():GetPrintData():Copy()
+    end
 end
 
 function PageSetup()
     printData = pageSetupDialogData:GetPrintData():Copy()
     local pageSetupDialog = wx.wxPageSetupDialog(frame, pageSetupDialogData)
-    pageSetupDialog:ShowModal()
-    printData           = pageSetupDialog:GetPageSetupDialogData():GetPrintData():Copy()
-    pageSetupDialogData = pageSetupDialog:GetPageSetupDialogData():Copy()
+    if (pageSetupDialog:ShowModal() == wx.wxID_OK) then
+        printData           = pageSetupDialog:GetPageSetupDialogData():GetPrintData():Copy()
+        pageSetupDialogData = pageSetupDialog:GetPageSetupDialogData():Copy()
+    end
     pageSetupDialog:delete()
 end
 
@@ -239,7 +242,7 @@ function main()
     -- create a simple file menu
     local fileMenu = wx.wxMenu()
     fileMenu:Append(ID_PAGESETUP,    "Page S&etup...", "Set up the page")
-    fileMenu:Append(ID_PRINTSETUP,   "Print &Setup...", "Set up the printer")
+    --fileMenu:Append(ID_PRINTSETUP,   "Print &Setup...", "Set up the printer")
     fileMenu:Append(ID_PRINTPREVIEW, "Print Pre&view...", "Preview the test print")
     fileMenu:Append(ID_PRINT,        "&Print...", "Print the test print")
     fileMenu:Append(wx.wxID_EXIT,    "E&xit", "Quit the program")

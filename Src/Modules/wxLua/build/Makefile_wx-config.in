@@ -11,14 +11,18 @@
 
 #WXLUA_DIR    = ../../..
 
+WXLUA_DIR_ABS := $(realpath $(WXLUA_DIR))
+
 # --- wxLua parameters -------------------------------------------------------
 
 WXLUA_LIBVERSION_CURRENT  = 2
 WXLUA_LIBVERSION_REVISION = 8
-WXLUA_LIBVERSION_AGE      = 7
+WXLUA_LIBVERSION_AGE      = 12
 
-# We use the wxWidgets lib dir to put our libs into (it must be writeable)
-WXLUA_LIBDIR         = $(WXLIB_DIR)
+# We can use the wxWidgets lib dir to put our libs into (it must be writeable)
+#WXLUA_LIBDIR         = $(WXLIB_DIR)
+# Put the libs into the wxLua/lib directory
+WXLUA_LIBDIR         = $(WXLUA_DIR_ABS)/lib/
 WXLUA_TARGET_LIBDIR  = $(WXLUA_LIBDIR)
 
 # Path to the "wxluasetup.h" file that specifies what to include in the bindings
@@ -49,17 +53,23 @@ endif
 
 WXLIBS_NAMES = stc,gl,media,aui,xrc,qa,html,adv,core,xml,net,base
 
-@echo "Using these WXLIBS_NAMES = $(WXLIBS_NAMES)"
+# Only call these shell functions once, we chain Makefiles together that all
+# include this Makefile and it slows the build down.
+# An app build that doesn't compile anything went from 6 to 1 sec after exporting these.
+ifndef WXPREFIX
 
-WXCONFIG   := wx-config
-WXPREFIX   := $(shell $(WXCONFIG) --prefix)
-WXEXECDIR  := $(shell $(WXCONFIG) --exec-prefix)
-WXBASENAME := $(shell $(WXCONFIG) --basename)
-WXVERSION  := $(shell $(WXCONFIG) --version)
-WXRELEASE  := $(shell $(WXCONFIG) --release)
-WXCXXFLAGS := $(shell $(WXCONFIG) --cxxflags)
-WXLDLIBS   := $(shell $(WXCONFIG) --libs $(WXLIBS_NAMES))
-WXCXX      := $(shell $(WXCONFIG) --cxx)
+export WXCONFIG   := wx-config
+export WXPREFIX   := $(shell $(WXCONFIG) --prefix)
+export WXEXECDIR  := $(shell $(WXCONFIG) --exec-prefix)
+export WXBASENAME := $(shell $(WXCONFIG) --basename)
+export WXVERSION  := $(shell $(WXCONFIG) --version)
+export WXRELEASE  := $(shell $(WXCONFIG) --release)
+export WXCXXFLAGS := $(shell $(WXCONFIG) --cxxflags)
+export WXLDLIBS   := $(shell $(WXCONFIG) --libs $(WXLIBS_NAMES))
+export WXCXX      := $(shell $(WXCONFIG) --cxx)
+
+endif
+
 WXLIB_DIR  := $(WXEXECDIR)/lib
 
 WXSTC_LIB  := $(WXBASENAME)_stc-$(WXRELEASE)
@@ -116,7 +126,7 @@ WXLUABINDSTD_LIBS  := -l$(WXLUABINDNET_LIB) -l$(WXLUABINDCORE_LIB) -l$(WXLUABIND
 # ----------------------------------------------------------------------------
 
 CXXFLAGS := $(WXCXXFLAGS) -MMD -g -Wall -fPIC
-LDLIBS   := $(WXLDLIBS)
+LDLIBS   := $(WXLDLIBS) -ldl -Wl,--rpath -Wl,$(WXLUA_DIR_ABS)/lib
 CXX      := $(WXCXX)
 
 RM        = rm -f

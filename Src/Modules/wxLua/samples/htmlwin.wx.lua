@@ -28,8 +28,8 @@ htmlTextPage =
                 x=100 y=70>
         </center>
         <hr>
-        <lua text="small widget"
-                x=60 y=50>
+        <lua text="widget with lots of text in it"
+                x=100 y=50>
         <hr>
         <lua text="widget with floating width"
             float=y x=70 y=40>

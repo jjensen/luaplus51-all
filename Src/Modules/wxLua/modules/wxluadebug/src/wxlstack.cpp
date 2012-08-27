@@ -3,26 +3,26 @@
 // Purpose:     Display the Lua stack in a dialog.
 // Author:      J. Winwood, John Labenski
 // Created:     February 2002
-// Copyright:   (c) 2002 Lomtick Software. All rights reserved.
+// Copyright:   (c) 2012 John Labenski, 2002 Lomtick Software. All rights reserved.
 // Licence:     wxWidgets licence
 /////////////////////////////////////////////////////////////////////////////
 
-#include "wx/wxprec.h"
+#include <wx/wxprec.h>
 
 #ifdef __BORLANDC__
     #pragma hdrstop
 #endif
 
 #ifndef WX_PRECOMP
-    #include "wx/wx.h"
+    #include <wx/wx.h>
 #endif
 
-#include "wx/imaglist.h"
-#include "wx/artprov.h"
-#include "wx/listctrl.h"
-#include "wx/splitter.h"
-#include "wx/progdlg.h"
-#include "wx/clipbrd.h"
+#include <wx/imaglist.h>
+#include <wx/artprov.h>
+#include <wx/listctrl.h>
+#include <wx/splitter.h>
+#include <wx/progdlg.h>
+#include <wx/clipbrd.h>
 
 #include "wxluadebug/include/wxlstack.h"
 #include "wxlua/include/wxlua.h"
@@ -142,11 +142,13 @@ bool wxLuaStackDialog::Create(const wxLuaState& wxlState,
     m_wxlState = wxlState;
 
     wxSize size(size_);
-    if (size == wxDefaultSize) size = sm_defaultSize;
 
     if (!wxDialog::Create(parent, id, title, pos, size,
-            wxDEFAULT_DIALOG_STYLE | wxDIALOG_MODAL | wxMAXIMIZE_BOX | wxRESIZE_BORDER))
+            wxDEFAULT_DIALOG_STYLE | wxMAXIMIZE_BOX | wxMINIMIZE_BOX | wxRESIZE_BORDER,
+            wxT("wxLuaStackDialog")))
         return false;
+
+    if (size == wxDefaultSize) size = sm_defaultSize;
 
     SetIcon(wxICON(LUA)); // set the frame icon
 
@@ -243,12 +245,12 @@ bool wxLuaStackDialog::Create(const wxLuaState& wxlState,
 
     // -----------------------------------------------------------------------
 
-    wxFlexGridSizer* topSizer = new wxFlexGridSizer(2, 1);
+    wxFlexGridSizer* topSizer = new wxFlexGridSizer(2, 0, 0);
     topSizer->AddGrowableCol(1);
 
     topSizer->Add(stackText, wxSizerFlags().Expand().Border().Align(wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL));
 
-    wxFlexGridSizer* stackSizer = new wxFlexGridSizer(3, 1);
+    wxFlexGridSizer* stackSizer = new wxFlexGridSizer(3, 0, 0);
     stackSizer->AddGrowableCol(0);
     stackSizer->Add(m_stackChoice, wxSizerFlags().Expand().Border());
     stackSizer->Add(collapseButton, wxSizerFlags().Border());
@@ -257,7 +259,7 @@ bool wxLuaStackDialog::Create(const wxLuaState& wxlState,
 
     topSizer->Add(findText, wxSizerFlags().Expand().Border().Align(wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL));
 
-    wxFlexGridSizer* findSizer = new wxFlexGridSizer(4, 1);
+    wxFlexGridSizer* findSizer = new wxFlexGridSizer(4, 0, 0);
     findSizer->AddGrowableCol(0);
     findSizer->Add(m_findComboBox, wxSizerFlags().Expand().Border());
     findSizer->Add(findPrev, wxSizerFlags().Expand().Border());
@@ -283,7 +285,7 @@ bool wxLuaStackDialog::Create(const wxLuaState& wxlState,
 
     m_listCtrl = new wxLuaStackListCtrl(this, m_splitterWin, ID_WXLUA_STACK_LISTCTRL,
                                 wxDefaultPosition, wxDefaultSize,
-                                wxLC_REPORT|wxLC_SINGLE_SEL|wxLC_HRULES|wxLC_VRULES|wxLC_VIRTUAL );
+                                wxLC_REPORT|wxLC_HRULES|wxLC_VRULES|wxLC_VIRTUAL ); // wxLC_SINGLE_SEL
 
     m_listCtrl->SetImageList(m_imageList,          wxIMAGE_LIST_SMALL);
     m_listCtrl->InsertColumn(LIST_COL_KEY,        wxT("Name"),       wxLIST_FORMAT_LEFT, -1);
@@ -298,7 +300,7 @@ bool wxLuaStackDialog::Create(const wxLuaState& wxlState,
 
 
     m_listCtrl->SetColumnWidth(0, txt_width);
-    m_listCtrl->SetColumnWidth(4, 4*txt_width); // make it wide since it's the last
+    m_listCtrl->SetColumnWidth(4, txt_width); // we'll make it wider later since it's the last
     m_listCtrl->GetTextExtent(wxT("555:5555"), &txt_width, &txt_height);
     m_listCtrl->SetColumnWidth(1, txt_width);
     m_listCtrl->GetTextExtent(wxT("Light User DataX"), &txt_width, &txt_height);
@@ -306,11 +308,12 @@ bool wxLuaStackDialog::Create(const wxLuaState& wxlState,
     m_listCtrl->SetColumnWidth(3, txt_width);
 
     m_listMenu = new wxMenu(wxEmptyString, 0);
-    m_listMenu->Append(ID_WXLUA_STACK_LISTMENU_COPY0, wxT("Copy name"),       wxT("Copy name to clipboard"), wxITEM_NORMAL);
-    m_listMenu->Append(ID_WXLUA_STACK_LISTMENU_COPY1, wxT("Copy level"),      wxT("Copy level to clipboard"), wxITEM_NORMAL);
-    m_listMenu->Append(ID_WXLUA_STACK_LISTMENU_COPY2, wxT("Copy key type"),   wxT("Copy key type to clipboard"), wxITEM_NORMAL);
-    m_listMenu->Append(ID_WXLUA_STACK_LISTMENU_COPY3, wxT("Copy value type"), wxT("Copy value type to clipboard"), wxITEM_NORMAL);
-    m_listMenu->Append(ID_WXLUA_STACK_LISTMENU_COPY4, wxT("Copy value"),      wxT("Copy value to clipboard"), wxITEM_NORMAL);
+    m_listMenu->Append(ID_WXLUA_STACK_LISTMENU_COPY_ROW,  wxT("Copy row"),        wxT("Copy whole row clipboard"), wxITEM_NORMAL);
+    m_listMenu->Append(ID_WXLUA_STACK_LISTMENU_COPY_COL0, wxT("Copy name"),       wxT("Copy name to clipboard"), wxITEM_NORMAL);
+    m_listMenu->Append(ID_WXLUA_STACK_LISTMENU_COPY_COL1, wxT("Copy level"),      wxT("Copy level to clipboard"), wxITEM_NORMAL);
+    m_listMenu->Append(ID_WXLUA_STACK_LISTMENU_COPY_COL2, wxT("Copy key type"),   wxT("Copy key type to clipboard"), wxITEM_NORMAL);
+    m_listMenu->Append(ID_WXLUA_STACK_LISTMENU_COPY_COL3, wxT("Copy value type"), wxT("Copy value type to clipboard"), wxITEM_NORMAL);
+    m_listMenu->Append(ID_WXLUA_STACK_LISTMENU_COPY_COL4, wxT("Copy value"),      wxT("Copy value to clipboard"), wxITEM_NORMAL);
 
     // -----------------------------------------------------------------------
 
@@ -324,10 +327,15 @@ bool wxLuaStackDialog::Create(const wxLuaState& wxlState,
     panel->SetSizer(rootSizer);
     rootSizer->SetSizeHints(this);
 
+    // We want the last col wide since it's hard to drag the col width of a listctrl
+    // however, we don't want the sizer to take the extra width into account
+    m_listCtrl->SetColumnWidth(4, m_listCtrl->GetColumnWidth(4)*4);
+    // Allow people to shrink it down pretty small
+    SetMinSize(wxSize(200, 200));
+
     SetSize(size); // force last good/known size
     if (sm_maximized)
         Maximize();
-
 
     EnumerateStack();
 
@@ -671,7 +679,7 @@ void wxLuaStackDialog::FillTableEntry(long lc_item_, const wxLuaDebugData& debug
 
             wxLuaDebugItem* debugItem = debugData.Item(n);
 
-            int img = GetItemImage(debugItem);
+            //int img = GetItemImage(debugItem);
 
             if ((debugItem->GetRef() != LUA_NOREF) ||
                  debugItem->GetFlagBit(WXLUA_DEBUGITEM_LOCALS))
@@ -820,21 +828,37 @@ void wxLuaStackDialog::OnMenu(wxCommandEvent& event)
         if (m_findMenu->IsChecked(ID_WXLUA_STACK_FINDMENU_ALL) != checked)
             m_findMenu->Check(ID_WXLUA_STACK_FINDMENU_ALL, all_checked);
     }
-    else if ((id >= ID_WXLUA_STACK_LISTMENU_COPY0) && (id <= ID_WXLUA_STACK_LISTMENU_COPY4))
+    else if ((id >= ID_WXLUA_STACK_LISTMENU_COPY_ROW) && (id <= ID_WXLUA_STACK_LISTMENU_COPY_COL4))
     {
-        long list_item = m_listCtrl->GetNextItem(-1, wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED);
-        // they must select an item
-        if (list_item >= 0)
-        {
-            wxString s(GetItemText(list_item, id - ID_WXLUA_STACK_LISTMENU_COPY0, true));
+        wxString s;
 
-            if (wxTheClipboard->Open())
+        long list_item = m_listCtrl->GetNextItem(-1, wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED);
+        // iterate all selected items, separated by \n
+        while (list_item >= 0)
+        {
+            if (!s.IsEmpty()) s += wxT("\n");
+
+            if (id == ID_WXLUA_STACK_LISTMENU_COPY_ROW)
             {
-                // These data objects are held by the clipboard,
-                // so do not delete them in the app.
-                wxTheClipboard->SetData( new wxTextDataObject(s) );
-                wxTheClipboard->Close();
+                s += GetItemText(list_item, 0, true);
+
+                for (int i = 1; i < LIST_COL__MAX; ++i)
+                    s += wxT("\t") + GetItemText(list_item, i, true);
             }
+            else // ((id >= ID_WXLUA_STACK_LISTMENU_COPY_COL0) && (id <= ID_WXLUA_STACK_LISTMENU_COPY_COL4))
+            {
+                s += GetItemText(list_item, id - ID_WXLUA_STACK_LISTMENU_COPY_COL0, true);
+            }
+
+            list_item = m_listCtrl->GetNextItem(list_item, wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED);
+        }
+
+        if (wxTheClipboard->Open())
+        {
+            // These data objects are held by the clipboard,
+            // so do not delete them in the app.
+            wxTheClipboard->SetData( new wxTextDataObject(s) );
+            wxTheClipboard->Close();
         }
     }
 }
@@ -976,9 +1000,17 @@ void wxLuaStackDialog::OnTreeItem(wxTreeEvent &event)
     }
     else if (evt_type == wxEVT_COMMAND_TREE_SEL_CHANGED)
     {
-        m_listCtrl->SetItemState(list_item, wxLIST_STATE_FOCUSED, wxLIST_STATE_FOCUSED);
-        m_listCtrl->SetItemState(list_item, wxLIST_STATE_SELECTED, wxLIST_STATE_SELECTED);
+        long last_item = m_listCtrl->GetNextItem(-1, wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED);
+
+        m_listCtrl->SetItemState(list_item, wxLIST_STATE_SELECTED|wxLIST_STATE_FOCUSED,
+                                            wxLIST_STATE_SELECTED|wxLIST_STATE_FOCUSED);
         m_listCtrl->EnsureVisible(list_item);
+
+        if ((last_item >= 0) && (last_item != list_item))
+        {
+            m_listCtrl->SetItemState(last_item, 0, wxLIST_STATE_SELECTED|wxLIST_STATE_FOCUSED);
+            m_listCtrl->RefreshItem(last_item);
+        }
     }
 }
 

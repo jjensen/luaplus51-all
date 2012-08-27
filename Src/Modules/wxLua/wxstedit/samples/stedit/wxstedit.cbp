@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="wxStEdit" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Win32 DLL Unicode Debug">
+				<Option output="bin\wxsteditd" prefix_auto="1" extension_auto="1" />
+				<Option object_output="gcc_mswud\wxstedit" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-Wall" />
+					<Add option="-g" />
+					<Add option="-D_DEBUG" />
+					<Add option="-D__WXDEBUG__" />
+					<Add option="-D_UNICODE" />
+					<Add option="-DWXUSINGDLL" />
+					<Add directory=".\..\..\..\..\lib\gcc_dll\mswud" />
+					<Add directory=".\..\..\..\..\include" />
+					<Add directory="." />
+					<Add directory=".\..\..\..\..\samples" />
+					<Add directory=".\..\..\..\include" />
+					<Add directory="$(WXWIN)\lib\vc_dll\mswud" />
+					<Add directory="$(WXWIN)\include" />
+					<Add directory="..\..\include" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory=".\..\..\..\..\lib\gcc_dll\mswud" />
+					<Add directory=".\..\..\..\..\include" />
+					<Add directory="." />
+					<Add directory=".\..\..\..\..\samples" />
+					<Add directory=".\..\..\..\include" />
+					<Add directory="$(WXWIN)\lib\vc_dll\mswud" />
+					<Add directory="$(WXWIN)\include" />
+				</ResourceCompiler>
+				<Linker>
+					<Add library="wxmsw28ud_adv" />
+					<Add library="wxmsw28ud_html" />
+					<Add library="wxbase28ud_xml" />
+					<Add library="wxmsw28ud_core" />
+					<Add library="wxbase28ud" />
+					<Add library="wxtiffd" />
+					<Add library="wxjpegd" />
+					<Add library="wxpngd" />
+					<Add library="wxzlibd" />
+					<Add library="wxregexud" />
+					<Add library="wxexpatd" />
+					<Add library="kernel32" />
+					<Add library="user32" />
+					<Add library="gdi32" />
+					<Add library="comdlg32" />
+					<Add library="winspool" />
+					<Add library="winmm" />
+					<Add library="shell32" />
+					<Add library="comctl32" />
+					<Add library="ole32" />
+					<Add library="oleaut32" />
+					<Add library="uuid" />
+					<Add library="rpcrt4" />
+					<Add library="advapi32" />
+					<Add library="wsock32" />
+					<Add library="odbc32" />
+					<Add directory=".\..\..\..\..\lib\gcc_dll" />
+					<Add directory="$(WXWIN)\lib\vc_dll" />
+				</Linker>
+			</Target>
+			<Target title="Win32 DLL Debug">
+				<Option output="bin\wxstedit95d" prefix_auto="1" extension_auto="1" />
+				<Option object_output="gcc_mswd\wxstedit" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-Wall" />
+					<Add option="-g" />
+					<Add option="-D_DEBUG" />
+					<Add option="-D__WXDEBUG__" />
+					<Add option="-DWXUSINGDLL" />
+					<Add directory="$(#WX.lib)\gcc_dll$(WX_CFG)\mswd" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory="$(#WX.lib)\gcc_dll$(WX_CFG)" />
+				</ResourceCompiler>
+				<Linker>
+					<Add library="libsteditd_gcc_custom" />
+					<Add library="libwxmsw28d_stc_gcc_custom" />
+					<Add library="libwxmsw28d_adv" />
+					<Add library="libwxmsw28d_core" />
+					<Add library="libwxmsw28d_html" />
+					<Add library="libwxbase28d" />
+					<Add directory="$(#WX.lib)\gcc_dll$(WX_CFG)" />
+				</Linker>
+			</Target>
+			<Target title="Win32 Unicode Release">
+				<Option output="bin\wxstedit" prefix_auto="1" extension_auto="1" />
+				<Option object_output="gcc_mswu\wxstedit" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-Wall" />
+					<Add option="-O2" />
+					<Add option="-D_UNICODE" />
+					<Add directory=".\..\..\..\..\lib\gcc_lib\mswu" />
+					<Add directory=".\..\..\..\..\include" />
+					<Add directory="." />
+					<Add directory=".\..\..\..\..\samples" />
+					<Add directory=".\..\..\..\include" />
+					<Add directory="$(WXWIN)\lib\vc_lib\mswu" />
+					<Add directory="$(WXWIN)\include" />
+					<Add directory="..\..\include" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory=".\..\..\..\..\lib\gcc_lib\mswu" />
+					<Add directory=".\..\..\..\..\include" />
+					<Add directory="." />
+					<Add directory=".\..\..\..\..\samples" />
+					<Add directory=".\..\..\..\include" />
+					<Add directory="$(WXWIN)\lib\vc_lib\mswu" />
+					<Add directory="$(WXWIN)\include" />
+				</ResourceCompiler>
+				<Linker>
+					<Add library="wxmsw28u_adv" />
+					<Add library="wxmsw28u_html" />
+					<Add library="wxbase28u_xml" />
+					<Add library="wxmsw28u_core" />
+					<Add library="wxbase28u" />
+					<Add library="wxtiff" />
+					<Add library="wxjpeg" />
+					<Add library="wxpng" />
+					<Add library="wxzlib" />
+					<Add library="wxregexu" />
+					<Add library="wxexpat" />
+					<Add library="kernel32" />
+					<Add library="user32" />
+					<Add library="gdi32" />
+					<Add library="comdlg32" />
+					<Add library="winspool" />
+					<Add library="winmm" />
+					<Add library="shell32" />
+					<Add library="comctl32" />
+					<Add library="ole32" />
+					<Add library="oleaut32" />
+					<Add library="uuid" />
+					<Add library="rpcrt4" />
+					<Add library="advapi32" />
+					<Add library="wsock32" />
+					<Add library="odbc32" />
+					<Add directory=".\..\..\..\..\lib\gcc_lib" />
+					<Add directory="$(WXWIN)\lib\vc_lib" />
+				</Linker>
+			</Target>
+			<Target title="Win32 Release">
+				<Option output="bin\wxstedit95" prefix_auto="1" extension_auto="1" />
+				<Option object_output="gcc_msw\wxstedit" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-Wall" />
+					<Add option="-O2" />
+					<Add directory=".\..\..\..\..\lib\gcc_lib\msw" />
+					<Add directory=".\..\..\..\..\include" />
+					<Add directory="." />
+					<Add directory=".\..\..\..\..\samples" />
+					<Add directory=".\..\..\..\include" />
+					<Add directory="$(WXWIN)\lib\vc_lib\msw" />
+					<Add directory="$(WXWIN)\include" />
+					<Add directory="..\..\include" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory=".\..\..\..\..\lib\gcc_lib\msw" />
+					<Add directory=".\..\..\..\..\include" />
+					<Add directory="." />
+					<Add directory=".\..\..\..\..\samples" />
+					<Add directory=".\..\..\..\include" />
+					<Add directory="$(WXWIN)\lib\vc_lib\msw" />
+					<Add directory="$(WXWIN)\include" />
+				</ResourceCompiler>
+				<Linker>
+					<Add library="wxmsw28_adv" />
+					<Add library="wxmsw28_html" />
+					<Add library="wxbase28_xml" />
+					<Add library="wxmsw28_core" />
+					<Add library="wxbase28" />
+					<Add library="wxtiff" />
+					<Add library="wxjpeg" />
+					<Add library="wxpng" />
+					<Add library="wxzlib" />
+					<Add library="wxregex" />
+					<Add library="wxexpat" />
+					<Add library="kernel32" />
+					<Add library="user32" />
+					<Add library="gdi32" />
+					<Add library="comdlg32" />
+					<Add library="winspool" />
+					<Add library="winmm" />
+					<Add library="shell32" />
+					<Add library="comctl32" />
+					<Add library="ole32" />
+					<Add library="oleaut32" />
+					<Add library="uuid" />
+					<Add library="rpcrt4" />
+					<Add library="advapi32" />
+					<Add library="wsock32" />
+					<Add library="odbc32" />
+					<Add directory=".\..\..\..\..\lib\gcc_lib" />
+					<Add directory="$(WXWIN)\lib\vc_lib" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add directory="$(#WX.include)" />
+			<Add directory="..\..\include" />
+			<Add directory="$(#WX)\contrib\include" />
+		</Compiler>
+		<ResourceCompiler>
+			<Add directory="$(#WX.include)" />
+		</ResourceCompiler>
+		<Linker>
+			<Add directory="$(#WX.lib)" />
+			<Add directory="..\..\lib\gcc_lib" />
+		</Linker>
+		<Unit filename="stedoc.cpp" />
+		<Unit filename="wxstedit.cpp" />
+		<Unit filename="wxstedit.rc">
+			<Option compilerVar="WINDRES" />
+		</Unit>
+		<Extensions>
+			<code_completion />
+			<envvars />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

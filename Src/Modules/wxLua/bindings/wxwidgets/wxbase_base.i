@@ -14,7 +14,7 @@
 %define wxMINOR_VERSION
 %define wxRELEASE_NUMBER
 %define wxSUBRELEASE_NUMBER
-%define_string wxVERSION_STRING
+%define_wxstring wxVERSION_STRING
 
 %function bool wxCHECK_VERSION(int major, int minor, int release) // actually a define
 %function bool wxCHECK_VERSION_FULL(int major, int minor, int release, int subrel) // actually a define
@@ -119,7 +119,10 @@
 // ---------------------------------------------------------------------------
 // Environmental access functions
 
-%function bool wxGetEnv(const wxString& var, wxString *value)
+// %override [bool lua_string] wxGetEnv(const wxString& var)
+// Returns success and the string environment variable.
+// C++ Func: bool wxGetEnv(const wxString& var, wxString *value)
+%function bool wxGetEnv(const wxString& var)
 %function bool wxSetEnv(const wxString& var, const wxString& value)
 %function bool wxUnsetEnv(const wxString& var)
 
@@ -185,14 +188,14 @@
     wxPORT_MSW          // wxMSW, native toolkit is Windows API
     wxPORT_MOTIF        // wxMotif, using [Open]Motif or Lesstif
     wxPORT_GTK          // wxGTK, using GTK+ 1.x, 2.x, GPE or Maemo
-    wxPORT_MGL          // wxMGL, using wxUniversal
+    !%wxchkver_2_9 wxPORT_MGL          // wxMGL, using wxUniversal
     wxPORT_X11          // wxX11, using wxUniversal
     wxPORT_PM           // wxOS2, using OS/2 Presentation Manager
     wxPORT_OS2          // wxOS2, using OS/2 Presentation Manager
     wxPORT_MAC          // wxMac, using Carbon or Classic Mac API
     wxPORT_COCOA        // wxCocoa, using Cocoa NextStep/Mac API
     wxPORT_WINCE        // wxWinCE, toolkit is WinCE SDK API
-    wxPORT_PALMOS       // wxPalmOS, toolkit is PalmOS API
+    !%wxchkver_2_9 wxPORT_PALMOS       // wxPalmOS, toolkit is PalmOS API
     wxPORT_DFB          // wxDFB, using wxUniversal
 %endenum
 
@@ -366,11 +369,11 @@
 // symbolic trace masks - wxLogTrace("foo", "some trace message...") will be
 // discarded unless the string "foo" has been added to the list of allowed
 // ones with AddTraceMask()
-%define_string wxTRACE_MemAlloc //wxT("memalloc") // trace memory allocation (new/delete)
-%define_string wxTRACE_Messages //wxT("messages") // trace window messages/X callbacks
-%define_string wxTRACE_ResAlloc //wxT("resalloc") // trace GDI resource allocation
-%define_string wxTRACE_RefCount //wxT("refcount") // trace various ref counting operations
-%msw %define_string wxTRACE_OleCalls //wxT("ole") // OLE interface calls
+%define_wxstring wxTRACE_MemAlloc //wxT("memalloc") // trace memory allocation (new/delete)
+%define_wxstring wxTRACE_Messages //wxT("messages") // trace window messages/X callbacks
+%define_wxstring wxTRACE_ResAlloc //wxT("resalloc") // trace GDI resource allocation
+%define_wxstring wxTRACE_RefCount //wxT("refcount") // trace various ref counting operations
+%msw %define_wxstring wxTRACE_OleCalls //wxT("ole") // OLE interface calls
 
 %class %delete wxLog
     //wxLog() - No constructor, a base class, use one of the derived classes.

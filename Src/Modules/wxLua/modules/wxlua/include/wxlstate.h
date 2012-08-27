@@ -3,7 +3,7 @@
 // Purpose:     wxLuaState - a wxWidgets interface to Lua
 // Author:      Ray Gilbert, John Labenski, J Winwood
 // Created:     14/11/2001
-// Copyright:   (c) 2001-2002 Lomtick Software. All rights reserved.
+// Copyright:   (c) 2012 John Labenski, 2001-2002 Lomtick Software. All rights reserved.
 // Licence:     wxWidgets licence
 /////////////////////////////////////////////////////////////////////////////
 
@@ -12,50 +12,61 @@
 
 #include "wxlua/include/wxldefs.h"
 #include "wxlua/include/wxlbind.h"
-#include "wx/filefn.h"
-#include "wx/filename.h"
-#include "wx/hashmap.h"
+#include <wx/filefn.h>
+#include <wx/filename.h>
+#include <wx/hashmap.h>
 
-class WXDLLIMPEXP_WXLUA wxLuaEvent;
-class WXDLLIMPEXP_WXLUA wxLuaState;
-class WXDLLIMPEXP_WXLUA wxLuaStateData;
-class WXDLLIMPEXP_WXLUA wxLuaStateRefData;
-class WXDLLIMPEXP_WXLUA wxLuaEventCallback;
-class WXDLLIMPEXP_WXLUA wxLuaWinDestroyCallback;
+class WXDLLIMPEXP_FWD_WXLUA wxLuaEvent;
+class WXDLLIMPEXP_FWD_WXLUA wxLuaState;
+class WXDLLIMPEXP_FWD_WXLUA wxLuaStateData;
+class WXDLLIMPEXP_FWD_WXLUA wxLuaStateRefData;
+class WXDLLIMPEXP_FWD_WXLUA wxLuaEventCallback;
+class WXDLLIMPEXP_FWD_WXLUA wxLuaWinDestroyCallback;
 
 // ----------------------------------------------------------------------------
 // String functions - convert between Lua (ansi string) and wxString (encoded)
 // ----------------------------------------------------------------------------
 
-#define WXLUA_USE_WXSTR_CONVCURRENT 1
+#define WXLUA_USE_WXSTR_CONVUTF8    1
+#define WXLUA_USE_WXSTR_CONVCURRENT 0
 
 // Convert a 8-bit ANSI C Lua String into a wxString
 inline WXDLLIMPEXP_WXLUA wxString lua2wx(const char* luastr)
 {
-#if WXLUA_USE_WXSTR_CONVCURRENT
-
     if (luastr == NULL) return wxEmptyString; // check for NULL
+
+#if WXLUA_USE_WXSTR_CONVUTF8
+
+    return wxString(luastr, wxConvUTF8);
+
+#elif WXLUA_USE_WXSTR_CONVCURRENT
 
     return wxString(luastr, *wxConvCurrent);
 
 #else //!WXLUA_USE_WXSTR_CONVCURRENT
-#if wxUSE_UNICODE
-    wxString str(luastr, wxConvUTF8);
-#else
-    wxString str(wxConvUTF8.cMB2WC(luastr), *wxConvCurrent);
-#endif // wxUSE_UNICODE
+    #if wxUSE_UNICODE
+        wxString str(luastr, wxConvUTF8);
+    #else
+        wxString str(wxConvUTF8.cMB2WC(luastr), *wxConvCurrent);
+    #endif // wxUSE_UNICODE
 
-    if (str.IsEmpty())
-        str = wxConvertMB2WX(luastr); // old way that mostly works
+        if (str.IsEmpty())
+            str = wxConvertMB2WX(luastr); // old way that mostly works
 
-    return str;
+        return str;
 #endif //WXLUA_USE_WXSTR_CONVCURRENT
 }
 
 // Convert a wxString to 8-bit ANSI C Lua String
 inline const WXDLLIMPEXP_WXLUA wxCharBuffer wx2lua(const wxString& wxstr)
 {
-#if WXLUA_USE_WXSTR_CONVCURRENT
+#if WXLUA_USE_WXSTR_CONVUTF8
+
+    wxCharBuffer buffer(wxstr.mb_str(wxConvUTF8));
+    return buffer;
+
+#elif WXLUA_USE_WXSTR_CONVCURRENT
+
     wxCharBuffer buffer(wxstr.mb_str(*wxConvCurrent));
     return buffer;
 
@@ -477,6 +488,7 @@ WXDLLIMPEXP_WXLUA bool wxlua_iswxstringtype(lua_State* L, int stack_idx);
 #define wxlua_isbooleantype(L, stack_idx) (wxlua_iswxluatype(lua_type(L, stack_idx), WXLUA_TBOOLEAN) == 1)
 #define wxlua_isintegertype(L, stack_idx) (wxlua_iswxluatype(lua_type(L, stack_idx), WXLUA_TINTEGER) == 1)
 #define wxlua_isnumbertype(L, stack_idx)  (wxlua_iswxluatype(lua_type(L, stack_idx), WXLUA_TNUMBER) == 1)
+#define wxlua_ispointertype(L, stack_idx) (wxlua_iswxluatype(lua_type(L, stack_idx), WXLUA_TPOINTER) == 1)
 
 // After verifying using wxlua_isXXXtype return the value, else call
 //   wxlua_error() with a message that is appropriate for stack_idx to be a
@@ -490,6 +502,8 @@ WXDLLIMPEXP_WXLUA long LUACALL        wxlua_getenumtype(lua_State* L, int stack_
 WXDLLIMPEXP_WXLUA long LUACALL        wxlua_getintegertype(lua_State* L, int stack_idx);
 WXDLLIMPEXP_WXLUA unsigned long LUACALL wxlua_getuintegertype(lua_State* L, int stack_idx);
 WXDLLIMPEXP_WXLUA double LUACALL      wxlua_getnumbertype(lua_State* L, int stack_idx);
+WXDLLIMPEXP_WXLUA void* LUACALL       wxlua_getpointertype(lua_State* L, int stack_idx);
+
 
 // Helper functions to get/set tables of strings and ints
 // Validate that the object at the stack index specified is a table object.
@@ -559,7 +573,7 @@ WXDLLIMPEXP_WXLUA bool LUACALL wxlua_setderivedmethod(lua_State* L, void *obj_pt
 // Is there a derived method for the given obj_ptr with the method_name that was
 //   added by calling wxlua_setderivedmethod()?
 // If push_method then push the method onto the stack.
-WXDLLIMPEXP_WXLUA bool LUACALL wxlua_hasderivedmethod(lua_State* L, void *obj_ptr, const char *method_name, bool push_method);
+WXDLLIMPEXP_WXLUA bool LUACALL wxlua_hasderivedmethod(lua_State* L, const void *obj_ptr, const char *method_name, bool push_method);
 // Remove any derived functions or values for the obj_ptr that have been added with
 //   wxlua_setderivedmethod().
 // This is called when an object is being garbage collected by wxluaO_deletegcobject()
@@ -670,10 +684,15 @@ enum wxLuaState_Type
                              // Does not call lua_openlibs() so you should have
                              //   called before setting it to the wxLuaState.
 
+    // The values below are to be ored with wxLUASTATE_GETSTATE only.
+    wxLUASTATE_ROOTSTATE    = 0x10, // Get the root lua_State, the owner of a
+                                    //   coroutine state, uses given lua_State
+                                    //   if not coroutine.
+
     // The values below are to be ored with wxLUASTATE_SETSTATE only.
-    wxLUASTATE_STATICSTATE  = 0x10, // The lua_State is static and the wxLuaState
+    wxLUASTATE_STATICSTATE  = 0x20, // The lua_State is static and the wxLuaState
                                     //   will not lua_close() it when Destroy()ed.
-    wxLUASTATE_OPENBINDINGS = 0x20, // Install all the bindings in
+    wxLUASTATE_OPENBINDINGS = 0x40  // Install all the bindings in
                                     //   wxLuaBinding::GetBindingList() into the
                                     //   lua_State. You may install the bindings
                                     //   one at a time using
@@ -717,7 +736,8 @@ public:
     // -----------------------------------------------------------------------
 
     // Is this wxLuaState valid, has refed data and its lua_State is created
-    bool Ok() const;
+    bool IsOk() const;
+    inline bool Ok() const { return IsOk(); }
 
     // -----------------------------------------------------------------------
 
@@ -752,15 +772,17 @@ public:
     // -----------------------------------------------------------------------
 
     // Get the wxLuaState from the corresponding lua_State
+    // If get_root_state and L is a coroutine then return the wxLuaState
+    // for the parent lua_State of the coroutine, else just return the wxLuaState for L.
     //  returns wxNullLuaState if none found.
-    static wxLuaState GetwxLuaState(lua_State* L);
+    static wxLuaState GetwxLuaState(lua_State* L, bool get_root_state);
     // A mapping between hashmap[lua_State* L] = wxLuaState*
     // Note: The hashed new wxLuaState is not Refed since we want to know when
     //       the ref count goes to 1 for cleanup and it is deleted when
     //       its wxLuaStateRefData is finally deleted.
     // Note: The coroutine lua_States are not hashed since we cannot know when
     //       they are created or deleted. We must create wxLuaStates for them on the fly.
-    static wxHashMapLuaState* s_wxHashMapLuaState;
+    static wxHashMapLuaState s_wxHashMapLuaState;
 
     // -----------------------------------------------------------------------
 
@@ -1039,7 +1061,7 @@ public:
     // See wxlua_setderivedmethod
     bool SetDerivedMethod(void *obj_ptr, const char *method_name, wxLuaObject* wxlObj);
     // See wxlua_hasderivedmethod().
-    bool HasDerivedMethod(void *obj_ptr, const char *method_name, bool push_method) const;
+    bool HasDerivedMethod(const void *obj_ptr, const char *method_name, bool push_method) const;
     // See wxlua_removederivedmethods()
     bool RemoveDerivedMethods(void *obj_ptr) const;
     // Find a derived method given an object and and a method name.

@@ -296,6 +296,27 @@ static int LUACALL wxLua_wxDataObjectSimple_GetDataHere(lua_State *L)
 }
 %end
 
+%override wxLua_wxLuaDataObjectSimple_constructor
+//     wxLuaDataObjectSimple(const wxDataFormat& format = wxFormatInvalid)
+static int LUACALL wxLua_wxLuaDataObjectSimple_constructor(lua_State *L)
+{
+    wxLuaState wxlState(L);
+
+    // get number of arguments
+    int argCount = lua_gettop(L);
+    // const wxDataFormat format = wxFormatInvalid
+    const wxDataFormat * format = (argCount >= 1 ? (const wxDataFormat *)wxluaT_getuserdatatype(L, 1, wxluatype_wxDataFormat) : &wxFormatInvalid);
+    // call constructor
+    wxLuaDataObjectSimple* returns = new wxLuaDataObjectSimple(wxlState, *format);
+    // add to tracked memory list
+    wxluaO_addgcobject(L, returns, wxluatype_wxLuaDataObjectSimple);
+    // push the constructed class pointer
+    wxluaT_pushuserdatatype(L, returns, wxluatype_wxLuaDataObjectSimple);
+
+    return 1;
+}
+%end
+
 %override wxLua_wxDropFilesEvent_GetFiles
 // wxString* GetFiles() const
 static int LUACALL wxLua_wxDropFilesEvent_GetFiles(lua_State *L)
@@ -373,7 +394,14 @@ struct wxLua_LCF_data // wrap up the wxLuaState, lua_tag, and the compare data
     long data;
 };
 
-int wxCALLBACK wxLua_ListCompareFunction(long item1, long item2, long sortData)
+// type of compare function for wxListCtrl sort operation (as of 2.9.3)
+//typedef int (wxCALLBACK *wxListCtrlCompare)(wxIntPtr item1, wxIntPtr item2, wxIntPtr sortData);
+
+#if !wxCHECK_VERSION(2, 8, 9)
+    typedef long wxIntPtr;
+#endif
+
+int wxCALLBACK wxLua_ListCompareFunction(wxIntPtr item1, wxIntPtr item2, wxIntPtr sortData)
 {
     wxLua_LCF_data* LCF_data = (wxLua_LCF_data*)sortData;
 
@@ -410,7 +438,7 @@ static int LUACALL wxLua_wxListCtrl_SortItems(lua_State *L)
         LCF_data.lua_tag = luaL_ref(L, LUA_REGISTRYINDEX); // ref function and pop it from stack
     }
     else
-        wxlua_argerror(L, 2, wxT("a 'lua function(long item1, long item2, long data)'"));
+        wxlua_argerror(L, 2, wxT("a 'Lua function(long item1, long item2, long data)'"));
 
     // get this
     wxListCtrl *self = (wxListCtrl *)wxluaT_getuserdatatype(L, 1, wxluatype_wxListCtrl);
@@ -524,15 +552,11 @@ static int LUACALL wxLua_wxTreeItemId_GetValue(lua_State *L)
 %end
 
 %override wxLua_wxTreeCtrl_GetFirstChild
-// wxTreeItemId GetFirstChild(const wxTreeItemId& item, long& cookie) const
+// wxTreeItemId GetFirstChild(const wxTreeItemId& item, wxTreeItemIdValue& cookie) const
 static int LUACALL wxLua_wxTreeCtrl_GetFirstChild(lua_State *L)
 {
-#if wxCHECK_VERSION(2, 5, 0)
     wxTreeItemIdValue cookie = 0;
-#else
-    // long& cookie
-    long cookie = 0;
-#endif
+
     // const wxTreeItemId& item
     const wxTreeItemId *item = (wxTreeItemId *)wxluaT_getuserdatatype(L, 2, wxluatype_wxTreeItemId);
     // get this
@@ -544,27 +568,19 @@ static int LUACALL wxLua_wxTreeCtrl_GetFirstChild(lua_State *L)
     wxluaO_addgcobject(L, (void*)returns, wxluatype_wxTreeItemId);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxTreeItemId);
-#if wxCHECK_VERSION(2, 5, 0)
-    lua_pushnumber(L, (long)cookie); // wxTreeItemIdValue is void*
-#else
     // push the cookie
-    lua_pushnumber(L, cookie);
-#endif
+    lua_pushlightuserdata(L, cookie); // wxTreeItemIdValue is void*
     // return the number of parameters
     return 2;
 }
 %end
 
 %override wxLua_wxTreeCtrl_GetNextChild
-// wxTreeItemId GetNextChild(const wxTreeItemId& item, long& cookie) const
+// wxTreeItemId GetNextChild(const wxTreeItemId& item, wxTreeItemIdValue& cookie) const
 static int LUACALL wxLua_wxTreeCtrl_GetNextChild(lua_State *L)
 {
-#if wxCHECK_VERSION(2, 5, 0)
-    wxTreeItemIdValue cookie = (wxTreeItemIdValue)(long)wxlua_getintegertype(L, 3);
-#else
-    // long& cookie
-    long cookie = (long)lua_tonumber(L, 3);
-#endif
+    wxTreeItemIdValue cookie = (wxTreeItemIdValue)wxlua_getpointertype(L, 3);
+
     // const wxTreeItemId& item
     const wxTreeItemId *item = (wxTreeItemId *)wxluaT_getuserdatatype(L, 2, wxluatype_wxTreeItemId);
     // get this
@@ -576,12 +592,8 @@ static int LUACALL wxLua_wxTreeCtrl_GetNextChild(lua_State *L)
     wxluaO_addgcobject(L, returns, wxluatype_wxTreeItemId);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxTreeItemId);
-#if wxCHECK_VERSION(2, 5, 0)
-    lua_pushnumber(L, (long)cookie);
-#else
     // push the cookie
-    lua_pushnumber(L, cookie);
-#endif
+    lua_pushlightuserdata(L, cookie); // wxTreeItemIdValue is void*
     // return the number of parameters
     return 2;
 }
@@ -633,6 +645,60 @@ static int LUACALL wxLua_wxTreeCtrl_HitTest(lua_State *L)
     lua_pushnumber(L, flags);
     // return the number of parameters
     return 2;
+}
+%end
+
+%override wxLua_wxLuaTreeItemData_GetData
+//     wxLuaObject* GetData() const;
+static int LUACALL wxLua_wxLuaTreeItemData_GetData(lua_State *L)
+{
+    // get this
+    wxLuaTreeItemData * self = (wxLuaTreeItemData *)wxluaT_getuserdatatype(L, 1, wxluatype_wxLuaTreeItemData);
+    // call GetData
+    wxLuaObject* returns = (wxLuaObject*)self->GetData();
+    // push the result datatype
+    if ((returns == NULL) || !returns->GetObject(L))
+        lua_pushnil(L);
+
+    return 1;
+}
+%end
+
+%override wxLua_wxLuaTreeItemData_SetData
+//     void         SetData(%ungc wxLuaObject* obj); // obj is deleted when tree item data is deleted
+static int LUACALL wxLua_wxLuaTreeItemData_SetData(lua_State *L)
+{
+    // wxLuaObject obj
+    //wxLuaObject * obj = (wxLuaObject *)wxluaT_getuserdatatype(L, 2, wxluatype_wxLuaObject);
+    //if (wxluaO_isgcobject(L, obj)) wxluaO_undeletegcobject(L, obj);
+    wxLuaObject* obj = new wxLuaObject(L, 2);
+
+    // get this
+    wxLuaTreeItemData * self = (wxLuaTreeItemData *)wxluaT_getuserdatatype(L, 1, wxluatype_wxLuaTreeItemData);
+    // call SetData
+    self->SetData(obj);
+
+    return 0;
+}
+%end
+
+%override wxLua_wxLuaTreeItemData_constructor1
+//     wxLuaTreeItemData(%ungc wxLuaObject* obj) // obj is deleted when tree item data is deleted
+static int LUACALL wxLua_wxLuaTreeItemData_constructor1(lua_State *L)
+{
+    // wxLuaObject obj
+    //wxLuaObject * obj = (wxLuaObject *)wxluaT_getuserdatatype(L, 1, wxluatype_wxLuaObject);
+    //if (wxluaO_isgcobject(L, obj)) wxluaO_undeletegcobject(L, obj);
+    wxLuaObject* obj = new wxLuaObject(L, 1);
+
+    // call constructor
+    wxLuaTreeItemData* returns = new wxLuaTreeItemData(obj);
+    // add to tracked memory list
+    wxluaO_addgcobject(L, returns, wxluatype_wxLuaTreeItemData);
+    // push the constructed class pointer
+    wxluaT_pushuserdatatype(L, returns, wxluatype_wxLuaTreeItemData);
+
+    return 1;
 }
 %end
 
@@ -984,7 +1050,7 @@ static int LUACALL wxLua_wxSingleChoiceDialog_constructor(lua_State *L)
     // wxWindow parent
     wxWindow * parent = (wxWindow *)wxluaT_getuserdatatype(L, 1, wxluatype_wxWindow);
     // call constructor
-    wxSingleChoiceDialog *returns = new wxSingleChoiceDialog(parent, message, caption, choices, NULL, style, *pos);
+    wxSingleChoiceDialog *returns = new wxSingleChoiceDialog(parent, message, caption, choices, (char**)NULL, style, *pos);
     // add to tracked window list
     if (returns && returns->IsKindOf(CLASSINFO(wxWindow)))
         wxluaW_addtrackedwindow(L, (wxWindow*)returns);
@@ -1393,7 +1459,11 @@ static int LUACALL wxLua_wxPalette_Create(lua_State *L)
     // get this
     wxPalette *self = (wxPalette *)wxluaT_getuserdatatype(L, 1, wxluatype_wxPalette);
     // call Create
+#if wxCHECK_VERSION(2,9,0) && defined(__WXMSW__) && !wxCHECK_VERSION(2,9,5)
+    bool returns = self->Create(n, (unsigned char*)red, (unsigned char*)green, (unsigned char*)blue); // NOTE: wxMSW does not modify these, see SVN rev 50727
+#else
     bool returns = self->Create(n, red, green, blue);
+#endif
     // push the result number
     lua_pushboolean(L, returns);
     // return the number of parameters
@@ -1530,7 +1600,7 @@ static int LUACALL wxLua_wxBitmapFromBitTable_constructor(lua_State *L)
 %end
 
 %override wxLua_wxBitmapFromData_constructor
-// %win wxBitmap(void* data, int type, int width, int height, int depth = -1)
+// %win wxBitmap(void* data, wxBitmapType type, int width, int height, int depth = -1)
 #ifdef __WXMSW__
 static int LUACALL wxLua_wxBitmapFromData_constructor(lua_State *L)
 {
@@ -1543,7 +1613,7 @@ static int LUACALL wxLua_wxBitmapFromData_constructor(lua_State *L)
     // int width
     int width = (int)wxlua_getintegertype(L, 3);
     // int type
-    int type = (int)wxlua_getintegertype(L, 2);
+    wxBitmapType type = (wxBitmapType)wxlua_getintegertype(L, 2);
     // void* data
     void *data = (void *)lua_tostring(L, 1);
     // call constructor

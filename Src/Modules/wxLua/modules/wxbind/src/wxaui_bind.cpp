@@ -683,10 +683,28 @@ static int LUACALL wxLua_wxAuiTabContainerButton_Get_bitmap(lua_State *L)
 
 #endif // (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI) && (wxLUA_USE_wxBitmap)
 
+#if (wxCHECK_VERSION(2,9,3)) && (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI)
+static wxLuaArgType s_wxluatypeArray_wxLua_wxAuiTabContainerButton_Get_curState[] = { &wxluatype_wxAuiTabContainerButton, NULL };
+static int LUACALL wxLua_wxAuiTabContainerButton_Get_curState(lua_State *L);
+static wxLuaBindCFunc s_wxluafunc_wxLua_wxAuiTabContainerButton_Get_curState[1] = {{ wxLua_wxAuiTabContainerButton_Get_curState, WXLUAMETHOD_METHOD, 1, 1, s_wxluatypeArray_wxLua_wxAuiTabContainerButton_Get_curState }};
+//     %wxchkver_2_9_3  %member int curState;
+static int LUACALL wxLua_wxAuiTabContainerButton_Get_curState(lua_State *L)
+{
+    // get this
+    wxAuiTabContainerButton *self = (wxAuiTabContainerButton *)wxluaT_getuserdatatype(L, 1, wxluatype_wxAuiTabContainerButton);
+    // push the result number
+    lua_pushnumber(L, self->curState);
+    // return the number of values
+    return 1;
+}
+
+#endif // (wxCHECK_VERSION(2,9,3)) && (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI)
+
+#if (!wxCHECK_VERSION(2,9,3)) && (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI)
 static wxLuaArgType s_wxluatypeArray_wxLua_wxAuiTabContainerButton_Get_cur_state[] = { &wxluatype_wxAuiTabContainerButton, NULL };
 static int LUACALL wxLua_wxAuiTabContainerButton_Get_cur_state(lua_State *L);
 static wxLuaBindCFunc s_wxluafunc_wxLua_wxAuiTabContainerButton_Get_cur_state[1] = {{ wxLua_wxAuiTabContainerButton_Get_cur_state, WXLUAMETHOD_METHOD, 1, 1, s_wxluatypeArray_wxLua_wxAuiTabContainerButton_Get_cur_state }};
-//     %member int cur_state;        // current state (normal, hover, pressed, etc.)
+//     !%wxchkver_2_9_3 %member int cur_state;        // current state (normal, hover, pressed, etc.)
 static int LUACALL wxLua_wxAuiTabContainerButton_Get_cur_state(lua_State *L)
 {
     // get this
@@ -697,12 +715,30 @@ static int LUACALL wxLua_wxAuiTabContainerButton_Get_cur_state(lua_State *L)
     return 1;
 }
 
+#endif // (!wxCHECK_VERSION(2,9,3)) && (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI)
 
-#if (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI) && (wxLUA_USE_wxBitmap)
+#if ((wxCHECK_VERSION(2,9,3)) && (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI)) && (wxLUA_USE_wxBitmap)
+static wxLuaArgType s_wxluatypeArray_wxLua_wxAuiTabContainerButton_Get_disBitmap[] = { &wxluatype_wxAuiTabContainerButton, NULL };
+static int LUACALL wxLua_wxAuiTabContainerButton_Get_disBitmap(lua_State *L);
+static wxLuaBindCFunc s_wxluafunc_wxLua_wxAuiTabContainerButton_Get_disBitmap[1] = {{ wxLua_wxAuiTabContainerButton_Get_disBitmap, WXLUAMETHOD_METHOD, 1, 1, s_wxluatypeArray_wxLua_wxAuiTabContainerButton_Get_disBitmap }};
+//     %wxchkver_2_9_3  %member wxBitmap disBitmap;
+static int LUACALL wxLua_wxAuiTabContainerButton_Get_disBitmap(lua_State *L)
+{
+    // get this
+    wxAuiTabContainerButton *self = (wxAuiTabContainerButton *)wxluaT_getuserdatatype(L, 1, wxluatype_wxAuiTabContainerButton);
+    // push the result datatype
+    wxluaT_pushuserdatatype(L, &self->disBitmap, wxluatype_wxBitmap);
+    // return the number of values
+    return 1;
+}
+
+#endif // ((wxCHECK_VERSION(2,9,3)) && (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI)) && (wxLUA_USE_wxBitmap)
+
+#if ((!wxCHECK_VERSION(2,9,3)) && (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI)) && (wxLUA_USE_wxBitmap)
 static wxLuaArgType s_wxluatypeArray_wxLua_wxAuiTabContainerButton_Get_dis_bitmap[] = { &wxluatype_wxAuiTabContainerButton, NULL };
 static int LUACALL wxLua_wxAuiTabContainerButton_Get_dis_bitmap(lua_State *L);
 static wxLuaBindCFunc s_wxluafunc_wxLua_wxAuiTabContainerButton_Get_dis_bitmap[1] = {{ wxLua_wxAuiTabContainerButton_Get_dis_bitmap, WXLUAMETHOD_METHOD, 1, 1, s_wxluatypeArray_wxLua_wxAuiTabContainerButton_Get_dis_bitmap }};
-//     %member wxBitmap dis_bitmap;  // button's disabled bitmap
+//     !%wxchkver_2_9_3 %member wxBitmap dis_bitmap;  // button's disabled bitmap
 static int LUACALL wxLua_wxAuiTabContainerButton_Get_dis_bitmap(lua_State *L)
 {
     // get this
@@ -713,7 +749,7 @@ static int LUACALL wxLua_wxAuiTabContainerButton_Get_dis_bitmap(lua_State *L)
     return 1;
 }
 
-#endif // (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI) && (wxLUA_USE_wxBitmap)
+#endif // ((!wxCHECK_VERSION(2,9,3)) && (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI)) && (wxLUA_USE_wxBitmap)
 
 static wxLuaArgType s_wxluatypeArray_wxLua_wxAuiTabContainerButton_Get_id[] = { &wxluatype_wxAuiTabContainerButton, NULL };
 static int LUACALL wxLua_wxAuiTabContainerButton_Get_id(lua_State *L);
@@ -779,10 +815,29 @@ static int LUACALL wxLua_wxAuiTabContainerButton_Set_bitmap(lua_State *L)
 
 #endif // (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI) && (wxLUA_USE_wxBitmap)
 
+#if (wxCHECK_VERSION(2,9,3)) && (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI)
+static wxLuaArgType s_wxluatypeArray_wxLua_wxAuiTabContainerButton_Set_curState[] = { &wxluatype_wxAuiTabContainerButton, &wxluatype_TNUMBER, NULL };
+static int LUACALL wxLua_wxAuiTabContainerButton_Set_curState(lua_State *L);
+static wxLuaBindCFunc s_wxluafunc_wxLua_wxAuiTabContainerButton_Set_curState[1] = {{ wxLua_wxAuiTabContainerButton_Set_curState, WXLUAMETHOD_METHOD, 2, 2, s_wxluatypeArray_wxLua_wxAuiTabContainerButton_Set_curState }};
+//     %wxchkver_2_9_3  %member int curState;
+static int LUACALL wxLua_wxAuiTabContainerButton_Set_curState(lua_State *L)
+{
+    // get the number value
+    int val = (int)wxlua_getnumbertype(L, 2);
+    // get this
+    wxAuiTabContainerButton *self = (wxAuiTabContainerButton *)wxluaT_getuserdatatype(L, 1, wxluatype_wxAuiTabContainerButton);
+    self->curState = val;
+    // return the number of values
+    return 0;
+}
+
+#endif // (wxCHECK_VERSION(2,9,3)) && (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI)
+
+#if (!wxCHECK_VERSION(2,9,3)) && (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI)
 static wxLuaArgType s_wxluatypeArray_wxLua_wxAuiTabContainerButton_Set_cur_state[] = { &wxluatype_wxAuiTabContainerButton, &wxluatype_TNUMBER, NULL };
 static int LUACALL wxLua_wxAuiTabContainerButton_Set_cur_state(lua_State *L);
 static wxLuaBindCFunc s_wxluafunc_wxLua_wxAuiTabContainerButton_Set_cur_state[1] = {{ wxLua_wxAuiTabContainerButton_Set_cur_state, WXLUAMETHOD_METHOD, 2, 2, s_wxluatypeArray_wxLua_wxAuiTabContainerButton_Set_cur_state }};
-//     %member int cur_state;        // current state (normal, hover, pressed, etc.)
+//     !%wxchkver_2_9_3 %member int cur_state;        // current state (normal, hover, pressed, etc.)
 static int LUACALL wxLua_wxAuiTabContainerButton_Set_cur_state(lua_State *L)
 {
     // get the number value
@@ -794,12 +849,31 @@ static int LUACALL wxLua_wxAuiTabContainerButton_Set_cur_state(lua_State *L)
     return 0;
 }
 
+#endif // (!wxCHECK_VERSION(2,9,3)) && (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI)
 
-#if (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI) && (wxLUA_USE_wxBitmap)
+#if ((wxCHECK_VERSION(2,9,3)) && (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI)) && (wxLUA_USE_wxBitmap)
+static wxLuaArgType s_wxluatypeArray_wxLua_wxAuiTabContainerButton_Set_disBitmap[] = { &wxluatype_wxAuiTabContainerButton, &wxluatype_wxBitmap, NULL };
+static int LUACALL wxLua_wxAuiTabContainerButton_Set_disBitmap(lua_State *L);
+static wxLuaBindCFunc s_wxluafunc_wxLua_wxAuiTabContainerButton_Set_disBitmap[1] = {{ wxLua_wxAuiTabContainerButton_Set_disBitmap, WXLUAMETHOD_METHOD, 2, 2, s_wxluatypeArray_wxLua_wxAuiTabContainerButton_Set_disBitmap }};
+//     %wxchkver_2_9_3  %member wxBitmap disBitmap;
+static int LUACALL wxLua_wxAuiTabContainerButton_Set_disBitmap(lua_State *L)
+{
+    // get the data type value
+    wxBitmap* val = (wxBitmap*)wxluaT_getuserdatatype(L, 2, wxluatype_wxBitmap);
+    // get this
+    wxAuiTabContainerButton *self = (wxAuiTabContainerButton *)wxluaT_getuserdatatype(L, 1, wxluatype_wxAuiTabContainerButton);
+    self->disBitmap = *val;
+    // return the number of values
+    return 0;
+}
+
+#endif // ((wxCHECK_VERSION(2,9,3)) && (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI)) && (wxLUA_USE_wxBitmap)
+
+#if ((!wxCHECK_VERSION(2,9,3)) && (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI)) && (wxLUA_USE_wxBitmap)
 static wxLuaArgType s_wxluatypeArray_wxLua_wxAuiTabContainerButton_Set_dis_bitmap[] = { &wxluatype_wxAuiTabContainerButton, &wxluatype_wxBitmap, NULL };
 static int LUACALL wxLua_wxAuiTabContainerButton_Set_dis_bitmap(lua_State *L);
 static wxLuaBindCFunc s_wxluafunc_wxLua_wxAuiTabContainerButton_Set_dis_bitmap[1] = {{ wxLua_wxAuiTabContainerButton_Set_dis_bitmap, WXLUAMETHOD_METHOD, 2, 2, s_wxluatypeArray_wxLua_wxAuiTabContainerButton_Set_dis_bitmap }};
-//     %member wxBitmap dis_bitmap;  // button's disabled bitmap
+//     !%wxchkver_2_9_3 %member wxBitmap dis_bitmap;  // button's disabled bitmap
 static int LUACALL wxLua_wxAuiTabContainerButton_Set_dis_bitmap(lua_State *L)
 {
     // get the data type value
@@ -811,7 +885,7 @@ static int LUACALL wxLua_wxAuiTabContainerButton_Set_dis_bitmap(lua_State *L)
     return 0;
 }
 
-#endif // (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI) && (wxLUA_USE_wxBitmap)
+#endif // ((!wxCHECK_VERSION(2,9,3)) && (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI)) && (wxLUA_USE_wxBitmap)
 
 static wxLuaArgType s_wxluatypeArray_wxLua_wxAuiTabContainerButton_Set_id[] = { &wxluatype_wxAuiTabContainerButton, &wxluatype_TNUMBER, NULL };
 static int LUACALL wxLua_wxAuiTabContainerButton_Set_id(lua_State *L);
@@ -865,12 +939,21 @@ static int LUACALL wxLua_wxAuiTabContainerButton_Set_rect(lua_State *L)
 #if (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI) && (wxLUA_USE_wxBitmap)
 #endif // (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI) && (wxLUA_USE_wxBitmap)
 
+#if (wxCHECK_VERSION(2,9,3)) && (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI)
+#endif // (wxCHECK_VERSION(2,9,3)) && (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI)
+
+#if (!wxCHECK_VERSION(2,9,3)) && (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI)
+#endif // (!wxCHECK_VERSION(2,9,3)) && (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI)
+
 static wxLuaArgType s_wxluatypeArray_wxLua_wxAuiTabContainerButton_delete[] = { &wxluatype_wxAuiTabContainerButton, NULL };
 static wxLuaBindCFunc s_wxluafunc_wxLua_wxAuiTabContainerButton_delete[1] = {{ wxlua_userdata_delete, WXLUAMETHOD_METHOD|WXLUAMETHOD_DELETE, 1, 1, s_wxluatypeArray_wxLua_wxAuiTabContainerButton_delete }};
 
 
-#if (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI) && (wxLUA_USE_wxBitmap)
-#endif // (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI) && (wxLUA_USE_wxBitmap)
+#if ((wxCHECK_VERSION(2,9,3)) && (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI)) && (wxLUA_USE_wxBitmap)
+#endif // ((wxCHECK_VERSION(2,9,3)) && (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI)) && (wxLUA_USE_wxBitmap)
+
+#if ((!wxCHECK_VERSION(2,9,3)) && (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI)) && (wxLUA_USE_wxBitmap)
+#endif // ((!wxCHECK_VERSION(2,9,3)) && (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI)) && (wxLUA_USE_wxBitmap)
 
 
 #if (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI) && (wxLUA_USE_wxPointSizeRect)
@@ -890,11 +973,21 @@ wxLuaBindMethod wxAuiTabContainerButton_methods[] = {
     // %member    { "Get_bitmap", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxAuiTabContainerButton_Get_bitmap, 1, NULL },
 #endif // (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI) && (wxLUA_USE_wxBitmap)
 
-    // %member    { "Get_cur_state", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxAuiTabContainerButton_Get_cur_state, 1, NULL },
+#if (wxCHECK_VERSION(2,9,3)) && (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI)
+    // %member    { "Get_curState", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxAuiTabContainerButton_Get_curState, 1, NULL },
+#endif // (wxCHECK_VERSION(2,9,3)) && (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI)
 
-#if (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI) && (wxLUA_USE_wxBitmap)
+#if (!wxCHECK_VERSION(2,9,3)) && (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI)
+    // %member    { "Get_cur_state", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxAuiTabContainerButton_Get_cur_state, 1, NULL },
+#endif // (!wxCHECK_VERSION(2,9,3)) && (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI)
+
+#if ((wxCHECK_VERSION(2,9,3)) && (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI)) && (wxLUA_USE_wxBitmap)
+    // %member    { "Get_disBitmap", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxAuiTabContainerButton_Get_disBitmap, 1, NULL },
+#endif // ((wxCHECK_VERSION(2,9,3)) && (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI)) && (wxLUA_USE_wxBitmap)
+
+#if ((!wxCHECK_VERSION(2,9,3)) && (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI)) && (wxLUA_USE_wxBitmap)
     // %member    { "Get_dis_bitmap", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxAuiTabContainerButton_Get_dis_bitmap, 1, NULL },
-#endif // (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI) && (wxLUA_USE_wxBitmap)
+#endif // ((!wxCHECK_VERSION(2,9,3)) && (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI)) && (wxLUA_USE_wxBitmap)
 
     // %member    { "Get_id", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxAuiTabContainerButton_Get_id, 1, NULL },
     // %member    { "Get_location", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxAuiTabContainerButton_Get_location, 1, NULL },
@@ -907,11 +1000,21 @@ wxLuaBindMethod wxAuiTabContainerButton_methods[] = {
     // %member    { "Set_bitmap", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxAuiTabContainerButton_Set_bitmap, 1, NULL },
 #endif // (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI) && (wxLUA_USE_wxBitmap)
 
-    // %member    { "Set_cur_state", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxAuiTabContainerButton_Set_cur_state, 1, NULL },
+#if (wxCHECK_VERSION(2,9,3)) && (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI)
+    // %member    { "Set_curState", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxAuiTabContainerButton_Set_curState, 1, NULL },
+#endif // (wxCHECK_VERSION(2,9,3)) && (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI)
 
-#if (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI) && (wxLUA_USE_wxBitmap)
+#if (!wxCHECK_VERSION(2,9,3)) && (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI)
+    // %member    { "Set_cur_state", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxAuiTabContainerButton_Set_cur_state, 1, NULL },
+#endif // (!wxCHECK_VERSION(2,9,3)) && (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI)
+
+#if ((wxCHECK_VERSION(2,9,3)) && (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI)) && (wxLUA_USE_wxBitmap)
+    // %member    { "Set_disBitmap", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxAuiTabContainerButton_Set_disBitmap, 1, NULL },
+#endif // ((wxCHECK_VERSION(2,9,3)) && (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI)) && (wxLUA_USE_wxBitmap)
+
+#if ((!wxCHECK_VERSION(2,9,3)) && (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI)) && (wxLUA_USE_wxBitmap)
     // %member    { "Set_dis_bitmap", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxAuiTabContainerButton_Set_dis_bitmap, 1, NULL },
-#endif // (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI) && (wxLUA_USE_wxBitmap)
+#endif // ((!wxCHECK_VERSION(2,9,3)) && (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI)) && (wxLUA_USE_wxBitmap)
 
     // %member    { "Set_id", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxAuiTabContainerButton_Set_id, 1, NULL },
     // %member    { "Set_location", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxAuiTabContainerButton_Set_location, 1, NULL },
@@ -925,14 +1028,27 @@ wxLuaBindMethod wxAuiTabContainerButton_methods[] = {
     { "bitmap", WXLUAMETHOD_GETPROP, s_wxluafunc_wxLua_wxAuiTabContainerButton_Get_bitmap, 1, NULL },
 #endif // (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI) && (wxLUA_USE_wxBitmap)
 
+#if (wxCHECK_VERSION(2,9,3)) && (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI)
+    { "curState", WXLUAMETHOD_SETPROP, s_wxluafunc_wxLua_wxAuiTabContainerButton_Set_curState, 1, NULL },
+    { "curState", WXLUAMETHOD_GETPROP, s_wxluafunc_wxLua_wxAuiTabContainerButton_Get_curState, 1, NULL },
+#endif // (wxCHECK_VERSION(2,9,3)) && (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI)
+
+#if (!wxCHECK_VERSION(2,9,3)) && (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI)
     { "cur_state", WXLUAMETHOD_SETPROP, s_wxluafunc_wxLua_wxAuiTabContainerButton_Set_cur_state, 1, NULL },
     { "cur_state", WXLUAMETHOD_GETPROP, s_wxluafunc_wxLua_wxAuiTabContainerButton_Get_cur_state, 1, NULL },
+#endif // (!wxCHECK_VERSION(2,9,3)) && (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI)
+
     { "delete", WXLUAMETHOD_METHOD|WXLUAMETHOD_DELETE, s_wxluafunc_wxLua_wxAuiTabContainerButton_delete, 1, NULL },
 
-#if (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI) && (wxLUA_USE_wxBitmap)
+#if ((wxCHECK_VERSION(2,9,3)) && (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI)) && (wxLUA_USE_wxBitmap)
+    { "disBitmap", WXLUAMETHOD_SETPROP, s_wxluafunc_wxLua_wxAuiTabContainerButton_Set_disBitmap, 1, NULL },
+    { "disBitmap", WXLUAMETHOD_GETPROP, s_wxluafunc_wxLua_wxAuiTabContainerButton_Get_disBitmap, 1, NULL },
+#endif // ((wxCHECK_VERSION(2,9,3)) && (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI)) && (wxLUA_USE_wxBitmap)
+
+#if ((!wxCHECK_VERSION(2,9,3)) && (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI)) && (wxLUA_USE_wxBitmap)
     { "dis_bitmap", WXLUAMETHOD_SETPROP, s_wxluafunc_wxLua_wxAuiTabContainerButton_Set_dis_bitmap, 1, NULL },
     { "dis_bitmap", WXLUAMETHOD_GETPROP, s_wxluafunc_wxLua_wxAuiTabContainerButton_Get_dis_bitmap, 1, NULL },
-#endif // (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI) && (wxLUA_USE_wxBitmap)
+#endif // ((!wxCHECK_VERSION(2,9,3)) && (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI)) && (wxLUA_USE_wxBitmap)
 
     { "id", WXLUAMETHOD_SETPROP, s_wxluafunc_wxLua_wxAuiTabContainerButton_Set_id, 1, NULL },
     { "id", WXLUAMETHOD_GETPROP, s_wxluafunc_wxLua_wxAuiTabContainerButton_Get_id, 1, NULL },
@@ -1567,7 +1683,7 @@ static int LUACALL wxLua_wxAuiTabCtrl_GetPage1(lua_State *L)
     // get this
     wxAuiTabCtrl * self = (wxAuiTabCtrl *)wxluaT_getuserdatatype(L, 1, wxluatype_wxAuiTabCtrl);
     // call GetPage
-    const wxAuiNotebookPage* returns = &self->GetPage(idx);
+    const wxAuiNotebookPage* returns = (const wxAuiNotebookPage*)&self->GetPage(idx);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxAuiNotebookPage);
 
@@ -1585,7 +1701,7 @@ static int LUACALL wxLua_wxAuiTabCtrl_GetPage(lua_State *L)
     // get this
     wxAuiTabCtrl * self = (wxAuiTabCtrl *)wxluaT_getuserdatatype(L, 1, wxluatype_wxAuiTabCtrl);
     // call GetPage
-    wxAuiNotebookPage* returns = &self->GetPage(idx);
+    wxAuiNotebookPage* returns = (wxAuiNotebookPage*)&self->GetPage(idx);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxAuiNotebookPage);
 
@@ -1617,7 +1733,7 @@ static int LUACALL wxLua_wxAuiTabCtrl_GetPages(lua_State *L)
     // get this
     wxAuiTabCtrl * self = (wxAuiTabCtrl *)wxluaT_getuserdatatype(L, 1, wxluatype_wxAuiTabCtrl);
     // call GetPages
-    wxAuiNotebookPageArray* returns = &self->GetPages();
+    wxAuiNotebookPageArray* returns = (wxAuiNotebookPageArray*)&self->GetPages();
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxAuiNotebookPageArray);
 
@@ -1841,11 +1957,12 @@ static int LUACALL wxLua_wxAuiTabCtrl_SetActivePage(lua_State *L)
 static wxLuaArgType s_wxluatypeArray_wxLua_wxAuiTabCtrl_SetArtProvider[] = { &wxluatype_wxAuiTabCtrl, &wxluatype_wxAuiTabArt, NULL };
 static int LUACALL wxLua_wxAuiTabCtrl_SetArtProvider(lua_State *L);
 static wxLuaBindCFunc s_wxluafunc_wxLua_wxAuiTabCtrl_SetArtProvider[1] = {{ wxLua_wxAuiTabCtrl_SetArtProvider, WXLUAMETHOD_METHOD, 2, 2, s_wxluatypeArray_wxLua_wxAuiTabCtrl_SetArtProvider }};
-//     void SetArtProvider(wxAuiTabArt* art);
+//     void SetArtProvider(%ungc wxAuiTabArt* art);
 static int LUACALL wxLua_wxAuiTabCtrl_SetArtProvider(lua_State *L)
 {
     // wxAuiTabArt art
     wxAuiTabArt * art = (wxAuiTabArt *)wxluaT_getuserdatatype(L, 2, wxluatype_wxAuiTabArt);
+    if (wxluaO_isgcobject(L, art)) wxluaO_undeletegcobject(L, art);
     // get this
     wxAuiTabCtrl * self = (wxAuiTabCtrl *)wxluaT_getuserdatatype(L, 1, wxluatype_wxAuiTabCtrl);
     // call SetArtProvider
@@ -2273,7 +2390,7 @@ static int LUACALL wxLua_wxAuiNotebook_GetAuiManager(lua_State *L)
     // get this
     wxAuiNotebook * self = (wxAuiNotebook *)wxluaT_getuserdatatype(L, 1, wxluatype_wxAuiNotebook);
     // call GetAuiManager
-    const wxAuiManager* returns = &self->GetAuiManager();
+    const wxAuiManager* returns = (const wxAuiManager*)&self->GetAuiManager();
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxAuiManager);
 
@@ -2486,11 +2603,12 @@ static int LUACALL wxLua_wxAuiNotebook_RemovePage(lua_State *L)
 static wxLuaArgType s_wxluatypeArray_wxLua_wxAuiNotebook_SetArtProvider[] = { &wxluatype_wxAuiNotebook, &wxluatype_wxAuiTabArt, NULL };
 static int LUACALL wxLua_wxAuiNotebook_SetArtProvider(lua_State *L);
 static wxLuaBindCFunc s_wxluafunc_wxLua_wxAuiNotebook_SetArtProvider[1] = {{ wxLua_wxAuiNotebook_SetArtProvider, WXLUAMETHOD_METHOD, 2, 2, s_wxluatypeArray_wxLua_wxAuiNotebook_SetArtProvider }};
-//     void SetArtProvider(wxAuiTabArt* art);
+//     void SetArtProvider(%ungc wxAuiTabArt* art);
 static int LUACALL wxLua_wxAuiNotebook_SetArtProvider(lua_State *L)
 {
     // wxAuiTabArt art
     wxAuiTabArt * art = (wxAuiTabArt *)wxluaT_getuserdatatype(L, 2, wxluatype_wxAuiTabArt);
+    if (wxluaO_isgcobject(L, art)) wxluaO_undeletegcobject(L, art);
     // get this
     wxAuiNotebook * self = (wxAuiNotebook *)wxluaT_getuserdatatype(L, 1, wxluatype_wxAuiNotebook);
     // call SetArtProvider
@@ -3413,7 +3531,7 @@ static int LUACALL wxLua_wxAuiPaneInfo_BestSize1(lua_State *L)
     // get this
     wxAuiPaneInfo * self = (wxAuiPaneInfo *)wxluaT_getuserdatatype(L, 1, wxluatype_wxAuiPaneInfo);
     // call BestSize
-    wxAuiPaneInfo* returns = &self->BestSize(x, y);
+    wxAuiPaneInfo* returns = (wxAuiPaneInfo*)&self->BestSize(x, y);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxAuiPaneInfo);
 
@@ -3433,7 +3551,7 @@ static int LUACALL wxLua_wxAuiPaneInfo_BestSize(lua_State *L)
     // get this
     wxAuiPaneInfo * self = (wxAuiPaneInfo *)wxluaT_getuserdatatype(L, 1, wxluatype_wxAuiPaneInfo);
     // call BestSize
-    wxAuiPaneInfo* returns = &self->BestSize(*size);
+    wxAuiPaneInfo* returns = (wxAuiPaneInfo*)&self->BestSize(*size);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxAuiPaneInfo);
 
@@ -3451,7 +3569,7 @@ static int LUACALL wxLua_wxAuiPaneInfo_Bottom(lua_State *L)
     // get this
     wxAuiPaneInfo * self = (wxAuiPaneInfo *)wxluaT_getuserdatatype(L, 1, wxluatype_wxAuiPaneInfo);
     // call Bottom
-    wxAuiPaneInfo* returns = &self->Bottom();
+    wxAuiPaneInfo* returns = (wxAuiPaneInfo*)&self->Bottom();
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxAuiPaneInfo);
 
@@ -3471,7 +3589,7 @@ static int LUACALL wxLua_wxAuiPaneInfo_BottomDockable(lua_State *L)
     // get this
     wxAuiPaneInfo * self = (wxAuiPaneInfo *)wxluaT_getuserdatatype(L, 1, wxluatype_wxAuiPaneInfo);
     // call BottomDockable
-    wxAuiPaneInfo* returns = &self->BottomDockable(b);
+    wxAuiPaneInfo* returns = (wxAuiPaneInfo*)&self->BottomDockable(b);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxAuiPaneInfo);
 
@@ -3489,7 +3607,7 @@ static int LUACALL wxLua_wxAuiPaneInfo_Caption(lua_State *L)
     // get this
     wxAuiPaneInfo * self = (wxAuiPaneInfo *)wxluaT_getuserdatatype(L, 1, wxluatype_wxAuiPaneInfo);
     // call Caption
-    wxAuiPaneInfo* returns = &self->Caption(c);
+    wxAuiPaneInfo* returns = (wxAuiPaneInfo*)&self->Caption(c);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxAuiPaneInfo);
 
@@ -3509,7 +3627,7 @@ static int LUACALL wxLua_wxAuiPaneInfo_CaptionVisible(lua_State *L)
     // get this
     wxAuiPaneInfo * self = (wxAuiPaneInfo *)wxluaT_getuserdatatype(L, 1, wxluatype_wxAuiPaneInfo);
     // call CaptionVisible
-    wxAuiPaneInfo* returns = &self->CaptionVisible(visible);
+    wxAuiPaneInfo* returns = (wxAuiPaneInfo*)&self->CaptionVisible(visible);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxAuiPaneInfo);
 
@@ -3525,7 +3643,7 @@ static int LUACALL wxLua_wxAuiPaneInfo_Center(lua_State *L)
     // get this
     wxAuiPaneInfo * self = (wxAuiPaneInfo *)wxluaT_getuserdatatype(L, 1, wxluatype_wxAuiPaneInfo);
     // call Center
-    wxAuiPaneInfo* returns = &self->Center();
+    wxAuiPaneInfo* returns = (wxAuiPaneInfo*)&self->Center();
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxAuiPaneInfo);
 
@@ -3541,7 +3659,7 @@ static int LUACALL wxLua_wxAuiPaneInfo_CenterPane(lua_State *L)
     // get this
     wxAuiPaneInfo * self = (wxAuiPaneInfo *)wxluaT_getuserdatatype(L, 1, wxluatype_wxAuiPaneInfo);
     // call CenterPane
-    wxAuiPaneInfo* returns = &self->CenterPane();
+    wxAuiPaneInfo* returns = (wxAuiPaneInfo*)&self->CenterPane();
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxAuiPaneInfo);
 
@@ -3557,7 +3675,7 @@ static int LUACALL wxLua_wxAuiPaneInfo_Centre(lua_State *L)
     // get this
     wxAuiPaneInfo * self = (wxAuiPaneInfo *)wxluaT_getuserdatatype(L, 1, wxluatype_wxAuiPaneInfo);
     // call Centre
-    wxAuiPaneInfo* returns = &self->Centre();
+    wxAuiPaneInfo* returns = (wxAuiPaneInfo*)&self->Centre();
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxAuiPaneInfo);
 
@@ -3573,7 +3691,7 @@ static int LUACALL wxLua_wxAuiPaneInfo_CentrePane(lua_State *L)
     // get this
     wxAuiPaneInfo * self = (wxAuiPaneInfo *)wxluaT_getuserdatatype(L, 1, wxluatype_wxAuiPaneInfo);
     // call CentrePane
-    wxAuiPaneInfo* returns = &self->CentrePane();
+    wxAuiPaneInfo* returns = (wxAuiPaneInfo*)&self->CentrePane();
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxAuiPaneInfo);
 
@@ -3593,7 +3711,7 @@ static int LUACALL wxLua_wxAuiPaneInfo_CloseButton(lua_State *L)
     // get this
     wxAuiPaneInfo * self = (wxAuiPaneInfo *)wxluaT_getuserdatatype(L, 1, wxluatype_wxAuiPaneInfo);
     // call CloseButton
-    wxAuiPaneInfo* returns = &self->CloseButton(visible);
+    wxAuiPaneInfo* returns = (wxAuiPaneInfo*)&self->CloseButton(visible);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxAuiPaneInfo);
 
@@ -3609,7 +3727,7 @@ static int LUACALL wxLua_wxAuiPaneInfo_DefaultPane(lua_State *L)
     // get this
     wxAuiPaneInfo * self = (wxAuiPaneInfo *)wxluaT_getuserdatatype(L, 1, wxluatype_wxAuiPaneInfo);
     // call DefaultPane
-    wxAuiPaneInfo* returns = &self->DefaultPane();
+    wxAuiPaneInfo* returns = (wxAuiPaneInfo*)&self->DefaultPane();
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxAuiPaneInfo);
 
@@ -3629,7 +3747,7 @@ static int LUACALL wxLua_wxAuiPaneInfo_DestroyOnClose(lua_State *L)
     // get this
     wxAuiPaneInfo * self = (wxAuiPaneInfo *)wxluaT_getuserdatatype(L, 1, wxluatype_wxAuiPaneInfo);
     // call DestroyOnClose
-    wxAuiPaneInfo* returns = &self->DestroyOnClose(b);
+    wxAuiPaneInfo* returns = (wxAuiPaneInfo*)&self->DestroyOnClose(b);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxAuiPaneInfo);
 
@@ -3647,7 +3765,7 @@ static int LUACALL wxLua_wxAuiPaneInfo_Direction(lua_State *L)
     // get this
     wxAuiPaneInfo * self = (wxAuiPaneInfo *)wxluaT_getuserdatatype(L, 1, wxluatype_wxAuiPaneInfo);
     // call Direction
-    wxAuiPaneInfo* returns = &self->Direction(direction);
+    wxAuiPaneInfo* returns = (wxAuiPaneInfo*)&self->Direction(direction);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxAuiPaneInfo);
 
@@ -3663,7 +3781,7 @@ static int LUACALL wxLua_wxAuiPaneInfo_Dock(lua_State *L)
     // get this
     wxAuiPaneInfo * self = (wxAuiPaneInfo *)wxluaT_getuserdatatype(L, 1, wxluatype_wxAuiPaneInfo);
     // call Dock
-    wxAuiPaneInfo* returns = &self->Dock();
+    wxAuiPaneInfo* returns = (wxAuiPaneInfo*)&self->Dock();
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxAuiPaneInfo);
 
@@ -3683,7 +3801,7 @@ static int LUACALL wxLua_wxAuiPaneInfo_Dockable(lua_State *L)
     // get this
     wxAuiPaneInfo * self = (wxAuiPaneInfo *)wxluaT_getuserdatatype(L, 1, wxluatype_wxAuiPaneInfo);
     // call Dockable
-    wxAuiPaneInfo* returns = &self->Dockable(b);
+    wxAuiPaneInfo* returns = (wxAuiPaneInfo*)&self->Dockable(b);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxAuiPaneInfo);
 
@@ -3699,7 +3817,7 @@ static int LUACALL wxLua_wxAuiPaneInfo_Fixed(lua_State *L)
     // get this
     wxAuiPaneInfo * self = (wxAuiPaneInfo *)wxluaT_getuserdatatype(L, 1, wxluatype_wxAuiPaneInfo);
     // call Fixed
-    wxAuiPaneInfo* returns = &self->Fixed();
+    wxAuiPaneInfo* returns = (wxAuiPaneInfo*)&self->Fixed();
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxAuiPaneInfo);
 
@@ -3715,7 +3833,7 @@ static int LUACALL wxLua_wxAuiPaneInfo_Float(lua_State *L)
     // get this
     wxAuiPaneInfo * self = (wxAuiPaneInfo *)wxluaT_getuserdatatype(L, 1, wxluatype_wxAuiPaneInfo);
     // call Float
-    wxAuiPaneInfo* returns = &self->Float();
+    wxAuiPaneInfo* returns = (wxAuiPaneInfo*)&self->Float();
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxAuiPaneInfo);
 
@@ -3735,7 +3853,7 @@ static int LUACALL wxLua_wxAuiPaneInfo_Floatable(lua_State *L)
     // get this
     wxAuiPaneInfo * self = (wxAuiPaneInfo *)wxluaT_getuserdatatype(L, 1, wxluatype_wxAuiPaneInfo);
     // call Floatable
-    wxAuiPaneInfo* returns = &self->Floatable(b);
+    wxAuiPaneInfo* returns = (wxAuiPaneInfo*)&self->Floatable(b);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxAuiPaneInfo);
 
@@ -3755,7 +3873,7 @@ static int LUACALL wxLua_wxAuiPaneInfo_FloatingPosition1(lua_State *L)
     // get this
     wxAuiPaneInfo * self = (wxAuiPaneInfo *)wxluaT_getuserdatatype(L, 1, wxluatype_wxAuiPaneInfo);
     // call FloatingPosition
-    wxAuiPaneInfo* returns = &self->FloatingPosition(x, y);
+    wxAuiPaneInfo* returns = (wxAuiPaneInfo*)&self->FloatingPosition(x, y);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxAuiPaneInfo);
 
@@ -3775,7 +3893,7 @@ static int LUACALL wxLua_wxAuiPaneInfo_FloatingPosition(lua_State *L)
     // get this
     wxAuiPaneInfo * self = (wxAuiPaneInfo *)wxluaT_getuserdatatype(L, 1, wxluatype_wxAuiPaneInfo);
     // call FloatingPosition
-    wxAuiPaneInfo* returns = &self->FloatingPosition(*pos);
+    wxAuiPaneInfo* returns = (wxAuiPaneInfo*)&self->FloatingPosition(*pos);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxAuiPaneInfo);
 
@@ -3797,7 +3915,7 @@ static int LUACALL wxLua_wxAuiPaneInfo_FloatingSize1(lua_State *L)
     // get this
     wxAuiPaneInfo * self = (wxAuiPaneInfo *)wxluaT_getuserdatatype(L, 1, wxluatype_wxAuiPaneInfo);
     // call FloatingSize
-    wxAuiPaneInfo* returns = &self->FloatingSize(x, y);
+    wxAuiPaneInfo* returns = (wxAuiPaneInfo*)&self->FloatingSize(x, y);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxAuiPaneInfo);
 
@@ -3817,7 +3935,7 @@ static int LUACALL wxLua_wxAuiPaneInfo_FloatingSize(lua_State *L)
     // get this
     wxAuiPaneInfo * self = (wxAuiPaneInfo *)wxluaT_getuserdatatype(L, 1, wxluatype_wxAuiPaneInfo);
     // call FloatingSize
-    wxAuiPaneInfo* returns = &self->FloatingSize(*size);
+    wxAuiPaneInfo* returns = (wxAuiPaneInfo*)&self->FloatingSize(*size);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxAuiPaneInfo);
 
@@ -4077,7 +4195,7 @@ static int LUACALL wxLua_wxAuiPaneInfo_Gripper(lua_State *L)
     // get this
     wxAuiPaneInfo * self = (wxAuiPaneInfo *)wxluaT_getuserdatatype(L, 1, wxluatype_wxAuiPaneInfo);
     // call Gripper
-    wxAuiPaneInfo* returns = &self->Gripper(visible);
+    wxAuiPaneInfo* returns = (wxAuiPaneInfo*)&self->Gripper(visible);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxAuiPaneInfo);
 
@@ -4097,7 +4215,7 @@ static int LUACALL wxLua_wxAuiPaneInfo_GripperTop(lua_State *L)
     // get this
     wxAuiPaneInfo * self = (wxAuiPaneInfo *)wxluaT_getuserdatatype(L, 1, wxluatype_wxAuiPaneInfo);
     // call GripperTop
-    wxAuiPaneInfo* returns = &self->GripperTop(attop);
+    wxAuiPaneInfo* returns = (wxAuiPaneInfo*)&self->GripperTop(attop);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxAuiPaneInfo);
 
@@ -4259,7 +4377,7 @@ static int LUACALL wxLua_wxAuiPaneInfo_Hide(lua_State *L)
     // get this
     wxAuiPaneInfo * self = (wxAuiPaneInfo *)wxluaT_getuserdatatype(L, 1, wxluatype_wxAuiPaneInfo);
     // call Hide
-    wxAuiPaneInfo* returns = &self->Hide();
+    wxAuiPaneInfo* returns = (wxAuiPaneInfo*)&self->Hide();
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxAuiPaneInfo);
 
@@ -4517,7 +4635,7 @@ static int LUACALL wxLua_wxAuiPaneInfo_Layer(lua_State *L)
     // get this
     wxAuiPaneInfo * self = (wxAuiPaneInfo *)wxluaT_getuserdatatype(L, 1, wxluatype_wxAuiPaneInfo);
     // call Layer
-    wxAuiPaneInfo* returns = &self->Layer(layer);
+    wxAuiPaneInfo* returns = (wxAuiPaneInfo*)&self->Layer(layer);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxAuiPaneInfo);
 
@@ -4533,7 +4651,7 @@ static int LUACALL wxLua_wxAuiPaneInfo_Left(lua_State *L)
     // get this
     wxAuiPaneInfo * self = (wxAuiPaneInfo *)wxluaT_getuserdatatype(L, 1, wxluatype_wxAuiPaneInfo);
     // call Left
-    wxAuiPaneInfo* returns = &self->Left();
+    wxAuiPaneInfo* returns = (wxAuiPaneInfo*)&self->Left();
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxAuiPaneInfo);
 
@@ -4553,7 +4671,7 @@ static int LUACALL wxLua_wxAuiPaneInfo_LeftDockable(lua_State *L)
     // get this
     wxAuiPaneInfo * self = (wxAuiPaneInfo *)wxluaT_getuserdatatype(L, 1, wxluatype_wxAuiPaneInfo);
     // call LeftDockable
-    wxAuiPaneInfo* returns = &self->LeftDockable(b);
+    wxAuiPaneInfo* returns = (wxAuiPaneInfo*)&self->LeftDockable(b);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxAuiPaneInfo);
 
@@ -4573,7 +4691,7 @@ static int LUACALL wxLua_wxAuiPaneInfo_MaxSize1(lua_State *L)
     // get this
     wxAuiPaneInfo * self = (wxAuiPaneInfo *)wxluaT_getuserdatatype(L, 1, wxluatype_wxAuiPaneInfo);
     // call MaxSize
-    wxAuiPaneInfo* returns = &self->MaxSize(x, y);
+    wxAuiPaneInfo* returns = (wxAuiPaneInfo*)&self->MaxSize(x, y);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxAuiPaneInfo);
 
@@ -4593,7 +4711,7 @@ static int LUACALL wxLua_wxAuiPaneInfo_MaxSize(lua_State *L)
     // get this
     wxAuiPaneInfo * self = (wxAuiPaneInfo *)wxluaT_getuserdatatype(L, 1, wxluatype_wxAuiPaneInfo);
     // call MaxSize
-    wxAuiPaneInfo* returns = &self->MaxSize(*size);
+    wxAuiPaneInfo* returns = (wxAuiPaneInfo*)&self->MaxSize(*size);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxAuiPaneInfo);
 
@@ -4611,7 +4729,7 @@ static int LUACALL wxLua_wxAuiPaneInfo_Maximize(lua_State *L)
     // get this
     wxAuiPaneInfo * self = (wxAuiPaneInfo *)wxluaT_getuserdatatype(L, 1, wxluatype_wxAuiPaneInfo);
     // call Maximize
-    wxAuiPaneInfo* returns = &self->Maximize();
+    wxAuiPaneInfo* returns = (wxAuiPaneInfo*)&self->Maximize();
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxAuiPaneInfo);
 
@@ -4631,7 +4749,7 @@ static int LUACALL wxLua_wxAuiPaneInfo_MaximizeButton(lua_State *L)
     // get this
     wxAuiPaneInfo * self = (wxAuiPaneInfo *)wxluaT_getuserdatatype(L, 1, wxluatype_wxAuiPaneInfo);
     // call MaximizeButton
-    wxAuiPaneInfo* returns = &self->MaximizeButton(visible);
+    wxAuiPaneInfo* returns = (wxAuiPaneInfo*)&self->MaximizeButton(visible);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxAuiPaneInfo);
 
@@ -4651,7 +4769,7 @@ static int LUACALL wxLua_wxAuiPaneInfo_MinSize1(lua_State *L)
     // get this
     wxAuiPaneInfo * self = (wxAuiPaneInfo *)wxluaT_getuserdatatype(L, 1, wxluatype_wxAuiPaneInfo);
     // call MinSize
-    wxAuiPaneInfo* returns = &self->MinSize(x, y);
+    wxAuiPaneInfo* returns = (wxAuiPaneInfo*)&self->MinSize(x, y);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxAuiPaneInfo);
 
@@ -4671,7 +4789,7 @@ static int LUACALL wxLua_wxAuiPaneInfo_MinSize(lua_State *L)
     // get this
     wxAuiPaneInfo * self = (wxAuiPaneInfo *)wxluaT_getuserdatatype(L, 1, wxluatype_wxAuiPaneInfo);
     // call MinSize
-    wxAuiPaneInfo* returns = &self->MinSize(*size);
+    wxAuiPaneInfo* returns = (wxAuiPaneInfo*)&self->MinSize(*size);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxAuiPaneInfo);
 
@@ -4693,7 +4811,7 @@ static int LUACALL wxLua_wxAuiPaneInfo_MinimizeButton(lua_State *L)
     // get this
     wxAuiPaneInfo * self = (wxAuiPaneInfo *)wxluaT_getuserdatatype(L, 1, wxluatype_wxAuiPaneInfo);
     // call MinimizeButton
-    wxAuiPaneInfo* returns = &self->MinimizeButton(visible);
+    wxAuiPaneInfo* returns = (wxAuiPaneInfo*)&self->MinimizeButton(visible);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxAuiPaneInfo);
 
@@ -4713,7 +4831,7 @@ static int LUACALL wxLua_wxAuiPaneInfo_Movable(lua_State *L)
     // get this
     wxAuiPaneInfo * self = (wxAuiPaneInfo *)wxluaT_getuserdatatype(L, 1, wxluatype_wxAuiPaneInfo);
     // call Movable
-    wxAuiPaneInfo* returns = &self->Movable(b);
+    wxAuiPaneInfo* returns = (wxAuiPaneInfo*)&self->Movable(b);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxAuiPaneInfo);
 
@@ -4731,7 +4849,7 @@ static int LUACALL wxLua_wxAuiPaneInfo_Name(lua_State *L)
     // get this
     wxAuiPaneInfo * self = (wxAuiPaneInfo *)wxluaT_getuserdatatype(L, 1, wxluatype_wxAuiPaneInfo);
     // call Name
-    wxAuiPaneInfo* returns = &self->Name(n);
+    wxAuiPaneInfo* returns = (wxAuiPaneInfo*)&self->Name(n);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxAuiPaneInfo);
 
@@ -4751,7 +4869,7 @@ static int LUACALL wxLua_wxAuiPaneInfo_PaneBorder(lua_State *L)
     // get this
     wxAuiPaneInfo * self = (wxAuiPaneInfo *)wxluaT_getuserdatatype(L, 1, wxluatype_wxAuiPaneInfo);
     // call PaneBorder
-    wxAuiPaneInfo* returns = &self->PaneBorder(visible);
+    wxAuiPaneInfo* returns = (wxAuiPaneInfo*)&self->PaneBorder(visible);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxAuiPaneInfo);
 
@@ -4771,7 +4889,7 @@ static int LUACALL wxLua_wxAuiPaneInfo_PinButton(lua_State *L)
     // get this
     wxAuiPaneInfo * self = (wxAuiPaneInfo *)wxluaT_getuserdatatype(L, 1, wxluatype_wxAuiPaneInfo);
     // call PinButton
-    wxAuiPaneInfo* returns = &self->PinButton(visible);
+    wxAuiPaneInfo* returns = (wxAuiPaneInfo*)&self->PinButton(visible);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxAuiPaneInfo);
 
@@ -4789,7 +4907,7 @@ static int LUACALL wxLua_wxAuiPaneInfo_Position(lua_State *L)
     // get this
     wxAuiPaneInfo * self = (wxAuiPaneInfo *)wxluaT_getuserdatatype(L, 1, wxluatype_wxAuiPaneInfo);
     // call Position
-    wxAuiPaneInfo* returns = &self->Position(pos);
+    wxAuiPaneInfo* returns = (wxAuiPaneInfo*)&self->Position(pos);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxAuiPaneInfo);
 
@@ -4809,7 +4927,7 @@ static int LUACALL wxLua_wxAuiPaneInfo_Resizable(lua_State *L)
     // get this
     wxAuiPaneInfo * self = (wxAuiPaneInfo *)wxluaT_getuserdatatype(L, 1, wxluatype_wxAuiPaneInfo);
     // call Resizable
-    wxAuiPaneInfo* returns = &self->Resizable(resizable);
+    wxAuiPaneInfo* returns = (wxAuiPaneInfo*)&self->Resizable(resizable);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxAuiPaneInfo);
 
@@ -4825,7 +4943,7 @@ static int LUACALL wxLua_wxAuiPaneInfo_Restore(lua_State *L)
     // get this
     wxAuiPaneInfo * self = (wxAuiPaneInfo *)wxluaT_getuserdatatype(L, 1, wxluatype_wxAuiPaneInfo);
     // call Restore
-    wxAuiPaneInfo* returns = &self->Restore();
+    wxAuiPaneInfo* returns = (wxAuiPaneInfo*)&self->Restore();
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxAuiPaneInfo);
 
@@ -4841,7 +4959,7 @@ static int LUACALL wxLua_wxAuiPaneInfo_Right(lua_State *L)
     // get this
     wxAuiPaneInfo * self = (wxAuiPaneInfo *)wxluaT_getuserdatatype(L, 1, wxluatype_wxAuiPaneInfo);
     // call Right
-    wxAuiPaneInfo* returns = &self->Right();
+    wxAuiPaneInfo* returns = (wxAuiPaneInfo*)&self->Right();
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxAuiPaneInfo);
 
@@ -4861,7 +4979,7 @@ static int LUACALL wxLua_wxAuiPaneInfo_RightDockable(lua_State *L)
     // get this
     wxAuiPaneInfo * self = (wxAuiPaneInfo *)wxluaT_getuserdatatype(L, 1, wxluatype_wxAuiPaneInfo);
     // call RightDockable
-    wxAuiPaneInfo* returns = &self->RightDockable(b);
+    wxAuiPaneInfo* returns = (wxAuiPaneInfo*)&self->RightDockable(b);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxAuiPaneInfo);
 
@@ -4879,7 +4997,7 @@ static int LUACALL wxLua_wxAuiPaneInfo_Row(lua_State *L)
     // get this
     wxAuiPaneInfo * self = (wxAuiPaneInfo *)wxluaT_getuserdatatype(L, 1, wxluatype_wxAuiPaneInfo);
     // call Row
-    wxAuiPaneInfo* returns = &self->Row(row);
+    wxAuiPaneInfo* returns = (wxAuiPaneInfo*)&self->Row(row);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxAuiPaneInfo);
 
@@ -4915,7 +5033,7 @@ static int LUACALL wxLua_wxAuiPaneInfo_SetFlag(lua_State *L)
     // get this
     wxAuiPaneInfo * self = (wxAuiPaneInfo *)wxluaT_getuserdatatype(L, 1, wxluatype_wxAuiPaneInfo);
     // call SetFlag
-    wxAuiPaneInfo* returns = &self->SetFlag(flag, option_state);
+    wxAuiPaneInfo* returns = (wxAuiPaneInfo*)&self->SetFlag(flag, option_state);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxAuiPaneInfo);
 
@@ -5193,7 +5311,7 @@ static int LUACALL wxLua_wxAuiPaneInfo_Show(lua_State *L)
     // get this
     wxAuiPaneInfo * self = (wxAuiPaneInfo *)wxluaT_getuserdatatype(L, 1, wxluatype_wxAuiPaneInfo);
     // call Show
-    wxAuiPaneInfo* returns = &self->Show(show);
+    wxAuiPaneInfo* returns = (wxAuiPaneInfo*)&self->Show(show);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxAuiPaneInfo);
 
@@ -5209,7 +5327,7 @@ static int LUACALL wxLua_wxAuiPaneInfo_ToolbarPane(lua_State *L)
     // get this
     wxAuiPaneInfo * self = (wxAuiPaneInfo *)wxluaT_getuserdatatype(L, 1, wxluatype_wxAuiPaneInfo);
     // call ToolbarPane
-    wxAuiPaneInfo* returns = &self->ToolbarPane();
+    wxAuiPaneInfo* returns = (wxAuiPaneInfo*)&self->ToolbarPane();
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxAuiPaneInfo);
 
@@ -5225,7 +5343,7 @@ static int LUACALL wxLua_wxAuiPaneInfo_Top(lua_State *L)
     // get this
     wxAuiPaneInfo * self = (wxAuiPaneInfo *)wxluaT_getuserdatatype(L, 1, wxluatype_wxAuiPaneInfo);
     // call Top
-    wxAuiPaneInfo* returns = &self->Top();
+    wxAuiPaneInfo* returns = (wxAuiPaneInfo*)&self->Top();
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxAuiPaneInfo);
 
@@ -5245,7 +5363,7 @@ static int LUACALL wxLua_wxAuiPaneInfo_TopDockable(lua_State *L)
     // get this
     wxAuiPaneInfo * self = (wxAuiPaneInfo *)wxluaT_getuserdatatype(L, 1, wxluatype_wxAuiPaneInfo);
     // call TopDockable
-    wxAuiPaneInfo* returns = &self->TopDockable(b);
+    wxAuiPaneInfo* returns = (wxAuiPaneInfo*)&self->TopDockable(b);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxAuiPaneInfo);
 
@@ -5263,7 +5381,7 @@ static int LUACALL wxLua_wxAuiPaneInfo_Window(lua_State *L)
     // get this
     wxAuiPaneInfo * self = (wxAuiPaneInfo *)wxluaT_getuserdatatype(L, 1, wxluatype_wxAuiPaneInfo);
     // call Window
-    wxAuiPaneInfo* returns = &self->Window(w);
+    wxAuiPaneInfo* returns = (wxAuiPaneInfo*)&self->Window(w);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxAuiPaneInfo);
 
@@ -6073,7 +6191,7 @@ static int LUACALL wxLua_wxAuiManager_GetAllPanes(lua_State *L)
     // get this
     wxAuiManager * self = (wxAuiManager *)wxluaT_getuserdatatype(L, 1, wxluatype_wxAuiManager);
     // call GetAllPanes
-    wxAuiPaneInfoArray* returns = &self->GetAllPanes();
+    wxAuiPaneInfoArray* returns = (wxAuiPaneInfoArray*)&self->GetAllPanes();
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxAuiPaneInfoArray);
 
@@ -6173,7 +6291,7 @@ static int LUACALL wxLua_wxAuiManager_GetPane1(lua_State *L)
     // get this
     wxAuiManager * self = (wxAuiManager *)wxluaT_getuserdatatype(L, 1, wxluatype_wxAuiManager);
     // call GetPane
-    wxAuiPaneInfo* returns = &self->GetPane(name);
+    wxAuiPaneInfo* returns = (wxAuiPaneInfo*)&self->GetPane(name);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxAuiPaneInfo);
 
@@ -6191,7 +6309,7 @@ static int LUACALL wxLua_wxAuiManager_GetPane(lua_State *L)
     // get this
     wxAuiManager * self = (wxAuiManager *)wxluaT_getuserdatatype(L, 1, wxluatype_wxAuiManager);
     // call GetPane
-    wxAuiPaneInfo* returns = &self->GetPane(window);
+    wxAuiPaneInfo* returns = (wxAuiPaneInfo*)&self->GetPane(window);
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxAuiPaneInfo);
 
@@ -6521,6 +6639,9 @@ static int LUACALL wxLua_wxAuiManager_Update(lua_State *L)
     return 0;
 }
 
+static wxLuaArgType s_wxluatypeArray_wxLua_wxAuiManager_delete[] = { &wxluatype_wxAuiManager, NULL };
+static wxLuaBindCFunc s_wxluafunc_wxLua_wxAuiManager_delete[1] = {{ wxlua_userdata_delete, WXLUAMETHOD_METHOD|WXLUAMETHOD_DELETE, 1, 1, s_wxluatypeArray_wxLua_wxAuiManager_delete }};
+
 static wxLuaArgType s_wxluatypeArray_wxLua_wxAuiManager_constructor[] = { &wxluatype_wxWindow, &wxluatype_TINTEGER, NULL };
 static int LUACALL wxLua_wxAuiManager_constructor(lua_State *L);
 static wxLuaBindCFunc s_wxluafunc_wxLua_wxAuiManager_constructor[1] = {{ wxLua_wxAuiManager_constructor, WXLUAMETHOD_CONSTRUCTOR, 0, 2, s_wxluatypeArray_wxLua_wxAuiManager_constructor }};
@@ -6535,6 +6656,8 @@ static int LUACALL wxLua_wxAuiManager_constructor(lua_State *L)
     wxWindow * managed_wnd = (argCount >= 1 ? (wxWindow *)wxluaT_getuserdatatype(L, 1, wxluatype_wxWindow) : NULL);
     // call constructor
     wxAuiManager* returns = new wxAuiManager(managed_wnd, flags);
+    // add to tracked memory list
+    wxluaO_addgcobject(L, returns, wxluatype_wxAuiManager);
     // push the constructed class pointer
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxAuiManager);
 
@@ -6628,6 +6751,7 @@ wxLuaBindMethod wxAuiManager_methods[] = {
 
     { "UnInit", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxAuiManager_UnInit, 1, NULL },
     { "Update", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxAuiManager_Update, 1, NULL },
+    { "delete", WXLUAMETHOD_METHOD|WXLUAMETHOD_DELETE, s_wxluafunc_wxLua_wxAuiManager_delete, 1, NULL },
     { "wxAuiManager", WXLUAMETHOD_CONSTRUCTOR, s_wxluafunc_wxLua_wxAuiManager_constructor, 1, NULL },
 
     { 0, 0, 0, 0 },
@@ -8093,10 +8217,12 @@ static int LUACALL wxLua_wxAuiMDIParentFrame_OnCreateClient(lua_State *L)
     return 1;
 }
 
+
+#if (!wxCHECK_VERSION(2,9,2)) && (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI)
 static wxLuaArgType s_wxluatypeArray_wxLua_wxAuiMDIParentFrame_ProcessEvent[] = { &wxluatype_wxAuiMDIParentFrame, &wxluatype_wxEvent, NULL };
 static int LUACALL wxLua_wxAuiMDIParentFrame_ProcessEvent(lua_State *L);
 static wxLuaBindCFunc s_wxluafunc_wxLua_wxAuiMDIParentFrame_ProcessEvent[1] = {{ wxLua_wxAuiMDIParentFrame_ProcessEvent, WXLUAMETHOD_METHOD, 2, 2, s_wxluatypeArray_wxLua_wxAuiMDIParentFrame_ProcessEvent }};
-//     virtual bool ProcessEvent(wxEvent& event);
+//     !%wxchkver_2_9_2 virtual bool ProcessEvent(wxEvent& event);
 static int LUACALL wxLua_wxAuiMDIParentFrame_ProcessEvent(lua_State *L)
 {
     // wxEvent event
@@ -8110,6 +8236,8 @@ static int LUACALL wxLua_wxAuiMDIParentFrame_ProcessEvent(lua_State *L)
 
     return 1;
 }
+
+#endif // (!wxCHECK_VERSION(2,9,2)) && (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI)
 
 static wxLuaArgType s_wxluatypeArray_wxLua_wxAuiMDIParentFrame_SetActiveChild[] = { &wxluatype_wxAuiMDIParentFrame, &wxluatype_wxAuiMDIChildFrame, NULL };
 static int LUACALL wxLua_wxAuiMDIParentFrame_SetActiveChild(lua_State *L);
@@ -8309,7 +8437,11 @@ wxLuaBindMethod wxAuiMDIParentFrame_methods[] = {
 #endif // (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI) && (wxLUA_USE_wxMenu && wxUSE_MENUS)
 
     { "OnCreateClient", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxAuiMDIParentFrame_OnCreateClient, 1, NULL },
+
+#if (!wxCHECK_VERSION(2,9,2)) && (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI)
     { "ProcessEvent", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxAuiMDIParentFrame_ProcessEvent, 1, NULL },
+#endif // (!wxCHECK_VERSION(2,9,2)) && (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI)
+
     { "SetActiveChild", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxAuiMDIParentFrame_SetActiveChild, 1, NULL },
     { "SetArtProvider", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxAuiMDIParentFrame_SetArtProvider, 1, NULL },
     { "SetChildMenuBar", WXLUAMETHOD_METHOD, s_wxluafunc_wxLua_wxAuiMDIParentFrame_SetChildMenuBar, 1, NULL },
@@ -8448,7 +8580,7 @@ static int LUACALL wxLua_wxAuiMDIChildFrame_GetIcon(lua_State *L)
     // get this
     wxAuiMDIChildFrame * self = (wxAuiMDIChildFrame *)wxluaT_getuserdatatype(L, 1, wxluatype_wxAuiMDIChildFrame);
     // call GetIcon
-    const wxIcon* returns = &self->GetIcon();
+    const wxIcon* returns = (const wxIcon*)&self->GetIcon();
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxIcon);
 
@@ -8464,7 +8596,7 @@ static int LUACALL wxLua_wxAuiMDIChildFrame_GetIcons(lua_State *L)
     // get this
     wxAuiMDIChildFrame * self = (wxAuiMDIChildFrame *)wxluaT_getuserdatatype(L, 1, wxluatype_wxAuiMDIChildFrame);
     // call GetIcons
-    const wxIconBundle* returns = &self->GetIcons();
+    const wxIconBundle* returns = (const wxIconBundle*)&self->GetIcons();
     // push the result datatype
     wxluaT_pushuserdatatype(L, returns, wxluatype_wxIconBundle);
 
@@ -8876,42 +9008,42 @@ wxLuaBindEvent* wxLuaGetEventList_wxaui(size_t &count)
     static wxLuaBindEvent eventList[] =
     {
 #if wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI
-        { "wxEVT_AUI_FIND_MANAGER", &wxEVT_AUI_FIND_MANAGER, &wxluatype_wxAuiManagerEvent },
-        { "wxEVT_AUI_PANE_BUTTON", &wxEVT_AUI_PANE_BUTTON, &wxluatype_wxAuiManagerEvent },
-        { "wxEVT_AUI_PANE_CLOSE", &wxEVT_AUI_PANE_CLOSE, &wxluatype_wxAuiManagerEvent },
-        { "wxEVT_AUI_PANE_MAXIMIZE", &wxEVT_AUI_PANE_MAXIMIZE, &wxluatype_wxAuiManagerEvent },
-        { "wxEVT_AUI_PANE_RESTORE", &wxEVT_AUI_PANE_RESTORE, &wxluatype_wxAuiManagerEvent },
-        { "wxEVT_AUI_RENDER", &wxEVT_AUI_RENDER, &wxluatype_wxAuiManagerEvent },
-        { "wxEVT_COMMAND_AUINOTEBOOK_ALLOW_DND", &wxEVT_COMMAND_AUINOTEBOOK_ALLOW_DND, &wxluatype_wxAuiNotebookEvent },
-        { "wxEVT_COMMAND_AUINOTEBOOK_BEGIN_DRAG", &wxEVT_COMMAND_AUINOTEBOOK_BEGIN_DRAG, &wxluatype_wxAuiNotebookEvent },
+        { "wxEVT_AUI_FIND_MANAGER", WXLUA_GET_wxEventType_ptr(wxEVT_AUI_FIND_MANAGER), &wxluatype_wxAuiManagerEvent },
+        { "wxEVT_AUI_PANE_BUTTON", WXLUA_GET_wxEventType_ptr(wxEVT_AUI_PANE_BUTTON), &wxluatype_wxAuiManagerEvent },
+        { "wxEVT_AUI_PANE_CLOSE", WXLUA_GET_wxEventType_ptr(wxEVT_AUI_PANE_CLOSE), &wxluatype_wxAuiManagerEvent },
+        { "wxEVT_AUI_PANE_MAXIMIZE", WXLUA_GET_wxEventType_ptr(wxEVT_AUI_PANE_MAXIMIZE), &wxluatype_wxAuiManagerEvent },
+        { "wxEVT_AUI_PANE_RESTORE", WXLUA_GET_wxEventType_ptr(wxEVT_AUI_PANE_RESTORE), &wxluatype_wxAuiManagerEvent },
+        { "wxEVT_AUI_RENDER", WXLUA_GET_wxEventType_ptr(wxEVT_AUI_RENDER), &wxluatype_wxAuiManagerEvent },
+        { "wxEVT_COMMAND_AUINOTEBOOK_ALLOW_DND", WXLUA_GET_wxEventType_ptr(wxEVT_COMMAND_AUINOTEBOOK_ALLOW_DND), &wxluatype_wxAuiNotebookEvent },
+        { "wxEVT_COMMAND_AUINOTEBOOK_BEGIN_DRAG", WXLUA_GET_wxEventType_ptr(wxEVT_COMMAND_AUINOTEBOOK_BEGIN_DRAG), &wxluatype_wxAuiNotebookEvent },
 #endif // wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI
 
 #if (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI) && (wxCHECK_VERSION(2,8,5))
-        { "wxEVT_COMMAND_AUINOTEBOOK_BG_DCLICK", &wxEVT_COMMAND_AUINOTEBOOK_BG_DCLICK, &wxluatype_wxAuiNotebookEvent },
+        { "wxEVT_COMMAND_AUINOTEBOOK_BG_DCLICK", WXLUA_GET_wxEventType_ptr(wxEVT_COMMAND_AUINOTEBOOK_BG_DCLICK), &wxluatype_wxAuiNotebookEvent },
 #endif // (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI) && (wxCHECK_VERSION(2,8,5))
 
 #if wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI
-        { "wxEVT_COMMAND_AUINOTEBOOK_BUTTON", &wxEVT_COMMAND_AUINOTEBOOK_BUTTON, &wxluatype_wxAuiNotebookEvent },
+        { "wxEVT_COMMAND_AUINOTEBOOK_BUTTON", WXLUA_GET_wxEventType_ptr(wxEVT_COMMAND_AUINOTEBOOK_BUTTON), &wxluatype_wxAuiNotebookEvent },
 #endif // wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI
 
 #if (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI) && (wxCHECK_VERSION(2,8,5))
-        { "wxEVT_COMMAND_AUINOTEBOOK_DRAG_DONE", &wxEVT_COMMAND_AUINOTEBOOK_DRAG_DONE, &wxluatype_wxAuiNotebookEvent },
+        { "wxEVT_COMMAND_AUINOTEBOOK_DRAG_DONE", WXLUA_GET_wxEventType_ptr(wxEVT_COMMAND_AUINOTEBOOK_DRAG_DONE), &wxluatype_wxAuiNotebookEvent },
 #endif // (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI) && (wxCHECK_VERSION(2,8,5))
 
 #if wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI
-        { "wxEVT_COMMAND_AUINOTEBOOK_DRAG_MOTION", &wxEVT_COMMAND_AUINOTEBOOK_DRAG_MOTION, &wxluatype_wxAuiNotebookEvent },
-        { "wxEVT_COMMAND_AUINOTEBOOK_END_DRAG", &wxEVT_COMMAND_AUINOTEBOOK_END_DRAG, &wxluatype_wxAuiNotebookEvent },
-        { "wxEVT_COMMAND_AUINOTEBOOK_PAGE_CHANGED", &wxEVT_COMMAND_AUINOTEBOOK_PAGE_CHANGED, &wxluatype_wxAuiNotebookEvent },
-        { "wxEVT_COMMAND_AUINOTEBOOK_PAGE_CHANGING", &wxEVT_COMMAND_AUINOTEBOOK_PAGE_CHANGING, &wxluatype_wxAuiNotebookEvent },
-        { "wxEVT_COMMAND_AUINOTEBOOK_PAGE_CLOSE", &wxEVT_COMMAND_AUINOTEBOOK_PAGE_CLOSE, &wxluatype_wxAuiNotebookEvent },
+        { "wxEVT_COMMAND_AUINOTEBOOK_DRAG_MOTION", WXLUA_GET_wxEventType_ptr(wxEVT_COMMAND_AUINOTEBOOK_DRAG_MOTION), &wxluatype_wxAuiNotebookEvent },
+        { "wxEVT_COMMAND_AUINOTEBOOK_END_DRAG", WXLUA_GET_wxEventType_ptr(wxEVT_COMMAND_AUINOTEBOOK_END_DRAG), &wxluatype_wxAuiNotebookEvent },
+        { "wxEVT_COMMAND_AUINOTEBOOK_PAGE_CHANGED", WXLUA_GET_wxEventType_ptr(wxEVT_COMMAND_AUINOTEBOOK_PAGE_CHANGED), &wxluatype_wxAuiNotebookEvent },
+        { "wxEVT_COMMAND_AUINOTEBOOK_PAGE_CHANGING", WXLUA_GET_wxEventType_ptr(wxEVT_COMMAND_AUINOTEBOOK_PAGE_CHANGING), &wxluatype_wxAuiNotebookEvent },
+        { "wxEVT_COMMAND_AUINOTEBOOK_PAGE_CLOSE", WXLUA_GET_wxEventType_ptr(wxEVT_COMMAND_AUINOTEBOOK_PAGE_CLOSE), &wxluatype_wxAuiNotebookEvent },
 #endif // wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI
 
 #if (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI) && (wxCHECK_VERSION(2,8,5))
-        { "wxEVT_COMMAND_AUINOTEBOOK_PAGE_CLOSED", &wxEVT_COMMAND_AUINOTEBOOK_PAGE_CLOSED, &wxluatype_wxAuiNotebookEvent },
-        { "wxEVT_COMMAND_AUINOTEBOOK_TAB_MIDDLE_DOWN", &wxEVT_COMMAND_AUINOTEBOOK_TAB_MIDDLE_DOWN, &wxluatype_wxAuiNotebookEvent },
-        { "wxEVT_COMMAND_AUINOTEBOOK_TAB_MIDDLE_UP", &wxEVT_COMMAND_AUINOTEBOOK_TAB_MIDDLE_UP, &wxluatype_wxAuiNotebookEvent },
-        { "wxEVT_COMMAND_AUINOTEBOOK_TAB_RIGHT_DOWN", &wxEVT_COMMAND_AUINOTEBOOK_TAB_RIGHT_DOWN, &wxluatype_wxAuiNotebookEvent },
-        { "wxEVT_COMMAND_AUINOTEBOOK_TAB_RIGHT_UP", &wxEVT_COMMAND_AUINOTEBOOK_TAB_RIGHT_UP, &wxluatype_wxAuiNotebookEvent },
+        { "wxEVT_COMMAND_AUINOTEBOOK_PAGE_CLOSED", WXLUA_GET_wxEventType_ptr(wxEVT_COMMAND_AUINOTEBOOK_PAGE_CLOSED), &wxluatype_wxAuiNotebookEvent },
+        { "wxEVT_COMMAND_AUINOTEBOOK_TAB_MIDDLE_DOWN", WXLUA_GET_wxEventType_ptr(wxEVT_COMMAND_AUINOTEBOOK_TAB_MIDDLE_DOWN), &wxluatype_wxAuiNotebookEvent },
+        { "wxEVT_COMMAND_AUINOTEBOOK_TAB_MIDDLE_UP", WXLUA_GET_wxEventType_ptr(wxEVT_COMMAND_AUINOTEBOOK_TAB_MIDDLE_UP), &wxluatype_wxAuiNotebookEvent },
+        { "wxEVT_COMMAND_AUINOTEBOOK_TAB_RIGHT_DOWN", WXLUA_GET_wxEventType_ptr(wxEVT_COMMAND_AUINOTEBOOK_TAB_RIGHT_DOWN), &wxluatype_wxAuiNotebookEvent },
+        { "wxEVT_COMMAND_AUINOTEBOOK_TAB_RIGHT_UP", WXLUA_GET_wxEventType_ptr(wxEVT_COMMAND_AUINOTEBOOK_TAB_RIGHT_UP), &wxluatype_wxAuiNotebookEvent },
 #endif // (wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI) && (wxCHECK_VERSION(2,8,5))
 
 

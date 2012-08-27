@@ -25,12 +25,12 @@ end
 function main()
     -- create the hierarchy: frame -> notebook
     frame = wx.wxFrame(wx.NULL, wx.wxID_ANY, "wxLua Choices",
-                       wx.wxDefaultPosition, wx.wxSize(550, 350))
+                       wx.wxDefaultPosition, wx.wxSize(635, 350))
     frame:CreateStatusBar(1)
     frame:SetStatusText("wxEvents from controls will be displayed here", 0)
 
     local notebook = wx.wxNotebook(frame, wx.wxID_ANY,
-                                   wx.wxDefaultPosition, wx.wxSize(410, 300))
+                                   wx.wxDefaultPosition, wx.wxDefaultSize)
                                    --wx.wxNB_BOTTOM)
 
     local choices = {"one", "two", "three", "four"}

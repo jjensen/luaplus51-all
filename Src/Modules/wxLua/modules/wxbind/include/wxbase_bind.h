@@ -10,7 +10,7 @@
 
 #include "wxbind/include/wxbinddefs.h"
 #include "wxluasetup.h"
-    
+
 // ----------------------------------------------------------------------------
 // Convert from wxWidgets wxT('') to wxT(""), a string. Copied from wx/filefn.h
 
@@ -23,6 +23,8 @@
 #else   // Windows and OS/2
   #define wxLua_FILE_SEP_PATH     wxT("\\")
 #endif  // Unix/Windows
+
+extern WXDLLIMPEXP_BINDWXBASE wxDateTime::TimeZone wxLua_wxDateTime_TimeZone_Local;
 
 
 #include "wxlua/include/wxlstate.h"
@@ -209,6 +211,11 @@ extern WXDLLIMPEXP_DATA_BINDWXBASE(int) wxluatype_wxStringTokenizer;
     extern WXDLLIMPEXP_DATA_BINDWXBASE(int) wxluatype_wxStandardPaths;
 #endif // wxCHECK_VERSION(2,8,0) && wxLUA_USE_wxStandardPaths
 
+#if wxCHECK_VERSION(2,9,0)
+    extern WXDLLIMPEXP_DATA_BINDWXBASE(int) wxluatype_wxString_const_iterator;
+    extern WXDLLIMPEXP_DATA_BINDWXBASE(int) wxluatype_wxString_iterator;
+#endif // wxCHECK_VERSION(2,9,0)
+
 #if wxLUA_USE_wxArrayInt
     extern WXDLLIMPEXP_DATA_BINDWXBASE(int) wxluatype_wxArrayInt;
 #endif // wxLUA_USE_wxArrayInt
@@ -244,6 +251,7 @@ extern WXDLLIMPEXP_DATA_BINDWXBASE(int) wxluatype_wxStringTokenizer;
 
 #if wxLUA_USE_wxDateTime && wxUSE_DATETIME
     extern WXDLLIMPEXP_DATA_BINDWXBASE(int) wxluatype_wxDateTime;
+    extern WXDLLIMPEXP_DATA_BINDWXBASE(int) wxluatype_wxDateTime_TimeZone;
     extern WXDLLIMPEXP_DATA_BINDWXBASE(int) wxluatype_wxDateTimeArray;
 #endif // wxLUA_USE_wxDateTime && wxUSE_DATETIME
 

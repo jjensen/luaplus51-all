@@ -17,16 +17,21 @@
  * This will produce a big PCH file.
  */
 
-#include "wx/wxprec.h"
+#include <wx/wxprec.h>
 
 #ifdef __BORLANDC__
     #pragma hdrstop
 #endif
 
 #ifdef __WXMSW__
-    #include "wx/msw/msvcrt.h"
+    #include <wx/msw/msvcrt.h>
 #endif
 
 #ifdef __VISAGECPP__
     char wxDummyChar = 0;
+#endif
+
+#ifdef _MSC_VER
+    // Suppress warning LNK4221: no public symbols found archive member will be inaccessible
+    namespace { char dummy_wxlua = 0; };
 #endif

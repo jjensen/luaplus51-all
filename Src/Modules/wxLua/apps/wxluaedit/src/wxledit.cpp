@@ -5,30 +5,31 @@
 // Modified by:
 // Created:     11/05/2002
 // RCS-ID:
-// Copyright:   (c) John Labenski
+// Copyright:   (c) 2012 John Labenski
 // Licence:     wxWidgets licence
 /////////////////////////////////////////////////////////////////////////////
 
-// For compilers that support precompilation, includes "wx/wx.h".
-#include "wx/wxprec.h"
+// For compilers that support precompilation, includes <wx/wx.h>.
+#include <wx/wxprec.h>
 
 #ifdef __BORLANDC__
     #pragma hdrstop
 #endif
 
 #ifndef WX_PRECOMP
-    #include "wx/wx.h"
+    #include <wx/wx.h>
 #endif // WX_PRECOMP
 
-#include "wx/filename.h"
-#include "wx/splitter.h"
-#include "wx/confbase.h"
+#include <wx/filename.h>
+#include <wx/splitter.h>
+#include <wx/confbase.h>
 
 #include "wxledit.h"
 #include "wxluadebug/include/wxlstack.h"
 #include "wxluadebug/include/wxldebug.h"
 
 #include "wx/stedit/stemenum.h"
+#include "wx/stedit/steevent.h"
 
 #include "art/wxlua.xpm"
 #include "art/open.xpm"
@@ -156,7 +157,7 @@ bool wxLuaShell::RunString(const wxString& string_, bool append_text)
         {
             if (RecreatewxLuaState(GetEventHandler(), GetId()))
             {
-                AppendText(wxT("Sucessfully reset interpreter.\n"));
+                AppendText(wxT("Successfully reset interpreter.\n"));
                 ret = true;
             }
             else
@@ -211,6 +212,13 @@ bool wxLuaShell::RunString(const wxString& string_, bool append_text)
     CheckPrompt(true);
 
     return ret;
+}
+
+size_t wxLuaShell::DoGetAutoCompleteKeyWords(const wxString& root, wxArrayString& words)
+{
+    size_t count = wxSTEditorShell::DoGetAutoCompleteKeyWords(root, words);
+
+    return count;
 }
 
 void wxLuaShell::OnSTEEvent(wxSTEditorEvent& event)
@@ -369,19 +377,18 @@ void wxLuaEditor::UpdateItems(wxMenu *menu, wxMenuBar *menuBar, wxToolBar *toolB
 IMPLEMENT_DYNAMIC_CLASS(wxLuaIDE, wxWindow);
 
 BEGIN_EVENT_TABLE(wxLuaIDE, wxWindow)
-    EVT_MENU(ID_WXLUAIDE_LOAD_LUA,   wxLuaIDE::OnMenu)
-    EVT_MENU(ID_WXLUAIDE_SAVEAS_LUA, wxLuaIDE::OnMenu)
-    EVT_MENU(ID_WXLUAIDE_RUN_LUA,    wxLuaIDE::OnMenu)
-    EVT_MENU(ID_WXLUAIDE_BREAK_LUA,  wxLuaIDE::OnMenu)
-    EVT_MENU(ID_WXLUAIDE_SHOW_STACK, wxLuaIDE::OnMenu)
+    EVT_MENU                    (ID_WXLUAIDE_LOAD_LUA,   wxLuaIDE::OnMenu)
+    EVT_MENU                    (ID_WXLUAIDE_SAVEAS_LUA, wxLuaIDE::OnMenu)
+    EVT_MENU                    (ID_WXLUAIDE_RUN_LUA,    wxLuaIDE::OnMenu)
+    EVT_MENU                    (ID_WXLUAIDE_BREAK_LUA,  wxLuaIDE::OnMenu)
+    EVT_MENU                    (ID_WXLUAIDE_SHOW_STACK, wxLuaIDE::OnMenu)
 
-    EVT_STS_CREATE_EDITOR(wxID_ANY, wxLuaIDE::OnCreateEditor)
+    EVT_STSPLITTER_CREATE_EDITOR(wxID_ANY, wxLuaIDE::OnCreateEditor)
+    EVT_SIZE                    (wxLuaIDE::OnSize)
 
-    EVT_SIZE(wxLuaIDE::OnSize)
-
-    EVT_LUA_PRINT       (wxID_ANY, wxLuaIDE::OnLua)
-    EVT_LUA_ERROR       (wxID_ANY, wxLuaIDE::OnLua)
-    EVT_LUA_DEBUG_HOOK  (wxID_ANY, wxLuaIDE::OnLua)
+    EVT_LUA_PRINT               (wxID_ANY, wxLuaIDE::OnLua)
+    EVT_LUA_ERROR               (wxID_ANY, wxLuaIDE::OnLua)
+    EVT_LUA_DEBUG_HOOK          (wxID_ANY, wxLuaIDE::OnLua)
 END_EVENT_TABLE()
 
 void wxLuaIDE::Init()
@@ -398,6 +405,8 @@ void wxLuaIDE::Init()
     m_options = 0;
     m_show_stack = false;
 }
+
+//#include "../src/wxext.h"
 
 bool wxLuaIDE::Create( wxWindow *parent, int id,
                        const wxPoint& pos, const wxSize& size,
@@ -445,10 +454,11 @@ bool wxLuaIDE::Create( wxWindow *parent, int id,
     m_shellOptions.SetEditorStyles(m_editorOptions.GetEditorStyles());
     m_shellOptions.SetEditorLangs(m_editorOptions.GetEditorLangs());
     m_shellOptions.SetMenuManager(m_editorOptions.GetMenuManager(), true);
-    m_shellOptions.SetEditorPopupMenu(wxSTEditorMenuManager(0, 0, STE_MENU_EDIT_CUTCOPYPASTE).CreateEditMenu(), false);
+    m_shellOptions.SetEditorPopupMenu(wxSTEditorMenuManager(0, 0, STE_MENU_EDIT_CUTCOPYPASTE|STE_MENU_EDIT_COMPLETEWORD).CreateEditMenu(), false);
     m_shellOptions.SetToolBar(m_toolBar);
+
     m_msgNotebook = new wxSTEditorNotebook(m_splitter, ID_WXLUAIDE_MSG_NOTEBOOK,
-                            wxDefaultPosition, wxDefaultSize, wxCLIP_CHILDREN);
+                                           wxDefaultPosition, wxDefaultSize, wxCLIP_CHILDREN);
     m_msgNotebook->CreateOptions(m_shellOptions);
 
     // -----------------------------------------------------------------------
@@ -461,6 +471,8 @@ bool wxLuaIDE::Create( wxWindow *parent, int id,
                                 wxDefaultSize, 0);
     m_luaShell->CreateOptions(m_shellOptions);
     m_luaShell->SetWrapMode(wxSTC_WRAP_WORD);
+    //wxAcceleratorHelper::SetAcceleratorTable(m_luaShell, *m_shellOptions.GetMenuManager()->GetAcceleratorArray());
+    //wxAcceleratorHelper::SetAccelText(m_shellOptions.GetEditorPopupMenu(), *m_shellOptions.GetMenuManager()->GetAcceleratorArray());
     m_luaShell->RecreatewxLuaState(m_luaShell->GetEventHandler(), m_luaShell->GetId());
     m_luaShell->CheckPrompt(true);
     steSplitter->Initialize(m_luaShell);
@@ -475,7 +487,7 @@ bool wxLuaIDE::Create( wxWindow *parent, int id,
                                     wxDefaultPosition, wxDefaultSize, 0);
     m_luaOutput->CreateOptions(m_shellOptions);
     steSplitter->Initialize(m_luaOutput);
-    m_luaOutput->MarkerDeleteAll(wxLuaShell::markerPrompt);
+    m_luaOutput->MarkerDeleteAll(wxLuaShell::PROMPT_MARKER);
     m_luaOutput->SetwxLuaState(m_wxlState, true);
     m_luaOutput->SetWrapMode(wxSTC_WRAP_NONE);
     m_luaOutput->SetFileName(wxFileName(wxT("Output")));
@@ -676,7 +688,7 @@ bool wxLuaIDE::HandleMenuEvent(wxCommandEvent& event)
 
             wxFileDialog dlg(this, wxT("Open file"), path, filename,
                              wxT("Lua (*.lua)|*.lua|Any file (*)|*"),
-                             wxOPEN|wxFILE_MUST_EXIST);
+                             wxFD_OPEN|wxFD_FILE_MUST_EXIST);
             if (dlg.ShowModal() == wxID_OK)
             {
                 filename = dlg.GetPath();
@@ -718,7 +730,7 @@ bool wxLuaIDE::HandleMenuEvent(wxCommandEvent& event)
 
             m_luaOutput->SetReadOnly(false);
             m_luaOutput->ClearAll();
-            m_luaOutput->MarkerDeleteAll(wxLuaShell::markerPrompt);
+            m_luaOutput->MarkerDeleteAll(wxLuaShell::PROMPT_MARKER);
             WriteMessage(m_luaOutput, wxT("Running lua script '") + name + wxT("' : ") + wxNow() + wxT("\n"));
             wxStopWatch stopWatch;
             //m_luaOutput->SetReadOnly(true);
