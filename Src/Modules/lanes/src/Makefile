@@ -1,8 +1,8 @@
 #
 # Lanes/src/Makefile
 #
-#   make [LUA=... LUAC=...]                                   Manual build
-#   make LUAROCKS=1 CFLAGS=... LIBFLAG=... LUA=... LUAC=...   LuaRocks automated build
+#   make [LUA=...]                                   Manual build
+#   make LUAROCKS=1 CFLAGS=... LIBFLAG=... LUA=...   LuaRocks automated build
 #
 
 MODULE=lanes
@@ -19,11 +19,10 @@ OPT_FLAGS=-O2
     # -O0 -g
 
 LUA=lua
-LUAC=luac
 
-_SO=.so
+_SO=so
 ifeq "$(findstring MINGW32,$(shell uname -s))" "MINGW32"
-  _SO=.dll
+  _SO=dll
 endif
 
 ifeq "$(LUAROCKS)" ""
@@ -37,15 +36,8 @@ ifeq "$(LUAROCKS)" ""
     ifeq "$(LUA_DEV)" ""
       $(error LUA_DEV not defined - try i.e. 'make LUA_DEV=/c/Program\ Files/Lua/5.1')
     endif
-    ifeq "$(MSVCR80)" ""
-      MSVCR80:=$(LUA_DEV)/install/support/Microsoft.VC80.CRT.SP1/MSVCR80.DLL
-      ifneq '$(shell test -f "$(MSVCR80)" && echo found)' 'found'
-        $(error MSVCR80 not defined - set it to full path of msvcr80.dll')
-      endif
-      $(warning MSVCR80=$(MSVCR80))
-    endif
     LUA_FLAGS:=-I "$(LUA_DEV)/include"
-    LUA_LIBS:="$(LUA_DEV)/lua5.1.dll" -lgcc -lmsvcr80 "$(MSVCR80)"
+    LUA_LIBS:="$(LUA_DEV)/lua5.1.dll" -lgcc
     LIBFLAG=-shared -Wl,-Map,lanes.map
   else
     # Autodetect LUA_FLAGS and/or LUA_LIBS
@@ -116,32 +108,21 @@ ifeq "$(shell uname -s)" "BSD"
   LIBS += -lpthread
 endif
 
+MODULE_DIR=$(MODULE)
+
 #---
-all: lua51-$(MODULE)$(_SO)
+all: $(MODULE)/core.$(_SO)
 
 %.o: %.c *.h Makefile
 
 # Note: Don't put $(LUA_LIBS) ahead of $^; MSYS will not like that (I think)
 #
-lua51-$(MODULE)$(_SO): $(OBJ)
+$(MODULE_DIR)/core.$(_SO): $(OBJ)
+	mkdir -p $(MODULE_DIR)
 	$(CC) $(LIBFLAG) $^ $(LIBS) $(LUA_LIBS) -o $@
 
 clean:
-	-rm -rf lua51-$(MODULE)$(_SO) *.lch *.o *.tmp *.map
-
-lanes.o: keeper.lch
-
-# Note: 'luac -o -' could be used on systems other than Windows (where pipes
-#       are binary). We need to support MinGW as well, so a temporary file.
-#
-# mode 1: embed bytecode version
-#%.lch: %.lua
-#	$(LUAC) -o $@.tmp $<
-#	$(LUA) ../tools/bin2c.lua $@.tmp -o $@
-#	-rm $@.tmp
-# mode 2: embed text version (LuaJIT2-compatible)
-%.lch: %.lua
-	$(LUA) ../tools/bin2c.lua $< -o $@
+	-rm -rf $(MODULE)/core.$(_SO) *.o *.map
 
 #---
 # NSLU2 "slug" Linux ARM
@@ -166,10 +147,9 @@ win32: $(WIN32_LUA51)/include/lua.h
 	$(MAKE) build CC=$(MINGW_GCC) \
             LUA_FLAGS=-I$(WIN32_LUA51)/include \
             LUA_LIBS="-L$(WIN32_LUA51) -llua51" \
-            _SO=.dll \
+            _SO=dll \
             SO_FLAGS=-shared \
-            LUA=lua51 \
-            LUAC=luac51
+            LUA=lua51
 
 $(WIN32_LUA51)/include/lua.h:
 	@echo "Usage: make win32 WIN32_LUA51=<path of extracted LuaBinaries dll8 and dev packages>"

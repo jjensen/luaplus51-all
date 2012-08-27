@@ -1,7 +1,42 @@
-
 CHANGES:
 
-CHANGE X:
+CHANGE 45: BGe 21-Aug-2012
+   * keeper internals implemented in C instead of Lua for better performances
+   * fixed arguments checks in linda:limit() and linda:set()
+
+CHANGE 44: BGe 13-Aug-2012
+   * lanes code updated to build against Lua 5.1 and Lua 5.2
+   * removed the search for MSVCR80.DLL when building for MinGW32 since it no longer seems to be necessary
+
+CHANGE 43: BGe 09-Aug-2012
+   * fix possible crash at application shutdown when a race condition causes linda objects to be collected after the keeper states are cleaned up.
+
+CHANGE 42: BGe 06-Aug-2012
+   * lanes.linda() accepts an optional name for debug purposes
+
+CHANGE 41: BGe 07-Jul-2012
+   * lua51-lanes renamed lanes/core
+   * keeper state microcode is no longer embedded inside lanes.core, but located and loaded with package.loaders[2]
+   * changed rockspec build type from "make" to "builtin"
+
+CHANGE 40: BGe 26-Jun-2012
+   * when a transfered function is not found in source, guess its name to help the user find out what's wrong
+   * new function lanes.nameof()
+
+CHANGE 39: BGe 23-Jun-2012
+   * lanes.timer() accepts a first_secs=nil to stop a timer
+   * timer lane catches errors and prints them
+   * fixed some typos in manual
+
+CHANGE 38: BGe 11-Jun-2012
+   * linda:receive() batched mode now accepts a max_count optional argument
+
+CHANGE 37: BGe 4-Jun-2012 (fix and idea courtesy of sonoro1234)
+   * fixed thread_cancel() not working when called without argument
+   * new lane-global function set_error_reporting() to enable more data detailed data provided by lane_error()
+
+CHANGE 36 BGe 26-Apr-2012
+   * improved LuaJIT2 compatibility by handling "*" library set through luaL_openlibs()
 
 CHANGE 35 BGe 17-Feb-2012
    * changed lanes.configure signature to receive a table instead of individual parameters

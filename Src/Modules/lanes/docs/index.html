@@ -55,8 +55,8 @@
   <!-- ... -->
 
 <p><br/><font size="-1"><i>Copyright &copy; 2007-12 Asko Kauppi, Benoit Germain. All rights reserved.</i>
-    <br>Lua Lanes is published under the same <A HREF="http://en.wikipedia.org/wiki/MIT_License">MIT license</A> as Lua 5.1.
-    </p><p>This document was revised on 17-Feb-11, and applies to version 3.1.0
+    <br>Lua Lanes is published under the same <A HREF="http://en.wikipedia.org/wiki/MIT_License">MIT license</A> as Lua 5.1 and 5.2.
+    </p><p>This document was revised on 21-Aug-12, and applies to version 3.2.0
 </font></p>
 
 </center>
@@ -74,6 +74,8 @@
     Lanes is included into your software by the regular
     <tt>require "lanes"</tt> method. No C side programming is needed; all APIs are Lua side, and most existing extension modules should
     work seamlessly together with the multiple lanes.
+</p><p>
+  Starting with version 3.1.6, Lanes should build and run identically with either Lua 5.1 or Lua 5.2.
 </p><p>
     See <A HREF="comparison.html">comparison</A> of Lua Lanes with other Lua multithreading solutions.
 </p><p>
@@ -145,7 +147,7 @@
 details and limitations.
 </p>
 
-<p>To install Lanes, all you need are the <tt>lanes.lua</tt> and <tt>lua51-lanes.so|dll</tt>
+<p>To install Lanes, all you need are the <tt>lanes.lua</tt> and <tt>lanes/core.so|dll</tt>
 files to be reachable by Lua (see LUA_PATH, LUA_CPATH).
 
 Or use <A HREF="http://www.luarocks.org" TARGET="_blank">Lua Rocks</A> package management.
@@ -281,7 +283,7 @@ also in the new lanes.
             <td><tt>"base"</tt> or <tt>""</tt></td><td/>
             <td>root level names, <tt>print</tt>, <tt>assert</tt>, <tt>unpack</tt> etc.</td>
         </tr>
-        <tr><td/><td><tt>"coroutine"</tt></td><td/><td><tt>coroutine.*</tt> namespace <font size="-1">(part of base in Lua 5.1)</font></td></tr>
+        <tr><td/><td><tt>"coroutine"</tt></td><td/><td><tt>coroutine.*</tt> namespace <font size="-1">(part of base in Lua 5.1 and 5.2)</font></td></tr>
         <tr><td/><td><tt>"debug"</tt></td><td/><td><tt>debug.*</tt> namespace</td></tr>
         <tr><td/><td><tt>"io"</tt></td><td/><td><tt>io.*</tt> namespace</td></tr>
         <tr><td/><td><tt>"math"</tt></td><td/><td><tt>math.*</tt> namespace</td></tr>
@@ -360,6 +362,17 @@ also in the new lanes.
   <p>Each lane also gets a function <tt>set_debug_threadname()</tt> that it can use anytime to do as the name says.
 Supported debuggers are Microsoft Visual Studio (for the C side) and Decoda (for the Lua side).
 </p>
+  <p>
+    If a lane body pulls a C function imported by a module required before Lanes itself (thus not through a hooked <tt>require</tt>), the lane generator creation will raise an error.
+    The function name it shows is a path where it was found by scanning _G. As a utility, the name guessing functionality is exposed as such:
+<table border="1" bgcolor="#E0E0FF" cellpadding="10">
+    <tr>
+      <td>
+        <code>
+          "type", "name" = lanes.nameof( o)
+        </code>
+      </table>
+</p>
 
 <h3>Free running lanes</h3>
 
@@ -431,9 +444,17 @@ Returns <tt>nil</tt> on timeout, <tt>nil,err,stack_tbl</tt> if the lane hit an e
 or the return values of the lane. Unlike in reading the results in table
 fashion, errors are not propagated.
 </p><p>
-<tt>stack_tbl</tt> is an array of "&lt;filename&gt;:&lt;line&gt;" strings,
-describing where the error was thrown. Use <tt>table.concat()</tt> to format
-it to your liking (or just ignore it).
+
+<table border=1 bgcolor="#E0E0FF" cellpadding=10><tr><td>
+    <code>set_error_reporting("basic"|"extended")</code>
+</table>
+</p><p>
+  Sets the error reporting mode. "basic" is selected by default.
+</p><p>
+  <tt>stack_tbl</tt> is a table describing where the error was thrown.<br/>
+  In extended mode, <tt>stack_tbl</tt> is an array of tables containing info gathered with <tt>lua_getinfo()</tt> (<tt>"source"</tt>,<tt>"currentline"</tt>,<tt>"name"</tt>,<tt>"namewhat"</tt>,<tt>"what"</tt>).<br/>
+In "basic mode", <tt>stack_tbl</tt> is an array of "&lt;filename&gt;:&lt;line&gt;" strings. Use <tt>table.concat()</tt> to format it to your liking (or just ignore it).
+  
 </p><p>
 If you use <tt>:join</tt>, make sure your lane main function returns
 a non-nil value so you can tell timeout and error cases apart from succesful
@@ -501,7 +522,7 @@ It is also possible to manually test for cancel requests with <tt>cancel_test()<
 <table border=1 bgcolor="#E0E0FF" cellpadding=10><tr><td>
     <code>set_finalizer( finalizer_func )</code>
     <br/><br/>
-    <code>void= finalizer_func( [error] )</code>
+    <code>void= finalizer_func( [err, stack_tbl] )</code>
 </table>
 
 <p>The <tt>error</tt> call is used for throwing exceptions in Lua. What Lua
@@ -580,6 +601,9 @@ level locking is required; each Linda operation is atomic.
     </li>
     <li><tt>receive</tt> can wait for multiple keys at once
     </li>
+  <li>
+    <tt>receive</tt> has a batched mode to consume more than one value from a single key, as in <tt>linda:receive( 1.0, linda.batched, "key", 3, 6)</tt>
+  </li>
     <li>individual keys' queue length can be limited, balancing speed differences
     in a producer/consumer scenario (making <tt>:send</tt> wait)
     </li>
@@ -588,7 +612,7 @@ level locking is required; each Linda operation is atomic.
 
 <p>
 <table border=1 bgcolor="#E0E0FF" cellpadding=10><tr><td>
-    <code>h= lanes.linda()</code>
+    <code>h= lanes.linda( [opt_name])</code>
     <br/><br/>
     <code>bool= h:send( [timeout_secs,] key, ... )</code>
     <br/>
@@ -723,7 +747,7 @@ events to a common Linda, but... :).</font>
 </table>
 
 <p>
-    Timers are implemented as a lane. They can be disabled by passing <tt>"NO_TIMERS"</tt>
+    Timers are implemented as a lane. They can be disabled by setting <tt>"with_timers"</tt> to <tt>nil</tt> or <tt>false</tt>
     to <tt>lanes.configure()</tt>.
   </p>
 <p>
@@ -737,7 +761,7 @@ Once a timer expires, the <tt>key</tt> is set with the current time
 The key can be waited upon using the regular Linda <tt>:receive()</tt>
 method.
 </p><p>
-A timer can be stopped simply by <tt>first_secs=0</tt> and no period.
+A timer can be stopped simply with <tt>first_secs=0|nil</tt> and no period.
 </p><p>
 
 <table border=1 bgcolor="#FFFFE0" width=500><tr><td>
@@ -1046,7 +1070,7 @@ Here are some things one should consider, if best performance is vital:
     <li>Lindas are hashed to a fixed number of "keeper states", which are a locking entity.
     If you are using a lot of Linda objects,
     it may be useful to try having more of these keeper states. By default,
-    only one is used (see <tt>KEEPER_STATES_N</tt>), but this is an implementation detail.
+    only one is used (see <tt>lanes.configure()</tt>).
     </li>
 </ul>
 </p>
@@ -1078,97 +1102,7 @@ its actual value.
 <h2 id="changes">Change log</h2>
 
 <p>
-  Feb-2012
-  <ul>
-    <li>Added support for an on_state_create callback invoked on a pristine Lua state created by Lanes.</li>
-    <li>This required a change in the <tt>lanes.configure()</tt> signature, hence the minor version bump.</li>
-  </ul>
-
-
-  Nov-2011
-  <ul>
-    <li>process exit change: close everything at GC when main state closes, not when atexit() handlers are processed</li>
-    <li>Lua 5.2-style module:</li>
-    <ul>
-      <li>module() is no longer used to implement lanes.lua</li>
-      <li>a global "lanes" variable is no longer created when the module is required</li>
-      <li>the Lanes module table is returned instead</li>
-    </ul>
-    <li>Lanes must be initialized before used:</li>
-    <ul>
-      <li>the first occurence of 'require "lanes"' produces a minimal interface that only contains a configure() function</li>
-      <li>the remainder of the interface is made available once this function is called</li>
-      <li>subsequent calls to configure() do nothing</li>
-      <li>configure() controls the number of keeper states and the startup of timers</li>
-    </ul>
-    <li>* LuaJIT 2 compatibility</li>
-    <ul>
-      <li>non-Lua functions are no longer copied by creating a C closure from a C pointer, but through 2-way lookup tables</li>
-      <li>this means that if a lane function body pulls non-Lua functions, the lane generator description must contain the list of libraries and modules that exports them</li>
-      <li>introduces a change in configuration .globals management: contents are copied *after* std libs are loaded</li>
-      <li>new .required configuration entry to list modules that must be require()'ed before lane body is transferred</li>
-    </ul>
-    <li>lane:cancel() wakes up waiting lindas like what is done at lane shutdown</li>
-    <li>removed packagepath and packagecpath options, replaced by a package table, whose fields path, cpath, loaders, preload are transfered</li>
-  </ul>
-
-  Mar-2011 (not yet versioned)
-  <ul>
-    <li>linda honors __tostring and __concat</li>
-    <li>new accessor linda:count(), to get info about data stored inside a linda.</li>
-    <li>new lanes options packagepath and packagecpath, in case one needs to set them differently than the default.</li>
-  </ul>
-
-  Mar-2011 (2.1.0)
-  <ul>
-  <li>fixed potential crash at application shutdown when calling lua_close() on a killed thread's VM.</li>
-  <li>exposed cancel_test() in the lanes to enable manual testing for cancellation requests.</li>
-  <li>removed kludgy {globals={threadName}} support, replaced with a new function set_debug_threadname().</li>
-</ul>
-Feb-2011 (2.0.11):
-  <ul>
-  <li>Fixed bug where reference to Linda object was dropped for a short time (crashing if GC was run during that time).</li>
-  <li>Changed the atexit code to trip the timer thread's write signal.</li>
-  <li>Changed lanes.c to export functions as a module rather than writing them directly to the globals table.</li>
-</ul>
-
-Jan-2011 (2.0.10):
-<ul>
-  <li>linda_send was waiting on the wrong signal</li>
-  <li>buildfix when using i586-mingw32msvc-gcc cross compiler</li>
-  <li>lanes_h:cancel() returns a boolean as it should</li>
-  <li>timers could get blocked sometimes because they were initialized with negative values</li>
-  <li>prepare_timeout could generate an illegal setting</li>
-</ul>
-
-Dec-2010 (2.0.9):
-<ul>
-  <li>Fixed 'memory leak' in some situations where a free running lane is collected before application shutdown</li>
-  <li>Fix LuaJIT2 incompatibility (no 'tostring' hijack anymore)</li>
-  <li>Added support to generate a lane from a string</li>
-</ul>
-
-Aug-2010 (2.0.6):
-<ul>
-<li>Fixed some memory leaks</li>
-<li>Fixed error in passing parameters to finalizers</li>
-<li>Fixed missing argument propagation in lane:cancel</li>
-<li>Added thread name debugging in VS</li>
-</ul>
-
-Jan-2009 (2.0.3):
-<ul>
-  <li>Added 'finalizer' to lane options. (TBD: not implemented yet!)
-  </li>
-  <li>Added call stack to errors coming from a lane.
-  </li>
-</ul>
-
-Jul-2008 (2.0):
-<ul>
-  <li>Too many changes to list (you'll need to re-read this manual)
-  </li>
-</ul>
+  See CHANGES.
 </p>
 
 <!-- footnotes +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
