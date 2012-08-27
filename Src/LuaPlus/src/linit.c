@@ -30,10 +30,6 @@ static const luaL_Reg lualibs[] = {
   {NULL, NULL}
 };
 
-#if LUAPLUS_INCLUDE_STANDARD_LIBRARY
-extern void LuaPlus_ScriptFunctionsRegister(struct lua_State* L);
-#endif
-
 LUALIB_API void luaL_openlibs (lua_State *L) {
   const luaL_Reg *lib = lualibs;
   for (; lib->func; lib++) {
@@ -41,10 +37,6 @@ LUALIB_API void luaL_openlibs (lua_State *L) {
     lua_pushstring(L, lib->name);
     lua_call(L, 1, 0);
   }
-
-#if LUAPLUS_INCLUDE_STANDARD_LIBRARY
-  LuaPlus_ScriptFunctionsRegister(L);
-#endif
 }
 
 NAMESPACE_LUA_END

@@ -241,14 +241,35 @@ LuaObject LuaState::CreateThread(LuaState* parentState)
 
 #endif // LUAPLUS_EXTENSIONS
 
+static int pmain (lua_State *L)
+{
+	luaL_openlibs(L);
+	return 0;
+}
+
+
+/**
+**/
+void LuaState::OpenLibs()
+{
+#if LUAPLUS_INCLUDE_STANDARD_LIBRARY
+	LuaAutoBlock autoBlock(this);
+	lua_cpcall(LuaState_to_lua_State(this), &pmain, NULL);
+#endif // LUAPLUS_INCLUDE_STANDARD_LIBRARY
+}
+
+} // namespace LuaPlus
 
 #if LUAPLUS_DUMPOBJECT
 
+using namespace LuaPlus;
+
 // LuaDumpObject(file, key, value, alphabetical, indentLevel, maxIndentLevel, writeAll)
-int LS_LuaDumpObject( LuaState* state )
+extern "C" int LS_LuaDumpObject( lua_State* L )
 {
 	LuaStateOutFile file;
 
+	LuaState* state = lua_State_To_LuaState(L);
 	LuaStack args(state);
 	LuaStackObject fileObj = args[1];
 	if (fileObj.IsTable()  &&  state->GetTop() == 1)
@@ -308,17 +329,18 @@ int LS_LuaDumpObject( LuaState* state )
 
 
 // LuaDumpFile(file, key, value, alphabetical, indentLevel, maxIndentLevel, writeAll)
-int LS_LuaDumpFile( LuaState* state )
+extern "C" int LS_LuaDumpFile( lua_State* L )
 {
-	return LS_LuaDumpObject(state);
+	return LS_LuaDumpObject(L);
 }
 
 
 // LuaDumpGlobals(file, alphabetical, maxIndentLevel, writeAll)
-int LS_LuaDumpGlobals(LuaState* state)
+extern "C" int LS_LuaDumpGlobals(lua_State* L)
 {
 	LuaStateOutFile file;
 
+	LuaState* state = lua_State_To_LuaState(L);
 	LuaStack args(state);
 	LuaStackObject fileObj = args[1];
 	const char* fileName = NULL;
@@ -355,22 +377,3 @@ int LS_LuaDumpGlobals(LuaState* state)
 
 #endif // LUAPLUS_DUMPOBJECT
 
-
-static int pmain (lua_State *L)
-{
-	luaL_openlibs(L);
-	return 0;
-}
-
-
-/**
-**/
-void LuaState::OpenLibs()
-{
-#if LUAPLUS_INCLUDE_STANDARD_LIBRARY
-	LuaAutoBlock autoBlock(this);
-	lua_cpcall(LuaState_to_lua_State(this), &pmain, NULL);
-#endif // LUAPLUS_INCLUDE_STANDARD_LIBRARY
-}
-
-} // namespace LuaPlus

@@ -690,6 +690,14 @@ static int luaB_createtable (lua_State *L) {
 
 #endif /* LUAPLUS_EXTENSIONS */
 
+#if LUAPLUS_DUMPOBJECT
+
+int LS_LuaDumpObject( lua_State* L );
+int LS_LuaDumpFile( lua_State* L );
+int LS_LuaDumpGlobals(lua_State* L );
+
+#endif /* LUAPLUS_DUMPOBJECT */
+
 static const luaL_Reg base_funcs[] = {
   {"assert", luaB_assert},
   {"collectgarbage", luaB_collectgarbage},
@@ -724,6 +732,14 @@ static const luaL_Reg base_funcs[] = {
   {"epcall", luaB_epcall},
 #endif /* LUA_EXT_RESUMABLEVM */
   {"xpcall", luaB_xpcall},
+#if LUAPLUS_DUMPOBJECT
+  {"LuaDumpObject", LS_LuaDumpObject},
+  {"LuaDumpFile", LS_LuaDumpFile},
+  {"LuaDumpGlobals", LS_LuaDumpGlobals},
+  {"dumpobject", LS_LuaDumpObject},
+  {"dumpfile", LS_LuaDumpFile},
+  {"dumpglobals", LS_LuaDumpGlobals},
+#endif /* LUAPLUS_DUMPOBJECT */
   {NULL, NULL}
 };
 
