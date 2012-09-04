@@ -128,16 +128,16 @@ struct ZipDirHeader
 	};
 	union
 	{
-		UINT   signature;
-		BYTE   signatureBytes[4];
+		unsigned int   signature;
+		uint8_t   signatureBytes[4];
 	};
-	WORD   number_disk;
-	WORD   number_disk_with_CD;
-	WORD   number_entry_this_disk;
-	WORD    number_entry_CD;
-	UINT   size_central_dir;
-	UINT   offset_central_dir;
-	WORD    size_comment;
+	uint16_t   number_disk;
+	uint16_t   number_disk_with_CD;
+	uint16_t   number_entry_this_disk;
+	uint16_t    number_entry_CD;
+	unsigned int   size_central_dir;
+	unsigned int   offset_central_dir;
+	uint16_t    size_comment;
 #if defined(__GNUC__)  ||  defined(__CWCC__)  ||  defined(__MWERKS__)
 } __attribute__((packed));
 #else
@@ -152,24 +152,24 @@ struct ZipFileHeader
 		SIGNATURE   = 0x02014b50
 	};
 
-	UINT signature;
-    WORD version;               /* version made by                 2 bytes */
-    WORD version_needed;        /* version needed to extract       2 bytes */
-    WORD flag;                  /* general purpose bit flag        2 bytes */
-    WORD compression_method;    /* compression method              2 bytes */
-    UINT dosDate;              /* last mod file date in Dos fmt   4 bytes */
-    UINT crc;                  /* crc-32                          4 bytes */
-    UINT compressed_size;      /* compressed size                 4 bytes */
-    UINT uncompressed_size;    /* uncompressed size               4 bytes */
-    WORD size_filename;         /* fileName length                 2 bytes */
-    WORD size_file_extra;       /* extra field length              2 bytes */
-    WORD size_file_comment;     /* file comment length             2 bytes */
+	unsigned int signature;
+    uint16_t version;               /* version made by                 2 bytes */
+    uint16_t version_needed;        /* version needed to extract       2 bytes */
+    uint16_t flag;                  /* general purpose bit flag        2 bytes */
+    uint16_t compression_method;    /* compression method              2 bytes */
+    unsigned int dosDate;              /* last mod file date in Dos fmt   4 bytes */
+    unsigned int crc;                  /* crc-32                          4 bytes */
+    unsigned int compressed_size;      /* compressed size                 4 bytes */
+    unsigned int uncompressed_size;    /* uncompressed size               4 bytes */
+    uint16_t size_filename;         /* fileName length                 2 bytes */
+    uint16_t size_file_extra;       /* extra field length              2 bytes */
+    uint16_t size_file_comment;     /* file comment length             2 bytes */
 
-    WORD disk_num_start;        /* disk number start               2 bytes */
-    WORD internal_fa;           /* internal file attributes        2 bytes */
-    UINT external_fa;          /* external file attributes        4 bytes */
+    uint16_t disk_num_start;        /* disk number start               2 bytes */
+    uint16_t internal_fa;           /* internal file attributes        2 bytes */
+    unsigned int external_fa;          /* external file attributes        4 bytes */
 
-    UINT offset_curfile;       /* file offset                     4 bytes */
+    unsigned int offset_curfile;       /* file offset                     4 bytes */
 
 	const char* GetName() const		{  return (const char *)(this + 1);  }
 	const char* GetExtra() const	{  return GetName() + size_filename;  }
@@ -187,16 +187,16 @@ struct ZipLocalHeader
 	{
 		SIGNATURE = 0x04034b50
 	};
-	UINT signature;
-	WORD version_needed;		/* version needed to extract       2 bytes */
-    WORD flag;                  /* general purpose bit flag        2 bytes */
-    WORD compression_method;    /* compression method              2 bytes */
-    UINT dosDate;              /* last mod file date in Dos fmt   4 bytes */
-    UINT crc;                  /* crc-32                          4 bytes */
-    UINT compressed_size;      /* compressed size                 4 bytes */
-    UINT uncompressed_size;    /* uncompressed size               4 bytes */
-    WORD size_filename;         /* fileName length                 2 bytes */
-    WORD size_file_extra;       /* extra field length              2 bytes */
+	unsigned int signature;
+	uint16_t version_needed;		/* version needed to extract       2 bytes */
+    uint16_t flag;                  /* general purpose bit flag        2 bytes */
+    uint16_t compression_method;    /* compression method              2 bytes */
+    unsigned int dosDate;              /* last mod file date in Dos fmt   4 bytes */
+    unsigned int crc;                  /* crc-32                          4 bytes */
+    unsigned int compressed_size;      /* compressed size                 4 bytes */
+    unsigned int uncompressed_size;    /* uncompressed size               4 bytes */
+    uint16_t size_filename;         /* fileName length                 2 bytes */
+    uint16_t size_file_extra;       /* extra field length              2 bytes */
 #if defined(__GNUC__)  ||  defined(__CWCC__)  ||  defined(__MWERKS__)
 } __attribute__((packed));
 #else
@@ -243,31 +243,31 @@ struct FWKCS_MD5
 #endif
 
 
-static DWORD ConvertTime_tToDosTime(time_t time)
+static uint32_t ConvertTime_tToDosTime(time_t time)
 {
     struct tm* ptm = localtime(&time);
-	DWORD year = (DWORD)ptm->tm_year;
+	uint32_t year = (uint32_t)ptm->tm_year;
 	if (year > 1980)
 		year -= 1980;
 	else if (year > 80)
 		year -= 80;
-	return (DWORD) (((ptm->tm_mday) + (32 * (ptm->tm_mon+1)) + (512 * year)) << 16) |
-			((ptm->tm_sec/2) + (32* ptm->tm_min) + (2048 * (DWORD)ptm->tm_hour));
+	return (uint32_t) (((ptm->tm_mday) + (32 * (ptm->tm_mon+1)) + (512 * year)) << 16) |
+			((ptm->tm_sec/2) + (32* ptm->tm_min) + (2048 * (uint32_t)ptm->tm_hour));
 }
 
 
-static time_t ConvertDosDateToTime_t(DWORD dosDate)
+static time_t ConvertDosDateToTime_t(uint32_t dosDate)
 {
 	struct tm atm;
     ULONG uDate;
     uDate = (ULONG)(dosDate>>16);
-    atm.tm_mday = (UINT)(uDate&0x1f);
-    atm.tm_mon =  (UINT)(((uDate&0x1E0)/0x20)-1);
-    atm.tm_year = (UINT)(((uDate&0x0FE00)/0x0200)+1980)-1900;
+    atm.tm_mday = (unsigned int)(uDate&0x1f);
+    atm.tm_mon =  (unsigned int)(((uDate&0x1E0)/0x20)-1);
+    atm.tm_year = (unsigned int)(((uDate&0x0FE00)/0x0200)+1980)-1900;
 
-	atm.tm_hour = (UINT) ((dosDate & 0xF800)/0x800);
-    atm.tm_min =  (UINT) ((dosDate & 0x7E0)/0x20);
-    atm.tm_sec =  (UINT) (2*(dosDate & 0x1f));
+	atm.tm_hour = (unsigned int) ((dosDate & 0xF800)/0x800);
+    atm.tm_min =  (unsigned int) ((dosDate & 0x7E0)/0x20);
+    atm.tm_sec =  (unsigned int) (2*(dosDate & 0x1f));
 
 	atm.tm_isdst = -1;
 
@@ -302,8 +302,8 @@ inline unsigned short SwapEndian(unsigned short val)
 inline unsigned int SwapEndian(unsigned int val)
 {
 //	return ((val >> 24) | ((val & 0x00ff0000) >> 8) | ((val & 0x0000ff00) << 8) | (val << 24));
-	BYTE out[4];
-	BYTE* in = (BYTE*)&val;
+	uint8_t out[4];
+	uint8_t* in = (uint8_t*)&val;
 	out[0] = in[3];
 	out[1] = in[2];
 	out[2] = in[1];
@@ -331,7 +331,7 @@ void ZipEntryInfo::SetTimeStamp(time_t fileTime) {
 }
 
 
-void ZipEntryInfo::SetCRC(DWORD crc) {
+void ZipEntryInfo::SetCRC(uint32_t crc) {
 	if (m_crc != crc)
 	{
 		m_crc = crc;
@@ -363,10 +363,10 @@ public:
 	size_t fileEntryIndex;
     size_t headerSize;
     z_stream stream;
-    BYTE* bufferedData;
-	DWORD posInBufferedData;
-	ULONGLONG curCompressedFilePosition;
-	ULONGLONG curUncompressedFilePosition;
+    uint8_t* bufferedData;
+	uint32_t posInBufferedData;
+	uint64_t curCompressedFilePosition;
+	uint64_t curUncompressedFilePosition;
 #if ZIPARCHIVE_ENCRYPTION
 	fcrypt_ctx  zcx[1];
 #endif // ZIPARCHIVE_ENCRYPTION
@@ -501,7 +501,7 @@ static void OpenHeaderCryptContext(const HeapString& password, fcrypt_ctx zcx[1]
 	@return Returns true if the zip archive was created successfully, false
 		otherwise.
 **/
-bool ZipArchive::Create(const char* fileName, DWORD flags, const char* _defaultPassword)
+bool ZipArchive::Create(const char* fileName, uint32_t flags, const char* _defaultPassword)
 {
 	Close();
 
@@ -521,7 +521,7 @@ bool ZipArchive::Create(const char* fileName, DWORD flags, const char* _defaultP
 } // Create()
 
 
-bool ZipArchive::Create(File& parentFile, const char* filename, DWORD flags, const char* _defaultPassword)
+bool ZipArchive::Create(File& parentFile, const char* filename, uint32_t flags, const char* _defaultPassword)
 {
 #if !ZIPARCHIVE_ENCRYPTION
 	(void)_defaultPassword;
@@ -537,8 +537,8 @@ bool ZipArchive::Create(File& parentFile, const char* filename, DWORD flags, con
 
 	// Okay, see if we're big endian.
 	union {
-		UINT   signature;
-		BYTE   signatureBytes[4];
+		unsigned int   signature;
+		uint8_t   signatureBytes[4];
 	};
 	signatureBytes[0] = 0x50;
 	signatureBytes[1] = 0x4b;
@@ -590,7 +590,7 @@ bool ZipArchive::Create(File& parentFile, const char* filename, DWORD flags, con
 	@return Returns true if the zip archive was opened successfully, false
 		otherwise.
 **/
-bool ZipArchive::Open(const char* fileName, bool readOnly, DWORD flags, const char* _defaultPassword)
+bool ZipArchive::Open(const char* fileName, bool readOnly, uint32_t flags, const char* _defaultPassword)
 {
 	Close();
 
@@ -626,7 +626,7 @@ bool ZipArchive::Open(const char* fileName, bool readOnly, DWORD flags, const ch
 }
 
 
-bool ZipArchive::Open(File& parentFile, const char* filename, bool readOnly, DWORD flags, const char* _defaultPassword)
+bool ZipArchive::Open(File& parentFile, const char* filename, bool readOnly, uint32_t flags, const char* _defaultPassword)
 {
 #if !ZIPARCHIVE_ENCRYPTION
 	(void)_defaultPassword;
@@ -689,7 +689,7 @@ bool ZipArchive::Open(File& parentFile, const char* filename, bool readOnly, DWO
 
 	// Allocate the data buffer, and read the whole thing.
 	// TODO: Allocate this up top so it doesn't fragment.
-	BYTE* zipDirBuffer = new BYTE[zipDirHeader.size_central_dir];
+	uint8_t* zipDirBuffer = new uint8_t[zipDirHeader.size_central_dir];
 	m_parentFile->Seek(zipDirHeader.offset_central_dir);
 	m_parentFile->Read(zipDirBuffer, zipDirHeader.size_central_dir);
 
@@ -700,12 +700,12 @@ bool ZipArchive::Open(File& parentFile, const char* filename, bool readOnly, DWO
 	}
 #endif // ZIPARCHIVE_ENCRYPTION
 
-	BYTE* zipDirPtr = zipDirBuffer;
+	uint8_t* zipDirPtr = zipDirBuffer;
 
 	m_dirOffset = zipDirHeader.offset_central_dir;
 	m_dirSize = zipDirHeader.size_central_dir;
 
-	DWORD totalSize = 0;
+	uint32_t totalSize = 0;
     m_fileEntryCount = zipDirHeader.number_entry_CD;
 	m_fileEntryMaxCount = m_fileEntryCount;
     if (m_fileEntryCount > 0)
@@ -749,11 +749,11 @@ bool ZipArchive::Open(File& parentFile, const char* filename, bool readOnly, DWO
 	}
 	zipDirPtr = zipDirBuffer;
 
-	m_fileEntries = new BYTE[totalSize];
+	m_fileEntries = new uint8_t[totalSize];
     m_fileEntriesSizeBytes = totalSize;
 	m_fileEntriesMaxSizeBytes = totalSize;
 
-    BYTE* fileEntryPtr = m_fileEntries;
+    uint8_t* fileEntryPtr = m_fileEntries;
 
 	for (i = 0; i < zipDirHeader.number_entry_CD; ++i) {
 		ZipFileHeader* zipFileHeader = (ZipFileHeader*)zipDirPtr;
@@ -767,7 +767,7 @@ bool ZipArchive::Open(File& parentFile, const char* filename, bool readOnly, DWO
 		fileEntry.m_compressionMethod = zipFileHeader->compression_method;
         fileEntry.m_parentDrive = this;
 
-		WORD stringLen = zipFileHeader->size_filename;
+		uint16_t stringLen = zipFileHeader->size_filename;
 		memcpy(fileEntry.m_filename, zipFileHeader->GetName(), stringLen);
         fileEntry.m_filename[stringLen] = 0;
 
@@ -777,7 +777,7 @@ bool ZipArchive::Open(File& parentFile, const char* filename, bool readOnly, DWO
 
 		bool setMD5 = false;
 
-		BYTE* extraPtr = (BYTE*)zipFileHeader->GetExtra();
+		uint8_t* extraPtr = (uint8_t*)zipFileHeader->GetExtra();
 		size_t extraSize = zipFileHeader->size_file_extra;
 		while (extraSize) {
 			ZipExtraHeader* extraHeader = (ZipExtraHeader*)extraPtr;
@@ -876,15 +876,15 @@ void ZipArchive::UpdateMD5s()
 		return;
 
 	// Test all the directory entries.
-	const DWORD FILE_BLOCK_SIZE = 32768;
-	BYTE* buffer = NULL;
+	const uint32_t FILE_BLOCK_SIZE = 32768;
+	uint8_t* buffer = NULL;
 	for (size_t i = 0; i < m_fileEntryCount; ++i)
 	{
 		ZipEntryInfo& entry = *GetFileEntry(i);
 		if (memcmp(entry.GetMD5(), emptyMD5, sizeof(emptyMD5)) == 0)
 		{
 			if (!buffer)
-				buffer = new BYTE[FILE_BLOCK_SIZE];
+				buffer = new uint8_t[FILE_BLOCK_SIZE];
 
 			ZipEntryFileHandle fileHandle;
 			if (FileOpen(entry.GetFilename(), fileHandle))
@@ -892,10 +892,10 @@ void ZipArchive::UpdateMD5s()
 				MD5_CTX c;
 				MD5Init(&c);
 
-				DWORD bytesToDo = entry.GetUncompressedSize();
+				uint32_t bytesToDo = entry.GetUncompressedSize();
 				while (bytesToDo > 0)
 				{
-					DWORD bytesToRead = bytesToDo < FILE_BLOCK_SIZE ? bytesToDo : FILE_BLOCK_SIZE;
+					uint32_t bytesToRead = bytesToDo < FILE_BLOCK_SIZE ? bytesToDo : FILE_BLOCK_SIZE;
 					FileRead(fileHandle, buffer, bytesToRead);
 					bytesToDo -= bytesToRead;
 					MD5Update(&c, (unsigned char*)buffer, bytesToRead);
@@ -917,7 +917,7 @@ void ZipArchive::UpdateMD5s()
 
 /**
 **/
-void ZipArchive::_WriteDirectory(LONGLONG dirOffset, LONGLONG dirHeaderOffset)
+void ZipArchive::_WriteDirectory(int64_t dirOffset, int64_t dirHeaderOffset)
 {
 #if ZIPARCHIVE_ENCRYPTION
 	fcrypt_ctx zcx[1];
@@ -951,14 +951,14 @@ void ZipArchive::_WriteDirectory(LONGLONG dirOffset, LONGLONG dirHeaderOffset)
 		zipFileHeader.version_needed = 20;
 
 		zipFileHeader.flag = 0;
-		zipFileHeader.compression_method = (WORD)entry.m_compressionMethod;
+		zipFileHeader.compression_method = (uint16_t)entry.m_compressionMethod;
 		zipFileHeader.dosDate = ConvertTime_tToDosTime(entry.m_fileTime);
 //		time_t t = ConvertDosDateToTime_t(zipFileHeader.dosDate);
 		zipFileHeader.crc = entry.m_crc;
 		zipFileHeader.compressed_size = entry.m_compressedSize;
 		zipFileHeader.uncompressed_size = entry.m_uncompressedSize;
 		int size_filename = (int)strlen(entry.GetFilename());
-		zipFileHeader.size_filename = (WORD)size_filename;
+		zipFileHeader.size_filename = (uint16_t)size_filename;
 		int size_file_extra = (m_flags & SUPPORT_MD5) ? sizeof(md5info) : 0;
 		zipFileHeader.size_file_extra = size_file_extra;
 		zipFileHeader.size_file_comment = 0;
@@ -1034,10 +1034,10 @@ void ZipArchive::_WriteDirectory(LONGLONG dirOffset, LONGLONG dirHeaderOffset)
 	zipDirHeader.signature = ZipDirHeader::SIGNATURE;
 	zipDirHeader.number_disk = 0;
 	zipDirHeader.number_disk_with_CD = 0;
-	zipDirHeader.number_entry_this_disk = (WORD)m_fileEntryCount;
-	zipDirHeader.number_entry_CD = (WORD)m_fileEntryCount;
-	zipDirHeader.size_central_dir = (UINT)m_dirSize;
-	zipDirHeader.offset_central_dir = (UINT)m_dirOffset;
+	zipDirHeader.number_entry_this_disk = (uint16_t)m_fileEntryCount;
+	zipDirHeader.number_entry_CD = (uint16_t)m_fileEntryCount;
+	zipDirHeader.size_central_dir = (unsigned int)m_dirSize;
+	zipDirHeader.offset_central_dir = (unsigned int)m_dirOffset;
 	zipDirHeader.size_comment = 0;
 
 	if (m_swap)
@@ -1162,7 +1162,7 @@ bool ZipArchive::FileCreate(const char* fileName, ZipEntryFileHandle& fileHandle
 			m_fileEntryMaxCount += 100;
 	        m_fileEntryOffsets = new size_t[m_fileEntryMaxCount + 1];
 			if (origOffsets) {
-	            memcpy(m_fileEntryOffsets, origOffsets, m_fileEntryCount * sizeof(UINT));
+	            memcpy(m_fileEntryOffsets, origOffsets, m_fileEntryCount * sizeof(unsigned int));
 				delete[] origOffsets;
 			}
 		}
@@ -1171,13 +1171,13 @@ bool ZipArchive::FileCreate(const char* fileName, ZipEntryFileHandle& fileHandle
 		m_fileEntryCount++;
 
 		size_t stringLen = strlen(fileName);
-		BYTE* origBuf = m_fileEntries;
+		uint8_t* origBuf = m_fileEntries;
 		size_t origSize = m_fileEntriesSizeBytes;
 
         m_fileEntriesSizeBytes += sizeof(ZipEntryInfo) + stringLen;
 		if (m_fileEntriesSizeBytes >= m_fileEntriesMaxSizeBytes) {
 			m_fileEntriesMaxSizeBytes += sizeof(ZipEntryInfo) + stringLen + 10 * 1024;
-			m_fileEntries = new BYTE[m_fileEntriesMaxSizeBytes];
+			m_fileEntries = new uint8_t[m_fileEntriesMaxSizeBytes];
 			if (origSize > 0)
 				memcpy(m_fileEntries, origBuf, origSize);
 			if (origBuf)
@@ -1201,7 +1201,7 @@ bool ZipArchive::FileCreate(const char* fileName, ZipEntryFileHandle& fileHandle
 		fileEntry.m_fileTime = AdjustTime_t(*fileTime);
 	}
 
-	fileEntry.m_offset = (UINT)m_dirOffset;
+	fileEntry.m_offset = (unsigned int)m_dirOffset;
     fileEntry.m_compressedSize = 0;
     fileEntry.m_uncompressedSize = 0;
 	fileEntry.m_crc = 0;
@@ -1216,7 +1216,7 @@ bool ZipArchive::FileCreate(const char* fileName, ZipEntryFileHandle& fileHandle
     fileHandle.detail->curCompressedFilePosition = 0;
 
 	if (compressionMethod == DEFLATED) {
-		fileHandle.detail->bufferedData = new BYTE[Z_BUFSIZE];
+		fileHandle.detail->bufferedData = new uint8_t[Z_BUFSIZE];
 		fileHandle.detail->posInBufferedData = 0;
 
 		fileHandle.detail->stream.avail_in = 0;
@@ -1351,7 +1351,7 @@ bool ZipArchive::FileOpenIndex(size_t index, ZipEntryFileHandle& fileHandle)
 	    fileHandle.detail->stream.total_out = 0;
 
 	    fileHandle.detail->stream.opaque = 0;
-        fileHandle.detail->bufferedData = new BYTE[Z_BUFSIZE];
+        fileHandle.detail->bufferedData = new uint8_t[Z_BUFSIZE];
         fileHandle.detail->stream.zalloc = Z_NULL;
         fileHandle.detail->stream.zfree = Z_NULL;
 
@@ -1416,12 +1416,12 @@ bool ZipArchive::FileClose(ZipEntryFileHandle& fileHandle)
 					m_parentFile->Write(fileHandle.detail->bufferedData, fileHandle.detail->posInBufferedData);
 					fileHandle.detail->curCompressedFilePosition += fileHandle.detail->posInBufferedData;
 					fileHandle.detail->posInBufferedData = 0;
-					fileHandle.detail->stream.avail_out = (UINT)Z_BUFSIZE;
+					fileHandle.detail->stream.avail_out = (unsigned int)Z_BUFSIZE;
 					fileHandle.detail->stream.next_out = fileHandle.detail->bufferedData;
 				}
 				uTotalOutBefore = fileHandle.detail->stream.total_out;
 				err=deflate((::z_stream*)&fileHandle.detail->stream,  Z_FINISH);
-				fileHandle.detail->posInBufferedData += (UINT)(fileHandle.detail->stream.total_out - uTotalOutBefore);
+				fileHandle.detail->posInBufferedData += (unsigned int)(fileHandle.detail->stream.total_out - uTotalOutBefore);
 			} while (err == Z_OK);
 
 			if (fileHandle.detail->posInBufferedData > 0  &&  (err == Z_OK  ||  err == Z_STREAM_END))
@@ -1436,12 +1436,12 @@ bool ZipArchive::FileClose(ZipEntryFileHandle& fileHandle)
 			}
 
 			fileEntry->m_uncompressedSize = fileHandle.detail->stream.total_in;
-			fileEntry->m_compressedSize = (DWORD)fileHandle.detail->curCompressedFilePosition;  //stream.total_out;
+			fileEntry->m_compressedSize = (uint32_t)fileHandle.detail->curCompressedFilePosition;  //stream.total_out;
 		}
 		else
 		{
-			fileEntry->m_compressedSize = (DWORD)fileHandle.detail->curCompressedFilePosition;
-			fileEntry->m_uncompressedSize = (DWORD)fileHandle.detail->curUncompressedFilePosition;
+			fileEntry->m_compressedSize = (uint32_t)fileHandle.detail->curCompressedFilePosition;
+			fileEntry->m_uncompressedSize = (uint32_t)fileHandle.detail->curUncompressedFilePosition;
 		}
 
 		if (m_flags & SUPPORT_MD5)
@@ -1471,15 +1471,15 @@ void ZipArchive::FileCloseInternal(ZipEntryFileHandle& fileHandle)
 		localHeader.version_needed = 20;
 
 		localHeader.flag = 0;
-		localHeader.compression_method = (WORD)fileEntry->m_compressionMethod;
+		localHeader.compression_method = (uint16_t)fileEntry->m_compressionMethod;
 		localHeader.dosDate = ConvertTime_tToDosTime(fileEntry->m_fileTime);
 		localHeader.crc = fileEntry->m_crc;
 		localHeader.compressed_size = fileEntry->m_compressedSize;
 		localHeader.uncompressed_size = fileEntry->m_uncompressedSize;
-		localHeader.size_filename = (WORD)strlen(fileEntry->GetFilename());
+		localHeader.size_filename = (uint16_t)strlen(fileEntry->GetFilename());
 		localHeader.size_file_extra = 0;
 
-		WORD size_filename = localHeader.size_filename;
+		uint16_t size_filename = localHeader.size_filename;
 		fileHandle.detail->headerSize = sizeof(ZipLocalHeader) + size_filename + localHeader.size_file_extra;
 
 		if (m_swap)
@@ -1581,13 +1581,13 @@ const char* ZipArchive::FileGetFileName(ZipEntryFileHandle& fileHandle)
 }
 
 
-ULONGLONG ZipArchive::FileGetPosition(ZipEntryFileHandle& fileHandle)
+uint64_t ZipArchive::FileGetPosition(ZipEntryFileHandle& fileHandle)
 {
     return fileHandle.detail->curUncompressedFilePosition;
 }
 
 
-void ZipArchive::FileSetLength(ZipEntryFileHandle& fileHandle, ULONGLONG newLength)
+void ZipArchive::FileSetLength(ZipEntryFileHandle& fileHandle, uint64_t newLength)
 {
 	if (m_readOnly)
         return;
@@ -1598,21 +1598,21 @@ void ZipArchive::FileSetLength(ZipEntryFileHandle& fileHandle, ULONGLONG newLeng
 
     if (newLength <= fileEntry->m_uncompressedSize)
 	{
-		fileEntry->m_uncompressedSize = (DWORD)newLength;
+		fileEntry->m_uncompressedSize = (uint32_t)newLength;
 		m_changed = true;
 		m_needsPack = true;
 	}
 }
 
 
-ULONGLONG ZipArchive::FileGetLength(ZipEntryFileHandle& fileHandle)
+uint64_t ZipArchive::FileGetLength(ZipEntryFileHandle& fileHandle)
 {
     ZipEntryInfo* fileEntry = GetFileEntry(fileHandle.detail->fileEntryIndex);
 	return fileEntry->m_uncompressedSize;
 }
 
 
-LONGLONG ZipArchive::FileSeek(ZipEntryFileHandle& fileHandle, LONGLONG offset, File::SeekFlags seekFlags)
+int64_t ZipArchive::FileSeek(ZipEntryFileHandle& fileHandle, int64_t offset, File::SeekFlags seekFlags)
 {
 	ZipEntryInfo* fileEntry = GetFileEntry(fileHandle.detail->fileEntryIndex);
 
@@ -1621,7 +1621,7 @@ LONGLONG ZipArchive::FileSeek(ZipEntryFileHandle& fileHandle, LONGLONG offset, F
 		switch (seekFlags)
 		{
 			case File::SEEKFLAG_BEGIN:
-				if (offset < 0  ||  (DWORD)offset > fileEntry->m_uncompressedSize)
+				if (offset < 0  ||  (uint32_t)offset > fileEntry->m_uncompressedSize)
 					return -1;
 				fileHandle.detail->curCompressedFilePosition = offset;
 				fileHandle.detail->curUncompressedFilePosition = offset;
@@ -1674,11 +1674,11 @@ LONGLONG ZipArchive::FileSeek(ZipEntryFileHandle& fileHandle, LONGLONG offset, F
 }
 
 
-ULONGLONG ZipArchive::FileRead(ZipEntryFileHandle& fileHandle, void* buffer, ULONGLONG count)
+uint64_t ZipArchive::FileRead(ZipEntryFileHandle& fileHandle, void* buffer, uint64_t count)
 {
     ZipEntryInfo* fileEntry = GetFileEntry(fileHandle.detail->fileEntryIndex);
 
-	ULONGLONG endPos = (UINT)fileHandle.detail->curUncompressedFilePosition + count;
+	uint64_t endPos = (unsigned int)fileHandle.detail->curUncompressedFilePosition + count;
 	if (endPos > fileEntry->m_uncompressedSize)
 		count -= endPos - fileEntry->m_uncompressedSize;
 
@@ -1688,7 +1688,7 @@ ULONGLONG ZipArchive::FileRead(ZipEntryFileHandle& fileHandle, void* buffer, ULO
 			return 0;
 
 		m_parentFile->Seek(fileHandle.detail->curCompressedFilePosition + fileEntry->m_offset + fileHandle.detail->headerSize);
-		count = m_parentFile->Read(buffer, (UINT)count);
+		count = m_parentFile->Read(buffer, (unsigned int)count);
 #if ZIPARCHIVE_ENCRYPTION
 		if (this->defaultPassword.Length() > 0)
 			fcrypt_decrypt_offset((unsigned char*)buffer, (unsigned int)count, fileHandle.detail->zcx, (unsigned long)fileHandle.detail->curCompressedFilePosition);
@@ -1700,19 +1700,19 @@ ULONGLONG ZipArchive::FileRead(ZipEntryFileHandle& fileHandle, void* buffer, ULO
 	}
 
     z_stream& stream = fileHandle.detail->stream;
-	stream.next_out = (BYTE*)buffer;
-	stream.avail_out = (UINT)count;
+	stream.next_out = (uint8_t*)buffer;
+	stream.avail_out = (unsigned int)count;
 
-	ULONGLONG rest_read_compressed = fileEntry->m_compressedSize - fileHandle.detail->curCompressedFilePosition;
-    ULONGLONG numRead = 0;
+	uint64_t rest_read_compressed = fileEntry->m_compressedSize - fileHandle.detail->curCompressedFilePosition;
+    uint64_t numRead = 0;
 
 	while (stream.avail_out > 0)
 	{
 		if (stream.avail_in == 0  &&  rest_read_compressed > 0)
 		{
-			UINT uReadThis = Z_BUFSIZE;
+			unsigned int uReadThis = Z_BUFSIZE;
 			if (rest_read_compressed < uReadThis)
-				uReadThis = (UINT)rest_read_compressed;
+				uReadThis = (unsigned int)rest_read_compressed;
 			if (uReadThis == 0)
 				break;
 
@@ -1729,8 +1729,8 @@ ULONGLONG ZipArchive::FileRead(ZipEntryFileHandle& fileHandle, void* buffer, ULO
 
 			rest_read_compressed -= uReadThis;
 
-			stream.next_in = (BYTE*)fileHandle.detail->bufferedData;
-			stream.avail_in = (UINT)uReadThis;
+			stream.next_in = (uint8_t*)fileHandle.detail->bufferedData;
+			stream.avail_in = (unsigned int)uReadThis;
 		}
 
 		ULONG uTotalOutBefore = stream.total_out;
@@ -1749,7 +1749,7 @@ ULONGLONG ZipArchive::FileRead(ZipEntryFileHandle& fileHandle, void* buffer, ULO
 }
 
 
-ULONGLONG ZipArchive::FileWrite(ZipEntryFileHandle& fileHandle, const void* buffer, ULONGLONG count)
+uint64_t ZipArchive::FileWrite(ZipEntryFileHandle& fileHandle, const void* buffer, uint64_t count)
 {
 	if (m_readOnly)
         return 0;
@@ -1760,7 +1760,7 @@ ULONGLONG ZipArchive::FileWrite(ZipEntryFileHandle& fileHandle, const void* buff
 	if (this->defaultPassword.Length() == 0)
 	{
 #endif // ZIPARCHIVE_ENCRYPTION
-		fileEntry->m_crc = crc32(fileEntry->m_crc, (BYTE*)buffer, (uInt)count);
+		fileEntry->m_crc = crc32(fileEntry->m_crc, (uint8_t*)buffer, (uInt)count);
 		if (m_flags & SUPPORT_MD5)
 		{
 			MD5Update(&fileHandle.detail->md5writecontext, (unsigned char*)buffer, (unsigned int)count);
@@ -1777,15 +1777,15 @@ ULONGLONG ZipArchive::FileWrite(ZipEntryFileHandle& fileHandle, const void* buff
 		if (this->defaultPassword.Length() > 0)
 		{
 			// Operate in 4k buffers.
-			const UINT BUFFER_SIZE = 4 * 1024;
-			BYTE cryptBuffer[BUFFER_SIZE];
-			BYTE* inPtr = (BYTE*)buffer;
-			ULONGLONG cryptCount = count;
-			ULONGLONG curOffset = fileHandle.detail->curCompressedFilePosition;
+			const unsigned int BUFFER_SIZE = 4 * 1024;
+			uint8_t cryptBuffer[BUFFER_SIZE];
+			uint8_t* inPtr = (uint8_t*)buffer;
+			uint64_t cryptCount = count;
+			uint64_t curOffset = fileHandle.detail->curCompressedFilePosition;
 			while (cryptCount > 0)
 			{
 				// Copy the minimum of BUFFER_SIZE or the fileSize.
-				UINT readSize = (UINT)(BUFFER_SIZE < cryptCount ? BUFFER_SIZE : cryptCount);
+				unsigned int readSize = (unsigned int)(BUFFER_SIZE < cryptCount ? BUFFER_SIZE : cryptCount);
 				memcpy(cryptBuffer, inPtr, readSize);
 				fcrypt_encrypt_offset(cryptBuffer, readSize, fileHandle.detail->zcx, (unsigned long)curOffset);
 				m_parentFile->Write(cryptBuffer, readSize);
@@ -1802,14 +1802,14 @@ ULONGLONG ZipArchive::FileWrite(ZipEntryFileHandle& fileHandle, const void* buff
 		fileHandle.detail->curCompressedFilePosition += count;
 		fileHandle.detail->curUncompressedFilePosition += count;
 		if (fileHandle.detail->curUncompressedFilePosition > fileEntry->m_uncompressedSize)
-			fileEntry->m_uncompressedSize = (DWORD)fileHandle.detail->curUncompressedFilePosition;
+			fileEntry->m_uncompressedSize = (uint32_t)fileHandle.detail->curUncompressedFilePosition;
 		return count;
 	}
 
 	int err = Z_OK;
 
     z_stream& stream = fileHandle.detail->stream;
-	stream.next_in = (BYTE*)buffer;
+	stream.next_in = (uint8_t*)buffer;
 	stream.avail_in = (uInt)count;
 
 	while (err == Z_OK  &&  stream.avail_in > 0)
@@ -1824,13 +1824,13 @@ ULONGLONG ZipArchive::FileWrite(ZipEntryFileHandle& fileHandle, const void* buff
 			m_parentFile->Write(fileHandle.detail->bufferedData, fileHandle.detail->posInBufferedData);
 			fileHandle.detail->curCompressedFilePosition += fileHandle.detail->posInBufferedData;
 			fileHandle.detail->posInBufferedData = 0;
-			stream.avail_out = (UINT)Z_BUFSIZE;
+			stream.avail_out = (unsigned int)Z_BUFSIZE;
 			stream.next_out = fileHandle.detail->bufferedData;
 		}
 
 		ULONG uTotalOutBefore = stream.total_out;
 		err = deflate(&stream, Z_NO_FLUSH);
-		fileHandle.detail->posInBufferedData += (UINT)(stream.total_out - uTotalOutBefore);
+		fileHandle.detail->posInBufferedData += (unsigned int)(stream.total_out - uTotalOutBefore);
 	}
 
     fileHandle.detail->curUncompressedFilePosition += count;
@@ -1883,7 +1883,7 @@ bool ZipArchive::FileErase(const char* fileName)
 
 		size_t sizeToRemove = m_fileEntryOffsets[index + 1] - m_fileEntryOffsets[index];
 		memcpy(GetFileEntry(index), GetFileEntry(index + 1), m_fileEntriesSizeBytes - m_fileEntryOffsets[index + 1]);
-        memcpy(m_fileEntryOffsets + index, m_fileEntryOffsets + index + 1, (m_fileEntryCount - index - 1) * sizeof(UINT));
+        memcpy(m_fileEntryOffsets + index, m_fileEntryOffsets + index + 1, (m_fileEntryCount - index - 1) * sizeof(unsigned int));
 		m_fileEntryCount--;
 
 		// Reinsert all following entries into the map.
@@ -1942,7 +1942,7 @@ bool ZipArchive::FileRename(const char* oldFileName, const char* newFileName)
 
 	// Detach the old buffer.
 	size_t origSize = m_fileEntriesSizeBytes;  (void)origSize;
-	BYTE* origBuffer = m_fileEntries;  (void)origBuffer;
+	uint8_t* origBuffer = m_fileEntries;  (void)origBuffer;
 
 	// Figure out the new size.
     size_t newFileNameLen = strlen(newFileName);
@@ -1952,7 +1952,7 @@ bool ZipArchive::FileRename(const char* oldFileName, const char* newFileName)
 	if (newFileEntriesSize > m_fileEntriesMaxSizeBytes)
 	{
 		m_fileEntriesMaxSizeBytes += sizeDifference + 10 * 1024;
-		BYTE* newFileEntries = new BYTE[m_fileEntriesMaxSizeBytes];
+		uint8_t* newFileEntries = new uint8_t[m_fileEntriesMaxSizeBytes];
 		memcpy(newFileEntries, m_fileEntries, m_fileEntriesSizeBytes);
 		delete[] m_fileEntries;
 		m_fileEntries = newFileEntries;
@@ -1963,7 +1963,7 @@ bool ZipArchive::FileRename(const char* oldFileName, const char* newFileName)
 
 	m_fileEntriesSizeBytes = ((int)m_fileEntriesSizeBytes + sizeDifference);
 
-	BYTE* dest = m_fileEntries + m_fileEntryOffsets[index];
+	uint8_t* dest = m_fileEntries + m_fileEntryOffsets[index];
 	memcpy(((ZipEntryInfo*)dest)->m_filename, newFileName, newFileNameLen + 1);
 
 	// Adjust all the file entry offsets.
@@ -2002,12 +2002,12 @@ bool ZipArchive::FileCopy(ZipEntryFileHandle& srcFileHandle, const char* destFil
 		return false;
 
 	// Operate in 64k buffers.
-	const UINT BUFFER_SIZE = 64 * 1024;
+	const unsigned int BUFFER_SIZE = 64 * 1024;
 
     ZipEntryInfo* srcFileEntry = srcFileHandle.GetParentArchive()->GetFileEntry(srcFileHandle.detail->fileEntryIndex);
 
     // Get the source file's size.
-	UINT fileSize = srcFileEntry->m_compressedSize;
+	unsigned int fileSize = srcFileEntry->m_compressedSize;
 
 	// Create the destination file entry.
 	ZipEntryFileHandle destFileHandle;
@@ -2016,17 +2016,17 @@ bool ZipArchive::FileCopy(ZipEntryFileHandle& srcFileHandle, const char* destFil
     ZipEntryInfo* destFileEntry = GetFileEntry(destFileHandle.detail->fileEntryIndex);
 
 	// Allocate the buffer space.
-	BYTE* buffer = new BYTE[BUFFER_SIZE];
+	uint8_t* buffer = new uint8_t[BUFFER_SIZE];
 
 	// Go to the beginning of the source file.
-    LONGLONG srcOffset = srcFileEntry->m_offset + srcFileHandle.detail->headerSize;
-    LONGLONG destOffset = destFileEntry->m_offset + destFileHandle.detail->headerSize;
+    int64_t srcOffset = srcFileEntry->m_offset + srcFileHandle.detail->headerSize;
+    int64_t destOffset = destFileEntry->m_offset + destFileHandle.detail->headerSize;
 
 	// Keep copying until there is no more file left to copy.
 	while (fileSize > 0)
 	{
 		// Copy the minimum of BUFFER_SIZE or the fileSize.
-        UINT readSize = BUFFER_SIZE < fileSize ? BUFFER_SIZE : fileSize;
+        unsigned int readSize = BUFFER_SIZE < fileSize ? BUFFER_SIZE : fileSize;
 		if (srcFileHandle.parentDrive->m_parentFile->Seek(srcOffset) != srcOffset) {
 			delete[] buffer;
 			return false;
@@ -2081,20 +2081,20 @@ bool ZipArchive::FileCopy(File& srcFile, const char* destFilename, int compressi
 		return false;
 
 	// Operate in 64k buffers.
-	const UINT BUFFER_SIZE = 64 * 1024;
+	const unsigned int BUFFER_SIZE = 64 * 1024;
 
 	// Allocate the buffer space.
-	BYTE* buffer = new BYTE[BUFFER_SIZE];
+	uint8_t* buffer = new uint8_t[BUFFER_SIZE];
 
 	// Get the source file's size.
-	UINT fileSize = (UINT)(srcFile.GetLength() - srcFile.GetPosition());
+	unsigned int fileSize = (unsigned int)(srcFile.GetLength() - srcFile.GetPosition());
 
 	// Keep copying until there is no more file left to copy.
 	bool ret = true;
 	while (fileSize > 0)
 	{
 		// Copy the minimum of BUFFER_SIZE or the fileSize.
-        UINT readSize = BUFFER_SIZE < fileSize ? BUFFER_SIZE : fileSize;
+        unsigned int readSize = BUFFER_SIZE < fileSize ? BUFFER_SIZE : fileSize;
 		if (srcFile.Read(buffer, readSize) != readSize) {
 			ret = false;
 			break;
@@ -2131,7 +2131,7 @@ bool ZipArchive::FileCopy(const char* srcFileName, const char* destFileName, int
 
 /**
 **/
-bool ZipArchive::BufferCopy(const void* buffer, ULONGLONG size, ZipEntryFileHandle& destFile)
+bool ZipArchive::BufferCopy(const void* buffer, uint64_t size, ZipEntryFileHandle& destFile)
 {
 	HeapString cacheFileName;
 
@@ -2143,7 +2143,7 @@ bool ZipArchive::BufferCopy(const void* buffer, ULONGLONG size, ZipEntryFileHand
 		if (fileCache[fileCache.Length() - 1] != '/'  &&  fileCache[fileCache.Length() - 1] != '\\')
 			fileCache += "/";
 
-		DWORD crc = crc32(0, (const Bytef*)buffer, (uInt)size);
+		uint32_t crc = crc32(0, (const Bytef*)buffer, (uInt)size);
 
 		if (entry)
 		{
@@ -2227,7 +2227,7 @@ bool ZipArchive::BufferCopy(const void* buffer, ULONGLONG size, ZipEntryFileHand
 
 /**
 **/
-bool ZipArchive::BufferCopy(const void* buffer, ULONGLONG size, const char* destFilename, int compressionMethod, int compressionLevel, const time_t* inFileTime)
+bool ZipArchive::BufferCopy(const void* buffer, uint64_t size, const char* destFilename, int compressionMethod, int compressionLevel, const time_t* inFileTime)
 {
 	HeapString cacheFileName;
 
@@ -2238,7 +2238,7 @@ bool ZipArchive::BufferCopy(const void* buffer, ULONGLONG size, const char* dest
 		if (fileCache[fileCache.Length() - 1] != '/'  &&  fileCache[fileCache.Length() - 1] != '\\')
 			fileCache += "/";
 
-		DWORD crc = crc32(0, (const Bytef*)buffer, (uInt)size);
+		uint32_t crc = crc32(0, (const Bytef*)buffer, (uInt)size);
 
 		ZipEntryInfo* entry = FindFileEntry(destFilename);
 		if (entry)
@@ -2519,7 +2519,7 @@ bool ZipArchive::Pack(PackOptions* packOptions)
 	newDrive.m_fileEntryMaxCount = this->m_fileEntryMaxCount + 1;		// +1 to avoid a realloc.
 	newDrive.m_fileEntryOffsets = new size_t[newDrive.m_fileEntryMaxCount];
 	newDrive.m_fileEntriesMaxSizeBytes = this->m_fileEntriesMaxSizeBytes + 1;	// +1 to avoid a realloc.
-	newDrive.m_fileEntries = new BYTE[newDrive.m_fileEntriesMaxSizeBytes];
+	newDrive.m_fileEntries = new uint8_t[newDrive.m_fileEntriesMaxSizeBytes];
 
 	if (m_flags & EXTRA_DIRECTORY_AT_BEGINNING) {
 		size_t initialOffset = sizeof(ZipDirHeader);
@@ -2560,7 +2560,7 @@ bool ZipArchive::Pack(PackOptions* packOptions)
 	else
 	{
 		// Go through the entire directory.
-		for (UINT i = 0; i < m_fileEntryCount; i++) {
+		for (unsigned int i = 0; i < m_fileEntryCount; i++) {
 			// Grab the file entry.
 			ZipEntryInfo& fileEntry = *GetFileEntry(i);
 
@@ -2675,21 +2675,21 @@ time_t ConvertFILETIME_To_time_t(const FILETIME& fileTime)
 
 /**
 **/
-extern "C" DWORD ZipArchive_GetFileCRC(FILE* file, UINT startOffset, unsigned char md5[16])
+extern "C" uint32_t ZipArchive_GetFileCRC(FILE* file, unsigned int startOffset, unsigned char md5[16])
 {
-	const DWORD FILE_BLOCK_SIZE = 64 * 1024;
-	BYTE* buffer = new BYTE[FILE_BLOCK_SIZE];
-	DWORD fileCRC = 0;
+	const uint32_t FILE_BLOCK_SIZE = 64 * 1024;
+	uint8_t* buffer = new uint8_t[FILE_BLOCK_SIZE];
+	uint32_t fileCRC = 0;
 	MD5_CTX c;
 
 	MD5Init(&c);
 
 	fseek(file, 0, SEEK_END);
-	UINT fileLen = ftell(file);
+	unsigned int fileLen = ftell(file);
     fseek(file, startOffset, SEEK_SET);
-	DWORD bytesToDo = fileLen - startOffset;
+	uint32_t bytesToDo = fileLen - startOffset;
 	while (bytesToDo > 0) {
-		DWORD bytesToRead = bytesToDo < FILE_BLOCK_SIZE ? bytesToDo : FILE_BLOCK_SIZE;
+		uint32_t bytesToRead = bytesToDo < FILE_BLOCK_SIZE ? bytesToDo : FILE_BLOCK_SIZE;
 
 		size_t bytesRead = fread(buffer, bytesToRead, 1, file);
 		bytesToDo -= bytesToRead;
@@ -2708,7 +2708,7 @@ extern "C" DWORD ZipArchive_GetFileCRC(FILE* file, UINT startOffset, unsigned ch
 
 typedef Map<HeapString, ZipArchive> PFL_OpenZipArchiveMap;
 
-static ZipArchive* PFL_OpenArchive(const HeapString& archiveFileName, PFL_OpenZipArchiveMap& openArchives, DWORD flags) {
+static ZipArchive* PFL_OpenArchive(const HeapString& archiveFileName, PFL_OpenZipArchiveMap& openArchives, uint32_t flags) {
 	HeapString lowerArchiveFileName = archiveFileName.Lower();
 	ZipArchive* openArchive;
 	PFL_OpenZipArchiveMap::Node* node = openArchives.Find(lowerArchiveFileName);
@@ -2901,7 +2901,7 @@ bool ZipArchive::ProcessFileList(ZipArchive::FileOrderList& fileOrderList, Proce
 	// ones need to be erased when the file list is processed.
 	typedef Map<HeapString, bool> ArchiveFileEntryMap;
 	ArchiveFileEntryMap archiveFileEntryMap;
-	for (UINT i = 0; i < GetFileEntryCount(); ++i) {
+	for (unsigned int i = 0; i < GetFileEntryCount(); ++i) {
 		ZipEntryInfo* entry = GetFileEntry(i);
 		archiveFileEntryMap[entry->GetFilename()] = true;
 	}
@@ -3413,7 +3413,7 @@ bool ZipArchive::ProcessFileList(ZipArchive::FileOrderList& fileOrderList, Proce
 
 time_t ZipArchive::AdjustTime_t(time_t timeToAdjust)
 {
-	DWORD convertedTime = ConvertTime_tToDosTime(timeToAdjust);
+	uint32_t convertedTime = ConvertTime_tToDosTime(timeToAdjust);
 	return ConvertDosDateToTime_t(convertedTime);
 }
 

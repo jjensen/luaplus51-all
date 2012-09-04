@@ -361,9 +361,9 @@ namespace Misc {
 bool Copy(File& srcFile, const char* destFilename)
 {
 	// Operate in 16k buffers.
-	const DWORD BUFFER_SIZE = 16 * 1024;
+	const uint32_t BUFFER_SIZE = 16 * 1024;
 
-	DWORD fileSize = (DWORD)srcFile.GetLength();
+	uint32_t fileSize = (uint32_t)srcFile.GetLength();
 
 	if (!Misc::PathCreate(destFilename))
 		return false;
@@ -379,7 +379,7 @@ bool Copy(File& srcFile, const char* destFilename)
 	// Keep copying until there is no more file left to copy.
 	while (fileSize > 0) {
 		// Copy the minimum of BUFFER_SIZE or the fileSize.
-		DWORD readSize = BUFFER_SIZE < fileSize ? BUFFER_SIZE : fileSize;
+		uint32_t readSize = BUFFER_SIZE < fileSize ? BUFFER_SIZE : fileSize;
 		if (srcFile.Read(buffer, readSize) != readSize)
 			return false;
 		destFile.Write(buffer, readSize);
@@ -472,12 +472,12 @@ static bool _lziparchive_collectfilelist(lua_State* L, ZipArchive::FileOrderList
 
 			lua_getfield(L, -1, "Size");
 			if (lua_type(L, -1) == LUA_TNUMBER)
-				info.size = (DWORD)lua_tonumber(L, -1);
+				info.size = (uint32_t)lua_tonumber(L, -1);
 			lua_pop(L, 1);
 
 			lua_getfield(L, -1, "CRC");
 			if (lua_type(L, -1) == LUA_TNUMBER)
-				info.crc = (DWORD)lua_tonumber(L, -1);
+				info.crc = (uint32_t)lua_tonumber(L, -1);
 			lua_pop(L, 1);
 
 			lua_getfield(L, -1, "MD5");
@@ -539,7 +539,7 @@ struct RetrieveChecksumInfo {
 };
 
 
-static int _lziparchive_retrievechecksum(const char* sourcePath, DWORD* crc, unsigned char* md5, void* userData)
+static int _lziparchive_retrievechecksum(const char* sourcePath, uint32_t* crc, unsigned char* md5, void* userData)
 {
 	RetrieveChecksumInfo* info = (RetrieveChecksumInfo*)userData;
 	lua_State* L = info->L;
@@ -553,7 +553,7 @@ static int _lziparchive_retrievechecksum(const char* sourcePath, DWORD* crc, uns
 	}
 	if (lua_type(L, -2) == LUA_TNUMBER  &&  lua_type(L, -1) == LUA_TSTRING  &&  lua_objlen(L, -1) == 16)
 	{
-		*crc = (DWORD)lua_tonumber(L, -2);
+		*crc = (uint32_t)lua_tonumber(L, -2);
 		memcpy(md5, lua_tostring(L, -1), 16);
 		lua_settop(L, top);
 		return 1;
@@ -878,7 +878,7 @@ static int _zafe_index_contents(lua_State* L, fileentry_info* info, ZipEntryInfo
 	if (!info->archive->FileOpenIndex(info->entryIndex, fileHandle)) {
 		return 0;
 	}
-	LONGLONG bufferSize = info->archive->FileGetLength(fileHandle);
+	int64_t bufferSize = info->archive->FileGetLength(fileHandle);
 	unsigned char* buffer = (unsigned char*)malloc((size_t)bufferSize);
 	if (info->archive->FileRead(fileHandle, buffer, bufferSize) != bufferSize) {
 		free(buffer);
@@ -932,7 +932,7 @@ static int _zafe_index(lua_State *L) {
 
 
 static int _zafe_newindex_crc(lua_State* L, fileentry_info* info, ZipEntryInfo* entry) {
-	entry->SetCRC((DWORD)luaL_checknumber(L, 3));
+	entry->SetCRC((uint32_t)luaL_checknumber(L, 3));
 	return 0;
 }
 
@@ -1292,13 +1292,13 @@ int LS_Help(lua_State* L)
 "        {\n"
 "            string filename\n"
 "            time_t timestamp\n"
-"            DWORD crc\n"
+"            uint32_t crc\n"
 "            string md5\n"
-"            DWORD offset\n"
-"            DWORD size\n"
-"            DWORD uncompressed_size\n"
-"            DWORD compressed_size\n"
-"            DWORD compression_method\n"
+"            uint32_t offset\n"
+"            uint32_t size\n"
+"            uint32_t uncompressed_size\n"
+"            uint32_t compressed_size\n"
+"            uint32_t compression_method\n"
 "        }\n"
 "    int entryIndex = archive:fileentryindex(fileName)\n"
 "\n"
@@ -1450,14 +1450,14 @@ static void lziparchive_createmetatables(lua_State* L)
 }
 
 
-extern "C" DWORD ZipArchive_GetFileCRC(FILE* file, UINT startOffset, unsigned char md5[16]);
+extern "C" uint32_t ZipArchive_GetFileCRC(FILE* file, UINT startOffset, unsigned char md5[16]);
 
 static int LS_filecrcmd5(lua_State* L)
 {
 	const char* fileName = luaL_checkstring(L, 1);
 	FILE* file = fopen(fileName, "rb");
 	unsigned char md5[16];
-	DWORD crc = ZipArchive_GetFileCRC(file, 0, md5);
+	uint32_t crc = ZipArchive_GetFileCRC(file, 0, md5);
 	fclose(file);
 	lua_pushnumber(L, crc);
 	lua_pushlstring(L, (const char*)md5, 16);

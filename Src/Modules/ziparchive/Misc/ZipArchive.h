@@ -62,27 +62,27 @@ class ZipEntryInfo
 {
 public:
 	time_t GetTimeStamp() const			        {  return m_fileTime;  }
-    DWORD GetOffset() const                     {  return m_offset;  }
-    DWORD GetCompressedSize() const             {  return m_compressedSize;  }
-    DWORD GetUncompressedSize() const           {  return m_uncompressedSize;  }
-	DWORD GetCRC() const						{  return m_crc;  }
-    DWORD GetCompressionMethod() const          {  return m_compressionMethod;  }
+    uint32_t GetOffset() const                  {  return m_offset;  }
+    uint32_t GetCompressedSize() const          {  return m_compressedSize;  }
+    uint32_t GetUncompressedSize() const        {  return m_uncompressedSize;  }
+	uint32_t GetCRC() const						{  return m_crc;  }
+    uint32_t GetCompressionMethod() const       {  return m_compressionMethod;  }
 	const char* GetFilename() const		        {  return m_filename;  }
 
 	unsigned char* GetMD5() const				{  return (unsigned char*)&m_md5;  }
 
 	void SetTimeStamp(time_t fileTime);
-	void SetCRC(DWORD crc);
+	void SetCRC(uint32_t crc);
 	void SetMD5(unsigned char* md5);
 
 protected:
 	time_t          m_fileTime;
-	DWORD			m_offset;
-	DWORD			m_compressedSize;
-    DWORD           m_uncompressedSize;
-	DWORD			m_crc;
+	uint32_t			m_offset;
+	uint32_t			m_compressedSize;
+    uint32_t           m_uncompressedSize;
+	uint32_t			m_crc;
 	unsigned char	m_md5[16];
-    DWORD           m_compressionMethod;
+    uint32_t           m_compressionMethod;
 
 	ZipArchive*		m_parentDrive;
     char            m_filename[1];
@@ -107,11 +107,14 @@ public:
 		FileOrderInfo()
 			: compressionMethod(DEFLATED)
 			, compressionLevel(Z_DEFAULT_COMPRESSION)
+			, sourceArchive(NULL)
 			, fileTime(0)
 			, size(0)
 			, crc(0)
 			, lastWriteTime(0)
 			, needUpdate(false)
+			, used(false)
+			, entryIndex(INVALID_FILE_ENTRY)
 		{
 			memset(md5, 0, sizeof(md5));
 		}
@@ -120,6 +123,7 @@ public:
 				int _compressionLevel = Z_DEFAULT_COMPRESSION)
 			: entryName(_entryName)
 			, srcPath(_srcPath)
+			, sourceArchive(NULL)
 			, compressionMethod(_compressionMethod)
 			, compressionLevel(_compressionLevel)
 			, fileTime(0)
@@ -128,17 +132,19 @@ public:
 			, lastWriteTime(0)
 			, needUpdate(false)
 			, used(false)
+			, entryIndex(INVALID_FILE_ENTRY)
 		{
 			memset(md5, 0, sizeof(md5));
 		}
 
         HeapString entryName;
         HeapString srcPath;
+		ZipArchive* sourceArchive;
 		int compressionMethod;
 		int compressionLevel;
 		time_t fileTime;
 		size_t size;
-		DWORD crc;
+		uint32_t crc;
 		unsigned char md5[16];
 
 	protected:
@@ -147,6 +153,7 @@ public:
 		time_t lastWriteTime;
 		bool needUpdate:1;
 		bool used:1;
+		size_t entryIndex;
 
 		bool operator<(const FileOrderInfo& info) const {
 			return this->entryName < info.entryName;
@@ -158,10 +165,10 @@ public:
 	ZipArchive();
 	~ZipArchive();
 
-	bool Create(const char* filename, DWORD flags = ZIPARCHIVE_DEFAULT_MD5, const char* defaultPassword = NULL);
-	bool Create(File& parentFile, const char* fileName, DWORD flags = ZIPARCHIVE_DEFAULT_MD5, const char* defaultPassword = NULL);
-	bool Open(const char* filename, bool readOnly = true, DWORD flags = ZIPARCHIVE_DEFAULT_MD5, const char* defaultPassword = NULL);
-	bool Open(File& parentFile, const char* fileName, bool readOnly = true, DWORD flags = ZIPARCHIVE_DEFAULT_MD5, const char* defaultPassword = NULL);
+	bool Create(const char* filename, uint32_t flags = ZIPARCHIVE_DEFAULT_MD5, const char* defaultPassword = NULL);
+	bool Create(File& parentFile, const char* fileName, uint32_t flags = ZIPARCHIVE_DEFAULT_MD5, const char* defaultPassword = NULL);
+	bool Open(const char* filename, bool readOnly = true, uint32_t flags = ZIPARCHIVE_DEFAULT_MD5, const char* defaultPassword = NULL);
+	bool Open(File& parentFile, const char* fileName, bool readOnly = true, uint32_t flags = ZIPARCHIVE_DEFAULT_MD5, const char* defaultPassword = NULL);
 	bool Close(void);
 
 	void UpdateMD5s();
@@ -189,13 +196,13 @@ public:
 	void FileCloseAll();
 
     const char* FileGetFileName(ZipEntryFileHandle& fileHandle);
-	ULONGLONG FileGetPosition(ZipEntryFileHandle& fileHandle);
-	void FileSetLength(ZipEntryFileHandle& fileHandle, ULONGLONG newLength);
-	ULONGLONG FileGetLength(ZipEntryFileHandle& fileHandle);
+	uint64_t FileGetPosition(ZipEntryFileHandle& fileHandle);
+	void FileSetLength(ZipEntryFileHandle& fileHandle, uint64_t newLength);
+	uint64_t FileGetLength(ZipEntryFileHandle& fileHandle);
 
-	LONGLONG FileSeek(ZipEntryFileHandle& fileHandle, LONGLONG offset, File::SeekFlags seekFlags = File::SEEKFLAG_BEGIN);
-	ULONGLONG FileRead(ZipEntryFileHandle& fileHandle, void* buffer, ULONGLONG count);
-    ULONGLONG FileWrite(ZipEntryFileHandle& fileHandle, const void* buffer, ULONGLONG count);
+	int64_t FileSeek(ZipEntryFileHandle& fileHandle, int64_t offset, File::SeekFlags seekFlags = File::SEEKFLAG_BEGIN);
+	uint64_t FileRead(ZipEntryFileHandle& fileHandle, void* buffer, uint64_t count);
+    uint64_t FileWrite(ZipEntryFileHandle& fileHandle, const void* buffer, uint64_t count);
 
 	bool FileErase(const char* filename);
 	bool FileRename(const char* oldName, const char* newName);
@@ -206,8 +213,8 @@ public:
 	bool FileCopy(const char* srcFileName, const char* destFilename, int compressionMethod = DEFLATED,
 			int compressionLevel = Z_DEFAULT_COMPRESSION, const time_t* fileTime = NULL);
 
-	bool BufferCopy(const void* buffer, ULONGLONG size, ZipEntryFileHandle& destFile);
-	bool BufferCopy(const void* buffer, ULONGLONG size, const char* destFilename, int compressionMethod = DEFLATED,
+	bool BufferCopy(const void* buffer, uint64_t size, ZipEntryFileHandle& destFile);
+	bool BufferCopy(const void* buffer, uint64_t size, const char* destFilename, int compressionMethod = DEFLATED,
 			int compressionLevel = Z_DEFAULT_COMPRESSION, const time_t* fileTime = NULL);
 
 	struct PackOptions
@@ -225,7 +232,7 @@ public:
 	bool NeedsPack(PackOptions* packOptions = NULL);
     bool Pack(PackOptions* packOptions = NULL);
 
-	typedef int (*fnRetrieveChecksum)(const char* sourcePath, DWORD* crc, unsigned char* md5, void* userData);
+	typedef int (*fnRetrieveChecksum)(const char* sourcePath, uint32_t* crc, unsigned char* md5, void* userData);
 
 	enum FileListStatus
 	{
@@ -245,6 +252,7 @@ public:
 		ProcessFileListOptions()
 			: checkOnly(false)
 			, requiresPack(true)
+			, reopenWhenDone(true)
 			, fileCacheSizeThreshold(0)
 			, retrieveChecksumCallback(NULL)
 			, retrieveChecksumUserData(NULL)
@@ -255,6 +263,7 @@ public:
 
 		bool checkOnly;
 		bool requiresPack;
+		bool reopenWhenDone;
 
 		HeapString fileCache;
 		size_t fileCacheSizeThreshold;				// Any files of this size or larger will be checked in the file cache.
@@ -286,23 +295,25 @@ public:
 
 private:
 	void FileCloseInternal(ZipEntryFileHandle& fileHandle);
-	void _WriteDirectory(LONGLONG dirOffset, LONGLONG dirHeaderOffset);
+	bool FileCreateInternal(const char* fileName, VirtualFileHandle& fileHandle, unsigned int compressionMethod, const time_t* fileTime);
+	bool FileOpenIndexInternal(size_t index, VirtualFileHandle& fileHandle);
+	void _WriteDirectory(int64_t dirOffset, int64_t dirHeaderOffset);
 
-	DWORD	m_flags;
+	uint32_t	m_flags;
 
 	size_t  m_fileEntryCount;
 	size_t  m_fileEntryMaxCount;
-    ULONGLONG m_dirOffset;
-	ULONGLONG m_dirSize;			// Directory size in bytes.
-	UINT    m_needsPack:1;
-	UINT	m_readOnly:1;
-	UINT	m_changed:1;							//!< Whether the file needs to be flushed.
-	UINT	m_swap:1;
-	UINT	m_unused:28;
+    uint64_t m_dirOffset;
+	uint64_t m_dirSize;			// Directory size in bytes.
+	unsigned int    m_needsPack:1;
+	unsigned int	m_readOnly:1;
+	unsigned int	m_changed:1;							//!< Whether the file needs to be flushed.
+	unsigned int	m_swap:1;
+	unsigned int	m_unused:28;
 
     char* m_filename;
     size_t* m_fileEntryOffsets;
-    BYTE* m_fileEntries;
+    uint8_t* m_fileEntries;
 	size_t m_fileEntriesSizeBytes;
 	size_t m_fileEntriesMaxSizeBytes;
 

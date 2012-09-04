@@ -7,6 +7,7 @@
 #define PLATFORM_WINDOWS
 #define MISC_CDECL __cdecl
 #include <new>
+#include "stdint.vc.h"
 #elif defined(macintosh)  ||  defined(__APPLE__)
 #define PLATFORM_MAC
 #define MISC_CDECL
