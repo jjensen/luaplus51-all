@@ -1000,11 +1000,21 @@ static int _lziparchive_fileentry_tostring(lua_State* L) {
 		{
 			char hex[2 * 16 + 1];
 			int i;
-			for (i = 0; i < 16; i++)
-				sprintf(hex + 2 * i, "%02x", entry->GetMD5()[i]);
-			hex[2 * 16] = 0;
-			sprintf(buffer, ", md5 = '%s'", hex);
-			lua_pushstring(L, buffer);
+			uint8_t* md5 = entry->GetMD5();
+			int isEmpty = 1;
+			for (i = 0; i < 16; i++) {
+				if (md5[i]) {
+					isEmpty = 0;
+					break;
+				}
+			}
+			if (!isEmpty) {
+				for (i = 0; i < 16; i++)
+					sprintf(hex + 2 * i, "%02x", entry->GetMD5()[i]);
+				hex[2 * 16] = 0;
+				sprintf(buffer, ", md5 = '%s'", hex);
+				lua_pushstring(L, buffer);
+			}
 		}
 		sprintf(buffer, ", offset = %u", entry->GetOffset());
 		lua_pushstring(L, buffer);
