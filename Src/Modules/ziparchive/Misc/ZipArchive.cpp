@@ -243,6 +243,18 @@ struct FWKCS_MD5
 #endif
 
 
+static voidpf zlib_alloc_func(voidpf opaque, uInt items, uInt size)
+{
+	return new unsigned char[ items * size ];
+}
+
+
+static void zlib_free_func(voidpf opaque, voidpf address)
+{
+	delete[] (unsigned char*)address;
+}
+
+
 static uint32_t ConvertTime_tToDosTime(time_t time)
 {
     struct tm* ptm = localtime(&time);
@@ -659,7 +671,7 @@ bool ZipArchive::Open(File& parentFile, const char* filename, bool readOnly, uin
 
 	// See if it is a .zip file.
 	ZipDirHeader zipDirHeader;
-	m_parentFile->Seek(m_parentFile->GetLength() - sizeof(ZipDirHeader));
+	m_parentFile->Seek(-(int)sizeof(ZipDirHeader), File::SEEKFLAG_END);
 	m_parentFile->Read(&zipDirHeader, sizeof(ZipDirHeader));
 #if ZIPARCHIVE_ENCRYPTION
 	if (this->defaultPassword.Length() > 0) {
@@ -1132,27 +1144,13 @@ bool ZipArchive::Flush(const FlushOptions* flushOptions)
 	@return Returns true if the file entry was created successfully, false
 		otherwise.
 **/
-bool ZipArchive::FileCreate(const char* fileName, ZipEntryFileHandle& fileHandle,
+bool ZipArchive::FileCreateInternal(const char* fileName, ZipEntryFileHandle& fileHandle,
 							  int compressionMethod, int compressionLevel, const time_t* fileTime) {
-	if (!IsOpened())
-		return false;
-
-	// If the drive is read-only, then exit.
-	if (m_readOnly)
-		return false;
-
-	// If there is a file currently being written to, then it must be closed
-	// first.  Abort the file creation.
-	if (m_curWriteFile)
-		return false;
-
-	// Close it if already opened.
-	FileClose(fileHandle);
-
 	// Retrieve the index of the file entry called fileName.
 	size_t index = FindFileEntryIndex(fileName);
 
 	// Does the entry exist?
+	size_t fileNameLen = 0;
 	if (index == INVALID_FILE_ENTRY) {
 		// No. It needs to be added.  Increase the file entry count by 1.
         index = m_fileEntryCount;
@@ -1170,13 +1168,13 @@ bool ZipArchive::FileCreate(const char* fileName, ZipEntryFileHandle& fileHandle
 		m_fileEntryOffsets[m_fileEntryCount] = m_fileEntriesSizeBytes;
 		m_fileEntryCount++;
 
-		size_t stringLen = strlen(fileName);
+		fileNameLen = strlen(fileName);
 		uint8_t* origBuf = m_fileEntries;
 		size_t origSize = m_fileEntriesSizeBytes;
 
-        m_fileEntriesSizeBytes += sizeof(ZipEntryInfo) + stringLen;
+        m_fileEntriesSizeBytes += sizeof(ZipEntryInfo) + fileNameLen;
 		if (m_fileEntriesSizeBytes >= m_fileEntriesMaxSizeBytes) {
-			m_fileEntriesMaxSizeBytes += sizeof(ZipEntryInfo) + stringLen + 10 * 1024;
+			m_fileEntriesMaxSizeBytes += sizeof(ZipEntryInfo) + fileNameLen + 10 * 1024;
 			m_fileEntries = new uint8_t[m_fileEntriesMaxSizeBytes];
 			if (origSize > 0)
 				memcpy(m_fileEntries, origBuf, origSize);
@@ -1184,7 +1182,7 @@ bool ZipArchive::FileCreate(const char* fileName, ZipEntryFileHandle& fileHandle
 				delete[] origBuf;
 		}
         ZipEntryInfo* destEntry = (ZipEntryInfo*)(m_fileEntries + origSize);
-		memcpy(destEntry->m_filename, fileName, stringLen + 1);
+		memcpy(destEntry->m_filename, fileName, fileNameLen + 1);
 
 		this->fileNameMap[PtrString(this, m_fileEntryCount - 1)] = index;
 	} else {
@@ -1216,34 +1214,13 @@ bool ZipArchive::FileCreate(const char* fileName, ZipEntryFileHandle& fileHandle
     fileHandle.detail->curCompressedFilePosition = 0;
 
 	if (compressionMethod == DEFLATED) {
-		fileHandle.detail->bufferedData = new uint8_t[Z_BUFSIZE];
+		fileHandle.detail->bufferedData = NULL;
 		fileHandle.detail->posInBufferedData = 0;
-
-		fileHandle.detail->stream.avail_in = 0;
-		fileHandle.detail->stream.avail_out = Z_BUFSIZE;
-		fileHandle.detail->stream.next_out = fileHandle.detail->bufferedData;
-		fileHandle.detail->stream.total_in = 0;
-		fileHandle.detail->stream.total_out = 0;
-		fileHandle.detail->stream.opaque = 0;
-		fileHandle.detail->stream.zalloc = Z_NULL;
-		fileHandle.detail->stream.zfree = Z_NULL;
-
-		deflateInit2(&fileHandle.detail->stream, compressionLevel, compressionMethod == UNCOMPRESSED ? 0 : Z_DEFLATED, -MAX_WBITS, MAX_MEM_LEVEL, 0);
 	}
 
-	fileHandle.detail->headerSize = sizeof(ZipLocalHeader) + strlen(fileEntry.GetFilename()) + 0;
-
-#if ZIPARCHIVE_ENCRYPTION
-	if (this->defaultPassword.Length() > 0) {
-		fileHandle.detail->zcx[0] = this->defaultzcx[0];
-
-		fileHandle.detail->curCompressedFilePosition += 0; //SALT_LENGTH(mode) + PWD_VER_LENGTH;
-	}
-#endif // ZIPARCHIVE_ENCRYPTION
-
-	if (m_flags & SUPPORT_MD5) {
-		MD5Init(&fileHandle.detail->md5writecontext);
-	}
+	if (fileNameLen == 0)
+		fileNameLen = strlen(fileName);
+	fileHandle.detail->headerSize = sizeof(ZipLocalHeader) + fileNameLen + 0;
 
     // Assign this file to be our current write file.
 	m_curWriteFile = &fileHandle;
@@ -1259,10 +1236,88 @@ bool ZipArchive::FileCreate(const char* fileName, ZipEntryFileHandle& fileHandle
 	m_changed = true;
 
 	return true;
+} // FileCreateInternal()
+
+
+bool ZipArchive::FileCreate(const char* fileName, ZipEntryFileHandle& fileHandle,
+							  int compressionMethod, int compressionLevel, const time_t* fileTime) {
+	if (!IsOpened())
+		return false;
+
+	// If the drive is read-only, then exit.
+	if (m_readOnly)
+		return false;
+
+	// If there is a file currently being written to, then it must be closed
+	// first.  Abort the file creation.
+	if (m_curWriteFile)
+		return false;
+
+	// Close it if already opened.
+	FileClose(fileHandle);
+
+	bool ret = FileCreateInternal(fileName, fileHandle, compressionMethod, compressionLevel, fileTime);
+
+	if (compressionMethod == DEFLATED) {
+		fileHandle.detail->bufferedData = new uint8_t[Z_BUFSIZE];
+		fileHandle.detail->posInBufferedData = 0;
+
+		fileHandle.detail->stream.avail_in = 0;
+		fileHandle.detail->stream.avail_out = Z_BUFSIZE;
+		fileHandle.detail->stream.next_out = fileHandle.detail->bufferedData;
+		fileHandle.detail->stream.total_in = 0;
+		fileHandle.detail->stream.total_out = 0;
+		fileHandle.detail->stream.opaque = 0;
+		fileHandle.detail->stream.zalloc = zlib_alloc_func;
+		fileHandle.detail->stream.zfree = zlib_free_func;
+
+		deflateInit2(&fileHandle.detail->stream, compressionLevel, compressionMethod == UNCOMPRESSED ? 0 : Z_DEFLATED, -MAX_WBITS, MAX_MEM_LEVEL, 0);
+	}
+
+#if ZIPARCHIVE_ENCRYPTION
+	if (this->defaultPassword.Length() > 0) {
+		fileHandle.detail->zcx[0] = this->defaultzcx[0];
+
+		fileHandle.detail->curCompressedFilePosition += 0; //SALT_LENGTH(mode) + PWD_VER_LENGTH;
+	}
+#endif // ZIPARCHIVE_ENCRYPTION
+
+	if (m_flags & SUPPORT_MD5) {
+		MD5Init(&fileHandle.detail->md5writecontext);
+	}
+
+	return ret;
 } // FileCreate()
 
 
 ///////////////////////////////////////////////////////////////////////////////
+bool ZipArchive::FileOpenIndexInternal(size_t index, ZipEntryFileHandle& fileHandle)
+{
+	// Grab the entry.
+	ZipEntryInfo& fileEntry = *GetFileEntry(index);
+
+	// Assign the internal virtual file information.
+    fileHandle.parentDrive = this;
+	fileHandle.detail->fileEntryIndex = index;
+    fileHandle.detail->curUncompressedFilePosition = 0;
+
+	fileHandle.detail->headerSize = sizeof(ZipLocalHeader) + strlen(fileEntry.GetFilename()) + 0;
+
+    fileHandle.detail->curCompressedFilePosition = 0;
+
+	fileHandle.detail->bufferedData = NULL;
+
+    // Add this virtual file to the open files list.
+	fileHandle.nextOpenFile = m_headOpenFile;
+	if (m_headOpenFile)
+		m_headOpenFile->prevOpenFile = &fileHandle;
+	fileHandle.prevOpenFile = NULL;
+	m_headOpenFile = &fileHandle;
+
+	return true;
+} // FileOpenIndexInternal()
+
+
 /**
 	Opens an existing file entry within the zip archive.
 
@@ -1276,9 +1331,6 @@ bool ZipArchive::FileOpen(const char* fileName, ZipEntryFileHandle& fileHandle)
 {
 	if (!IsOpened())
 		return false;
-
-	// Close it if already opened.
-	FileClose(fileHandle);
 
 	// Retrieve the index of the file entry called fileName.
 	size_t index = FindFileEntryIndex(fileName);
@@ -1303,13 +1355,10 @@ bool ZipArchive::FileOpenIndex(size_t index, ZipEntryFileHandle& fileHandle)
 	// Close it if already opened.
 	FileClose(fileHandle);
 
+	bool ret = FileOpenIndexInternal(index, fileHandle);
+
 	// Grab the entry.
 	ZipEntryInfo& fileEntry = *GetFileEntry(index);
-
-	// Assign the internal file entry information.
-    fileHandle.parentDrive = this;
-	fileHandle.detail->fileEntryIndex = index;
-    fileHandle.detail->curUncompressedFilePosition = 0;
 
 	ZipLocalHeader localHeader;
 
@@ -1343,17 +1392,16 @@ bool ZipArchive::FileOpenIndex(size_t index, ZipEntryFileHandle& fileHandle)
 
 	fileHandle.detail->headerSize = sizeof(ZipLocalHeader) + localHeader.size_filename + localHeader.size_file_extra;
 
-    fileHandle.detail->curCompressedFilePosition = 0;
-
 	if (fileEntry.m_compressionMethod != 0)
 	{
+
 		fileHandle.detail->stream.avail_in = 0;
 	    fileHandle.detail->stream.total_out = 0;
 
 	    fileHandle.detail->stream.opaque = 0;
         fileHandle.detail->bufferedData = new uint8_t[Z_BUFSIZE];
-        fileHandle.detail->stream.zalloc = Z_NULL;
-        fileHandle.detail->stream.zfree = Z_NULL;
+		fileHandle.detail->stream.zalloc = zlib_alloc_func;
+        fileHandle.detail->stream.zfree = zlib_free_func;
 
 		inflateInit2(&fileHandle.detail->stream, -MAX_WBITS);
     }
@@ -1367,14 +1415,7 @@ bool ZipArchive::FileOpenIndex(size_t index, ZipEntryFileHandle& fileHandle)
 	}
 #endif // ZIPARCHIVE_ENCRYPTION
 
-    // Add this file entry to the open files list.
-	fileHandle.nextOpenFile = m_headOpenFile;
-	if (m_headOpenFile)
-		m_headOpenFile->prevOpenFile = &fileHandle;
-	fileHandle.prevOpenFile = NULL;
-	m_headOpenFile = &fileHandle;
-
-	return true;
+	return ret;
 } // FileOpen()
 
 
@@ -1524,12 +1565,12 @@ void ZipArchive::FileCloseInternal(ZipEntryFileHandle& fileHandle)
 		// Turn off the current write file.
 		m_curWriteFile = NULL;
 
-    	if (fileEntry->m_compressionMethod == DEFLATED)
+    	if (fileEntry->m_compressionMethod == DEFLATED  &&  fileHandle.detail->bufferedData)
 			deflateEnd(&fileHandle.detail->stream);
 	}
     else
     {
-    	if (fileEntry->m_compressionMethod == DEFLATED)
+    	if (fileEntry->m_compressionMethod == DEFLATED  &&  fileHandle.detail->bufferedData)
     		inflateEnd(&fileHandle.detail->stream);
     }
 
@@ -1632,8 +1673,8 @@ int64_t ZipArchive::FileSeek(ZipEntryFileHandle& fileHandle, int64_t offset, Fil
 				if (this->defaultPassword.Length() > 0)
 					CORE_ASSERT(0);
 #endif // ZIPARCHIVE_ENCRYPTION
-				if ((offset + (LONG)fileHandle.detail->curUncompressedFilePosition < 0)  ||
-					(offset + (LONG)fileHandle.detail->curUncompressedFilePosition > (LONG)fileEntry->m_uncompressedSize))
+				if ((offset + (int64_t)fileHandle.detail->curUncompressedFilePosition < 0)  ||
+					(offset + (int64_t)fileHandle.detail->curUncompressedFilePosition > (int64_t)fileEntry->m_uncompressedSize))
 					return -1;
 				fileHandle.detail->curUncompressedFilePosition = fileHandle.detail->curCompressedFilePosition = offset + fileHandle.detail->curUncompressedFilePosition;
 				break;
@@ -1643,7 +1684,7 @@ int64_t ZipArchive::FileSeek(ZipEntryFileHandle& fileHandle, int64_t offset, Fil
 				if (this->defaultPassword.Length() > 0)
 					CORE_ASSERT(0);
 #endif // ZIPARCHIVE_ENCRYPTION
-				if (offset > 0  ||  (LONG)fileHandle.detail->curUncompressedFilePosition + offset < 0)
+				if (offset > 0  ||  (int64_t)fileHandle.detail->curUncompressedFilePosition + offset < 0)
 					return -1;
 				fileHandle.detail->curUncompressedFilePosition = fileHandle.detail->curCompressedFilePosition = fileEntry->m_uncompressedSize - offset;
 				break;
@@ -2011,7 +2052,7 @@ bool ZipArchive::FileCopy(ZipEntryFileHandle& srcFileHandle, const char* destFil
 
 	// Create the destination file entry.
 	ZipEntryFileHandle destFileHandle;
-	if (!FileCreate(destFilename ? destFilename : srcFileEntry->GetFilename(), destFileHandle, srcFileEntry->m_compressionMethod, Z_DEFAULT_COMPRESSION, overrideFileTime ? overrideFileTime : &srcFileEntry->m_fileTime))
+	if (!FileCreateInternal(destFilename ? destFilename : srcFileEntry->GetFilename(), destFileHandle, srcFileEntry->m_compressionMethod, Z_DEFAULT_COMPRESSION, overrideFileTime ? overrideFileTime : &srcFileEntry->m_fileTime))
 		return false;
     ZipEntryInfo* destFileEntry = GetFileEntry(destFileHandle.detail->fileEntryIndex);
 
@@ -2077,7 +2118,7 @@ bool ZipArchive::FileCopy(File& srcFile, const char* destFilename, int compressi
 
 	// Create the destination file entry.
 	ZipEntryFileHandle destFileHandle;
-	if (!FileCreate(destFilename, destFileHandle, compressionMethod, compressionLevel, fileTime))
+	if (!FileCreateInternal(destFilename, destFileHandle, compressionMethod, compressionLevel, fileTime))
 		return false;
 
 	// Operate in 64k buffers.
@@ -2738,6 +2779,9 @@ bool ZipArchive::ProcessFileList(ZipArchive::FileOrderList& fileOrderList, Proce
 	// Quick lookups of the filename to the file order structure.
     typedef Map<HeapString, FileOrderInfo*> FileNameMap;
 	FileNameMap fileNameMap;
+	fileNameMap.SetHashTableSize(fileOrderList.Count());
+	if (fileOrderList.Count() > 0)
+		fileNameMap.SetBlockSize(fileOrderList.Count());
 
 	// Use a network cache if the options specified it.
 	HeapString networkCache;
@@ -2776,7 +2820,7 @@ bool ZipArchive::ProcessFileList(ZipArchive::FileOrderList& fileOrderList, Proce
 
 			if (fileOrderInfo.fileTime == 0  ||  fileOrderInfo.size == 0  ||  fileOrderInfo.crc == 0  ||
 					memcmp(fileOrderInfo.md5, emptyMD5, sizeof(emptyMD5)) == 0) {
-				ZipArchive* openArchive = PFL_OpenArchive(archiveFileName, openArchives, m_flags);
+				ZipArchive* openArchive = fileOrderInfo.sourceArchive ? fileOrderInfo.sourceArchive : PFL_OpenArchive(archiveFileName, openArchives, m_flags);
 				openArchiveFileEntry = openArchive->FindFileEntry(entryName);
 			}
 
@@ -2901,6 +2945,9 @@ bool ZipArchive::ProcessFileList(ZipArchive::FileOrderList& fileOrderList, Proce
 	// ones need to be erased when the file list is processed.
 	typedef Map<HeapString, bool> ArchiveFileEntryMap;
 	ArchiveFileEntryMap archiveFileEntryMap;
+	archiveFileEntryMap.SetHashTableSize(GetFileEntryCount());
+	if (GetFileEntryCount() > 0)
+		archiveFileEntryMap.SetBlockSize(GetFileEntryCount());
 	for (unsigned int i = 0; i < GetFileEntryCount(); ++i) {
 		ZipEntryInfo* entry = GetFileEntry(i);
 		archiveFileEntryMap[entry->GetFilename()] = true;
@@ -2925,6 +2972,7 @@ bool ZipArchive::ProcessFileList(ZipArchive::FileOrderList& fileOrderList, Proce
 
 		// Look up the entry in the open zip archive.
 		size_t entryIndex = FindFileEntryIndex(info->entryName);
+		info->entryIndex = entryIndex;
 
 		// If the current index exceeds the number of files currently in the zip archive,
 		// all files in the zip and file order list are in order.  However, if we're
@@ -3110,6 +3158,8 @@ bool ZipArchive::ProcessFileList(ZipArchive::FileOrderList& fileOrderList, Proce
 		newArchive->fileNameMap.SetBlockSize(fileOrderList.Count());
 		newArchive->m_fileEntryMaxCount = fileOrderList.Count() + 1;		// +1 to avoid a realloc.
 		newArchive->m_fileEntryOffsets = new size_t[newArchive->m_fileEntryMaxCount];
+		newArchive->m_fileEntriesMaxSizeBytes = this->m_fileEntriesMaxSizeBytes;
+		newArchive->m_fileEntries = new uint8_t[newArchive->m_fileEntriesMaxSizeBytes];
 
 		if (m_flags & EXTRA_DIRECTORY_AT_BEGINNING) {
 			newArchive->GetParentFile()->SetLength(initialOffset);
@@ -3142,7 +3192,8 @@ bool ZipArchive::ProcessFileList(ZipArchive::FileOrderList& fileOrderList, Proce
 						options->statusUpdateCallback(PACKING_COPY, info.entryName, options->statusUpdateUserData);
 
 					ZipEntryFileHandle srcFileHandle;
-					if (FileOpen(info.entryName, srcFileHandle)) {
+
+					if (info.entryIndex != INVALID_FILE_ENTRY  &&  FileOpenIndexInternal(info.entryIndex, srcFileHandle)) {
 						bool ret = newArchive->FileCopy(srcFileHandle);
 						FileClose(srcFileHandle);
 						if (!ret)
@@ -3183,14 +3234,18 @@ bool ZipArchive::ProcessFileList(ZipArchive::FileOrderList& fileOrderList, Proce
 		if (pipePos != -1) {
 			HeapString archiveFileName = info.srcPath.Sub(0, pipePos);
 			HeapString entryName = info.srcPath.Sub(pipePos + 1);
-			ZipArchive* cacheDrive = PFL_OpenArchive(archiveFileName, openArchives, m_flags);
+			ZipArchive* cacheDrive = info.sourceArchive ? info.sourceArchive : PFL_OpenArchive(archiveFileName, openArchives, m_flags);
 			if (cacheDrive) {
-				ZipEntryInfo* cacheFileEntry = cacheDrive->FindFileEntry(entryName);
+				size_t cacheFileEntryIndex = cacheDrive->FindFileEntryIndex(entryName);
+				if (cacheFileEntryIndex == INVALID_FILE_ENTRY)
+					continue;
+
+				ZipEntryInfo* cacheFileEntry = cacheDrive->GetFileEntry(cacheFileEntryIndex);
 				if (!cacheFileEntry)
 					continue;
 				if (cacheFileEntry->GetCompressionMethod() == info.compressionMethod) {
 					ZipEntryFileHandle cacheFileHandle;
-					if (cacheDrive->FileOpen(entryName, cacheFileHandle)) {
+					if (cacheDrive->FileOpenIndexInternal(cacheFileEntryIndex, cacheFileHandle)) {
 						if (!filenameShown) {
 							if (options->statusUpdateCallback)
 								options->statusUpdateCallback(UPDATING_ARCHIVE, m_filename, options->statusUpdateUserData);
@@ -3355,7 +3410,6 @@ bool ZipArchive::ProcessFileList(ZipArchive::FileOrderList& fileOrderList, Proce
 	if (newArchive) {
 		// Close the new zip archive.
 		newArchive->fileNameMap.SetBlockSize(50);
-		newArchive->Flush();
 		newArchive->Close();
 		delete newArchive;
 
@@ -3383,8 +3437,10 @@ bool ZipArchive::ProcessFileList(ZipArchive::FileOrderList& fileOrderList, Proce
 #endif
 
 		// Open it with the new
-		if (!Open(oldArchiveFileName, false, m_flags, oldPassword))
-			return false;
+		if (options->reopenWhenDone) {
+			if (!Open(oldArchiveFileName, false, m_flags, oldPassword))
+				return false;
+		}
 	} else {
 		FlushOptions flushOptions;
 		flushOptions.fileOrderList = &fileOrderList;

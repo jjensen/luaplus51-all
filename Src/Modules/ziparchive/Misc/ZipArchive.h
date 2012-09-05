@@ -295,8 +295,8 @@ public:
 
 private:
 	void FileCloseInternal(ZipEntryFileHandle& fileHandle);
-	bool FileCreateInternal(const char* fileName, VirtualFileHandle& fileHandle, unsigned int compressionMethod, const time_t* fileTime);
-	bool FileOpenIndexInternal(size_t index, VirtualFileHandle& fileHandle);
+	bool FileCreateInternal(const char* fileName, ZipEntryFileHandle& fileHandle, int compressionMethod, int compressionLevel, const time_t* fileTime);
+	bool FileOpenIndexInternal(size_t index, ZipEntryFileHandle& fileHandle);
 	void _WriteDirectory(int64_t dirOffset, int64_t dirHeaderOffset);
 
 	uint32_t	m_flags;
