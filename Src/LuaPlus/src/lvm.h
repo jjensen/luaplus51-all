@@ -14,9 +14,6 @@
 
 
 #define tostring(L,o) ((ttype(o) == LUA_TSTRING) || (luaV_tostring(L, o)))
-#if LUA_WIDESTRING
-#define towstring(L,o) ((ttype(o) == LUA_TWSTRING) || (luaV_towstring(L, o)))
-#endif /* LUA_WIDESTRING */
 
 #if LUA_REFCOUNT        
 #define tonumber(o,n)	(ttype(o) == LUA_TNUMBER || \
@@ -38,9 +35,6 @@ LUAI_FUNC const TValue *luaV_tonumber (lua_State *L, const TValue *obj, TValue *
 LUAI_FUNC const TValue *luaV_tonumber (const TValue *obj, TValue *n);
 #endif /* LUA_REFCOUNT */
 LUAI_FUNC int luaV_tostring (lua_State *L, StkId obj);
-#if LUA_WIDESTRING
-LUAI_FUNC int luaV_towstring (lua_State *L, StkId obj);
-#endif /* LUA_WIDESTRING */
 LUAI_FUNC void luaV_gettable (lua_State *L, const TValue *t, TValue *key,
                                             StkId val);
 LUAI_FUNC void luaV_settable (lua_State *L, const TValue *t, TValue *key,

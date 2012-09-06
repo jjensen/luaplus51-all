@@ -28,57 +28,6 @@
 ** model but changing `fputs' to put the strings at a proper place
 ** (a console window or a log file, for instance).
 */
-#if LUA_WIDESTRING
-static int luaB_print (lua_State *L) {
-  int n = lua_gettop(L);  /* number of arguments */
-  int i;
-  lua_getglobal(L, "towstring");
-  lua_getglobal(L, "tostring");
-  for (i=1; i<=n; i++) {
-    const char *s = NULL;
-    const lua_WChar *ws = NULL;
-    if (lua_type(L, i) != LUA_TWSTRING) {
-      lua_pushvalue(L, -1);  /* function to be called */
-      lua_pushvalue(L, i);   /* value to print */
-      lua_call(L, 1, 1);
-      s = lua_tostring(L, -1);  /* get result */
-      if (s == NULL)
-        return luaL_error(L, LUA_QL("tostring") " must return a string to "
-                             LUA_QL("print"));
-    } else {
-      lua_pushvalue(L, -2);  /* function to be called */
-      lua_pushvalue(L, i);   /* value to print */
-      lua_call(L, 1, 1);
-      ws = lua_towstring(L, -1);  /* get result */
-      if (ws == NULL)
-        return luaL_error(L, LUA_QL("towstring") " must return a wstring to "
-                             LUA_QL("print"));
-    }
-    if (i>1) fputs("\t", stdout);
-    if (s)
-      fputs(s, stdout);
-    else {
-      wchar_t out[512];
-      wchar_t* outEnd = out + (sizeof(out) - 1) - sizeof(lua_WChar);
-      while (*ws) {
-        wchar_t* outPos = out;
-        while (*ws && outPos != outEnd) {
-          *outPos++ = *ws++;
-        }
-        *outPos++ = 0;
-#if !defined(__CELLOS_LV2__)  &&  !defined(PLATFORM_WII)
-#ifdef WIN32
-        fputws(out, stdout);
-#endif
-#endif /* PLATFORM_PS3 */
-      }
-    }
-    lua_pop(L, 1);  /* pop result */
-  }
-  fputs("\n", stdout);
-  return 0;
-}
-#else
 static int luaB_print (lua_State *L) {
   int n = lua_gettop(L);  /* number of arguments */
   int i;
@@ -99,7 +48,6 @@ static int luaB_print (lua_State *L) {
   fputs("\n", stdout);
   return 0;
 }
-#endif /* LUA_WIDESTRING */
 
 static int luaB_tonumber (lua_State *L) {
   int base = luaL_optint(L, 2, 10);
@@ -459,27 +407,6 @@ static int luaB_tostring (lua_State *L) {
     case LUA_TSTRING:
       lua_pushvalue(L, 1);
       break;
-#if LUA_WIDESTRING
-    case LUA_TWSTRING: {
-      luaL_Buffer b;
-      size_t l;
-      size_t i;
-      const lua_WChar *s = lua_towstring(L, 1);
-      l = lua_strlen(L, 1);
-      if (l == 0)
-      {
-        lua_pushstring(L, "");
-      }
-      else
-      {
-        luaL_buffinit(L, &b);
-        for (i=0; i<l; i++)
-          luaL_putchar(&b, (unsigned char)(s[i]));
-        luaL_pushresult(&b);
-      }
-      return 1;
-    }
-#endif /* LUA_WIDESTRING */
     case LUA_TBOOLEAN:
       lua_pushstring(L, (lua_toboolean(L, 1) ? "true" : "false"));
       break;
@@ -498,66 +425,6 @@ static int luaB_tostring (lua_State *L) {
   }
   return 1;
 }
-
-#if LUA_WIDESTRING
-static int luaB_towstring (lua_State *L) {
-  char buff[64];
-  luaL_checkany(L, 1);
-  if (luaL_callmeta(L, 1, "__towstring"))  /* is there a metafield? */
-    return 1;  /* use its value */
-  switch (lua_type(L, 1)) {
-    case LUA_TNUMBER:
-      lua_pushwstring(L, lua_towstring(L, 1));
-      break;
-    case LUA_TSTRING: {
-      luaL_Buffer b;
-      size_t l;
-      size_t i;
-      const char *s = lua_tostring(L, 1);
-      l = lua_strlen(L, 1);
-      if (l == 0)
-      {
-        lua_WChar str[] = { '\0' };
-        lua_pushwstring(L, (const lua_WChar*)str);
-      }
-      else
-      {
-        luaL_wbuffinit(L, &b);
-        for (i=0; i<l; i++)
-          luaL_addwchar(&b, (lua_WChar)(unsigned char)s[i]);
-        luaL_pushresult(&b);
-      }
-      return 1;
-    }
-    case LUA_TWSTRING:
-      lua_pushvalue(L, 1);
-      return 1;
-    case LUA_TBOOLEAN:
-      strcpy(buff, (lua_toboolean(L, 1) ? "true" : "false"));
-      break;
-    case LUA_TNIL:
-      strcpy(buff, "nil");
-      break;
-    default:
-      sprintf(buff, "%s: %p", luaL_typename(L, 1), lua_topointer(L, 1));
-      break;
-  }
-
-  {
-    luaL_Buffer b;
-    size_t l;
-    size_t i;
-    const lua_WChar *s = lua_towstring(L, 1);
-    l = lua_strlen(L, 1);
-    luaL_wbuffinit(L, &b);
-    for (i=0; i<l; i++)
-      luaL_addwchar(&b, (lua_WChar)(s[i]));
-    luaL_pushresult(&b);
-  }
-
-  return 1;
-}
-#endif /* LUA_WIDESTRING */
 
 static int luaB_newproxy (lua_State *L) {
   lua_settop(L, 1);
@@ -613,9 +480,6 @@ static const luaL_Reg base_funcs[] = {
   {"setmetatable", luaB_setmetatable},
   {"tonumber", luaB_tonumber},
   {"tostring", luaB_tostring},
-#if LUA_WIDESTRING
-  {"towstring", luaB_towstring},
-#endif /* LUA_WIDESTRING */
   {"type", luaB_type},
   {"unpack", luaB_unpack},
   {"xpcall", luaB_xpcall},

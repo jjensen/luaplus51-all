@@ -73,11 +73,6 @@ static void reallymarkobject (global_State *g, GCObject *o) {
     case LUA_TSTRING: {
       return;
     }
-#if LUA_WIDESTRING
-    case LUA_TWSTRING: {
-      return;
-    }
-#endif /* LUA_WIDESTRING */
     case LUA_TUSERDATA: {
       Table *mt = gco2u(o)->metatable;
       gray2black(o);  /* udata are never gray */
@@ -427,13 +422,6 @@ static void freeobj (lua_State *L, GCObject *o) {
       luaM_freemem(L, o, sizestring(gco2ts(o)));
       break;
     }
-#if LUA_WIDESTRING
-    case LUA_TWSTRING: {
-      G(L)->strt.nuse--;
-      luaM_freemem(L, o, sizestring(gco2ts(o)));
-      break;
-    }
-#endif /* LUA_WIDESTRING */
     case LUA_TUSERDATA: {
       luaM_freemem(L, o, sizeudata(gco2u(o)));
       break;

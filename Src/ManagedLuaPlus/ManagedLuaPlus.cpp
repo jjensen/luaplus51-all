@@ -172,13 +172,6 @@ public:
 		return m_string;
 	}
 
-#if LUA_WIDESTRING
-	operator const lua_WChar*() const
-	{
-		return (const lua_WChar*)(const wchar_t*)m_string;
-	}
-#endif // LUA_WIDESTRING
-
 protected:
 	const wchar_t* m_string;
 };
@@ -383,20 +376,6 @@ public:
 		}
 	}
 
-#if LUA_WIDESTRING
-	bool IsWString()
-	{
-		try
-		{
-			return m_object->IsWString();
-		}
-		catch (const LuaPlus::LuaException& e)
-		{
-			throw gcnew LuaException(gcnew String(e.GetErrorMessage()));
-		}
-	}
-#endif // LUA_WIDESTRING
-
 	bool IsConvertibleToInteger()
 	{
 		try
@@ -432,20 +411,6 @@ public:
 			throw gcnew LuaException(gcnew String(e.GetErrorMessage()));
 		}
 	}
-
-#if LUA_WIDESTRING
-	bool IsConvertibleToWString()
-	{
-		try
-		{
-			return m_object->IsConvertibleToWString();
-		}
-		catch (const LuaPlus::LuaException& e)
-		{
-			throw gcnew LuaException(gcnew String(e.GetErrorMessage()));
-		}
-	}
-#endif // LUA_WIDESTRING
 
 	bool IsFunction()
 	{
@@ -531,20 +496,6 @@ public:
 		}
 	}
 
-#if LUA_WIDESTRING
-	String^ ToWString()
-	{
-		try
-		{
-			return gcnew String((const wchar_t*)m_object->ToWString());
-		}
-		catch (const LuaPlus::LuaException& e)
-		{
-			throw gcnew LuaException(gcnew String(e.GetErrorMessage()));
-		}
-	}
-#endif // LUA_WIDESTRING
-
 	size_t ObjLen()
 	{
 		try
@@ -604,20 +555,6 @@ public:
 			throw gcnew LuaException(gcnew String(e.GetErrorMessage()));
 		}
 	}
-
-#if LUA_WIDESTRING
-	String^ GetWString()
-	{
-		try
-		{
-			return gcnew String((const wchar_t*)m_object->GetWString());
-		}
-		catch (const LuaPlus::LuaException& e)
-		{
-			throw gcnew LuaException(gcnew String(e.GetErrorMessage()));
-		}
-	}
-#endif // LUA_WIDESTRING
 
 	int StrLen()
 	{
@@ -1064,50 +1001,6 @@ public:
 		return this;
 	}
 
-#if LUA_WIDESTRING
-	LuaObject^ SetWString(String^ key, String^ value)
-	{
-		try
-		{
-			m_object->Set(MarshalStringANSI(key), MarshalStringUnicode(value));
-		}
-		catch (const LuaPlus::LuaException& e)
-		{
-			throw gcnew LuaException(gcnew String(e.GetErrorMessage()));
-		}
-
-		return this;
-	}
-
-	LuaObject^ SetWString(int key, String^ value)
-	{
-		try
-		{
-			m_object->Set(key, MarshalStringUnicode(value));
-		}
-		catch (const LuaPlus::LuaException& e)
-		{
-			throw gcnew LuaException(gcnew String(e.GetErrorMessage()));
-		}
-
-		return this;
-	}
-
-	LuaObject^ SetWString(LuaObject^ key, String^ value)
-	{
-		try
-		{
-			m_object->Set(*key->m_object, MarshalStringUnicode(value));
-		}
-		catch (const LuaPlus::LuaException& e)
-		{
-			throw gcnew LuaException(gcnew String(e.GetErrorMessage()));
-		}
-
-		return this;
-	}
-#endif // LUA_WIDESTRING
-
 	LuaObject^ SetString(String^ key, String^ value, unsigned int len)
 	{
 		try
@@ -1149,50 +1042,6 @@ public:
 
 		return this;
 	}
-
-#if LUA_WIDESTRING
-	LuaObject^ SetWString(String^ key, String^ value, unsigned int len)
-	{
-		try
-		{
-			m_object->Set(MarshalStringANSI(key), MarshalStringUnicode(value), len);
-		}
-		catch (const LuaPlus::LuaException& e)
-		{
-			throw gcnew LuaException(gcnew String(e.GetErrorMessage()));
-		}
-
-		return this;
-	}
-
-	LuaObject^ SetWString(int key, String^ value, unsigned int len)
-	{
-		try
-		{
-			m_object->Set(key, MarshalStringUnicode(value), len);
-		}
-		catch (const LuaPlus::LuaException& e)
-		{
-			throw gcnew LuaException(gcnew String(e.GetErrorMessage()));
-		}
-
-		return this;
-	}
-
-	LuaObject^ SetWString(LuaObject^ key, String^ value, unsigned int len)
-	{
-		try
-		{
-			m_object->Set(*key->m_object, MarshalStringUnicode(value), len);
-		}
-		catch (const LuaPlus::LuaException& e)
-		{
-			throw gcnew LuaException(gcnew String(e.GetErrorMessage()));
-		}
-
-		return this;
-	}
-#endif // LUA_WIDESTRING
 
 	LuaObject^ SetUserData(String^ key, void* value)
 	{
@@ -1533,50 +1382,6 @@ public:
 		return this;
 	}
 
-#if LUA_WIDESTRING
-	LuaObject^ RawSetWString(String^ key, String^ value)
-	{
-		try
-		{
-			m_object->RawSet(MarshalStringANSI(key), MarshalStringUnicode(value));
-		}
-		catch (const LuaPlus::LuaException& e)
-		{
-			throw gcnew LuaException(gcnew String(e.GetErrorMessage()));
-		}
-
-		return this;
-	}
-
-	LuaObject^ RawSetWString(int key, String^ value)
-	{
-		try
-		{
-			m_object->RawSet(key, MarshalStringUnicode(value));
-		}
-		catch (const LuaPlus::LuaException& e)
-		{
-			throw gcnew LuaException(gcnew String(e.GetErrorMessage()));
-		}
-
-		return this;
-	}
-
-	LuaObject^ RawSetWString(LuaObject^ key, String^ value)
-	{
-		try
-		{
-			m_object->RawSet(*key->m_object, MarshalStringUnicode(value));
-		}
-		catch (const LuaPlus::LuaException& e)
-		{
-			throw gcnew LuaException(gcnew String(e.GetErrorMessage()));
-		}
-
-		return this;
-	}
-#endif // LUA_WIDESTRING
-
 	LuaObject^ RawSetString(String^ key, String^ value, unsigned int len)
 	{
 		try
@@ -1618,50 +1423,6 @@ public:
 
 		return this;
 	}
-
-#if LUA_WIDESTRING
-	LuaObject^ RawSetWString(String^ key, String^ value, unsigned int len)
-	{
-		try
-		{
-			m_object->RawSet(MarshalStringANSI(key), MarshalStringUnicode(value), len);
-		}
-		catch (const LuaPlus::LuaException& e)
-		{
-			throw gcnew LuaException(gcnew String(e.GetErrorMessage()));
-		}
-
-		return this;
-	}
-
-	LuaObject^ RawSetWString(int key, String^ value, unsigned int len)
-	{
-		try
-		{
-			m_object->RawSet(key, MarshalStringUnicode(value), len);
-		}
-		catch (const LuaPlus::LuaException& e)
-		{
-			throw gcnew LuaException(gcnew String(e.GetErrorMessage()));
-		}
-
-		return this;
-	}
-
-	LuaObject^ RawSetWString(LuaObject^ key, String^ value, unsigned int len)
-	{
-		try
-		{
-			m_object->RawSet(*key->m_object, MarshalStringUnicode(value), len);
-		}
-		catch (const LuaPlus::LuaException& e)
-		{
-			throw gcnew LuaException(gcnew String(e.GetErrorMessage()));
-		}
-
-		return this;
-	}
-#endif // LUA_WIDESTRING
 
 	LuaObject^ RawSetUserData(String^ key, void* value)
 	{
@@ -1795,10 +1556,6 @@ public:
 	void AssignNumber(ManagedLuaPlus::LuaState^ state, lua_Number value);
 	void AssignString(ManagedLuaPlus::LuaState^ state, String^ value);
 	void AssignString(ManagedLuaPlus::LuaState^ state, String^ value, unsigned int len);
-#if LUA_WIDESTRING
-	void AssignWString(ManagedLuaPlus::LuaState^ state, String^ value);
-	void AssignWString(ManagedLuaPlus::LuaState^ state, String^ value, unsigned int len);
-#endif // LUA_WIDESTRING
 	void AssignUserData(ManagedLuaPlus::LuaState^ state, void* value);
 	void AssignLightUserData(ManagedLuaPlus::LuaState^ state, void* value);
 	void AssignObject(LuaObject^ value);
@@ -2002,14 +1759,6 @@ public:
 					String^ str = gcnew String("FORMAT");
 					return str;
 				}
-
-#if LUA_WIDESTRING
-				case LUA_TWSTRING:
-				{
-					String^ str = String::Format(L"WSTRING: {0}", GetWString());
-					return str;
-				}
-#endif // LUA_WIDESTRING
 			}
 
 			return gcnew String("Unknown");
@@ -2157,14 +1906,6 @@ public:
 					String^ str = gcnew String("FORMAT");
 					return str;
 				}
-
-#if LUA_WIDESTRING
-				case LUA_TWSTRING:
-				{
-					String^ str = String::Format(L"WSTRING: {0}", GetWString());
-					return str;
-				}
-#endif // LUA_WIDESTRING
 			}
 
 			return gcnew String("Unknown");
@@ -2228,9 +1969,6 @@ public:
 	bool IsCFunction()					{  return m_object->IsCFunction();  }
 	bool IsNumber()						{  return m_object->IsNumber();  }
 	bool IsString()						{  return m_object->IsString();  }
-#if LUA_WIDESTRING
-	bool IsWString()					{  return m_object->IsWString();  }
-#endif // LUA_WIDESTRING
 	bool IsFunction()					{  return m_object->IsFunction();  }
 	bool IsNone()						{  return m_object->IsNone();  }
 	bool IsLightUserData()				{  return m_object->IsLightUserData();  }
@@ -2241,9 +1979,6 @@ public:
 	double GetDouble()					{  return m_object->GetNumber();  }
 	lua_Number GetNumber()				{  return m_object->GetNumber();  }
 	String^ GetString()					{  return gcnew String(m_object->GetString());  }
-#if LUA_WIDESTRING
-	String^ GetWString()				{  return gcnew String((const wchar_t*)m_object->GetWString());  }
-#endif // LUA_WIDESTRING
 	int StrLen()						{  return m_object->StrLen();  }
 	lua_CFunction GetCFunction()		{  return m_object->GetCFunction();  }
 	void* GetUserData()					{  return m_object->GetUserData();  }
@@ -2274,10 +2009,6 @@ public:
 	void SetNumber(int index, double value)						{  m_object->SetNumber(index, (lua_Number)value);  }
 	void SetString(String^ name, String^ value)					{  m_object->SetString(MarshalStringANSI(name), MarshalStringANSI(value));  }
 	void SetString(int index, String^ value)					{  m_object->SetString(index, MarshalStringANSI(value));  }
-#if LUA_WIDESTRING
-	void SetWString(String^ name, String^ value)				{  m_object->SetWString(MarshalStringANSI(name), MarshalStringUnicode(value));  }
-	void SetWString(int index, String^ value)					{  m_object->SetWString(index, MarshalStringUnicode(value));  }
-#endif // LUA_WIDESTRING
 	void SetUserData(String^ name, void* value)					{  m_object->SetUserData(MarshalStringANSI(name), value);  }
 	void SetUserData(int index, void* value)					{  m_object->SetUserData(index, value);  }
 	void SetLightUserData(String^ name, void* value)			{  m_object->SetLightUserData(MarshalStringANSI(name), value);  }
@@ -2425,10 +2156,6 @@ public:
 	LuaStackObject^ PushNumber(double n)		{  return gcnew LuaStackObject(this, m_state->PushNumber((lua_Number)n));  }
 	LuaStackObject^ PushLString(String^ s, size_t len)	{  return gcnew LuaStackObject(this, m_state->PushLString(MarshalStringANSI(s), len));  }
 	LuaStackObject^ PushString(String^ s)		{  return gcnew LuaStackObject(this, m_state->PushString(MarshalStringANSI(s)));  }
-#if LUA_WIDESTRING
-	LuaStackObject^ PushLWString(String^ s, size_t len)	{  return gcnew LuaStackObject(this, m_state->PushLWString(MarshalStringUnicode(s), len));  }
-	LuaStackObject^ PushWString(String^ s)		{  return gcnew LuaStackObject(this, m_state->PushWString(MarshalStringUnicode(s)));  }
-#endif // LUA_WIDESTRING
 //LUA_API const char *m_state->pushvfstring (State *L, const char *fmt,
 //                                                    va_list argp);
 //LUA_API const char *m_state->pushfstring (State *L, const char *fmt, ...);
@@ -3034,42 +2761,6 @@ void LuaObject::AssignString(ManagedLuaPlus::LuaState^ state, String^ value, uns
 		throw gcnew LuaException(gcnew String(e.GetErrorMessage()));
 	}
 }
-
-#if LUA_WIDESTRING
-void LuaObject::AssignWString(ManagedLuaPlus::LuaState^ state, String^ value)
-{
-	try
-	{
-		if (GetState())
-			GetState()->m_objects->Remove(this);
-		m_object->Assign(state->m_state, MarshalStringUnicode(value));
-		m_state = state;
-		if (state)
-			GetState()->m_objects->Add(this, true);
-	}
-	catch (const LuaPlus::LuaException& e)
-	{
-		throw gcnew LuaException(gcnew String(e.GetErrorMessage()));
-	}
-}
-
-void LuaObject::AssignWString(ManagedLuaPlus::LuaState^ state, String^ value, unsigned int len)
-{
-	try
-	{
-		if (GetState())
-			GetState()->m_objects->Remove(this);
-		m_object->Assign(state->m_state, MarshalStringUnicode(value), len);
-		m_state = state;
-		if (state)
-			GetState()->m_objects->Add(this, true);
-	}
-	catch (const LuaPlus::LuaException& e)
-	{
-		throw gcnew LuaException(gcnew String(e.GetErrorMessage()));
-	}
-}
-#endif // LUA_WIDESTRING
 
 void LuaObject::AssignUserData(ManagedLuaPlus::LuaState^ state, void* value)
 {

@@ -134,22 +134,6 @@ static TString* LoadString(LoadState* S)
  }
 }
 
-#if LUA_WIDESTRING
-static TString* LoadWString(LoadState* S)
-{
- size_t size;
- LoadVar(S,size);
- if (size==0)
-  return NULL;
- else
- {
-  lua_WChar* s=(lua_WChar*)luaZ_openspace(S->L,S->b,size*sizeof(lua_WChar));
-  LoadVector(S,s,size,sizeof(lua_WChar));
-  return luaS_newlwstr(S->L,s,size-1);		/* remove trailing '\0' */
- }
-}
-#endif /* LUA_WIDESTRING */
-
 static void LoadCode(LoadState* S, Proto* f)
 {
  int n=LoadInt(S);
@@ -192,11 +176,6 @@ static void LoadConstants(LoadState* S, Proto* f)
    case LUA_TSTRING:
 	setsvalue2n(S->L,o,LoadString(S));
 	break;
-#if LUA_WIDESTRING
-   case LUA_TWSTRING:
-	setwsvalue2n(S->L,o,LoadWString(S));
-	break;
-#endif /* LUA_WIDESTRING */
    default:
 	error(S,"bad constant");
 	break;

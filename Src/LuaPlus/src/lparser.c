@@ -134,12 +134,6 @@ static void codestring (LexState *ls, expdesc *e, TString *s) {
   init_exp(e, VK, luaK_stringK(ls->fs, s));
 }
 
-#if LUA_WIDESTRING
-static void codewstring (LexState *ls, expdesc *e, TString *s) {
-  init_exp(e, VK, luaK_wstringK(ls->fs, s));
-}
-#endif /* LUA_WIDESTRING */
-
 static void checkname(LexState *ls, expdesc *e) {
   codestring(ls, e, str_checkname(ls));
 }
@@ -796,11 +790,7 @@ static void primaryexp (LexState *ls, expdesc *v) {
         funcargs(ls, v);
         break;
       }
-#if LUA_WIDESTRING
-      case '(': case TK_STRING: case TK_WSTRING: case '{': {  /* funcargs */
-#else
       case '(': case TK_STRING: case '{': {  /* funcargs */
-#endif /* LUA_WIDESTRING */
         luaK_exp2nextreg(fs, v);
         funcargs(ls, v);
         break;
@@ -812,13 +802,8 @@ static void primaryexp (LexState *ls, expdesc *v) {
 
 
 static void simpleexp (LexState *ls, expdesc *v) {
-#if LUA_WIDESTRING
-  /* simpleexp -> NUMBER | STRING | WSTRING | NIL | true | false | ... |
-                  constructor | FUNCTION body | primaryexp */
-#else
   /* simpleexp -> NUMBER | STRING | NIL | true | false | ... |
                   constructor | FUNCTION body | primaryexp */
-#endif /* LUA_WIDESTRING */
   switch (ls->t.token) {
     case TK_NUMBER: {
       init_exp(v, VKNUM, 0);
@@ -829,12 +814,6 @@ static void simpleexp (LexState *ls, expdesc *v) {
       codestring(ls, v, ls->t.seminfo.ts);
       break;
     }
-#if LUA_WIDESTRING
-    case TK_WSTRING: {
-      codewstring(ls, v, ls->t.seminfo.ts);
-      break;
-    }
-#endif /* LUA_WIDESTRING */
     case TK_NIL: {
       init_exp(v, VNIL, 0);
       break;

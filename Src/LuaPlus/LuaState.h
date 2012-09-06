@@ -62,9 +62,6 @@ public:
 	// access functions (stack -> C)
 	int IsNumber(int index) const;
 	int IsString(int index) const;
-#if LUA_WIDESTRING
-	int IsWString(int index) const;
-#endif /* LUA_WIDESTRING */
 	int IsCFunction(int index) const;
 	int IsUserdata(int index) const;
 	int IsFunction(int index) const;
@@ -89,10 +86,6 @@ public:
 	int ToBoolean(int index);
 	const char* ToLString(int index, size_t* len);
 	const char* ToString(int index);
-#if LUA_WIDESTRING
-	const lua_WChar* ToLWString(int index, size_t* len);
-	const lua_WChar* ToWString(int index);
-#endif /* LUA_WIDESTRING */
 	size_t ObjLen(int index);
 	lua_CFunction ToCFunction(int index);
 	void* ToUserdata(int index);
@@ -107,10 +100,6 @@ public:
 	LuaStackObject PushString(const char *s);
 	LUAPLUS_CLASS_API LuaStackObject PushVFString(const char* fmt, va_list argp);
 	LUAPLUS_CLASS_API LuaStackObject PushFString(const char* fmt, ...);
-#if LUA_WIDESTRING
-	LuaStackObject PushLWString(const lua_WChar* s, size_t len);
-	LuaStackObject PushWString(const lua_WChar* s);
-#endif /* LUA_WIDESTRING */
 
 	LuaStackObject PushCClosure(lua_CFunction fn, int n);
 	LuaStackObject PushCClosure(int (*f)(LuaState*), int n);
@@ -274,14 +263,6 @@ public:
 	int DoFile(const char *filename, LuaObject& fenvObj);
 	int DoString(const char *str, LuaObject& fenvObj);
 	int DoBuffer(const char *buff, size_t size, const char *name, LuaObject& fenvObj);
-
-#if LUA_WIDESTRING
-	int LoadWBuffer(const lua_WChar* buff, size_t size, const char* name);
-	int LoadWString(const lua_WChar* str);
-
-	int DoWString(const lua_WChar* str, const char* name);
-	int DoWBuffer(const lua_WChar* buff, size_t size, const char *name);
-#endif /* LUA_WIDESTRING */
 
 	const char* LTypeName(int index);
 	LuaObject GetMetatable(const char* metatableName);

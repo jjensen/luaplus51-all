@@ -399,14 +399,7 @@ static int emptybuffer (luaL_Buffer *B) {
   size_t l = bufflen(B);
   if (l == 0) return 0;  /* put nothing on stack */
   else {
-#if LUA_WIDESTRING
-    if (B->isWide)
-      lua_pushlwstring(B->L, (const lua_WChar*)B->buffer, l / sizeof(lua_WChar));
-	else
-      lua_pushlstring(B->L, B->buffer, l);
-#else
     lua_pushlstring(B->L, B->buffer, l);
-#endif /* LUA_WIDESTRING */
     B->p = B->buffer;
     B->lvl++;
     return 1;
@@ -461,26 +454,9 @@ LUALIB_API void luaL_pushresult (luaL_Buffer *B) {
 LUALIB_API void luaL_addvalue (luaL_Buffer *B) {
   lua_State *L = B->L;
   size_t vl;
-#if LUA_WIDESTRING
-  const char *s = NULL;
-  const lua_WChar *ws = NULL;
-  
-  if (B->isWide) {
-    ws = lua_tolwstring(L, -1, &vl);
-    vl *= sizeof(lua_WChar);
-  }
-  else {
-     s = lua_tolstring(L, -1, &vl);
-  }
-#else
   const char *s = lua_tolstring(L, -1, &vl);
-#endif /* LUA_WIDESTRING */
   if (vl <= bufffree(B)) {  /* fit into buffer? */
-#if LUA_WIDESTRING
-    memcpy(B->p, B->isWide ? (void*)ws : (void*)s, vl);  /* put it there */
-#else
     memcpy(B->p, s, vl);  /* put it there */
-#endif /* LUA_WIDESTRING */
     B->p += vl;
     lua_pop(L, 1);  /* remove from stack */
   }
@@ -497,9 +473,6 @@ LUALIB_API void luaL_buffinit (lua_State *L, luaL_Buffer *B) {
   B->L = L;
   B->p = B->buffer;
   B->lvl = 0;
-#if LUA_WIDESTRING
-  B->isWide = 0;
-#endif /* LUA_WIDESTRING */
 }
 
 /* }====================================================== */

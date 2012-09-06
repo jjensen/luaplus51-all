@@ -136,15 +136,6 @@ LUAPLUS_INLINE int LuaState::IsString(int index) const {
 }
 
 
-#if LUA_WIDESTRING
-
-LUAPLUS_INLINE int LuaState::IsWString(int index) const {
-	return lua_iswstring(LuaState_to_lua_State(this), index);
-}
-
-#endif /* LUA_WIDESTRING */
-
-
 LUAPLUS_INLINE int LuaState::IsCFunction(int index) const {
 	return lua_iscfunction(LuaState_to_lua_State(this), index);
 }
@@ -246,20 +237,6 @@ LUAPLUS_INLINE const char* LuaState::ToString(int index) {
 }
 
 
-#if LUA_WIDESTRING
-
-LUAPLUS_INLINE const lua_WChar* LuaState::ToLWString(int index, size_t* len) {
-	return lua_tolwstring(LuaState_to_lua_State(this), index, len);
-}
-
-
-LUAPLUS_INLINE const lua_WChar* LuaState::ToWString(int index) {
-	return lua_towstring(LuaState_to_lua_State(this), index);
-}
-
-#endif /* LUA_WIDESTRING */
-
-
 LUAPLUS_INLINE size_t LuaState::ObjLen(int index) {
 	return lua_objlen(LuaState_to_lua_State(this), index);
 }
@@ -315,20 +292,6 @@ LUAPLUS_INLINE LuaStackObject LuaState::PushString(const char *s)
 	lua_pushstring(LuaState_to_lua_State(this), s);
 	return LuaStackObject(this, lua_gettop(LuaState_to_lua_State(this)));
 }
-
-#if LUA_WIDESTRING
-LUAPLUS_INLINE LuaStackObject LuaState::PushLWString(const lua_WChar* s, size_t len)
-{
-	lua_pushlwstring(LuaState_to_lua_State(this), s, len);
-	return LuaStackObject(this, lua_gettop(LuaState_to_lua_State(this)));
-}
-
-LUAPLUS_INLINE LuaStackObject LuaState::PushWString(const lua_WChar* s)
-{
-	lua_pushwstring(LuaState_to_lua_State(this), s);
-	return LuaStackObject(this, lua_gettop(LuaState_to_lua_State(this)));
-}
-#endif /* LUA_WIDESTRING */
 
 LUAPLUS_INLINE LuaStackObject LuaState::PushCClosure(lua_CFunction fn, int n)
 {
@@ -488,13 +451,6 @@ LUAPLUS_INLINE int LuaState::Load(lua_Reader reader, void *dt, const char *chunk
 	return lua_load(LuaState_to_lua_State(this), reader, dt, chunkname);
 }
 
-#if LUA_WIDESTRING
-LUAPLUS_INLINE int LuaState::WLoad(lua_Reader reader, void *dt, const char *chunkname)
-{
-	return lua_wload(LuaState_to_lua_State(this), reader, dt, chunkname);
-}
-#endif /* LUA_WIDESTRING */
-
 #if LUA_ENDIAN_SUPPORT
 
 LUAPLUS_INLINE int LuaState::Dump(lua_Chunkwriter writer, void* data, int strip, char endian)
@@ -535,24 +491,6 @@ LUAPLUS_INLINE int LuaState::DoBuffer(const char *buff, size_t size, const char 
 {
 	return (luaL_loadbuffer(LuaState_to_lua_State(this), buff, size, name) || lua_pcall(LuaState_to_lua_State(this), 0, 0, 0));
 }
-
-#if LUA_WIDESTRING
-LUAPLUS_INLINE int LuaState::DoWString(const lua_WChar *str, const char* name)
-{
-	(void)name;
-	return luaL_dowstring(LuaState_to_lua_State(this), str);
-}
-
-LUAPLUS_INLINE int LuaState::LoadWBuffer(const lua_WChar* buff, size_t size, const char* name)
-{
-	return luaL_loadwbuffer(LuaState_to_lua_State(this), buff, size, name);
-}
-
-LUAPLUS_INLINE int LuaState::DoWBuffer(const lua_WChar* buff, size_t size, const char *name)
-{
-	return (luaL_loadwbuffer(LuaState_to_lua_State(this), buff, size, name) || lua_pcall(LuaState_to_lua_State(this), 0, 0, 0));
-}
-#endif /* LUA_WIDESTRING */
 
 /*
 ** coroutine functions
@@ -954,15 +892,6 @@ LUAPLUS_INLINE int LuaState::LoadString(const char* str)
 {
 	return luaL_loadbuffer(LuaState_to_lua_State(this), str, strlen(str), str);
 }
-
-#if LUA_WIDESTRING
-
-LUAPLUS_INLINE int LuaState::LoadWString(const lua_WChar* str)
-{
-	return luaL_loadwbuffer(LuaState_to_lua_State(this), str, lua_WChar_len(str), "name");
-}
-
-#endif /* LUA_WIDESTRING */
 
 // Extra
 LUAPLUS_INLINE LuaStackObject LuaState::BoxPointer(void* u)

@@ -44,36 +44,12 @@ int luaZ_lookahead (ZIO *z) {
   return char2int(*z->p);
 }
 
-#if LUA_WIDESTRING
-
-int luaZ_lookahead_2 (ZIO *z) {
-  union
-  {
-	lua_WChar w;
-	unsigned char b[2];
-  } s;
-  if (z->n == 0) {
-    int c = luaZ_fill(z);
-    if (c == EOZ) return c;
-    z->n++;
-    z->p--;
-  }
-  s.b[0] = *(z->p);
-  s.b[1] = *(z->p + 1);
-  return s.w;
-}
-
-#endif /* LUA_WIDESTRING */
-
 void luaZ_init (lua_State *L, ZIO *z, lua_Reader reader, void *data) {
   z->L = L;
   z->reader = reader;
   z->data = data;
   z->n = 0;
   z->p = NULL;
-#if LUA_WIDESTRING
-  z->isWide = 0;
-#endif /* LUA_WIDESTRING */
 }
 
 

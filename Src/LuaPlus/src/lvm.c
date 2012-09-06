@@ -43,12 +43,6 @@ const TValue *luaV_tonumber (const TValue *obj, TValue *n) {
     setnvalue(n, num);
     return n;
   }
-#if LUA_WIDESTRING
-  else if (ttiswstring(obj) && luaO_wstr2d(wsvalue(obj), &num)) {
-    setnvalue(n, num);
-    return n;
-  }
-#endif /* LUA_WIDESTRING */
   else
     return NULL;
 }
@@ -252,34 +246,6 @@ static int l_strcmp (const TString *ls, const TString *rs) {
   }
 }
 
-#if LUA_WIDESTRING
-
-size_t lua_WChar_len(const lua_WChar* str);
-int lua_WChar_cmp(const lua_WChar* src, const lua_WChar* dest);
-
-static int l_wstrcmp (const TString *ls, const TString *rs) {
-  const lua_WChar *l = getwstr(ls);
-  size_t ll = ls->tsv.len;
-  const lua_WChar *r = getwstr(rs);
-  size_t lr = rs->tsv.len;
-  for (;;) {
-    int temp = lua_WChar_cmp(l, r);
-    if (temp != 0) return temp;
-    else {  /* strings are equal up to a `\0' */
-      size_t len = lua_WChar_len(l);  /* index of first `\0' in both strings */
-      if (len == lr)  /* r is finished? */
-        return (len == ll) ? 0 : 1;
-      else if (len == ll)  /* l is finished? */
-        return -1;  /* l is smaller than r (because r is not finished) */
-      /* both strings longer than `len'; go on comparing (after the `\0') */
-      len++;
-      l += len; ll -= len; r += len; lr -= len;
-    }
-  }
-}
-
-#endif /* LUA_WIDESTRING */
-
 int luaV_lessthan (lua_State *L, const TValue *l, const TValue *r) {
   int res;
   if (ttype(l) != ttype(r))
@@ -288,10 +254,6 @@ int luaV_lessthan (lua_State *L, const TValue *l, const TValue *r) {
     return luai_numlt(nvalue(l), nvalue(r));
   else if (ttisstring(l))
     return l_strcmp(rawtsvalue(l), rawtsvalue(r)) < 0;
-#if LUA_WIDESTRING
-  else if (ttiswstring(l))
-    return l_wstrcmp(rawtwsvalue(l), rawtwsvalue(r)) < 0;
-#endif /* LUA_WIDESTRING */
   else if ((res = call_orderTM(L, l, r, TM_LT)) != -1)
     return res;
   return luaG_ordererror(L, l, r);
@@ -306,10 +268,6 @@ static int lessequal (lua_State *L, const TValue *l, const TValue *r) {
     return luai_numle(nvalue(l), nvalue(r));
   else if (ttisstring(l))
     return l_strcmp(rawtsvalue(l), rawtsvalue(r)) <= 0;
-#if LUA_WIDESTRING
-  else if (ttiswstring(l))
-    return l_wstrcmp(rawtwsvalue(l), rawtwsvalue(r)) <= 0;
-#endif /* LUA_WIDESTRING */
   else if ((res = call_orderTM(L, l, r, TM_LE)) != -1)  /* first try `le' */
     return res;
   else if ((res = call_orderTM(L, r, l, TM_LT)) != -1)  /* else try `lt' */
@@ -343,94 +301,6 @@ int luaV_equalval (lua_State *L, const TValue *t1, const TValue *t2) {
   callTMres(L, L->top, tm, t1, t2);  /* call TM */
   return !l_isfalse(L->top);
 }
-
-#if LUA_WIDESTRING
-
-void luaV_concat (lua_State *L, int total, int last) {
-  int useType = LUA_TSTRING;
-  int i;
-  StkId top = L->base + last + 1;
-
-  for (i = 0; i < total; ++i)
-  {
-    if (ttype(top-1-i) == LUA_TSTRING || ttype(top-1-i) == LUA_TWSTRING)
-    {
-      useType = ttype(top-1-i);
-      break;
-    }
-  }
-
-  if (useType == LUA_TSTRING)
-  {
-    do {
-      StkId top = L->base + last + 1;
-      int n = 2;  /* number of elements handled in this pass (at least 2) */
-      if (!tostring(L, top-2) || !tostring(L, top-1)) {
-        if (!call_binTM(L, top-2, top-1, top-2, TM_CONCAT))
-          luaG_concaterror(L, top-2, top-1);
-      } else if (tsvalue(top-1)->len > 0) {  /* if len=0, do nothing */
-        /* at least two string values; get as many as possible */
-        size_t tl = tsvalue(top-1)->len;
-        char *buffer;
-        int i;
-        /* collect total length */
-        for (n = 1; n < total && tostring(L, top-n-1); n++) {
-          size_t l = tsvalue(top-n-1)->len;
-          if (l >= MAX_SIZET - tl) luaG_runerror(L, "string length overflow");
-          tl += l;
-        }
-        buffer = luaZ_openspace(L, &G(L)->buff, tl);
-        tl = 0;
-        for (i=n; i>0; i--) {  /* concat all strings */
-          size_t l = tsvalue(top-i)->len;
-          memcpy(buffer+tl, svalue(top-i), l);
-          tl += l;
-#if LUA_REFCOUNT
-          luarc_cleanvalue(top-i);
-#endif /* LUA_REFCOUNT */
-        }
-        setsvalue2s(L, top-n, luaS_newlstr(L, buffer, tl));
-      }
-      total -= n-1;  /* got `n' strings to create 1 new */
-      last -= n-1;
-    } while (total > 1);  /* repeat until only 1 result left */
-  } else {
-    do {
-      StkId top = L->base + last + 1;
-      int n = 2;  /* number of elements handled in this pass (at least 2) */
-      if (!towstring(L, top-2) || !towstring(L, top-1)) {
-        if (!call_binTM(L, top-2, top-1, top-2, TM_CONCAT))
-          luaG_concaterror(L, top-2, top-1);
-      } else if (tsvalue(top-1)->len > 0) {  /* if len=0, do nothing */
-        /* at least two string values; get as many as possible */
-        size_t tl = tsvalue(top-1)->len;
-        char *buffer;
-        int i;
-        /* collect total length */
-        for (n = 1; n < total && towstring(L, top-n-1); n++) {
-          size_t l = tsvalue(top-n-1)->len;
-          if (l >= MAX_SIZET - tl) luaG_runerror(L, "string length overflow");
-          tl += l;
-        }
-        buffer = luaZ_openspace(L, &G(L)->buff, tl*2);
-        tl = 0;
-        for (i=n; i>0; i--) {  /* concat all strings */
-          size_t l = tsvalue(top-i)->len;
-          memcpy(buffer+tl*2, wsvalue(top-i), l*2);
-          tl += l;
-#if LUA_REFCOUNT
-          luarc_cleanvalue(top-i);
-#endif /* LUA_REFCOUNT */
-        }
-        setwsvalue2s(L, top-n, luaS_newlwstr(L, (const lua_WChar*)buffer, tl));
-      }
-      total -= n-1;  /* got `n' strings to create 1 new */
-      last -= n-1;
-    } while (total > 1);  /* repeat until only 1 result left */
-  }
-}
-
-#else
 
 void luaV_concat (lua_State *L, int total, int last) {
   do {
@@ -468,8 +338,6 @@ void luaV_concat (lua_State *L, int total, int last) {
     last -= n-1;
   } while (total > 1);  /* repeat until only 1 result left */
 }
-
-#endif /* LUA_WIDESTRING */
 
 static void Arith (lua_State *L, StkId ra, const TValue *rb,
                    const TValue *rc, TMS op) {
@@ -712,12 +580,6 @@ void luaV_execute (lua_State *L, int nexeccalls) {
             setnvalue(ra, cast_num(tsvalue(rb)->len));
             break;
           }
-#if LUA_WIDESTRING
-          case LUA_TWSTRING: {
-            setnvalue(ra, cast_num(tsvalue(rb)->len));
-            break;
-          }
-#endif /* LUA_WIDESTRING */
           default: {  /* try metamethod */
             Protect(
               if (!call_binTM(L, rb, luaO_nilobject, ra, TM_LEN))

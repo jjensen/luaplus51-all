@@ -23,9 +23,6 @@ static const luaL_Reg lualibs[] = {
   {LUA_STRLIBNAME, luaopen_string},
   {LUA_MATHLIBNAME, luaopen_math},
   {LUA_DBLIBNAME, luaopen_debug},
-#if LUA_WIDESTRING
-  {LUA_WSTRLIBNAME, luaopen_wstring},
-#endif /* LUA_WIDESTRING */
   {NULL, NULL}
 };
 

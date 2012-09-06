@@ -46,9 +46,6 @@ LUAPLUS_INLINE LuaCall& operator<<(LuaCall& call, double value);
 LUAPLUS_INLINE LuaCall& operator<<(LuaCall& call, int value);
 LUAPLUS_INLINE LuaCall& operator<<(LuaCall& call, unsigned int value);
 LUAPLUS_INLINE LuaCall& operator<<(LuaCall& call, const char* value);
-#if LUA_WIDESTRING
-LUAPLUS_INLINE LuaCall& operator<<(LuaCall& call, const lua_WChar* value);
-#endif /* LUA_WIDESTRING */
 LUAPLUS_INLINE LuaCall& operator<<(LuaCall& call, lua_CFunction value);
 LUAPLUS_INLINE LuaCall& operator<<(LuaCall& call, int (*value)(LuaState*));
 LUAPLUS_INLINE LuaCall& operator<<(LuaCall& call, bool value);

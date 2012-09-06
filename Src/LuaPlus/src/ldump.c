@@ -136,24 +136,6 @@ static void DumpString(const TString* s, DumpState* D)
  }
 }
 
-#if LUA_WIDESTRING
-
-static void DumpWString(TString* s, DumpState* D)
-{
- if (s==NULL || getwstr(s)==NULL)
- {
-  size_t size=0;
-  DumpVar(size,D);
- }
- else
- {
-  size_t size=s->tsv.len+1;		/* include trailing '\0' */
-  DumpVector(getwstr(s),size,2,D);
- }
-}
-
-#endif /* LUA_WIDESTRING */
-
 #define DumpCode(f,D)	 DumpVector(f->code,f->sizecode,sizeof(Instruction),D)
 
 static void DumpFunction(const Proto* f, const TString* p, DumpState* D);
@@ -179,11 +161,6 @@ static void DumpConstants(const Proto* f, DumpState* D)
    case LUA_TSTRING:
 	DumpString(rawtsvalue(o),D);
 	break;
-#if LUA_WIDESTRING
-   case LUA_TWSTRING:
-	DumpWString(rawtwsvalue(o),D);
-	break;
-#endif /* LUA_WIDESTRING */
    default:
 	lua_assert(0);			/* cannot happen */
 	break;

@@ -1509,13 +1509,7 @@ namespace tilde
 		}
 		else
 		{
-#if LUA_WIDESTRING
-			TILDE_ASSERT(type == LuaType_LIGHTUSERDATA || type == LuaType_STRING || type == LuaType_TABLE || type == LuaType_FUNCTION || type == LuaType_USERDATA || type == LuaType_THREAD
-					|| type == LuaType_WSTRING
-					);
-#else
 			TILDE_ASSERT(type == LuaType_LIGHTUSERDATA || type == LuaType_STRING || type == LuaType_TABLE || type == LuaType_FUNCTION || type == LuaType_USERDATA || type == LuaType_THREAD);
-#endif /* LUA_WIDESTRING */
 
 			// Get the cache table
 			lua_pushstring(lvm, "LuaDebugger");

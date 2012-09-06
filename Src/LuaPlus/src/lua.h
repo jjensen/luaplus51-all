@@ -51,11 +51,6 @@ typedef struct lua_State lua_State;
 
 typedef int (*lua_CFunction) (lua_State *L);
 
-#if LUA_WIDESTRING
-/* type of lex characters in Lua */
-typedef unsigned short lua_WChar;
-#endif /* LUA_WIDESTRING */
-
 /*
 ** functions that read/write blocks when loading/dumping Lua chunks
 */
@@ -84,10 +79,6 @@ typedef void * (*lua_Alloc) (void *ud, void *ptr, size_t osize, size_t nsize);
 #define LUA_TFUNCTION		6
 #define LUA_TUSERDATA		7
 #define LUA_TTHREAD		8
-#if LUA_WIDESTRING
-#define LUA_TWSTRING            9
-#endif /* LUA_WIDESTRING */
-
 
 
 /* minimum Lua stack available to a C function */
@@ -214,11 +205,6 @@ LUA_API int   (lua_pcall) (lua_State *L, int nargs, int nresults, int errfunc);
 LUA_API int   (lua_cpcall) (lua_State *L, lua_CFunction func, void *ud);
 LUA_API int   (lua_load) (lua_State *L, lua_Reader reader, void *dt,
                                         const char *chunkname);
-#if LUA_WIDESTRING
-LUA_API int   (lua_wload) (lua_State *L, lua_Reader reader, void *data,
-                      const char *chunkname);
-#endif /* LUA_WIDESTRING */
-
 LUA_API int (lua_dump) (lua_State *L, lua_Writer writer, void *data);
 
 
@@ -430,40 +416,6 @@ LUA_API void lua_getfastref (lua_State *L, int ref);
 * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ******************************************************************************/
-
-#if LUA_WIDESTRING
-
-/* formats for Lua numbers */
-#ifndef LUA_NUMBER_WSCAN
-#define LUA_NUMBER_WSCAN	L"%lf"
-#endif
-
-#ifndef LUA_NUMBER_WFMT
-#define LUA_NUMBER_WFMT_LOCAL const lua_WChar LUA_NUMBER_WFMT[] = { '%', '.', '1', '6', 'g', 0 }
-#endif
-
-LUA_API size_t lua_WChar_len(const lua_WChar* str);
-LUA_API int             lua_iswstring (lua_State *L, int index);
-LUA_API const lua_WChar  *lua_towstring (lua_State *L, int index);
-LUA_API void  lua_pushlwstring (lua_State *L, const lua_WChar *s, size_t len);
-LUA_API void  lua_pushwstring (lua_State *L, const lua_WChar *s);
-
-LUA_API size_t lp_wcslen(const lua_WChar* str);
-LUA_API int lp_wcscmp(const lua_WChar* str1, const lua_WChar* str2);
-
-#define lua_pushwliteral(L, s)	\
-	lua_pushlwstring(L, (const lua_WChar*)(L"" s), (sizeof(s)/sizeof(lua_WChar))-1)
-
-#define LUA_WSTRLIBNAME	"wstring"
-LUALIB_API int luaopen_wstring (lua_State *L);
-
-LUALIB_API int luaL_loadwbuffer (lua_State *L, const lua_WChar *buff, size_t size, const char *name);
-
-LUA_API const lua_WChar     *(lua_tolwstring) (lua_State *L, int idx, size_t *len);
-
-size_t lua_WChar_len(const lua_WChar* str);
-
-#endif /* LUA_WIDESTRING */
 
 #define LUA_ALLOC_TEMP 1
 LUA_API void lua_getdefaultallocfunction(lua_Alloc* allocFunc, void** ud);

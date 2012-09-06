@@ -29,7 +29,6 @@ local LUAPLUS_SRCS =
 		../LuaStateOutString.h
 		../LuaState_DumpObject.cpp
 		../LuaTableIterator.h
-		../lwstrlib.c
 ;
 
 local LUA_SRCS =

@@ -60,14 +60,6 @@ LUAPLUS_INLINE LuaCall& operator<<(LuaCall& call, const char* value) {
 	return call;
 }
 
-#if LUA_WIDESTRING
-LUAPLUS_INLINE LuaCall& operator<<(LuaCall& call, const lua_WChar* value) {
-	lua_pushwstring(call.L, value);
-	++call.numArgs;
-	return call;
-}
-#endif /* LUA_WIDESTRING */
-
 LUAPLUS_INLINE LuaCall& operator<<(LuaCall& call, lua_CFunction value) {
 	lua_pushcclosure(call.L, value, 0);
 	++call.numArgs;

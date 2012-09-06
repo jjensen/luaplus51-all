@@ -96,9 +96,6 @@ public:
 	int GetInteger() const;
 	lua_Number GetNumber() const;
 	const char* GetString() const;
-#if LUA_WIDESTRING
-	const lua_WChar* GetWString() const;
-#endif /* LUA_WIDESTRING */
 	size_t StrLen() const;
 	lua_CFunction GetCFunction() const;
 	void* GetUserdata() const;
@@ -132,10 +129,6 @@ public:
 	void SetNumber(int index, lua_Number value);
 	void SetString(const char* name, const char* value);
 	void SetString(int index, const char* value);
-#if LUA_WIDESTRING
-	void SetWString(const char* name, const lua_WChar* value);
-	void SetWString(int index, const lua_WChar* value);
-#endif /* LUA_WIDESTRING */
 	void SetUserdata(const char* name, void* value);
 	void SetUserdata(int index, void* value);
 	void SetLightUserdata(int index, void* value);

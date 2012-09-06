@@ -5,8 +5,6 @@
 #include "malloc.h"
 #endif
 
-#undef LUA_WIDESTRING
-
 typedef struct Mbuffer {
   char *buffer;
   size_t buffsize;
@@ -50,9 +48,6 @@ char *luaZ_openspace (lua_State *L, Mbuffer *buff, size_t n) {
 
 #define	OP_ZSTRING	'z'		/* zero-terminated string */
 #define	OP_BSTRING	'p'		/* string preceded by length byte */
-#if LUA_WIDESTRING
-#define	OP_WSTRING	'P'		/* string preceded by length word */
-#endif // LUA_WIDESTRING
 #define	OP_SSTRING	'a'		/* string preceded by length size_t */
 #define	OP_STRING	'A'		/* string */
 #define	OP_FLOAT	'f'		/* float */
@@ -71,9 +66,6 @@ char *luaZ_openspace (lua_State *L, Mbuffer *buff, size_t n) {
 #define	OP_NATIVE	'='		/* native endian */
 
 #define	OP_BOOLEAN	'B'		/* boolean = unsigned char */
-#if LUA_WIDESTRING
-#define	OP_WIDESTRING	'w'
-#endif // LUA_WIDESTRING
 #define OP_PAD '@'
 
 #include <ctype.h>
@@ -112,26 +104,6 @@ static void doswap(int swap, void *p, size_t n)
  }
 }
 
-#if LUA_WIDESTRING
-
-static void dowideswap(int swap, void *p, size_t n)
-{
-	if (swap)
-	{
-		char *a=(char*)p;
-		size_t i;
-		for (i = 0; i < n; ++i)
-		{
-			char temp = a[0];
-			a[0] = a[1];
-			a[1] = temp;
-			a += 2;
-		}
-	}
-}
-
-#endif // LUA_WIDESTRING
-
 #define UNPACKNUMBER(OP,T)		\
    case OP:				\
    {					\
@@ -146,41 +118,6 @@ static void dowideswap(int swap, void *p, size_t n)
     break;				\
    }
 
-#if LUA_WIDESTRING
-#define UNPACKSTRING(OP,T)						\
-	case OP:									\
-	{											\
-		T l;									\
-		int m=sizeof(l);						\
-		if (i+m>(int)len) goto done;			\
-		memcpy(&l,s+i,m);						\
-		doswap(swap,&l,m);						\
-		if (isWide)								\
-		{										\
-			if (i+m+l*2>(int)len) goto done;	\
-		}										\
-		else									\
-		{										\
-			if (i+m+l>(int)len) goto done;		\
-		}										\
-		i+=m;									\
-		if (isWide)								\
-		{										\
-			wchar_t* out=(wchar_t *)luaZ_openspace(L,&buff,l*2);	\
-			memcpy(out, s+i, l * 2);			\
-			dowideswap(swap, (void*)out, l);	\
-			lua_pushlwstring(L,out,l);			\
-			i += l * 2;							\
-		}										\
-		else									\
-		{										\
-			lua_pushlstring(L,s+i,l);			\
-			i+=l;								\
-		}										\
-		++n;									\
-		break;									\
-	}
-#else
 #define UNPACKSTRING(OP,T)						\
 	case OP:									\
 	{											\
@@ -195,7 +132,6 @@ static void dowideswap(int swap, void *p, size_t n)
 		++n;									\
 		break;									\
 	}
-#endif // LUA_WIDESTRING
 
 static int l_unpack(lua_State *L) 		/** unpack(s,f,[init]) */
 {
@@ -213,15 +149,6 @@ static int l_unpack(lua_State *L) 		/** unpack(s,f,[init]) */
 		int c=*f++;
 		int N=0;
 		int isWide = 0;
-#if LUA_WIDESTRING
-		if (c == OP_WIDESTRING)
-		{
-			isWide = 1;
-			c=*f++;
-			if (!c)
-				break;
-		}
-#endif // LUA_WIDESTRING
 		while (isdigit(*f)) N=10*N+(*f++)-'0';
 		if (N==0) N=1;
 		while (N--)
@@ -239,19 +166,6 @@ static int l_unpack(lua_State *L) 		/** unpack(s,f,[init]) */
 				case OP_STRING:
 				{
 					++N;
-#if LUA_WIDESTRING
-					if (isWide)
-					{
-						wchar_t* out;
-						if (i+N*2>(int)len) goto done;
-						out=(wchar_t *)luaZ_openspace(L,&buff,N*2);
-						memcpy(out, s+i, N * 2);
-						dowideswap(swap, (void*)out, N);
-						lua_pushlwstring(L,out,N);
-						i+=N*2;
-					}
-					else
-#endif // LUA_WIDESTRING
 					{
 						if (i+N>(int)len) goto done;
 						lua_pushlstring(L,s+i,N);
@@ -265,19 +179,6 @@ static int l_unpack(lua_State *L) 		/** unpack(s,f,[init]) */
 				{
 					size_t l;
 					if (i>=(int)len) goto done;
-#if LUA_WIDESTRING
-					if (isWide)
-					{
-						wchar_t* out;
-						l=wcslen((const wchar_t*)(s+i));
-						out=(wchar_t *)luaZ_openspace(L,&buff,l*2);
-						memcpy(out, s+i, l * 2);
-						dowideswap(swap, (void*)out, l);
-						lua_pushlwstring(L,out,l);
-						i+=(l+1) * 2;
-					}
-					else
-#endif // LUA_WIDESTRING
 					{
 						l=strlen(s+i);
 						lua_pushlstring(L,s+i,l);
@@ -287,9 +188,6 @@ static int l_unpack(lua_State *L) 		/** unpack(s,f,[init]) */
 					break;
 				}
 				UNPACKSTRING(OP_BSTRING, unsigned char)
-#if LUA_WIDESTRING
-				UNPACKSTRING(OP_WSTRING, unsigned short)
-#endif // LUA_WIDESTRING
 				UNPACKSTRING(OP_SSTRING, size_t)
 				UNPACKNUMBER(OP_NUMBER, lua_Number)
 				UNPACKNUMBER(OP_DOUBLE, double)
@@ -340,34 +238,6 @@ done:
     break;					\
    }
 
-#if LUA_WIDESTRING
-#define PACKSTRING(OP,T)									\
-	case OP:												\
-	{														\
-		size_t l;											\
-		const char *a;										\
-		const wchar_t *wa;									\
-		T ll;												\
-		if (isWide)											\
-			wa=luaL_checklwstring(L,i++,&l);				\
-		else												\
-			a=luaL_checklstring(L,i++,&l);					\
-		ll=(T)l;											\
-		doswap(swap,&ll,sizeof(ll));						\
-		luaL_addlstring(&b,(const char*)&ll,sizeof(ll));	\
-		if (isWide)											\
-		{													\
-			size_t curPos = b.p - b.buffer;					\
-			luaL_addlwstring(&b,wa,l);						\
-			dowideswap(swap,b.buffer+curPos,l);				\
-		}													\
-		else												\
-		{													\
-			luaL_addlstring(&b, a, l);						\
-		}													\
-		break;												\
-	}
-#else
 #define PACKSTRING(OP,T)									\
 	case OP:												\
 	{														\
@@ -381,7 +251,6 @@ done:
 		luaL_addlstring(&b, a, l);							\
 		break;												\
 	}
-#endif // LUA_WIDESTRING
 
 static int l_pack(lua_State *L) 		/** pack(f,...) */
 {
@@ -398,15 +267,6 @@ static int l_pack(lua_State *L) 		/** pack(f,...) */
 		int c=*f++;
 		int N=0;
 		int isWide = 0;
-#if LUA_WIDESTRING
-		if (c == OP_WIDESTRING)
-		{
-			isWide = 1;
-			c=*f++;
-			if (!c)
-				break;
-		} else
-#endif // LUA_WIDESTRING
 		if (c == OP_PAD)
 		{
 			if (padCount == 0)
@@ -448,16 +308,6 @@ static int l_pack(lua_State *L) 		/** pack(f,...) */
 				case OP_ZSTRING:
 				{
 					size_t l;
-#if LUA_WIDESTRING
-					if (isWide)
-					{
-						const wchar_t *a=luaL_checklwstring(L,i++,&l);
-						size_t curPos = b.p - b.buffer;
-						luaL_addlwstring(&b,a,l+(c==OP_ZSTRING));
-						dowideswap(swap,b.buffer+curPos,l+(c==OP_ZSTRING));
-					}
-					else
-#endif // LUA_WIDESTRING
 					{
 						const char *a=luaL_checklstring(L,i++,&l);
 						luaL_addlstring(&b,a,l+(c==OP_ZSTRING));
@@ -465,9 +315,6 @@ static int l_pack(lua_State *L) 		/** pack(f,...) */
 					break;
 				}
 				PACKSTRING(OP_BSTRING, unsigned char)
-#if LUA_WIDESTRING
-				PACKSTRING(OP_WSTRING, unsigned short)
-#endif /* LUA_WIDESTRING */
 				PACKSTRING(OP_SSTRING, size_t)
 				PACKNUMBER(OP_NUMBER, lua_Number)
 				PACKNUMBER(OP_DOUBLE, double)

@@ -94,47 +94,6 @@ static TString *newlstr (lua_State *L, const char *str, size_t l,
   return ts;
 }
 
-#if LUA_WIDESTRING
-
-static TString *newlwstr (lua_State *L, const lua_WChar *str, size_t l,
-						  unsigned int h) {
-  TString *tws;
-  stringtable *tb;
-#if LUA_MEMORY_STATS
-  luaM_setnameif(L, "lua.wstring");
-#endif /* LUA_MEMORY_STATS */
-  if (l+1 > (MAX_SIZET - sizeof(TString))/sizeof(lua_WChar))
-    luaM_toobig(L);
-  tws = cast(TString *, luaM_malloc(L, (l+1)*sizeof(lua_WChar)+sizeof(TString)));
-  tws->tsv.len = l;
-  tws->tsv.hash = h;
-  tws->tsv.marked = luaC_white(G(L));
-  tws->tsv.tt = LUA_TWSTRING;
-  tws->tsv.reserved = 0;
-  memcpy(tws+1, str, l*sizeof(lua_WChar));
-  ((char *)(tws+1))[l * 2] = '\0';  /* ending 0 */
-  ((char *)(tws+1))[l * 2 + 1] = '\0';  /* ending 0 */
-  tb = &G(L)->strt;
-  h = lmod(h, tb->size);
-  tws->tsv.next = tb->hash[h];  /* chain new entry */
-#if LUA_REFCOUNT
-  tws->tsv.ref = 0;
-  if (tws->tsv.next)
-    tws->tsv.next->gch.prev = (GCObject*)tws;
-  tws->tsv.prev = NULL;
-#endif /* LUA_REFCOUNT */
-  tb->hash[h] = obj2gco(tws);
-  tb->nuse++;
-  if (tb->nuse > cast(lu_int32, tb->size) && tb->size <= MAX_INT/2)
-    luaS_resize(L, tb->size*2);  /* too crowded */
-#if LUA_MEMORY_STATS
-  luaM_setname(L, 0);
-#endif /* LUA_MEMORY_STATS */
-  return tws;
-}
-
-#endif /* LUA_WIDESTRING */
-
 TString *luaS_newlstr (lua_State *L, const char *str, size_t l) {
   GCObject *o;
   unsigned int h = cast(unsigned int, l);  /* seed */
@@ -146,11 +105,7 @@ TString *luaS_newlstr (lua_State *L, const char *str, size_t l) {
        o != NULL;
        o = o->gch.next) {
     TString *ts = rawgco2ts(o);
-#if LUA_WIDESTRING
-    if (ts->tsv.tt == LUA_TSTRING && ts->tsv.len == l && (memcmp(str, getstr(ts), l) == 0)) {
-#else
     if (ts->tsv.len == l && (memcmp(str, getstr(ts), l) == 0)) {
-#endif /* LUA_WIDESTRING */
       /* string may be dead */
       if (isdead(G(L), o)) changewhite(o);
       return ts;
@@ -158,30 +113,6 @@ TString *luaS_newlstr (lua_State *L, const char *str, size_t l) {
   }
   return newlstr(L, str, l, h);  /* not found */
 }
-
-#if LUA_WIDESTRING
-
-TString *luaS_newlwstr (lua_State *L, const lua_WChar *str, size_t l) {
-  GCObject *o;
-  unsigned int h = cast(unsigned int, l);  /* seed */
-  size_t step = (l>>5)+1;  /* if string is too long, don't hash all its chars */
-  size_t l1;
-  for (l1=l; l1>=step; l1-=step)  /* compute hash */
-    h = h ^ ((h<<5)+(h>>2)+cast(lua_WChar, str[l1-1]));
-  for (o = G(L)->strt.hash[lmod(h, G(L)->strt.size)];
-       o != NULL;
-       o = o->gch.next) {
-    TString *ts = rawgco2ts(o);
-    if (ts->tsv.tt == LUA_TWSTRING && ts->tsv.len == l && (memcmp(str, getstr(ts), l * 2) == 0)) {
-      /* string may be dead */
-      if (isdead(G(L), o)) changewhite(o);
-      return ts;
-    }
-  }
-  return newlwstr(L, str, l, h);  /* not found */
-}
-
-#endif /* LUA_WIDESTRING */
 
 Udata *luaS_newudata (lua_State *L, size_t s, Table *e) {
   Udata *u;

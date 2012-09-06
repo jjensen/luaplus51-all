@@ -17,11 +17,7 @@
 
 
 /* tags for values visible from Lua */
-#if !LUA_WIDESTRING
 #define LAST_TAG	LUA_TTHREAD
-#else /* LUA_WIDESTRING */
-#define LAST_TAG	LUA_TWSTRING
-#endif /* LUA_WIDESTRING */
 
 #define NUM_TAGS	(LAST_TAG+1)
 
@@ -154,9 +150,6 @@ typedef TValuefields TValue;
 #define ttisuserdata(o)	(ttype(o) == LUA_TUSERDATA)
 #define ttisthread(o)	(ttype(o) == LUA_TTHREAD)
 #define ttislightuserdata(o)	(ttype(o) == LUA_TLIGHTUSERDATA)
-#if LUA_WIDESTRING
-#define ttiswstring(o)	(ttype(o) == LUA_TWSTRING)
-#endif /* LUA_WIDESTRING */
 
 #else
 
@@ -169,9 +162,6 @@ typedef TValuefields TValue;
 #define ttisuserdata(o)	(ttype_sig(o) == add_sig(LUA_TUSERDATA))
 #define ttisthread(o)	(ttype_sig(o) == add_sig(LUA_TTHREAD))
 #define ttislightuserdata(o)	(ttype_sig(o) == add_sig(LUA_TLIGHTUSERDATA))
-#if LUA_WIDESTRING
-#define ttiswstring(o)	(ttype_sig(o) == add_sig(LUA_TWSTRING))
-#endif /* LUA_WIDESTRING */
 
 #endif
 
@@ -194,10 +184,6 @@ typedef TValuefields TValue;
 #define hvalue(o)	check_exp(ttistable(o), &(o)->value.gc->h)
 #define bvalue(o)	check_exp(ttisboolean(o), (o)->value.b)
 #define thvalue(o)	check_exp(ttisthread(o), &(o)->value.gc->th)
-#if LUA_WIDESTRING
-#define rawtwsvalue(o)	check_exp(ttiswstring(o), &(o)->value.gc->ts)
-#define twsvalue(o)	(&rawtwsvalue(o)->tsv)
-#endif /* LUA_WIDESTRING */
 
 #define l_isfalse(o)	(ttisnil(o) || (ttisboolean(o) && bvalue(o) == 0))
 
@@ -287,17 +273,6 @@ typedef TValuefields TValue;
     o1->value = o2->value; o1->tt=o2->tt; \
     checkliveness(G(L),o1); }
 
-#if LUA_WIDESTRING
-
-#define setwsvalue(L,obj,x) \
-  { TValue *i_o=(obj); \
-    luarc_makevaluebackup(i_o); \
-    i_o->value.gc=cast(GCObject *, (x)); i_o->tt=LUA_TWSTRING; \
-    luarc_addreftvalue(i_o); luarc_release(L, &bak); \
-    checkliveness(G(L),i_o); }
-
-#endif /* LUA_WIDESTRING */
-
 #define lua_addreftobject(obj)
 
 #define setnvalue2n(obj,x) \
@@ -344,14 +319,6 @@ typedef TValuefields TValue;
     i_o->value.gc=cast(GCObject *, (x)); i_o->tt=LUA_TPROTO; \
     luarc_addreftvalue(i_o); \
     checkliveness(G(L),i_o); }
-
-#if LUA_WIDESTRING
-#define setwsvalue2n(L,obj,x) \
-  { TValue *i_o=(obj); \
-    i_o->value.gc=cast(GCObject *, (x)); i_o->tt=LUA_TWSTRING; \
-    luarc_addreftvalue(i_o); \
-    checkliveness(G(L),i_o); }
-#endif /* LUA_WIDESTRING */
 
 #else /* !LUA_REFCOUNT */
 
@@ -406,13 +373,6 @@ typedef TValuefields TValue;
     o1->value = o2->value; o1->tt=o2->tt; \
     checkliveness(G(L),o1); }
 
-#if LUA_WIDESTRING
-#define setwsvalue(L,obj,x) \
-  { TValue *i_o=(obj); \
-    i_o->value.gc=cast(GCObject *, (x)); i_o->tt=LUA_TWSTRING; \
-    checkliveness(G(L),i_o); }
-#endif /* LUA_WIDESTRING */
-
 #else /* LUA_PACK_VALUE != 0 */
 
 #define setnilvalue(obj) ( ttype_sig(obj) = add_sig(LUA_TNIL) )
@@ -464,13 +424,6 @@ typedef TValuefields TValue;
     o1->value = o2->value; \
     checkliveness(G(L),o1); }
 
-#if LUA_WIDESTRING
-#define setwsvalue(L,obj,x) \
-  { TValue *i_o=(obj); \
-    i_o->value.gc=cast(GCObject *, (x)); i_o->_ts.tt_sig=add_sig(LUA_TWSTRING); \
-    checkliveness(G(L),i_o); }
-#endif /* LUA_WIDESTRING */
-
 #endif
 
 #endif /* LUA_REFCOUNT */
@@ -484,9 +437,6 @@ typedef TValuefields TValue;
 /* to stack (not from same stack) */
 #define setobj2s	setobj
 #define setsvalue2s	setsvalue
-#if LUA_WIDESTRING
-#define setwsvalue2s	setwsvalue
-#endif /* LUA_WIDESTRING */
 #define sethvalue2s	sethvalue
 #define setptvalue2s	setptvalue
 /* from table to same table */
@@ -499,9 +449,6 @@ typedef TValuefields TValue;
 #else
 #define setobj2n	setobj
 #define setsvalue2n	setsvalue
-#if LUA_WIDESTRING
-#define setwsvalue2n	setwsvalue
-#endif /* LUA_WIDESTRING */
 #endif /* LUA_REFCOUNT */
 
 #if LUA_PACK_VALUE == 0
@@ -536,10 +483,6 @@ typedef union TString {
 
 #define getstr(ts)	cast(const char *, (ts) + 1)
 #define svalue(o)       getstr(rawtsvalue(o))
-#if LUA_WIDESTRING
-#define getwstr(ts)	cast(const lua_WChar *, (ts) + 1)
-#define wsvalue(o)      getwstr(rawtsvalue(o))
-#endif /* LUA_WIDESTRING */
 
 
 
@@ -718,9 +661,6 @@ LUAI_FUNC int luaO_int2fb (unsigned int x);
 LUAI_FUNC int luaO_fb2int (int x);
 LUAI_FUNC int luaO_rawequalObj (const TValue *t1, const TValue *t2);
 LUAI_FUNC int luaO_str2d (const char *s, lua_Number *result);
-#if LUA_WIDESTRING
-LUAI_FUNC int luaO_wstr2d (const lua_WChar *s, lua_Number *result);
-#endif /* LUA_WIDESTRING */
 LUAI_FUNC const char *luaO_pushvfstring (lua_State *L, const char *fmt,
                                                        va_list argp);
 LUAI_FUNC const char *luaO_pushfstring (lua_State *L, const char *fmt, ...);

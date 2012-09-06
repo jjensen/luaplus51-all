@@ -119,13 +119,6 @@ LUAPLUS_INLINE bool LuaStackObject::IsNumber() const					{  return lua_type( Get
 **/
 LUAPLUS_INLINE bool LuaStackObject::IsString() const					{  return lua_isstring( GetCState(), m_stackIndex ) != 0;  }
 
-/**
-	\return Returns true if the object is a wide character string.
-**/
-#if LUA_WIDESTRING
-LUAPLUS_INLINE bool LuaStackObject::IsWString() const				{  return lua_iswstring( GetCState(), m_stackIndex ) != 0;  }
-#endif /* LUA_WIDESTRING */
-
 
 /**
 	\return Returns true if the object is a Lua function.
@@ -170,14 +163,6 @@ LUAPLUS_INLINE const char* LuaStackObject::GetString() const
 	luaplus_assert(str);
 	return str;
 }
-#if LUA_WIDESTRING
-LUAPLUS_INLINE const lua_WChar* LuaStackObject::GetWString() const
-{
-	const lua_WChar* str = (const lua_WChar*)lua_towstring( GetCState(), m_stackIndex );
-	luaplus_assert(str);
-	return str;
-}
-#endif /* LUA_WIDESTRING */
 LUAPLUS_INLINE size_t LuaStackObject::StrLen() const				{  return lua_strlen( GetCState(), m_stackIndex );  }
 LUAPLUS_INLINE lua_CFunction LuaStackObject::GetCFunction() const	{  luaplus_assert( lua_iscfunction( GetCState(), m_stackIndex ) );  return lua_tocfunction( GetCState(), m_stackIndex );  }
 LUAPLUS_INLINE void* LuaStackObject::GetUserdata() const			{  luaplus_assert( lua_isuserdata( GetCState(), m_stackIndex ) );  return lua_touserdata( GetCState(), m_stackIndex );  }
@@ -379,36 +364,6 @@ LUAPLUS_INLINE void LuaStackObject::SetString( int index, const char* value )
 	lua_pushstring( GetCState(), value );
 	lua_settable( GetCState(), m_stackIndex );
 }
-
-/**
-	Creates (or reassigns) the object called [name] to [value].
-
-	@param name The name of the object to assign the value to.
-	@param value The value to assign to [name].
-**/
-#if LUA_WIDESTRING
-LUAPLUS_INLINE void LuaStackObject::SetWString( const char* name, const lua_WChar* value )
-{
-	lua_pushstring( GetCState(), name );
-	lua_pushwstring( GetCState(), value );
-	lua_settable( GetCState(), m_stackIndex );
-}
-#endif /* LUA_WIDESTRING */
-
-/**
-	Creates (or reassigns) the object called [index] to [value].
-
-	@param index The index of the object to assign the value to.
-	@param value The value to assign to [index].
-**/
-#if LUA_WIDESTRING
-LUAPLUS_INLINE void LuaStackObject::SetWString( int index, const lua_WChar* value )
-{
-	lua_pushnumber( GetCState(), (lua_Number)index );
-	lua_pushwstring( GetCState(), value );
-	lua_settable( GetCState(), m_stackIndex );
-}
-#endif /* LUA_WIDESTRING */
 
 /**
 	Creates (or reassigns) the object called [name] to [value].

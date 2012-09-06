@@ -52,9 +52,6 @@ LUAI_FUNC void luaZ_init (lua_State *L, ZIO *z, lua_Reader reader,
                                         void *data);
 LUAI_FUNC size_t luaZ_read (ZIO* z, void* b, size_t n);	/* read next n bytes */
 LUAI_FUNC int luaZ_lookahead (ZIO *z);
-#if LUA_WIDESTRING
-LUAI_FUNC int luaZ_lookahead_2 (ZIO *z);
-#endif /* LUA_WIDESTRING */
 
 
 
@@ -66,9 +63,6 @@ struct Zio {
   lua_Reader reader;
   void* data;			/* additional data */
   lua_State *L;			/* Lua state (for reader) */
-#if LUA_WIDESTRING
-  int isWide;       /* wide character stream */
-#endif /* LUA_WIDESTRING */
 };
 
 

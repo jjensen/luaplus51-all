@@ -23,35 +23,7 @@
 #include "ltable.h"
 #include "lzio.h"
 
-#if LUA_WIDESTRING_FILE
-
-static int nextwide(LexState *ls)
-{
-  union
-  {
-    lua_WChar w;
-    unsigned char b[2];
-  } s;
-  int c = zgetc(ls->z);
-  if (c == EOZ) {
-	return EOZ;
-  }
-  s.b[0] = (unsigned char)c;
-  c = zgetc(ls->z);
-  if (c == EOZ) {
-    return EOZ;
-  }
-  s.b[1] = (unsigned char)c;
-  return s.w;
-}
-
-#define next(ls) (ls->current = (!ls->z->isWide ? (zgetc(ls->z)) : (nextwide(ls))))
-
-#else
-
 #define next(ls) (ls->current = zgetc(ls->z))
-
-#endif /* LUA_WIDESTRING_FILE */
 
 
 
@@ -65,15 +37,7 @@ const char *const luaX_tokens [] = {
     "in", "local", "nil", "not", "or", "repeat",
     "return", "then", "true", "until", "while",
     "..", "...", "==", ">=", "<=", "~=",
-#if LUA_WIDESTRING
-    "<number>", "<name>", "<string>",
-#if LUA_WIDESTRING
-    "<wstring>",
-#endif /* LUA_WIDESTRING */
-    "<eof>",
-#else
     "<number>", "<name>", "<string>", "<eof>",
-#endif /* LUA_WIDESTRING */
     NULL
 };
 
@@ -93,25 +57,6 @@ static void save (LexState *ls, int c) {
   b->buffer[b->n++] = cast(char, c);
 }
 
-
-#if LUA_WIDESTRING
-
-#define wsave_and_next(ls) (wsave(ls, ls->current), next(ls))
-
-static void wsave (LexState *ls, int c) {
-  Mbuffer *b = ls->buff;
-  if (b->n + sizeof(lua_WChar) > b->buffsize) {
-    size_t newsize;
-    if (b->buffsize >= MAX_SIZET/sizeof(lua_WChar))
-      luaX_lexerror(ls, "lexical element too long", 0);
-    newsize = b->buffsize * 4;
-    luaZ_resizebuffer(ls->L, b, newsize);
-  }
-  *(lua_WChar*)(&b->buffer[b->n]) = cast(lua_WChar, c);
-  b->n += 2;
-}
-
-#endif /* LUA_WIDESTRING */
 
 void luaX_init (lua_State *L) {
   int i;
@@ -176,17 +121,6 @@ TString *luaX_newstring (LexState *ls, const char *str, size_t l) {
   }
   return ts;
 }
-
-#if LUA_WIDESTRING
-TString *luaX_newwstring (LexState *ls, const lua_WChar *str, size_t l) {
-  lua_State *L = ls->L;
-  TString *ts = luaS_newlwstr(L, str, l);
-  TValue *o = luaH_setwstr(L, ls->fs->h, ts);  /* entry for `str' */
-  if (ttisnil(o))
-    setbvalue(o, 1);  /* make sure `str' will not be collected */
-  return ts;
-}
-#endif /* LUA_WIDESTRING */
 
 static void inclinenumber (LexState *ls) {
   int old = ls->current;
@@ -415,82 +349,6 @@ static void read_string (LexState *ls, int del, SemInfo *seminfo) {
                                    luaZ_bufflen(ls->buff) - 2);
 }
 
-#if LUA_WIDESTRING
-static void read_wstring (LexState *ls, int del, SemInfo *seminfo) {
-  wsave_and_next(ls);
-  while (ls->current != del) {
-    switch (ls->current) {
-      case EOZ:
-        luaX_lexerror(ls, "unfinished string", TK_EOS);
-        continue;  /* to avoid warnings */
-      case '\n':
-      case '\r':
-        luaX_lexerror(ls, "unfinished string", TK_STRING);
-        continue;  /* to avoid warnings */
-      case '\\': {
-        int c;
-        next(ls);  /* do not save the `\' */
-        switch (ls->current) {
-          case 'a': c = '\a'; break;
-          case 'b': c = '\b'; break;
-          case 'f': c = '\f'; break;
-          case 'n': c = '\n'; break;
-          case 'r': c = '\r'; break;
-          case 't': c = '\t'; break;
-          case 'v': c = '\v'; break;
-          case '\n':  /* go through */
-          case '\r': wsave(ls, '\n'); inclinenumber(ls); continue;
-          case EOZ: continue;  /* will raise an error next loop */
-          case 'x': {
-            int ch;
-            int i = 0;
-            int numDigits = 4;
-            c = 0;
-            next(ls);
-            ch = tolower(ls->current);
-            do {
-              if (isdigit(ch))
-                c = 16*c + (ch-'0');
-              else if (ch >= 'a' && ch <= 'f')
-                c = 16*c + (ch-'a') + 10;
-			  else break;
-              next(ls);
-              ch = tolower(ls->current);
-            } while (++i<numDigits);
-            wsave(ls, c);
-            continue;
-          }
-          default: {
-            if (!isdigit(ls->current))
-              wsave_and_next(ls);  /* handles \\, \", \', and \? */
-            else {  /* \xxx */
-              int i = 0;
-              c = 0;
-              do {
-                c = 10*c + (ls->current-'0');
-                next(ls);
-              } while (++i<3 && isdigit(ls->current));
-              if (c > UCHAR_MAX)
-                luaX_lexerror(ls, "escape sequence too large", TK_STRING);
-              wsave(ls, c);
-            }
-            continue;
-          }
-        }
-        wsave(ls, c);
-        next(ls);
-        continue;
-      }
-      default:
-        wsave_and_next(ls);
-    }
-  }
-  wsave_and_next(ls);  /* skip delimiter */
-  seminfo->ts = luaX_newwstring(ls, (const lua_WChar*)(luaZ_buffer(ls->buff) + 1 * 2),
-                                   (luaZ_bufflen(ls->buff) - 2 * 2) / 2 );
-}
-#endif /* LUA_WIDESTRING */
-
 static int llex (LexState *ls, SemInfo *seminfo) {
   luaZ_resetbuffer(ls->buff);
   for (;;) {
@@ -570,13 +428,6 @@ static int llex (LexState *ls, SemInfo *seminfo) {
         return TK_EOS;
       }
       default: {
-#if LUA_WIDESTRING
-        if (ls->current > 255) {
-          luaX_lexerror(ls, "invalid wide char", 0);
-          next(ls);
-          return ls->current;  /* single-char tokens (+ - / ...) */
-        }
-#endif /* LUA_WIDESTRING */
         if (isspace(ls->current)) {
           lua_assert(!currIsNewline(ls));
           next(ls);
@@ -587,27 +438,10 @@ static int llex (LexState *ls, SemInfo *seminfo) {
           return TK_NUMBER;
         }
         else if (isalpha(ls->current) || ls->current == '_') {
-#if LUA_WIDESTRING
-          TString *ts;
-          if (ls->current == 'L') {
-            next(ls);
-            if (ls->current == '"' || ls->current == '\'') {
-              read_wstring(ls, ls->current, seminfo);
-              return TK_WSTRING;
-            }
-            save(ls, 'L');
-            goto afterchar;
-          }
-          /* identifier or reserved word */
-#else
           /* identifier or reserved word */
           TString *ts;
-#endif /* LUA_WIDESTRING */
           do {
             save_and_next(ls);
-#if LUA_WIDESTRING
-afterchar: ;
-#endif
           } while (isalnum(ls->current) || ls->current == '_');
           ts = luaX_newstring(ls, luaZ_buffer(ls->buff),
                                   luaZ_bufflen(ls->buff));

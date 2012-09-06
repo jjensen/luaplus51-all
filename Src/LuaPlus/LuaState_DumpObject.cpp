@@ -44,37 +44,6 @@ static void luaI_addquotednonwidebinary (LuaStateOutFile& file, const char* s, s
 }
 
 
-#if LUA_WIDESTRING
-
-static void luaI_addquotedwidebinary (LuaStateOutFile& file, const lua_WChar* s, int l) {
-	file.Print("L\"");
-	while (l--) {
-		switch (*s) {
-			case '"':
-			case '\\':
-				file.Print("\\%c", *s);
-				break;
-			case '\a':		file.Print("\\a");		break;
-			case '\b':		file.Print("\\b");		break;
-			case '\f':		file.Print("\\f");		break;
-			case '\n':		file.Print("\\n");		break;
-			case '\r':		file.Print("\\r");		break;
-			case '\t':		file.Print("\\t");		break;
-			case '\v':		file.Print("\\v");		break;
-			default:
-				if (*s < 256  &&  isprint((unsigned char)*s)) {
-					file.Print("%c", *s);
-				} else {
-					file.Print("\\x%04x", (unsigned int)*s);
-				}
-		}
-		s++;
-	}
-	file.Print("\"");
-}
-
-#endif /* LUA_WIDESTRING */
-
 #define L_ESC		'%'
 
 /* maximum size of each formatted item (> len(format('%99.99f', -1e308))) */
@@ -141,40 +110,6 @@ static void addquoted (lua_State *L, luaL_Buffer *b, int arg) {
 
 void addquotedbinary (lua_State *L, luaL_Buffer *b, int arg) {
   size_t l;
-#if LUA_WIDESTRING
-  if (lua_type(L, arg) == LUA_TWSTRING)
-  {
-    const lua_WChar *s = luaL_checklwstring(L, arg, &l);
-    luaL_addchar(b, 'L');
-    luaL_addchar(b, '"');
-    while (l--) {
-      switch (*s) {
-        case '"':  case '\\':
-          luaL_addchar(b, '\\');
-          luaL_addchar(b, *s);
-          break;
-        case '\a':  luaL_addchar(b, '\\');  luaL_addchar(b, 'a');  break;
-        case '\b':  luaL_addchar(b, '\\');  luaL_addchar(b, 'b');  break;
-        case '\f':  luaL_addchar(b, '\\');  luaL_addchar(b, 'f');  break;
-        case '\n':  luaL_addchar(b, '\\');  luaL_addchar(b, 'n');  break;
-        case '\r':  luaL_addchar(b, '\\');  luaL_addchar(b, 'r');  break;
-        case '\t':  luaL_addchar(b, '\\');  luaL_addchar(b, 't');  break;
-        case '\v':  luaL_addchar(b, '\\');  luaL_addchar(b, 'v');  break;
-        default:
-          if (*s < 256  &&  isprint((unsigned char)*s)) {
-            luaL_addchar(b, *s);
-          } else {
-            char str[10];
-            sprintf(str, "\\x%04x", (unsigned int)*s);
-            luaL_addstring(b, str);
-          }
-      }
-      s++;
-    }
-    luaL_addchar(b, '"');
-  }
-  else
-#endif /* LUA_WIDESTRING */
   {
     const char *s = luaL_checklstring(L, arg, &l);
     luaL_addchar(b, '"');
@@ -303,12 +238,6 @@ static int LS_LuaFilePrint(LuaState* state) {
 
 	size_t l = bufflen(&b);
 	if (l != 0) {
-#if LUA_WIDESTRING
-		if (b.isWide) {
-			luaplus_assert(0);
-		}
-		else
-#endif /* LUA_WIDESTRING */
 		{
 			luaL_addchar(&b, 0);
 			file->Print(b.buffer);
@@ -682,14 +611,6 @@ bool LuaState::DumpObject(LuaStateOutFile& file, LuaObject& key, LuaObject& valu
 	{
 		luaI_addquotednonwidebinary(file, value.GetString(), value.StrLen());
 	}
-
-#if LUA_WIDESTRING
-	// Or if the object's value is a string, write it as a quoted string.
-	else if (value.IsWString())
-	{
-		luaI_addquotedwidebinary(file, value.GetWString(), (int)value.StrLen());
-	}
-#endif /* LUA_WIDESTRING */
 
 	// Otherwise, see if the object's value is a table.
 	else if (value.IsTable())

@@ -20,14 +20,6 @@
 #define LUA_FASTREF_SUPPORT 1
 #endif /* LUA_FASTREF_SUPPORT */
 
-#ifndef LUA_WIDESTRING
-#define LUA_WIDESTRING 0
-#endif /* LUA_WIDESTRING */
-
-#ifndef LUA_WIDESTRING_FILE
-#define LUA_WIDESTRING_FILE 0
-#endif /* LUA_WIDESTRING_FILE */
-
 #ifndef LUA_EXT_HEXADECIMAL
 #define LUA_EXT_HEXADECIMAL 1
 #endif /* LUA_EXT_HEXADECIMAL */
@@ -61,10 +53,6 @@
 #ifndef LUAPLUS_EXCEPTIONS
 #define LUAPLUS_EXCEPTIONS 0
 #endif // LUAPLUS_EXCEPTIONS
-
-#if LUA_WIDESTRING
-#define lua_wstr2number(s,p)    triow_to_double((s), (p))
-#endif /* LUA_WIDESTRING */
 
 #ifndef LUA_PACK_VALUE
 #define LUA_PACK_VALUE 0

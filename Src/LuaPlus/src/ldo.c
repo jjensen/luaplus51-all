@@ -513,16 +513,6 @@ static void f_parser (lua_State *L, void *ud) {
   struct SParser *p = cast(struct SParser *, ud);
   int c = luaZ_lookahead(p->z);
   luaC_checkGC(L);
-#if LUA_WIDESTRING_FILE
-  {
-    int w = luaZ_lookahead_2(p->z);
-    if (w == 0xfeff) {
-      zgetc(p->z);
-	  zgetc(p->z);
-	  p->z->isWide = 1;
-    }
-  }
-#endif /* LUA_WIDESTRING_FILE */
   tf = ((c == LUA_SIGNATURE[0]) ? luaU_undump : luaY_parser)(L, p->z,
                                                              &p->buff, p->name);
   cl = luaF_newLclosure(L, tf->nups, hvalue(gt(L)));

@@ -45,17 +45,6 @@ namespace LPCD {
 
 	template<class T> struct TypeWrapper {};
 
-#if LUA_WIDESTRING
-	inline void Push(lua_State* L, const lua_WChar* value)
-		{  lua_pushwstring(L, value);  }
-	inline void Push(lua_State* L, const lua_WChar* value, int len)
-		{  lua_pushlwstring(L, value, len);  }
-	inline bool	Match(TypeWrapper<const lua_WChar*>, lua_State* L, int idx)
-		{  return lua_type(L, idx) == LUA_TWSTRING;  }
-	inline const lua_WChar*	Get(TypeWrapper<const lua_WChar*>, lua_State* L, int idx)
-		{  return static_cast<const lua_WChar*>(lua_towstring(L, idx));  }
-#endif /* LUA_WIDESTRING */
-
 	inline bool	Match(TypeWrapper<bool>, lua_State* L, int idx)
 		{  return lua_type(L, idx) == LUA_TBOOLEAN;  }
 	inline bool	Match(TypeWrapper<char>, lua_State* L, int idx)

@@ -29,15 +29,7 @@ enum RESERVED {
   TK_RETURN, TK_THEN, TK_TRUE, TK_UNTIL, TK_WHILE,
   /* other terminal symbols */
   TK_CONCAT, TK_DOTS, TK_EQ, TK_GE, TK_LE, TK_NE, TK_NUMBER,
-#if LUA_WIDESTRING
-  TK_NAME, TK_STRING,
-#if LUA_WIDESTRING
-  TK_WSTRING,
-#endif /* LUA_WIDESTRING */
-  TK_EOS
-#else
   TK_NAME, TK_STRING, TK_EOS
-#endif /* LUA_WIDESTRING */
 };
 
 /* number of reserved words */

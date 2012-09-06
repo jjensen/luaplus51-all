@@ -891,19 +891,3 @@ void luaK_setlist (FuncState *fs, int base, int nelems, int tostore) {
   fs->freereg = base + 1;  /* free registers with list values */
 }
 
-#if LUA_WIDESTRING
-int luaK_wstringK (FuncState *fs, TString *s) {
-  TValue o;
-#if LUA_REFCOUNT
-  lua_State *L = fs->L;
-  int ret;
-  setwsvalue2n(fs->L, &o, s);
-  ret = addk(fs, &o, &o);
-  luarc_cleanvalue(&o);
-  return ret;
-#else
-  setwsvalue(fs->L, &o, s);
-  return addk(fs, &o, &o);
-#endif
-}
-#endif /* LUA_WIDESTRING */

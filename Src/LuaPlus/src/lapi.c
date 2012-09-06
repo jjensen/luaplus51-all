@@ -73,11 +73,7 @@ static TValue *luaH_setinthelper (lua_State *L, Table *t, int key) {
 #endif /* LUA_FASTREF_SUPPORT */
 
 
-#if LUA_WIDESTRING
-TValue *index2adr (lua_State *L, int idx) {
-#else
 static TValue *index2adr (lua_State *L, int idx) {
-#endif /* LUA_WIDESTRING */
   if (idx > 0) {
     TValue *o = L->base + (idx - 1);
     api_check(L, idx <= L->ci->top - L->base);
@@ -441,9 +437,6 @@ LUA_API size_t lua_objlen (lua_State *L, int idx) {
   StkId o = index2adr(L, idx);
   switch (ttype(o)) {
     case LUA_TSTRING: return tsvalue(o)->len;
-#if LUA_WIDESTRING
-    case LUA_TWSTRING: return twsvalue(o)->len;
-#endif /* LUA_WIDESTRING */
     case LUA_TUSERDATA: return uvalue(o)->len;
     case LUA_TTABLE: return luaH_getn(hvalue(o));
     case LUA_TNUMBER: {

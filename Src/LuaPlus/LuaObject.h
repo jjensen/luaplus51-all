@@ -75,10 +75,6 @@ public:
 	bool IsConvertibleToInteger() const;
 	bool IsConvertibleToNumber() const;
 	bool IsConvertibleToString() const;
-#if LUA_WIDESTRING
-	bool IsWString() const;
-	bool IsConvertibleToWString() const;
-#endif /* LUA_WIDESTRING */
 	bool IsFunction() const;
 	bool IsNone() const;
 	bool IsLightUserdata() const;
@@ -87,9 +83,6 @@ public:
 	int ToInteger();
 	lua_Number ToNumber();
 	const char* ToString();
-#if LUA_WIDESTRING
-	const lua_WChar* ToWString();
-#endif /* LUA_WIDESTRING */
 	size_t ObjLen();
 
 	int GetInteger() const;
@@ -97,9 +90,6 @@ public:
 	double GetDouble() const;
 	lua_Number GetNumber() const;
 	const char* GetString() const;
-#if LUA_WIDESTRING
-	const lua_WChar* GetWString() const;
-#endif /* LUA_WIDESTRING */
 	size_t StrLen() const;
 	lua_CFunction GetCFunction() const;
 	void* GetUserdata() const;
@@ -145,10 +135,6 @@ public:
 	template <typename ValueT> LuaObject& Assign(LuaState* state, const ValueT& value);
 	template <typename ValueT> LuaObject& Assign(lua_State* L, const ValueT& value, int len);
 	template <typename ValueT> LuaObject& Assign(LuaState* state, const ValueT& value, int len);
-#if LUA_WIDESTRING
-	LuaObject& Assign(lua_State* L, const lua_WChar* value, int len);
-	LuaObject& Assign(LuaState* state, const lua_WChar* value, int len);
-#endif // LUA_WIDESTRING
 	LuaObject& AssignNewTable(int narray = 0, int nrec = 0);
 	LuaObject& AssignNewTable(lua_State* L, int narray = 0, int nrec = 0);
 	LuaObject& AssignNewTable(LuaState* state, int narray = 0, int nrec = 0);
@@ -165,11 +151,6 @@ public:
 	LuaObject& SetString(const char* key, const char* value, int len = -1);
 	LuaObject& SetString(int key, const char* value, int len = -1);
 	LuaObject& SetString(LuaObject& key, const char* value, int len = -1);
-#if LUA_WIDESTRING
-	LuaObject& SetWString(const char* key, const lua_WChar* value, int len = -1);
-	LuaObject& SetWString(int key, const lua_WChar* value, int len = -1);
-	LuaObject& SetWString(LuaObject& key, const lua_WChar* value, int len = -1);
-#endif /* LUA_WIDESTRING */
 	LuaObject& SetUserdata(const char* key, void* value);
 	LuaObject& SetUserdata(int key, void* value);
 	LuaObject& SetUserdata(LuaObject& key, void* value);
@@ -192,11 +173,6 @@ public:
 	LuaObject& RawSetString(const char* key, const char* value, int len = -1);
 	LuaObject& RawSetString(int key, const char* value, int len = -1);
 	LuaObject& RawSetString(LuaObject& key, const char* value, int len = -1);
-#if LUA_WIDESTRING
-	LuaObject& RawSetWString(const char* key, const lua_WChar* value, int len = -1);
-	LuaObject& RawSetWString(int key, const lua_WChar* value, int len = -1);
-	LuaObject& RawSetWString(LuaObject& key, const lua_WChar* value, int len = -1);
-#endif /* LUA_WIDESTRING */
 	LuaObject& RawSetUserdata(const char* key, void* value);
 	LuaObject& RawSetUserdata(int key, void* value);
 	LuaObject& RawSetUserdata(LuaObject& key, void* value);
@@ -211,9 +187,6 @@ public:
 	LuaObject& AssignInteger(LuaState* state, int value);
 	LuaObject& AssignNumber(LuaState* state, lua_Number value);
 	LuaObject& AssignString(LuaState* state, const char* value, int len = -1);
-#if LUA_WIDESTRING
-	LuaObject& AssignWString(LuaState* state, const lua_WChar* value, int len = -1);
-#endif /* LUA_WIDESTRING */
 
 	LuaObject& AssignUserdata(LuaState* state, void* value);
 	LuaObject& AssignUserdata(LuaState* state, size_t size);
@@ -547,24 +520,6 @@ inline LuaObject& LuaObject::Assign(lua_State* _L, const char* value, int len) {
 inline LuaObject& LuaObject::Assign(LuaState* state, const char* value, int len) {
 	return Assign(LuaState_to_lua_State(state), value, len);
 }
-
-#if LUA_WIDESTRING
-
-inline LuaObject& LuaObject::Assign(lua_State* _L, const lua_WChar* value, int len) {
-	luaplus_assert(_L);
-	if (L)
-		lua_fastunref(L, ref);
-	L = _L;
-	LPCD::Push(L, value, len == -1 ? lua_WChar_len(value) : len);
-	ref = lua_fastref(L);
-	return *this;
-}
-
-inline LuaObject& LuaObject::Assign(LuaState* state, const lua_WChar* value, int len) {
-	return Assign(LuaState_to_lua_State(state), value, len);
-}
-
-#endif // LUA_WIDESTRING
 
 
 template <typename ValueT>

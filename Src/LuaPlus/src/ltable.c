@@ -103,10 +103,6 @@ static Node *mainposition (const Table *t, const TValue *key) {
       return hashnum(t, nvalue(key));
     case LUA_TSTRING:
       return hashstr(t, rawtsvalue(key));
-#if LUA_WIDESTRING
-    case LUA_TWSTRING:
-      return hashstr(t, rawtwsvalue(key));
-#endif /* LUA_WIDESTRING */
     case LUA_TBOOLEAN:
       return hashboolean(t, bvalue(key));
     case LUA_TLIGHTUSERDATA:
@@ -634,20 +630,6 @@ const TValue *luaH_getstr (Table *t, TString *key) {
   return luaO_nilobject;
 }
 
-#if LUA_WIDESTRING
-
-const TValue *luaH_getwstr (Table *t, TString *key) {
-  Node *n = hashstr(t, key);
-  do {  /* check whether `key' is somewhere in the chain */
-    if (ttiswstring(gkey(n)) && rawtwsvalue(gkey(n)) == key)
-      return gval(n);  /* that's it */
-    else n = gnext(n);
-  } while (n);
-  return luaO_nilobject;
-}
-
-#endif /* LUA_WIDESTRING */
-
 /*
 ** main search function
 */
@@ -655,9 +637,6 @@ const TValue *luaH_get (Table *t, const TValue *key) {
   switch (ttype(key)) {
     case LUA_TNIL: return luaO_nilobject;
     case LUA_TSTRING: return luaH_getstr(t, rawtsvalue(key));
-#if LUA_WIDESTRING
-    case LUA_TWSTRING: return luaH_getstr(t, rawtwsvalue(key));
-#endif /* LUA_WIDESTRING */
     case LUA_TNUMBER: {
       int k;
       lua_Number n = nvalue(key);
@@ -732,29 +711,6 @@ TValue *luaH_setstr (lua_State *L, Table *t, TString *key) {
   }
 }
 
-
-#if LUA_WIDESTRING
-
-TValue *luaH_setwstr (lua_State *L, Table *t, TString *key) {
-  const TValue *p = luaH_getwstr(t, key);
-  if (p != luaO_nilobject)
-    return cast(TValue *, p);
-  else {
-    TValue k;
-#if LUA_REFCOUNT
-    TValue *ret;
-    setwsvalue2n(L, &k, key);
-    ret = newkey(L, t, &k);
-    setnilvalue(&k);
-    return ret;
-#else
-    setwsvalue(L, &k, key);
-    return newkey(L, t, &k);
-#endif
-  }
-}
-
-#endif /* LUA_WIDESTRING */
 
 static int unbound_search (Table *t, unsigned int j) {
   unsigned int i = j;  /* i is zero or a present index */

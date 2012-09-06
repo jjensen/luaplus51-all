@@ -227,15 +227,6 @@ inline bool LuaObject::IsString() const {
 }
 
 
-#if LUA_WIDESTRING
-inline bool LuaObject::IsWString() const {
-	luaplus_assert(L);
-	LUA_FASTREF_PUSH();
-	return lua_type(L, LUA_FASTREF_REF_1) == LUA_TWSTRING;
-}
-#endif /* LUA_WIDESTRING */
-
-
 // Mirrors lua_isinteger().
 inline bool LuaObject::IsConvertibleToInteger() const {
 	luaplus_assert(L);
@@ -258,16 +249,6 @@ inline bool LuaObject::IsConvertibleToString() const {
 	LUA_FASTREF_PUSH();
 	return lua_isstring(L, LUA_FASTREF_REF_1) != 0;
 }
-
-
-// Mirrors lua_iswstring().
-#if LUA_WIDESTRING
-inline bool LuaObject::IsConvertibleToWString() const {
-	luaplus_assert(L);
-	LUA_FASTREF_PUSH();
-	return lua_iswstring(L, LUA_FASTREF_REF_1) != 0;
-}
-#endif /* LUA_WIDESTRING */
 
 
 // Mirrors lua_isfunction().
@@ -348,23 +329,6 @@ inline const char* LuaObject::ToString() {
 }
 
 
-// Mirrors lua_towstring().
-#if LUA_WIDESTRING
-inline const lua_WChar* LuaObject::ToWString() {
-	luaplus_assert(L);
-#if LUA_FASTREF_SUPPORT
-	return lua_towstring(L, ref);
-#else
-	lua_getfastref(L, ref);
-	const char* ret = lua_tostring(L, -1);
-	lua_fastunref(L, ref);
-	ref = lua_fastref(L);
-	return ret;
-#endif // LUA_FASTREF_SUPPORT
-}
-#endif /* LUA_WIDESTRING */
-
-
 inline size_t LuaObject::ObjLen() {
 	luaplus_assert(L);
 #if !LUA_FASTREF_SUPPORT
@@ -413,22 +377,9 @@ inline const char* LuaObject::GetString() const {
 }
 
 
-#if LUA_WIDESTRING
-inline const lua_WChar* LuaObject::GetWString()const {
-	luaplus_assert(L  &&  IsWString());
-	LUA_FASTREF_PUSH();
-	return lua_towstring(L, LUA_FASTREF_REF_1);
-}
-#endif /* LUA_WIDESTRING */
-
-
 inline size_t LuaObject::StrLen() const {
 	luaplus_assert(L);
-#if LUA_WIDESTRING
-	luaplus_assert(IsString()  ||  IsWString());
-#else
 	luaplus_assert(IsString());
-#endif /* LUA_WIDESTRING */
 	LUA_FASTREF_PUSH();
 	return lua_objlen(L, LUA_FASTREF_REF_1);
 }
@@ -836,23 +787,6 @@ inline LuaObject& LuaObject::SetString(LuaObject& key, const char* value, int le
 }
 
 
-#if LUA_WIDESTRING
-inline LuaObject& LuaObject::SetWString(const char* key, const lua_WChar* value, int len) {
-	return Set(key, value);
-}
-
-
-inline LuaObject& LuaObject::SetWString(int key, const lua_WChar* value, int len) {
-	return Set(key, value);
-}
-
-
-inline LuaObject& LuaObject::SetWString(LuaObject& key, const lua_WChar* value, int len) {
-	return Set(key, value);
-}
-#endif /* LUA_WIDESTRING */
-
-
 inline LuaObject& LuaObject::SetUserdata(const char* key, void* value) {
 	return Set(key, value);
 }
@@ -1014,37 +948,6 @@ inline LuaObject& LuaObject::RawSetString(LuaObject& key, const char* value, int
 }
 
 
-#if LUA_WIDESTRING
-inline LuaObject& LuaObject::RawSetWString(const char* key, const lua_WChar* value, int len) {
-	luaplus_assert(L);
-	LUA_FASTREF_PUSH();					// (table)
-	lua_pushstring(L, key);
-	lua_pushlwstring(L, value, len == -1 ? lua_WChar_len(value) : len);
-	lua_rawset(L, LUA_FASTREF_REF_3);
-	return *this;
-}
-
-
-inline LuaObject& LuaObject::RawSetWString(int key, const lua_WChar* value, int len) {
-	luaplus_assert(L);
-	LUA_FASTREF_PUSH();					// (table)
-	lua_pushlwstring(L, value, len == -1 ? lua_WChar_len(value) : len);
-	lua_rawseti(L, LUA_FASTREF_REF_2, key);
-	return *this;
-}
-
-
-inline LuaObject& LuaObject::RawSetWString(LuaObject& key, const lua_WChar* value, int len) {
-	luaplus_assert(L);
-	LUA_FASTREF_PUSH();					// (table)
-	lua_getfastref(L, key.ref);
-	lua_pushlwstring(L, value, len == -1 ? lua_WChar_len(value) : len);
-	lua_rawset(L, LUA_FASTREF_REF_3);
-	return *this;
-}
-#endif /* LUA_WIDESTRING */
-
-
 inline LuaObject& LuaObject::RawSetUserdata(const char* key, void* value) {
 	luaplus_assert(L);
 	LUA_FASTREF_PUSH();					// (table)
@@ -1179,13 +1082,6 @@ inline LuaObject& LuaObject::AssignNumber(LuaState* state, lua_Number value) {
 inline LuaObject& LuaObject::AssignString(LuaState* state, const char* value, int len) {
 	return Assign(state, value, len);
 }
-
-
-#if LUA_WIDESTRING
-inline LuaObject& LuaObject::AssignWString(LuaState* state, const lua_WChar* value, int len) {
-	return Assign(LuaState_to_lua_State(state), value, len);
-}
-#endif /* LUA_WIDESTRING */
 
 
 inline LuaObject& LuaObject::AssignUserdata(LuaState* state, void* value) {
@@ -1401,9 +1297,6 @@ inline void LuaObject::DeepClone(LuaObject& outObj) const {
 				case LUA_TBOOLEAN:	keyObj.AssignBoolean(outObj.GetState(), it.GetKey().GetBoolean());		break;
 				case LUA_TNUMBER:		keyObj.AssignNumber(outObj.GetState(), it.GetKey().GetNumber());	break;
 				case LUA_TSTRING:		keyObj.AssignString(outObj.GetState(), it.GetKey().GetString());	break;
-#if LUA_WIDESTRING
-				case LUA_TWSTRING:	keyObj.AssignWString(outObj.GetState(), it.GetKey().GetWString());		break;
-#endif /* LUA_WIDESTRING */
 			}
 
 			switch (it.GetValue().Type())
@@ -1411,9 +1304,6 @@ inline void LuaObject::DeepClone(LuaObject& outObj) const {
 				case LUA_TBOOLEAN:	outObj.SetBoolean(keyObj, it.GetValue().GetBoolean());		break;
 				case LUA_TNUMBER:		outObj.SetNumber(keyObj, it.GetValue().GetNumber());	break;
 				case LUA_TSTRING:		outObj.SetString(keyObj, it.GetValue().GetString());	break;
-#if LUA_WIDESTRING
-				case LUA_TWSTRING:	outObj.SetWString(keyObj, it.GetValue().GetWString());		break;
-#endif /* LUA_WIDESTRING */
 				case LUA_TTABLE:
 				{
 					LuaObject newTableObj(outObj.GetState());
@@ -1431,9 +1321,6 @@ inline void LuaObject::DeepClone(LuaObject& outObj) const {
 			case LUA_TBOOLEAN:	outObj.AssignBoolean(outObj.GetState(), this->GetBoolean());		break;
 			case LUA_TNUMBER:	outObj.AssignNumber(outObj.GetState(), this->GetNumber());			break;
 			case LUA_TSTRING:	outObj.AssignString(outObj.GetState(), this->GetString());			break;
-#if LUA_WIDESTRING
-			case LUA_TWSTRING:	outObj.AssignWString(outObj.GetState(), this->GetWString());		break;
-#endif /* LUA_WIDESTRING */
 			case LUA_TTABLE:	DeepClone(outObj);													break;
 		}
 	}

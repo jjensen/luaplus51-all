@@ -23,9 +23,6 @@
 const char *const luaT_typenames[] = {
   "nil", "boolean", "userdata", "number",
   "string", "table", "function", "userdata", "thread",
-#if LUA_WIDESTRING
-  "wstring",
-#endif /* LUA_WIDESTRING */
   "proto", "upval"
 };
 
