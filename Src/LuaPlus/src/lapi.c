@@ -38,16 +38,10 @@ const char lua_ident[] =
 
 
 
-#if defined(LUAPLUS_ALL)
-#undef api_checknelems
-#endif /* LUAPLUS_ALL */
 #define api_checknelems(L, n)	api_check(L, (n) <= (L->top - L->base))
 
 #define api_checkvalidindex(L, i)	api_check(L, (i) != luaO_nilobject)
 
-#if defined(LUAPLUS_ALL)
-#undef api_incr_top
-#endif /* LUAPLUS_ALL */
 #define api_incr_top(L)   {api_check(L, L->top < L->ci->top); L->top++;}
 
 
