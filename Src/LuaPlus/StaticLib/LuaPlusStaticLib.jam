@@ -86,8 +86,6 @@ local LUA_SRCS =
 		../src/lzio.c
 		../src/lzio.h
 		../src/print.c
-		../src/lnum.c
-		../src/lnum.h
 ;
 
 SourceGroup LuaPlusStatic : Lua : $(LUA_SRCS) ;

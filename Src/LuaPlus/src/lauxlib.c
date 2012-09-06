@@ -23,9 +23,6 @@
 #include "lua.h"
 
 #include "lauxlib.h"
-#if LNUM_PATCH
-#include "llimits.h"
-#endif /* LNUM_PATCH */
 
 #define FREELIST_REF	0	/* free list of references */
 
@@ -67,15 +64,9 @@ LUALIB_API int luaL_typerror (lua_State *L, int narg, const char *tname) {
 }
 
 
-#if LNUM_PATCH
-static void tag_error (lua_State *L, int narg, int t) {
-  luaL_typerror(L, narg, t<0 ? "integer" : lua_typename(L, t));
-}
-#else
 static void tag_error (lua_State *L, int narg, int tag) {
   luaL_typerror(L, narg, lua_typename(L, tag));
 }
-#endif /* LNUM_PATCH */
 
 
 LUALIB_API void luaL_where (lua_State *L, int level) {
@@ -196,20 +187,8 @@ LUALIB_API lua_Number luaL_optnumber (lua_State *L, int narg, lua_Number def) {
 
 LUALIB_API lua_Integer luaL_checkinteger (lua_State *L, int narg) {
   lua_Integer d = lua_tointeger(L, narg);
-#if LNUM_PATCH
-#ifdef LUA_COMPAT_TOINTEGER
-  if (d == 0 && !lua_isnumber(L, narg)) {  /* allow non-integer numbers near 0 to be seen as 0 */
-    tag_error(L, narg, -1 /*integer*/);
-  }
-#else
-  if (d == 0 && !lua_isinteger(L, narg)) {  /* only 0 will be allowed as integer */
-    tag_error(L, narg, -1 /*integer*/);
-  }
-#endif
-#else
   if (d == 0 && !lua_isnumber(L, narg))  /* avoid extra test when d is not 0 */
     tag_error(L, narg, LUA_TNUMBER);
-#endif /* LNUM_PATCH */
   return d;
 }
 
@@ -218,18 +197,6 @@ LUALIB_API lua_Integer luaL_optinteger (lua_State *L, int narg,
                                                       lua_Integer def) {
   return luaL_opt(L, luaL_checkinteger, narg, def);
 }
-
-
-#if LNUM_PATCH
-#ifdef LNUM_COMPLEX
-LUALIB_API lua_Complex luaL_checkcomplex (lua_State *L, int narg) {
-  lua_Complex c = lua_tocomplex(L, narg);
-  if (c == 0 && !lua_isnumber(L, narg))  /* avoid extra test when c is not 0 */
-    tag_error(L, narg, LUA_TNUMBER);
-  return c;
-}
-#endif
-#endif /* LNUM_PATCH */
 
 
 LUALIB_API int luaL_getmetafield (lua_State *L, int obj, const char *event) {

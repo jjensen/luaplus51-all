@@ -27,15 +27,9 @@ int luaplus_str_format (lua_State *L) {
 #endif /* LUA_STRING_FORMAT_EXTENSIONS */
 
 
-#if LNUM_PATCH
-static void tag_error (lua_State *L, int narg, int t) {
-	luaL_typerror(L, narg, t<0 ? "integer" : lua_typename(L, t));
-}
-#else
 static void tag_error (lua_State *L, int narg, int tag) {
 	luaL_typerror(L, narg, lua_typename(L, tag));
 }
-#endif /* LNUM_PATCH */
 
 
 LUALIB_API lua_Integer luaL_checkboolean (lua_State *L, int narg) {

@@ -14,15 +14,9 @@ extern "C" {
 #define FONT_METATABLE "xls.Font"
 #define CELLFORMAT_METATABLE "xls.CellFormat"
 
-#if LNUM_PATCH
-static void tag_error (lua_State *L, int narg, int t) {
-	luaL_typerror(L, narg, t<0 ? "integer" : lua_typename(L, t));
-}
-#else
 static void tag_error (lua_State *L, int narg, int tag) {
 	luaL_typerror(L, narg, lua_typename(L, tag));
 }
-#endif /* LNUM_PATCH */
 
 
 LUALIB_API lua_Integer checkboolean (lua_State *L, int narg) {

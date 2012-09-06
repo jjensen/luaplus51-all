@@ -71,13 +71,6 @@ const TValue *luaT_gettmbyobj (lua_State *L, const TValue *o, TMS event) {
     case LUA_TUSERDATA:
       mt = uvalue(o)->metatable;
       break;
-#if LNUM_PATCH
-#ifdef LUA_TINT
-    case LUA_TINT:
-      mt = G(L)->mt[LUA_TNUMBER];
-      break;
-#endif
-#endif /* LNUM_PATCH */
     default:
       mt = G(L)->mt[ttype(o)];
   }

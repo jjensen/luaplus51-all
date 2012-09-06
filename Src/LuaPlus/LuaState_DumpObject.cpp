@@ -85,11 +85,7 @@ static void luaI_addquotedwidebinary (LuaStateOutFile& file, const lua_WChar* s,
 ** maximum size of each format specification (such as '%-099.99d')
 ** (+10 accounts for %99.99x plus margin of error)
 */
-#if LNUM_PATCH
-#define MAX_FORMAT	(sizeof(FLAGS) + sizeof(LUA_INTEGER_FMT)-2 + 10)
-#else
 #define MAX_FORMAT	(sizeof(FLAGS) + sizeof(LUA_INTFRMLEN) + 10)
-#endif /* LNUM_PATCH */
 
 static const char *scanformat (lua_State *L, const char *strfrmt, char *form) {
   const char *p = strfrmt;
@@ -214,15 +210,9 @@ void addquotedbinary (lua_State *L, luaL_Buffer *b, int arg) {
 static void addintlen (char *form) {
   size_t l = strlen(form);
   char spec = form[l - 1];
-#if LNUM_PATCH
-  const char *tmp= LUA_INTEGER_FMT;   /* "%lld" or "%ld" */
-  strcpy(form + l - 1, tmp+1);
-  form[l + sizeof(LUA_INTEGER_FMT)-4] = spec;
-#else
   strcpy(form + l - 1, LUA_INTFRMLEN);
   form[l + sizeof(LUA_INTFRMLEN) - 2] = spec;
   form[l + sizeof(LUA_INTFRMLEN) - 1] = '\0';
-#endif /* LNUM_PATCH */
 }
 
 
@@ -250,20 +240,12 @@ int str_format_helper (luaL_Buffer *b, lua_State *L, int arg) {
         }
         case 'd':  case 'i': {
           addintlen(form);
-#if LNUM_PATCH
-          sprintf(buff, form, luaL_checkinteger(L, arg));
-#else
           sprintf(buff, form, (LUA_INTFRM_T)luaL_checknumber(L, arg));
-#endif /* LNUM_PATCH */
           break;
         }
         case 'o':  case 'u':  case 'x':  case 'X': {
           addintlen(form);
-#if LNUM_PATCH
-          sprintf(buff, form, (unsigned LUA_INTEGER)luaL_checkinteger(L, arg));
-#else
           sprintf(buff, form, (unsigned LUA_INTFRM_T)luaL_checknumber(L, arg));
-#endif /* LNUM_PATCH */
           break;
         }
         case 'e':  case 'E': case 'f':
