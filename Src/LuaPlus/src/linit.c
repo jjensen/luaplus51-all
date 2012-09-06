@@ -29,6 +29,7 @@ static const luaL_Reg lualibs[] = {
   {NULL, NULL}
 };
 
+
 LUALIB_API void luaL_openlibs (lua_State *L) {
   const luaL_Reg *lib = lualibs;
   for (; lib->func; lib++) {
@@ -37,3 +38,4 @@ LUALIB_API void luaL_openlibs (lua_State *L) {
     lua_call(L, 1, 0);
   }
 }
+

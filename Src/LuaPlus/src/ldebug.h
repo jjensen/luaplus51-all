@@ -26,9 +26,7 @@ LUAI_FUNC void luaG_aritherror (lua_State *L, const TValue *p1,
 LUAI_FUNC int luaG_ordererror (lua_State *L, const TValue *p1,
                                              const TValue *p2);
 LUAI_FUNC void luaG_runerror (lua_State *L, const char *fmt, ...);
-#if !LUA_EXT_RESUMABLEVM
 LUAI_FUNC void luaG_errormsg (lua_State *L);
-#endif /* LUA_EXT_RESUMABLEVM */
 LUAI_FUNC int luaG_checkcode (const Proto *pt);
 LUAI_FUNC int luaG_checkopenop (Instruction i);
 

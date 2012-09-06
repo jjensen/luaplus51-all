@@ -58,12 +58,6 @@ void luaD_seterrorobj (lua_State *L, int errcode, StkId oldtop) {
       setsvalue2s(L, oldtop, luaS_newliteral(L, "error in error handling"));
       break;
     }
-#if LUA_EXT_RESUMABLEVM
-    case LUA_ERREXC: {
-      setsvalue2s(L, oldtop, luaS_newliteral(L, "unhandled C++ exception"));
-      break;
-    }
-#endif /* LUA_EXT_RESUMABLEVM */
     case LUA_ERRSYNTAX:
     case LUA_ERRRUN: {
       setobjs2s(L, oldtop, L->top - 1);  /* error message on current top */
@@ -89,53 +83,18 @@ static void resetstack (lua_State *L, int status) {
   L->base = L->ci->base;
   luaF_close(L, L->base);  /* close eventual pending closures */
   luaD_seterrorobj(L, status, L->base);
-#if LUA_EXT_RESUMABLEVM
-  L->nCcalls = LUA_NOYIELD | LUA_NOVPCALL;
-#else
   L->nCcalls = L->baseCcalls;
   L->allowhook = 1;
-#endif /* LUA_EXT_RESUMABLEVM */
   restore_stack_limit(L);
-#if !LUA_EXT_RESUMABLEVM
   L->errfunc = 0;
-#endif /* LUA_EXT_RESUMABLEVM */
   L->errorJmp = NULL;
 }
 
 
-#if LUA_EXT_RESUMABLEVM
-
-/* search for an error handler in the frame stack and call it */
-static int call_errfunc (lua_State *L) {
-  CallInfo *ci;
-  for (ci = L->ci; ci > L->base_ci && ci->errfunc == 0; ci--) ;
-  if (ci->errfunc >= 2) {
-    StkId errfunc = ci->base + (ci->errfunc - 2);
-    if (!ttisfunction(errfunc)) return LUA_ERRERR;
-    setobjs2s(L, L->top, L->top - 1);  /* move argument */
-    setobjs2s(L, L->top - 1, errfunc);  /* push function */
-    incr_top(L);
-    luaD_call(L, L->top - 2, 1, LUA_NOYIELD | LUA_NOVPCALL);  /* call it */
-  }
-  return LUA_ERRRUN;
-}
-
-#endif /* LUA_EXT_RESUMABLEVM */
-
 void luaD_throw (lua_State *L, int errcode) {
-#if LUA_EXT_RESUMABLEVM
-  struct lua_longjmp *lj = L->errorJmp;
-  if (lj) {
-    if (errcode == LUA_ERRRUN)
-      errcode = call_errfunc(L);
-    lj->status = errcode;
-    LUAI_THROW(L, lj);
-
-#else
   if (L->errorJmp) {
     L->errorJmp->status = errcode;
     LUAI_THROW(L, L->errorJmp);
-#endif /* LUA_EXT_RESUMABLEVM */
   }
   else {
     L->status = cast_byte(errcode);
@@ -154,92 +113,12 @@ int luaD_rawrunprotected (lua_State *L, Pfunc f, void *ud) {
   lj.status = 0;
   lj.previous = L->errorJmp;  /* chain new error handler */
   L->errorJmp = &lj;
-#if LUA_EXT_RESUMABLEVM
-  LUAI_TRY(L, &lj,
-    lj.status = (*f)(L, ud);
-  );
-#else
   LUAI_TRY(L, &lj,
     (*f)(L, ud);
   );
-#endif /* LUA_EXT_RESUMABLEVM */
   L->errorJmp = lj.previous;  /* restore old error handler */
   return lj.status;
 }
-
-#if LUA_EXT_RESUMABLEVM
-
-static int f_continue (lua_State *L, void *ud) {
-  ptrdiff_t stop_ci = (ptrdiff_t)ud;
-  while (L->ci > restoreci(L, stop_ci)) {  /* continue frames, top to bottom */
-    CClosure *cc = &ci_func(L->ci)->c;
-    L->ci->errfunc = 0;
-    if (cc->isC) {  /* continue C function */
-      int n;
-      lua_assert(L->ctx != NULL);
-      if (L->top > L->ci->top) L->ci->top = L->top;
-      lua_unlock(L);
-      n = (*cc->f)(L);  /* (re-)call it */
-      lua_lock(L);
-      if (n < 0) return LUA_YIELD;
-      lua_assert(L->base + n <= L->top);
-      luaD_poscall(L, L->top - n);
-    }
-    else {  /* continue Lua function */
-      luaV_resume(L);
-      if (luaV_execute(L)) return LUA_YIELD;
-    }
-  }
-  return 0;
-}
-
-
-static int unwind_frames (lua_State *L, CallInfo *stop, ptrdiff_t old_top,
-                          int status) {
-  CallInfo *ci;
-  StkId otop;
-  for (ci = L->ci; ci > stop; ci--)
-    if (ci->errfunc) {  /* found vpcall catch frame */
-      L->ctx = (void *)(ptrdiff_t)status;
-      otop = L->ci > ci ? (ci+1)->func : L->top - 1;
-      goto found;
-    }
-  if (old_top == 0) return -1;  /* no unwind? */
-  otop = restorestack(L, old_top);
-found:
-  luaF_close(L, otop);  /* close eventual pending closures */
-  luaD_seterrorobj(L, status, otop);  /* sets L->top, too */
-  L->ci = ci;
-  L->base = ci->base;
-  L->hookmask = ci->hookmask;
-  restore_stack_limit(L);
-  return ci == stop;
-}
-
-
-int luaD_pcall (lua_State *L, Pfunc func, void *ud, ptrdiff_t old_top,
-                int ef, unsigned int flagmask) {
-  int status;
-  ptrdiff_t stop_ci = saveci(L, L->ci);
-  unsigned int old_nCcalls = L->nCcalls;
-  luaD_catch(L, ef);
-  for (;;) {
-    L->nCcalls = old_nCcalls & flagmask;
-    status = luaD_rawrunprotected(L, func, ud);
-    if (status == 0)
-      break;
-    if (unwind_frames(L, restoreci(L, stop_ci), old_top, status))
-      break;
-    func = f_continue;
-    ud = (void *)stop_ci;
-  }
-  lua_assert(L->ci == restoreci(L, stop_ci));
-  L->ci->errfunc = 0;
-  L->nCcalls = old_nCcalls;
-  return status;
-}
-
-#endif /* LUA_EXT_RESUMABLEVM */
 
 /* }====================================================== */
 
@@ -309,17 +188,10 @@ static CallInfo *growCI (lua_State *L) {
 
 void luaD_callhook (lua_State *L, int event, int line) {
   lua_Hook hook = L->hook;
-#if LUA_EXT_RESUMABLEVM
-  if (hook && !nohooks(L)) {
-#else
   if (hook && L->allowhook) {
-#endif /* LUA_EXT_RESUMABLEVM */
     ptrdiff_t top = savestack(L, L->top);
     ptrdiff_t ci_top = savestack(L, L->ci->top);
     lua_Debug ar;
-#if LUA_EXT_RESUMABLEVM
-    unsigned short old_nCcalls;
-#endif /* LUA_EXT_RESUMABLEVM */
     ar.event = event;
     ar.currentline = line;
     if (event == LUA_HOOKTAILRET)
@@ -329,33 +201,14 @@ void luaD_callhook (lua_State *L, int event, int line) {
     luaD_checkstack(L, LUA_MINSTACK);  /* ensure minimum stack size */
     L->ci->top = L->top + LUA_MINSTACK;
     lua_assert(L->ci->top <= L->stack_last);
-#if LUA_EXT_RESUMABLEVM
-    old_nCcalls = L->nCcalls;
-    L->nCcalls = old_nCcalls | (event >= LUA_HOOKLINE ?
-                 (LUA_NOVPCALL | LUA_NOHOOKS) : /* line+count hook can yield */
-                 (LUA_NOVPCALL | LUA_NOHOOKS | LUA_NOYIELD));
-#else
     L->allowhook = 0;  /* cannot call hooks inside a hook */
-#endif /* LUA_EXT_RESUMABLEVM */
     lua_unlock(L);
     (*hook)(L, &ar);
     lua_lock(L);
-#if LUA_EXT_RESUMABLEVM
-    lua_assert(nohooks(L));
-    L->nCcalls = old_nCcalls;  /* restore call flags */
-#else
     lua_assert(!L->allowhook);
     L->allowhook = 1;
-#endif /* LUA_EXT_RESUMABLEVM */
     L->ci->top = restorestack(L, ci_top);
     L->top = restorestack(L, top);
-#if LUA_EXT_RESUMABLEVM
-    if (L->status == LUA_YIELD) {  /* handle hook yield here, after restore */
-      L->base = L->top;  /* protect Lua frame, undo this in f_coresume */
-      SAVEPC(L, GETPC(L) - 1);  /* correct pc */
-      luaD_throw(L, LUA_YIELD);
-    }
-#endif /* LUA_EXT_RESUMABLEVM */
   }
 }
 
@@ -418,31 +271,17 @@ static StkId tryfuncTM (lua_State *L, StkId func) {
 
 
 int luaD_precall (lua_State *L, StkId func, int nresults) {
-#if LUA_EXT_RESUMABLEVM
-  Closure *cl;
-#else
   LClosure *cl;
-#endif /* LUA_EXT_RESUMABLEVM */
   ptrdiff_t funcr;
   if (!ttisfunction(func)) /* `func' is not a function? */
     func = tryfuncTM(L, func);  /* check the `function' tag method */
   funcr = savestack(L, func);
-#if LUA_EXT_RESUMABLEVM
-  cl = clvalue(func);
-  L->ci->ctx = L->ctx;
-  if (!cl->l.isC) {  /* Lua function? prepare its call */
-#else
   cl = &clvalue(func)->l;
   L->ci->savedpc = L->savedpc;
   if (!cl->isC) {  /* Lua function? prepare its call */
-#endif /* LUA_EXT_RESUMABLEVM */
     CallInfo *ci;
     StkId st, base;
-#if LUA_EXT_RESUMABLEVM
-    Proto *p = cl->l.p;
-#else
     Proto *p = cl->p;
-#endif /* LUA_EXT_RESUMABLEVM */
     luaD_checkstack(L, p->maxstacksize);
     func = restorestack(L, funcr);
     if (!p->is_vararg) {  /* no varargs? */
@@ -460,30 +299,16 @@ int luaD_precall (lua_State *L, StkId func, int nresults) {
     L->base = ci->base = base;
     ci->top = L->base + p->maxstacksize;
     lua_assert(ci->top <= L->stack_last);
-#if LUA_EXT_RESUMABLEVM
-    SAVEPC(L, p->code);  /* starting point */
-    ci->tailcalls = 0;
-    ci->nresults = cast(short, nresults);
-    ci->errfunc = 0;
-#else
     L->savedpc = p->code;  /* starting point */
     ci->tailcalls = 0;
     ci->nresults = nresults;
-#endif /* LUA_EXT_RESUMABLEVM */
     for (st = L->top; st < ci->top; st++)
       setnilvalue(st);
     L->top = ci->top;
     if (L->hookmask & LUA_MASKCALL) {
-#if LUA_EXT_RESUMABLEVM
-      const Instruction* pc = GETPC(L);
-      SAVEPC(L, pc+1);  /* hooks assume 'pc' is already incremented */
-      luaD_callhook(L, LUA_HOOKCALL, -1);
-      SAVEPC(L, pc);  /* correct 'pc' */
-#else
       L->savedpc++;  /* hooks assume 'pc' is already incremented */
       luaD_callhook(L, LUA_HOOKCALL, -1);
       L->savedpc--;  /* correct 'pc' */
-#endif /* LUA_EXT_RESUMABLEVM */
     }
     return PCRLUA;
   }
@@ -496,21 +321,11 @@ int luaD_precall (lua_State *L, StkId func, int nresults) {
     L->base = ci->base = ci->func + 1;
     ci->top = L->top + LUA_MINSTACK;
     lua_assert(ci->top <= L->stack_last);
-#if LUA_EXT_RESUMABLEVM
-    L->ctx = NULL;  /* initial vcontext */
-    ci->nresults = cast(short, nresults);
-    ci->errfunc = 0;
-#else
     ci->nresults = nresults;
-#endif /* LUA_EXT_RESUMABLEVM */
     if (L->hookmask & LUA_MASKCALL)
       luaD_callhook(L, LUA_HOOKCALL, -1);
     lua_unlock(L);
-#if LUA_EXT_RESUMABLEVM
-    n = (*cl->c.f)(L);  /* do the actual call */
-#else
     n = (*curr_func(L)->c.f)(L);  /* do the actual call */
-#endif /* LUA_EXT_RESUMABLEVM */
     lua_lock(L);
     if (n < 0)  /* yielding? */
       return PCRYIELD;
@@ -543,11 +358,7 @@ int luaD_poscall (lua_State *L, StkId firstResult) {
   res = ci->func;  /* res == final position of 1st result */
   wanted = ci->nresults;
   L->base = (ci - 1)->base;  /* restore base */
-#if LUA_EXT_RESUMABLEVM
-  L->ctx = (ci - 1)->ctx;  /* restore ctx */
-#else
   L->savedpc = (ci - 1)->savedpc;  /* restore savedpc */
-#endif /* LUA_EXT_RESUMABLEVM */
   /* move results to correct place */
   for (i = wanted; i != 0 && firstResult < L->top; i--)
     setobjs2s(L, res++, firstResult++);
@@ -568,64 +379,6 @@ int luaD_poscall (lua_State *L, StkId firstResult) {
 ** When returns, all the results are on the stack, starting at the original
 ** function position.
 */ 
-#if LUA_EXT_RESUMABLEVM
-
-void luaD_call (lua_State *L, StkId func, int nresults, int callflags) {
-  unsigned short old_nCcalls = L->nCcalls;
-  int pcr;
-  L->nCcalls = (old_nCcalls + 8) | callflags;
-  if (L->nCcalls >= LUAI_MAXCCALLS*8) {
-    if (L->nCcalls < (LUAI_MAXCCALLS+1)*8)
-      luaG_runerror(L, "C stack overflow");
-    else if (L->nCcalls >= (LUAI_MAXCCALLS + (LUAI_MAXCCALLS>>3))*8)
-      luaD_throw(L, LUA_ERRERR);  /* error while handing stack error */
-  }
-  pcr = luaD_precall(L, func, nresults);
-  if ((pcr == PCRLUA && luaV_execute(L)) || pcr == PCRYIELD)
-    luaD_throw(L, LUA_YIELD);  /* need to break C call boundary */
-  luaC_checkGC(L);
-  L->nCcalls = old_nCcalls;
-}
-
-
-static int f_coresume (lua_State *L, void *ud) {
-  StkId base = cast(StkId, ud);
-  if (L->ctx == NULL)  /* tail yield from C */
-    luaD_poscall(L, base);  /* finish C call */
-  else if (f_isLua(L->ci)) {  /* yield from Lua hook */
-    L->base = L->ci->base;  /* restore invariant */
-    if (luaV_execute(L)) return LUA_YIELD;
-  }
-  else {  /* resumable yield from C */
-    StkId rbase = L->base;
-    if (rbase < base) {
-      while (base < L->top)
-        setobjs2s(L, rbase++, base++);  /* move results down */
-      L->top = rbase;
-    }
-    L->base = L->ci->base;  /* restore invariant */
-  }
-  return f_continue(L, (void *)(ptrdiff_t)0);  /* resume remaining frames */
-}
-
-
-static int f_costart (lua_State *L, void *ud) {
-  int pcr = luaD_precall(L, cast(StkId, ud), LUA_MULTRET);
-  if ((pcr == PCRLUA && luaV_execute(L)) || pcr == PCRYIELD)
-    return LUA_YIELD;
-  else
-    return 0;
- }
-
-
-static int f_coerror (lua_State *L, void *ud) {
-  lua_pushstring(L, "*error");
-  lua_error(L);
-  return 0;
- }
-
-#else
-
 void luaD_call (lua_State *L, StkId func, int nResults) {
   if (++L->nCcalls >= LUAI_MAXCCALLS) {
     if (L->nCcalls == LUAI_MAXCCALLS)
@@ -664,7 +417,6 @@ static void resume (lua_State *L, void *ud) {
   luaV_execute(L, cast_int(L->ci - L->base_ci));
 }
 
-#endif /* LUA_EXT_RESUMABLEVM */
 
 static int resume_error (lua_State *L, const char *msg) {
   L->top = L->ci->base;
@@ -676,49 +428,6 @@ static int resume_error (lua_State *L, const char *msg) {
 
 
 LUA_API int lua_resume (lua_State *L, int nargs) {
-#if LUA_EXT_RESUMABLEVM
-  Pfunc pf;
-  void *ud;
-  int status;
-  lua_lock(L);
-  switch (L->status) {
-  case LUA_ERRFORCECO:
-    pf = f_coerror;
-    ud = 0;
-    break;
-  case LUA_YIELD:
-    pf = f_coresume;
-    ud = L->top - nargs;
-    L->status = 0;
-    break;
-  case 0:
-    if (L->ci != L->base_ci)
-      return resume_error(L, "cannot resume non-suspended coroutine");
-    pf = f_costart;
-    ud = L->top - (nargs + 1);
-    break;
-  default:
-    return resume_error(L, "cannot resume dead coroutine");
-  }
-  lua_assert(cast(StkId, ud) >= L->base);
-  for (;;) {
-    L->nCcalls = 0;
-    status = luaD_rawrunprotected(L, pf, ud);
-    if (status <= LUA_YIELD)
-      break;
-    if (unwind_frames(L, L->base_ci, 0, status)) {  /* fallthrough? */
-      /* keep frames for traceback, but mark coroutine as `dead' */
-      luaD_seterrorobj(L, status, L->top);
-      break;
-    }
-    pf = f_continue;
-    ud = (void *)(ptrdiff_t)0;  /* (void *)saveci(L, L->base_ci); */
-   }
-/*  if (L->nCcalls >= LUAI_MAXCCALLS)
-    return resume_error(L, "C stack overflow");*/
-  L->nCcalls = LUA_NOYIELD | LUA_NOVPCALL;
-  L->status = status;
-#else
   int status;
   lua_lock(L);
   if (L->status != LUA_YIELD && (L->status != 0 || L->ci != L->base_ci))
@@ -739,29 +448,10 @@ LUA_API int lua_resume (lua_State *L, int nargs) {
     status = L->status;
   }
   --L->nCcalls;
-#endif /* LUA_EXT_RESUMABLEVM */
   lua_unlock(L);
   return status;
 }
 
-
-#if LUA_EXT_RESUMABLEVM
-
-LUA_API int lua_vyield (lua_State *L, int nresults, void *ctx) {
-  lua_lock(L);
-  if (noyield(L))
-    luaG_runerror(L, "attempt to yield across non-resumable call boundary");
-  lua_assert(L->ci > L->base_ci);
-  if (!f_isLua(L->ci)) {  /* usual yield */
-    L->ctx = ctx;
-    L->base = L->top - nresults;  /* no longer in sync with L->ci->base */
-  }
-  L->status = LUA_YIELD;  /* marker for luaD_callhook */
-  lua_unlock(L);
-  return -1;
-}
-
-#else
 
 LUA_API int lua_yield (lua_State *L, int nresults) {
   luai_userstateyield(L, nresults);
@@ -805,7 +495,7 @@ int luaD_pcall (lua_State *L, Pfunc func, void *u,
   return status;
 }
 
-#endif /* LUA_EXT_RESUMABLEVM */
+
 
 /*
 ** Execute a protected parser.
@@ -816,19 +506,12 @@ struct SParser {  /* data to `f_parser' */
   const char *name;
 };
 
-#if LUA_EXT_RESUMABLEVM
-static int f_parser (lua_State *L, void *ud) {
-#else
 static void f_parser (lua_State *L, void *ud) {
-#endif /* LUA_EXT_RESUMABLEVM */
   int i;
   Proto *tf;
   Closure *cl;
   struct SParser *p = cast(struct SParser *, ud);
   int c = luaZ_lookahead(p->z);
-#if LUA_EXT_RESUMABLEVM
-  L->nCcalls |= (LUA_NOYIELD | LUA_NOVPCALL);  /* parser is not resumable */
-#endif /* LUA_EXT_RESUMABLEVM */
   luaC_checkGC(L);
 #if LUA_WIDESTRING_FILE
   {
@@ -852,9 +535,6 @@ static void f_parser (lua_State *L, void *ud) {
     cl->l.upvals[i] = luaF_newupval(L);
   setclvalue(L, L->top, cl);
   incr_top(L);
-#if LUA_EXT_RESUMABLEVM
-  return 0;
-#endif /* LUA_EXT_RESUMABLEVM */
 }
 
 
@@ -863,12 +543,7 @@ int luaD_protectedparser (lua_State *L, ZIO *z, const char *name) {
   int status;
   p.z = z; p.name = name;
   luaZ_initbuffer(L, &p.buff);
-#if LUA_EXT_RESUMABLEVM
-  status = luaD_pcall(L, f_parser, &p, savestack(L, L->top),
-                      -1, ~0);  /* -1 = inherit errfunc */
-#else
   status = luaD_pcall(L, f_parser, &p, savestack(L, L->top), L->errfunc);
-#endif /* LUA_EXT_RESUMABLEVM */
   luaZ_freebuffer(L, &p.buff);
   return status;
 }

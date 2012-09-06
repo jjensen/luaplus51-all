@@ -53,10 +53,6 @@
 #define LUAPLUS_DUMPOBJECT 1
 #endif /* LUAPLUS_DUMPOBJECT */
 
-#ifndef LUA_EXT_RESUMABLEVM
-#define LUA_EXT_RESUMABLEVM 0
-#endif /* LUA_EXT_RESUMABLEVM */
-
 /* Still has bugs... */
 #ifndef LUA_REFCOUNT
 #define LUA_REFCOUNT 0

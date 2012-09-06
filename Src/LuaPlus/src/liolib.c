@@ -18,6 +18,8 @@
 #include "lauxlib.h"
 #include "lualib.h"
 
+
+
 #define IO_INPUT	1
 #define IO_OUTPUT	2
 
@@ -271,6 +273,7 @@ static int io_lines (lua_State *L) {
 ** =======================================================
 */
 
+
 static int read_number (lua_State *L, FILE *f) {
   lua_Number d;
   if (fscanf(f, LUA_NUMBER_SCAN, &d) == 1) {
@@ -282,6 +285,7 @@ static int read_number (lua_State *L, FILE *f) {
     return 0;  /* read fails */
   }
 }
+
 
 static int test_eof (lua_State *L, FILE *f) {
   int c = getc(f);

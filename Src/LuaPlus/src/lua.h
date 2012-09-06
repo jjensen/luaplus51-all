@@ -12,6 +12,7 @@
 #include <stdarg.h>
 #include <stddef.h>
 
+
 #include "luaconf.h"
 
 
@@ -44,10 +45,7 @@
 #define LUA_ERRSYNTAX	3
 #define LUA_ERRMEM	4
 #define LUA_ERRERR	5
-#if LUA_EXT_RESUMABLEVM
-#define LUA_ERREXC	6
-#define LUA_ERRFORCECO  7
-#endif /* LUA_EXT_RESUMABLEVM */
+
 
 typedef struct lua_State lua_State;
 
@@ -211,14 +209,8 @@ LUA_API int   (lua_setfenv) (lua_State *L, int idx);
 /*
 ** `load' and `call' functions (load and run Lua code)
 */
-#if LUA_EXT_RESUMABLEVM
-LUA_API void  (lua_vcall) (lua_State *L, int nargs, int nresults, void *ctx);
-LUA_API int   (lua_vpcall) (lua_State *L, int nargs, int nresults,
-                            int errfunc, void *ctx);
-#else
 LUA_API void  (lua_call) (lua_State *L, int nargs, int nresults);
 LUA_API int   (lua_pcall) (lua_State *L, int nargs, int nresults, int errfunc);
-#endif /* LUA_EXT_RESUMABLEVM */
 LUA_API int   (lua_cpcall) (lua_State *L, lua_CFunction func, void *ud);
 LUA_API int   (lua_load) (lua_State *L, lua_Reader reader, void *dt,
                                         const char *chunkname);
@@ -229,35 +221,13 @@ LUA_API int   (lua_wload) (lua_State *L, lua_Reader reader, void *data,
 
 LUA_API int (lua_dump) (lua_State *L, lua_Writer writer, void *data);
 
-#if LUA_EXT_RESUMABLEVM
-LUA_API void *lua_vcontext (lua_State *L);
-
-#define lua_icontext(L)		((int)(ptrdiff_t)lua_vcontext(L))
-#define lua_call(L, na, nr)	lua_vcall(L, (na), (nr), NULL)
-#define lua_icall(L, na, nr, i) \
-	lua_vcall(L, (na), (nr), (void *)(ptrdiff_t)(i))
-#define lua_pcall(L, na, nr, ef)	lua_vpcall(L, (na), (nr), (ef), NULL)
-#define lua_ipcall(L, na, nr, ef, i) \
-	lua_vpcall(L, (na), (nr), (ef), (void *)(ptrdiff_t)(i))
-#endif /* LUA_EXT_RESUMABLEVM */
-
 
 /*
 ** coroutine functions
 */
-#if LUA_EXT_RESUMABLEVM
-LUA_API int  (lua_vyield) (lua_State *L, int nresults, void *ctx);
-#else
 LUA_API int  (lua_yield) (lua_State *L, int nresults);
-#endif /* LUA_EXT_RESUMABLEVM */
 LUA_API int  (lua_resume) (lua_State *L, int narg);
 LUA_API int  (lua_status) (lua_State *L);
-
-#if LUA_EXT_RESUMABLEVM
-#define lua_yield(L, nr)	lua_vyield(L, (nr), NULL)
-#define lua_iyield(L, nr, i)	lua_vyield(L, (nr), (void *)(ptrdiff_t)(i))
-#endif /* LUA_EXT_RESUMABLEVM */
-
 
 /*
 ** garbage-collection function and options
@@ -287,6 +257,7 @@ LUA_API void  (lua_concat) (lua_State *L, int n);
 
 LUA_API lua_Alloc (lua_getallocf) (lua_State *L, void **ud);
 LUA_API void lua_setallocf (lua_State *L, lua_Alloc f, void *ud);
+
 
 
 /* 

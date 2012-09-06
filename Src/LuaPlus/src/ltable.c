@@ -34,6 +34,7 @@
 #include "lstate.h"
 #include "ltable.h"
 
+
 /*
 ** max size of array part is 2^MAXBITS
 */
@@ -50,6 +51,7 @@
   
 #define hashstr(t,str)  hashpow2(t, (str)->tsv.hash)
 #define hashboolean(t,p)        hashpow2(t, p)
+
 
 /*
 ** for some types, it is better to avoid modulus by power of 2, as
@@ -88,6 +90,7 @@ static Node *hashnum (const Table *t, lua_Number n) {
   for (i = 1; i < numints; i++) a[0] += a[i];
   return hashmod(t, a[0]);
 }
+
 
 
 /*

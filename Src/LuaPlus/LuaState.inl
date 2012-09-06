@@ -468,20 +468,6 @@ LUAPLUS_INLINE void LuaState::SetFEnv(int index)
 }
 
 // `load' and `call' functions (load and run Lua code)
-#if LUA_EXT_RESUMABLEVM
-
-LUAPLUS_INLINE void LuaState::VCall(int nargs, int nresults, void *ctx) {
-	lua_vcall(LuaState_to_lua_State(this), nargs, nresults, ctx);
-}
-
-
-LUAPLUS_INLINE int LuaState::VPCall(int nargs, int nresults, int errfunc, void *ctx) {
-	return lua_vpcall(LuaState_to_lua_State(this), nargs, nresults, errfunc, ctx);
-}
-
-#endif
-
-
 LUAPLUS_INLINE void LuaState::Call(int nargs, int nresults) {
 	lua_call(LuaState_to_lua_State(this), nargs, nresults);
 }
@@ -524,29 +510,6 @@ LUAPLUS_INLINE int LuaState::Dump(lua_Chunkwriter writer, void* data)
 }
 
 #endif /* LUA_ENDIAN_SUPPORT */
-
-#if LUA_EXT_RESUMABLEVM
-
-LUAPLUS_INLINE void* LuaState::VContext() {
-	return lua_vcontext(LuaState_to_lua_State(this));
-}
-
-
-LUAPLUS_INLINE int LuaState::IContext() {
-	return lua_icontext(LuaState_to_lua_State(this));
-}
-
-
-LUAPLUS_INLINE void LuaState::ICall(int nargs, int nresults, int ctx) {
-	lua_icall(LuaState_to_lua_State(this), nargs, nresults, ctx);
-}
-
-
-LUAPLUS_INLINE int LuaState::IPCall(int nargs, int nresults, int errf, int ctx) {
-	return lua_ipcall(LuaState_to_lua_State(this), nargs, nresults, errf);
-}
-
-#endif /* LUA_EXT_RESUMABLEVM */
 
 LUAPLUS_INLINE int LuaState::LoadFile(const char* filename)
 {
@@ -594,20 +557,6 @@ LUAPLUS_INLINE int LuaState::DoWBuffer(const lua_WChar* buff, size_t size, const
 /*
 ** coroutine functions
 */
-#if LUA_EXT_RESUMABLEVM
-
-LUAPLUS_INLINE int LuaState::VYield(int nresults, void* ctx) {
-	return lua_vyield(LuaState_to_lua_State(this), nresults, ctx);
-}
-
-
-LUAPLUS_INLINE int LuaState::IYield(int nresults, int ctx) {
-	return lua_vyield(LuaState_to_lua_State(this), nresults, ctx);
-}
-
-#endif /* LUA_EXT_RESUMABLEVM */
-
-
 LUAPLUS_INLINE int LuaState::Yield_(int nresults) {
 	return lua_yield(LuaState_to_lua_State(this), nresults);
 }

@@ -148,13 +148,8 @@ public:
 	void SetFEnv(int index);
 
 	// `load' and `call' functions (load and run Lua code)
-#if LUA_EXT_RESUMABLEVM
-	void VCall(int nargs, int nresults, void *ctx);
-	int VPCall(int nargs, int nresults, int errfunc, void *ctx);
-#else
 	void Call(int nargs, int nresults);
 	int PCall(int nargs, int nresults, int errfunc);
-#endif /* LUA_EXT_RESUMABLEVM */
 	int CPCall(lua_CFunction func, void* ud);
 	int Load(lua_Reader reader, void *dt, const char *chunkname);
 	int WLoad(lua_Reader reader, void *data, const char *chunkname);
@@ -165,22 +160,9 @@ public:
 	int Dump(lua_Writer writer, void* data);
 #endif /* LUA_ENDIAN_SUPPORT */
 
-#if LUA_EXT_RESUMABLEVM
-	void* VContext();
-
-	int IContext();
-	void Call(int nargs, int nresults);
-	void ICall(int nargs, int nresults, ptrdiff_t i);
-	int PCall(int nargs, int nresults, int errfunc);
-	void IPCall(int nargs, int nresults, int errfunc, ptrdiff_t i);
-#endif /* LUA_EXT_RESUMABLEVM */
-
 	/*
 	** coroutine functions
 	*/
-#if LUA_EXT_RESUMABLEVM
-	int VYield(int nresults, void* ctx);
-#endif /* LUA_EXT_RESUMABLEVM */
 	int Yield_(int nresults);
 	int Resume(int narg);
 	int Status();

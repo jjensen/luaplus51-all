@@ -679,7 +679,6 @@ static int constfolding (OpCode op, expdesc *e1, expdesc *e2) {
   if (!isnumeral(e1) || !isnumeral(e2)) return 0;
   v1 = e1->u.nval;
   v2 = e2->u.nval;
-
   switch (op) {
     case OP_ADD: r = luai_numadd(v1, v2); break;
     case OP_SUB: r = luai_numsub(v1, v2); break;
@@ -740,7 +739,6 @@ static void codecomp (FuncState *fs, OpCode op, int cond, expdesc *e1,
 void luaK_prefix (FuncState *fs, UnOpr op, expdesc *e) {
   expdesc e2;
   e2.t = e2.f = NO_JUMP; e2.k = VKNUM; e2.u.nval = 0;
-
   switch (op) {
     case OPR_MINUS: {
       if (!isnumeral(e))

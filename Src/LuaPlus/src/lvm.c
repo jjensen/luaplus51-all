@@ -26,6 +26,8 @@
 #include "ltm.h"
 #include "lvm.h"
 
+
+
 /* limit for table tag-method chains (to avoid loops) */
 #define MAXTAGLOOP	100
 
@@ -65,19 +67,10 @@ int luaV_tostring (lua_State *L, StkId obj) {
 }
 
 
-#if LUA_EXT_RESUMABLEVM
-static StkId traceexec (lua_State *L, const Instruction *pc) {
-#else
 static void traceexec (lua_State *L, const Instruction *pc) {
-#endif /* LUA_EXT_RESUMABLEVM */
   lu_byte mask = L->hookmask;
-#if LUA_EXT_RESUMABLEVM
-  const Instruction *oldpc = GETPC(L);
-  SAVEPC(L, pc);
-#else
   const Instruction *oldpc = L->savedpc;
   L->savedpc = pc;
-#endif /* LUA_EXT_RESUMABLEVM */
   if ((mask & LUA_MASKCOUNT) && L->hookcount == 0) {
     resethookcount(L);
     luaD_callhook(L, LUA_HOOKCOUNT, -1);
@@ -91,9 +84,6 @@ static void traceexec (lua_State *L, const Instruction *pc) {
     if (npc == 0 || pc <= oldpc || newline != getline(p, pcRel(oldpc, p)))
       luaD_callhook(L, LUA_HOOKLINE, newline);
   }
-#if LUA_EXT_RESUMABLEVM
-  return L->base;
-#endif /* LUA_EXT_RESUMABLEVM */
 }
 
 
@@ -105,11 +95,7 @@ static void callTMres (lua_State *L, StkId res, const TValue *f,
   setobj2s(L, L->top+2, p2);  /* 2nd argument */
   luaD_checkstack(L, 3);
   L->top += 3;
-#if LUA_EXT_RESUMABLEVM
-  luaD_call(L, L->top - 3, 1, 0);
-#else
   luaD_call(L, L->top - 3, 1);
-#endif /* LUA_EXT_RESUMABLEVM */
   res = restorestack(L, result);
   L->top--;
   setobjs2s(L, res, L->top);
@@ -125,11 +111,7 @@ static void callTM (lua_State *L, const TValue *f, const TValue *p1,
   setobj2s(L, L->top+3, p3);  /* 3th argument */
   luaD_checkstack(L, 4);
   L->top += 4;
-#if LUA_EXT_RESUMABLEVM
-  luaD_call(L, L->top - 4, 0, 0);
-#else
   luaD_call(L, L->top - 4, 0);
-#endif /* LUA_EXT_RESUMABLEVM */
 }
 
 
@@ -384,15 +366,8 @@ void luaV_concat (lua_State *L, int total, int last) {
       StkId top = L->base + last + 1;
       int n = 2;  /* number of elements handled in this pass (at least 2) */
       if (!tostring(L, top-2) || !tostring(L, top-1)) {
-#if LUA_EXT_RESUMABLEVM
-        setpvalue(L->top, (void *)(ptrdiff_t)(last - 1));  /* for luaV_resume */
-        L->top++;
-#endif /* LUA_EXT_RESUMABLEVM */
         if (!call_binTM(L, top-2, top-1, top-2, TM_CONCAT))
           luaG_concaterror(L, top-2, top-1);
-#if LUA_EXT_RESUMABLEVM
-        L->top--;
-#endif /* LUA_EXT_RESUMABLEVM */
       } else if (tsvalue(top-1)->len > 0) {  /* if len=0, do nothing */
         /* at least two string values; get as many as possible */
         size_t tl = tsvalue(top-1)->len;
@@ -424,15 +399,8 @@ void luaV_concat (lua_State *L, int total, int last) {
       StkId top = L->base + last + 1;
       int n = 2;  /* number of elements handled in this pass (at least 2) */
       if (!towstring(L, top-2) || !towstring(L, top-1)) {
-#if LUA_EXT_RESUMABLEVM
-        setpvalue(L->top, (void *)(ptrdiff_t)(last - 1));  /* for luaV_resume */
-        L->top++;
-#endif /* LUA_EXT_RESUMABLEVM */
         if (!call_binTM(L, top-2, top-1, top-2, TM_CONCAT))
           luaG_concaterror(L, top-2, top-1);
-#if LUA_EXT_RESUMABLEVM
-        L->top--;
-#endif /* LUA_EXT_RESUMABLEVM */
       } else if (tsvalue(top-1)->len > 0) {  /* if len=0, do nothing */
         /* at least two string values; get as many as possible */
         size_t tl = tsvalue(top-1)->len;
@@ -545,6 +513,7 @@ static void Arith (lua_State *L, StkId ra, const TValue *rb,
 }
 
 
+
 /*
 ** some macros for common tasks in `luaV_execute'
 */
@@ -565,11 +534,7 @@ static void Arith (lua_State *L, StkId ra, const TValue *rb,
 #define dojump(L,pc,i)	{(pc) += (i); luai_threadyield(L);}
 
 
-#if LUA_EXT_RESUMABLEVM
-#define Protect(x)	{ SAVEPC(L, pc); {x;}; base = L->base; }
-#else
 #define Protect(x)	{ L->savedpc = pc; {x;}; base = L->base; }
-#endif /* LUA_EXT_RESUMABLEVM */
 
 
 #define arith_op(op,tm) { \
@@ -584,25 +549,15 @@ static void Arith (lua_State *L, StkId ra, const TValue *rb,
       }
 
 
-#if LUA_EXT_RESUMABLEVM
-int luaV_execute (lua_State *L) {
-#else
+
 void luaV_execute (lua_State *L, int nexeccalls) {
-#endif /* LUA_EXT_RESUMABLEVM */
   LClosure *cl;
   StkId base;
   TValue *k;
   const Instruction *pc;
-#if LUA_EXT_RESUMABLEVM
-  int nexeccalls = 1;
-#endif /* LUA_EXT_RESUMABLEVM */
  reentry:  /* entry point */
   lua_assert(isLua(L->ci));
-#if LUA_EXT_RESUMABLEVM
-  pc = GETPC(L);
-#else
   pc = L->savedpc;
-#endif /* LUA_EXT_RESUMABLEVM */
   cl = &clvalue(L->ci->func)->l;
   base = L->base;
   k = cl->p->k;
@@ -610,11 +565,6 @@ void luaV_execute (lua_State *L, int nexeccalls) {
   for (;;) {
     const Instruction i = *pc++;
     StkId ra;
-#if LUA_EXT_RESUMABLEVM
-    if ((L->hookmask & (LUA_MASKLINE | LUA_MASKCOUNT)) &&
-        (--L->hookcount == 0 || L->hookmask & LUA_MASKLINE))
-      base = traceexec(L, pc);
-#else
     if ((L->hookmask & (LUA_MASKLINE | LUA_MASKCOUNT)) &&
         (--L->hookcount == 0 || L->hookmask & LUA_MASKLINE)) {
       traceexec(L, pc);
@@ -624,7 +574,6 @@ void luaV_execute (lua_State *L, int nexeccalls) {
       }
       base = L->base;
     }
-#endif /* LUA_EXT_RESUMABLEVM */
     /* warning!! several calls may realloc the stack and invalidate `ra' */
     ra = RA(i);
     lua_assert(base == L->base && L->base == L->ci->base);
@@ -834,11 +783,7 @@ void luaV_execute (lua_State *L, int nexeccalls) {
         int b = GETARG_B(i);
         int nresults = GETARG_C(i) - 1;
         if (b != 0) L->top = ra+b;  /* else previous instruction set top */
-#if LUA_EXT_RESUMABLEVM
-        SAVEPC(L, pc);
-#else
         L->savedpc = pc;
-#endif /* LUA_EXT_RESUMABLEVM */
         switch (luaD_precall(L, ra, nresults)) {
           case PCRLUA: {
             nexeccalls++;
@@ -851,22 +796,14 @@ void luaV_execute (lua_State *L, int nexeccalls) {
             continue;
           }
           default: {
-#if LUA_EXT_RESUMABLEVM
-            return LUA_YIELD;
-#else
             return;  /* yield */
-#endif /* LUA_EXT_RESUMABLEVM */
           }
         }
       }
       case OP_TAILCALL: {
         int b = GETARG_B(i);
         if (b != 0) L->top = ra+b;  /* else previous instruction set top */
-#if LUA_EXT_RESUMABLEVM
-        SAVEPC(L, pc);
-#else
         L->savedpc = pc;
-#endif /* LUA_EXT_RESUMABLEVM */
         lua_assert(GETARG_C(i) - 1 == LUA_MULTRET);
         switch (luaD_precall(L, ra, LUA_MULTRET)) {
           case PCRLUA: {
@@ -881,11 +818,7 @@ void luaV_execute (lua_State *L, int nexeccalls) {
               setobjs2s(L, func+aux, pfunc+aux);
             ci->top = L->top = func+aux;  /* correct top */
             lua_assert(L->top == L->base + clvalue(func)->l.p->maxstacksize);
-#if LUA_EXT_RESUMABLEVM
-            ci->ctx = L->ctx;
-#else
             ci->savedpc = L->savedpc;
-#endif /* LUA_EXT_RESUMABLEVM */
             ci->tailcalls++;  /* one more call lost */
             L->ci--;  /* remove new frame */
             goto reentry;
@@ -895,11 +828,7 @@ void luaV_execute (lua_State *L, int nexeccalls) {
             continue;
           }
           default: {
-#if LUA_EXT_RESUMABLEVM
-            return LUA_YIELD;
-#else
             return;  /* yield */
-#endif /* LUA_EXT_RESUMABLEVM */
           }
         }
       }
@@ -911,11 +840,7 @@ void luaV_execute (lua_State *L, int nexeccalls) {
 #endif /* LUA_REFCOUNT */
         if (b != 0) L->top = ra+b-1;
         if (L->openupval) luaF_close(L, base);
-#if LUA_EXT_RESUMABLEVM
-        SAVEPC(L, pc);
-#else
         L->savedpc = pc;
-#endif /* LUA_EXT_RESUMABLEVM */
         b = luaD_poscall(L, ra);
 #if LUA_REFCOUNT
         oldTop = L->top;
@@ -924,19 +849,11 @@ void luaV_execute (lua_State *L, int nexeccalls) {
         L->top = oldTop;
 #endif /* LUA_REFCOUNT */
         if (--nexeccalls == 0)  /* was previous function running `here'? */
-#if LUA_EXT_RESUMABLEVM
-          return 0;  /* no: return */
-#else
           return;  /* no: return */
-#endif /* LUA_EXT_RESUMABLEVM */
         else {  /* yes: continue its execution */
           if (b) L->top = L->ci->top;
-#if LUA_EXT_RESUMABLEVM
-          lua_assert(isLua(L->ci) && GET_OPCODE(*(GETPC(L)-1)) == OP_CALL);
-#else
           lua_assert(isLua(L->ci));
           lua_assert(GET_OPCODE(*((L->ci)->savedpc - 1)) == OP_CALL);
-#endif /* LUA_EXT_RESUMABLEVM */
           goto reentry;
         }
       }
@@ -956,11 +873,7 @@ void luaV_execute (lua_State *L, int nexeccalls) {
         const TValue *init = ra;
         const TValue *plimit = ra+1;
         const TValue *pstep = ra+2;
-#if LUA_EXT_RESUMABLEVM
-        SAVEPC(L, pc);  /* next steps may throw errors */
-#else
         L->savedpc = pc;  /* next steps may throw errors */
-#endif /* LUA_EXT_RESUMABLEVM */
         if (!tonumber(init, ra))
           luaG_runerror(L, LUA_QL("for") " initial value must be a number");
         else if (!tonumber(plimit, ra+1))
@@ -977,11 +890,7 @@ void luaV_execute (lua_State *L, int nexeccalls) {
         setobjs2s(L, cb+1, ra+1);
         setobjs2s(L, cb, ra);
         L->top = cb+3;  /* func. + 2 args (state and index) */
-#if LUA_EXT_RESUMABLEVM
-        Protect(luaD_call(L, cb, GETARG_C(i), 0));
-#else
         Protect(luaD_call(L, cb, GETARG_C(i)));
-#endif /* LUA_EXT_RESUMABLEVM */
         L->top = L->ci->top;
         cb = RA(i) + 3;  /* previous call may change the stack */
         if (!ttisnil(cb)) {  /* continue loop? */
@@ -1072,58 +981,3 @@ void luaV_execute (lua_State *L, int nexeccalls) {
   }
 }
 
-#if LUA_EXT_RESUMABLEVM
-
-void luaV_resume (lua_State *L) {
-  const Instruction *pc = GETPC(L);
-  const Instruction i = *(pc - 1);
-  switch (GET_OPCODE(i)) {  /* finish opcodes */
-  case OP_CALL:
-    if (i & MASK1(SIZE_C,POS_C)) L->top = L->ci->top;
-    break;
-  case OP_SETGLOBAL: case OP_SETTABLE: case OP_TAILCALL:
-    break;  /* ok, but nothing to do */
-  case OP_GETGLOBAL: case OP_GETTABLE: case OP_SELF: case OP_ADD: case OP_SUB:
-  case OP_MUL: case OP_DIV: case OP_MOD: case OP_POW: case OP_UNM: case OP_LEN:
-    L->top--;
-    setobjs2s(L, L->base + GETARG_A(i), L->top);
-    break;
-  case OP_LT: case OP_LE: case OP_EQ:
-    L->top--;
-    if (!l_isfalse(L->top) != GETARG_A(i)) pc++;
-    else dojump(L, pc, GETARG_sBx(*pc) + 1);
-    SAVEPC(L, pc);
-    break;
-  case OP_TFORLOOP: {
-    StkId cb;  /* call base */
-    L->top = L->ci->top;
-    cb = L->base + GETARG_A(i) + 3;
-    if (ttisnil(cb))  /* break loop? */
-      pc++;  /* skip jump (break loop) */
-    else {
-      setobjs2s(L, cb-1, cb);  /* save control variable */
-      dojump(L, pc, GETARG_sBx(*pc) + 1);  /* jump back */
-    }
-    SAVEPC(L, pc);
-    break;
-  }
-  case OP_CONCAT: {
-    int b = GETARG_B(i);
-    int c;
-    L->top -= 2;
-    c = (int)(ptrdiff_t)pvalue(L->top);
-    setobjs2s(L, L->base + c, L->top + 1);
-    if (c > b) luaV_concat(L, c-b+1, c);
-    luaC_checkGC(L);  /***/
-    setobjs2s(L, L->base + GETARG_A(i), L->base + b);
-    break;
-  }
-  default:
-    luaG_runerror(L, "return to non-resumable opcode %d", GET_OPCODE(i));
-    break;
-  }
-  lua_assert(L->top == L->ci->top ||
-             GET_OPCODE(i) == OP_CALL || GET_OPCODE(i) == OP_TAILCALL);
-}
-
-#endif /* LUA_EXT_RESUMABLEVM */

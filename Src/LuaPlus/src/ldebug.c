@@ -36,13 +36,8 @@ static const char *getfuncname (lua_State *L, CallInfo *ci, const char **name);
 static int currentpc (lua_State *L, CallInfo *ci) {
   if (!isLua(ci)) return -1;  /* function is not a Lua function? */
   if (ci == L->ci)
-#if LUA_EXT_RESUMABLEVM
-    ci->ctx = L->ctx;
-  return pcRel(cast(const Instruction *, ci->ctx), ci_func(ci)->l.p);
-#else
     ci->savedpc = L->savedpc;
   return pcRel(ci->savedpc, ci_func(ci)->l.p);
-#endif /* LUA_EXT_RESUMABLEVM */
 }
 
 
@@ -653,8 +648,6 @@ static void addinfo (lua_State *L, const char *msg) {
 }
 
 
-#if !LUA_EXT_RESUMABLEVM
-
 void luaG_errormsg (lua_State *L) {
   if (L->errfunc != 0) {  /* is there an error handling function? */
     StkId errfunc = restorestack(L, L->errfunc);
@@ -671,8 +664,6 @@ void luaG_errormsg (lua_State *L) {
   luaD_throw(L, LUA_ERRRUN);
 }
 
-#endif /* LUA_EXT_RESUMABLEVM */
-
 
 void luaG_runerror (lua_State *L, const char *fmt, ...) {
   va_list argp;
@@ -683,10 +674,6 @@ void luaG_runerror (lua_State *L, const char *fmt, ...) {
   if (L->hookmask & LUA_MASKERROR)
     luaD_callhook(L, LUA_HOOKERROR, -1);
 #endif /* LUA_TILDE_DEBUGGER */
-#if LUA_EXT_RESUMABLEVM
-  luaD_throw(L, LUA_ERRRUN);
-#else
   luaG_errormsg(L);
-#endif /* LUA_EXT_RESUMABLEVM */
 }
 
