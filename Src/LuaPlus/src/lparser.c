@@ -40,15 +40,9 @@
 typedef struct BlockCnt {
   struct BlockCnt *previous;  /* chain */
   int breaklist;  /* list of jumps out of this loop */
-#if LUA_EXT_CONTINUE
-  int continuelist;  /* list of jumps onto next loop iteration */
-#endif /* LUA_EXT_CONTINUE */
   lu_byte nactvar;  /* # active locals outside the breakable structure */
   lu_byte upval;  /* true if some variable in the block is an upvalue */
   lu_byte isbreakable;  /* true if `block' is a loop */
-#if LUA_EXT_CONTINUE
-  lu_byte continuepos;  /* index of first prohibited local if after a continue */
-#endif /* LUA_EXT_CONTINUE */
 } BlockCnt;
 
 
@@ -236,23 +230,8 @@ static int indexupvalue (FuncState *fs, TString *name, expdesc *v) {
 static int searchvar (FuncState *fs, TString *n) {
   int i;
   for (i=fs->nactvar-1; i >= 0; i--) {
-#if LUA_EXT_CONTINUE
-    if (n == getlocvar(fs, i).varname) {
-      if (i >= fs->prohibitedloc) {
-        BlockCnt *bl = fs->bl;
-        int line;
-        while (bl->continuelist == NO_JUMP)
-          bl = bl->previous;
-        line = fs->f->lineinfo[bl->continuelist];
-        fs->ls->linenumber = fs->ls->lastline; /* Go back to the name token for the error message line number */
-        luaX_lexerror(fs->ls, luaO_pushfstring(fs->L, "use of variable " LUA_QS " is not permitted in this context as its initialisation could have been skipped by the " LUA_QL("continue") " statement on line %d", n + 1, line), 0);
-      }
-      return i;
-    }
-#else
     if (n == getlocvar(fs, i).varname)
       return i;
-#endif /* LUA_EXT_CONTINUE */
   }
   return -1;  /* not found */
 }
@@ -328,15 +307,9 @@ static void enterlevel (LexState *ls) {
 
 static void enterblock (FuncState *fs, BlockCnt *bl, lu_byte isbreakable) {
   bl->breaklist = NO_JUMP;
-#if LUA_EXT_CONTINUE
-  bl->continuelist = NO_JUMP;
-#endif /* LUA_EXT_CONTINUE */
   bl->isbreakable = isbreakable;
   bl->nactvar = fs->nactvar;
   bl->upval = 0;
-#if LUA_EXT_CONTINUE
-  bl->continuepos = 0;
-#endif /* LUA_EXT_CONTINUE */
   bl->previous = fs->bl;
   fs->bl = bl;
   lua_assert(fs->freereg == fs->nactvar);
@@ -347,9 +320,6 @@ static void leaveblock (FuncState *fs) {
   BlockCnt *bl = fs->bl;
   fs->bl = bl->previous;
   removevars(fs->ls, bl->nactvar);
-#if LUA_EXT_CONTINUE
-  luaK_patchtohere(fs, bl->continuelist);
-#endif /* LUA_EXT_CONTINUE */
   if (bl->upval)
     luaK_codeABC(fs, OP_CLOSE, bl->nactvar, 0, 0);
   /* a block either controls scope or breaks (never both) */
@@ -402,9 +372,6 @@ static void open_func (LexState *ls, FuncState *fs) {
   fs->freereg = 0;
   fs->nk = 0;
   fs->np = 0;
-#if LUA_EXT_CONTINUE
-  fs->prohibitedloc = LUAI_MAXVARS + 1;  /* nothing prohibited */
-#endif /* LUA_EXT_CONTINUE */
   fs->nlocvars = 0;
   fs->nactvar = 0;
   fs->bl = NULL;
@@ -1132,33 +1099,6 @@ static void breakstat (LexState *ls) {
   luaK_concat(fs, &bl->breaklist, luaK_jump(fs));
 }
 
-#if LUA_EXT_CONTINUE
-static void continuestat (LexState *ls) {
-  FuncState *fs = ls->fs;
-  BlockCnt *bl = fs->bl;
-  int continuepos = fs->nactvar;
-  {
-    BlockCnt *b2 = bl;
-    if (b2)
-    {
-      b2 = b2->previous;
-      while (b2 && !b2->isbreakable) {
-        continuepos = bl->nactvar;
-        bl = b2;
-        b2 = b2->previous;
-      }
-    }
-    if (!b2)
-      luaX_syntaxerror(ls, "no loop to continue");
-    /* b2 is a loop block, bl is the scope block just above it,
-       continuepos is the nactvar of the scope above that */
-  }
-  if (bl->continuelist == NO_JUMP)
-    bl->continuepos = continuepos;
-  luaK_concat(fs, &bl->continuelist, luaK_jump(fs));
-}
-#endif /* LUA_EXT_CONTINUE */
-
 static void whilestat (LexState *ls, int line) {
   /* whilestat -> WHILE cond DO block END */
   FuncState *fs = ls->fs;
@@ -1189,21 +1129,7 @@ static void repeatstat (LexState *ls, int line) {
   luaX_next(ls);  /* skip REPEAT */
   chunk(ls);
   check_match(ls, TK_UNTIL, TK_REPEAT, line);
-#if LUA_EXT_CONTINUE
-  if (bl2.continuelist != NO_JUMP) {
-    int oldprohibition = fs->prohibitedloc;
-    luaK_patchtohere(fs, bl2.continuelist);
-    fs->prohibitedloc = bl2.continuepos;
-    condexit = cond(ls);  /* read condition (inside scope block) */
-    fs->prohibitedloc = oldprohibition;
-    bl2.continuelist = NO_JUMP;
-  }
-  else {
-    condexit = cond(ls);  /* read condition (inside scope block) */
-  }
-#else
   condexit = cond(ls);  /* read condition (inside scope block) */
-#endif /* LUA_EXT_CONTINUE */
   if (!bl2.upval) {  /* no upvalues? */
     leaveblock(fs);  /* finish scope */
     luaK_patchlist(ls->fs, condexit, repeat_init);  /* close the loop */
@@ -1503,13 +1429,6 @@ static int statement (LexState *ls) {
       breakstat(ls);
       return 1;  /* must be last statement */
     }
-#if LUA_EXT_CONTINUE
-    case TK_CONTINUE: {  /* stat -> continuestat */
-      luaX_next(ls);  /* skip CONTINUE */
-      continuestat(ls);
-      return 1;  /* must be last statement */
-    }
-#endif /* LUA_EXT_CONTINUE */
     default: {
       exprstat(ls);
       return 0;  /* to avoid warnings */

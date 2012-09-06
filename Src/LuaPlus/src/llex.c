@@ -63,11 +63,7 @@ static int nextwide(LexState *ls)
 
 /* ORDER RESERVED */
 const char *const luaX_tokens [] = {
-#if LUA_EXT_CONTINUE
-    "and", "break", "continue", "do", "else", "elseif",
-#else
     "and", "break", "do", "else", "elseif",
-#endif /* LUA_EXT_CONTINUE */
     "end", "false", "for", "function", "if",
     "in", "local", "nil", "not", "or", "repeat",
     "return", "then", "true", "until", "while",
