@@ -546,11 +546,7 @@ static void constructor (LexState *ls, expdesc *t) {
   init_exp(&cc.v, VVOID, 0);  /* no value (yet) */
   luaK_exp2nextreg(ls->fs, t);  /* fix it at stack top (for gc) */
   checknext(ls, '{');
-#if LUA_OPTIONAL_COMMA
-  for (;;) {
-#else
   do {
-#endif /* LUA_OPTIONAL_COMMA */
     lua_assert(cc.v.k == VVOID || cc.tostore > 0);
     if (ls->t.token == '}') break;
     closelistfield(fs, &cc);
@@ -572,15 +568,7 @@ static void constructor (LexState *ls, expdesc *t) {
         break;
       }
     }
-#if LUA_OPTIONAL_COMMA
-	if (ls->t.token == ',' || ls->t.token == ';')
-		next(ls);
-	else if (ls->t.token == '}')
-		break;
-  }
-#else
   } while (testnext(ls, ',') || testnext(ls, ';'));
-#endif /* LUA_OPTIONAL_COMMA */
   check_match(ls, '}', '{', line);
   lastlistfield(fs, &cc);
   SETARG_B(fs->f->code[pc], luaO_int2fb(cc.na)); /* set initial array size */
