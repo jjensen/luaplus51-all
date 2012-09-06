@@ -256,17 +256,6 @@ static int call_binTM (lua_State *L, const TValue *p1, const TValue *p2,
 }
 
 
-#if LUA_MUTATION_OPERATORS
-static int call_compTM (lua_State *L, const TValue *p1, const TValue *p2,
-                       StkId res, TMS event) {
-  const TValue *tm = luaT_gettmbyobj(L, p1, event);  /* try first operand */
-  if (ttisnil(tm)) return 0;
-  callTMres(L, res, tm, p1, p2);
-  return 1;
-}
-#endif /* LUA_MUTATION_OPERATORS */
-
-
 static const TValue *get_compTM (lua_State *L, Table *mt1, Table *mt2,
                                   TMS event) {
   const TValue *tm1 = fasttm(L, mt1, event);
@@ -731,32 +720,6 @@ static void Arith (lua_State *L, StkId ra, const TValue *rb,
 #endif /* !LNUM_PATCH */
 
 
-#if LUA_MUTATION_OPERATORS
-static void Compound (lua_State *L, StkId ra, const TValue *rb, TMS op) {
-  TValue tempa;
-  TValue tempb;
-  const TValue *a, *b;
-  if ((a = luaV_tonumber(ra, &tempa)) != NULL &&
-      (b = luaV_tonumber(rb, &tempb)) != NULL) {
-    lua_Number na = nvalue(a), nb = nvalue(b);
-    switch (op) {
-      case TM_ADD_EQ: setnvalue(ra, luai_numadd(na, nb)); break;
-      case TM_SUB_EQ: setnvalue(ra, luai_numsub(na, nb)); break;
-      case TM_MUL_EQ: setnvalue(ra, luai_nummul(na, nb)); break;
-      case TM_DIV_EQ: setnvalue(ra, luai_numdiv(na, nb)); break;
-      case TM_MOD_EQ: setnvalue(ra, luai_nummod(na, nb)); break;
-      case TM_POW_EQ: setnvalue(ra, luai_numpow(na, nb)); break;
-      default: lua_assert(0); break;
-    }
-  }
-  else if (!call_compTM(L, ra, rb, ra, op))
-    luaG_aritherror(L, ra, rb);
-}
-#endif /* LUA_MUTATION_OPERATORS */
-
-
-
-
 /*
 ** some macros for common tasks in `luaV_execute'
 */
@@ -968,18 +931,6 @@ static inline int arith_mode1( const TValue *rb ) {
           Protect(Arith(L, ra, rb, rc, tm)); \
       }
 #endif /* LNUM_PATCH */
-
-#if LUA_MUTATION_OPERATORS
-#define compound_op(op,tm) { \
-        TValue *rb = RKB(i); \
-        if (ttisnumber(ra) && ttisnumber(rb)) { \
-          lua_Number na = nvalue(ra), nb = nvalue(rb); \
-          setnvalue(ra, op(na, nb)); \
-        } \
-        else \
-          Protect(Compound(L, ra, rb, tm)); \
-      }
-#endif /* LUA_MUTATION_OPERATORS */
 
 #if LUA_BITFIELD_OPS
 
@@ -1604,32 +1555,6 @@ void luaV_execute (lua_State *L, int nexeccalls) {
         }
         continue;
       }
-#if LUA_MUTATION_OPERATORS
-      case OP_ADD_EQ: {
-        compound_op(luai_numadd, TM_ADD_EQ);
-        continue;
-      }
-      case OP_SUB_EQ: {
-        compound_op(luai_numsub, TM_SUB_EQ);
-        continue;
-      }
-      case OP_MUL_EQ: {
-        compound_op(luai_nummul, TM_MUL_EQ);
-        continue;
-      }
-      case OP_DIV_EQ: {
-        compound_op(luai_numdiv, TM_DIV_EQ);
-        continue;
-      }
-      case OP_MOD_EQ: {
-        compound_op(luai_nummod, TM_MOD_EQ);
-        continue;
-      }
-      case OP_POW_EQ: {
-        compound_op(luai_numpow, TM_POW_EQ);
-        continue;
-      }
-#endif /* LUA_MUTATION_OPERATORS */
     }
   }
 }

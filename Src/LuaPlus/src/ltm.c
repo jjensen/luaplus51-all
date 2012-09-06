@@ -37,9 +37,6 @@ void luaT_init (lua_State *L) {
     "__add", "__sub", "__mul", "__div", "__mod",
     "__pow", "__unm", "__len", "__lt", "__le",
     "__concat", "__call"
-#if LUA_MUTATION_OPERATORS
-    , "__add_eq", "__sub_eq", "__mul_eq", "__div_eq", "__mod_eq", "__pow_eq"
-#endif /* LUA_MUTATION_OPERATORS */
 
   };
   int i;

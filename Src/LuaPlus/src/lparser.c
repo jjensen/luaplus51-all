@@ -1099,11 +1099,7 @@ static void assignment (LexState *ls, struct LHS_assign *lh, int nvars) {
   }
   else {  /* assignment -> `=' explist1 */
     int nexps;
-#if LUA_MUTATION_OPERATORS
-    luaX_next(ls); /* consume `=' token. */
-#else
     checknext(ls, '=');
-#endif /* LUA_MUTATION_OPERATORS */
     nexps = explist1(ls, &e);
     if (nexps != nvars) {
       adjust_assign(ls, nvars, nexps, &e);
@@ -1119,40 +1115,6 @@ static void assignment (LexState *ls, struct LHS_assign *lh, int nvars) {
   init_exp(&e, VNONRELOC, ls->fs->freereg-1);  /* default assignment */
   luaK_storevar(ls->fs, &lh->v, &e);
 }
-
-
-#if LUA_MUTATION_OPERATORS
-static BinOpr getcompopr (int op) {
-  switch (op) {
-    case TK_ADD_EQ: return OPR_ADD_EQ;
-    case TK_SUB_EQ: return OPR_SUB_EQ;
-    case TK_MUL_EQ: return OPR_MUL_EQ;
-    case TK_DIV_EQ: return OPR_DIV_EQ;
-    case TK_MOD_EQ: return OPR_MOD_EQ;
-    case TK_POW_EQ: return OPR_POW_EQ;
-    default: return OPR_NOBINOPR;
-  }
-}
-
-
-static void compound (LexState *ls, struct LHS_assign *lh) {
-  expdesc rh;
-  int nexps;
-  BinOpr op;
-
-  check_condition(ls, VLOCAL <= lh->v.k && lh->v.k <= VINDEXED,
-                      "syntax error");
-  /* parse Compound operation. */
-  op = getcompopr(ls->t.token);
-  luaX_next(ls);
-
-  /* parse right-hand expression */
-  nexps = explist1(ls, &rh);
-  check_condition(ls, nexps == 1, "syntax error");
-
-  luaK_posfix(ls->fs, op, &(lh->v), &rh);
-}
-#endif /* LUA_MUTATION_OPERATORS */
 
 
 static int cond (LexState *ls) {
@@ -1459,43 +1421,15 @@ static void funcstat (LexState *ls, int line) {
 
 
 static void exprstat (LexState *ls) {
-#if LUA_MUTATION_OPERATORS
-  /* stat -> func | compound | assignment */
-#else
   /* stat -> func | assignment */
-#endif /* LUA_MUTATION_OPERATORS */
   FuncState *fs = ls->fs;
   struct LHS_assign v;
   primaryexp(ls, &v.v);
   if (v.v.k == VCALL)  /* stat -> func */
     SETARG_C(getcode(fs, &v.v), 1);  /* call statement uses no results */
-#if LUA_MUTATION_OPERATORS
-  else {  /* stat -> compound | assignment */
-    v.prev = NULL;
-    switch(ls->t.token) {
-      case TK_ADD_EQ:
-      case TK_SUB_EQ:
-      case TK_MUL_EQ:
-      case TK_DIV_EQ:
-      case TK_MOD_EQ:
-      case TK_POW_EQ:
-        compound(ls, &v);
-        break;
-      case ',':
-      case '=':
-        assignment(ls, &v, 1);
-        break;
-      default:
-        luaX_syntaxerror(ls,
-          luaO_pushfstring(ls->L,
-                           "'+=','-=','*=', '/=', '%=', '^=', '=' expected"));
-        break;
-    }
-#else
   else {  /* stat -> assignment */
     v.prev = NULL;
     assignment(ls, &v, 1);
-#endif /* LUA_MUTATION_OPERATORS */
   }
 }
 

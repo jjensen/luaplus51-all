@@ -57,9 +57,6 @@ enum RESERVED {
 #endif
 #endif /* LNUM_PATCH */
 #endif /* LUA_BITFIELD_OPS || LUA_WIDESTRING */
-#if LUA_MUTATION_OPERATORS
-  , TK_ADD_EQ, TK_SUB_EQ, TK_MUL_EQ, TK_DIV_EQ, TK_MOD_EQ, TK_POW_EQ,
-#endif /* LUA_MUTATION_OPERATORS */
 };
 
 /* number of reserved words */

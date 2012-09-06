@@ -33,14 +33,6 @@ typedef enum {
   TM_LE,
   TM_CONCAT,
   TM_CALL,
-#if LUA_MUTATION_OPERATORS
-  TM_ADD_EQ,
-  TM_SUB_EQ,
-  TM_MUL_EQ,
-  TM_DIV_EQ,
-  TM_MOD_EQ,
-  TM_POW_EQ,
-#endif /* LUA_MUTATION_OPERATORS */
   TM_N		/* number of elements in the enum */
 } TMS;
 
