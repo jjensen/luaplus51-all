@@ -932,22 +932,6 @@ static inline int arith_mode1( const TValue *rb ) {
       }
 #endif /* LNUM_PATCH */
 
-#if LUA_BITFIELD_OPS
-
-#define bit_op(op) { \
-        TValue *rb = RKB(i); \
-        TValue *rc = RKC(i); \
-        if (ttisnumber(rb) && ttisnumber(rc)) { \
-          unsigned int nb = (unsigned int)nvalue(rb), nc = (unsigned int)nvalue(rc); \
-          setnvalue(ra, nb op nc); \
-        } \
-        else \
-          luaG_aritherror(L, rb, rc); \
-      }
-
-#endif /* LUA_BITFIELD_OPS */
-
-
 
 #if LUA_EXT_RESUMABLEVM
 int luaV_execute (lua_State *L) {
@@ -1158,28 +1142,6 @@ void luaV_execute (lua_State *L, int nexeccalls) {
         setbvalue(ra, res);
         continue;
       }
-#if LUA_BITFIELD_OPS
-      case OP_BAND: {
-        bit_op(&);
-        continue;
-      }
-      case OP_BOR: {
-        bit_op(|);
-        continue;
-      }
-      case OP_BXOR: {
-        bit_op(^);
-        continue;
-      }
-      case OP_BSHL: {
-        bit_op(<<);
-        continue;
-      }
-      case OP_BSHR: {
-        bit_op(>>);
-        continue;
-      }
-#endif /* LUA_BITFIELD_OPS */
       case OP_LEN: {
         const TValue *rb = RB(i);
         switch (ttype(rb)) {

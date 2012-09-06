@@ -937,13 +937,6 @@ static BinOpr getbinopr (int op) {
     case '*': return OPR_MUL;
     case '/': return OPR_DIV;
     case '%': return OPR_MOD;
-#if LUA_BITFIELD_OPS
-    case '&': return OPR_BAND;
-    case '|': return OPR_BOR;
-    case TK_XOR: return OPR_BXOR;
-    case TK_SHL: return OPR_BSHL;
-    case TK_SHR: return OPR_BSHR;
-#endif /* LUA_BITFIELD_OPS */
     case '^': return OPR_POW;
     case TK_CONCAT: return OPR_CONCAT;
     case TK_NE: return OPR_NE;
@@ -963,9 +956,6 @@ static const struct {
   lu_byte left;  /* left priority for each binary operator */
   lu_byte right; /* right priority */
 } priority[] = {  /* ORDER OPR */
-#if LUA_BITFIELD_OPS
-   {8, 8}, {8, 8}, {8, 8}, {8, 8}, {8, 8},  /* bitwise operators */
-#endif /* LUA_BITFIELD_OPS */
    {6, 6}, {6, 6}, {7, 7}, {7, 7}, {7, 7},  /* `+' `-' `/' `%' */
    {10, 9}, {5, 4},                 /* power and concat (right associative) */
    {3, 3}, {3, 3},                  /* equality and inequality */

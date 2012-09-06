@@ -72,14 +72,11 @@ const char *const luaX_tokens [] = {
     "in", "local", "nil", "not", "or", "repeat",
     "return", "then", "true", "until", "while",
     "..", "...", "==", ">=", "<=", "~=",
-#if LUA_BITFIELD_OPS || LUA_WIDESTRING
+#if LUA_WIDESTRING
     "<number>", "<name>", "<string>",
 #if LUA_WIDESTRING
     "<wstring>",
 #endif /* LUA_WIDESTRING */
-#if LUA_BITFIELD_OPS
-    "<<", ">>", "^^",
-#endif /* LUA_BITFIELD_OPS */
 #if LNUM_PATCH
     "<integer>",
 #ifdef LNUM_COMPLEX
@@ -95,7 +92,7 @@ const char *const luaX_tokens [] = {
     "<number2>",
 #endif
 #endif /* LNUM_PATCH */
-#endif /* LUA_BITFIELD_OPS || LUA_WIDESTRING */
+#endif /* LUA_WIDESTRING */
     NULL
 };
 
@@ -593,17 +590,11 @@ static int llex (LexState *ls, SemInfo *seminfo) {
       }
       case '<': {
         next(ls);
-#if LUA_BITFIELD_OPS
-        if (ls->current == '<') { next(ls); return TK_SHL; }
-#endif /* LUA_BITFIELD_OPS */
         if (ls->current != '=') return '<';
         else { next(ls); return TK_LE; }
       }
       case '>': {
         next(ls);
-#if LUA_BITFIELD_OPS
-        if (ls->current == '>') { next(ls); return TK_SHR; }
-#endif /* LUA_BITFIELD_OPS */
         if (ls->current != '=') return '>';
         else { next(ls); return TK_GE; }
       }
@@ -612,13 +603,6 @@ static int llex (LexState *ls, SemInfo *seminfo) {
         if (ls->current != '=') return '~';
         else { next(ls); return TK_NE; }
       }
-#if LUA_BITFIELD_OPS
-      case '^': {
-        next(ls);
-        if (ls->current != '^') return '^';
-        else { next(ls); return TK_XOR; }
-      }
-#endif /* LUA_BITFIELD_OPS */
       case '"':
       case '\'': {
         read_string(ls, ls->current, seminfo);

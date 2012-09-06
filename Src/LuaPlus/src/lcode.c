@@ -848,13 +848,6 @@ static int constfolding (OpCode op, expdesc *e1, expdesc *e2) {
     case OP_POW: r = luai_numpow(v1, v2); break;
 #endif /* LNUM_PATCH */
     case OP_UNM: r = luai_numunm(v1); break;
-#if LUA_BITFIELD_OPS
-    case OP_BAND: r = (unsigned int)v1 & (unsigned int)v2; break;
-    case OP_BOR:  r = (unsigned int)v1 | (unsigned int)v2; break;
-    case OP_BXOR: r = (unsigned int)v1 ^ (unsigned int)v2; break;
-    case OP_BSHL: r = (unsigned int)v1 << (unsigned int)v2; break;
-    case OP_BSHR: r = (unsigned int)v1 >> (unsigned int)v2; break;
-#endif /* LUA_BITFIELD_OPS */
     case OP_LEN: return 0;  /* no constant folding for 'len' */
     default: lua_assert(0); r = 0; break;
   }
@@ -992,13 +985,6 @@ void luaK_posfix (FuncState *fs, BinOpr op, expdesc *e1, expdesc *e2) {
     case OPR_DIV: codearith(fs, OP_DIV, e1, e2); break;
     case OPR_MOD: codearith(fs, OP_MOD, e1, e2); break;
     case OPR_POW: codearith(fs, OP_POW, e1, e2); break;
-#if LUA_BITFIELD_OPS
-    case OPR_BAND: codearith(fs, OP_BAND, e1, e2); break;
-    case OPR_BOR:  codearith(fs, OP_BOR, e1, e2); break;
-    case OPR_BXOR: codearith(fs, OP_BXOR, e1, e2); break;
-    case OPR_BSHL: codearith(fs, OP_BSHL, e1, e2); break;
-    case OPR_BSHR: codearith(fs, OP_BSHR, e1, e2); break;
-#endif /* LUA_BITFIELD_OPS */
     case OPR_EQ: codecomp(fs, OP_EQ, 1, e1, e2); break;
     case OPR_NE: codecomp(fs, OP_EQ, 0, e1, e2); break;
     case OPR_LT: codecomp(fs, OP_LT, 1, e1, e2); break;

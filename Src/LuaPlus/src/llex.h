@@ -33,14 +33,11 @@ enum RESERVED {
   TK_RETURN, TK_THEN, TK_TRUE, TK_UNTIL, TK_WHILE,
   /* other terminal symbols */
   TK_CONCAT, TK_DOTS, TK_EQ, TK_GE, TK_LE, TK_NE, TK_NUMBER,
-#if LUA_BITFIELD_OPS || LUA_WIDESTRING
+#if LUA_WIDESTRING
   TK_NAME, TK_STRING,
 #if LUA_WIDESTRING
   TK_WSTRING,
 #endif /* LUA_WIDESTRING */
-#if LUA_BITFIELD_OPS
-  TK_SHL, TK_SHR, TK_XOR,
-#endif /* LUA_BITFIELD_OPS */
   TK_EOS
 #if LNUM_PATCH
   , TK_INT
@@ -56,7 +53,7 @@ enum RESERVED {
   , TK_NUMBER2   /* imaginary constants: Ni */ 
 #endif
 #endif /* LNUM_PATCH */
-#endif /* LUA_BITFIELD_OPS || LUA_WIDESTRING */
+#endif /* LUA_WIDESTRING */
 };
 
 /* number of reserved words */
