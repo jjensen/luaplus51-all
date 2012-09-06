@@ -68,7 +68,7 @@ LUA_EXTERN_C void LuaPlus_ScriptFunctionsRegister(lua_State* L)
 
 #if LUA_STRING_FORMAT_EXTENSIONS
 	lua_getglobal(L, "string");
-	lua_pushliteral(L, "format");
+	lua_pushliteral(L, "formatx");
 	lua_pushcfunction(L, luaplus_str_format);
 	lua_settable(L, -3);
 	lua_pop(L, 1);
