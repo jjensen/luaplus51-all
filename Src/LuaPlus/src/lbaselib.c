@@ -49,6 +49,7 @@ static int luaB_print (lua_State *L) {
   return 0;
 }
 
+
 static int luaB_tonumber (lua_State *L) {
   int base = luaL_optint(L, 2, 10);
   if (base == 10) {  /* standard conversion */
@@ -425,6 +426,7 @@ static int luaB_tostring (lua_State *L) {
   }
   return 1;
 }
+
 
 static int luaB_newproxy (lua_State *L) {
   lua_settop(L, 1);

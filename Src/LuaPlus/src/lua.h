@@ -51,6 +51,7 @@ typedef struct lua_State lua_State;
 
 typedef int (*lua_CFunction) (lua_State *L);
 
+
 /*
 ** functions that read/write blocks when loading/dumping Lua chunks
 */
@@ -79,6 +80,7 @@ typedef void * (*lua_Alloc) (void *ud, void *ptr, size_t osize, size_t nsize);
 #define LUA_TFUNCTION		6
 #define LUA_TUSERDATA		7
 #define LUA_TTHREAD		8
+
 
 
 /* minimum Lua stack available to a C function */
@@ -205,6 +207,7 @@ LUA_API int   (lua_pcall) (lua_State *L, int nargs, int nresults, int errfunc);
 LUA_API int   (lua_cpcall) (lua_State *L, lua_CFunction func, void *ud);
 LUA_API int   (lua_load) (lua_State *L, lua_Reader reader, void *dt,
                                         const char *chunkname);
+
 LUA_API int (lua_dump) (lua_State *L, lua_Writer writer, void *data);
 
 

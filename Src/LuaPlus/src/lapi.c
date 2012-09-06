@@ -137,9 +137,6 @@ LUA_API int lua_checkstack (lua_State *L, int size) {
 
 
 LUA_API void lua_xmove (lua_State *from, lua_State *to, int n) {
-#if LUA_REFCOUNT
-  lua_State* L = from;
-#endif /* LUA_REFCOUNT */
   int i;
   if (from == to) return;
   lua_lock(to);
@@ -149,9 +146,6 @@ LUA_API void lua_xmove (lua_State *from, lua_State *to, int n) {
   from->top -= n;
   for (i = 0; i < n; i++) {
     setobj2s(to, to->top++, from->top + i);
-#if LUA_REFCOUNT
-    luarc_cleanvalue(from->top + i);
-#endif /* LUA_REFCOUNT */
   }
   lua_unlock(to);
 }
@@ -202,26 +196,10 @@ LUA_API void lua_settop (lua_State *L, int idx) {
     api_check(L, idx <= L->stack_last - L->base);
     while (L->top < L->base + idx)
       setnilvalue(L->top++);
-#if LUA_REFCOUNT
-    luarc_cleanarray(L->base + idx, L->top);
-#endif /* LUA_REFCOUNT */
     L->top = L->base + idx;
   }
   else {
     api_check(L, -(idx+1) <= (L->top - L->base));
-
-#if LUA_REFCOUNT
-    {
-      StkId begin = L->top + idx + 1;
-      StkId end = L->top; (void)end;
-      if (begin < L->base)
-        begin = L->base;
-      luarc_cleanarray(begin, end);
-    }
-    if (-(idx + 1) > (L->top - L->base))
-      idx = L->base - L->top - 1;
-#endif /* LUA_REFCOUNT */
-
     L->top += idx+1;  /* `subtract' index (index is negative) */
   }
   lua_unlock(L);
@@ -235,9 +213,6 @@ LUA_API void lua_remove (lua_State *L, int idx) {
   api_checkvalidindex(L, p);
   while (++p < L->top) setobjs2s(L, p-1, p);
   L->top--;
-#if LUA_REFCOUNT
-  luarc_cleanvalue(L->top);
-#endif /* LUA_REFCOUNT */
   lua_unlock(L);
 }
 
@@ -250,9 +225,6 @@ LUA_API void lua_insert (lua_State *L, int idx) {
   api_checkvalidindex(L, p);
   for (q = L->top; q>p; q--) setobjs2s(L, q, q-1);
   setobjs2s(L, p, L->top);
-#if LUA_REFCOUNT
-  luarc_cleanvalue(L->top);
-#endif /* LUA_REFCOUNT */
   lua_unlock(L);
 }
 
@@ -278,9 +250,6 @@ LUA_API void lua_replace (lua_State *L, int idx) {
       luaC_barrier(L, curr_func(L), L->top - 1);
   }
   L->top--;
-#if LUA_REFCOUNT
-  luarc_cleanvalue(L->top);
-#endif /* LUA_REFCOUNT */
   lua_unlock(L);
 }
 
@@ -320,9 +289,6 @@ LUA_API int lua_iscfunction (lua_State *L, int idx) {
 LUA_API int lua_isnumber (lua_State *L, int idx) {
   TValue n;
   const TValue *o = index2adr(L, idx);
-#if LUA_REFCOUNT
-  luarc_newvalue(&n);
-#endif /* LUA_REFCOUNT */
   return tonumber(o, &n);
 }
 
@@ -376,9 +342,6 @@ LUA_API int lua_lessthan (lua_State *L, int index1, int index2) {
 LUA_API lua_Number lua_tonumber (lua_State *L, int idx) {
   TValue n;
   const TValue *o = index2adr(L, idx);
-#if LUA_REFCOUNT
-  luarc_newvalue(&n);
-#endif /* LUA_REFCOUNT */
   if (tonumber(o, &n))
     return nvalue(o);
   else
@@ -389,9 +352,6 @@ LUA_API lua_Number lua_tonumber (lua_State *L, int idx) {
 LUA_API lua_Integer lua_tointeger (lua_State *L, int idx) {
   TValue n;
   const TValue *o = index2adr(L, idx);
-#if LUA_REFCOUNT
-  luarc_newvalue(&n);
-#endif /* LUA_REFCOUNT */
   if (tonumber(o, &n)) {
     lua_Integer res;
     lua_Number num = nvalue(o);
@@ -560,15 +520,8 @@ LUA_API void lua_pushcclosure (lua_State *L, lua_CFunction fn, int n) {
   cl = luaF_newCclosure(L, n, getcurrenv(L));
   cl->c.f = fn;
   L->top -= n;
-#if LUA_REFCOUNT
-  while (n--) {
-    setobj2n(L, &cl->c.upvalue[n], L->top+n);
-    luarc_cleanvalue(L->top+n);
-  }
-#else
   while (n--)
     setobj2n(L, &cl->c.upvalue[n], L->top+n);
-#endif /* LUA_REFCOUNT */
   setclvalue(L, L->top, cl);
   lua_assert(iswhite(obj2gco(cl)));
   api_incr_top(L);
@@ -623,14 +576,8 @@ LUA_API void lua_getfield (lua_State *L, int idx, const char *k) {
   lua_lock(L);
   t = index2adr(L, idx);
   api_checkvalidindex(L, t);
-#if LUA_REFCOUNT
-  setsvalue2n(L, &key, luaS_new(L, k));
-  luaV_gettable(L, t, &key, L->top);
-  setnilvalue(&key);
-#else
   setsvalue(L, &key, luaS_new(L, k));
   luaV_gettable(L, t, &key, L->top);
-#endif /* LUA_REFCOUNT */
   api_incr_top(L);
   lua_unlock(L);
 }
@@ -732,10 +679,6 @@ LUA_API void lua_settable (lua_State *L, int idx) {
   api_checkvalidindex(L, t);
   luaV_settable(L, t, L->top - 2, L->top - 1);
   L->top -= 2;  /* pop index and value */
-#if LUA_REFCOUNT
-  luarc_cleanvalue(L->top);
-  luarc_cleanvalue(L->top + 1);
-#endif /* LUA_REFCOUNT */
   lua_unlock(L);
 }
 
@@ -747,17 +690,9 @@ LUA_API void lua_setfield (lua_State *L, int idx, const char *k) {
   api_checknelems(L, 1);
   t = index2adr(L, idx);
   api_checkvalidindex(L, t);
-#if LUA_REFCOUNT
-  setsvalue2n(L, &key, luaS_new(L, k));
-#else
   setsvalue(L, &key, luaS_new(L, k));
-#endif /* LUA_REFCOUNT */
   luaV_settable(L, t, &key, L->top - 1);
   L->top--;  /* pop value */
-#if LUA_REFCOUNT
-  setnilvalue(&key);
-  luarc_cleanvalue(L->top);
-#endif /* LUA_REFCOUNT */
   lua_unlock(L);
 }
 
@@ -771,10 +706,6 @@ LUA_API void lua_rawset (lua_State *L, int idx) {
   setobj2t(L, luaH_set(L, hvalue(t), L->top-2), L->top-1);
   luaC_barriert(L, hvalue(t), L->top-1);
   L->top -= 2;
-#if LUA_REFCOUNT
-  luarc_cleanvalue(L->top);
-  luarc_cleanvalue(L->top + 1);
-#endif /* LUA_REFCOUNT */
   lua_unlock(L);
 }
 
@@ -788,9 +719,6 @@ LUA_API void lua_rawseti (lua_State *L, int idx, int n) {
   setobj2t(L, luaH_setnum(L, hvalue(o), n), L->top-1);
   luaC_barriert(L, hvalue(o), L->top-1);
   L->top--;
-#if LUA_REFCOUNT
-  luarc_cleanvalue(L->top);
-#endif /* LUA_REFCOUNT */
   lua_unlock(L);
 }
 
@@ -808,44 +736,25 @@ LUA_API int lua_setmetatable (lua_State *L, int objindex) {
     api_check(L, ttistable(L->top - 1));
     mt = hvalue(L->top - 1);
   }
-#if LUA_REFCOUNT
-  if (mt)
-    luarc_addreftable(mt);
-#endif /* LUA_REFCOUNT */
   switch (ttype(obj)) {
     case LUA_TTABLE: {
-#if LUA_REFCOUNT
-      if (hvalue(obj)->metatable)
-        luarc_releasetable(L, hvalue(obj)->metatable);
-#endif /* LUA_REFCOUNT */
       hvalue(obj)->metatable = mt;
       if (mt)
         luaC_objbarriert(L, hvalue(obj), mt);
       break;
     }
     case LUA_TUSERDATA: {
-#if LUA_REFCOUNT
-      if (uvalue(obj)->metatable)
-        luarc_releasetable(L, uvalue(obj)->metatable);
-#endif /* LUA_REFCOUNT */
       uvalue(obj)->metatable = mt;
       if (mt)
         luaC_objbarrier(L, rawuvalue(obj), mt);
       break;
     }
     default: {
-#if LUA_REFCOUNT
-      if (G(L)->mt[ttype(obj)])
-        luarc_releasetable(L, G(L)->mt[ttype(obj)]);
-#endif /* LUA_REFCOUNT */
       G(L)->mt[ttype(obj)] = mt;
       break;
     }
   }
   L->top--;
-#if LUA_REFCOUNT
-  luarc_cleanvalue(L->top);
-#endif /* LUA_REFCOUNT */
   lua_unlock(L);
   return 1;
 }
@@ -860,29 +769,6 @@ LUA_API int lua_setfenv (lua_State *L, int idx) {
   api_checkvalidindex(L, o);
   api_check(L, ttistable(L->top - 1));
   switch (ttype(o)) {
-#if LUA_REFCOUNT
-    case LUA_TFUNCTION: {
-      Table *bak = clvalue(o)->c.env;
-      clvalue(o)->c.env = hvalue(L->top - 1);
-      luarc_addreftable(clvalue(o)->c.env);
-      luarc_releasetable(L, bak);
-      break;
-    }
-    case LUA_TUSERDATA: {
-      Table *bak = uvalue(o)->env;
-      uvalue(o)->env = hvalue(L->top - 1);
-      luarc_addreftable(uvalue(o)->env);
-      luarc_releasetable(L, bak);
-      break;
-    }
-    case LUA_TTHREAD: {
-      TValue bak = thvalue(o)->env;
-      sethvalue(L, gt(thvalue(o)), hvalue(L->top - 1));
-      luarc_addref(&thvalue(o)->env);
-      luarc_release(L, &bak);
-      break;
-    }
-#else
     case LUA_TFUNCTION:
       clvalue(o)->c.env = hvalue(L->top - 1);
       break;
@@ -892,16 +778,12 @@ LUA_API int lua_setfenv (lua_State *L, int idx) {
     case LUA_TTHREAD:
       sethvalue(L, gt(thvalue(o)), hvalue(L->top - 1));
       break;
-#endif /* LUA_REFCOUNT */
     default:
       res = 0;
       break;
   }
   if (res) luaC_objbarrier(L, gcvalue(o), hvalue(L->top - 1));
   L->top--;
-#if LUA_REFCOUNT
-  luarc_cleanvalue(L->top);
-#endif /* LUA_REFCOUNT */
   lua_unlock(L);
   return res;
 }
@@ -1148,15 +1030,8 @@ LUA_API int lua_next (lua_State *L, int idx) {
   if (more) {
     api_incr_top(L);
   }
-#if LUA_REFCOUNT
-  else {  /* no more elements */
-    L->top -= 1;  /* remove key */
-    luarc_cleanvalue(L->top);
-  }
-#else
   else  /* no more elements */
     L->top -= 1;  /* remove key */
-#endif /* LUA_REFCOUNT */
   lua_unlock(L);
   return more;
 }
@@ -1255,9 +1130,6 @@ LUA_API const char *lua_setupvalue (lua_State *L, int funcindex, int n) {
     L->top--;
     setobj(L, val, L->top);
     luaC_barrier(L, clvalue(fi), L->top);
-#if LUA_REFCOUNT
-    luarc_cleanvalue(L->top);
-#endif /* LUA_REFCOUNT */
   }
   lua_unlock(L);
   return name;

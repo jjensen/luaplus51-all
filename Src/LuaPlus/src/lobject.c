@@ -22,10 +22,7 @@
 #include "lstring.h"
 #include "lvm.h"
 
-#if LUA_REFCOUNT
-#include "ltable.h"
-#include "lfunc.h"
-#endif /* LUA_REFCOUNT */
+
 
 const TValue luaO_nilobject_ = {LUA_TVALUE_NIL};
 
@@ -102,6 +99,8 @@ int luaO_str2d (const char *s, lua_Number *result) {
   return 1;
 }
 
+
+
 static void pushstr (lua_State *L, const char *str) {
   setsvalue2s(L, L->top, luaS_new(L, str));
   incr_top(L);
@@ -165,9 +164,6 @@ const char *luaO_pushvfstring (lua_State *L, const char *fmt, va_list argp) {
   }
   pushstr(L, fmt);
   luaV_concat(L, n+1, cast_int(L->top - L->base) - 1);
-#if LUA_REFCOUNT
-  luarc_cleanarray(L->top - n, L->top);
-#endif /* LUA_REFCOUNT */
   L->top -= n;
   return svalue(L->top - 1);
 }
@@ -216,244 +212,3 @@ void luaO_chunkid (char *out, const char *source, size_t bufflen) {
     }
   }
 }
-
-#if LUA_REFCOUNT
-
-static void traverseclosure (lua_State *L, Closure *cl) {
-  luarc_releasetable(L, cl->c.env);
-  if (cl->c.isC) {
-    int i;
-    for (i=0; i<cl->c.nupvalues; i++)  /* mark its upvalues */
-      luarc_release(L, &cl->c.upvalue[i]);
-  }
-  else {
-    int i;
-    lua_assert(cl->l.nupvalues == cl->l.p->nups);
-    luarc_releaseproto(L, cl->l.p);
-    for (i=0; i<cl->l.nupvalues; i++)  /* mark its upvalues */
-      luarc_releaseupval(L, cl->l.upvals[i]);
-  }
-}
-
-static void removeentry (lua_State *L, Node *n) {
-  lua_assert(ttisnil(gval(n)));
-  if (iscollectable(gkey(n)))
-    luarc_release(L, gkey(n));  /* dead key; remove it */
-}
-
-
-static int traversetable (lua_State *L, Table *h) {
-  int i;
-  int weakkey = 0;
-  int weakvalue = 0;
-//  const TValue *mode;
-  if (h->metatable)
-    luarc_releasetable(L, h->metatable);
-#if 0
-  mode = gfasttm(g, h->metatable, TM_MODE);
-  if (mode && ttisstring(mode)) {  /* is there a weak mode? */
-    weakkey = (strchr(svalue(mode), 'k') != NULL);
-    weakvalue = (strchr(svalue(mode), 'v') != NULL);
-    if (weakkey || weakvalue) {  /* is really weak? */
-      h->marked &= ~(KEYWEAK | VALUEWEAK);  /* clear bits */
-      h->marked |= cast_byte((weakkey << KEYWEAKBIT) |
-                             (weakvalue << VALUEWEAKBIT));
-      h->gclist = g->weak;  /* must be cleared after GC, ... */
-      g->weak = obj2gco(h);  /* ... so put in the appropriate list */
-    }
-  }
-  if (weakkey && weakvalue) return 1;
-#endif
-  if (!weakvalue) {
-    i = h->sizearray;
-    while (i--)
-      luarc_release(L, &h->array[i]);
-  }
-  i = sizenode(h);
-  while (i--) {
-    Node *n = gnode(h, i);
-    lua_assert(ttype(gkey(n)) != LUA_TDEADKEY || ttisnil(gval(n)));
-    if (ttisnil(gval(n)))
-      removeentry(L, n);  /* remove empty entries */
-    else {
-      lua_assert(!ttisnil(gkey(n)));
-      if (!weakkey) luarc_release(L, gkey(n));
-      if (!weakvalue) luarc_release(L, gval(n));
-    }
-  }
-  return weakkey || weakvalue;
-}
-
-/*
-** All marks are conditional because a GC may happen while the
-** prototype is still being created
-*/
-static void traverseproto (lua_State *L, Proto *f) {
-  int i;
-  if (f->source) luarc_releasestring(L, f->source);
-  for (i=0; i<f->sizek; i++)  /* mark literals */
-    luarc_release(L, &f->k[i]);
-  for (i=0; i<f->sizeupvalues; i++) {  /* mark upvalue names */
-    if (f->upvalues[i])
-      luarc_releasestring(L, f->upvalues[i]);
-  }
-  for (i=0; i<f->sizep; i++) {  /* mark nested protos */
-    if (f->p[i])
-      luarc_releaseproto(L, f->p[i]);
-  }
-  for (i=0; i<f->sizelocvars; i++) {  /* mark local-variable names */
-    if (f->locvars[i].varname)
-      luarc_releasestring(L, f->locvars[i].varname);
-  }
-}
-
-
-static void traversestack (lua_State *origL, lua_State *l) {
-  StkId o, lim;
-  CallInfo *ci;
-  lua_State *L = l;
-  luarc_release(origL, gt(l));
-  lim = l->top;
-  for (ci = l->base_ci; ci <= l->ci; ci++) {
-    lua_assert(ci->top <= l->stack_last);
-    if (lim < ci->top) lim = ci->top;
-  }
-  for (o = l->stack; o < l->top; o++)
-    luarc_release(l, o);
-  for (; o <= lim; o++)
-    setnilvalue(o);
-/*  checkstacksizes(l, lim);*/
-}
-
-
-
-static void Unlink(GCObject* o)
-{
-  o->gch.prev->gch.next = o->gch.next;
-  if (o->gch.next)
-    o->gch.next->gch.prev = o->gch.prev;
-}
-
-
-static void UnlinkString(lua_State *L, TString *ts)
-{
-  if (ts->tsv.prev)
-  {
-    ts->tsv.prev->gch.next = ts->tsv.next;
-  }
-  else
-  {
-    unsigned int index = lmod(ts->tsv.hash, G(L)->strt.size);
-    lua_assert(G(L)->strt.hash[index] == (GCObject*)ts);
-    G(L)->strt.hash[index] = ts->tsv.next;
-  }
-
-  if (ts->tsv.next)
-  {
-    ts->tsv.next->gch.prev = ts->tsv.prev;
-  }
-
-  G(L)->strt.nuse--;
-}
-
-
-extern void GCTM (lua_State *L);
-
-
-void luarc_releaseobject(lua_State *L, GCObject* o)
-{
-	global_State *g = G(L);
-    /* reset sweep marks to sweep all elements (returning them to white) */
-    g->sweepstrgc = 0;
-    g->sweepgc = &g->rootgc;
-    /* reset other collector lists */
-    g->gray = NULL;
-    g->grayagain = NULL;
-    g->weak = NULL;
-    g->gcstate = GCSsweepstring;
-  switch (o->gch.tt)
-  {
-    case LUA_TSTRING: {
-      const char* str = getstr(&o->ts); (void)str;
-      UnlinkString(L, rawgco2ts(o));
-      luaM_freemem(L, o, sizestring(gco2ts(o)));
-      break;
-    }
-    case LUA_TWSTRING: {
-      UnlinkString(L, rawgco2ts(o));
-      luaM_freemem(L, o, sizestring(gco2ts(o)));
-      break;
-    }
-    case LUA_TUSERDATA: {
-      Unlink((GCObject*)gco2u(o));
-
-      if (G(L)->tmudata == NULL)  /* list is empty? */
-        G(L)->tmudata = o->gch.next = o;  /* creates a circular list */
-      else {
-        o->gch.next = G(L)->tmudata->gch.next;
-        G(L)->tmudata->gch.next = o;
-        G(L)->tmudata = o;
-      }
-      GCTM(L);
-
-      if (gco2u(o)->metatable) {
-        luarc_releasetable(L, gco2u(o)->metatable);
-      }
-
-      if (gco2u(o)->env) {
-        luarc_releasetable(L, gco2u(o)->env);
-      }
-
-      G(L)->mainthread->next = G(L)->mainthread->next->gch.next;
-      if (G(L)->mainthread->next)
-        G(L)->mainthread->next->gch.prev = (GCObject*)&G(L)->mainthread->next;
-      luaM_freemem(L, o, sizeudata(gco2u(o)));
-      break;
-    }
-    case LUA_TFUNCTION: {
-      Closure *cl = gco2cl(o);
-      Unlink((GCObject*)cl);
-      traverseclosure(L, cl);
-      luaF_freeclosure(L, cl);
-      break;
-    }
-    case LUA_TTABLE: {
-      Table *h = gco2h(o);
-      Unlink((GCObject*)h);
-      traversetable(L, h);
-      luaH_free(L, gco2h(o));
-      break;
-    }
-    case LUA_TPROTO: {
-      Proto *p = gco2p(o);
-      Unlink((GCObject*)p);
-      traverseproto(L, p);
-      luaF_freeproto(L, p);
-      break;
-    }
-    case LUA_TUPVAL: {
-      UpVal *uv = gco2uv(o);
-      if (uv->prev)
-        uv->prev->gch.next = uv->next;
-      else {
-        L->openupval = uv->next;
-      }
-      if (uv->next)
-        uv->next->gch.prev = uv->prev;
-      luarc_release(L, &uv->u.value);
-      luaF_freeupval(L, uv);
-      break;
-    }
-    case LUA_TTHREAD: {
-      lua_assert(gco2th(o) != L && gco2th(o) != G(L)->mainthread);
-      Unlink((GCObject*)gco2th(o));
-      traversestack(L, gco2th(o));
-      luaE_freethread(L, gco2th(o));
-      break;
-    }
-    default:
-      lua_assert(0);
-  }
-}
-
-#endif /* LUA_REFCOUNT */

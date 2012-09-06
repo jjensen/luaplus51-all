@@ -147,17 +147,10 @@ static Proto* LoadFunction(LoadState* S, TString* p);
 static void LoadConstants(LoadState* S, Proto* f)
 {
  int i,n;
-#if LUA_REFCOUNT    
- lua_State *L = S->L;
-#endif /* LUA_REFCOUNT */
  n=LoadInt(S);
  f->k=luaM_newvector(S->L,n,TValue);
  f->sizek=n;
-#if LUA_REFCOUNT
- for (i=0; i<n; i++) setnilvalue2n(L, &f->k[i]);
-#else
  for (i=0; i<n; i++) setnilvalue(&f->k[i]);
-#endif /* LUA_REFCOUNT */
  for (i=0; i<n; i++)
  {
   TValue* o=&f->k[i];
@@ -185,14 +178,7 @@ static void LoadConstants(LoadState* S, Proto* f)
  f->p=luaM_newvector(S->L,n,Proto*);
  f->sizep=n;
  for (i=0; i<n; i++) f->p[i]=NULL;
-#if LUA_REFCOUNT
- for (i=0; i<n; i++) {
-  f->p[i]=LoadFunction(S,f->source);
-  luarc_addrefproto(f->p[i]);
- }
-#else
  for (i=0; i<n; i++) f->p[i]=LoadFunction(S,f->source);
-#endif /* LUA_REFCOUNT */
 }
 
 static void LoadDebug(LoadState* S, Proto* f)
@@ -209,9 +195,6 @@ static void LoadDebug(LoadState* S, Proto* f)
  for (i=0; i<n; i++)
  {
   f->locvars[i].varname=LoadString(S);
-#if LUA_REFCOUNT
-  luarc_addrefstring(f->locvars[i].varname);
-#endif /* LUA_REFCOUNT */
   f->locvars[i].startpc=LoadInt(S);
   f->locvars[i].endpc=LoadInt(S);
  }
@@ -219,14 +202,7 @@ static void LoadDebug(LoadState* S, Proto* f)
  f->upvalues=luaM_newvector(S->L,n,TString*);
  f->sizeupvalues=n;
  for (i=0; i<n; i++) f->upvalues[i]=NULL;
-#if LUA_REFCOUNT
- for (i=0; i<n; i++) {
-  f->upvalues[i]=LoadString(S);
-  luarc_addrefstring(f->upvalues[i]);
- }
-#else
  for (i=0; i<n; i++) f->upvalues[i]=LoadString(S);
-#endif /* LUA_REFCOUNT */
 }
 
 static Proto* LoadFunction(LoadState* S, TString* p)
@@ -236,9 +212,6 @@ static Proto* LoadFunction(LoadState* S, TString* p)
  f=luaF_newproto(S->L);
  setptvalue2s(S->L,S->L->top,f); incr_top(S->L);
  f->source=LoadString(S); if (f->source==NULL) f->source=p;
-#if LUA_REFCOUNT
- luarc_addrefstring(f->source);
-#endif /* LUA_REFCOUNT */
  f->linedefined=LoadInt(S);
  f->lastlinedefined=LoadInt(S);
  f->nups=LoadByte(S);
@@ -285,15 +258,7 @@ Proto* luaU_undump (lua_State* L, ZIO* Z, Mbuffer* buff, const char* name)
  S.Z=Z;
  S.b=buff;
  LoadHeader(&S);
-#if LUA_REFCOUNT
- {
-  Proto *proto = LoadFunction(&S,luaS_newliteral(L,"=?"));
-  luarc_addrefproto(proto);
-  return proto;
- }
-#else
  return LoadFunction(&S,luaS_newliteral(L,"=?"));
-#endif /* LUA_REFCOUNT */
 }
 
 /*

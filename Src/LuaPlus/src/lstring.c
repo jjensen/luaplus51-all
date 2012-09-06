@@ -40,11 +40,6 @@ void luaS_resize (lua_State *L, int newsize) {
       int h1 = lmod(h, newsize);  /* new position */
       lua_assert(cast_int(h%newsize) == lmod(h, newsize));
       p->gch.next = newhash[h1];  /* chain it */
-#if LUA_REFCOUNT
-      if (p->gch.next)
-        p->gch.next->gch.prev = p;
-      p->gch.prev = NULL;
-#endif /* LUA_REFCOUNT */
       newhash[h1] = p;
       p = next;
     }
@@ -78,12 +73,6 @@ static TString *newlstr (lua_State *L, const char *str, size_t l,
   tb = &G(L)->strt;
   h = lmod(h, tb->size);
   ts->tsv.next = tb->hash[h];  /* chain new entry */
-#if LUA_REFCOUNT
-  ts->tsv.ref = 0;
-  if (ts->tsv.next)
-    ts->tsv.next->gch.prev = (GCObject*)ts;
-  ts->tsv.prev = NULL;
-#endif /* LUA_REFCOUNT */
   tb->hash[h] = obj2gco(ts);
   tb->nuse++;
   if (tb->nuse > cast(lu_int32, tb->size) && tb->size <= MAX_INT/2)
@@ -93,6 +82,7 @@ static TString *newlstr (lua_State *L, const char *str, size_t l,
 #endif /* LUA_MEMORY_STATS */
   return ts;
 }
+
 
 TString *luaS_newlstr (lua_State *L, const char *str, size_t l) {
   GCObject *o;
@@ -114,6 +104,7 @@ TString *luaS_newlstr (lua_State *L, const char *str, size_t l) {
   return newlstr(L, str, l, h);  /* not found */
 }
 
+
 Udata *luaS_newudata (lua_State *L, size_t s, Table *e) {
   Udata *u;
   if (s > MAX_SIZET - sizeof(Udata))
@@ -124,22 +115,11 @@ Udata *luaS_newudata (lua_State *L, size_t s, Table *e) {
   u = cast(Udata *, luaM_malloc(L, s + sizeof(Udata)));
   u->uv.marked = luaC_white(G(L));  /* is not finalized */
   u->uv.tt = LUA_TUSERDATA;
-#if LUA_REFCOUNT
-  u->uv.ref = 0;
-  luarc_addreftable(e);
-#endif /* LUA_REFCOUNT */
   u->uv.len = s;
   u->uv.metatable = NULL;
   u->uv.env = e;
   /* chain it on udata list (after main thread) */
-#if LUA_REFCOUNT
-  u->uv.prev = (GCObject*)&G(L)->mainthread->next;
-#endif /* LUA_REFCOUNT */
   u->uv.next = G(L)->mainthread->next;
-#if LUA_REFCOUNT
-  if (u->uv.next)
-    u->uv.next->uv.prev = obj2gco(u);
-#endif /* LUA_REFCOUNT */
   G(L)->mainthread->next = obj2gco(u);
 #if LUA_MEMORY_STATS
   luaM_setname(L, 0);

@@ -266,13 +266,8 @@ static void setarrayvector (lua_State *L, Table *t, int size) {
   luaM_setname(L, "lua.arrayvector");
 #endif /* LUA_MEMORY_STATS */
   luaM_reallocvector(L, t->array, t->sizearray, size, TValue);
-#if LUA_REFCOUNT
-  for (i=t->sizearray; i<size; i++)
-     setnilvalue2n(L, &t->array[i]);
-#else
   for (i=t->sizearray; i<size; i++)
      setnilvalue(&t->array[i]);
-#endif /* LUA_REFCOUNT */
   t->sizearray = size;
 #if LUA_MEMORY_STATS
   luaM_setname(L, 0);
@@ -302,13 +297,8 @@ static void setnodevector (lua_State *L, Table *t, int size) {
     for (i=0; i<size; i++) {
       Node *n = gnode(t, i);
       gnext(n) = NULL;
-#if LUA_REFCOUNT
-      setnilvalue2n(L, gkey(n));
-      setnilvalue2n(L, gval(n));
-#else
       setnilvalue(gkey(n));
       setnilvalue(gval(n));
-#endif /* LUA_REFCOUNT */
     }
   }
   t->lsizenode = cast_byte(lsize);
@@ -329,15 +319,8 @@ static void resize (lua_State *L, Table *t, int nasize, int nhsize) {
     t->sizearray = nasize;
     /* re-insert elements from vanishing slice */
     for (i=nasize; i<oldasize; i++) {
-#if LUA_REFCOUNT    
-      if (!ttisnil(&t->array[i])) {
-        setobjt2t(L, luaH_setnum(L, t, i+1), &t->array[i]);
-        luarc_cleanvalue(&t->array[i]);
-      }
-#else
       if (!ttisnil(&t->array[i]))
         setobjt2t(L, luaH_setnum(L, t, i+1), &t->array[i]);
-#endif /* LUA_REFCOUNT */
     }
     /* shrink array */
 #if LUA_MEMORY_STATS
@@ -354,17 +337,6 @@ static void resize (lua_State *L, Table *t, int nasize, int nhsize) {
     if (!ttisnil(gval(old)))
       setobjt2t(L, luaH_set(L, t, key2tval(old)), gval(old));
   }
-#if LUA_REFCOUNT    
-  if (oldhsize) {
-    for (i = twoto(oldhsize) - 1; i >= 0; i--) {
-      Node *old = nold+i;
-      if (!ttisnil(gval(old))) {
-        luarc_cleanvalue(gkey(old));
-        luarc_cleanvalue(gval(old));
-      }
-    }
-  }
-#endif /* LUA_REFCOUNT */
   if (nold != dummynode)
     luaM_freearray(L, nold, twoto(oldhsize), Node);  /* free old array */
 }
@@ -409,9 +381,6 @@ Table *luaH_new (lua_State *L, int narray, int nhash) {
 #else
   Table *t = luaM_new(L, Table);
 #endif /* LUA_MEMORY_STATS */
-#if LUA_REFCOUNT
-  t->ref = 0;
-#endif /* LUA_REFCOUNT */
   luaC_link(L, obj2gco(t), LUA_TTABLE);
   t->metatable = NULL;
   t->flags = cast_byte(~0);
@@ -445,39 +414,6 @@ static Node *getfreepos (Table *t) {
   return NULL;  /* could not find a free place */
 }
 
-#if LUA_REFCOUNT    
-
-void luaH_removekey (lua_State *L, Table *t, Node *e) {
-  Node *mp = mainposition(t, gkey(e));  /* `mp' of the node */
-  (void)L;
-  if (e != mp) {  /* element not in its main position? */
-    while (gnext(mp) != e) mp = gnext(mp);  /* find previous */
-    gnext(mp) = gnext(e);  /* remove `e' from its list */
-    setnilvalue(gkey(e));  /* clear node `e' */
-    gnext(e) = NULL;
-    if (e > t->lastfree)
-      t->lastfree = e;
-  }
-  else {
-    /* It is in its main position.  Copy some stuff around and relink */
-    if (gnext(e) != NULL) {
-      Node* nold = gnext(e);
-      setnilvalue(gkey(e));  /* clear node `e' */
-      *mp = *gnext(e);
-      gnext(nold) = NULL;  /* now `mp' is free */
-      setnilvalue2n(L, gval(nold));
-      luarc_newvalue(gkey(nold));
-      if (nold > t->lastfree)
-        t->lastfree = nold;
-    } else {
-      setnilvalue(gkey(e));  /* clear node `e' */
-      if (e > t->lastfree)
-        t->lastfree = e;
-    }
-  }
-}
-
-#endif /* LUA_REFCOUNT */
 
 
 /*
@@ -504,12 +440,7 @@ static TValue *newkey (lua_State *L, Table *t, const TValue *key) {
       gnext(othern) = n;  /* redo the chain with `n' in place of `mp' */
       *n = *mp;  /* copy colliding node into free pos. (mp->next also goes) */
       gnext(mp) = NULL;  /* now `mp' is free */
-#if LUA_REFCOUNT
-      setnilvalue2n(L, gval(mp));
-      luarc_newvalue(gkey(mp));
-#else
       setnilvalue(gval(mp));
-#endif /* LUA_REFCOUNT */
     }
     else {  /* colliding node is in its own main position */
       /* new node will go into free position */
@@ -523,79 +454,11 @@ static TValue *newkey (lua_State *L, Table *t, const TValue *key) {
 #else
   gkey(mp)->value = key->value; gkey(mp)->tt = key->tt;
 #endif /* LUA_PACK_VALUE */
-#if LUA_REFCOUNT    
-  luarc_addref(gkey(mp));
-#endif /* LUA_REFCOUNT */
   luaC_barriert(L, t, key);
   lua_assert(ttisnil(gval(mp)));
   return gval(mp);
 }
 
-#if LUA_REFCOUNT    
-
-/*
-** search function for integers
-*/
-Node *luaH_getkeynum (Table *t, int key) {
-  /* (1 <= key && key <= t->sizearray) */
-  if (cast(unsigned int, key-1) < cast(unsigned int, t->sizearray))
-    return NULL; /*&t->array[key-1];*/
-  else {
-    lua_Number nk = cast_num(key);
-    Node *n = hashnum(t, nk);
-    do {  /* check whether `key' is somewhere in the chain */
-      if (ttisnumber(gkey(n)) && luai_numeq(nvalue(gkey(n)), nk))
-        return n;  /* that's it */
-      else n = gnext(n);
-    } while (n);
-    return NULL;
-  }
-}
-
-
-/*
-** search function for strings
-*/
-Node *luaH_getkeystr (Table *t, TString *key) {
-  Node *n = hashstr(t, key);
-  do {  /* check whether `key' is somewhere in the chain */
-    if (ttisstring(gkey(n)) && rawtsvalue(gkey(n)) == key)
-      return n;  /* that's it */
-    else n = gnext(n);
-  } while (n);
-  return NULL;
-}
-
-
-/*
-** main search function
-*/
-Node *luaH_getkey (Table *t, const TValue *key) {
-  switch (ttype(key)) {
-    case LUA_TNIL: return NULL;
-    case LUA_TSTRING: return luaH_getkeystr(t, rawtsvalue(key));
-    case LUA_TWSTRING: return luaH_getkeystr(t, rawtwsvalue(key));
-    case LUA_TNUMBER: {
-      int k;
-      lua_Number n = nvalue(key);
-      lua_number2int(k, n);
-      if (luai_numeq(cast_num(k), nvalue(key))) /* index is int? */
-        return luaH_getkeynum(t, k);  /* use specialized version */
-      /* else go through */
-    }
-    default: {
-      Node *n = mainposition(t, key);
-      do {  /* check whether `key' is somewhere in the chain */
-        if (luaO_rawequalObj(key2tval(n), key))
-          return n;  /* that's it */
-        else n = gnext(n);
-      } while (n);
-      return NULL;
-    }
-  }
-}
-
-#endif /* LUA_REFCOUNT */
 
 /*
 ** search function for integers
@@ -629,6 +492,7 @@ const TValue *luaH_getstr (Table *t, TString *key) {
   } while (n);
   return luaO_nilobject;
 }
+
 
 /*
 ** main search function
@@ -678,16 +542,8 @@ TValue *luaH_setnum (lua_State *L, Table *t, int key) {
     return cast(TValue *, p);
   else {
     TValue k;
-#if LUA_REFCOUNT
-    TValue *ret;
-    setnvalue2n(&k, cast_num(key));
-    ret = newkey(L, t, &k);
-    setnilvalue(&k);
-    return ret;
-#else
     setnvalue(&k, cast_num(key));
     return newkey(L, t, &k);
-#endif /* LUA_REFCOUNT */
   }
 }
 
@@ -698,16 +554,8 @@ TValue *luaH_setstr (lua_State *L, Table *t, TString *key) {
     return cast(TValue *, p);
   else {
     TValue k;
-#if LUA_REFCOUNT
-    TValue *ret;
-    setsvalue2n(L, &k, key);
-    ret = newkey(L, t, &k);
-    setnilvalue(&k);
-    return ret;
-#else
     setsvalue(L, &k, key);
     return newkey(L, t, &k);
-#endif /* LUA_REFCOUNT */
   }
 }
 

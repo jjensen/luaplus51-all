@@ -134,6 +134,7 @@ static void codestring (LexState *ls, expdesc *e, TString *s) {
   init_exp(e, VK, luaK_stringK(ls->fs, s));
 }
 
+
 static void checkname(LexState *ls, expdesc *e) {
   codestring(ls, e, str_checkname(ls));
 }
@@ -154,9 +155,6 @@ static int registerlocalvar (LexState *ls, TString *varname) {
   while (oldsize < f->sizelocvars) f->locvars[oldsize++].varname = NULL;
   f->locvars[fs->nlocvars].varname = varname;
   luaC_objbarrier(ls->L, f, varname);
-#if LUA_REFCOUNT
-  luarc_addrefstring(varname);
-#endif /* LUA_REFCOUNT */
   return fs->nlocvars++;
 }
 
@@ -210,9 +208,6 @@ static int indexupvalue (FuncState *fs, TString *name, expdesc *v) {
 #endif /* LUA_MEMORY_STATS */
   while (oldsize < f->sizeupvalues) f->upvalues[oldsize++] = NULL;
   f->upvalues[f->nups] = name;
-#if LUA_REFCOUNT
-  luarc_addrefstring(name);
-#endif /* LUA_REFCOUNT */
   luaC_objbarrier(fs->L, f, name);
   lua_assert(v->k == VLOCAL || v->k == VUPVAL);
   fs->upvalues[f->nups].k = cast_byte(v->k);
@@ -339,10 +334,6 @@ static void pushclosure (LexState *ls, FuncState *func, expdesc *v) {
 #endif /* LUA_MEMORY_STATS */
   while (oldsize < f->sizep) f->p[oldsize++] = NULL;
   f->p[fs->np++] = func->f;
-#if LUA_REFCOUNT
-  /* already got a reference */
-  /* luarc_addrefproto(func->f); */
-#endif /* LUA_REFCOUNT */
   luaC_objbarrier(ls->L, f, func->f);
   init_exp(v, VRELOCABLE, luaK_codeABx(fs, OP_CLOSURE, 0, fs->np-1));
   for (i=0; i<func->f->nups; i++) {
@@ -370,14 +361,8 @@ static void open_func (LexState *ls, FuncState *fs) {
   fs->nactvar = 0;
   fs->bl = NULL;
   f->source = ls->source;
-#if LUA_REFCOUNT
-  luarc_addrefstring(f->source);
-#endif /* LUA_REFCOUNT */
   f->maxstacksize = 2;  /* registers 0/1 are always valid */
   fs->h = luaH_new(L, 0, 0);
-#if LUA_REFCOUNT
-  luarc_addreftable(fs->h);
-#endif /* LUA_REFCOUNT */
   /* anchor table of constants and prototype (to avoid being collected) */
   sethvalue2s(L, L->top, fs->h);
   incr_top(L);
@@ -430,11 +415,6 @@ static void close_func (LexState *ls) {
   ls->fs = fs->prev;
   /* last token read was anchored in defunct function; must reanchor it */
   if (fs) anchor_token(ls);
-#if LUA_REFCOUNT
-  setnilvalue(L->top + 1);
-  setnilvalue(L->top);
-  luarc_releasetable(L, fs->h);
-#endif /* LUA_REFCOUNT */
   L->top -= 2;  /* remove table and prototype from the stack */
 }
 
@@ -445,9 +425,6 @@ Proto *luaY_parser (lua_State *L, ZIO *z, Mbuffer *buff, const char *name) {
   lexstate.buff = buff;
   luaX_setinput(L, &lexstate, z, luaS_new(L, name));
   open_func(&lexstate, &funcstate);
-#if LUA_REFCOUNT
-  luarc_addrefproto(funcstate.f);
-#endif /* LUA_REFCOUNT */
   funcstate.f->is_vararg = VARARG_ISVARARG;  /* main func. is always vararg */
   luaX_next(&lexstate);  /* read first token */
   chunk(&lexstate);
@@ -651,9 +628,6 @@ static void body (LexState *ls, expdesc *e, int needself, int line) {
   /* body ->  `(' parlist `)' chunk END */
   FuncState new_fs;
   open_func(ls, &new_fs);
-#if LUA_REFCOUNT
-  luarc_addrefproto(new_fs.f);
-#endif /* LUA_REFCOUNT */
   new_fs.f->linedefined = line;
   checknext(ls, '(');
   if (needself) {

@@ -141,19 +141,11 @@ static void correctstack (lua_State *L, TValue *oldstack) {
 void luaD_reallocstack (lua_State *L, int newsize) {
   TValue *oldstack = L->stack;
   int realsize = newsize + 1 + EXTRA_STACK;
-#if LUA_REFCOUNT  
-  if (newsize < L->stacksize) {
-    luarc_cleanarray(L->stack + newsize, L->top);
-  }
-#endif /* LUA_REFCOUNT */
   lua_assert(L->stack_last - L->stack == L->stacksize - EXTRA_STACK - 1);
   luaM_reallocvector(L, L->stack, L->stacksize, realsize, TValue);
   L->stacksize = realsize;
   L->stack_last = L->stack+newsize;
   correctstack(L, oldstack);
-#if LUA_REFCOUNT  
-  luarc_newarray(L->top, L->stack + L->stacksize);
-#endif /* LUA_REFCOUNT */
 }
 
 
@@ -364,10 +356,6 @@ int luaD_poscall (lua_State *L, StkId firstResult) {
     setobjs2s(L, res++, firstResult++);
   while (i-- > 0)
     setnilvalue(res++);
-#if LUA_REFCOUNT
-  luarc_cleanarray(L->top, res);
-  luarc_cleanarrayreverse(res, L->top);
-#endif /* LUA_REFCOUNT */
   L->top = res;
   return (wanted - LUA_MULTRET);  /* 0 iff wanted == LUA_MULTRET */
 }
@@ -476,14 +464,8 @@ int luaD_pcall (lua_State *L, Pfunc func, void *u,
   status = luaD_rawrunprotected(L, func, u);
   if (status != 0) {  /* an error occurred? */
     StkId oldtop = restorestack(L, old_top);
-#if LUA_REFCOUNT
-    StkId curtop = L->top;
-#endif /* LUA_REFCOUNT */
     luaF_close(L, oldtop);  /* close eventual pending closures */
     luaD_seterrorobj(L, status, oldtop);
-#if LUA_REFCOUNT
-    luarc_cleanarray(L->top, curtop);
-#endif /* LUA_REFCOUNT */
     L->nCcalls = oldnCcalls;
     L->ci = restoreci(L, old_ci);
     L->base = L->ci->base;
@@ -517,10 +499,6 @@ static void f_parser (lua_State *L, void *ud) {
                                                              &p->buff, p->name);
   cl = luaF_newLclosure(L, tf->nups, hvalue(gt(L)));
   cl->l.p = tf;
-#if LUA_REFCOUNT
-  /* already got a reference from the luaY_parser */
-  /* luarc_addrefproto(cl->l.p); */
-#endif /* LUA_REFCOUNT */
   for (i = 0; i < tf->nups; i++)  /* initialize eventual upvalues */
     cl->l.upvals[i] = luaF_newupval(L);
   setclvalue(L, L->top, cl);

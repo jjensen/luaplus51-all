@@ -45,11 +45,6 @@
 #define LUAPLUS_DUMPOBJECT 1
 #endif /* LUAPLUS_DUMPOBJECT */
 
-/* Still has bugs... */
-#ifndef LUA_REFCOUNT
-#define LUA_REFCOUNT 0
-#endif /* LUA_REFCOUNT */
-
 #ifndef LUAPLUS_EXCEPTIONS
 #define LUAPLUS_EXCEPTIONS 0
 #endif // LUAPLUS_EXCEPTIONS

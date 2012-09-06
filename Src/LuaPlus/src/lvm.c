@@ -32,11 +32,7 @@
 #define MAXTAGLOOP	100
 
 
-#if LUA_REFCOUNT
-const TValue *luaV_tonumber (lua_State *L, const TValue *obj, TValue *n) {
-#else
 const TValue *luaV_tonumber (const TValue *obj, TValue *n) {
-#endif /* LUA_REFCOUNT */
   lua_Number num;
   if (ttisnumber(obj)) return obj;
   if (ttisstring(obj) && luaO_str2d(svalue(obj), &num)) {
@@ -148,14 +144,6 @@ void luaV_settable (lua_State *L, const TValue *t, TValue *key, StkId val) {
         setobj2t(L, oldval, val);
         h->flags = 0;
         luaC_barriert(L, h, val);
-#if LUA_REFCOUNT
-        if (ttisnil(val)) {
-          Node* keyNode = luaH_getkey(h, key);
-          if (keyNode) {
-            luaH_removekey(L, h, keyNode);
-          }
-        }
-#endif /* LUA_REFCOUNT */
         return;
       }
       /* else will try the tag method */
@@ -164,19 +152,6 @@ void luaV_settable (lua_State *L, const TValue *t, TValue *key, StkId val) {
       luaG_typeerror(L, t, "index");
     if (ttisfunction(tm)) {
       callTM(L, tm, t, key, val);
-#if LUA_REFCOUNT
-      {
-        TValue *newval;
-        if (ttistable(t)) {
-          newval = luaH_set(L, hvalue(t), key);
-          if (ttisnil(newval)) {
-            Node* keyNode = luaH_getkey(hvalue(t), key);
-            if (keyNode)
-              luaH_removekey(L, hvalue(t), keyNode);
-          }
-        }
-      }
-#endif /* LUA_REFCOUNT */
       return;
     }
     /* else repeat with `tm' */
@@ -246,6 +221,7 @@ static int l_strcmp (const TString *ls, const TString *rs) {
   }
 }
 
+
 int luaV_lessthan (lua_State *L, const TValue *l, const TValue *r) {
   int res;
   if (ttype(l) != ttype(r))
@@ -302,6 +278,7 @@ int luaV_equalval (lua_State *L, const TValue *t1, const TValue *t2) {
   return !l_isfalse(L->top);
 }
 
+
 void luaV_concat (lua_State *L, int total, int last) {
   do {
     StkId top = L->base + last + 1;
@@ -328,9 +305,6 @@ void luaV_concat (lua_State *L, int total, int last) {
         size_t l = tsvalue(top-i)->len;
         memcpy(buffer+tl, svalue(top-i), l);
         tl += l;
-#if LUA_REFCOUNT
-        luarc_cleanvalue(top-i);
-#endif /* LUA_REFCOUNT */
       }
       setsvalue2s(L, top-n, luaS_newlstr(L, buffer, tl));
     }
@@ -339,24 +313,14 @@ void luaV_concat (lua_State *L, int total, int last) {
   } while (total > 1);  /* repeat until only 1 result left */
 }
 
+
 static void Arith (lua_State *L, StkId ra, const TValue *rb,
                    const TValue *rc, TMS op) {
   TValue tempb, tempc;
   const TValue *b, *c;
-#if LUA_REFCOUNT
-  luarc_newvalue(&tempb);
-  luarc_newvalue(&tempc);
-  if ((b = luaV_tonumber(L, rb, &tempb)) != NULL &&
-      (c = luaV_tonumber(L, rc, &tempc)) != NULL) {
-#else
   if ((b = luaV_tonumber(rb, &tempb)) != NULL &&
       (c = luaV_tonumber(rc, &tempc)) != NULL) {
-#endif /* LUA_REFCOUNT */
     lua_Number nb = nvalue(b), nc = nvalue(c);
-#if LUA_REFCOUNT
-    luarc_cleanvalue(&tempb);
-    luarc_cleanvalue(&tempc);
-#endif /* LUA_REFCOUNT */
     switch (op) {
       case TM_ADD: setnvalue(ra, luai_numadd(nb, nc)); break;
       case TM_SUB: setnvalue(ra, luai_numsub(nb, nc)); break;
@@ -368,16 +332,8 @@ static void Arith (lua_State *L, StkId ra, const TValue *rb,
       default: lua_assert(0); break;
     }
   }
-#if LUA_REFCOUNT
-  else if (!call_binTM(L, rb, rc, ra, op)) {
-    luarc_cleanvalue(&tempb);
-    luarc_cleanvalue(&tempc);
-    luaG_aritherror(L, rb, rc);
-  }
-#else
   else if (!call_binTM(L, rb, rc, ra, op))
     luaG_aritherror(L, rb, rc);
-#endif /* LUA_REFCOUNT */
 }
 
 
@@ -476,16 +432,9 @@ void luaV_execute (lua_State *L, int nexeccalls) {
       case OP_GETGLOBAL: {
         TValue g;
         TValue *rb = KBx(i);
-#if LUA_REFCOUNT
-        sethvalue2n(L, &g, cl->env);
-#else
         sethvalue(L, &g, cl->env);
-#endif /* LUA_REFCOUNT */
         lua_assert(ttisstring(rb));
         Protect(luaV_gettable(L, &g, rb, ra));
-#if LUA_REFCOUNT
-		setnilvalue(&g);
-#endif /* LUA_REFCOUNT */
         continue;
       }
       case OP_GETTABLE: {
@@ -494,16 +443,9 @@ void luaV_execute (lua_State *L, int nexeccalls) {
       }
       case OP_SETGLOBAL: {
         TValue g;
-#if LUA_REFCOUNT
-        sethvalue2n(L, &g, cl->env);
-#else
         sethvalue(L, &g, cl->env);
-#endif /* LUA_REFCOUNT */
         lua_assert(ttisstring(KBx(i)));
         Protect(luaV_settable(L, &g, KBx(i), ra));
-#if LUA_REFCOUNT
-		setnilvalue(&g);
-#endif /* LUA_REFCOUNT */
         continue;
       }
       case OP_SETUPVAL: {
@@ -696,20 +638,10 @@ void luaV_execute (lua_State *L, int nexeccalls) {
       }
       case OP_RETURN: {
         int b = GETARG_B(i);
-#if LUA_REFCOUNT
-        StkId origTop = L->top;
-		StkId oldTop;
-#endif /* LUA_REFCOUNT */
         if (b != 0) L->top = ra+b-1;
         if (L->openupval) luaF_close(L, base);
         L->savedpc = pc;
         b = luaD_poscall(L, ra);
-#if LUA_REFCOUNT
-        oldTop = L->top;
-        L->top = origTop;
-        luarc_cleanarray(ra+b, origTop);
-        L->top = oldTop;
-#endif /* LUA_REFCOUNT */
         if (--nexeccalls == 0)  /* was previous function running `here'? */
           return;  /* no: return */
         else {  /* yes: continue its execution */
@@ -781,9 +713,6 @@ void luaV_execute (lua_State *L, int nexeccalls) {
           TValue *val = ra+n;
           setobj2t(L, luaH_setnum(L, h, last--), val);
           luaC_barriert(L, h, val);
-#if LUA_REFCOUNT
-          setnilvalue(val);
-#endif /* LUA_REFCOUNT */
         }
         continue;
       }
@@ -799,9 +728,6 @@ void luaV_execute (lua_State *L, int nexeccalls) {
         nup = p->nups;
         ncl = luaF_newLclosure(L, nup, cl->env);
         ncl->l.p = p;
-#if LUA_REFCOUNT
-        luarc_addrefproto(ncl->l.p);
-#endif /* LUA_REFCOUNT */
         for (j=0; j<nup; j++, pc++) {
           if (GET_OPCODE(*pc) == OP_GETUPVAL)
             ncl->l.upvals[j] = cl->upvals[GETARG_B(*pc)];
@@ -809,10 +735,6 @@ void luaV_execute (lua_State *L, int nexeccalls) {
             lua_assert(GET_OPCODE(*pc) == OP_MOVE);
             ncl->l.upvals[j] = luaF_findupval(L, base + GETARG_B(*pc));
           }
-#if LUA_REFCOUNT
-          luarc_addrefupval(ncl->l.upvals[j]);
-          luarc_addref(&ncl->l.upvals[j]->u.value);
-#endif /* LUA_REFCOUNT */
         }
         setclvalue(L, ra, ncl);
         Protect(luaC_checkGC(L));

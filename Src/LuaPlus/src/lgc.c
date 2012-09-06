@@ -141,11 +141,6 @@ size_t luaC_separateudata (lua_State *L, int all) {
       deadmem += sizeudata(gco2u(curr));
       markfinalized(gco2u(curr));
       *p = curr->gch.next;
-#if LUA_REFCOUNT
-      curr->gch.prev->gch.next = curr->gch.next;
-      if (curr->gch.next)
-        curr->gch.next->gch.prev = curr->gch.prev;
-#endif /* LUA_REFCOUNT */
       /* link `curr' at the end of `tmudata' list */
       if (g->tmudata == NULL)  /* list is empty? */
         g->tmudata = curr->gch.next = curr;  /* creates a circular list */
@@ -269,16 +264,8 @@ static void traversestack (global_State *g, lua_State *l) {
   }
   for (o = l->stack; o < l->top; o++)
     markvalue(g, o);
-#if LUA_REFCOUNT
-  for (; o <= lim; o++) {
-    if (iscollectable(o))
-      o->value.gc->gch.ref--;
-    setnilvalue2n(l, o);
-  }
-#else
   for (; o <= lim; o++)
     setnilvalue(o);
-#endif /* LUA_REFCOUNT */
   checkstacksizes(l, lim);
 }
 
@@ -361,11 +348,7 @@ static int iscleared (const TValue *o, int iskey) {
 /*
 ** clear collected entries from weaktables
 */
-#if LUA_REFCOUNT
-static void cleartable (lua_State *L, GCObject *l) {
-#else
 static void cleartable (GCObject *l) {
-#endif /* LUA_REFCOUNT */
   while (l) {
     Table *h = gco2h(l);
     int i = h->sizearray;
@@ -374,16 +357,8 @@ static void cleartable (GCObject *l) {
     if (testbit(h->marked, VALUEWEAKBIT)) {
       while (i--) {
         TValue *o = &h->array[i];
-#if LUA_REFCOUNT
-        if (iscleared(o, 0)) { /* value was collected? */
-          if (iscollectable(o))
-            o->value.gc->gch.ref--;
-          setnilvalue2n(l, o);  /* remove value */
-        }
-#else
         if (iscleared(o, 0))  /* value was collected? */
           setnilvalue(o);  /* remove value */
-#endif /* LUA_REFCOUNT */
       }
     }
     i = sizenode(h);
@@ -391,13 +366,7 @@ static void cleartable (GCObject *l) {
       Node *n = gnode(h, i);
       if (!ttisnil(gval(n)) &&  /* non-empty entry? */
           (iscleared(key2tval(n), 1) || iscleared(gval(n), 0))) {
-#if LUA_REFCOUNT
-        if (iscollectable(gval(n)))
-          gval(n)->value.gc->gch.ref--;
-        setnilvalue2n(L, gval(n));  /* remove value ... */
-#else
         setnilvalue(gval(n));  /* remove value ... */
-#endif /* LUA_REFCOUNT */
         removeentry(n);  /* remove entry from table */
       }
     }
@@ -449,12 +418,6 @@ static GCObject **sweeplist (lua_State *L, GCObject **p, lu_mem count) {
     }
     else {  /* must erase `curr' */
       lua_assert(isdead(g, curr) || deadmask == bitmask(SFIXEDBIT));
-#if LUA_REFCOUNT
-      if (curr->gch.prev)
-        curr->gch.prev->gch.next = curr->gch.next;
-      if (curr->gch.next)
-        curr->gch.next->gch.prev = (GCObject*)p;
-#endif /* LUA_REFCOUNT */
       *p = curr->gch.next;
       if (curr == g->rootgc)  /* is the first element of the list? */
         g->rootgc = curr->gch.next;  /* adjust first */
@@ -479,11 +442,7 @@ static void checkSizes (lua_State *L) {
 }
 
 
-#if LUA_REFCOUNT
-void GCTM (lua_State *L) {
-#else
 static void GCTM (lua_State *L) {
-#endif /* LUA_REFCOUNT */
   global_State *g = G(L);
   GCObject *o = g->tmudata->gch.next;  /* get first element */
   Udata *udata = rawgco2u(o);
@@ -493,14 +452,7 @@ static void GCTM (lua_State *L) {
     g->tmudata = NULL;
   else
     g->tmudata->gch.next = udata->uv.next;
-#if LUA_REFCOUNT
-  udata->uv.prev = (GCObject*)&G(L)->mainthread->next;
-#endif /* LUA_REFCOUNT */
   udata->uv.next = g->mainthread->next;  /* return it to `root' list */
-#if LUA_REFCOUNT
-  if (udata->uv.next)
-    udata->uv.next->uv.prev = obj2gco(udata);
-#endif /* LUA_REFCOUNT */
   g->mainthread->next = o;
   makewhite(g, o);
   tm = fasttm(L, udata->uv.metatable, TM_GC);
@@ -509,27 +461,10 @@ static void GCTM (lua_State *L) {
     lu_mem oldt = g->GCthreshold;
     L->allowhook = 0;  /* stop debug hooks during GC tag method */
     g->GCthreshold = 2*g->totalbytes;  /* avoid GC steps */
-#if LUA_REFCOUNT
-    /* We could be in the middle of a stack set, so call the __gc metamethod on
-       one stack level past the current one. */
-    L->top++;
-
-	/* we're freeing this object, but fake ref count it, because GCTM actually uses it */
-    udata->uv.ref++;
-
-    L->top += 2;
-    setobj2s(L, L->top - 2, tm);
-    setuvalue(L, L->top - 1, udata);
-    luaD_call(L, L->top - 2, 0);
-    udata->uv.ref--;
-    L->top--;
-    setnilvalue2n(L, L->top - 1);
-#else
     setobj2s(L, L->top, tm);
     setuvalue(L, L->top+1, udata);
     L->top += 2;
     luaD_call(L, L->top - 2, 0);
-#endif /* LUA_REFCOUNT */
     L->allowhook = oldah;  /* restore hooks */
     g->GCthreshold = oldt;  /* restore threshold */
   }
@@ -611,11 +546,7 @@ static void atomic (lua_State *L) {
   udsize = luaC_separateudata(L, 0);  /* separate userdata to be finalized */
   marktmu(g);  /* mark `preserved' userdata */
   udsize += propagateall(g);  /* remark, to propagate `preserveness' */
-#if LUA_REFCOUNT
-  cleartable(L, g->weak);  /* remove collected objects from weak tables */
-#else
   cleartable(g->weak);  /* remove collected objects from weak tables */
-#endif /* LUA_REFCOUNT */
   /* flip current white */
   g->currentwhite = cast_byte(otherwhite(g));
   g->sweepstrgc = 0;
@@ -756,15 +687,8 @@ void luaC_barrierback (lua_State *L, Table *t) {
 
 void luaC_link (lua_State *L, GCObject *o, lu_byte tt) {
   global_State *g = G(L);
-#if LUA_REFCOUNT
-  o->gch.prev = (GCObject*)&G(L)->rootgc;
-#endif /* LUA_REFCOUNT */
   o->gch.next = g->rootgc;
   g->rootgc = o;
-#if LUA_REFCOUNT
-  if (o->gch.next)
-    o->gch.next->gch.prev = o;
-#endif /* LUA_REFCOUNT */
   o->gch.marked = luaC_white(g);
   o->gch.tt = tt;
 }
@@ -773,15 +697,8 @@ void luaC_link (lua_State *L, GCObject *o, lu_byte tt) {
 void luaC_linkupval (lua_State *L, UpVal *uv) {
   global_State *g = G(L);
   GCObject *o = obj2gco(uv);
-#if LUA_REFCOUNT
-  o->gch.prev = (GCObject*)&G(L)->rootgc;
-#endif /* LUA_REFCOUNT */
   o->gch.next = g->rootgc;  /* link upvalue into `rootgc' list */
   g->rootgc = o;
-#if LUA_REFCOUNT
-  if (o->gch.next)
-    o->gch.next->gch.prev = o;
-#endif /* LUA_REFCOUNT */
   if (isgray(o)) { 
     if (g->gcstate == GCSpropagate) {
       gray2black(o);  /* closed upvalues need barrier */

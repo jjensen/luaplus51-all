@@ -245,11 +245,7 @@ static int addk (FuncState *fs, TValue *k, TValue *v) {
 #if LUA_MEMORY_STATS
     luaM_setname(L, 0);
 #endif /* LUA_MEMORY_STATS */
-#if LUA_REFCOUNT
-    while (oldsize < f->sizek) setnilvalue2n(L, &f->k[oldsize++]);
-#else
     while (oldsize < f->sizek) setnilvalue(&f->k[oldsize++]);
-#endif /* LUA_REFCOUNT */
     setobj(L, &f->k[fs->nk], v);
     luaC_barrier(L, f, v);
     return fs->nk++;
@@ -259,71 +255,31 @@ static int addk (FuncState *fs, TValue *k, TValue *v) {
 
 int luaK_stringK (FuncState *fs, TString *s) {
   TValue o;
-#if LUA_REFCOUNT
-  lua_State *L = fs->L;
-  int ret;
-  setsvalue2n(fs->L, &o, s);
-  ret = addk(fs, &o, &o);
-  setnilvalue(&o);
-  return ret;
-#else
   setsvalue(fs->L, &o, s);
   return addk(fs, &o, &o);
-#endif /* LUA_REFCOUNT */
 }
 
 
 int luaK_numberK (FuncState *fs, lua_Number r) {
   TValue o;
-#if LUA_REFCOUNT
-  lua_State *L = fs->L;
-  int ret;
-  setnvalue2n(&o, r);
-  ret = addk(fs, &o, &o);
-  setnilvalue(&o);
-  return ret;
-#else
   setnvalue(&o, r);
   return addk(fs, &o, &o);
-#endif /* LUA_REFCOUNT */
 }
 
 
 static int boolK (FuncState *fs, int b) {
   TValue o;
-#if LUA_REFCOUNT
-  lua_State *L = fs->L;
-  int ret;
-  setbvalue2n(&o, b);
-  ret = addk(fs, &o, &o);
-  setnilvalue(&o);
-  return ret;
-#else
   setbvalue(&o, b);
   return addk(fs, &o, &o);
-#endif /* LUA_REFCOUNT */
 }
 
 
 static int nilK (FuncState *fs) {
   TValue k, v;
-#if LUA_REFCOUNT
-  lua_State *L = fs->L;
-  int ret;
-  setnilvalue2n(L, &v);
-  luarc_newvalue(&k);
-  /* cannot use nil as key; instead use table itself to represent nil */
-  sethvalue(fs->L, &k, fs->h);
-  ret = addk(fs, &k, &v);
-  luarc_cleanvalue(&k);
-  luarc_cleanvalue(&v);
-  return ret;
-#else
   setnilvalue(&v);
   /* cannot use nil as key; instead use table itself to represent nil */
   sethvalue(fs->L, &k, fs->h);
   return addk(fs, &k, &v);
-#endif /* LUA_REFCOUNT */
 }
 
 

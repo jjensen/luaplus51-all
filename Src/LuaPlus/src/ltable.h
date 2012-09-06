@@ -22,10 +22,6 @@
 #define key2tval(n)	(&(n)->i_key.tvk)
 
 
-#if LUA_REFCOUNT
-Node *luaH_getkey (Table *t, const TValue *key);
-void luaH_removekey (lua_State *L, Table *t, Node *n);
-#endif /* LUA_REFCOUNT */
 LUAI_FUNC const TValue *luaH_getnum (Table *t, int key);
 LUAI_FUNC TValue *luaH_setnum (lua_State *L, Table *t, int key);
 LUAI_FUNC const TValue *luaH_getstr (Table *t, TString *key);

@@ -56,16 +56,9 @@ static void stack_init (lua_State *L1, lua_State *L) {
   L1->stacksize = BASIC_STACK_SIZE + EXTRA_STACK;
   L1->top = L1->stack;
   L1->stack_last = L1->stack+(L1->stacksize - EXTRA_STACK)-1;
-#if LUA_REFCOUNT
-  luarc_newarray(L1->stack, L1->stack + L1->stacksize);
-#endif /* LUA_REFCOUNT */
   /* initialize first ci */
   L1->ci->func = L1->top;
-#if LUA_REFCOUNT  
-  setnilvalue2n(L1, L1->top++);  /* `function' entry for this `ci' */
-#else
   setnilvalue(L1->top++);  /* `function' entry for this `ci' */
-#endif /* LUA_REFCOUNT */
   L1->base = L1->ci->base = L1->top;
   L1->ci->top = L1->top + LUA_MINSTACK;
 #if LUA_MEMORY_STATS
@@ -131,12 +124,7 @@ static void preinit_state (lua_State *L, global_State *g) {
   L->base_ci = L->ci = NULL;
   L->savedpc = NULL;
   L->errfunc = 0;
-#if LUA_REFCOUNT    
-  L->ref = 0;
-  setnilvalue2n(L, gt(L));
-#else
   setnilvalue(gt(L));
-#endif /* LUA_REFCOUNT */
 }
 
 
@@ -193,9 +181,6 @@ LUA_API lua_State *lua_newstate (lua_Alloc f, void *ud) {
   L = tostate(l);
   g = &((LG *)L)->g;
   L->next = NULL;
-#if LUA_REFCOUNT
-  L->prev = NULL;
-#endif /* LUA_REFCOUNT */
   L->tt = LUA_TTHREAD;
   g->currentwhite = bit2mask(WHITE0BIT, FIXEDBIT);
   L->marked = luaC_white(g);
@@ -210,11 +195,7 @@ LUA_API lua_State *lua_newstate (lua_Alloc f, void *ud) {
   g->strt.size = 0;
   g->strt.nuse = 0;
   g->strt.hash = NULL;
-#if LUA_REFCOUNT    
-  setnilvalue2n(L, registry(L));
-#else
   setnilvalue(registry(L));
-#endif /* LUA_REFCOUNT */
   luaZ_initbuffer(L, &g->buff);
   g->panic = NULL;
   g->gcstate = GCSpause;

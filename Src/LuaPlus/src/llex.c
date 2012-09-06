@@ -23,7 +23,10 @@
 #include "ltable.h"
 #include "lzio.h"
 
+
+
 #define next(ls) (ls->current = zgetc(ls->z))
+
 
 
 
@@ -121,6 +124,7 @@ TString *luaX_newstring (LexState *ls, const char *str, size_t l) {
   }
   return ts;
 }
+
 
 static void inclinenumber (LexState *ls) {
   int old = ls->current;
@@ -348,6 +352,7 @@ static void read_string (LexState *ls, int del, SemInfo *seminfo) {
   seminfo->ts = luaX_newstring(ls, luaZ_buffer(ls->buff) + 1,
                                    luaZ_bufflen(ls->buff) - 2);
 }
+
 
 static int llex (LexState *ls, SemInfo *seminfo) {
   luaZ_resetbuffer(ls->buff);

@@ -44,6 +44,7 @@ int luaZ_lookahead (ZIO *z) {
   return char2int(*z->p);
 }
 
+
 void luaZ_init (lua_State *L, ZIO *z, lua_Reader reader, void *data) {
   z->L = L;
   z->reader = reader;

@@ -28,16 +28,9 @@ Closure *luaF_newCclosure (lua_State *L, int nelems, Table *e) {
 #else
   Closure *c = cast(Closure *, luaM_malloc(L, sizeCclosure(nelems)));
 #endif /* LUA_MEMORY_STATS */
-#if LUA_REFCOUNT
-  c->c.ref = 0;
-#endif /* LUA_REFCOUNT */
   luaC_link(L, obj2gco(c), LUA_TFUNCTION);
   c->c.isC = 1;
   c->c.env = e;
-#if LUA_REFCOUNT
-  luarc_addreftable(e);
-  c->c.gclist = NULL;
-#endif /* LUA_REFCOUNT */
   c->c.nupvalues = cast_byte(nelems);
 #if LUA_MEMORY_STATS
   luaM_setname(L, 0);
@@ -54,16 +47,9 @@ Closure *luaF_newLclosure (lua_State *L, int nelems, Table *e) {
 #else
   Closure *c = cast(Closure *, luaM_malloc(L, sizeLclosure(nelems)));
 #endif /* LUA_MEMORY_STATS */
-#if LUA_REFCOUNT
-  c->l.ref = 0;
-#endif /* LUA_REFCOUNT */
   luaC_link(L, obj2gco(c), LUA_TFUNCTION);
   c->l.isC = 0;
   c->l.env = e;
-#if LUA_REFCOUNT
-  luarc_addreftable(e);
-  c->l.gclist = NULL;
-#endif /* LUA_REFCOUNT */
   c->l.nupvalues = cast_byte(nelems);
   while (nelems--) c->l.upvals[nelems] = NULL;
 #if LUA_MEMORY_STATS
@@ -83,11 +69,7 @@ UpVal *luaF_newupval (lua_State *L) {
 #endif /* LUA_MEMORY_STATS */
   luaC_link(L, obj2gco(uv), LUA_TUPVAL);
   uv->v = &uv->u.value;
-#if LUA_REFCOUNT
-  luarc_newvalue(uv->v);
-#else
   setnilvalue(uv->v);
-#endif /* LUA_REFCOUNT */
 #if LUA_MEMORY_STATS
   luaM_setname(L, 0);
 #endif /* LUA_MEMORY_STATS */
@@ -117,16 +99,6 @@ UpVal *luaF_findupval (lua_State *L, StkId level) {
   uv->marked = luaC_white(g);
   uv->v = level;  /* current value lives in the stack */
   uv->next = *pp;  /* chain it in the proper position */
-#if LUA_REFCOUNT
-  if (uv->next) {
-    uv->prev = uv->next->gch.prev;
-    uv->next->gch.prev = (GCObject*)uv;
-  } else {
-    uv->prev = NULL;
-  }
-  luarc_newvalue(&uv->u.value);
-  uv->ref = 1;
-#endif /* LUA_REFCOUNT */
   *pp = obj2gco(uv);
   uv->u.l.prev = &g->uvhead;  /* double link it in `uvhead' list */
   uv->u.l.next = g->uvhead.u.l.next;
@@ -161,14 +133,6 @@ void luaF_close (lua_State *L, StkId level) {
     GCObject *o = obj2gco(uv);
     lua_assert(!isblack(o) && uv->v != &uv->u.value);
     L->openupval = uv->next;  /* remove from `open' list */
-#if LUA_REFCOUNT
-	if (--uv->ref == 0) {
-      uv->marked ^= otherwhite(g);
-      luarc_release(L, &uv->u.value);
-	}
-    if (uv->next)
-      uv->next->gch.prev = NULL;
-#endif /* LUA_REFCOUNT */
     if (isdead(g, o))
       luaF_freeupval(L, uv);  /* free upvalue */
     else {
@@ -189,9 +153,6 @@ Proto *luaF_newproto (lua_State *L) {
 #else
   Proto *f = luaM_new(L, Proto);
 #endif /* LUA_MEMORY_STATS */
-#if LUA_REFCOUNT
-  f->ref = 0;
-#endif /* LUA_REFCOUNT */
   luaC_link(L, obj2gco(f), LUA_TPROTO);
   f->k = NULL;
   f->sizek = 0;

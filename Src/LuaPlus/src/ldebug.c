@@ -269,13 +269,8 @@ LUA_API int lua_getinfo (lua_State *L, const char *what, lua_Debug *ar) {
   }
   status = auxgetinfo(L, what, ar, f, ci);
   if (strchr(what, 'f')) {
-#if LUA_REFCOUNT
-    if (f == NULL) { setnilvalue(L->top); }
-    else { setclvalue(L, L->top, f); }
-#else
     if (f == NULL) setnilvalue(L->top);
     else setclvalue(L, L->top, f);
-#endif /* LUA_REFCOUNT */
     incr_top(L);
   }
   if (strchr(what, 'L'))
@@ -613,15 +608,8 @@ void luaG_concaterror (lua_State *L, StkId p1, StkId p2) {
 
 void luaG_aritherror (lua_State *L, const TValue *p1, const TValue *p2) {
   TValue temp;
-#if LUA_REFCOUNT  
-  luarc_newvalue(&temp);
-  if (luaV_tonumber(L, p1, &temp) == NULL)
-    p2 = p1;  /* first operand is wrong */
-  luarc_cleanvalue(&temp);
-#else
   if (luaV_tonumber(p1, &temp) == NULL)
     p2 = p1;  /* first operand is wrong */
-#endif /* LUA_REFCOUNT */
   luaG_typeerror(L, p2, "perform arithmetic on");
 }
 

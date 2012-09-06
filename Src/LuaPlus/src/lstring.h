@@ -21,14 +21,11 @@
 #define luaS_newliteral(L, s)	(luaS_newlstr(L, "" s, \
                                  (sizeof(s)/sizeof(char))-1))
 
-#if LUA_REFCOUNT
-#define luaS_fix(s)	(l_setbit((s)->tsv.marked, FIXEDBIT), s->tsv.ref = 1)
-#else
 #define luaS_fix(s)	l_setbit((s)->tsv.marked, FIXEDBIT)
-#endif /* LUA_REFCOUNT */
 
 LUAI_FUNC void luaS_resize (lua_State *L, int newsize);
 LUAI_FUNC Udata *luaS_newudata (lua_State *L, size_t s, Table *e);
 LUAI_FUNC TString *luaS_newlstr (lua_State *L, const char *str, size_t l);
+
 
 #endif

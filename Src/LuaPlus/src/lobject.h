@@ -40,47 +40,8 @@ typedef union GCObject GCObject;
 ** Common Header for all collectable objects (in macro form, to be
 ** included in other objects)
 */
-#if LUA_REFCOUNT
-
-#define CommonHeader	GCObject *next; GCObject* prev; lu_byte tt; lu_byte marked; unsigned short ref
-
-#define luarc_addref(o) { TValue* i_o2 = (o); if(iscollectable(i_o2))	\
-        { \
-            gcvalue(i_o2)->gch.ref++; \
-            lua_assert(gcvalue(i_o2)->gch.ref != 0); \
-        }  }
-
-#define luarc_addreftvalue(o) { gcvalue(o)->gch.ref++; lua_assert(gcvalue(o)->gch.ref != 0); }
-#define luarc_addreftable(o) { o->ref++; lua_assert(o->ref != 0); }
-#define luarc_addrefproto(o) { o->ref++; lua_assert(o->ref != 0); }
-#define luarc_addrefupval(o) { o->ref++; lua_assert(o->ref != 0); }
-#define luarc_addrefstring(o) { o->tsv.ref++; lua_assert(o->tsv.ref != 0); }
-
-#define luarc_release(L,o) { TValue* i_o2 = (o); if(iscollectable(i_o2) && ((--gcvalue(i_o2)->gch.ref)<=0))	\
-		{	\
-			luarc_releaseobject(L,gcvalue(i_o2));	\
-		}	}
-
-#define luarc_releasetable(L,o) { Table* i_o2 = (o); if((--i_o2->ref)<=0) luarc_releaseobject(L,(GCObject*)i_o2); }
-#define luarc_releaseproto(L,o) { Proto* i_o2 = (o); if((--i_o2->ref)<=0) luarc_releaseobject(L,(GCObject*)i_o2); }
-#define luarc_releaseupval(L,o) { UpVal* i_o2 = (o); if((--i_o2->ref)<=0) luarc_releaseobject(L,(GCObject*)i_o2); }
-#define luarc_releasestring(L,o) { TString* i_o2 = (o); if((--i_o2->tsv.ref)<=0) luarc_releaseobject(L,(GCObject*)i_o2); }
-
-#define luarc_makevaluebackup(v) TValue bak = *v;
-
-extern void luarc_releaseobject(lua_State *L, GCObject* header);
-
-#define luarc_newvalue(o) { setnilvalue2n(L, (o)); }
-#define luarc_newarray(from,to) { TValue* i_from = (from); TValue* i_to = (to); while (i_from < i_to) { luarc_newvalue(i_from++); } }
-#define luarc_cleanvalue(o) { setnilvalue((o)); }
-#define luarc_cleanarray(from,to) { TValue* i_from = (from); TValue* i_to = (to); while (i_from < i_to) { luarc_cleanvalue(i_from++); } }
-#define luarc_cleanarrayreverse(to,from) { TValue* i_from = (from); TValue* i_to = (to); while (i_from >= i_to) { luarc_cleanvalue(i_from--); } }
-
-#else /* !LUA_REFCOUNT */
-
 #define CommonHeader	GCObject *next; lu_byte tt; lu_byte marked
 
-#endif /* LUA_REFCOUNT */
 
 /*
 ** Common header in struct form
@@ -207,121 +168,6 @@ typedef TValuefields TValue;
 #endif
 
 /* Macros to set values */
-#if LUA_REFCOUNT
-#define setnilvalue(obj) { TValue *i_o=(obj); luarc_release(L, i_o); i_o->tt=LUA_TNIL; }
-
-#define setnvalue(obj,x) \
-  { TValue *i_o=(obj); luarc_release(L, i_o); i_o->value.n=(x); i_o->tt=LUA_TNUMBER; }
-
-#define setpvalue(obj,x) \
-  { TValue *i_o=(obj); luarc_release(L, i_o); i_o->value.p=(x); i_o->tt=LUA_TLIGHTUSERDATA; }
-
-#define setbvalue(obj,x) \
-  { TValue *i_o=(obj); luarc_release(L, i_o); i_o->value.b=(x); i_o->tt=LUA_TBOOLEAN; }
-
-#define setsvalue(L,obj,x) \
-  { TValue *i_o=(obj); \
-    luarc_makevaluebackup(i_o); \
-    i_o->value.gc=cast(GCObject *, (x)); i_o->tt=LUA_TSTRING; \
-    luarc_addreftvalue(i_o); luarc_release(L, &bak); \
-    checkliveness(G(L),i_o); }
-
-#define setuvalue(L,obj,x) \
-  { TValue *i_o=(obj); \
-    luarc_makevaluebackup(i_o); \
-    i_o->value.gc=cast(GCObject *, (x)); i_o->tt=LUA_TUSERDATA; \
-    luarc_addreftvalue(i_o); luarc_release(L, &bak); \
-    checkliveness(G(L),i_o); }
-
-#define setthvalue(L,obj,x) \
-  { TValue *i_o=(obj); \
-    luarc_makevaluebackup(i_o); \
-    i_o->value.gc=cast(GCObject *, (x)); i_o->tt=LUA_TTHREAD; \
-    luarc_addreftvalue(i_o); luarc_release(L, &bak); \
-    checkliveness(G(L),i_o); }
-
-#define setclvalue(L,obj,x) \
-  { TValue *i_o=(obj); \
-    luarc_makevaluebackup(i_o); \
-    i_o->value.gc=cast(GCObject *, (x)); i_o->tt=LUA_TFUNCTION; \
-    luarc_addreftvalue(i_o); luarc_release(L, &bak); \
-    checkliveness(G(L),i_o); }
-
-#define sethvalue(L,obj,x) \
-  { TValue *i_o=(obj); \
-    luarc_makevaluebackup(i_o); \
-    i_o->value.gc=cast(GCObject *, (x)); i_o->tt=LUA_TTABLE; \
-    luarc_addreftvalue(i_o); luarc_release(L, &bak); \
-    checkliveness(G(L),i_o); }
-
-#define setptvalue(L,obj,x) \
-  { TValue *i_o=(obj); \
-    luarc_makevaluebackup(i_o); \
-    i_o->value.gc=cast(GCObject *, (x)); i_o->tt=LUA_TPROTO; \
-    luarc_addreftvalue(i_o); luarc_release(L, &bak); \
-    checkliveness(G(L),i_o); }
-
-#define setobj(L,obj1,obj2) \
-  { TValue *o2=(TValue *)(obj2); TValue *o1=(obj1); \
-    luarc_addref(o2); luarc_release(L, o1); \
-    o1->value = o2->value; o1->tt=o2->tt; \
-    checkliveness(G(L),o1); }
-
-#define setobj2n(L,obj1,obj2) \
-  { TValue *o2=(TValue *)(obj2); TValue *o1=(obj1); \
-    luarc_addref(o2); \
-    o1->value = o2->value; o1->tt=o2->tt; \
-    checkliveness(G(L),o1); }
-
-#define lua_addreftobject(obj)
-
-#define setnvalue2n(obj,x) \
-  { TValue *i_o=(obj); i_o->value.n=(x); i_o->tt=LUA_TNUMBER; }
-
-#define setpvalue2n(obj,x) \
-  { TValue *i_o=(obj); i_o->value.p=(x); i_o->tt=LUA_TLIGHTUSERDATA; }
-
-#define setbvalue2n(obj,x) \
-  { TValue *i_o=(obj); i_o->value.b=(x); i_o->tt=LUA_TBOOLEAN; }
-
-#define setsvalue2n(L,obj,x) \
-  { TValue *i_o=(obj); \
-    i_o->value.gc=cast(GCObject *, (x)); i_o->tt=LUA_TSTRING; \
-    luarc_addreftvalue(i_o); \
-    checkliveness(G(L),i_o); }
-
-#define setuvalue2n(L,obj,x) \
-  { TValue *i_o=(obj); \
-    i_o->value.gc=cast(GCObject *, (x)); i_o->tt=LUA_TUSERDATA; \
-    luarc_addreftvalue(i_o); \
-    checkliveness(G(L),i_o); }
-
-#define setthvalue2n(L,obj,x) \
-  { TValue *i_o=(obj); \
-    i_o->value.gc=cast(GCObject *, (x)); i_o->tt=LUA_TTHREAD; \
-    luarc_addreftvalue(i_o); \
-    checkliveness(G(L),i_o); }
-
-#define setclvalue2n(L,obj,x) \
-  { TValue *i_o=(obj); \
-    i_o->value.gc=cast(GCObject *, (x)); i_o->tt=LUA_TFUNCTION; \
-    luarc_addreftvalue(i_o); \
-    checkliveness(G(L),i_o); }
-
-#define sethvalue2n(L,obj,x) \
-  { TValue *i_o=(obj); \
-    i_o->value.gc=cast(GCObject *, (x)); i_o->tt=LUA_TTABLE; \
-    luarc_addreftvalue(i_o); \
-    checkliveness(G(L),i_o); }
-
-#define setptvalue2n(L,obj,x) \
-  { TValue *i_o=(obj); \
-    i_o->value.gc=cast(GCObject *, (x)); i_o->tt=LUA_TPROTO; \
-    luarc_addreftvalue(i_o); \
-    checkliveness(G(L),i_o); }
-
-#else /* !LUA_REFCOUNT */
-
 #if LUA_PACK_VALUE == 0
 
 #define setnilvalue(obj) ((obj)->tt=LUA_TNIL)
@@ -426,8 +272,6 @@ typedef TValuefields TValue;
 
 #endif
 
-#endif /* LUA_REFCOUNT */
-
 /*
 ** different types of sets, according to destination
 */
@@ -444,12 +288,8 @@ typedef TValuefields TValue;
 /* to table */
 #define setobj2t	setobj
 /* to new object */
-#if LUA_REFCOUNT
-#define setnilvalue2n(L,obj) ((obj)->tt=LUA_TNIL)
-#else
 #define setobj2n	setobj
 #define setsvalue2n	setsvalue
-#endif /* LUA_REFCOUNT */
 
 #if LUA_PACK_VALUE == 0
 #define setttype(obj, tt) (ttype(obj) = (tt))
