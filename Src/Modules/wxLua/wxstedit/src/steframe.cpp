@@ -249,7 +249,7 @@ void wxSTEditorFrame::CreateOptions( const wxSTEditorOptions& options )
         m_resultsNotebook = new wxNotebook(m_mainSplitter, wxID_ANY);
 
         m_findResultsEditor = new wxSTEditorFindResultsEditor(m_resultsNotebook, wxID_ANY);
-        m_findResultsEditor->CreateOptions(options);
+        m_findResultsEditor->CreateOptionsFromEditorOptions(options);
         m_resultsNotebook->AddPage(m_findResultsEditor, _("Search Results"));
 
         wxSTEditorFindReplacePanel::SetFindResultsEditor(m_findResultsEditor);

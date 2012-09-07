@@ -415,7 +415,7 @@ bool wxStEditApp::OnInit()
             // if they did wxstedit /r c:\*.* stop the insanity...
             if (recurseFileNames.GetCount() >= max_page_count)
             {
-                wxString msg = wxString::Format(_("Opening %d files, unable to open any more."), max_page_count);
+                wxString msg = wxString::Format(_("Opening %d files, unable to open any more."), (int)max_page_count);
                 wxMessageBox(msg, _("Maximum number of files"), wxOK|wxICON_ERROR, m_frame);
                 recurseFileNames.RemoveAt(max_page_count - 1, recurseFileNames.GetCount() - max_page_count);
                 break;

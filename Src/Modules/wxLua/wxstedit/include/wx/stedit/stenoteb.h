@@ -18,6 +18,7 @@
 #include "wx/stedit/stedefs.h"
 
 class WXDLLIMPEXP_FWD_STEDIT wxArrayFileName;
+class WXDLLIMPEXP_FWD_STEDIT wxSTEditorTreeCtrl;
 
 //-----------------------------------------------------------------------------
 /// @class wxSTEditorNotebook
@@ -60,6 +61,11 @@ public:
     /// This can be used to detach the options for a particular editor from
     /// the rest of them.
     void SetOptions(const wxSTEditorOptions& options) { m_options = options; }
+
+    /// Get the wxSTEditorTreeCtrl to manage.
+    wxSTEditorTreeCtrl* GetSTEditorTreeCtrl() { return m_editorTreeCtrl; }
+    /// Set a wxSTEditorTreeCtrl to manage.
+    void SetSTEditorTreeCtrl(wxSTEditorTreeCtrl* editorTreeCtrl) { m_editorTreeCtrl = editorTreeCtrl; }
 
     /// enable/disable sending wxSTEditor events from children editors.
     void SetSendSTEEvents(bool send);
@@ -192,6 +198,9 @@ public:
 
 protected:
     wxSTEditorOptions m_options;
+
+    wxSTEditorTreeCtrl* m_editorTreeCtrl;
+
     int m_stn_selection;
     int m_stn_page_count;
     int m_stn_max_page_count;

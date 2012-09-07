@@ -42,7 +42,7 @@ class WXDLLIMPEXP_FWD_STEDIT wxSTETreeItemData;
 /// Create a wxSTEPointerLocker as a member of a class (or whereever) and pass
 /// it a pointer to keep track of. Other objects can create wxSTEPointerLockers
 /// and ref the locker (as you would a wxPen/wxBitmap) and can access the
-/// shared pointer, BUT only after checking it it's valid by calling IsOk().
+/// shared pointer, BUT only after checking if it's valid by calling IsOk().
 /// This can be used as an alternative to tracking wxWindows by connecting to
 ///   wxEVT_DESTROY for each of them.
 /// This class is NOT threadsafe for simplicity.
@@ -401,7 +401,7 @@ public :
 #if (wxVERSION_NUMBER < 2900)
     wxString GetRange(int startPos, int endPos) const { return wxConstCast(this, wxSTEditor)->wxStyledTextCtrl::GetTextRange(startPos, endPos); }
 #endif
-    wxString GetTextRange(int startPos, int endPos) const { return GetRange(startPos, endPos); }
+    wxString GetTextRange(int startPos, int endPos) const { return  wxConstCast(this, wxSTEditor)->wxStyledTextCtrl::GetTextRange(startPos, endPos); }
 
 #if (wxVERSION_NUMBER >= 2900)
 

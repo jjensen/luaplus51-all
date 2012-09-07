@@ -87,8 +87,9 @@ enum STEFindReplaceDialogStyles
     STE_FR_NOWORDSTART   = 0x010, ///< Don't allow word start searching.
     STE_FR_NOWRAPAROUND  = 0x020, ///< Don't allow wrapping around.
     STE_FR_NOREGEXP      = 0x040, ///< Don't allow regexp searching.
-    STE_FR_NOALLDOCS     = 0x080  ///< Don't allow search all docs option
-                                  ///<  (for not having editor notebook).
+    STE_FR_NOALLDOCS     = 0x080, ///< Don't allow search all docs option.  (for no editor notebook).
+    STE_FR_NOFINDALL     = 0x100, ///< Don't allow finding all strings.     (for find results editor)
+    STE_FR_NOBOOKMARKALL = 0x200  ///< Don't allow bookmarking all strings. (for find results editor)
 };
 
 //-----------------------------------------------------------------------------
@@ -111,6 +112,8 @@ public:
     //void  SetReplaceString(const wxString& str) { m_ReplaceWith = str; }
 
     bool HasFlag(int flag) const { return (GetFlags() & flag) != 0; }
+
+    void SetFlag(wxUint32 flag, bool enable) { SetFlags( STE_SETBIT(GetFlags(), flag, enable) ); }
 
     /// Convert the STE flags to Scintilla flags.
     static int STEToScintillaFindFlags(int ste_flags);
@@ -217,6 +220,9 @@ public:
     virtual ~wxSTEditorFindResultsEditor();
 
     virtual void CreateOptions(const wxSTEditorOptions& options);
+    /// Given options for an editor, make a copy of them preserving the styles and langs,
+    /// but setup the prefs to make sense for displaying find results.
+    virtual void CreateOptionsFromEditorOptions(const wxSTEditorOptions& editorOptions);
 
     void SetResults(const wxSTEditorFindReplaceData& findReplaceData);
 

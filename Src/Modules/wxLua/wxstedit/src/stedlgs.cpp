@@ -1362,6 +1362,16 @@ bool wxSTEditorPrefDialog::Create( const wxSTEditorPrefPageData& editorPrefData,
     m_imageList->Add(wxArtProvider::GetBitmap(wxART_STEDIT_PREFDLG_STYLES,    wxART_TOOLBAR, wxSTEIconSize));
     m_imageList->Add(wxArtProvider::GetBitmap(wxART_STEDIT_PREFDLG_LANGS,     wxART_TOOLBAR, wxSTEIconSize));
 
+    wxBitmap b1 = wxArtProvider::GetBitmap(wxART_STEDIT_PREFDLG_VIEW,      wxART_TOOLBAR, wxSTEIconSize);
+    wxBitmap b2 = wxArtProvider::GetBitmap(wxART_STEDIT_PREFDLG_TABSEOL,   wxART_TOOLBAR, wxSTEIconSize);
+    wxBitmap b3 = wxArtProvider::GetBitmap(wxART_STEDIT_PREFDLG_FOLDWRAP,  wxART_TOOLBAR, wxSTEIconSize);
+    wxBitmap b4 = wxArtProvider::GetBitmap(wxART_STEDIT_PREFDLG_PRINT,     wxART_TOOLBAR, wxSTEIconSize);
+    wxBitmap b5 = wxArtProvider::GetBitmap(wxART_STEDIT_PREFDLG_LOADSAVE,  wxART_TOOLBAR, wxSTEIconSize);
+    wxBitmap b6 = wxArtProvider::GetBitmap(wxART_STEDIT_PREFDLG_HIGHLIGHT, wxART_TOOLBAR, wxSTEIconSize);
+    wxBitmap b7 = wxArtProvider::GetBitmap(wxART_STEDIT_PREFDLG_STYLES,    wxART_TOOLBAR, wxSTEIconSize);
+    wxBitmap b8 = wxArtProvider::GetBitmap(wxART_STEDIT_PREFDLG_LANGS,     wxART_TOOLBAR, wxSTEIconSize);
+
+
     wxPanel *panel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxDefaultSize,
                                  wxTAB_TRAVERSAL|wxCLIP_CHILDREN|wxNO_BORDER);
     m_noteBook = new wxListbook(panel, ID_STEDLG_PREF_NOTEBOOK,

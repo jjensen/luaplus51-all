@@ -15,51 +15,54 @@ set( wxLua_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../ CACHE INTERNAL "Root dir of 
 # CMake build file for wxLua Library
 # ---------------------------------------------------------------------------
 
-include_directories(${wxLua_ROOT_DIR}/
-                    ${wxLua_ROOT_DIR}/modules/
-                    ${wxLua_ROOT_DIR}/modules/lua/src)
+include_directories("${wxLua_ROOT_DIR}/"
+                    "${wxLua_ROOT_DIR}/modules/"
+                    "${wxLua_LUA_INCLUDE_DIR}")
 
 # ===========================================================================
 # wxLua/modules/lua
 
 function (wxLua_Modules_Lua_TARGETS)
 
-set( LUA_BUILD_AS_DLL )
-set( LUA_LINK_LIBRARIES )
-set( LUA_EXE_PROPERTIES )
+if (TARGET LuaLib)
+    # The Lua libs are imported and have to be declared in the root CMakeLists.txt
+    return()
+endif()
+
+set( LUA_DLL_PROPERTIES ) # target properties for Lua built as a DLL
+set( LUA_EXE_PROPERTIES ) # target properties for Lua exe
+set( LUA_LINK_LIBRARIES ) # libaries to link Lua exe to
 
 if (MSVC)
-    set( LUA_BUILD_AS_DLL PROPERTIES DEFINE_SYMBOL LUA_BUILD_AS_DLL )
+    set( LUA_DLL_PROPERTIES PROPERTIES DEFINE_SYMBOL LUA_BUILD_AS_DLL )
     add_definitions( -D_CRT_SECURE_NO_WARNINGS )
-    
+
     # NOTE! We always export the Lua functions to allow the EXEs to be treated as DLLs.
     # We use modules/luaproxydll as the lua51.dll, but the functions are in the executables.
-    add_definitions( -DLUA_BUILD_AS_DLL ) 
+    add_definitions( -DLUA_BUILD_AS_DLL )
     set(LUA_EXE_PROPERTIES PROPERTIES COMPILE_DEFINITIONS "LUA_CORE")
-    
+
 elseif (APPLE)
+    #$(MAKE) all MYCFLAGS="-DLUA_USE_LINUX" MYLIBS="-lreadline"
+
     add_definitions( -DLUA_USE_LINUX )
     set(LUA_LINK_LIBRARIES m readline)
 
-    #$(MAKE) all MYCFLAGS="-DLUA_USE_LINUX" MYLIBS="-lreadline"
-else () # UNIX
-    
-    if ("${CMAKE_GENERATOR}" MATCHES "MinGW Makefiles")
-        set(LUA_LINK_LIBRARIES m)
-    else()
-        add_definitions( -DLUA_USE_LINUX )
-        set(LUA_LINK_LIBRARIES m dl readline history ncurses)
-    endif()
+elseif ("${CMAKE_GENERATOR}" MATCHES "MinGW Makefiles")
 
+    set(LUA_LINK_LIBRARIES m)
+
+else () # UNIX
     #$(MAKE) all MYCFLAGS="-DLUA_USE_LINUX -fPIC" MYLIBS="-fPIC -Wl,-E -ldl -lreadline -lhistory -lncurses"
+
+    add_definitions( -DLUA_USE_LINUX )
+    set(LUA_LINK_LIBRARIES m dl readline history ncurses)
+
 endif()
 
 # ---------------------------------------------------------------------------
 
-ADD_LIBRARY_FULL( LuaLib
-    HEADERS
-        src/*.h
-    SOURCES
+set( LuaLib_ADD_LIBRARY_FULL_FILES
         src/lapi.c
         src/lcode.c
         src/ldebug.c
@@ -88,10 +91,20 @@ ADD_LIBRARY_FULL( LuaLib
         src/ltablib.c
         src/lstrlib.c
         src/loadlib.c
-        src/linit.c
+        src/linit.c )
+
+# ---------------------------------------------------------------------------
+
+
+
+ADD_LIBRARY_FULL( LuaLib ${wxLua_LUA_LIBRARY_BUILD_SHARED_FLAG}
+    HEADERS
+        src/*.h
+    SOURCES
+        ${LuaLib_ADD_LIBRARY_FULL_FILES}
     LINK_LIBRARIES
         ${LUA_LINK_LIBRARIES}
-    ${LUA_BUILD_AS_DLL}
+    ${LUA_DLL_PROPERTIES}
     PROPERTIES LINKER_LANGUAGE C
     PROPERTIES FOLDER "wxLua/Modules"
     INSTALL "${WXLUA_LIB_INSTALL_FLAGS}")
@@ -145,56 +158,25 @@ ADD_EXECUTABLE_FULL( lua
     INSTALL ${WXLUA_APP_INSTALL_FLAGS})
 
 # ---------------------------------------------------------------------------
+# The wxLua Lua module always links to a shared LuaLib even when using luaproxydll.
 
-# The wxLua Lua module always links to a shared LuaLib even when
-# using luaproxydll.
-if (BUILD_SHARED_LIBS)
-    # CMake has problems with "ON/OFF" being used as booleans, even though its the one who changes them from TRUE/FALSE
+if (BUILD_SHARED_LIBS OR wxLua_LUA_LIBRARY_BUILD_SHARED)
     set(LuaLibShared_export_name)
 else()
-
     set(LuaLibShared_export_name LuaLibShared)
 
-ADD_LIBRARY_FULL( LuaLibShared SHARED
-    HEADERS
-        src/*.h
-    SOURCES
-        src/lapi.c
-        src/lcode.c
-        src/ldebug.c
-        src/ldo.c
-        src/ldump.c
-        src/lfunc.c
-        src/lgc.c
-        src/llex.c
-        src/lmem.c
-        src/lobject.c
-        src/lopcodes.c
-        src/lparser.c
-        src/lstate.c
-        src/lstring.c
-        src/ltable.c
-        src/ltm.c
-        src/lundump.c
-        src/lvm.c
-        src/lzio.c
-        src/lauxlib.c
-        src/lbaselib.c
-        src/ldblib.c
-        src/liolib.c
-        src/lmathlib.c
-        src/loslib.c
-        src/ltablib.c
-        src/lstrlib.c
-        src/loadlib.c
-        src/linit.c
-    LINK_LIBRARIES
-        ${LUA_LINK_LIBRARIES}
-    ${LUA_BUILD_AS_DLL}
-    PROPERTIES LINKER_LANGUAGE C
-    PROPERTIES FOLDER "wxLua/Modules")
-    #INSTALL "${WXLUA_LIB_INSTALL_FLAGS}")
-    
+    ADD_LIBRARY_FULL( LuaLibShared SHARED
+        HEADERS
+            src/*.h
+        SOURCES
+            ${LuaLib_ADD_LIBRARY_FULL_FILES}
+        LINK_LIBRARIES
+            ${LUA_LINK_LIBRARIES}
+        ${LUA_DLL_PROPERTIES}
+        PROPERTIES LINKER_LANGUAGE C
+        PROPERTIES FOLDER "wxLua/Modules")
+        #INSTALL "${WXLUA_LIB_INSTALL_FLAGS}")
+
     if (WIN32)
         set_target_properties(LuaLibShared PROPERTIES OUTPUT_NAME lua51)
         # Want these in subdir, note that RUNTIME_OUTPUT_DIRECTORY_<CONFIG> is ignored for some reason.
@@ -203,33 +185,28 @@ ADD_LIBRARY_FULL( LuaLibShared SHARED
         WXLIKE_LIBRARY_NAMES( LuaLibShared wxlua_lua51 "${wxLua_VERSION}")
     endif()
 
-    set_target_properties(LuaLibShared PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib-shared)
-    set_target_properties(LuaLibShared PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib-shared)
+    set_target_properties(LuaLibShared PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin-shared)
+    set_target_properties(LuaLibShared PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin-shared)
     set_target_properties(LuaLibShared PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin-shared)
-    
-ADD_EXECUTABLE_FULL( lua51-shared
-    HEADERS
-    SOURCES
-        src/lua.c
-    LINK_LIBRARIES
-        LuaLibShared
-        ${LUA_LINK_LIBRARIES}
-    PROPERTIES LINKER_LANGUAGE C
-    PROPERTIES FOLDER "wxLua/apps")
 
-    if (WIN32)
-        # Want these in subdir, note that RUNTIME_OUTPUT_DIRECTORY_<CONFIG> is ignored for some reason.
-        #set_target_properties(lua51-shared PROPERTIES PREFIX "shared/")
-    endif()
+    ADD_EXECUTABLE_FULL( lua51-shared
+        HEADERS
+        SOURCES
+            src/lua.c
+        LINK_LIBRARIES
+            LuaLibShared
+            ${LUA_LINK_LIBRARIES}
+        PROPERTIES LINKER_LANGUAGE C
+        PROPERTIES FOLDER "wxLua/apps")
 
-    set_target_properties(lua51-shared PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib-shared)
-    set_target_properties(lua51-shared PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib-shared)
+    set_target_properties(lua51-shared PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin-shared)
+    set_target_properties(lua51-shared PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin-shared)
     set_target_properties(lua51-shared PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin-shared)
-    
-endif (BUILD_SHARED_LIBS)
+
+endif (BUILD_SHARED_LIBS OR wxLua_LUA_LIBRARY_BUILD_SHARED)
 
 endfunction (wxLua_Modules_Lua_TARGETS)
-                    
+
 # ===========================================================================
 # wxLua/modules/wxlua
 
@@ -314,7 +291,7 @@ ADD_LIBRARY_FULL( wxLuaSocketLib
     WXLIKE_LIBRARY_NAMES( wxLuaSocketLib wxlua_socket "${wxLua_VERSION}")
 
 endfunction (wxLua_Modules_wxLuaSocket_TARGETS)
-                    
+
 # ===========================================================================
 # wxLua/modules/wxbind
 

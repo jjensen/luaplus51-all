@@ -222,12 +222,17 @@ bool wxSTEditorFindReplaceData::GotoFindAllString(const wxString& findAllString,
                                                             lineText);
 
     // sanity check, maybe just go to the end if the doc if now shorter?
-    if (ok && (wxFileName(fileName) == editor->GetFileName()) &&
-        (string_start_pos+string_length <= editor->GetLength()))
+    if (ok && (wxFileName(fileName) == editor->GetFileName()))
     {
-        editor->GotoPos(string_start_pos);
-        editor->SetSelection(string_start_pos, string_start_pos+string_length);
-        return true;
+        if (string_start_pos+string_length <= editor->GetLength())
+        {
+            editor->GotoPos(string_start_pos);
+            editor->SetSelection(string_start_pos, string_start_pos+string_length);
+        }
+        else
+            editor->GotoPos(editor->GetLength()); // move the cursor, hopefully they'll remember that they changed the file.
+
+        return true; // we at least moved the cursor
     }
 
     return false;
@@ -238,20 +243,22 @@ bool wxSTEditorFindReplaceData::LoadConfig(wxConfigBase &config,
 {
     m_loaded_config = true; // maybe it failed, but we tried at least once
 
-    wxString key = wxSTEditorOptions::FixConfigPath(configPath, false);
-    long val;
+    wxString key(wxSTEditorOptions::FixConfigPath(configPath, false));
+    long val = 0;
+
     if (config.Read(key + wxT("/FindFlags"), &val))
     {
         SetFlags(int(val));
         return true;
     }
+
     return false;
 }
 
 void wxSTEditorFindReplaceData::SaveConfig(wxConfigBase &config,
                                            const wxString &configPath) const
 {
-    wxString key = wxSTEditorOptions::FixConfigPath(configPath, false);
+    wxString key(wxSTEditorOptions::FixConfigPath(configPath, false));
     config.Write(key + wxT("/FindFlags"), GetFlags());
 }
 
@@ -296,8 +303,6 @@ bool wxSTEditorFindResultsEditor::Create(wxWindow *parent, wxWindowID winid,
     //SetEdgeColumn(7);
 
     SetReadOnly(true);
-    RegisterStyles(wxSTEditorStyles::GetGlobalEditorStyles());
-    RegisterLangs(wxSTEditorLangs::GetGlobalEditorLangs());
 
     SetLanguage(STE_LANG_NULL);
 
@@ -306,12 +311,29 @@ bool wxSTEditorFindResultsEditor::Create(wxWindow *parent, wxWindowID winid,
 
 wxSTEditorFindResultsEditor::~wxSTEditorFindResultsEditor()
 {
+    if (wxSTEditorFindReplacePanel::GetFindResultsEditor() == this)
+        wxSTEditorFindReplacePanel::SetFindResultsEditor(NULL);
 }
 
 void wxSTEditorFindResultsEditor::CreateOptions(const wxSTEditorOptions& options)
 {
-    // fixme - need this for the notebook
-    SetOptions(options);
+    wxSTEditor::CreateOptions(options);
+}
+
+void wxSTEditorFindResultsEditor::CreateOptionsFromEditorOptions(const wxSTEditorOptions& editorOptions)
+{
+    wxSTEditorOptions options;
+
+    options.SetEditorStyles(editorOptions.GetEditorStyles());
+    options.SetEditorLangs(editorOptions.GetEditorLangs());
+    options.SetFindReplaceData(editorOptions.GetFindReplaceData(), true);
+
+    // Nahhh, probaby best to use the simple default menu
+    //options.SetEditorOptions(STE_CREATE_POPUPMENU|STE_CREATE_ACCELTABLE);
+    //wxSTEditorMenuManager* steMM = new wxSTEditorMenuManager(STE_MENU_READONLY);
+    //options.SetMenuManager(steMM, false);
+
+    CreateOptions(options);
 }
 
 void wxSTEditorFindResultsEditor::SetResults(const wxSTEditorFindReplaceData& findReplaceData)
@@ -336,10 +358,8 @@ void wxSTEditorFindResultsEditor::SetResults(const wxSTEditorFindReplaceData& fi
     IndicatorSetStyle(wxSTC_INDIC0_MASK, wxSTC_INDIC_ROUNDBOX);
     IndicatorSetForeground(wxSTC_INDIC0_MASK, *wxRED);
 
-    wxSTEditorStyles::GetGlobalEditorStyles().SetEditorStyle( 3, STE_STYLE_STRING,
-                                                              this, false);
-    wxSTEditorStyles::GetGlobalEditorStyles().SetEditorStyle( 4, STE_STYLE_NUMBER,
-                                                              this, false);
+    wxSTEditorStyles::GetGlobalEditorStyles().SetEditorStyle( 3, STE_STYLE_STRING, this, false);
+    wxSTEditorStyles::GetGlobalEditorStyles().SetEditorStyle( 4, STE_STYLE_NUMBER, this, false);
 
     wxString fileName;
     int line_number      = 0;
@@ -657,6 +677,19 @@ bool wxSTEditorFindReplacePanel::Create(wxWindow *parent, wxWindowID winid,
             m_findReplaceData->SetFlags((m_findReplaceData->GetFlags() & ~STE_FR_SEARCH_MASK) | STE_FR_FROMCURSOR);
     }
 
+    if (HasFlag(STE_FR_NOFINDALL))
+    {
+        m_findallCheckBox->SetValue(false);
+        m_findallCheckBox->Show(false);
+
+    }
+
+    if (HasFlag(STE_FR_NOBOOKMARKALL))
+    {
+        m_bookmarkallCheckBox->SetValue(false);
+        m_bookmarkallCheckBox->Show(false);
+    }
+
     if (!HasFlag(wxFR_REPLACEDIALOG))
     {
         wxSizer *sizer = FindSizerWindow(m_replaceCombo, frSizer);
@@ -830,6 +863,19 @@ void wxSTEditorFindReplacePanel::Send(wxFindDialogEvent& event)
     {
         resultsEditor->SetTargetWindow(GetTargetWindow());
         resultsEditor->SetResults(*m_findReplaceData);
+    }
+
+    wxWindow* focusWin = FindFocus();
+
+    // restore the focus to the text editor, not the find results editor
+    if (resultsEditor && (resultsEditor == focusWin) && (GetTargetWindow() != NULL))
+    {
+        wxSTEditorNotebook* steNotebook = wxDynamicCast(GetTargetWindow(), wxSTEditorNotebook);
+
+        if (steNotebook && steNotebook->GetEditor())
+            steNotebook->GetEditor()->SetFocus();
+        else
+            GetTargetWindow()->SetFocus();
     }
 
     UpdateButtons();

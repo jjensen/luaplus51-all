@@ -4,11 +4,11 @@
 # Updated:
 # Copyright: (c) 2002. J Winwood
 #
-# Makefile for wxLuaEditor app using gmake
+# Makefile for wxLuaCan app using gmake
 
 # ----------------------------------------------------------------------------
 # Set path to root of wxLua
-WXLUA_DIR = ../../..
+WXLUA_DIR = ../..
 
 # ----------------------------------------------------------------------------
 # Include wxLua settings using wx-config for wxWidgets parameters
@@ -17,25 +17,28 @@ include $(WXLUA_DIR)/build/Makefile_wx-config.in
 
 # ----------------------------------------------------------------------------
 
-PROGRAM = wxLuaEditor
+PROGRAM = wxLuaCan
 
 HEADERS =
-SOURCES = wxluaedit.cpp wxledit.cpp
+SOURCES = cancom.cpp canlua.cpp cansim.cpp wxluacan_bind.cpp
 
 OBJECTS=$(SOURCES:.cpp=.o)
 DEPFILES=$(OBJECTS:.o=.d)
 
-APPEXTRALIBS := -l$(WXSTEDIT_LIB) $(APPEXTRALIBS)
+#APPEXTRALIBS :=
 
 # ----------------------------------------------------------------------------
 
 .cpp.o:
 	$(CXX) -c $(CXXFLAGS) $(APPEXTRADEFS) -o $@ $<
 
-all: $(wxLuaALL_TARGETS) wxStEdit $(PROGRAM)
+all: $(wxLuaALL_TARGETS) $(PROGRAM)
 
 $(PROGRAM): $(OBJECTS) $(LUA_LIBS)
 	$(CXX) -o $@ $(OBJECTS) $(LDLIBS) $(APPEXTRALIBS)
+
+genwxbind:
+	$(LUA) -e"rulesFilename=\"wxluacan_rules.lua\"" $(WXLUA_DIR)/bindings/genwxbind.lua
 
 clean:
 	rm -f $(OBJECTS) $(DEPFILES) $(PROGRAM) core

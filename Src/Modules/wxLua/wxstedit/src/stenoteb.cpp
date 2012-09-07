@@ -13,6 +13,7 @@
 
 #include "wx/stedit/stedit.h"
 #include "wx/stedit/stenoteb.h"
+#include "wx/stedit/stetree.h"
 #include "wx/stedit/stedlgs.h"
 #include <wx/progdlg.h>   // wxProgressDialog
 
@@ -121,7 +122,7 @@ void wxSTEditorNotebook::CreateOptions(const wxSTEditorOptions& options)
 
 wxString wxSTEditorNotebook::FileNameToTabName(const wxSTEditor* editor) const
 {
-    wxString name = editor->GetFileName().GetFullName();
+    wxString name(editor->GetFileName().GetFullName());
 #ifdef __WXMSW__
     name.Replace(wxT("&"), wxT("&&"));
 #endif
@@ -323,7 +324,7 @@ bool wxSTEditorNotebook::InsertEditorSplitter(int nPage, wxSTEditorSplitter* spl
         return false;
     }
 
-    wxString title = FileNameToTabName(splitter->GetEditor());
+    wxString title(FileNameToTabName(splitter->GetEditor()));
     size_t n_pages = GetPageCount();
 
     if (nPage < 0) // they want to insert it anywhere
@@ -399,7 +400,7 @@ void wxSTEditorNotebook::SortTabs(int style)
             if (old_page != long(n))
             {
                 wxWindow *oldWin = GetPage(old_page);
-                wxString oldName = GetPageText(old_page);
+                wxString oldName(GetPageText(old_page));
 
                 if (oldWin && RemovePage(old_page))
                 {
@@ -532,7 +533,7 @@ void wxSTEditorNotebook::OnLeftUp(wxMouseEvent &event)
 
     if (page != wxNOT_FOUND)
     {
-        GetEditor(page)->SetFocus();
+        GetPage(page)->SetFocus();
     }
     event.Skip();
 }
@@ -789,9 +790,9 @@ bool wxSTEditorNotebook::LoadFile( const wxFileName &fileName_,
                                    const wxString &extensions_,
                                    const wxString& encoding_ref)
 {
-    wxString encoding = encoding_ref;
-    wxFileName fileName = fileName_;
-    wxString extensions = extensions_.Length() ? extensions_ : GetOptions().GetDefaultFileExtensions();
+    wxString encoding(encoding_ref);
+    wxFileName fileName(fileName_);
+    wxString extensions(extensions_.Length() ? extensions_ : GetOptions().GetDefaultFileExtensions());
 
     if (fileName.GetFullPath().IsEmpty())
     {
@@ -845,7 +846,7 @@ bool wxSTEditorNotebook::LoadFile( const wxFileName &fileName_,
 bool wxSTEditorNotebook::LoadFiles( wxArrayString *filePaths_,
                                     const wxString &extensions_)
 {
-    wxString extensions = extensions_.Length() ? extensions_ : GetOptions().GetDefaultFileExtensions();
+    wxString extensions(extensions_.Length() ? extensions_ : GetOptions().GetDefaultFileExtensions());
     wxArrayString filePaths;
     wxString encoding;
 
@@ -872,29 +873,38 @@ bool wxSTEditorNotebook::LoadFiles( wxArrayString *filePaths_,
     if (!filePaths.GetCount())
         return false;
 
-    size_t n, len = 0, count = filePaths.GetCount();
-    for (n = 0; n < count; n++) len = wxMax(len, filePaths[n].Length());
+    size_t n, count = filePaths.GetCount();
+    size_t max_filename_len = 80;
+    //for (n = 0; n < count; n++) max_filename_len = wxMax(max_filename_len, filePaths[n].Length());
 
     wxProgressDialog progDlg(_("Loading files..."),
-                             wxString(wxT('-'), len + 10),
+                             wxString(wxT('_'), max_filename_len + 10), // +10 for file count
                              (int)filePaths.GetCount(), this,
                              wxPD_CAN_ABORT|wxPD_ELAPSED_TIME|wxPD_APP_MODAL|wxPD_AUTO_HIDE);
 
     // block updating the pages while loading them
+    if (m_editorTreeCtrl != NULL) m_editorTreeCtrl->Freeze();
     {
     wxSTERecursionGuard guard(m_rGuard_UpdatePageState);
 
     for (n = 0; n < count; n++)
     {
-        wxString fileName = filePaths[n];
-        if (!progDlg.Update((int)n, wxString::Format(wxT("%d/%d : "), (int)n+1, (int)count) + fileName))
+        wxString fileName(filePaths[n]);
+        wxString progressFileName;
+        // Ellipsize filename that are too long.
+        if (fileName.Length() > max_filename_len)
+            progressFileName = fileName.Mid(0, max_filename_len/2-2) + wxT(" ... ") + fileName.Mid(fileName.Length()-max_filename_len/2+2);
+        else
+            progressFileName = fileName;
+
+        if (!progDlg.Update((int)n, wxString::Format(wxT("%d/%d : "), (int)n+1, (int)count) + progressFileName))
             break;
 
         if (fileName.IsEmpty() || !wxFileExists(fileName))
         {
             // when selecting multiple files with file selector you can easily
             // select the dir "..", throw it away
-            wxString theFileName = fileName.AfterLast(wxFILE_SEP_PATH);
+            wxString theFileName(fileName.AfterLast(wxFILE_SEP_PATH));
             if ((theFileName != wxT("..")) && (theFileName != wxT(".")))
             {
                 wxSTEditorSplitter *splitter = CreateSplitter(wxID_ANY);
@@ -911,6 +921,11 @@ bool wxSTEditorNotebook::LoadFiles( wxArrayString *filePaths_,
     }
 
     UpdatePageState();
+    if (m_editorTreeCtrl != NULL)
+    {
+        m_editorTreeCtrl->Thaw();
+        m_editorTreeCtrl->UpdateFromNotebook();
+    }
 
     return true;
 }
@@ -1105,7 +1120,7 @@ bool wxSTEditorNotebook::AddPage(wxWindow *page, const wxString& text,
     return ret;
 }
 bool wxSTEditorNotebook::InsertPage(int nPage, wxNotebookPage *pPage,
-                            const wxString& strText, bool bSelect, int imageId)
+                                    const wxString& strText, bool bSelect, int imageId)
 {
     wxSTERecursionGuard guard(m_rGuard_UpdatePageState);
     bool ret = wxNotebook::InsertPage(nPage, pPage, strText, bSelect, imageId);
@@ -1190,7 +1205,7 @@ void wxSTEditorNotebook::OnFindDialog(wxFindDialogEvent &event)
 
     if (eventType == wxEVT_STEFIND_GOTO)
     {
-        wxString findAllString = event.GetString();
+        wxString findAllString(event.GetString());
 
         wxString fileName;
         int line_number      = 0;
@@ -1255,7 +1270,7 @@ void wxSTEditorNotebook::OnFindDialog(wxFindDialogEvent &event)
         }
 
         STE_TextPos pos = editor->GetSelectionStart();
-        wxString replaceString = event.GetReplaceString();
+        wxString replaceString(event.GetReplaceString());
         editor->ReplaceSelection(replaceString);
         editor->EnsureCaretVisible();
         editor->SetSelection(pos, pos + (STE_TextPos)replaceString.Length());
@@ -1264,7 +1279,7 @@ void wxSTEditorNotebook::OnFindDialog(wxFindDialogEvent &event)
     }
     else if (eventType == wxEVT_COMMAND_FIND_REPLACE_ALL)
     {
-        wxString replaceString = event.GetReplaceString();
+        wxString replaceString(event.GetReplaceString());
         if (editor->GetFindReplaceData()->StringCmp(findString, replaceString, flags))
             return;
 
@@ -1273,8 +1288,8 @@ void wxSTEditorNotebook::OnFindDialog(wxFindDialogEvent &event)
         int pages = 0;
         int count = ReplaceAllStrings(findString, replaceString, flags, &pages);
 
-        wxString msg = wxString::Format(_("Replaced %d occurances of\n'%s' with '%s'\nin %d documents."),
-                       count, findString.wx_str(), replaceString.wx_str(), pages);
+        wxString msg( wxString::Format(_("Replaced %d occurances of\n'%s' with '%s'\nin %d documents."),
+                                       count, findString.wx_str(), replaceString.wx_str(), pages) );
 
         wxMessageBox( msg, _("Finished replacing"),
                       wxOK|wxICON_INFORMATION|wxSTAY_ON_TOP,

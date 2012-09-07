@@ -20,7 +20,7 @@
 IMPLEMENT_DYNAMIC_CLASS(wxSTEditorShell, wxSTEditor)
 
 BEGIN_EVENT_TABLE(wxSTEditorShell, wxSTEditor)
-    EVT_KEY_DOWN     (wxSTEditorShell::OnKeyDown)
+    EVT_KEY_DOWN     (          wxSTEditorShell::OnKeyDown)
     EVT_STC_UPDATEUI (wxID_ANY, wxSTEditorShell::OnSTCUpdateUI)
 END_EVENT_TABLE()
 
@@ -43,14 +43,14 @@ bool wxSTEditorShell::Create(wxWindow *parent, wxWindowID id,
         return false;
 
     // set this up in case they don't want to bother with the preferences
-    SetMarginWidth(STE_MARGIN_NUMBER,0);
-    SetMarginWidth(STE_MARGIN_FOLD,0);
-    SetMarginWidth(marginPrompt, 16);
+    SetMarginWidth(STE_MARGIN_NUMBER, 0);
+    SetMarginWidth(STE_MARGIN_FOLD,   0);
+    SetMarginWidth(PROMPT_MARGIN,     16);
 
-    SetMarginType(marginPrompt, wxSTC_MARGIN_SYMBOL);
-    SetMarginMask(marginPrompt, 1<<markerPrompt);
+    SetMarginType(PROMPT_MARGIN, wxSTC_MARGIN_SYMBOL);
+    SetMarginMask(PROMPT_MARGIN, 1<<PROMPT_MARKER);
     // after creation you can change this to whatever prompt you prefer
-    MarkerDefine(markerPrompt, wxSTC_MARK_ARROWS, *wxBLACK, wxColour(255,255,0));
+    MarkerDefine(PROMPT_MARKER, wxSTC_MARK_ARROWS, *wxBLACK, wxColour(255,255,0));
     return true;
 }
 
@@ -74,9 +74,10 @@ void wxSTEditorShell::AppendText(const wxString &text)
 void wxSTEditorShell::SetPromptText(const wxString& text)
 {
     BeginWriteable();
-    int length = GetLength();
-    wxString promptText = GetPromptText();
-    SetTargetStart(length - (STE_TextPos)promptText.Length());
+    int length      = GetLength();
+    int prompt_line = GetPromptLine();
+    int start_pos   = PositionFromLine(prompt_line);
+    SetTargetStart(start_pos);
     SetTargetEnd(length);
     ReplaceTarget(text);
     GotoPos(GetLength());
@@ -86,11 +87,9 @@ void wxSTEditorShell::SetPromptText(const wxString& text)
 wxString wxSTEditorShell::GetPromptText()
 {
     int prompt_line = GetPromptLine();
-    int start_pos = PositionFromLine(prompt_line);
-    int end_pos   = GetLength();
-    wxString value = GetValue();
-    end_pos = value.Length();
-    wxString text = GetTextRange(start_pos, end_pos);
+    int start_pos   = PositionFromLine(prompt_line);
+    int end_pos     = GetLength();
+    wxString text(GetTextRange(start_pos, end_pos));
     return text;
 }
 
@@ -112,25 +111,25 @@ void wxSTEditorShell::EndWriteable(bool check_ro)
 int wxSTEditorShell::GetPromptLine()
 {
     int total_lines = GetLineCount();
-    return MarkerPrevious(total_lines+1, (1<<markerPrompt));
+    return MarkerPrevious(total_lines+1, (1<<PROMPT_MARKER));
 
     // single line entry, return text on last line  FIXME - double check this
     // Scintilla doesn't complain if you enter a line greater than the length to get last prompt
     //int marker = MarkerGet(total_lines);
-    //if (((marker & (1<<markerPrompt)) != 0)
+    //if (((marker & (1<<PROMPT_MARKER)) != 0)
     //{
     //    text = GetLineText(total_lines); //.Strip(wxString::both);
     //}
     //else
     //{
-    //    int marker_line = MarkerPrevious(total_lines+1, (1<<markerPrompt));
+    //    int marker_line = MarkerPrevious(total_lines+1, (1<<PROMPT_MARKER));
     //}
 }
 
 bool wxSTEditorShell::CaretOnPromptLine(STE_CaretPos_Type option)
 {
     int prompt_line = GetPromptLine();
-    bool on_last    = GetCurrentLine() >= prompt_line;
+    bool on_last    = (GetCurrentLine() >= prompt_line);
 
     //wxPrintf(wxT("Caret on last line total %d current %d onlast %d\n"), total_lines, GetCurrentLine(), (int)on_last);
 
@@ -167,11 +166,11 @@ bool wxSTEditorShell::CheckPrompt(bool set)
 {
     int total_lines = GetLineCount();
     total_lines     = wxMax(0, total_lines-1);
-    bool has_prompt = (MarkerGet(total_lines) & (1<<markerPrompt)) != 0;
+    bool has_prompt = (MarkerGet(total_lines) & (1<<PROMPT_MARKER)) != 0;
 
     if (set && !has_prompt)
     {
-        MarkerAdd(total_lines, markerPrompt);
+        MarkerAdd(total_lines, PROMPT_MARKER);
         return true;
     }
 
@@ -250,7 +249,7 @@ void wxSTEditorShell::SetMaxHistoryLines(int max_lines)
 
 bool wxSTEditorShell::SetMaxLines(int max_lines, int overflow_lines)
 {
-    m_max_lines = max_lines;
+    m_max_lines      = max_lines;
     m_overflow_lines = overflow_lines;
     if (m_max_lines < 0) return false;
 
@@ -269,8 +268,8 @@ bool wxSTEditorShell::SetMaxLines(int max_lines, int overflow_lines)
         ReplaceTarget(wxEmptyString);
 
         // wipe marker that has moved up if there shouldn't be a marker
-        if ((marker & (1<<markerPrompt)) == 0)
-            MarkerDelete(0, markerPrompt);
+        if ((marker & (1<<PROMPT_MARKER)) == 0)
+            MarkerDelete(0, PROMPT_MARKER);
 
         EndWriteable();
         return true;
@@ -297,7 +296,7 @@ void wxSTEditorShell::OnKeyDown(wxKeyEvent &event)
         {
             // you can scroll up through multiline entry
             int current_line = GetCurrentLine();
-            int prompt_line = GetPromptLine();
+            int prompt_line  = GetPromptLine();
             if ((current_line < prompt_line) || (current_line > prompt_line))
                 break;
 
@@ -309,8 +308,8 @@ void wxSTEditorShell::OnKeyDown(wxKeyEvent &event)
         case WXK_DOWN : case WXK_NUMPAD_DOWN :
         {
             // you can scroll down through multiline entry
-            int total_lines = GetLineCount();
-            total_lines = wxMax(0, total_lines - 1);
+            int total_lines  = GetLineCount();
+            total_lines      = wxMax(0, total_lines - 1);
             int current_line = GetCurrentLine();
             if (current_line < total_lines)
                 break;
@@ -323,7 +322,7 @@ void wxSTEditorShell::OnKeyDown(wxKeyEvent &event)
         case WXK_LEFT : case WXK_NUMPAD_LEFT :
         {
             int current_line = GetCurrentLine();
-            int prompt_line = GetPromptLine();
+            int prompt_line  = GetPromptLine();
             if (current_line >= prompt_line)
             {
                 int caret_pos = 0;
@@ -334,15 +333,15 @@ void wxSTEditorShell::OnKeyDown(wxKeyEvent &event)
             break;
         }
 
-        case WXK_PAGEUP   : case WXK_NUMPAD_PAGEUP   : //case WXK_NUMPAD_PAGEUP :
-        case WXK_PAGEDOWN : case WXK_NUMPAD_PAGEDOWN : //case WXK_NUMPAD_PAGEDOWN :
+        case WXK_PAGEUP   : case WXK_NUMPAD_PAGEUP   :
+        case WXK_PAGEDOWN : case WXK_NUMPAD_PAGEDOWN :
         case WXK_END      : case WXK_NUMPAD_END   :
         case WXK_HOME     : case WXK_NUMPAD_HOME  :
         case WXK_RIGHT    : case WXK_NUMPAD_RIGHT :
 
-        case WXK_SHIFT :
+        case WXK_SHIFT   :
         case WXK_CONTROL :
-        case WXK_ALT :
+        case WXK_ALT     :
         {
             // default processing for these keys
             event.Skip();

@@ -81,7 +81,7 @@ set(wxStEdit_SETUP_INCLUDE_PATH ${wxStEdit_SETUP_INCLUDE_PATH} CACHE PATH "Path 
 if (NOT DEFINED wxStEdit_COPY_SETUP0_TO_SETUP_H)
     set(wxStEdit_COPY_SETUP0_TO_SETUP_H TRUE)
 endif()
-set(wxStEdit_COPY_SETUP0_TO_SETUP_H ${wxStEdit_COPY_SETUP0_TO_SETUP_H} CACHE BOOL "Copy the wx/stedit/setup0.h file to wx/stedit/setup.h overwriting any changes." FORCE)
+set(wxStEdit_COPY_SETUP0_TO_SETUP_H ${wxStEdit_COPY_SETUP0_TO_SETUP_H} CACHE BOOL "Copy include/wx/stedit/setup0.h file to wxStEdit_SETUP_INCLUDE_PATH/wx/stedit/setup.h overwriting any changes." FORCE)
 
 # Only copy it once so they can modify it and rerun CMake
 if (wxStEdit_COPY_SETUP0_TO_SETUP_H)

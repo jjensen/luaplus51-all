@@ -138,8 +138,8 @@ class WXDLLIMPEXP_FWD_STEDIT wxSTEditorPrefDialog;
 class WXDLLIMPEXP_FWD_STEDIT wxSTEditorPrintout;            // steprint.h
 class WXDLLIMPEXP_FWD_STEDIT wxSTEditorPrintOptionsDialog;
 
-class WXDLLIMPEXP_STEDIT wxSTEditorTreeCtrl;                // stetree.h
-class WXDLLIMPEXP_STEDIT wxSTEditorTreeItemData;            // stetree.h
+class WXDLLIMPEXP_FWD_STEDIT wxSTEditorTreeCtrl;            // stetree.h
+class WXDLLIMPEXP_FWD_STEDIT wxSTEditorTreeItemData;        // stetree.h
 
 //-----------------------------------------------------------------------------
 /// @enum STE_StateType The State of the wxSTEditor.

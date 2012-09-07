@@ -183,6 +183,8 @@ public:
 
 protected:
     FileDisplay_Type    m_display_type;
+    wxTreeItemId        m_notePageId;
+
     wxMenu*             m_popupMenu;
     wxSTEditorNotebook* m_steNotebook;
     wxLongToLongHashMap m_windowToSTETreeItemDataMap;

@@ -10,7 +10,7 @@ PROGRAM = wxLuaFreeze
 
 # ----------------------------------------------------------------------------
 # Set path to root of wxLua
-WXLUA_DIR = ../../..
+WXLUA_DIR = ../..
 
 # ----------------------------------------------------------------------------
 # Include wxLua settings using wx-config for wxWidgets parameters

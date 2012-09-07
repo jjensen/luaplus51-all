@@ -70,8 +70,8 @@ public :
 
     enum margin_markerType
     {
-        marginPrompt = STE_MARGIN_MARKER,
-        markerPrompt = STE_MARKER__MAX
+        PROMPT_MARGIN = STE_MARGIN_MARKER, ///< The margin number to use to show the prompt markers
+        PROMPT_MARKER = STE_MARKER__MAX    ///< The marker number displayed at the prompt
     };
 
     /// The preferred method to append text to the shell.
@@ -112,12 +112,12 @@ public :
     size_t GetHistoryIndex() const { return m_line_history_index; }
     /// Get the total number of history items
     size_t GetHistoryCount() const { return m_lineHistoryArray.GetCount(); }
-    /// Get/Set the maximum number of history lines to store
-    ///   set to < 0 for unlimited.
+    /// Get the maximum number of history lines to store, < 0 means unlimited.
     int  GetMaxHistoryLines() const { return m_max_history_lines; }
+    /// Set the maximum number of history lines to store, < 0 means unlimited.
     void SetMaxHistoryLines(int max_lines);
-    /// Add a line to the history lines, checks for duplicates and if
-    ///  set_index_to_last put current history index at end
+    /// Add a line to the history lines, checks for duplicates.
+    /// If set_index_to_last put current history index at end.
     void AddHistoryLine(const wxString& string, bool set_index_to_last);
 
     /// Get/Set the maximum number of lines to store.

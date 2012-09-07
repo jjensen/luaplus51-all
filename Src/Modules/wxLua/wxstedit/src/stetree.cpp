@@ -251,14 +251,35 @@ void wxSTEditorTreeCtrl::OnTreeCtrl(wxTreeEvent &event)
 void wxSTEditorTreeCtrl::OnNotebookPageChanged(wxNotebookEvent &event)
 {
     event.Skip();
-    UpdateFromNotebook();
+
+    if (m_notePageId) SetItemBold(m_notePageId, false);
+
+    wxNotebook* notebook = wxDynamicCast(event.GetEventObject(), wxNotebook);
+    wxWindow* page = notebook->GetPage(event.GetSelection());
+    wxLongToLongHashMap::iterator it = m_windowToSTETreeItemDataMap.find((long)page);
+    if (it != m_windowToSTETreeItemDataMap.end())
+    {
+        wxSTETreeItemData* treeData = (wxSTETreeItemData*)it->second;
+        m_notePageId = treeData->m_id;
+        if (m_notePageId)
+            SetItemBold(m_notePageId, true);
+    }
+    else
+        UpdateFromNotebook();
 }
 
 void wxSTEditorTreeCtrl::OnSTEState(wxSTEditorEvent &event)
 {
     event.Skip();
 
-    if ( event.HasStateChange(STE_FILENAME | STE_MODIFIED | STE_EDITABLE) )
+    if ( event.HasStateChange(STE_MODIFIED) &&
+        (event.GetEditor() != NULL) &&
+        (event.GetEditor()->GetTreeItemData() != NULL) &&
+        (event.GetEditor()->GetTreeItemData()->m_id))
+    {
+        SetItemTextColour(event.GetEditor()->GetTreeItemData()->m_id, event.GetEditor()->IsModified() ? *wxRED : *wxBLACK);
+    }
+    else if ( event.HasStateChange(STE_FILENAME | STE_MODIFIED | STE_EDITABLE) )
         UpdateFromNotebook();
 }
 
@@ -305,15 +326,21 @@ void wxSTEditorTreeCtrl::SetSTENotebook(wxSTEditorNotebook* notebook)
         m_steNotebook->Disconnect(wxID_ANY, wxEVT_STEDITOR_STATE_CHANGED,
                                   wxSTEditorEventHandler(wxSTEditorTreeCtrl::OnSTEState),
                                   NULL, this);
+
+        if (m_steNotebook->GetSTEditorTreeCtrl() == this)
+            m_steNotebook->SetSTEditorTreeCtrl(NULL);
     }
 
     m_steNotebook = notebook;
 
     DeleteAllItems();
+    m_notePageId = wxTreeItemId();
     m_windowToSTETreeItemDataMap.clear();
 
     if (m_steNotebook != NULL)
     {
+        m_steNotebook->SetSTEditorTreeCtrl(this);
+
         UpdateFromNotebook();
 
         m_steNotebook->Connect(wxID_ANY, wxEVT_DESTROY,
@@ -350,8 +377,13 @@ static int Find_wxArrayTreeItemId(const wxArrayTreeItemIds& arrayIds, const wxTr
 
 void wxSTEditorTreeCtrl::UpdateFromNotebook()
 {
+    if (IsFrozen()) return;
+
     wxSTERecursionGuard guard(m_rGuard_UpdateFromNotebook);
     if (guard.IsInside()) return;
+
+    if (m_notePageId) SetItemBold(m_notePageId, false);
+    m_notePageId = wxTreeItemId(); // reset to unknown
 
     wxSTEditorNotebook *noteBook = GetSTEditorNotebook();
     if (!noteBook)
@@ -363,10 +395,10 @@ void wxSTEditorTreeCtrl::UpdateFromNotebook()
 
     wxTreeItemId id, selId;
 
-    // Check for and add a root item to the treectrl, it's hidden
+    // Check for and add a hidden root item to the treectrl
     wxTreeItemId rootId = GetRootItem();
     if (!rootId)
-        rootId = AddRoot(_("Root"), -1, -1, NULL);
+        rootId = AddRoot(wxT("Root"), -1, -1, NULL);
 
     // Check for and add a "Opened files" item to the treectrl
     wxArrayString openedfilesPath; openedfilesPath.Add(_("Opened files"));
@@ -517,8 +549,6 @@ void wxSTEditorTreeCtrl::UpdateFromNotebook()
         // we should have valid id at this point
         if (n == note_sel)
             selId = id;
-        else if (IsBold(id))
-            SetItemBold(id, false);
 
         SetItemTextColour(id, modified ? *wxRED : *wxBLACK);
     }
@@ -533,7 +563,8 @@ void wxSTEditorTreeCtrl::UpdateFromNotebook()
 
     if (selId)
     {
-        SetItemBold(selId);
+        m_notePageId = selId;
+        SetItemBold(selId, true);
         SelectItem(selId);
     }
 
@@ -613,6 +644,8 @@ int wxSTEditorTreeCtrl::DeleteItem(const wxTreeItemId& id_, bool delete_empty,
         return 0;
     else if (!delete_empty)
     {
+        if (id == m_notePageId) m_notePageId = wxTreeItemId();
+
         Delete(id);
         n++;
     }
@@ -622,6 +655,7 @@ int wxSTEditorTreeCtrl::DeleteItem(const wxTreeItemId& id_, bool delete_empty,
         wxTreeItemId parentId_last;
         wxTreeItemId parentId = GetItemParent(id);
         wxTreeItemId rootId = GetRootItem();
+        if (id == m_notePageId) m_notePageId = wxTreeItemId();
         Delete(id);
         n++;
 
@@ -652,7 +686,10 @@ int wxSTEditorTreeCtrl::DeleteItem(const wxTreeItemId& id_, bool delete_empty,
         }
 
         if (parentId_last)
+        {
+            if (parentId_last == m_notePageId) m_notePageId = wxTreeItemId();
             Delete(parentId_last);
+        }
     }
 
     return n;
@@ -665,14 +702,14 @@ wxTreeItemId wxSTEditorTreeCtrl::FindOrInsertItem(const wxArrayString& treePath,
 
     int n = 0, count = treePath.GetCount();
 
-    // check for and add "Root" if not only_find
+    // check for and add the hidden "Root" if not only_find
     wxTreeItemId parentId = GetRootItem();
     if (!parentId)
     {
         if (find_type == STE_TREECTRL_FIND)
             return wxTreeItemId();
 
-        parentId = AddRoot(_("Root"), -1, -1, NULL);
+        parentId = AddRoot(wxT("Root"), -1, -1, NULL);
     }
 
     wxTreeItemIdValue rootCookie;
