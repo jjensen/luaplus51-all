@@ -276,7 +276,7 @@ local test_values = {
     float = 3.4,
     double = 5.6,
     uint16_t = 65000,
-    uint32_t = 700000056,
+    uint32_t = ffi.new('uint32_t', 700000056),
     uint64_t = 12345678901234,
     bool = true,
     _Bool = false,
@@ -350,6 +350,10 @@ for convention,c in pairs(dlls) do
         types.dc = nil
         types.fc = nil
     end
+    check((3+4*i).re, 3)
+    check((3+4*i).im, 4)
+    check(ffi.new('complex float', 2+8*i).re, 2)
+    check(ffi.new('complex float', 5+6*i).im, 6)
 
     check(c.have_complex(), c.have_complex2())
     check(c.is_msvc, c.is_msvc2)
@@ -681,6 +685,7 @@ mt.__call = function(vls, a, b) return '__call', vls.d.a .. a .. (b or 'nil')  e
 mt.__unm = function(vls) return -vls.d.a end
 mt.__concat = function(vls, a) return vls.d.a .. a end
 mt.__len = function(vls) return vls.d.a end
+mt.__tostring = function(vls) return 'string ' .. vls.d.a end
 
 vls.d.a = 5
 check(vls + 5, 10)
@@ -702,6 +707,7 @@ check(-vls, -5)
 local a,b = vls('6')
 check(a, '__call')
 check(b, '56nil')
+check(tostring(vls), 'string 5')
 
 if _VERSION ~= 'Lua 5.1' then
     check(vls .. 'str', '5str')
@@ -767,6 +773,50 @@ assert(ffi.istype('int[3]', ffi.new('const int[3]')))
 -- Crazy function pointer that takes an int and a function pointer and returns
 -- a function pointer. Type of &signal.
 check(tostring(ffi.typeof('void (*foo(int, void(*)(int)))(int)')):match('%b<>'), '<void (*(*)(int, void (*)(int)))(int)>')
+
+-- Make sure we pass all arguments to tonumber
+check(tonumber('FE', 16), 0xFE)
+
+-- Allow casts from pointer to numeric types
+ffi.cast('long', ffi.C.NULL)
+ffi.cast('int8_t', ffi.C.NULL)
+assert(not pcall(function() ffi.new('long', ffi.C.NULL) end))
+
+-- ffi.new and ffi.cast allow unpacked struct/arrays
+assert(ffi.new('int[3]', 1)[0] == 1)
+assert(ffi.new('int[3]', {1})[0] == 1)
+assert(ffi.new('int[3]', 1, 2)[1] == 2)
+assert(ffi.new('int[3]', {1, 2})[1] == 2)
+
+ffi.cdef[[
+struct var {
+    char ch[?];
+};
+]]
+local d = ffi.new('char[4]')
+local v = ffi.cast('struct var*', d)
+v.ch = {1,2,3,4}
+assert(v.ch[3] == 4)
+v.ch = "bar"
+assert(v.ch[3] == 0)
+assert(v.ch[2] == string.byte('r'))
+assert(d[1] == string.byte('a'))
+
+ffi.cast('char*', 1)
+
+-- 2 arg form of ffi.copy
+ffi.copy(d, 'bar')
+
+-- unsigned should be ignored for pointer rules
+ffi.cdef[[
+int strncmp(const signed char *s1, const unsigned char *s2, size_t n);
+]]
+assert(ffi.C.strncmp("two", "three", 3) ~= 0)
+
+ffi.fill(d, 3, 1)
+assert(d[2] == 1)
+ffi.fill(d, 3)
+assert(d[2] == 0)
 
 print('Test PASSED')
 
