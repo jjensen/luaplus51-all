@@ -1,5 +1,5 @@
 /*
-** $Id: lua.c,v 1.157 2005/12/29 16:23:32 roberto Exp $
+** $Id: lua.c,v 1.160.1.2 2007/12/28 15:32:23 roberto Exp $
 ** Lua stand-alone interpreter
 ** See Copyright Notice in lua.h
 */
@@ -13,9 +13,10 @@
 #define lua_c
 
 extern "C" {
-#include "LuaPlus/src/lua.h"
-#include "LuaPlus/src/lauxlib.h"
-#include "LuaPlus/src/lualib.h"
+#include "lua.h"
+
+#include "lauxlib.h"
+#include "lualib.h"
 }
 
 #include "LuaRemoteDebuggingServer/LuaRemoteDebuggingServer.h"
