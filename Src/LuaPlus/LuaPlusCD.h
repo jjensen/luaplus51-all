@@ -1739,9 +1739,16 @@ namespace LPCD {
 		else if (type == LUA_TTABLE) {
 			lua_pushstring(L, "__object");
 			lua_rawget(L, 1);
-			if (!lua_isuserdata(L, -1))
+
+			void* ret;
+			int subType = lua_type(L, -1);
+			if (subType == LUA_TLIGHTUSERDATA) {
+				ret = lua_touserdata(L, -1);
+			} else if (subType == LUA_TUSERDATA) {
+				ret = *(void **)(lua_touserdata(L, -1));
+			} else {
 				luaL_error(L, "The table does not have a userdata member called __object.");
-			void* ret = *(void **)(lua_touserdata(L, -1));
+			}
 			lua_pop(L, 1);
 			return ret;
 		} else {
@@ -1758,9 +1765,16 @@ namespace LPCD {
 		else if (type == LUA_TTABLE) {
 			lua_pushstring(L, "__object");
 			lua_rawget(L, 1);
-			if (!lua_isuserdata(L, -1))
+
+			void* ret;
+			int subType = lua_type(L, -1);
+			if (subType == LUA_TLIGHTUSERDATA) {
+				ret = lua_touserdata(L, -1);
+			} else if (subType == LUA_TUSERDATA) {
+				ret = *(void **)(lua_touserdata(L, -1));
+			} else {
 				luaL_error(L, "The table does not have a userdata member called __object.");
-			void* ret = lua_touserdata(L, -1);
+			}
 			lua_pop(L, 1);
 			return ret;
 		} else {
