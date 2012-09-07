@@ -1680,6 +1680,7 @@ namespace tilde
 				m_localNestedCalls = 0;
 			}
 
+			OsSleep(10);
 			m_listener->OnIdle();
 
 			if(m_shutdown)
