@@ -103,7 +103,7 @@ if $(MSVCNT) {
 	C.C++Flags : /arch:SSE2 ;
 	C.Defines : __SSE2__ ;
 } else if $(UNIX) {
-	C.LinkPrebuiltLibraries : stdc++ dl ;
+	C.LinkPrebuiltLibraries : dl ;
 	if ! $(OS) in MACOS MACOSX {
 		C.LinkFlags : -Wl,-soname,lua51.so ;
 	}
