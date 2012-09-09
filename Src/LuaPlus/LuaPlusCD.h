@@ -2028,12 +2028,14 @@ inline void lpcd_pushobjectdirectclosure(lua_State* L, const Callee* callee, Fun
 }
 
 
-template <typename Callee>
+/*template <typename Callee>
 inline void lpcd_pushinplaceobjectfunctorclosure(lua_State* L, int (Callee::*func)(lua_State*), unsigned int nupvalues = 0) {
 	unsigned char* buffer = (unsigned char*)lua_newuserdata(L, sizeof(func));
 	memcpy(buffer, &func, sizeof(func));
 	//lua_pushcclosure(L, LPCD::Object_InPlaceMemberDispatcherHelper<Callee>::Object_MemberDispatcher, nupvalues + 1);
+	lua_pushcclosure(L, LPCD::InPlaceMemberDispatcherHelper<Callee>::Object_MemberDispatcher, nupvalues + 1);
 }
+*/
 
 
 template <typename Callee, typename Func>
