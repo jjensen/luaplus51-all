@@ -27,6 +27,8 @@ if $(MYSQL_FOUND) {
     Depends luadbi : dbdmysql : luadbi-dbi.lua ;
 	Depends clean:luadbi : clean:dbdmysql : clean:luadbi-dbi.lua ;
 
+	C.IncludeDirectories : . ;
+
 	Lua.CModule : : $(SRCS) ;
 
 } # $(MYSQL_FOUND)
@@ -52,6 +54,7 @@ if $(MYSQL_FOUND) {
 	Depends clean:luadbi : clean:dbdsqlite3 : clean:luadbi-dbi.lua ;
 
 	C.Defines : SQLITE_ENABLE_FTS3 ;
+	C.IncludeDirectories : . ;
 	C.IncludeDirectories : ../sqlite3/sqlite ;
 
 	Lua.CModule : : $(SRCS) ;
