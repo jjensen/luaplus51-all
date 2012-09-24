@@ -2401,13 +2401,15 @@ bool wxLuaStateRefData::CloseLuaState(bool force)
     // Note: even though the lua_State is closed the pointer value is still good.
     // The wxLuaState we pushed into the reg table is a light userdata so
     // it didn't get deleted.
-    wxHashMapLuaState::iterator it = wxLuaState::s_wxHashMapLuaState.find(m_lua_State);
-    if (it != wxLuaState::s_wxHashMapLuaState.end())
+	if (!wxLuaState::s_wxHashMapLuaState)
+		wxLuaState::s_wxHashMapLuaState = new wxHashMapLuaState;
+    wxHashMapLuaState::iterator it = wxLuaState::s_wxHashMapLuaState->find(m_lua_State);
+    if (it != wxLuaState::s_wxHashMapLuaState->end())
     {
         wxLuaState* wxlState = it->second;
         wxlState->SetRefData(NULL);
         delete wxlState;
-        wxLuaState::s_wxHashMapLuaState.erase(m_lua_State);
+        wxLuaState::s_wxHashMapLuaState->erase(m_lua_State);
     }
 
     m_lua_State = NULL;
@@ -2465,7 +2467,7 @@ void wxLuaStateRefData::ClearCallbacks()
 
 IMPLEMENT_DYNAMIC_CLASS(wxLuaState, wxObject)
 
-wxHashMapLuaState wxLuaState::s_wxHashMapLuaState;
+wxHashMapLuaState* wxLuaState::s_wxHashMapLuaState;
 bool wxLuaState::sm_wxAppMainLoop_will_run = false;
 
 
@@ -2533,7 +2535,9 @@ bool wxLuaState::Create(lua_State* L, int state_type)
         // Note: we call SetRefData() so that we don't increase the ref count.
         wxLuaState* hashState = new wxLuaState(false);
         hashState->SetRefData(m_refData);
-        wxLuaState::s_wxHashMapLuaState[L] = hashState;
+		if (!wxLuaState::s_wxHashMapLuaState)
+			wxLuaState::s_wxHashMapLuaState = new wxHashMapLuaState;
+        (*wxLuaState::s_wxHashMapLuaState)[L] = hashState;
 
         // Stick us into the Lua registry table - push key, value
         lua_pushlightuserdata(L, &wxlua_lreg_wxluastate_key);
@@ -2682,8 +2686,10 @@ wxLuaState wxLuaState::GetwxLuaState(lua_State* L, bool get_root_state) // stati
     if (!get_root_state)
     {
         // try our hashtable for faster lookup
-        wxHashMapLuaState::iterator it = s_wxHashMapLuaState.find(L);
-        if (it != s_wxHashMapLuaState.end())
+		if (!wxLuaState::s_wxHashMapLuaState)
+			wxLuaState::s_wxHashMapLuaState = new wxHashMapLuaState;
+		wxHashMapLuaState::iterator it = s_wxHashMapLuaState->find(L);
+		if (it != s_wxHashMapLuaState->end())
             return wxLuaState(*it->second);
     }
 
@@ -3456,9 +3462,12 @@ wxLuaState wxLuaState::GetDerivedMethodState(void *obj_ptr, const char *method_n
 {
     wxCHECK_MSG(obj_ptr, wxNullLuaState, wxT("Invalid object to wxLuaState::GetDerivedMethod"));
 
-    wxHashMapLuaState::iterator it;
-    for (it = wxLuaState::s_wxHashMapLuaState.begin();
-         it != wxLuaState::s_wxHashMapLuaState.end(); ++it)
+	if (!wxLuaState::s_wxHashMapLuaState)
+		wxLuaState::s_wxHashMapLuaState = new wxHashMapLuaState;
+
+	wxHashMapLuaState::iterator it;
+    for (it = wxLuaState::s_wxHashMapLuaState->begin();
+         it != wxLuaState::s_wxHashMapLuaState->end(); ++it)
     {
         wxLuaState wxlState(*(wxLuaState*)it->second);
         if (wxlState.HasDerivedMethod(obj_ptr, method_name, false))
