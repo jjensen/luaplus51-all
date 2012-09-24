@@ -60,30 +60,66 @@ int path_create(const char* inPath)
 #endif
   }
 
-  while ( (ch = *inPath++) ) {
+  /* Copy the rest of the path into a buffer we can modify. */
+  while (ch = *inPath++) {
+    if (ch == '/'  ||  ch == '\\') {
+#if defined(WIN32)
+      *pathPtr++ = '\\';
+#else
+      *pathPtr++ = '/';
+#endif /* WIN32 */
+    } else
+      *pathPtr++ = ch;
+  }
+  *pathPtr = 0;
+
+  /* Determine which directories already exist. */
+  --pathPtr;
+  while (pathPtr > path) {
+	struct stat fileInfo;
+	char ch;
+    while (pathPtr > path  &&  *pathPtr != '/'  &&  *pathPtr != '\\')
+	  --pathPtr;
+    ch = *pathPtr;
     if (ch == '/'  ||  ch == '\\') {
       *pathPtr = 0;
 #if defined(WIN32)
-      {
-        char* colonPtr;
-        int isDriveLetter;
-
-        /* Create the directory if it's not a drive letter. */
-        colonPtr = pathPtr - 1;
-        isDriveLetter = colonPtr == (path + 1)  &&  *colonPtr == ':';
-        if (!isDriveLetter) {
-          if (!CreateDirectory(path, NULL)  &&  GetLastError() != ERROR_ALREADY_EXISTS)
-            return 0;
+      if (pathPtr > path + 1) {
+        if (pathPtr[-1] == ':') {
+            *pathPtr++ = ch;
+			break;
         }
-        *pathPtr++ = '\\';
-      }
+	  }
+#endif /* WIN32 */
+	  if (stat(path, &fileInfo) == 0) {
+        if (fileInfo.st_mode & _S_IFDIR) {
+          *pathPtr++ = ch;
+          break;
+	    } else {
+          return 0;
+        }
+	  }
+      *pathPtr = ch;
+	}
+	--pathPtr;
+  }
+
+  /* Create any remaining directories. */
+  while (ch = *pathPtr) {
+    if (ch == '/'  ||  ch == '\\') {
+      *pathPtr = 0;
+#if defined(WIN32)
+      if (!CreateDirectory(path, NULL)  &&  GetLastError() != ERROR_ALREADY_EXISTS)
+        return 0;
+      *pathPtr++ = '\\';
 #else
       if (mkdir(path, 0777)  &&  errno != EEXIST)
         return 0;
       *pathPtr++ = '/';
 #endif
-    } else
-      *pathPtr++ = ch;
+    } else {
+      ++pathPtr;
+	}
   }
 
   return 1;
