@@ -447,7 +447,7 @@ dav_opendir_on_request_entity(HTTP_CONNECTION *connection, HTTP_REQUEST *request
 			|| (error = dav_add_find_prop(propfind, "getlastmodified")) != HT_OK
 			|| (error = dav_add_find_prop(propfind, "resourcetype")) != HT_OK
 			|| (error = dav_add_find_prop_comma_delimited(propfind, oddata->additional_prop)) != HT_OK
-			|| (error = http_create_memory_storage((HTTP_MEMORY_STORAGE **) &request->content)) != HT_OK
+			|| (error = http_create_memory_storage((HTTP_MEMORY_STORAGE **) &request->content, NULL, 0)) != HT_OK
 			|| (error = dav_write_propfind_to_storage(propfind, request->content)) != HT_OK)
 	{
 		dav_propfind_destroy(&propfind);
@@ -463,7 +463,7 @@ dav_opendir_on_response_header(HTTP_CONNECTION *connection, HTTP_REQUEST *reques
 	int error = HT_OK;
 	if(response->status_code == 207)
 	{
-		error = http_create_memory_storage((HTTP_MEMORY_STORAGE **) &response->content);
+		error = http_create_memory_storage((HTTP_MEMORY_STORAGE **) &response->content, NULL, 0);
 	}
 	return error;
 }
@@ -735,7 +735,7 @@ dav_lock_on_request_entity(HTTP_CONNECTION *connection, HTTP_REQUEST *request, H
 	DAV_LOCKINFO *lockinfo = NULL;
 	const char *owner = (const char *) data;
 	int error = HT_OK;
-	if((error = http_create_memory_storage((HTTP_MEMORY_STORAGE **) &request->content)) != HT_OK
+	if((error = http_create_memory_storage((HTTP_MEMORY_STORAGE **) &request->content, NULL, 0)) != HT_OK
 			|| (error = dav_create_lockinfo(&lockinfo, DAV_LOCKSCOPE_EXCLUSIVE, DAV_LOCKTYPE_WRITE, owner)) != HT_OK
 			|| (error = dav_write_lockinfo_to_storage(lockinfo, request->content)) != HT_OK)
 	{
@@ -752,7 +752,7 @@ dav_lock_on_response_header(HTTP_CONNECTION *connection, HTTP_REQUEST *request, 
 	int error = HT_OK;
 	if(response->status_code == 200)
 	{
-		if((error = http_create_memory_storage((HTTP_MEMORY_STORAGE **) &response->content)) != HT_OK)
+		if((error = http_create_memory_storage((HTTP_MEMORY_STORAGE **) &response->content, NULL, 0)) != HT_OK)
 		{
 			return error;
 		}

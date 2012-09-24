@@ -662,6 +662,61 @@ static int ezdav_connection_copy_from_server(lua_State *L) {
 }
 
 
+typedef struct dav_range_copy_from_server_instance {
+	const char *dest_filepath;
+	const char *byte_range;
+} DAV_RANGE_COPY_FROM_SERVER_INSTANCE;
+
+int dav_range_copy_from_server_on_request_header(HTTP_CONNECTION *connection, HTTP_REQUEST *request, HTTP_RESPONSE *response, void *data)
+{
+	DAV_RANGE_COPY_FROM_SERVER_INSTANCE *instance = (DAV_RANGE_COPY_FROM_SERVER_INSTANCE *) data;
+	char buffer[10000];
+	int error = HT_OK;
+	sprintf(buffer, "bytes=%s", instance->byte_range);
+
+	if((error = http_add_header_field(request, "Range", buffer)) != HT_OK)
+	{
+		return error;
+	}
+	return HT_OK;
+}
+
+
+int dav_range_copy_from_server_on_response_header(HTTP_CONNECTION *connection, HTTP_REQUEST *request, HTTP_RESPONSE *response, void *data)
+{
+	DAV_RANGE_COPY_FROM_SERVER_INSTANCE *instance = (DAV_RANGE_COPY_FROM_SERVER_INSTANCE *) data;
+	int error = HT_OK;
+	if(response->status_code == 200 || response->status_code == 206)
+	{
+		if((error = http_create_file_storage((HTTP_FILE_STORAGE ** ) &response->content, instance->dest_filepath, "wb+")) != HT_OK)
+		{
+			return error;
+		}
+	}
+	return HT_OK;
+}
+
+int dav_range_copy_from_server(HTTP_CONNECTION *connection, const char *src, const char *dest, const char *byte_range)
+{
+	DAV_RANGE_COPY_FROM_SERVER_INSTANCE instance;
+	memset(&instance, 0, sizeof(DAV_RANGE_COPY_FROM_SERVER_INSTANCE));
+	instance.dest_filepath = dest;
+	instance.byte_range = byte_range;
+	if(http_exec(connection, HTTP_GET, src, dav_range_copy_from_server_on_request_header, NULL, 
+				dav_range_copy_from_server_on_response_header, NULL, (void *) &instance) != HT_OK)
+	{
+		return HT_FALSE;
+	}
+	return (http_exec_error(connection) == 200  ||  http_exec_error(connection) == 206);
+}
+
+static int ezdav_connection_range_copy_from_server(lua_State *L) {
+	HTTP_CONNECTION* connection = ezdav_connection_checkmetatable(L, 1);
+	lua_pushboolean(L, dav_range_copy_from_server(connection, luaL_checkstring(L, 2), luaL_checkstring(L, 3), luaL_checkstring(L, 4)));
+	return 1;
+}
+
+
 static int ezdav_connection_lock(lua_State *L) {
 	HTTP_CONNECTION* connection = ezdav_connection_checkmetatable(L, 1);
 	lua_pushboolean(L, dav_lock(connection, luaL_checkstring(L, 2), luaL_checkstring(L, 3)));
@@ -712,6 +767,7 @@ static const struct luaL_reg ezdav_connection_index_functions[] = {
 	{ "delete",				ezdav_connection_delete },
 	{ "copy_to_server",		ezdav_connection_copy_to_server },
 	{ "copy_from_server",	ezdav_connection_copy_from_server },
+	{ "range_copy_from_server",	ezdav_connection_range_copy_from_server },
 	{ "lock",				ezdav_connection_lock },
 	{ "unlock",				ezdav_connection_unlock },
 	{ "abandon_lock",		ezdav_connection_abandon_lock },

@@ -30,6 +30,10 @@ http_write_memory_storage(HTTP_MEMORY_STORAGE *storage, const char *data, int si
 	new_content_size = storage->content_size + size;
 	if(new_content_size > storage->content_buffer_size)
 	{
+		if (storage->max_content_buffer_size != 0  &&  new_content_size > storage->max_content_buffer_size)
+		{
+			return HT_MEMORY_ERROR;
+		}
 		new_content_buffer_size = storage->content_buffer_size;
 		if(new_content_buffer_size == 0)
 		{
@@ -100,7 +104,7 @@ http_destroy_memory_storage(HTTP_MEMORY_STORAGE *storage)
 }
 
 int
-http_create_memory_storage(HTTP_MEMORY_STORAGE **storage)
+http_create_memory_storage(HTTP_MEMORY_STORAGE **storage, char* content, int max_content_buffer_size)
 {
 	HTTP_MEMORY_STORAGE *new_storage;
 	if(storage == NULL)
@@ -113,6 +117,9 @@ http_create_memory_storage(HTTP_MEMORY_STORAGE **storage)
 		return HT_MEMORY_ERROR;
 	}
 	memset(new_storage, 0, sizeof(HTTP_MEMORY_STORAGE));
+	new_storage->content = content;
+	new_storage->content_buffer_size = max_content_buffer_size;
+	new_storage->max_content_buffer_size = max_content_buffer_size;
 	new_storage->functions.write = (HTTP_STORAGE_WRITE) http_write_memory_storage;
 	new_storage->functions.read = (HTTP_STORAGE_READ) http_read_memory_storage;
 	new_storage->functions.seek = (HTTP_STORAGE_SEEK) http_seek_memory_storage;
@@ -227,3 +234,122 @@ http_create_file_storage(HTTP_FILE_STORAGE **storage, const char *filename, cons
 	return HT_OK;
 }
 
+
+int http_write_offset_file_storage(HTTP_OFFSET_FILE_STORAGE *storage, const char *data, int size)
+{
+	int write_count;
+	if(storage == NULL || (data == NULL && size != 0))
+	{
+		return HT_INVALID_ARGUMENT;
+	}
+	while (size > 0)
+	{
+		int size_to_write = size;
+		int chunk_size_left = storage->chunk_sizes[storage->current_chunk_index];
+		if (chunk_size_left >= 0)
+			size_to_write = min(size_to_write, chunk_size_left);
+
+		fseek(storage->file, storage->chunk_offsets[storage->current_chunk_index] + storage->current_chunk_offset, SEEK_SET);
+		write_count = fwrite(data, sizeof(char), size_to_write, storage->file);
+		if(write_count != size_to_write)
+		{
+			return HT_IO_ERROR;
+		}
+
+		storage->current_chunk_offset += size_to_write;
+		size -= size_to_write;
+		data += size_to_write;
+
+		if (chunk_size_left >= 0)
+			storage->chunk_sizes[storage->current_chunk_index] -= size_to_write;
+
+		if (storage->chunk_sizes[storage->current_chunk_index] == 0)
+		{
+			++storage->current_chunk_index;
+			storage->current_chunk_offset = 0;
+		}
+//		storage->file_size += write_count;
+	}
+	return HT_OK;
+}
+
+int http_seek_offset_file_storage(HTTP_OFFSET_FILE_STORAGE *storage, int location)
+{
+	return HT_ILLEGAL_OPERATION;
+}
+
+int http_read_offset_file_storage(HTTP_OFFSET_FILE_STORAGE *storage, char *buffer, int buffer_size, int *read_count)
+{
+	return HT_ILLEGAL_OPERATION;
+}
+
+int http_get_offset_file_storage_size(HTTP_OFFSET_FILE_STORAGE *storage, int *size)
+{
+	return HT_ILLEGAL_OPERATION;
+}
+
+int http_close_offset_file_storage(HTTP_OFFSET_FILE_STORAGE *storage)
+{
+	if(storage->file != NULL)
+	{
+		fclose(storage->file);
+		storage->file = NULL;
+	}
+	if (storage->chunk_sizes)
+	{
+		_http_allocator(_http_allocator_user_data, storage->chunk_sizes, 0);
+		storage->chunk_sizes = NULL;
+	}
+	if (storage->chunk_offsets)
+	{
+		_http_allocator(_http_allocator_user_data, storage->chunk_offsets, 0);
+		storage->chunk_offsets = NULL;
+	}
+	return HT_OK;
+}
+
+void http_destroy_offset_file_storage(HTTP_OFFSET_FILE_STORAGE *storage)
+{
+	http_close_offset_file_storage(storage);
+}
+
+int http_create_offset_file_storage(HTTP_OFFSET_FILE_STORAGE **storage, const char *filename, const char *mode, size_t* chunk_offsets, size_t* chunk_sizes, int number_of_chunks)
+{
+	HTTP_OFFSET_FILE_STORAGE *new_storage = NULL;
+	int original_pos = 0;
+	if(storage == NULL)
+	{
+		return HT_INVALID_ARGUMENT;
+	}
+	new_storage = (HTTP_OFFSET_FILE_STORAGE *) _http_allocator(_http_allocator_user_data, 0, sizeof(HTTP_OFFSET_FILE_STORAGE));
+	if(new_storage == NULL)
+	{
+		return HT_MEMORY_ERROR;
+	}
+	memset(new_storage, 0, sizeof(HTTP_OFFSET_FILE_STORAGE));
+	new_storage->file = fopen(filename, mode);
+	if(new_storage->file == NULL)
+	{
+		http_destroy_offset_file_storage(new_storage);
+		return HT_MEMORY_ERROR;
+	}
+	setvbuf(new_storage->file, NULL, _IOFBF, 64 * 1024);
+
+	original_pos = ftell(new_storage->file);
+	fseek(new_storage->file, 0, SEEK_END);
+	new_storage->file_size = ftell(new_storage->file);
+	fseek(new_storage->file, original_pos, SEEK_SET);
+
+	new_storage->chunk_offsets = chunk_offsets;
+	new_storage->chunk_sizes = chunk_sizes;
+	new_storage->number_of_chunks = number_of_chunks;
+
+	new_storage->functions.write = (HTTP_STORAGE_WRITE) http_write_offset_file_storage;
+	new_storage->functions.read = (HTTP_STORAGE_READ) http_read_offset_file_storage;
+	new_storage->functions.seek = (HTTP_STORAGE_SEEK) http_seek_offset_file_storage;
+	new_storage->functions.getsize = (HTTP_STORAGE_GETSIZE) http_get_offset_file_storage_size;
+	new_storage->functions.close = (HTTP_STORAGE_CLOSE) http_close_offset_file_storage;
+	new_storage->functions.destroy = (HTTP_STORAGE_DESTROY) http_destroy_offset_file_storage;
+	*storage = new_storage;
+	return HT_OK;
+}
