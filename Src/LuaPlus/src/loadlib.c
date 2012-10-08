@@ -62,6 +62,7 @@ static lua_CFunction ll_sym (lua_State *L, void *lib, const char *sym);
 #define __USE_GNU
 #include <dlfcn.h>
 #include <sys/param.h>
+#include <unistd.h>
 
 #if LUAPLUS_EXTENSIONS
 static void lp_loadlocalconfig(lua_State *L) {
