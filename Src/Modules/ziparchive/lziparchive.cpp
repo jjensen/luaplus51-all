@@ -82,7 +82,7 @@ static int _lziparchive_tostring(lua_State *L) {
 	lua_pushstring(L, archive->GetFilename());
 	lua_pushstring(L, "\", ");
 	lua_pushstring(L, archive->IsReadOnly() ? "read-only" : "writable");
-	sprintf(buffer, ", %u files", archive->GetFileEntryCount());
+	sprintf(buffer, ", %u files", (unsigned int)archive->GetFileEntryCount());
 	lua_pushstring(L, buffer);
 	lua_concat(L, lua_gettop(L) - top);
 	return 1;
@@ -986,7 +986,7 @@ static int _lziparchive_fileentry_tostring(lua_State* L) {
 	fileentry_info* info = (fileentry_info*)luaL_checkudata(L, 1, ZIPARCHIVE_FILEENTRY_METATABLE);
 	ZipEntryInfo* entry = info->archive->GetFileEntry(info->entryIndex);
 	if (!entry) {
-		sprintf(buffer, "index %u is invalid", info->entryIndex);
+		sprintf(buffer, "index %u is invalid", (unsigned int)info->entryIndex);
 		lua_pushstring(L, buffer);
 	} else {
 		lua_pushstring(L, "filename = \"");
@@ -1018,7 +1018,7 @@ static int _lziparchive_fileentry_tostring(lua_State* L) {
 		}
 		sprintf(buffer, ", offset = %u", entry->GetOffset());
 		lua_pushstring(L, buffer);
-		sprintf(buffer, ", timestamp = %u", entry->GetTimeStamp());
+		sprintf(buffer, ", timestamp = %u", (unsigned int)entry->GetTimeStamp());
 		lua_pushstring(L, buffer);
 		sprintf(buffer, ", uncompressed_size = %u", entry->GetUncompressedSize());
 		lua_pushstring(L, buffer);
