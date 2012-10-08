@@ -4,6 +4,10 @@
 #include "http.h"
 #include "http_storage.h"
 
+#ifndef min
+#define min(a,b) ((a)<(b)?(a):(b))
+#endif
+
 extern http_allocator _http_allocator;
 extern void* _http_allocator_user_data;
 

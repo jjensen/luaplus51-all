@@ -31,6 +31,7 @@ typedef int SOCKET;
 #include <errno.h>
 #include <arpa/inet.h>
 #include <netinet/tcp.h>
+#include <unistd.h>
 
 #define SOCKET					int
 #define INVALID_SOCKET			-1
@@ -762,7 +763,7 @@ http_collect_authorization_header_field(HTTP_MEMORY_STORAGE *storage, HTTP_CONNE
 		{
 			message_qop = "auth";
 			sprintf(nonce_count, "%08X", connection->auth_info->count);
-			sprintf(cnonce, "%08x", time(NULL));
+			sprintf(cnonce, "%08x", (unsigned int)time(NULL));
 		}
 		DigestCalcHA1(algorithm, username, realm, password, nonce, cnonce, HA1);
 		DigestCalcResponse(HA1, nonce, nonce_count, cnonce, message_qop, http_method[request->method], request->resource, HEntity, response_digest);
@@ -1672,7 +1673,7 @@ int http_range_copy_from_server_to_direct_memory(HTTP_CONNECTION *connection, co
 	memset(&instance, 0, sizeof(HTTP_RANGE_COPY_FROM_SERVER_INSTANCE));
 	instance.start = start;
 	instance.end = end;
-	instance.destination = dest;
+	instance.destination = (const char*)dest;
 	if(http_exec(connection, HTTP_GET, src, http_range_copy_from_server_on_request_header, NULL,
 				http_range_copy_from_server_to_direct_memory_on_response_header, NULL, (void *) &instance) != HT_OK)
 	{
