@@ -19,6 +19,7 @@
 #include <errno.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 extern int push_error(lua_State *L);
 #endif /* WIN32 */
@@ -61,7 +62,7 @@ int path_create(const char* inPath)
   }
 
   /* Copy the rest of the path into a buffer we can modify. */
-  while (ch = *inPath++) {
+  while ((ch = *inPath++)) {
     if (ch == '/'  ||  ch == '\\') {
 #if defined(WIN32)
       *pathPtr++ = '\\';
@@ -92,7 +93,7 @@ int path_create(const char* inPath)
 	  }
 #endif /* WIN32 */
 	  if (stat(path, &fileInfo) == 0) {
-        if (fileInfo.st_mode & _S_IFDIR) {
+        if (S_ISDIR(fileInfo.st_mode)) {
           *pathPtr++ = ch;
           break;
 	    } else {
@@ -105,7 +106,7 @@ int path_create(const char* inPath)
   }
 
   /* Create any remaining directories. */
-  while (ch = *pathPtr) {
+  while ((ch = *pathPtr)) {
     if (ch == '/'  ||  ch == '\\') {
       *pathPtr = 0;
 #if defined(WIN32)
@@ -196,7 +197,7 @@ int path_destroy(const char* inDirName)
 
   dirNamePtr = dirName;
 
-  while (ch = *inDirName++) {
+  while ((ch = *inDirName++)) {
     if (ch == '/'  ||  ch == '\\')
       *dirNamePtr++ = '/';
     else
