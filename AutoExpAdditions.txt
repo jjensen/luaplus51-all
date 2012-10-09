@@ -116,10 +116,17 @@ Node {
 
 LuaPlus::LuaObject {
 	preview (
-		#if (-$e.ref + -1999999 - 1 < $e.L->l_G->l_refs->sizearray) (
-			#( $e.L->l_G->l_refs[-$e.ref + -1999999 - 1].o )
+		#if (-$e.ref + -1999999 - 1 < $e.L->l_G->l_refs.value.gc->h.sizearray) (
+			#( $e.L->l_G->l_refs.value.gc->h.array[-$e.ref + -1999999 - 1 - 1] )
 		) #else (
 			"In hash part"
+		)
+	)
+	children (
+		#(
+			[raw members]: [$c,!],
+			L: [$c.L],
+			value: [$c.L->l_G->l_refs.value.gc->h.array[-$c.ref + -1999999 - 1 - 1]]
 		)
 	)
 }
