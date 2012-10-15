@@ -320,6 +320,8 @@ static int path_simplify_helper(lua_State *L, int index) {
         if ( ptr[1] == 0  ||  ptr[1] == '/'  ||  ptr[1] == '\\' ) {
           int add = ptr[1] ? 1 : 0;
           ptr += 1 + add;
+		  while ( ptr != endptr  &&  ( *ptr == '/'  ||  *ptr == '\\' ) )
+			  ++ptr;
           if ( file == filestart ) {
             file += 1 + add;
             filestart += 1 + add;
@@ -328,10 +330,12 @@ static int path_simplify_helper(lua_State *L, int index) {
           // Go up a subdirectory.
           int add = ptr[2] ? 1 : 0;
           ptr += 2 + add;
+		  while ( ptr != endptr  &&  ( *ptr == '/'  ||  *ptr == '\\' ) )
+			  ++ptr;
           if ( file != filestart ) {
-	    file--;
-	    file -= (*file == '/' ? 1 : 0);
-	    if ( file - filestart == 1  &&  *file == ':' )
+            file--;
+            file -= (*file == '/' ? 1 : 0);
+            if ( file - filestart == 1  &&  *file == ':' )
               file += 2;
             else {
               while ( file >= filestart  &&  ( *file != '/'  &&  *file != '\\' ) )
