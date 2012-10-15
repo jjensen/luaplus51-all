@@ -8,7 +8,7 @@ software and uses the same license as Lua 5.1.
 
 Status
 
-Current version is 1.1.0. It was developed for both Lua 5.0 and Lua 5.1,
+Current version is 1.2.0. It was developed for both Lua 5.0 and Lua 5.1,
 and has been tested on Linux, Windows (2000/XP) and MacOS X with Expat 2.0.0.
 
 Download
@@ -17,6 +17,11 @@ LuaExpat source can be downloaded from its LuaForge page. If you are using
 LuaBinaries a Windows binary version of LuaExpat can be found at the LuaForge page.
 
 History
+
+Version 1.2.0 [02/Jun/2011]
+
+        * support for the StartDoctypeDecl handler
+        * add parser:stop() to abort parsing inside a callback
 
 Version 1.1.0 [05/Jun/2006]
 
@@ -42,15 +47,13 @@ LuaExpat implements the SAX API.
 
 Credits
 
-Version 1.0 was designed by Roberto Ierusalimschy, AndrÈ Carregal and Tom·s Guisasola
+Version 1.0 was designed by Roberto Ierusalimschy, Andr√© Carregal and Tom√°s Guisasola
 as part of the Kepler Project which holds its copyright. The implementation was coded
 by Roberto Ierusalimschy, based on a previous design by Jay Carlson.
 
-LuaExpat development was sponsored by F·brica Digital and FINEP.
+LuaExpat development was sponsored by F√°brica Digital and FINEP.
 
 Contact
 
 For more information please contact us (info at keplerproject dot org). Comments are welcome!
 You can also reach other Kepler developers and users on the Kepler Project mailing list.
-
-$Id: README,v 1.2 2007/06/05 20:03:12 carregal Exp $

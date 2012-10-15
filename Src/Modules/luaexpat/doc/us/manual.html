@@ -175,6 +175,13 @@ assume no behaviour for any undeclared callbacks.</p>
     <dd>Set the encoding to be used by the parser. There are four
     built-in encodings, passed as strings: "US-ASCII",
     "UTF-8", "UTF-16", and "ISO-8859-1".</dd>
+
+    <dt><strong>parser:stop()</strong></dt>
+    <dd>Abort the parser and prevent it from parsing any further
+    through the data it was last passed. Use to halt parsing the
+    document when an error is discovered inside a callback, for
+    example. The parser object cannot accept more data after
+    this call.</dd>
 </dl>
 
 <h4>Callbacks</h4>
@@ -198,7 +205,8 @@ callbacks:<br />
 <em>ExternalEntityRef</em>, <em>NotStandalone</em>,
 <em>NotationDecl</em>, <em>ProcessingInstruction</em>,
 <em>StartCDataSection</em>, <em>StartElement</em>,
-<em>StartNamespaceDecl</em>, and <em>UnparsedEntityDecl</em>.</p>
+<em>StartNamespaceDecl</em>, <em>UnparsedEntityDecl</em>
+and <em>StartDoctypeDecl</em>.</p>
 
 <p>These indices can be references to functions with
 specific signatures, as seen below. The parser constructor also
@@ -337,6 +345,15 @@ for more than one parser for example.</p>
     For this example the <em>publicId</em> parameter would be nil.
     The <em>base</em> parameter would be whatever has been set with
     <code>parser:setbase</code>. If not set, it would be nil.</dd>
+
+    <dt><strong>callbacks.StartDoctypeDecl = function(parser, name, sysid, pubid, has_internal_subset)</strong></dt>
+    <dd>Called when the <em>parser</em> detects the beginning of an XML
+    DTD (DOCTYPE) section. These precede the XML root element and take
+    the form:
+<pre class="example">
+&lt;!DOCTYPE root_elem PUBLIC "example"&gt;
+</pre>
+    </dd>
 </dl>
 
 <h4><a name="separator"></a>The separator character</h4>

@@ -2,8 +2,14 @@
 -- See Copyright Notice in license.html
 -- $Id: test.lua,v 1.6 2006/06/08 20:34:52 tomas Exp $
 
-require"lxp"
+if string.find(_VERSION, " 5.0") then
+	lxp = assert(loadlib("./lxp.so", "luaopen_lxp"))()
+else
+	lxp = require"lxp"
+	gcinfo = function () return collectgarbage"count" end
+end
 print (lxp._VERSION)
+assert(lxp.new, "Cannot find function lxp.new ("..tostring(lxp.new)..")")
 
 -- basic test with no preamble
 local p = lxp.new{}
@@ -35,15 +41,44 @@ preamble = [[
 ]>
 ]]
 
-local X
-function getargs (...) X = arg end
-
-function xgetargs (c)
-  return function (...)
-    table.insert(arg, 1, c)
-    table.insert(X, arg)
-  end
+X = {}
+if string.find(_VERSION, " 5.0") then
+	function getargs (...) X = arg end
+	function xgetargs (c)
+	  return function (...)
+	    table.insert(arg, 1, c)
+	    table.insert(X, arg)
+	  end
+	end
+else
+	(loadstring or load)[[
+	function getargs (...)
+		X = { ... }
+		X.n = select('#', ...)
+	end
+	function xgetargs (c)
+	  return function (...)
+	    local arg = { ... }
+	    arg.n = select('#', ...) + 1
+	    table.insert(arg, 1, c)
+	    table.insert(X, arg)
+	  end
+	end
+	table.getn = function (t)
+		if t.n then
+			return t.n
+		else
+			local n = 0
+			for i in pairs(t) do
+				if type(i) == "number" then
+					n = math.max(n, i)
+				end
+			end
+			return n
+		end
+	end]]()
 end
+
 
 
 -------------------------------
@@ -61,7 +96,7 @@ assert(p:parse([[
 assert(X.n == 3 and X[1] == p and X[2] == "to")
 x = X[3]
 assert(x.priority=="10" and x.xu=="hi" and x.method=="POST")
-assert(x[1] == "priority" and x[2] == "xu" and table.getn(x) == 2)
+assert(x[1] == "priority" and x[2] == "xu" and table.getn(x) == 2, "x[1] == "..tostring(x[1])..", x[2] == "..tostring(x[2])..", #x == "..tostring(table.getn(x)))
 assert(p:parse("</to>"))
 assert(p:parse())
 p:close()
@@ -95,7 +130,7 @@ assert(p:parse(preamble))
 assert(p:parse"<to>")
 assert(p:parse"<![CDATA[hi]]>")
 assert(table.getn(X) == 3)
-assert(X[1][1] == "s" and X[1][2] == p)
+assert(X[1][1] == "s" and X[1][2] == p, "X[1][1] == "..tostring(X[1][1])..", X[1][2] == "..tostring(X[1][2])..", p == "..tostring(p))
 assert(X[2][1] == "c" and X[2][2] == p and X[2][3] == "hi")
 assert(X[3][1] == "e" and X[3][2] == p)
 assert(p:parse"</to>")
@@ -220,7 +255,7 @@ assert(p:parse[[
 ]])
 p:close()
 x = X[1]
-assert(x[1] == "sn" and x[3] == "space" and x[4] == "a/namespace" and table.getn(x) == 4)
+assert(x[1] == "sn" and x[3] == "space" and x[4] == "a/namespace" and table.getn(x) == 4, "x[1] == "..tostring(x[1])..", x[3] == "..tostring(x[3])..", x[4] == "..tostring(x[4])..", #x == "..tostring(table.getn(x)))
 x = X[3]
 assert(x[1] == "s" and x[3] == "a/namespace?a")
 x = X[4]
@@ -228,7 +263,18 @@ assert(x[1] == "e" and x[3] == "a/namespace?a")
 x = X[6]
 assert(x[1] == "en" and x[3] == "space" and table.getn(x) == 3)
 
+----------------------------
+print("testing doctype declarations")
 
+callbacks = {
+  StartDoctypeDecl = getargs
+ }
+p = lxp.new(callbacks)
+assert(p:parse([[<!DOCTYPE root PUBLIC "foo" "hello-world">]]))
+assert(p:parse[[<root/>]])
+p:close()
+assert(X[2] == "root" and X[3] == "hello-world" and X[4] == "foo" and
+       X[5] == false)
 
 -- Error reporting
 p = lxp.new{}
@@ -280,6 +326,24 @@ assert(p:parse[[<to>]])
 local status, err = pcall(p.close, p)
 assert(not status and string.find(err, "error closing parser"))
 
+-- closing unfinished document
+print("testing parser:stop()");
+local stopped;
+p = lxp.new{
+	StartElement = function (parser, name, attr)
+		if name == "stop" then
+			parser:stop()
+			stopped = true
+		else
+			stopped = false
+		end
+	end
+}
+local ok, err = p:parse[[<root><parseme>Hello</parseme><stop>here</stop><notparsed/></root>]];
+assert(not ok)
+assert(err == "parsing aborted")
+assert(stopped == true, "parser not stopped")
+
 
 -- test for GC
 print("\ntesting garbage collection")
@@ -287,7 +351,7 @@ collectgarbage(); collectgarbage()
 local x = gcinfo()
 for i=1,100000 do
   -- due to a small bug in Lua...
-  if math.mod(i, 100) == 0 then collectgarbage() end
+  if (math.mod or math.fmod)(i, 100) == 0 then collectgarbage() end
   lxp.new({})
 end
 collectgarbage(); collectgarbage()

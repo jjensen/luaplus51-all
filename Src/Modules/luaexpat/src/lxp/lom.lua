@@ -1,13 +1,11 @@
 -- See Copyright Notice in license.html
 -- $Id: lom.lua,v 1.6 2005/06/09 19:18:40 tuler Exp $
 
-require "lxp"
+local lxp = require "lxp"
 
-local tinsert, tremove, getn = table.insert, table.remove, table.getn
+local tinsert, tremove = table.insert, table.remove
 local assert, type, print = assert, type, print
-local lxp = lxp
 
-module ("lxp.lom")
 
 local function starttag (p, tag, attr)
   local stack = p:getcallbacks().stack
@@ -19,14 +17,14 @@ local function endtag (p, tag)
   local stack = p:getcallbacks().stack
   local element = tremove(stack)
   assert(element.tag == tag)
-  local level = getn(stack)
+  local level = #stack
   tinsert(stack[level], element)
 end
 
 local function text (p, txt)
   local stack = p:getcallbacks().stack
-  local element = stack[getn(stack)]
-  local n = getn(element)
+  local element = stack[#stack]
+  local n = #element
   if type(element[n]) == "string" then
     element[n] = element[n] .. txt
   else
@@ -34,7 +32,7 @@ local function text (p, txt)
   end
 end
 
-function  parse (o)
+local function parse (o)
   local c = { StartElement = starttag,
               EndElement = endtag,
               CharacterData = text,
@@ -47,7 +45,7 @@ function  parse (o)
     status, err = p:parse(o)
     if not status then return nil, err end
   else
-    for l in o do
+    for l in pairs(o) do
       status, err = p:parse(l)
       if not status then return nil, err end
     end
@@ -58,3 +56,4 @@ function  parse (o)
   return c.stack[1][1]
 end
 
+return { parse = parse }
