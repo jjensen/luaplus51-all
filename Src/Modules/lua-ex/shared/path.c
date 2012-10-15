@@ -93,7 +93,11 @@ int path_create(const char* inPath)
 	  }
 #endif /* WIN32 */
 	  if (stat(path, &fileInfo) == 0) {
+#if defined(WIN32)
+        if (fileInfo.st_mode & _S_IFDIR) {
+#else
         if (S_ISDIR(fileInfo.st_mode)) {
+#endif // defined(WIN32)
           *pathPtr++ = ch;
           break;
 	    } else {
