@@ -36,6 +36,10 @@ THE SOFTWARE.
 #include "tilde/ReceiveMessageBuffer.h"
 #include "tilde/SendMessageBuffer.h"
 
+#ifdef WIN32
+#include <Windows.h>
+#endif
+
 namespace tilde
 {
 	const LuaDebuggerComms::DebuggerMessageInfo LuaDebuggerComms::s_debuggerMessages [] = 
@@ -804,6 +808,11 @@ namespace tilde
 		m_sendBuffer->Write<int>(LUA_DEBUGGER_PROTOCOL_VERSION);
 		m_sendBuffer->Write<int>((int) sizeof(LuaDebuggerObjectID));
 		m_sendBuffer->Write<int>((int) sizeof(lua_Number));
+#ifdef WIN32
+		m_sendBuffer->Write<int>((int) GetCurrentProcessId());
+#else
+		m_sendBuffer->Write<int>((int) 0);
+#endif
 		m_sendBuffer->End("LuaDebuggerComms::CreateMessage_Connect()");
 	}
 

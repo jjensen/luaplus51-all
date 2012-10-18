@@ -28,7 +28,7 @@ THE SOFTWARE.
 #ifndef TILDE_INCLUDED_LuaDebuggerProtocol_h
 #define TILDE_INCLUDED_LuaDebuggerProtocol_h
 
-#define LUA_DEBUGGER_PROTOCOL_VERSION	18
+#define LUA_DEBUGGER_PROTOCOL_VERSION	19
 
 namespace tilde
 {

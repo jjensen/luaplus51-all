@@ -25,11 +25,10 @@ THE SOFTWARE.
 
 ****************************************************************************/
 
-#pragma once
+#ifndef LUAHOSTWINDOWS_H
+#define LUAHOSTWINDOWS_H
 
 #include "tilde/LuaDebuggerHost.h"
-
-struct sockaddr_in;
 
 namespace tilde
 {
@@ -66,3 +65,5 @@ namespace tilde
 	};
 
 } // namespace tilde
+
+#endif // LUAHOSTWINDOWS_H
