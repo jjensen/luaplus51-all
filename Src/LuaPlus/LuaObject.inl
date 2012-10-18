@@ -583,7 +583,7 @@ inline LuaObject LuaObject::CreateTable(int key, int narray, int nrec) const {
 	@param size The size of the table.
 	@return Returns the object representing the newly created table.
 **/
-inline LuaObject LuaObject::CreateTable(LuaObject& key, int narray, int nrec) const {
+inline LuaObject LuaObject::CreateTable(const LuaObject& key, int narray, int nrec) const {
 	luaplus_assert(L);
 	LUA_FASTREF_PUSH();					// (table)
 	lua_getfastref(L, key.ref);			// (table) key

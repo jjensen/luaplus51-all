@@ -115,7 +115,7 @@ public:
 
 	LuaObject CreateTable(const char* key, int narray = 0, int nrec = 0) const;
 	LuaObject CreateTable(int key, int narray = 0, int nrec = 0) const;
-	LuaObject CreateTable(LuaObject& key, int narray = 0, int nrec = 0) const;
+	LuaObject CreateTable(const LuaObject& key, int narray = 0, int nrec = 0) const;
 
 	template <typename KeyT, typename ValueT> LuaObject& Set(const KeyT& key, const ValueT& value);
 	template <typename KeyT, typename ValueT> LuaObject& Set(const KeyT& key, const ValueT& value, int len);
