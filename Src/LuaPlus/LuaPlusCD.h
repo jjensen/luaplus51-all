@@ -2211,6 +2211,8 @@ inline void* lpcd_checkobject(lua_State* L, int index, const char* tname, bool t
 }
 
 
+namespace LPCD {
+
 class Class {
 public:
 	Class(lua_State* L, const char* className, const char* baseClassName = NULL)
@@ -2299,5 +2301,6 @@ public:
 	lua_State* L;
 };
 
+} // namespace LPCD
 
 #endif // LUAPLUS__LUAPLUSCD_H
