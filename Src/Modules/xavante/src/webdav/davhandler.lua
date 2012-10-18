@@ -3,7 +3,7 @@
 -- Author: Javier Guerra
 -- Copyright (c) 2005 Javier Guerra
 -----------------------------------------------------------------------------
-require "lxp.lom"
+local lom = require "lxp.lom"
 require "socket.url"
 
 local url = socket.url
@@ -60,7 +60,7 @@ local function req_xml (req)
 	else
 		indata = function () return req.socket:receive () end
 	end
-	return lxp.lom.parse (indata)
+	return lom.parse (indata)
 end
 
 -- expands namespace tags in-situ
