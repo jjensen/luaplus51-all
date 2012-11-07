@@ -5,13 +5,35 @@
 #include <lua.h>
 #include <lauxlib.h>
 
-extern const char lb_libname[];
+#define LB_API LUALIB_API
+
+/* compatible apis */
+#if LUA_VERSION_NUM < 502
+#  define LUA_OK                        0
+#  define lua_getuservalue              lua_getfenv
+#  define lua_setuservalue              lua_setfenv
+#  define lua_rawlen                    lua_objlen
+#  define luaL_typeerror                luaL_typerror
+#  define luaL_setfuncs(L,l,nups)       luaI_openlib((L),NULL,(l),(nups))
+#  define luaL_newlibtable(L,l)	\
+    lua_createtable(L, 0, sizeof(l)/sizeof((l)[0]) - 1)
+#  define luaL_newlib(L,l) \
+    (luaL_newlibtable(L,l), luaL_setfuncs(L,l,0))
+
+LUA_API void lua_rawgetp (lua_State *L, int narg, const void *p);
+LUA_API void lua_rawsetp (lua_State *L, int narg, const void *p);
+LUA_API int  lua_absindex (lua_State *L, int idx);
+
+#else
+LUA_API int  luaL_typeerror (lua_State *L, int idx, const char *tname);
+#endif /* LUA_VERSION_NUM < 502 */
+
+
+extern LB_API const char lb_libname[];
 
 #define LB_LIBNAME lb_libname
 #define LB_VERSION "0.1"
-#define LB_STRUCT_HEADER size_t len; char *str
-
-#define LB_API LUA_API
+#define LB_STRUCT_HEADER size_t len; size_t capacity; char *str
 
 #if !defined(LB_SUBBUFFER) || defined(LB_SUBS_MAX) || LB_SUBBUFFER
 #  undef  LB_SUBBUFFER
