@@ -5,7 +5,7 @@
 local type = type
 local assert, error = assert, error
 local table_concat = require("table").concat
-local loadstring = loadstring
+local loadstring = loadstring or load
 
 local io = require("io")
 
@@ -13,7 +13,7 @@ local setmetatable = setmetatable
 
 local output_utility = require("json.encode.output_utility")
 
-module("json.encode.output")
+_ENV = nil
 
 local tableCompositeCache = setmetatable({}, {__mode = 'v'})
 
@@ -38,7 +38,7 @@ local function defaultTableCompositeWriter(nextValues, beginValue, closeValue, i
 end
 
 -- no 'simple' as default action is just to return the value
-function getDefault()
+local function getDefault()
 	return { composite = defaultTableCompositeWriter }
 end
 
@@ -77,8 +77,15 @@ local function buildIoWriter(output)
 	end
 	return { composite = ioWriter, simple = ioSimpleWriter }
 end
-function getIoWriter(output)
+local function getIoWriter(output)
 	return function()
 		return buildIoWriter(output)
 	end
 end
+
+local output = {
+	getDefault = getDefault,
+	getIoWriter = getIoWriter
+}
+
+return output

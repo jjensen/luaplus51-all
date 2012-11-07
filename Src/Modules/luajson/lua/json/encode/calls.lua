@@ -2,8 +2,6 @@
 	Licensed according to the included 'LICENSE' document
 	Author: Thomas Harning Jr <harningt@gmail.com>
 ]]
-local jsonutil = require("json.util")
-
 local table = require("table")
 local table_concat = table.concat
 
@@ -11,19 +9,21 @@ local select = select
 local getmetatable, setmetatable = getmetatable, setmetatable
 local assert = assert
 
-local util = require("json.util")
+local jsonutil = require("json.util")
 
-local util_merge, isCall, decodeCall = util.merge, util.isCall, util.decodeCall
+local isCall, decodeCall = jsonutil.isCall, jsonutil.decodeCall
 
-module("json.encode.calls")
-
+_ENV = nil
 
 local defaultOptions = {
 }
 
 -- No real default-option handling needed...
-default = nil
-strict = nil
+local modeOptions = {}
+
+local function mergeOptions(options, mode)
+	jsonutil.doOptionMerge(options, false, 'calls', defaultOptions, mode and modeOptions[mode])
+end
 
 
 --[[
@@ -32,8 +32,8 @@ strict = nil
 		name == name of the function call
 		parameters == array of parameters to encode
 ]]
-function getEncoder(options)
-	options = options and util_merge({}, defaultOptions, options) or defaultOptions
+local function getEncoder(options)
+	options = options and jsonutil.merge({}, defaultOptions, options) or defaultOptions
 	local function encodeCall(value, state)
 		if not isCall(value) then
 			return false
@@ -59,3 +59,10 @@ function getEncoder(options)
 		['function'] = encodeCall
 	}
 end
+
+local calls = {
+	mergeOptions = mergeOptions,
+	getEncoder = getEncoder
+}
+
+return calls

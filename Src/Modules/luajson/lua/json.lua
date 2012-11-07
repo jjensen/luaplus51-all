@@ -6,7 +6,19 @@ local decode = require("json.decode")
 local encode = require("json.encode")
 local util = require("json.util")
 
-module("json")
-_M.decode = decode
-_M.encode = encode
-_M.util = util
+local _G = _G
+
+_ENV = nil
+
+local json = {
+	_VERSION = "1.3",
+	_DESCRIPTION = "LuaJSON : customizable JSON decoder/encoder",
+	_COPYRIGHT = "Copyright (c) 2007-2012 Thomas Harning Jr. <harningt@gmail.com>",
+	decode = decode,
+	encode = encode,
+	util = util
+}
+
+_G.json = json
+
+return json

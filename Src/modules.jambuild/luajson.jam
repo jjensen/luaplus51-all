@@ -5,11 +5,10 @@ local LUAS =
 		json/decode.lua
 		json/encode.lua
 		json/util.lua
-		json/decode/array.lua
-		json/decode/calls.lua
+		json/decode/composite.lua
 		json/decode/number.lua
-		json/decode/object.lua
 		json/decode/others.lua
+		json/decode/state.lua
 		json/decode/strings.lua
 		json/decode/util.lua
 		json/encode/array.lua

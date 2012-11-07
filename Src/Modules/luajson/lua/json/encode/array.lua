@@ -13,17 +13,20 @@ local math = require("math")
 local table_concat = table.concat
 local math_floor, math_modf = math.floor, math.modf
 
-local util_merge = require("json.util").merge
-local util_IsArray = require("json.util").IsArray
+local jsonutil = require("json.util")
+local util_IsArray = jsonutil.IsArray
 
-module("json.encode.array")
+_ENV = nil
 
 local defaultOptions = {
 	isArray = util_IsArray
 }
 
-default = nil
-strict = nil
+local modeOptions = {}
+
+local function mergeOptions(options, mode)
+	jsonutil.doOptionMerge(options, false, 'array', defaultOptions, mode and modeOptions[mode])
+end
 
 --[[
 	Utility function to determine whether a table is an array or not.
@@ -34,7 +37,7 @@ strict = nil
 		  before it)
 		* It is a contiguous list of values with zero string-based keys
 ]]
-function isArray(val, options)
+local function isArray(val, options)
 	local externalIsArray = options and options.isArray
 
 	if externalIsArray then
@@ -72,8 +75,8 @@ local function unmarkAfterEncode(tab, state, ...)
 	state.already_encoded[tab] = nil
 	return ...
 end
-function getEncoder(options)
-	options = options and util_merge({}, defaultOptions, options) or defaultOptions
+local function getEncoder(options)
+	options = options and jsonutil.merge({}, defaultOptions, options) or defaultOptions
 	local function encodeArray(tab,  state)
 		if not isArray(tab, options) then
 			return false
@@ -97,3 +100,11 @@ function getEncoder(options)
 	end
 	return { table = encodeArray }
 end
+
+local array = {
+	mergeOptions = mergeOptions,
+	isArray = isArray,
+	getEncoder = getEncoder
+}
+
+return array
