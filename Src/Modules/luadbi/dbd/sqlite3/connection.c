@@ -9,19 +9,33 @@ static int run(connection_t *conn, const char *command) {
 }
 
 static int commit(connection_t *conn) {
-    return run(conn, "COMMIT");
+    return run(conn, "COMMIT TRANSACTION");
 }
 
 
 static int begin(connection_t *conn) {
-    return run(conn, "BEGIN");
-}
+    int err = 0;
 
+    if (sqlite3_get_autocommit(conn->sqlite)) {
+        err = run(conn, "BEGIN TRANSACTION");
+    } else {
+        err = 0;
+    }
+
+    return err;
+}
 
 static int rollback(connection_t *conn) {
-    return run(conn, "ROLLBACK");
+    return run(conn, "ROLLBACK TRANSACTION");
 }
 
+int try_begin_transaction(connection_t *conn) {
+    if (conn->autocommit) {
+        return 1;
+    }
+
+    return begin(conn) == 0;
+}
 
 /* 
  * connection,err = DBD.SQLite3.New(dbfile)
@@ -50,7 +64,6 @@ static int connection_new(lua_State *L) {
     }
 
     conn->autocommit = 0;
-    begin(conn);
 
     luaL_getmetatable(L, DBD_SQLITE_CONNECTION);
     lua_setmetatable(L, -2);
@@ -67,10 +80,9 @@ static int connection_autocommit(lua_State *L) {
     int err = 1;
 
     if (conn->sqlite) {
-	if (on)
+	if (on) {
 	    err = rollback(conn);
-	else
-	    err = begin(conn);
+        }
 
 	conn->autocommit = on;	
     }
@@ -88,6 +100,7 @@ static int connection_close(lua_State *L) {
     int disconnect = 0;   
 
     if (conn->sqlite) {
+        rollback(conn);
 	sqlite3_close(conn->sqlite);
 	disconnect = 1;
 	conn->sqlite = NULL;
@@ -105,12 +118,7 @@ static int connection_commit(lua_State *L) {
     int err = 1;
 
     if (conn->sqlite) {
-	commit(conn);
-
-	if (!conn->autocommit)
-	    err = begin(conn);
-	else
-	    err = 1;
+	err = commit(conn);
     }
 
     lua_pushboolean(L, !err);
@@ -176,12 +184,7 @@ static int connection_rollback(lua_State *L) {
     int err = 1;
 
     if (conn->sqlite) {
-	rollback(conn);
-
-	if (!conn->autocommit)
-	    err = begin(conn);
-	else
-	    err = 1;
+	err =rollback(conn);
     }
 
     lua_pushboolean(L, !err);

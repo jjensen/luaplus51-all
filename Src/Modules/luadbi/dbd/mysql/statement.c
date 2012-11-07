@@ -286,8 +286,9 @@ cleanup:
 }
 
 static int statement_fetch_impl(lua_State *L, statement_t *statement, int named_columns) {
-    int column_count;
+    int column_count, fetch_result_ok;
     MYSQL_BIND *bind = NULL;
+    unsigned long *real_length = NULL;
     const char *error_message = NULL;
 
     if (!statement->stmt) {
@@ -306,6 +307,8 @@ static int statement_fetch_impl(lua_State *L, statement_t *statement, int named_
 	int i;
 	MYSQL_FIELD *fields;
 
+	real_length = calloc(column_count, sizeof(unsigned long));
+
         bind = malloc(sizeof(MYSQL_BIND) * column_count);
         memset(bind, 0, sizeof(MYSQL_BIND) * column_count);
 
@@ -313,12 +316,19 @@ static int statement_fetch_impl(lua_State *L, statement_t *statement, int named_
 
 	for (i = 0; i < column_count; i++) {
 	    unsigned int length = mysql_buffer_size(&fields[i]);
-	    char *buffer = (char *)malloc(length);
-	    memset(buffer, 0, length);
+	    if (length > sizeof(MYSQL_TIME)) {
+		bind[i].buffer = NULL;
+		bind[i].buffer_length = 0;
+	    } else {
+		char *buffer = (char *)malloc(length);
+		memset(buffer, 0, length);
+
+		bind[i].buffer = buffer;
+		bind[i].buffer_length = length;
+	    }
 
 	    bind[i].buffer_type = fields[i].type; 
-	    bind[i].buffer = buffer;
-	    bind[i].buffer_length = length;
+	    bind[i].length = &real_length[i];
 	}
 
 	if (mysql_stmt_bind_result(statement->stmt, bind)) {
@@ -326,13 +336,21 @@ static int statement_fetch_impl(lua_State *L, statement_t *statement, int named_
 	    goto cleanup;
 	}
 
-	if (!mysql_stmt_fetch(statement->stmt)) {
+	fetch_result_ok = mysql_stmt_fetch(statement->stmt);
+	if (fetch_result_ok == 0 || fetch_result_ok == MYSQL_DATA_TRUNCATED) {
 	    int d = 1;
 
 	    lua_newtable(L);
 	    for (i = 0; i < column_count; i++) {
 		lua_push_type_t lua_push = mysql_to_lua_push(fields[i].type);
 		const char *name = fields[i].name;
+
+		if (bind[i].buffer == NULL) {
+		    char *buffer = (char *)calloc(real_length[i]+1, sizeof(char));
+		    bind[i].buffer = buffer;
+		    bind[i].buffer_length = real_length[i];
+		    mysql_stmt_fetch_column(statement->stmt, &bind[i], i, 0);
+		}
 
 		if (lua_push == LUA_PUSH_NIL) {
 		    if (named_columns) {
@@ -425,6 +443,8 @@ static int statement_fetch_impl(lua_State *L, statement_t *statement, int named_
     }
 
 cleanup:
+    free(real_length);
+
     if (bind) {
 	int i;
 

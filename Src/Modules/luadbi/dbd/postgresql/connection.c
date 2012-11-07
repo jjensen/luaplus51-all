@@ -109,10 +109,12 @@ static int connection_autocommit(lua_State *L) {
     int err = 0;
 
     if (conn->postgresql) {
-	if (on)
-	    err = rollback(conn);
-	else
-	    err = begin(conn);
+	if (on != conn->autocommit) {
+	    if (on)
+		err = rollback(conn);
+	    else
+		err = begin(conn);
+	}
 
 	conn->autocommit = on;	
     }

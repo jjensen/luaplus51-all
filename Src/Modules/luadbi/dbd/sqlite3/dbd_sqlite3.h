@@ -10,14 +10,15 @@
 typedef struct _connection {
     sqlite3 *sqlite;
     int autocommit;
+//    int txn_in_progress;
 } connection_t;
 
 /*
  * statement object
  */
 typedef struct _statement {
+    connection_t *conn;
     sqlite3_stmt *stmt;
-    sqlite3 *sqlite;
     int more_data;
     int affected;
 } statement_t;
