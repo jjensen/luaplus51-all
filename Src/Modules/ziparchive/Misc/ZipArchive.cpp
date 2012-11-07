@@ -2915,7 +2915,9 @@ bool ZipArchive::ProcessFileList(ZipArchive::FileOrderList& fileOrderList, Proce
 			int size_file_extra = (m_flags & SUPPORT_MD5) ? sizeof(FWKCS_MD5) : 0;
 			initialOffset += sizeof(ZipFileHeader) + size_filename + size_file_extra;
 		}
+	}
 
+	{
 		size_t lowestFileOffset = (size_t)-1;
 		for (size_t i = 0; i < m_fileEntryCount; ++i)
 		{
