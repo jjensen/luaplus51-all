@@ -24,7 +24,7 @@ local function foldl(t, f, acc)
    return acc
 end
 
-local param = re.compile[[ {[/%.]} ':' {[%w_]+} &('/' / {'.'} / !.) ]] / 
+local param = re.compile[[ {[/%.]} ':' {[_%w]+} &('/' / {'.'} / !.) ]] / 
                  function (prefix, name, dot)
 		   local extra = { inner = (lpeg.P(1) - lpeg.S("/" .. (dot or "")))^1,
 				   close = lpeg.P"/" + lpeg.P(dot or -1) + lpeg.P(-1) }
@@ -36,7 +36,7 @@ local param = re.compile[[ {[/%.]} ':' {[%w_]+} &('/' / {'.'} / !.) ]] /
 		      tag = "param", name = name, prefix = prefix }
 		 end
 
-local opt_param = re.compile[[ {[/%.]} '?:' {[%w_]+} '?' &('/' / {'.'} / !.) ]] / 
+local opt_param = re.compile[[ {[/%.]} '?:' {[_%w]+} '?' &('/' / {'.'} / !.) ]] / 
                      function (prefix, name, dot)
 		       local extra = { inner = (lpeg.P(1) - lpeg.S("/" .. (dot or "")))^1,
 				       close = lpeg.P"/" + lpeg.P(dot or -1) + lpeg.P(-1) }
