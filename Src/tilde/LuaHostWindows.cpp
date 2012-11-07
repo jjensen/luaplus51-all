@@ -75,7 +75,7 @@ void print(const char * format, ...)
 #if defined(WIN32)
 	OutputDebugString(s_printBuffer);
 #endif // WIN32
-	printf(s_printBuffer);
+	puts(s_printBuffer);
 }
 
 void warn(const char * format, ...)
@@ -93,9 +93,9 @@ void warn(const char * format, ...)
 #if defined(WIN32)
 	OutputDebugString(s_printBuffer);
 #endif // defined(WIN32)
-	printf(s_printBuffer);
+	puts(s_printBuffer);
 
-	print("\n");
+	puts("\n");
 }
 
 void error(const char * format, ...)
@@ -113,9 +113,9 @@ void error(const char * format, ...)
 #if defined(WIN32)
 	OutputDebugString(s_printBuffer);
 #endif // defined(WIN32)
-	printf(s_printBuffer);
+	puts(s_printBuffer);
 
-	print("\n");
+	puts("\n");
 
 #if defined(WIN32)
 	DebugBreak();
