@@ -1,25 +1,32 @@
 {
 
 local SRCS =
-		base.lua
-		debug_ext.lua
-		getopt.lua
-		io_ext.lua
-		lcs.lua
-		list.lua
-		math_ext.lua
-		mbox.lua
-		object.lua
-		parser.lua
-		set.lua
-		std.lua
-		string_ext.lua
-		table_ext.lua
-		xml.lua
+		src/base.lua
+		src/bin.lua
+		src/debug_ext.lua
+		src/debug_init.lua
+		src/fstable.lua
+		src/getopt.lua
+		src/io_ext.lua
+		src/lcs.lua
+		src/list.lua
+		src/math_ext.lua
+		src/mbox.lua
+		src/object.lua
+		src/package_ext.lua
+		src/parser.lua
+		src/set.lua
+		#src/std.lua.in
+		src/strbuf.lua
+		src/strict.lua
+		src/string_ext.lua
+		src/table_ext.lua
+		src/tree.lua
+		src/xml.lua
 ;
 
 Lua.Module stdlib : : $(SRCS) ;
 
-CopyFiles stdlib : $(LUA_LDIR) : $(SUBDIR)/modules/$(SRCS) ;
+CopyFiles stdlib : $(LUA_LDIR) : $(SUBDIR)/$(SRCS) ;
 
 }

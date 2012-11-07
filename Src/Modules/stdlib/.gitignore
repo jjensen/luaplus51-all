@@ -1,0 +1,15 @@
+/COPYING
+/ChangeLog
+/Makefile.in
+/Makefile
+/aclocal.m4
+/autom4te.cache
+/build-aux
+/configure
+/config.log
+/config.status
+/luarocks
+/luarocks-config.lua
+/release-notes-*
+/stdlib-*.zip
+/*.rockspec
