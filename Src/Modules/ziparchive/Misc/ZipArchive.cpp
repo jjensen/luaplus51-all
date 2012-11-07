@@ -3117,6 +3117,8 @@ bool ZipArchive::ProcessFileList(ZipArchive::FileOrderList& fileOrderList, Proce
 			// Erase the file.
 			FileErase(archiveFileEntryMap.Key(archiveFileEntryNode));
 			needsPack = true;
+		} else {
+			needsUpdate = true;
 		}
 	}
 
@@ -3129,7 +3131,7 @@ bool ZipArchive::ProcessFileList(ZipArchive::FileOrderList& fileOrderList, Proce
 	// update the new files into.
 	ZipArchive* newArchive = NULL;
 	HeapString newArchiveFileName;
-	if (orderChanged  ||  (options->requiresPack  &&  (needsPack  ||  needsUpdate)  &&  m_fileEntryCount > 0)) {
+	if (orderChanged  ||  (options->requiresPack  &&  needsUpdate  &&  m_fileEntryCount > 0)) {
 		// Generate a unique temporary name.
 		newArchiveFileName = HeapString(m_filename) + ".repack";
 
