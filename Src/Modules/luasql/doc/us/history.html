@@ -65,6 +65,27 @@
 <h2><a name="history"></a>History</h2>
 
 <dl class="history">
+    <dt><strong>LuaSQL 2.3.0</strong> [23/May/2012]</dt>
+    <dd>
+    <ul>
+        <li>Added support to compile the drivers for all Lua 5.X versions (only Postgres, MySQL and SQLite were tested by the time of the launch)</li>
+        <li>Correction on MySQL implementation to honor the close of the cursor when the last row is returned</li>
+        <li>Drivers:
+            <ul>
+                <li>Postgres: tested with versions 8.4 and 9.1</li>
+                <li>MySQL: tested with version 5.1</li>
+                <li>SQLite3: tested with version 3.6</li>
+                <li>Firebird: compiled but not tested</li>
+                <li>SQLite: adapted but not compiled</li>
+                <li>ODBC: adapted but not compiled</li>
+                <li>Oracle/OCI8: adapted but not compiled</li>
+                <li>ADO: nothing changed</li>
+                <li>JDBC: nothing changed</li>
+            </ul>
+        </li>
+    </ul>
+    </dd>
+
     <dt><strong>LuaSQL 2.2.0</strong> [??/??/200?]</dt>
     <dd>
     <ul>
