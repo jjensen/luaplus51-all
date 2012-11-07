@@ -43,10 +43,10 @@
 			</ul>
 		</li>
 		<li><strong>Examples</strong></li>
-        <li><a href="http://luaforge.net/projects/luacrypto/">Project</a>
+        <li><a href="https://github.com/mkottman/luacrypto">Project</a>
             <ul>
-                <li><a href="http://luaforge.net/tracker/?group_id=149">Bug Tracker</a></li>
-                <li><a href="http://luaforge.net/scm/?group_id=149">CVS</a></li>
+                <li><a href="https://github.com/mkottman/luacrypto/issues">Bug Tracker</a></li>
+                <li><a href="https://github.com/mkottman/luacrypto/commits/master">Changelog</a></li>
             </ul>
         </li>
 		<li><a href="license.html">License</a></li>
@@ -62,14 +62,12 @@ Below is a sample displaying the basic use of the library.
 
 <pre class="example">
 local crypto = require("crypto")
-local evp = require("crypto.evp")
-local hmac = require("crypto.hmac")
 
 assert(io.input(some_file))
-local md5_of_some_file = evp.digest("md5", io.read("*all"))
+local md5_of_some_file = crypto.digest("md5", io.read("*all"))
    
 assert(io.input(some_file))
-local hmac_of_some_file = hmac.digest("sha1", io.read("*all"), "hmackey")
+local hmac_of_some_file = crypto.hmac("sha1", io.read("*all"), "hmackey")
 </pre>
 
 And here is a sample of the object interface to the code.
@@ -77,12 +75,30 @@ And here is a sample of the object interface to the code.
 <pre class="example">
 require("crypto")
 
-local evp = crypto.evp.new("md5")
+local evp = crypto.digest.new("md5")
 for line in io.lines(some_file) do 
     evp:update(line)
 end
-local md5_of_some_file = evp:digest()
+local md5_of_some_file = evp:final()
 </pre>
+
+A quick encryption/decryption example. Uses the Blowfish algorithm. You pass the key and source file from command line, following the operation. If no file is given, uses standard input.
+
+<pre class="example">
+require("crypto")
+assert(#arg >= 2, "Usage: lua crypt.lua &lt;encrypt/decrypt&gt; &lt;key&gt; [file]")
+cmd = arg[1]
+key = arg[2]
+file = #arg>2 and assert(io.open(arg[3], "rb")) or io.stdin
+content = file:read("*a")
+if cmd == "encrypt" then
+  result = crypto.encrypt("blowfish", content, key)
+else
+  result = crypto.decrypt("blowfish", content, key)
+end
+io.write(result)
+</pre>
+
 
 </div> <!-- id="content" -->
 

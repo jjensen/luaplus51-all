@@ -43,10 +43,10 @@
 			</ul>
 		</li>
 		<li><a href="examples.html">Examples</a></li>
-        <li><a href="http://luaforge.net/projects/luacrypto/">Project</a>
+        <li><a href="https://github.com/mkottman/luacrypto">Project</a>
             <ul>
-                <li><a href="http://luaforge.net/tracker/?group_id=149">Bug Tracker</a></li>
-                <li><a href="http://luaforge.net/scm/?group_id=149">CVS</a></li>
+                <li><a href="https://github.com/mkottman/luacrypto/issues">Bug Tracker</a></li>
+                <li><a href="https://github.com/mkottman/luacrypto/commits/master">Changelog</a></li>
             </ul>
         </li>
 		<li><a href="license.html">License</a></li>
@@ -102,6 +102,8 @@
     <dt><strong>pad</strong></dt>
     <dd>An optional <b>boolean</b> flag whether padding should be used. The default is true, which means that input of any size can be provided. Returned date may be larger than input string due to the padding. If explicitly set to <b>false</b>, the padding is turned off and the input data size has to be multiple of block length.</dd>
     </dd>
+    <dt><strong>pem</strong></dt>
+    <dd>A <b>string</b> containing a PEM formatted certificate.</dd>
 </dl>
 
 <h3>Error handling</h3>
@@ -265,7 +267,28 @@ The functions throw an error when known invalid parameters are passed, such as n
     <dd>Generates the HMAC for the loaded data, optionally appending on new data provided by <code>string</code> prior to hashing. The optional <code>raw</code> flag, defaulted to false, is a boolean indicating whether the output should be a direct binary equivalent of the message digest or formatted as a hexadecimal string (the default). Note that you can only run this method once on an object; running it a second time will product a bogus HMAC because the internal state is irrecoverably destroyed after the first call.</dd>
 </dl>
 
+<h3>X509 Certificate - crypto.x509_cert</h3>
+<dl>
+    <dt><strong>crypto.x509_cert()</strong></dt>
+    <dd>Return an empty x509 certificate object.</dd>
 
+    <dt><strong>x509_cert:pubkey()</strong></dt>
+    <dd>Get a <code>crypto.pkey</code> object that represents the raw key of the <code>x509_cert</code>.</dd>
+
+</dl>
+
+<h3>X509 Certificate Authority - crypto.x509_ca</h3>
+<dl>
+    <dt><strong>crypto.x509()</strong></dt>
+    <dd>Return an empty x509 certificate authority.</dd>
+
+    <dt><strong>x509_ca:add_pem(pem)</strong></dt>
+    <dd>Add a x509 CA certificate as a trusted cert.</dd>
+
+    <dt><strong>x509_ca:verify_pem(pem)</strong></dt>
+    <dd>Verify that the pem is signed by one of the x509 CA's added via <code>x509_ca:add_pem</code></dd>
+
+</dl>
 
 <h3>Misc functions - crypto</h3>
 <dl>

@@ -20,7 +20,7 @@ function report(w, s, F, t)
   assert(s == _G[t .. "_KNOWN"])
 end
 
-F = arg[1] or 'tests/message'
+F = arg[1] or 'message'
 for i, t in ipairs({"sha1", "md5", "sha1", "hmac"}) do
   print("testing " .. t)
   local d
