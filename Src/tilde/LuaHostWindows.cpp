@@ -180,8 +180,10 @@ LuaHostWindows::Detail::Detail(LuaDebuggerHost* host, int port)
 
 LuaHostWindows::Detail::~Detail()
 {
-	delete[] m_netBuffer;
+	Close();
 	delete m_debuggerComms;
+	DestroyServerSocket();
+	delete[] m_netBuffer;
 }
 
 	
@@ -244,7 +246,12 @@ void LuaHostWindows::Detail::DestroyServerSocket()
 void LuaHostWindows::Detail::Close()
 {
 	m_debuggerComms->Close();
-	m_debuggerSocket = SOCKET_ERROR;
+
+	if(m_debuggerSocket != SOCKET_ERROR)
+	{
+		closesocket(m_debuggerSocket);
+		m_debuggerSocket = SOCKET_ERROR;
+	}
 }
 
 
@@ -285,6 +292,8 @@ void LuaHostWindows::Detail::Poll()
 
 		if(FD_ISSET(m_serverSocket, &readfds) && m_debuggerSocket == SOCKET_ERROR && !m_debuggerComms->GetDebugger()->IsConnected())
 		{
+			Close();
+
 			sockaddr_in address;
 			socklen_t addressLen = sizeof(address);
 			m_debuggerSocket = accept(m_serverSocket, (sockaddr *) &address, &addressLen);
