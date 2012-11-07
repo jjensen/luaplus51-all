@@ -186,7 +186,7 @@ We can do better, and define `$` so that something like `$(pwd)` has the same me
 
 (The getter `get` is callable, and returns the type and value of the next token.)
 
-It is probably a silly example, but it illustrates how a macro can be overloaded based on its lexical context. Much of the expressive power of LuaMacro comes from allowing macros to fetch their own parameters in this way. It allows us to define new syntax and go beyond 'pseudo-functions', which is more important for a conventional-syntax language like Lua, rather than Lisp where everything looks like a function.
+It is probably a silly example, but it illustrates how a macro can be overloaded based on its lexical context. Much of the expressive power of LuaMacro comes from allowing macros to fetch their own parameters in this way. It allows us to define new syntax and go beyond 'pseudo-functions', which is more important for a conventional-syntax language like Lua, rather than Lisp where everything looks like a function anyway.
 
 It is entirely possible for macros to create macros; that is what `def_` does. Consider how to add the concept of `const` declarations to Lua:
 
@@ -292,7 +292,7 @@ For each iteration, it needs to define a local macro `i` which expands to 1,2 an
 
     macro.define('do_(v,s,f,stat)',function(var,start,finish,statements)
         local put = macro.Putter()
-        var,start,finish = var:iden(),start:number(),finish:number()
+        var,start,finish = var:get_iden(),start:get_number(),finish:get_number()
         macro.push_token_stack('do_',var)
         for i = start, finish do
             -- output `set_ <var> <value> `
@@ -383,11 +383,11 @@ Up to now, making a Lua operator token such as `.` into a macro was not so usefu
         .y = 2
     end
 
-I've deliberately indicated the fields using a dot (a rare case of Visual Basic syntax being superior to Delphi).  So it is necessary to overload '.' and look at the previous token: if it isn't a case like `name.` or `].` then we prepend the table.
+I've deliberately indicated the fields using a dot (a rare case of Visual Basic syntax being superior to Delphi).  So it is necessary to overload '.' and look at the previous token: if it isn't a case like `name.` or `].` then we prepend the table. Otherwise, the operator must simply _pass through_, to prevent an uncontrolled recursion.
 
     M.define('with',function(get,put)
       M.define_scoped('.',function()
-        local lt,lv = M.peek(-1,true) --  peek before the period...
+        local lt,lv = get:peek(-1,true) --  peek before the period...
         if lt ~= 'iden' and lt ~= ']' then
           return '_var.'
         else
@@ -400,7 +400,7 @@ I've deliberately indicated the fields using a dot (a rare case of Visual Basic 
 
 Again, scoping means that this behaviour is completely local to the with-block.
 
-A more elaborate experiment is `cskin.lua` in the tests directory. This translates a curly-bracket form into standard Lua, and at its heart is defining '{' and '}' as macros. You have to keep a brace stack, because these tokens still have their old meaning. The table constructor in this example must still work, while the trailing brace must be converted to `end`.
+A more elaborate experiment is `cskin.lua` in the tests directory. This translates a curly-bracket form into standard Lua, and at its heart is defining '{' and '}' as macros. You have to keep a brace stack, because these tokens still have their old meaning and the table constructor in this example must still work, while the trailing brace must be converted to `end`.
 
     if (a > b) {
        t = {a,b}
@@ -575,16 +575,18 @@ The macro `export` is straightforward:
         local decl,out
         if v == '{' then
             decl = tostring(get:upto '}')
+            decl = M.substitute_tostring(decl)
             f:write(decl,'\n')
         else
             decl = v .. ' ' .. tostring(get:upto '{')
+            decl = M.substitute_tostring(decl)
             f:write(decl,';\n')
             out = decl .. '{'
         end
         return out
     end)
 
-It looks ahead and if it finds a `{}` block it writes it wholesale to a file stream; otherwise writes everything upto a block opening.
+It looks ahead and if it finds a `{}` block it writes the block as text to a file stream; otherwise writes out the function signature.  `get:upto '}'` will do the right thing here since it keeps track of brace level.  To allow any other macro expansions to take place, `substitute_tostring` is directly called.
 
 `tests/cexport.lua` shows how this idea can be extended, so that the generated header is only updated when it changes.
 
@@ -630,7 +632,7 @@ The following macro is an example of the lower-level coding needed without the u
       return res
     end)
 
-We're just using the getter `next` method to skip any irritating whitespace, but building up the substitution without a putter, just manipulating the raw token list.  `qw` takes a plain list of words, separated by spaces (and maybe commas) and makes it into a list of strings. That is,
+We're using the getter `next` method to skip any whitespace, but building up the substitution without a putter, just manipulating the raw token list.  `qw` takes a plain list of words, separated by spaces (and maybe commas) and makes it into a list of strings. That is,
 
     qw(one two three)
 

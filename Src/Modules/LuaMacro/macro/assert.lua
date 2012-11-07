@@ -39,7 +39,7 @@ M.define('assert_',function(get,put)
     local testx,tok = get:upto(function(t,v)
         return relop[t] or (t == 'iden' and (v == 'matches' or v == 'throws'))
     end)
-    local testy = get:upto (function(t,v)
+    local testy,eos = get:upto (function(t,v)
         return (t == 'space' and v:match '\n') or t == 'comment'
     end)
     local otesty = testy
@@ -68,9 +68,9 @@ M.define('assert_',function(get,put)
         op = 'match'
         testx = 'T_.pcall_no(function() return '..testx..' end)'
     end
-    return ('T_.assert_%s(%s,%s)\n'):format(op,testx,testy)
+    return ('T_.assert_%s(%s,%s)%s'):format(op,testx,testy,tostring(eos))
 end)
 
 return function()
-    return "local T_ = require 'macro.lib.test'"
+    return "T_ = require 'macro.lib.test'"
 end

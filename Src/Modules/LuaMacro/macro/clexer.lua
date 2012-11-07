@@ -50,11 +50,11 @@ function clexer.init ()
             OT = OT + P(ex)
         end
     end
-    local operator = token('operator', OT + P'>>=' + '<<=' + '--' + '>>' + '>=' + '/=' + '==' + '<='
+    local operator = token('operator', OT + P '.' + P'>>=' + '<<=' + '--' + '>>' + '>=' + '/=' + '==' + '<='
     + '+=' + '<<' + '*=' + '++' + '&&' + '|=' + '||' + '!=' + '&=' + '-='
     + '^=' + '%=' + '->' + S',)*%+&(-~/^]{}|.[>!?:=<;')
     -- identifiers
-    local ident = token('iden', idsafe * (idsafe + digit + P '.') ^ 0)
+    local ident = token('iden', idsafe * (idsafe + digit) ^ 0)
 
     -- keywords
     local keyword = token('keyword', (P 'auto' + P 'break' + P 'case' + P'char' +
@@ -83,13 +83,14 @@ function clexer.init ()
     local singleline_comment = P '//' * (1 - S '\r\n\f') ^ 0
     local multiline_comment = '/*' * (1 - P'*/')^0 * '*/'
     local comment = token('comment', multiline_comment + singleline_comment)
+    local prepro = token('prepro',P '#' * (1 - S '\r\n\f') ^ 0)
 
     -- whitespace
     local whitespace = token('space', S('\r\n\f\t ')^1)
 
     -- ordered choice of all tokens and last-resort error which consumes one character
     local any_token = whitespace + number + keyword + ident +
-                      string + char + comment + operator + token('error', 1)
+                      string + char + comment + prepro + operator + token('error', 1)
 
 
     table_of_tokens = Ct(any_token ^ 0)
@@ -148,7 +149,12 @@ function clexer.scan_c(input,name)
     end
     local tokens = clexer.scan_c_tokenlist(input)
     local i, n = 1, #tokens
-    return function()
+    return function(k)
+        if k ~= nil then
+            k = i + k
+            if k < 1 or k > n then return nil end
+            return tokens[k]
+        end
         local tok = tokens[i]
         i = i + 1
         if tok then
@@ -156,11 +162,6 @@ function clexer.scan_c(input,name)
             clexer.name = name
             return tok[1],tok[2]
         end
-    end,
-    function(k)
-        k = i + k
-        if k < 1 or k > n then return nil end
-        return tokens[k]
     end
 
 end

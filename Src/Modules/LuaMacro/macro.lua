@@ -39,6 +39,8 @@ local scan_code = lexer.scan_lua
 local append = table.insert
 local setmetatable = setmetatable
 
+--local tdump = require 'pl.pretty'.dump
+
 local scan_iter, tnext = Getter.scan_iter, Getter.next
 
 
@@ -79,6 +81,8 @@ end
 -- @param tok the list
 -- @param pred copy up to this condition; if defined, must be a function
 -- of two arguments, the token type and the token value.
+-- @return the copy
+-- @return the token that matched the predicate
 function M.copy_tokens(tok,pred)
     local res = {}
     local t,v = tok()
@@ -86,7 +90,7 @@ function M.copy_tokens(tok,pred)
         append(res,{t,v})
         t,v = tok()
     end
-    return res
+    return res,{t,v}
 end
 
 ---- define new lexical tokens.
@@ -343,7 +347,7 @@ Getter.error = M.error
 Getter.assert = M.assert
 TokenList.assert = M.assert
 
-local line_updater, line_table
+local line_updater, line_table, last_name, last_lang
 
 local function lua_line_updater (iline,oline)
     if not line_table then line_table = {} end
@@ -366,6 +370,16 @@ local make_putter = TokenList.new
 -- @return line number information
 function M.substitute(src,name, use_c)
     local out, ii = {}, 1
+    local subparse
+    if name then
+        last_name = name
+        last_lang = use_c
+    else
+        name = last_name
+        use_c = last_lang and true
+        subparse = true
+    end
+    M.filename = name
     if use_c then
         lexer = require 'macro.clexer'
         scan_code = lexer.scan_c
@@ -381,12 +395,11 @@ function M.substitute(src,name, use_c)
         keywords = lua_keywords
         line_updater = lua_line_updater
     end
-    local tok,tokn = scan_code(src,name)
+    local tok = scan_code(src,name)
     local iline,iline_changed = 0
     local last_t,last_v = 'space','\n'
     local do_action
 
-    M.filename = name or '(tmp)'
 
     local t,v = tok()
 
@@ -402,10 +415,11 @@ function M.substitute(src,name, use_c)
         while not t do
             tok = pop(tstack)
             if tok == nil then
-                if keyword_handlers.END then
+                if not subparse and keyword_handlers.END then
                     do_action(keyword_handlers.END)
                     keyword_handlers.END = nil
-                else
+                end
+                if tok == nil then -- END action might have inserted some tokens
                     return nil
                 end
             end -- finally finished
@@ -422,16 +436,16 @@ function M.substitute(src,name, use_c)
 
     function getter:peek (k,dont_skip)
         k = k - 1
-        local tok = tokn(k)
-        if not tok then return nil,'EOS' end
-        local t,v = tok[1], tok[2]
+        local token = tok(k)
+        if not token then return nil,'EOS' end
+        local t,v = token[1], token[2]
         if not dont_skip then
             local skip = k < 0 and -1 or 1
             while t == 'space' do
                 k = k + skip
-                tok = tokn(k)
+                token = tok(k)
                 if not tok then return nil,'EOS' end
-                t,v = tok[1], tok[2]
+                t,v = token[1], token[2]
             end
         end
         return t,v,k+1
@@ -450,6 +464,22 @@ function M.substitute(src,name, use_c)
     function getter:placeholder (put)
         put:name '/MARK?/'
         return ii
+    end
+
+    function getter:copy_from (pos,clear)
+        local res = {}
+        for i = pos, ii do
+            if out[i] and not out[i]:match '^#line' then
+                append(res,out[i])
+            end
+        end
+        if clear then
+            for i = pos, ii do
+                table.remove(out,pos)
+                ii = ii - 1
+            end
+        end
+        return table.concat(res)
     end
 
     -- this feeds the results of a substitution into the token stream.
@@ -510,11 +540,12 @@ function M.substitute(src,name, use_c)
         push_substitution(action(getter,make_putter()))
     end
 
-    if keyword_handlers.BEGIN then
+    if not subparse and keyword_handlers.BEGIN then
         do_action(keyword_handlers.BEGIN)
     end
 
     while t do
+        --print('tv',t,v)
         local dump = true
         if t == 'iden' then -- classic name macro
             local mac = imacros[v]
@@ -597,7 +628,7 @@ function M.substitute_tostring(src,name,use_c,throw)
 end
 
 local lua52 = _VERSION:match '5.2'
-local loadin
+local loadin, searchpath
 
 if not lua52 then -- Lua 5.1
     function loadin (env,src,name)
@@ -607,6 +638,15 @@ if not lua52 then -- Lua 5.1
         end
         return chunk,err
     end
+    local sep = package.config:sub(1,1)
+    searchpath = function (mod,path)
+        mod = mod:gsub('%.',sep)
+        for m in path:gmatch('[^;]+') do
+            local nm = m:gsub('?',mod)
+            local f = io.open(nm,'r')
+            if f then f:close(); return nm end
+        end
+    end
 else -- Lua 5.2
     function loadin(env,src,name)
         if env then
@@ -615,6 +655,7 @@ else -- Lua 5.2
             return load(src,name)
         end
     end
+    searchpath = package.searchpath
 end
 
 --- load Lua code in a given envrionment after passing
@@ -625,7 +666,7 @@ end
 -- @return the cnunk, or nil
 -- @return the error, if no chunk
 function M.load(src,name,env)
-    local res,err = M.substitute_tostring(src)
+    local res,err = M.substitute_tostring(src,'tmp')
     if not res then return nil,err end
     return loadin(env,res,name)
 end
@@ -641,17 +682,21 @@ function M.eval(src,env)
     return pcall(chunk)
 end
 
---- Make `require` use macro expansion for a given extension.
--- @param ext the extension - default is 'm.lua'
-function M.set_package_loader(ext)
-    ext = ext or 'm.lua'
+package.mpath = './?.m.lua'
+
+--- Make `require` use macro expansion.
+-- This is controlled by package.mpath, which is initially './?.m.lua'
+function M.set_package_loader()
     -- directly inspired by https://github.com/bartbes/Meta/blob/master/meta.lua#L32,
     -- after a suggestion by Alexander Gladysh
     table.insert(package.loaders, function(name)
-        local lname = name:gsub("%.", "/") .. '.'..ext
-        local f,err = io.open(lname)
-        if not f then return nil,err end
-        return M.load(f,lname)
+        local fname = searchpath(name,package.mpath)
+        if not fname then return nil,"cannot find "..name end
+        local res,err = M.load(io.open(fname),lname)
+        if not res then
+            error (err)
+        end
+        return res
     end)
 end
 

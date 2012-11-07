@@ -1,77 +1,6 @@
---[[-------
- Simplifying writing C extensions for Lua.
-`lc` generates common boilerplate, registers functions and classes,
-and translates argument lists into appropriate Lua API calls.
-
-    // preprocess using luam -C -llc str.lc > str.c
-    #include <string.h>
-
-    module "str" {
-
-      def at (Str s, Int i = 0) {
-        lua_pushlstring(L,&s[i-1],1);
-        return 1;
-      }
-
-      def upto (Str s, Str delim = " ") {
-        lua_pushinteger(L, strcspn(s,delim) + 1);
-        return 1;
-      }
-
-    }
-
-This will result in a module `str` which exports Lua functions `at` and `upto`.
-Argument lists are of the form `TYPE NAME [ = VALUE]` where `TYPE` is one of
-the following:
-
-  - `Str` a string value `const char *`
-  - `StrNil` a string value that may be `NULL`
-  - `Int` an integer
-  - `Number` a number (usually `double`)
-  - `Boolean` a boolean value
-  - `Value` placeholder for any Lua value on stack; initialized
-  to the stack index.
-
-All of these (except `Value`) are typedef'd to their corresponding C types.
-
-'Classes' can be defined:
-
-    module "class1" {
-
-    class A {
-      int handle;
-
-      constructor (int i) { // required: takes C argument types
-        this->handle = i;
-      }
-
-      def geth () {
-        lua_pushinteger(L, this->handle);
-        return 1;
-      }
-
-      def __eq(A other) {
-        lua_pushboolean(L, this->handle == other->handle);
-        return 1;
-      }
-    }
-
-    def A (Int i) {
-      push_new_A(L,i);
-      return 1;
-    }
-
-    }
-
-This will create a suitable userdata type for `A`, a corresponding structure `A`, and
-two new functions:
-
-  * `A* A_arg(lua_State *L,int idx)` // check and return userdata value at index
-  * `void push_new_A(lua_State *L,Int i)` // make a new `A` and push on stack
-
-
-@module macro.lc
-]]
+-- Simplifying writing C extensions for Lua
+-- Adds new module and class constructs;
+-- see class1.lc and str.lc for examples.
 local M = require 'macro'
 
 function dollar_subst(s,tbl)
@@ -143,16 +72,26 @@ local preamble = [[
 #else
 #define EXPORT
 #endif
+#if LUA_VERSION_NUM > 501
+#define lua_objlen lua_rawlen
+#endif
 ]]
 
 local finis = [[
-static const luaL_reg $(cname)_funs[] = {
+static const luaL_Reg $(cname)_funs[] = {
     $(funs)
     {NULL,NULL}
 };
 
 EXPORT int luaopen_$(cname) (lua_State *L) {
-    luaL_register (L,"$(name)",$(cname)_funs);
+#if LUA_VERSION_NUM > 501
+    lua_newtable(L);
+    luaL_setfuncs (L,$(cname)_funs,0);
+    lua_pushvalue(L,-1);
+    lua_setglobal(L,"$(cname)");
+#else
+    luaL_register(L,"$(cname)",$(cname)_funs);
+#endif
     $(finalizers)
     return 1;
 }
@@ -350,14 +289,18 @@ static int push_new_$(klass)(lua_State *L,$(fargs)) {
 
 local end_klass = [[
 
-static const struct luaL_reg $(klass)_methods [] = {
+static const struct luaL_Reg $(klass)_methods [] = {
   $(methods)
   {NULL, NULL}  /* sentinel */
 };
 
 static void $(klass)_register (lua_State *L) {
   luaL_newmetatable(L,$(klass)_MT);
+#if LUA_VERSION_NUM > 501
+  luaL_setfuncs(L,$(klass)_methods,0);
+#else
   luaL_register(L,NULL,$(klass)_methods);
+#endif
   lua_pushvalue(L,-1);
   lua_setfield(L,-2,"__index");
   lua_pop(L,1);

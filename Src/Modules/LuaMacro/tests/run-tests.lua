@@ -5,6 +5,8 @@ local lua52 = _VERSION:match '5.2'
 local lua51 = not lua52
 def_ put io.stderr:write
 
+local tests = qw(dollar,lambda,try,block,forall,scope,do,const,with,case,mod,test,rawhash)
+
 local luam = lua51 and 'luam' or 'luam52'
 
 function run (f)
@@ -18,10 +20,16 @@ function run (f)
   end
 end
 
-forall f in qw(dollar,lambda,try,block,forall,scope,do,const,with,case,mod,test) do
+forall f in tests  do
   f = 'test-'..f..'.lua'
   run(f)
 end
 
 run '-lcskin test-cskin.lua'
+
+if pcall(require,'pl') then
+  run 'test-list.lua'
+  run 'test-pl-list.lua'
+end
+
 

@@ -47,7 +47,12 @@ end
 -- create a token iterator out of a token list
 function Getter.scan_iter (tlist)
     local i,n = 1,#tlist
-    return function()
+    return function(k)
+        if k ~= nil then
+            k = i + k
+            if k < 1 or k > n then return nil end
+            return tokens[k]
+        end
         local tv = tlist[i]
         if tv == nil then return nil end
         i = i + 1
@@ -193,7 +198,10 @@ function Getter.names(tok,endt,delim)
     -- list() will return {{}} for an empty list of tlists
     for i,tl in ipairs(ltl) do
         local tv = tl[1]
-        if tv then names[i] = tv[2] end
+        if tv then
+            if tv[1] == 'space' then tv = tl[2] end
+            names[i] = tv[2]
+        end
     end
     return names, err
 end

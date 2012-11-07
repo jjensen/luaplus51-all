@@ -1,3 +1,6 @@
+--- sugar for making pl.List work like Python lists.
+-- The list macro is a factory which generates macros which 'shadow' the variable
+-- and kick in when they are followed by [...].
 require_ 'list'
 
 -- the two forms of 'list' initialization

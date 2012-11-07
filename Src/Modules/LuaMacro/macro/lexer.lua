@@ -53,10 +53,10 @@ function lexer.init ()
             OT = OT + P(ex)
         end
     end
-    local operator = token('operator', OT + P '~=' + P '<=' + P '>=' + P '...'
+    local operator = token('operator', OT + P '.' + P '~=' + P '<=' + P '>=' + P '...'
                                               + P '..' + S '+-*/%^#=<>;:,.{}[]()')
     -- identifiers
-    local ident = token('iden', idsafe * (idsafe + digit + P '.') ^ 0)
+    local ident = token('iden', idsafe * (idsafe + digit) ^ 0)
 
     -- keywords
     local keyword = token('keyword', (P 'and' + P 'break' + P 'do' + P 'elseif' +
@@ -162,7 +162,12 @@ function lexer.scan_lua(input,name)
     end
     local tokens = lexer.scan_lua_tokenlist(input)
     local i, n = 1, #tokens
-    return function()
+    return function(k)
+        if k ~= nil then
+            k = i + k
+            if k < 1 or k > n then return nil end
+            return tokens[k]
+        end
         local tok = tokens[i]
         i = i + 1
         if tok then
@@ -170,11 +175,6 @@ function lexer.scan_lua(input,name)
             lexer.name = name
             return tok[1],tok[2]
         end
-    end,
-    function(k)
-        k = i + k
-        if k < 1 or k > n then return nil end
-        return tokens[k]
     end
 end
 
