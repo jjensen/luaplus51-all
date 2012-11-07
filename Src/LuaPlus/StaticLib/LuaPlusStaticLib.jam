@@ -17,8 +17,6 @@ local LUAPLUS_SRCS =
 		../LuaPlus.h
 		../LuaPlusAddons.c
 		../LuaPlusCD.h
-		../LuaPlusFunctions.cpp
-		../LuaPlusFunctions.h
 		../LuaPlusInternal.h
 		../LuaPlus_Libs.cpp
 		../LuaStackObject.h
