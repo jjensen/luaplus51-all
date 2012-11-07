@@ -1,0 +1,4 @@
+CopyFile luatraverse : $(LUA_LDIR)/traverse/luastate.lua : $(SUBDIR)/examples/luastate.lua ;
+CopyFile luatraverse : $(LUA_LDIR)/traverse.lua : $(SUBDIR)/luatraverse.lua ;
+
+Lua.Module luatraverse : luatraverse.lua ;
