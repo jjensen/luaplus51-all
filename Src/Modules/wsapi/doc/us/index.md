@@ -17,7 +17,7 @@ WSAPI is free software and uses the same license as Lua 5.1.
 
 ## Status
 
-Current version is 1.3.4. It was developed for Lua 5.1.
+Current version is 1.5. It was developed for Lua 5.1.
 
 ## Download
 
@@ -30,12 +30,12 @@ luarocks install wsapi-xavante
 ### Unix Installer Script
 
 You can also get an installer script that installs Lua+LuaRocks+WSAPI 
-[here](http://github.com/downloads/keplerproject/wsapi/wsapi-install-1.3.4.tar.gz). See
+[here](http://github.com/downloads/keplerproject/wsapi/wsapi-install-1.5.tar.gz). See
 the [manual](manual.html) for installation instructions.
 
 ### Customizing the installer
 
-There is a section of wsapi-install-1.3.4 with the parameters that 
+There is a section of wsapi-install-1.5 with the parameters that 
 control the installer: 
 
 <pre class="example">
@@ -46,10 +46,10 @@ PACKAGE=WSAPI
 PACKAGE_OPT=wsapi 
 PACKAGE_ROCK=wsapi-xavante 
 INSTALLER_VERSION=0.6 
-PACKAGE_VERSION=1.3.4
+PACKAGE_VERSION=1.5
 LUAROCKS_REPO=http://luarocks.org/repositories/rocks
-LUAROCKS_URL=http://www.luarocks.org/releases/luarocks-2.0.2.tar.gz
-LUAROCKS_VERSION=2.0.2 
+LUAROCKS_URL=http://www.luarocks.org/releases/luarocks-2.0.4.1.tar.gz
+LUAROCKS_VERSION=2.0.4.1 
 </pre>
 
 To install something else change PACKAGE to the full name of the 
@@ -71,7 +71,7 @@ bash ./your-install-script --prefix=/tmp/anything --bootstrap
 </pre>
 
 After it finishes you will have lua-5.1.4.tar.gz, 
-luarocks-2.0.2.tar.gz, and a rocks folder with .src.rocks for all the 
+luarocks-2.0.4.1.tar.gz, and a rocks folder with .src.rocks for all the 
 rocks that the installer installs. 
 
 ## Latest Sources and Bug Tracker
@@ -80,18 +80,34 @@ WSAPI sources and bug tracker are available at its [Github](http://github.com/ke
 
 ## History
 
-**WSAPI 1.4** [TBR]
+**WSAPI 1.5** [21/Apr/2011]
 
+* Add lfcgi.finish() to lfcgi, to close the current FastCGI request
+  in case the application does not want to call lfcgi.accept() right away
+* Fix response headers in sapi.lua
+* Fix reloading in non-isolated launchers
+* Errors in mock handler now go in response.wsapi_errors
+
+**WSAPI 1.4** [19/Nov/2010]
+
+* Remove unecessary !# from `sapi.lua`
+* Added mock WSAPI handler (by Norman Clarke)
+* Flush output pipe after writing content
+* Respect rules specified in config file for `wsapi` launcher
+* Fix bug where `common.load_wsapi` would not return the module
+  if it was already require'd
+* Fix bug where `wsapi.ringer` would try to close an already closed
+  state
 * Refactoring of request, response, and util modules, to work with [mk](http://github.com/keplerproject/mk)
-* New methods for `wsapi.request`: qs_encode (encodes a table as a query string), route_link (makes a link to
-  a mk route, link (makes an internal app link), absolute_link (makes an absolute link), static_link (makes
-  an external link), empty (checks if a string is just blanks or nil), empty_param (checks if a request param
-  is empty), and renamed parse_post_data method to parse_post
-* New methods for `wsapi.response`: forward (sets path_info and returns an mk "keep parsing" code), content_type
+* New methods for `wsapi.request`: qs\_encode (encodes a table as a query string), route\_link (makes a link to
+  a mk route, link (makes an internal app link), absolute\_link (makes an absolute link), static\_link (makes
+  an external link), empty (checks if a string is just blanks or nil), empty\_param (checks if a request param
+  is empty), and renamed parse\_post\_data method to parse\_post
+* New methods for `wsapi.response`: forward (sets path_info and returns an mk "keep parsing" code), content\_type
   (sets Content-Type header), redirect (sets Location header and returns redirect WSAPI response), changed
   write to take multiple parameters and flatten nested tables
-* New functions in `wsapi.util`: make_env_get (makes a mock WSAPI environment for a GET request from a query
-  string), make_env_post (makes a mock WSAPI environment for a POST request from a postdata string, a postdata
+* New functions in `wsapi.util`: make\_env\_get (makes a mock WSAPI environment for a GET request from a query
+  string), make\_env\_post (makes a mock WSAPI environment for a POST request from a postdata string, a postdata
   type, default x-www-form-urlencoded, and a query string)
 
 **WSAPI 1.3.4** [23/Mar/2010]

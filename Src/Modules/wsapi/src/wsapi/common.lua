@@ -442,12 +442,10 @@ end
 
 -- Version of require skips searching package.path
 function require_file(filename, modname)
-  if not package.loaded[modname] then
-    package.loaded[modname] = true
-    local res = loadfile(filename)(modname)
-    if res then
-      package.loaded[modname] = res
-    end
+  package.loaded[modname] = true
+  local res = loadfile(filename)(modname)
+  if res then
+    package.loaded[modname] = res
   end
   return package.loaded[modname]
 end

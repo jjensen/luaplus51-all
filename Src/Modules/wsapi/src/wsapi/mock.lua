@@ -63,7 +63,9 @@ local function make_io_object(content)
   local receiver = { buffer = content or "", bytes_read = 0 }
 
   function receiver:write(content)
-    self.buffer = self.buffer .. content
+    if content then
+      self.buffer = self.buffer .. content
+    end
   end
 
   function receiver:read(len)
@@ -100,15 +102,15 @@ local function build_get(path, params, headers)
     env    = req,
     input  = make_io_object(),
     output = make_io_object(),
-    error  = io.stderr
+    error  = make_io_object()
   }
 end
 
 local function build_post(path, params, headers)
-  local req = build_request("POST", path, headers)
-  local body = request.methods.qs_encode(nil, params):gsub("^?", "")
-  req.REQUEST_URI  = "http://" .. req.HTTP_HOST .. req.PATH_INFO
-  req.CONTENT_TYPE = "x-www-form-urlencoded"
+  local req          = build_request("POST", path, headers)
+  local body         = request.methods.qs_encode(nil, params):gsub("^?", "")
+  req.REQUEST_URI    = "http://" .. req.HTTP_HOST .. req.PATH_INFO
+  req.CONTENT_TYPE   = "x-www-form-urlencoded"
   req.CONTENT_LENGTH = #body
 
   return {
@@ -124,6 +126,7 @@ local function make_request(request_builder, app, path, params, headers)
   local response = {}
   response.code, response.headers = wsapi.common.run(app, wsapi_env)
   response.body = wsapi_env.output:read()
+  response.wsapi_errors = wsapi_env.error:read()
   return response, wsapi_env.env
 end
 

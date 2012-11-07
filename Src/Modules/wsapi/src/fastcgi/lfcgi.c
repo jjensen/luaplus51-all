@@ -520,6 +520,16 @@ static int lfcgi_accept (lua_State *L) {
 	return 1;
 }
 
+/*
+* Do not use anything from the lfcgi module except accept()
+* after you called this function. Including io.* stuff
+* if you replaced originals.
+*/
+static int lfcgi_finish (lua_State *L) {
+	FCGI_Finish();
+	return 0;
+}
+
 static int lfcgi_getenv (lua_State *L) {
 	const char* envVar = luaL_checkstring(L, 1);
 	char* val = getenv(envVar);
@@ -558,8 +568,9 @@ static int lfcgi_environ(lua_State *L) {
 	}
 	return 1;
 }
+
 static int lfcgi_iscgi(lua_State *L) {
-  lua_pushboolean(L, old_env == environ);
+  lua_pushboolean(L, FCGX_IsCGI());
   return 1;
 }
 
@@ -581,6 +592,7 @@ static const luaL_reg iolib[] = {
   {"type", io_type},
   {"write", io_write},
   {"accept", lfcgi_accept},
+  {"finish", lfcgi_finish},
   {"getenv", lfcgi_getenv},
   {"getpid", lfcgi_getpid},
   {"environ", lfcgi_environ},

@@ -2,6 +2,11 @@
 
 include config
 
+DESTDIR := /
+LDIR := $(DESTDIR)/$(LUA_DIR)/wsapi
+CDIR := $(DESTDIR)/$(LUA_LIBDIR)
+BDIR := $(DESTDIR)/$(BIN_DIR)
+
 all: cgi fastcgi
 
 cgi:
@@ -13,17 +18,20 @@ fastcgi: src/fastcgi/lfcgi.so
 
 fcgi: fastcgi
 
-src/fastcgi/lfcgi.so: src/fastcgi/lfcgi.o src/fastcgi/lfcgi.h
-	$(CC) $(CFLAGS) $(LIB_OPTION) -o src/fastcgi/lfcgi.so src/fastcgi/lfcgi.o -lfcgi 
+src/fastcgi/lfcgi.so: src/fastcgi/lfcgi.h
+	$(CC) $(CFLAGS) $(LDFLAGS) $(LIB_OPTION) -o src/fastcgi/lfcgi.so src/fastcgi/lfcgi.c -lfcgi $(INC)
 
 install:
-	mkdir -p $(LUA_DIR)/wsapi
-	cp src/wsapi/*.lua $(LUA_DIR)/wsapi
-	cp src/launcher/wsapi.cgi $(BIN_DIR)/
-	cp src/launcher/wsapi.fcgi $(BIN_DIR)/
+	@mkdir -p $(LDIR) $(BDIR)
+	@cp src/wsapi/*.lua $(LDIR)
+	@cp src/launcher/wsapi.cgi $(BDIR)
+	@cp src/launcher/wsapi.fcgi $(BDIR)
+	@echo "Installing of Lua WSAPI part is done!"
 
 install-fcgi:
-	cp src/fastcgi/lfcgi.so $(LUA_LIBDIR)/
+	@mkdir -p $(CDIR)
+	@cp src/fastcgi/lfcgi.so $(CDIR)
+	@echo "Installing of bundled Lua-fcgi lib is done!"
 
 install-rocks: install
 	mkdir -p $(PREFIX)/samples
@@ -32,7 +40,8 @@ install-rocks: install
 	cp -r doc/* $(PREFIX)/doc
 
 clean:
-	rm src/fastcgi/lfcgi.o src/fastcgi/lfcgi.so
+	@rm -f config src/fastcgi/lfcgi.so
+	@echo "Cleaning is done!"
 
 snapshot:
 	git archive --format=tar --prefix=wsapi-$(VERSION)/ HEAD | gzip > wsapi-$(VERSION).tar.gz

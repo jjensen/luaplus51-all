@@ -1,4 +1,3 @@
-#!/usr/bin/env wsapi.cgi
 
 require "wsapi.response"
 
@@ -25,20 +24,20 @@ function run(wsapi_env)
     },
     Response = {
       contenttype = function (header)
-        res["Content-Type"] = header
+        res:content_type(header)
       end,
       errorlog = function (msg, errlevel)
         wsapi_env.error:write (msg)
       end,
       header = function (header, value)
-        if res[header] then
-          if type(res[header]) == "table" then
-            table.insert(res[header], value)
+        if res.headers[header] then
+          if type(res.headers[header]) == "table" then
+            table.insert(res.headers[header], value)
           else
-            res[header] = { res[header], value }
+            res.headers[header] = { res.headers[header], value }
           end
         else
-          res[header] = value
+          res.headers[header] = value
         end
       end,
       redirect = function (url)
