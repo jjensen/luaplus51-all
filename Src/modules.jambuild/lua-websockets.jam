@@ -1,0 +1,72 @@
+{
+
+local LIBWEBSOCKETS_SRCS =
+		libwebsockets/lib/base64-decode.c
+		libwebsockets/lib/client-handshake.c
+		libwebsockets/lib/extension-deflate-stream.c
+		libwebsockets/lib/extension-deflate-stream.h
+		libwebsockets/lib/extension-x-google-mux.c
+		libwebsockets/lib/extension-x-google-mux.h
+		libwebsockets/lib/extension.c
+		libwebsockets/lib/handshake.c
+		libwebsockets/lib/libwebsockets.c
+		libwebsockets/lib/libwebsockets.h
+		libwebsockets/lib/md5.c
+		libwebsockets/lib/parsers.c
+		libwebsockets/lib/private-libwebsockets.h
+		libwebsockets/lib/sha-1.c
+;
+
+LIBWEBSOCKETS_SRCS +=
+		libwebsockets/win32port/zlib/adler32.c
+		libwebsockets/win32port/zlib/compress.c
+		libwebsockets/win32port/zlib/crc32.c
+		libwebsockets/win32port/zlib/crc32.h
+		libwebsockets/win32port/zlib/deflate.c
+		libwebsockets/win32port/zlib/deflate.h
+		libwebsockets/win32port/zlib/gzclose.c
+		libwebsockets/win32port/zlib/gzguts.h
+		libwebsockets/win32port/zlib/gzlib.c
+		libwebsockets/win32port/zlib/gzread.c
+		libwebsockets/win32port/zlib/gzwrite.c
+		libwebsockets/win32port/zlib/infback.c
+		libwebsockets/win32port/zlib/inffast.c
+		libwebsockets/win32port/zlib/inffast.h
+		libwebsockets/win32port/zlib/inffixed.h
+		libwebsockets/win32port/zlib/inflate.c
+		libwebsockets/win32port/zlib/inflate.h
+		libwebsockets/win32port/zlib/inftrees.c
+		libwebsockets/win32port/zlib/inftrees.h
+		libwebsockets/win32port/zlib/trees.c
+		libwebsockets/win32port/zlib/trees.h
+		libwebsockets/win32port/zlib/uncompr.c
+		libwebsockets/win32port/zlib/zconf.h
+		libwebsockets/win32port/zlib/zlib.h
+		libwebsockets/win32port/zlib/zutil.c
+		libwebsockets/win32port/zlib/zutil.h
+;
+
+LIBWEBSOCKETS_SRCS +=
+		libwebsockets/win32port/win32helpers/getopt.c
+		libwebsockets/win32port/win32helpers/getopt.h
+		libwebsockets/win32port/win32helpers/getopt_long.c
+		libwebsockets/win32port/win32helpers/gettimeofday.c
+		libwebsockets/win32port/win32helpers/gettimeofday.h
+		libwebsockets/win32port/win32helpers/netdb.h
+		libwebsockets/win32port/win32helpers/strings.h
+		libwebsockets/win32port/win32helpers/unistd.h
+		libwebsockets/win32port/win32helpers/websock-w32.c
+		libwebsockets/win32port/win32helpers/websock-w32.h
+;
+
+local SRCS =
+		lua_websockets.c
+;
+
+C.IncludeDirectories lua_websockets : libwebsockets/lib libwebsockets/win32port/win32helpers libwebsockets/win32port/zlib ;
+C.LinkPrebuiltLibraries lua_websockets : ws2_32 ;
+
+Lua.CModule lua_websockets : websockets : $(SRCS) $(LIBWEBSOCKETS_SRCS) ;
+
+}
+
