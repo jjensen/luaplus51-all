@@ -22,6 +22,7 @@ local socket = require "socket"
 require "coxpcall"
 
 local WATCH_DOG_TIMEOUT = 120
+local UDP_DATAGRAM_MAX = 8192
 
 -- Redefines LuaSocket functions with coroutine safe versions
 -- (this allows the use of socket.http from within copas)
@@ -43,13 +44,13 @@ end
 
 function socket.newtry(finalizer)
   return function (...)
-	   local status = (...)
-	   if not status then
-	     copcall(finalizer, select(2, ...))
-	     error({ (select(2, ...)) }, 0)
-	   end
-	   return ...
-	 end
+           local status = (...)
+           if not status then
+             copcall(finalizer, select(2, ...))
+             error({ (select(2, ...)) }, 0)
+           end
+           return ...
+         end
 end
 
 -- end of LuaSocket redefinitions
@@ -62,6 +63,9 @@ _COPYRIGHT   = "Copyright (C) 2005-2010 Kepler Project"
 _DESCRIPTION = "Coroutine Oriented Portable Asynchronous Services"
 _VERSION     = "Copas 1.1.7"
 
+-- Close the socket associated with the current connection after the handler finishes
+autoclose = true
+
 -------------------------------------------------------------------------------
 -- Simple set implementation based on LuaSocket's tinyirc.lua example
 -- adds a FIFO queue for each value in the set
@@ -71,46 +75,46 @@ local function newset()
   local set = {}
   local q = {}
   setmetatable(set, { __index = {
-			insert = function(set, value)
-				   if not reverse[value] then
-				     set[#set + 1] = value
-				     reverse[value] = #set
-				   end
-				 end,
+                        insert = function(set, value)
+                                   if not reverse[value] then
+                                     set[#set + 1] = value
+                                     reverse[value] = #set
+                                   end
+                                 end,
 
-			remove = function(set, value)
-				   local index = reverse[value]
-				   if index then
-				     reverse[value] = nil
-				     local top = set[#set]
-				     set[#set] = nil
-				     if top ~= value then
-				       reverse[top] = index
-				       set[index] = top
-				     end
-				   end
-				 end,
+                        remove = function(set, value)
+                                   local index = reverse[value]
+                                   if index then
+                                     reverse[value] = nil
+                                     local top = set[#set]
+                                     set[#set] = nil
+                                     if top ~= value then
+                                       reverse[top] = index
+                                       set[index] = top
+                                     end
+                                   end
+                                 end,
 
-			push = function (set, key, itm)
-				 local qKey = q[key]
-				 if qKey == nil then
-				   q[key] = {itm}
-				 else
-				   qKey[#qKey + 1] = itm
-				 end
-			       end,
+                        push = function (set, key, itm)
+                                 local qKey = q[key]
+                                 if qKey == nil then
+                                   q[key] = {itm}
+                                 else
+                                   qKey[#qKey + 1] = itm
+                                 end
+                               end,
 
-			pop = function (set, key)
-				local t = q[key]
-				if t ~= nil then
-				  local ret = table.remove (t, 1)
-				  if t[1] == nil then
-				    q[key] = nil
-				  end
-				  return ret
-				end
-			      end
-		    }})
+                        pop = function (set, key)
+                                local t = q[key]
+                                if t ~= nil then
+                                  local ret = table.remove (t, 1)
+                                  if t[1] == nil then
+                                    q[key] = nil
+                                  end
+                                  return ret
+                                end
+                              end
+                    }})
   return set
 end
 
@@ -125,6 +129,9 @@ local _writing = newset() -- sockets currently being written
 -- Coroutine based socket I/O functions.
 -------------------------------------------------------------------------------
 -- reads a pattern from a client and yields to the reading set on timeouts
+-- UDP: a UDP socket expects a second argument to be a number, so it MUST
+-- be provided as the 'pattern' below defaults to a string. Will throw a
+-- 'bad argument' error if omitted.
 function receive(client, pattern, part)
   local s, err
   pattern = pattern or "*l"
@@ -133,6 +140,22 @@ function receive(client, pattern, part)
     if s or err ~= "timeout" then
       _reading_log[client] = nil
       return s, err, part
+    end
+    _reading_log[client] = os.time()
+    coroutine.yield(client, _reading)
+  until false
+end
+
+-- receives data from a client over UDP. Not available for TCP.
+-- (this is a copy of receive() method, adapted for receivefrom() use)
+function receivefrom(client, size)
+  local s, err, port
+  size = size or UDP_DATAGRAM_MAX
+  repeat
+    s, err, port = client:receivefrom(size) -- upon success err holds ip address
+    if s or err ~= "timeout" then
+      _reading_log[client] = nil
+      return s, err, port
     end
     _reading_log[client] = os.time()
     coroutine.yield(client, _reading)
@@ -158,6 +181,7 @@ end
 
 -- sends data to a client. The operation is buffered and
 -- yields to the writing set on timeouts
+-- Note: from and to parameters will be ignored by/for UDP sockets
 function send(client,data, from, to)
   local s, err,sent
   from = from or 1
@@ -174,6 +198,28 @@ function send(client,data, from, to)
     if s or err ~= "timeout" then
       _writing_log[client] = nil
       return s, err,lastIndex
+    end
+    _writing_log[client] = os.time()
+    coroutine.yield(client, _writing)
+  until false
+end
+
+-- sends data to a client over UDP. Not available for TCP.
+-- (this is a copy of send() method, adapted for sendto() use)
+function sendto(client,data, ip, port)
+  local s, err,sent
+
+  repeat
+    s, err = client:sendto(data, ip, port)
+    -- adds extra corrotine swap
+    -- garantees that high throuput dont take other threads to starvation
+    if (math.random(100) > 90) then
+      _writing_log[client] = os.time()
+      coroutine.yield(client, _writing)
+    end
+    if s or err ~= "timeout" then
+      _writing_log[client] = nil
+      return s, err
     end
     _writing_log[client] = os.time()
     coroutine.yield(client, _writing)
@@ -200,31 +246,64 @@ end
 function flush(client)
 end
 
--- wraps a socket to use Copas methods (send, receive, flush and settimeout)
+-- wraps a TCP socket to use Copas methods (send, receive, flush and settimeout)
 local _skt_mt = {__index = {
-		   send = function (self, data, from, to)
-			    return send (self.socket, data, from, to)
-			  end,
+                   send = function (self, data, from, to)
+                            return send (self.socket, data, from, to)
+                          end,
 
-		   receive = function (self, pattern)
-			       if (self.timeout==0) then
-				 return receivePartial(self.socket, pattern)
-			       end
-			       return receive (self.socket, pattern)
-			     end,
+                   receive = function (self, pattern)
+                               if (self.timeout==0) then
+                                 return receivePartial(self.socket, pattern)
+                               end
+                               return receive (self.socket, pattern)
+                             end,
 
-		   flush = function (self)
-			     return flush (self.socket)
-			   end,
+                   flush = function (self)
+                             return flush (self.socket)
+                           end,
 
-		   settimeout = function (self,time)
-				  self.timeout=time
-				  return
-				end,
-	       }}
+                   settimeout = function (self,time)
+                                  self.timeout=time
+                                  return
+                                end,
+               }}
+
+-- wraps a UDP socket, copy of TCP one adapted for UDP.
+-- Mainly adds sendto() and receivefrom()
+local _skt_mt_udp = {__index = {
+                   send = function (self, data)
+                            return send (self.socket, data)
+                          end,
+
+                   sendto = function (self, data, ip, port)
+                            return sendto (self.socket, data, ip, port)
+                          end,
+
+                   receive = function (self, size)
+                               return receive (self.socket, (size or UDP_DATAGRAM_MAX))
+                             end,
+
+                   receivefrom = function (self, size)
+                               return receivefrom (self.socket, (size or UDP_DATAGRAM_MAX))
+                             end,
+
+                   flush = function (self)
+                             return flush (self.socket)
+                           end,
+
+                   settimeout = function (self,time)
+                                  self.timeout=time
+                                  return
+                                end,
+               }}
 
 function wrap (skt)
-  return  setmetatable ({socket = skt}, _skt_mt)
+  if string.sub(tostring(skt),1,3) == "udp" then
+    return  setmetatable ({socket = skt}, _skt_mt_udp)
+  else
+    return  setmetatable ({socket = skt}, _skt_mt)
+  end
 end
 
 --------------------------------------------------
@@ -258,7 +337,7 @@ local function _doTick (co, skt, ...)
     new_q:push (res, co)
   else
     if not ok then copcall (_errhandlers [co] or _deferror, res, co, skt) end
-    if skt then skt:close() end
+    if skt and autoclose then skt:close() end
     _errhandlers [co] = nil
   end
 end
@@ -287,18 +366,35 @@ end
 -------------------------------------------------------------------------------
 -- Adds a server/handler pair to Copas dispatcher
 -------------------------------------------------------------------------------
-function addserver(server, handler, timeout)
+local function addTCPserver(server, handler, timeout)
   server:settimeout(timeout or 0.1)
   _servers[server] = handler
   _reading:insert(server)
 end
 
+local function addUDPserver(server, handler, timeout)
+    server:settimeout(timeout or 0)
+    local co = coroutine.create(handler)
+    _reading:insert(server)
+    _doTick (co, server)
+end
+
+function addserver(server, handler, timeout)
+    if string.sub(tostring(server),1,3) == "udp" then
+        addUDPserver(server, handler, timeout)
+    else
+        addTCPserver(server, handler, timeout)
+    end
+end
 -------------------------------------------------------------------------------
 -- Adds an new courotine thread to Copas dispatcher
 -------------------------------------------------------------------------------
 function addthread(thread, ...)
-  local co = coroutine.create(thread)
-  _doTick (co, nil, ...)
+  if type(thread) ~= "thread" then
+    thread = coroutine.create(thread)
+  end
+  _doTick (thread, nil, ...)
+  return thread
 end
 
 -------------------------------------------------------------------------------
@@ -331,22 +427,22 @@ end
 -- a task to check ready to read events
 local _readable_t = {
   events = function(self)
-	     local i = 0
-	     return function ()
-		      i = i + 1
-		      return self._evs [i]
-		    end
-	   end,
+             local i = 0
+             return function ()
+                      i = i + 1
+                      return self._evs [i]
+                    end
+           end,
 
   tick = function (self, input)
-	   local handler = _servers[input]
-	   if handler then
-	     input = _accept(input, handler)
-	   else
-	     _reading:remove (input)
-	     self.def_tick (input)
-	   end
-	 end
+           local handler = _servers[input]
+           if handler then
+             input = _accept(input, handler)
+           else
+             _reading:remove (input)
+             self.def_tick (input)
+           end
+         end
 }
 
 addtaskRead (_readable_t)
@@ -355,17 +451,17 @@ addtaskRead (_readable_t)
 -- a task to check ready to write events
 local _writable_t = {
   events = function (self)
-	     local i = 0
-	     return function ()
-		      i = i + 1
-		      return self._evs [i]
-		    end
-	   end,
+             local i = 0
+             return function ()
+                      i = i + 1
+                      return self._evs [i]
+                    end
+           end,
 
   tick = function (self, output)
-	   _writing:remove (output)
-	   self.def_tick (output)
-	 end
+           _writing:remove (output)
+           self.def_tick (output)
+         end
 }
 
 addtaskWrite (_writable_t)
@@ -391,17 +487,17 @@ local function _select (timeout)
     last_cleansing = now
     for k,v in pairs(_reading_log) do
       if not r_evs[k] and duration(now, v) > WATCH_DOG_TIMEOUT then
-	_reading_log[k] = nil
-	r_evs[#r_evs + 1] = k
-	r_evs[k] = #r_evs
+        _reading_log[k] = nil
+        r_evs[#r_evs + 1] = k
+        r_evs[k] = #r_evs
       end
     end
 
     for k,v in pairs(_writing_log) do
       if not w_evs[k] and duration(now, v) > WATCH_DOG_TIMEOUT then
-	_writing_log[k] = nil
-	w_evs[#w_evs + 1] = k
-	w_evs[k] = #w_evs
+        _writing_log[k] = nil
+        w_evs[#w_evs + 1] = k
+        w_evs[k] = #w_evs
       end
     end
   end
@@ -417,10 +513,12 @@ end
 -------------------------------------------------------------------------------
 -- Dispatcher loop step.
 -- Listen to client requests and handles them
+-- Returns false if no data was handled (timeout), or true if there was data
+-- handled (or nil + error message)
 -------------------------------------------------------------------------------
 function step(timeout)
   local err = _select (timeout)
-  if err == "timeout" then return end
+  if err == "timeout" then return false end
 
   if err then
     error(err)
@@ -431,6 +529,7 @@ function step(timeout)
       tsk:tick (ev)
     end
   end
+  return true
 end
 
 -------------------------------------------------------------------------------
