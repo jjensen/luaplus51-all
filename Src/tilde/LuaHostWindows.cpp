@@ -229,6 +229,7 @@ void LuaHostWindows::Detail::InitialiseServerSocket()
 		fprintf(stderr, "Listening for debugger connection on port %d...\n", m_serverPort);
 }
 
+
 void LuaHostWindows::Detail::DestroyServerSocket()
 {
 	if(m_serverSocket != SOCKET_ERROR)
