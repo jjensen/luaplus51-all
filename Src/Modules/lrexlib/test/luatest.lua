@@ -1,9 +1,7 @@
 -- See Copyright Notice in the file LICENSE
 
-module (..., package.seeall)
-
 -- arrays: deep comparison
-function eq (t1, t2, lut)
+local function eq (t1, t2, lut)
   if t1 == t2 then return true end
   if type(t1) ~= "table" or type(t2) ~= "table" or #t1 ~= #t2 then
     return false
@@ -21,9 +19,10 @@ function eq (t1, t2, lut)
   return true
 end
 
-NT = {} -- a unique "nil table", to be used instead of nils in datasets
+-- a "nil GUID", to be used instead of nils in datasets
+local NT = "b5f74fe5-46f4-483a-8321-e58ba2fa0e17"
 
--- pack vararg in table, replacing nils with "NT" table
+-- pack vararg in table, replacing nils with "NT" items
 local function packNT (...)
   local t = {}
   for i=1, select ("#", ...) do
@@ -46,36 +45,50 @@ local function unpackNT (t)
 end
 
 -- print results (deep into arrays)
-function print_results (val, indent, lut)
+local function print_results (val, indent, lut)
   indent = indent or ""
   lut = lut or {} -- look-up table
   local str = tostring (val)
   if type (val) == "table" then
-    if val == NT then
-      print (indent .. "nil")
-    elseif lut[val] then
-      print (indent .. str)
+    if lut[val] then
+      io.write (indent, str, "\n")
     else
       lut[val] = true
-      print (indent .. str)
+      io.write (indent, str, "\n")
       for i,v in ipairs (val) do
         print_results (v, "  " .. indent, lut) -- recursion
       end
     end
   else
-    print (indent .. str)
+    io.write (indent, val == NT and "nil" or str, "\n")
   end
 end
 
 -- returns:
 --  1) true, if success; false, if failure
 --  2) test results table or error_message
-function test_function (test, func)
+local function test_function (test, func)
   local res
   local t = packNT (pcall (func, unpackNT (test[1])))
   if t[1] then
     table.remove (t, 1)
     res = t
+    if alien then
+      local subject = test[1][1]
+      local buf = alien.buffer (#subject)
+      if #subject > 0 then
+        alien.memmove (buf:topointer (), subject, #subject)
+      end
+      test[1][1] = buf
+      local t = packNT (pcall (func, unpackNT (test[1])))
+      if t[1] then
+        table.remove (t, 1)
+        res = t
+      else
+        print "alien test failed"
+        res = t[2] --> error_message
+      end
+    end
   else
     res = t[2] --> error_message
   end
@@ -88,8 +101,9 @@ end
 --  1) true, if success; false, if failure
 --  2) test results table or error_message
 --  3) test results table or error_message
-function test_method (test, constructor, name)
+local function test_method (test, constructor, name)
   local res1, res2
+  local subject = test[2][1]
   local ok, r = pcall (constructor, unpackNT (test[1]))
   if ok then
     local t = packNT (pcall (r[name], r, unpackNT (test[2])))
@@ -106,7 +120,7 @@ function test_method (test, constructor, name)
 end
 
 -- returns: a list of failed tests
-function test_set (set, lib)
+local function test_set (set, lib)
   local list = {}
 
   if type (set.Func) == "function" then
@@ -133,3 +147,11 @@ function test_set (set, lib)
   return list
 end
 
+return {
+  eq = eq,
+  NT = NT,
+  print_results = print_results,
+  test_function = test_function,
+  test_method = test_method,
+  test_set = test_set,
+}

@@ -3,7 +3,7 @@
 APP = rst2html
 CP  = cp -a
 RM  = rm
-IDX = ../README
+IDX = ../README.rst
 
 .SUFFIXES: .txt .html
 

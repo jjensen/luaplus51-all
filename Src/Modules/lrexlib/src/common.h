@@ -6,8 +6,8 @@
 
 #include "lua.h"
 
-#if LUA_VERSION_NUM < 502
-#define luaL_typeerror luaL_typerror
+#if LUA_VERSION_NUM > 501
+  int luaL_typerror (lua_State *L, int narg, const char *tname);
 #endif
 
 /* REX_API can be overridden from the command line or Makefile */
@@ -84,6 +84,8 @@ void buffer_pushresult (TBuffer *buf);
 
 void bufferZ_putrepstring (TBuffer *buf, int reppos, int nsub);
 int  bufferZ_next (TBuffer *buf, size_t *iter, size_t *len, const char **str);
+void bufferZ_addlstring (TBuffer *buf, const void *src, size_t len);
+void bufferZ_addnum (TBuffer *buf, size_t num);
 
 int  get_int_field (lua_State *L, const char* field);
 void set_int_field (lua_State *L, const char* field, int val);

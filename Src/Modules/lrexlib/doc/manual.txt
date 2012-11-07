@@ -1,7 +1,7 @@
 .. role:: funcdef(literal)
 
-Lrexlib 2.5 Reference Manual
-============================
+Lrexlib Reference Manual
+========================
 
 .. contents:: Table of Contents
 
@@ -38,9 +38,19 @@ Notes
    too. In this case, the cf_ and larg_ arguments are ignored (should
    be either supplied as nils or omitted).
 
+6. All functions that take a string-type subject accept a table (in Lua >= 5.2)
+   or userdata that has a ``topointer`` method and ``__len`` metamethod, and
+   take the subject to be a block of memory starting at the address returned by
+   ``subject:topointer()`` and of length ``#subject``. This works with buffers
+   objects from the alien library (https://github.com/mascarenhas/alien). Note
+   that special attention is needed with POSIX regex libraries that do not
+   support ``REG_STARTEND``, and hence need NUL-terminated subjects: the NUL is
+   not included in the string length, so alien buffers must be wrapped to
+   report a length that excludes the NUL.
+
 .. _cf:
 
-6. The default value for *compilation flags* (*cf*) that Lrexlib uses when
+7. The default value for *compilation flags* (*cf*) that Lrexlib uses when
    the parameter is not supplied or ``nil`` is:
 
      * REG_EXTENDED for POSIX and TRE
@@ -65,7 +75,7 @@ Notes
 
 .. _ef:
 
-7. The default value for *execution flags* (*ef*) that Lrexlib uses when
+8. The default value for *execution flags* (*ef*) that Lrexlib uses when
    the parameter is not supplied or ``nil``, is:
 
      * 0 for standard POSIX regex library
@@ -75,7 +85,7 @@ Notes
 
 .. _larg:
 
-8. The notation *larg...* is used to indicate optional library-specific
+9. The notation *larg...* is used to indicate optional library-specific
    arguments, which are documented in the ``new`` method of each library.
 
 ------------------------------------------------------------
@@ -220,7 +230,8 @@ below).
   +---------+-----------------------------------+-------------------------+-------------+
   |  patt   |regular expression pattern         |string or userdata       |     n/a     |
   +---------+-----------------------------------+-------------------------+-------------+
-  |  repl   |substitution source                |string, function or table|     n/a     |
+  |  repl   |substitution source                |string, function, table, |     n/a     |
+  |         |                                   |``false`` or ``nil``     |             |
   +---------+-----------------------------------+-------------------------+-------------+
   |   [n]   |maximum number of matches to search| number or function      |   ``nil``   |
   |         |for, or control function, or nil   |                         |             |
@@ -238,9 +249,9 @@ below).
   3. Number of substitutions made.
 
 **Details:**
-  The parameter *repl* can be either a string, a function or a table.
-  On each match made, it is converted into a value *repl_out* that may be used
-  for the replacement.
+  The parameter *repl* can be either a string, a function, a table,
+  ``false`` or ``nil``. On each match made, it is converted into a
+  value *repl_out* that may be used for the replacement.
 
   *repl_out* is generated differently depending on the type of *repl*:
 
@@ -278,6 +289,11 @@ below).
      submatch (or the entire match if there are no submatches), following the
      same rules as for the return value of *repl* call, described in the above
      paragraph.
+
+  4. If *repl* is ``false`` or ``nil``, no replacement is done. Note
+     that, unusually for Lua, if ``repl`` is absent, it is not taken
+     to be ``nil``. This is to prevent programming errors caused by
+     inadvertently missing out *repl*.
 
   Note: Under some circumstances, the value of *repl_out* may be ignored; see
   below_.
@@ -829,47 +845,15 @@ This function returns a string containing the version of the used TRE library.
 
 ------------------------------------------------------------
 
-Other functions
-~~~~~~~~~~~~~~~
-
-plainfind
----------
-
-:funcdef:`rex.plainfind (subj, patt, [init], [ci])`
-
-The function searches for the first match of the string *patt* in the subject
-*subj*, starting from offset *init*.
-
-  * The string *patt* is not regular expression, all its characters stand for
-    themselves.
-  * Both strings *subj* and *patt* can have embedded zeros.
-  * The flag *ci* specifies case-insensitive search (current locale is used).
-  * This function uses no regex library.
-
-  +---------+---------------------------+--------+-------------+
-  |Parameter|        Description        |  Type  |Default Value|
-  +=========+===========================+========+=============+
-  |  subj   |subject                    | string |     n/a     |
-  +---------+---------------------------+--------+-------------+
-  |  patt   |text to find               | string |     n/a     |
-  +---------+---------------------------+--------+-------------+
-  | [init]  |start offset in the subject| number |      1      |
-  |         |(can be negative)          |        |             |
-  +---------+---------------------------+--------+-------------+
-  |  [ci]   |case insensitive search    |boolean |  ``false``  |
-  +---------+---------------------------+--------+-------------+
-
-**Returns on success:**
-  1. The start point of the match (a number).
-  2. The end point of the match (a number).
-
-**Returns on failure:**
-  1. ``nil``
-
-------------------------------------------------------------
-
 Incompatibilities with previous versions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**Incompatibilities between versions 2.6 and 2.5:**
+
+  1. Removed function ``plainfind``.
+  #. Global variables (e.g. *rex_posix*, *rex_pcre*, etc.) are not created
+     by default. This can be changed at the stage of compilation by adding
+     ``-DREX_CREATEGLOBALVAR`` to ``CFLAGS``.
 
 **Incompatibilities between versions 2.2 and 2.1:**
 

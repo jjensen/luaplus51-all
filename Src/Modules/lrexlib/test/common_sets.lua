@@ -155,28 +155,6 @@ local function set_m_match (lib, flg)
   }
 end
 
-local function set_f_plainfind (lib, flg)
-  return {
-    Name = "Function plainfind",
-    Func = lib.plainfind,
-  --{ subj,  patt,  st, ci }      { results }
-    { {"abcd", "bc"},             {2,3} }, -- [none]
-    { {"abcd", "dc"},             {N}   }, -- [none]
-    { {"abcd", "cd"},             {3,4} }, -- positive st
-    { {"abcd", "cd", 3},          {3,4} }, -- positive st
-    { {"abcd", "cd", 4},          {N}   }, -- failing st
-    { {"abcd", "bc", 2},          {2,3} }, -- positive st
-    { {"abcd", "bc", -4},         {2,3} }, -- negative st
-    { {"abcd", "bc", 3},          {N}   }, -- failing st
-    { {"abcd", "BC"},             {N}   }, -- case sensitive
-    { {"abcd", "BC", N, true},    {2,3} }, -- case insensitive
-    { {"ab\0cd", "b\0c"},         {2,4} }, -- contains nul
-    { {"abcd", "", 1},            {1,0} }, -- empty pattern
-    { {"abcd", "", 5},            {5,4} }, -- empty pattern
-    { {"abcd", "", 6},            {N}   }, -- empty pattern
-  }
-end
-
 local function set_f_gsub1 (lib, flg)
   local subj, pat = "abcdef", "[abef]+"
   local cpat = lib.new(pat)
@@ -337,6 +315,5 @@ return function (libname)
     set_f_gsub5     (lib),
     set_f_gsub6     (lib),
     set_f_gsub8     (lib),
-    set_f_plainfind (lib),
   }
 end

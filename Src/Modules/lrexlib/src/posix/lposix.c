@@ -26,10 +26,11 @@
 
 #define REX_TYPENAME REX_LIBNAME"_regex"
 
-/* Test if regex.h corresponds to the extended POSIX library, i.e. H.Spencer's.
+/* Test if regex.h corresponds to the extended POSIX library, i.e. H. Spencer's.
    This test may not work as intended if regex.h introduced REG_BASIC, etc.
    via enum rather than #define.
    If that's the case, add -DREX_POSIX_EXT in the makefile/command line.
+   The same applies to REG_STARTEND.
 */
 #ifndef REX_POSIX_EXT
 #  if defined(REG_BASIC) && defined(REG_STARTEND)
@@ -38,7 +39,7 @@
 #endif
 
 #define ALG_CFLAGS_DFLT REG_EXTENDED
-#ifdef REX_POSIX_EXT
+#ifdef REG_STARTEND
 #  define ALG_EFLAGS_DFLT REG_STARTEND
 #else
 #  define ALG_EFLAGS_DFLT 0
@@ -109,30 +110,18 @@ static int compile_regex (lua_State *L, const TArgComp *argC, TPosix **pud) {
   if (argC->cflags & REG_NOSUB)
     ud->r.re_nsub = 0;
   ud->match = (regmatch_t *) Lmalloc (L, (ALG_NSUB(ud) + 1) * sizeof (regmatch_t));
-  lua_pushvalue (L, LUA_ENVIRONINDEX);
+  lua_pushvalue (L, ALG_ENVIRONINDEX);
   lua_setmetatable (L, -2);
 
   if (pud) *pud = ud;
   return 1;
 }
 
-#ifdef REX_POSIX_EXT
-static void CheckStartEnd (TArgExec *argE, TPosix *ud) {
-  if (argE->eflags & REG_STARTEND) {
-    ud->match[0].rm_so = argE->startoffset;
-    ud->match[0].rm_eo = argE->textlen;
-    argE->startoffset = 0;
-  }
-  else
-    argE->text += argE->startoffset;
-}
-#endif
-
 static int gmatch_exec (TUserdata *ud, TArgExec *argE) {
   if (argE->startoffset > 0)
     argE->eflags |= REG_NOTBOL;
 
-#ifdef REX_POSIX_EXT
+#ifdef REG_STARTEND
   if (argE->eflags & REG_STARTEND) {
     ALG_SUBBEG(ud,0) = 0;
     ALG_SUBEND(ud,0) = argE->textlen - argE->startoffset;
@@ -144,27 +133,29 @@ static int gmatch_exec (TUserdata *ud, TArgExec *argE) {
 }
 
 static void gmatch_pushsubject (lua_State *L, TArgExec *argE) {
-#ifdef REX_POSIX_EXT
+#ifdef REG_STARTEND
   if (argE->eflags & REG_STARTEND)
     lua_pushlstring (L, argE->text, argE->textlen);
   else
-    lua_pushlstring (L, argE->text, strlen (argE->text));
-#else
-    lua_pushlstring (L, argE->text, strlen (argE->text));
 #endif
+    lua_pushstring (L, argE->text);
 }
 
 static int findmatch_exec (TPosix *ud, TArgExec *argE) {
-#ifdef REX_POSIX_EXT
-  CheckStartEnd (argE, ud);
-#else
-  argE->text += argE->startoffset;
+#ifdef REG_STARTEND
+  if (argE->eflags & REG_STARTEND) {
+    ud->match[0].rm_so = argE->startoffset;
+    ud->match[0].rm_eo = argE->textlen;
+    argE->startoffset = 0;
+  }
+  else
 #endif
+    argE->text += argE->startoffset;
   return regexec (&ud->r, argE->text, ALG_NSUB(ud) + 1, ud->match, argE->eflags);
 }
 
 static int gsub_exec (TPosix *ud, TArgExec *argE, int st) {
-#ifdef REX_POSIX_EXT
+#ifdef REG_STARTEND
   if(argE->eflags & REG_STARTEND) {
     ALG_SUBBEG(ud,0) = 0;
     ALG_SUBEND(ud,0) = argE->textlen - st;
@@ -176,7 +167,7 @@ static int gsub_exec (TPosix *ud, TArgExec *argE, int st) {
 }
 
 static int split_exec (TPosix *ud, TArgExec *argE, int offset) {
-#ifdef REX_POSIX_EXT
+#ifdef REG_STARTEND
   if (argE->eflags & REG_STARTEND) {
     ALG_SUBBEG(ud,0) = 0;
     ALG_SUBEND(ud,0) = argE->textlen - offset;
@@ -213,6 +204,8 @@ static flag_pair posix_flags[] =
   { "BASIC",    REG_BASIC },
   { "NOSPEC",   REG_NOSPEC },
   { "PEND",     REG_PEND },
+#endif
+#ifdef REG_STARTEND
   { "STARTEND", REG_STARTEND },
 #endif
   { "EXTENDED", REG_EXTENDED },
@@ -253,42 +246,30 @@ static int Posix_get_flags (lua_State *L) {
   return get_flags (L, fps);
 }
 
-static const luaL_reg posixmeta[] = {
-  { "exec",       ud_exec },
-  { "tfind",      ud_tfind },    /* old match */
-  { "find",       ud_find },
-  { "match",      ud_match },
+static const luaL_Reg r_methods[] = {
+  { "exec",       algm_exec },
+  { "tfind",      algm_tfind },    /* old match */
+  { "find",       algm_find },
+  { "match",      algm_match },
   { "__gc",       Posix_gc },
   { "__tostring", Posix_tostring },
   { NULL, NULL}
 };
 
-static const luaL_reg rexlib[] = {
-  { "match",      match },
-  { "find",       find },
-  { "gmatch",     gmatch },
-  { "gsub",       gsub },
-  { "split",      split },
-  { "new",        ud_new },
+static const luaL_Reg r_functions[] = {
+  { "match",      algf_match },
+  { "find",       algf_find },
+  { "gmatch",     algf_gmatch },
+  { "gsub",       algf_gsub },
+  { "split",      algf_split },
+  { "new",        algf_new },
   { "flags",      Posix_get_flags },
-  { "plainfind",  plainfind_func },
   { NULL, NULL }
 };
 
 /* Open the library */
 REX_API int REX_OPENLIB (lua_State *L)
 {
-  /* create a new function environment to serve as a metatable for methods */
-  lua_newtable (L);
-  lua_pushvalue (L, -1);
-  lua_replace (L, LUA_ENVIRONINDEX);
-  lua_pushvalue(L, -1); /* mt.__index = mt */
-  lua_setfield(L, -2, "__index");
-  luaL_register (L, NULL, posixmeta);
-
-  /* register functions */
-  luaL_register (L, REX_LIBNAME, rexlib);
-  lua_pushliteral (L, REX_VERSION" (for POSIX regexes)");
-  lua_setfield (L, -2, "_VERSION");
+  alg_register(L, r_methods, r_functions, "POSIX regexes");
   return 1;
 }

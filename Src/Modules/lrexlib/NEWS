@@ -1,3 +1,26 @@
+2012-10-18  Release 2.7.1
+
+  * Fixed Lua 5.1 compatibility, broken in 2.7.0.
+  * Added ability to specify no replacement to gsub with a nil or
+    false replacement argument.
+
+2012-10-04  Release 2.7.0
+
+  * Added support for searching raw memory buffers (e.g. made with
+    alien).
+  * Fixed possible invalid code generation in C (thanks, Michael
+    Tautschnig).
+  * Generate LuaRock rockspecs for all modules.
+  * Greatly simplify UNIX build system, relying on LuaRocks.
+  * Allow POSIX REG_STARTEND to be used on any system supporting it.
+  * Add a test set for POSIX regex engine (thanks, Enrico Tassi).
+  * Simplify some code.
+  * Always use Lua state memory allocator.
+
+2012-04-13  Release 2.6.0
+
+  * Added support for Lua 5.2.
+
 2010-12-15  Release 2.5.3
 
   * Bug fix to rex.split.

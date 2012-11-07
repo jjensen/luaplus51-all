@@ -14,14 +14,14 @@ end
 local function set_named_subpatterns (lib, flg)
   return {
     Name = "Named Subpatterns",
-    Func = function (methodname, subj, patt, name1, name2)
+    Func = function (subj, methodname, patt, name1, name2)
       local r = lib.new (patt)
       local _,_,caps = r[methodname] (r, subj)
       return norm(caps[name1]), norm(caps[name2])
     end,
-    --{}
-    { {"tfind", "abcd", "(?P<dog>.)b.(?P<cat>d)", "dog", "cat"},  {"a","d"} },
-    { {"exec",  "abcd", "(?P<dog>.)b.(?P<cat>d)", "dog", "cat"},  {"a","d"} },
+    --{} N.B. subject is always first element
+    { {"abcd", "tfind", "(?P<dog>.)b.(?P<cat>d)", "dog", "cat"},  {"a","d"} },
+    { {"abcd", "exec",  "(?P<dog>.)b.(?P<cat>d)", "dog", "cat"},  {"a","d"} },
   }
 end
 

@@ -1,5 +1,12 @@
 -- See Copyright Notice in the file LICENSE
 
+-- See if we have alien, so we can do tests with buffer subjects
+local ok
+ok, alien = pcall (require, "alien")
+if not ok then
+  io.stderr:write ("Warning: alien not found, so cannot run tests with buffer subjects\n")
+end
+
 do
   local path = "./?.lua;"
   if package.path:sub(1, #path) ~= path then
@@ -16,6 +23,13 @@ local function test_library (libname, setfile, verbose)
   local lib = require (libname)
   local f = require (setfile)
   local sets = f (libname)
+
+  local realalien = alien
+  if libname == "rex_posix" and not lib.flags ().STARTEND and alien then
+    alien = nil
+    io.stderr:write ("Cannot run posix tests with alien without REG_STARTEND\n")
+  end
+
   local n = 0 -- number of failures
   for _, set in ipairs (sets) do
     if verbose then
@@ -33,22 +47,17 @@ local function test_library (libname, setfile, verbose)
   if verbose then
     print ""
   end
+  alien = realalien
   return n
 end
 
 local avail_tests = {
-  gnu       = { lib = "rex_gnu",      "common_sets", "emacs_sets", "gnu_sets" },
-  posix     = { lib = "rex_posix",    "common_sets", "posix_sets", },
-  spencer   = { lib = "rex_spencer",  "common_sets", "posix_sets", "spencer_sets" },
-  posix1    = { lib = "rex_posix1",   "common_sets", "posix_sets", "spencer_sets" },
-  tre       = { lib = "rex_tre",      "common_sets", "posix_sets", "spencer_sets" },
-  lord      = { lib = "rex_lord",     "common_sets", "posix_sets"  },
-  maddock   = { lib = "rex_maddock",  "common_sets", "posix_sets", },
-  pcreposix = { lib = "rex_pcreposix","common_sets", "posix_sets", },
-  pcre      = { lib = "rex_pcre",     "common_sets", "pcre_sets", "pcre_sets2", },
-  pcre_nr   = { lib = "rex_pcre_nr",  "common_sets", "pcre_sets", "pcre_sets2", },
-  pcre45    = { lib = "rex_pcre45",   "common_sets", "pcre_sets", "pcre_sets2", },
-  onig      = { lib = "rex_onig",     "common_sets", "onig_sets", }
+  posix     = { lib = "rex_posix",   "common_sets", "posix_sets" },
+  gnu       = { lib = "rex_gnu",     "common_sets", "emacs_sets", "gnu_sets" },
+  oniguruma = { lib = "rex_onig",    "common_sets", "oniguruma_sets", },
+  pcre      = { lib = "rex_pcre",    "common_sets", "pcre_sets", "pcre_sets2", },
+  spencer   = { lib = "rex_spencer", "common_sets", "posix_sets", "spencer_sets" },
+  tre       = { lib = "rex_tre",     "common_sets", "posix_sets", "spencer_sets", --[["tre_sets"]] },
 }
 
 do
