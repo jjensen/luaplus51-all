@@ -2,7 +2,7 @@
 require("lxp")
 require("cURL")
 
-tags = {}
+tags = {}			
 items = {}
 
 callback = {}
@@ -14,7 +14,7 @@ function callback.StartElement(parser, tagname)
    end
 end
 
-function callback.CharacterData(parser, str)
+function callback.CharacterData(parser, str) 
    if (tags[#tags -1] == "item") then
       --we are parsing a item, get rid of trailing whitespace
       items[#items][tags[#tags]] = string.gsub(str, "%s*$", "")
@@ -22,7 +22,7 @@ function callback.CharacterData(parser, str)
 end
 function callback.EndElement(parser, tagname)
    --assuming well formed xml
-   tags[#tags] = nil
+   tags[#tags] = nil		
 end
 
 p = lxp.new(callback)
@@ -34,20 +34,20 @@ c:setopt_url("http://www.lua.org/news.rss")
 m = cURL.multi_init()
 m:add_handle(c)
 
-for data,type in m:perform() do
+for data,type in m:perform() do 
    -- ign "header"
-   if (type == "data") then
+   if (type == "data") then 
       assert(p:parse(data))
    end
 end
 
 --finish document
-assert(p:parse())
+assert(p:parse())		
 p:close()
 
-for i, item in ipairs(items) do
-   for k, v in pairs(item) do
+for i, item in ipairs(items) do 
+   for k, v in pairs(item) do 
       print(k,v)
    end
-   print()
+   print()		
 end

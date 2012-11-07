@@ -51,9 +51,9 @@ typedef struct l_option_slist {
 } l_option_slist;
 
 typedef struct l_easy_private {
-  CURL *curl; 
+  CURL *curl;
   char error[CURL_ERROR_SIZE];
-  
+
   /* slists, allocated by l_easy_setopt_strings */
   l_option_slist *option_slists;
 } l_easy_private;

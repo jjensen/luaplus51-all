@@ -56,7 +56,7 @@ void l_easy_setopt_free_slist(l_easy_private *privp, CURLoption option) {
 
   while (privp->option_slists[i].option != 0) {
     if (privp->option_slists[i].option == option) {
-      /* free existing slist for this option */  
+      /* free existing slist for this option */
       if (privp->option_slists[i].slist != NULL) {
 	curl_slist_free_all(privp->option_slists[i].slist);
 	privp->option_slists[i].slist = NULL;
@@ -69,9 +69,9 @@ void l_easy_setopt_free_slist(l_easy_private *privp, CURLoption option) {
 
 struct curl_slist**  l_easy_setopt_get_slist(l_easy_private *privp, CURLoption option) {
  int i = 0;
- 
+
  while (privp->option_slists[i].option != 0) {
-   if (privp->option_slists[i].option == option) 
+   if (privp->option_slists[i].option == option)
      return &(privp->option_slists[i].slist);
    i++;
  }
@@ -88,12 +88,12 @@ static int l_easy_setopt_strings(lua_State *L) {
   /* free previous slist for this option */
   l_easy_setopt_free_slist(privatep, *optionp);
 
-  if (lua_isstring(L, 2)) 
+  if (lua_isstring(L, 2))
     *l_easy_setopt_get_slist(privatep, *optionp) = curl_slist_append(headerlist, lua_tostring(L, 2));
   else {
     if (lua_type(L, 2) != LUA_TTABLE)
       luaL_error(L, "wrong argument (%s): expected string or table", lua_typename(L, 2));
-    
+
     lua_rawgeti(L, 2, i++);
     while (!lua_isnil(L, -1)) {
       struct curl_slist *current_slist = *l_easy_setopt_get_slist(privatep, *optionp);
@@ -101,12 +101,12 @@ static int l_easy_setopt_strings(lua_State *L) {
       *l_easy_setopt_get_slist(privatep, *optionp) = new_slist;
       lua_pop(L, 1);
       lua_rawgeti(L, 2, i++);
-    } 
+    }
     lua_pop(L, 1);
   }
 
   if (curl_easy_setopt(curl, *optionp, *l_easy_setopt_get_slist(privatep, *optionp)) != CURLE_OK)
-    luaL_error(L, "%s", privatep->error);  
+    luaL_error(L, "%s", privatep->error);
   /* memory leak: we need to free this in __gc */
   /*   curl_slist_free_all(headerlist);  */
   return 0;
@@ -121,17 +121,17 @@ static int l_easy_setopt_proxytype(lua_State *L) {
   /* check for valid OPTION: */
   curl_proxytype type;
 
-  if (!strcmp("HTTP", value)) 
+  if (!strcmp("HTTP", value))
     type = CURLPROXY_HTTP;
-  else if (!strcmp("SOCKS4", value)) 
+  else if (!strcmp("SOCKS4", value))
     type = CURLPROXY_SOCKS4;
-  else if (!strcmp("SOCKS5", value)) 
+  else if (!strcmp("SOCKS5", value))
     type = CURLPROXY_SOCKS5;
-  else 
+  else
     luaL_error(L, "Invalid proxytype: %s", value);
 
   if (curl_easy_setopt(curl, *optionp, type) != CURLE_OK)
-    luaL_error(L, "%s", privatep->error);  
+    luaL_error(L, "%s", privatep->error);
   return 0;
 }
 
@@ -140,9 +140,9 @@ static int l_easy_setopt_share(lua_State *L) {
   CURL *curl = privatep->curl;
   CURLoption *optionp = LUACURL_OPTIONP_UPVALUE(L, 1);
   CURLSH *curlsh = ((l_share_userdata*) luaL_checkudata(L, 2, LUACURL_SHAREMETATABLE))->curlsh;
-  
+
   if (curl_easy_setopt(curl, CURLOPT_SHARE, curlsh) != CURLE_OK)
-    luaL_error(L, "%s", privatep->error);  
+    luaL_error(L, "%s", privatep->error);
   return 0;
 }
 
@@ -150,19 +150,19 @@ static int l_easy_setopt_share(lua_State *L) {
 /* closures assigned to setopt in setopt table */
 static struct {
   const char *name;
-  CURLoption option; 
+  CURLoption option;
   lua_CFunction func;
 } luacurl_setopt_c[] = {
   /* behavior options */
   {P"verbose", CURLOPT_VERBOSE, l_easy_setopt_long},
   {P"header", CURLOPT_HEADER, l_easy_setopt_long},
-  {P"noprogrss", CURLOPT_NOPROGRESS, l_easy_setopt_long},
+  {P"noprogress", CURLOPT_NOPROGRESS, l_easy_setopt_long},
   {P"nosignal", CURLOPT_NOSIGNAL, l_easy_setopt_long},
   /* callback options */
   /* network options */
   /* names and passwords options  */
   /* http options */
-  
+
   {P"autoreferer", CURLOPT_AUTOREFERER, l_easy_setopt_long},
   {P"encoding", CURLOPT_ENCODING, l_easy_setopt_string},
   {P"followlocation", CURLOPT_FOLLOWLOCATION, l_easy_setopt_long},
@@ -173,11 +173,11 @@ static struct {
   {P"post", CURLOPT_POST, l_easy_setopt_long},
   {P"postfields", CURLOPT_POSTFIELDS, l_easy_setopt_string},
   {P"postfieldsize", CURLOPT_POSTFIELDSIZE, l_easy_setopt_long},
-  {P"postfieldsize_LARGE", CURLOPT_POSTFIELDSIZE_LARGE, l_easy_setopt_long}, 
+  {P"postfieldsize_LARGE", CURLOPT_POSTFIELDSIZE_LARGE, l_easy_setopt_long},
   {P"httppost", CURLOPT_HTTPPOST, l_easy_setopt_long},
   {P"referer", CURLOPT_REFERER, l_easy_setopt_string},
   {P"useragent", CURLOPT_USERAGENT, l_easy_setopt_string},
-  {P"httpheader", CURLOPT_HTTPHEADER, l_easy_setopt_strings}, 
+  {P"httpheader", CURLOPT_HTTPHEADER, l_easy_setopt_strings},
 /*  Not implemented:  {P"http200aliases", CURLOPT_HTTP200ALIASES, l_easy_setopt_long}, */
   {P"cookie", CURLOPT_COOKIE, l_easy_setopt_string},
   {P"cookiefile", CURLOPT_COOKIEFILE, l_easy_setopt_string},
@@ -215,6 +215,8 @@ static struct {
   /* network options */
   {P"url", CURLOPT_URL, l_easy_setopt_string},
   {P"proxy", CURLOPT_PROXY, l_easy_setopt_string},
+  {P"userpwd", CURLOPT_USERPWD, l_easy_setopt_string},
+  {P"proxyuserpwd", CURLOPT_PROXYUSERPWD, l_easy_setopt_string},
   {P"proxyport", CURLOPT_PROXYPORT, l_easy_setopt_long},
   {P"proxytype", CURLOPT_PROXYTYPE, l_easy_setopt_proxytype},
   {P"httpproxytunnel", CURLOPT_HTTPPROXYTUNNEL, l_easy_setopt_long},
@@ -251,7 +253,7 @@ static struct {
   /* other options */
   {P"share", CURLOPT_SHARE, l_easy_setopt_share},
   /* dummy opt value */
-  {NULL, CURLOPT_VERBOSE, NULL}};	
+  {NULL, CURLOPT_VERBOSE, NULL}};
 
 int l_easy_setopt_register(lua_State *L) {
   int i;
@@ -271,9 +273,9 @@ void  l_easy_setopt_init_slists(lua_State *L, l_easy_private *privp) {
   int i, n;
 
   /* count required slists */
-  for (i=0, n=0; luacurl_setopt_c[i].name != NULL; i++) 
+  for (i=0, n=0; luacurl_setopt_c[i].name != NULL; i++)
     if (luacurl_setopt_c[i].func == l_easy_setopt_strings) n++;
-  
+
   privp->option_slists = (l_option_slist*) malloc(sizeof(l_option_slist) * ++n);
   if (privp->option_slists == NULL)
     luaL_error(L, "can't malloc option slists");
@@ -294,9 +296,9 @@ void  l_easy_setopt_init_slists(lua_State *L, l_easy_private *privp) {
 
 void  l_easy_setopt_free_slists(l_easy_private *privp) {
   int i = 0;
-  
+
   while (privp->option_slists[i].option != 0) {
-    if (privp->option_slists[i].slist != NULL) 
+    if (privp->option_slists[i].slist != NULL)
       curl_slist_free_all(privp->option_slists[i].slist);
     i++;
   }

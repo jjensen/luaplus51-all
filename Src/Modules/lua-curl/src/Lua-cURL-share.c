@@ -28,7 +28,7 @@
 #include "Lua-cURL-share.h"
 #include "Lua-utility.h"
 
-static l_share_userdata* l_share_newuserdata(lua_State *L) { 
+static l_share_userdata* l_share_newuserdata(lua_State *L) {
   l_share_userdata *share_userdata = (l_share_userdata *) lua_newuserdata(L, sizeof(l_share_userdata));
   luaL_getmetatable(L, LUACURL_SHAREMETATABLE);
   lua_setmetatable(L, -2);
@@ -36,24 +36,24 @@ static l_share_userdata* l_share_newuserdata(lua_State *L) {
 }
 
 int l_share_init(lua_State *L) {
-  
+
   l_share_userdata *share_userdata = l_share_newuserdata(L);
   if ((share_userdata->curlsh = curl_share_init()) == NULL)
     luaL_error(L, "something went wrong and you cannot use the other curl functions");
   /* return userdata */
-  return 1;			
+  return 1;
 }
 
 int l_share_setopt_share(lua_State *L) {
   l_share_userdata *privatep = luaL_checkudata(L, 1, LUACURL_SHAREMETATABLE);
   CURLSH *curlsh = privatep->curlsh;
-  const char *value = luaL_checkstring(L, 2);  
+  const char *value = luaL_checkstring(L, 2);
   CURLoption type;
   CURLSHcode  errornum;
 
-  if (!strcmp("COOKIE", value)) 
+  if (!strcmp("COOKIE", value))
     type = CURL_LOCK_DATA_COOKIE;
-  else if (!strcmp("DNS", value)) 
+  else if (!strcmp("DNS", value))
     type = CURL_LOCK_DATA_DNS;
   else luaL_error(L, "Invalid share type: %s", value);
 
@@ -69,6 +69,6 @@ int l_share_gc(lua_State *L) {
   CURLSHcode  errornum;
   if ((errornum = curl_share_cleanup(curlsh)) != CURLSHE_OK)
     luaL_error(L, "%s", curl_share_strerror(errornum));
-  
+
   return 0;
 }

@@ -221,7 +221,7 @@ function browser:prepare(post_data, urlencoded)
 	return req
 end
 
---this function sets the url
+--this function sets the url 
 function browser:setUrl(url)
 	--appends a leading / to url if needed
 	if self.url and self.url:match("^(https?://[^/]+)$") then
@@ -233,7 +233,7 @@ end
 --opens a webpage :) only the first parameter is required
 function browser:open(url, post_data, redirect, urlencoded)
 	local redirect = redirect or true
-	local urlencoded = urlencoded == nil
+	local urlencoded = urlencoded == nil 
 	local ret = {}
 	response_body = {}
 	ret.headers = {}
@@ -273,7 +273,3 @@ end
 -- print(resp.body)
 -- table.foreach(resp.headers, print)
 --]]
-b = browser:new()
-resp = b:open("http://www.html-kit.com/tools/cookietester/")
-print(resp.body)
-table.foreach(resp.headers, print)
