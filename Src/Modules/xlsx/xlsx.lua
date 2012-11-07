@@ -61,6 +61,9 @@ local __sheetMetatable = {
         local columns = {}
         for _, rowNode in ipairs(sheetData[1]['#'].row) do
             local rowNum = tonumber(rowNode['@'].r)
+			if not rows[rowNum] then
+				rows[rowNum] = {}
+			end
             for _, columnNode in ipairs(rowNode['#'].c) do
                 local colType = columnNode['@'].t or 'n'
                 local cellS = columnNode['@'].s
@@ -89,9 +92,6 @@ local __sheetMetatable = {
                         --assert()
                     --end
 
-                    if not rows[rowNum] then
-                        rows[rowNum] = {}
-                    end
                     if not columns[colNum] then
                         columns[colNum] = {}
                     end
