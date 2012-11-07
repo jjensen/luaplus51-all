@@ -25,7 +25,23 @@ function copy_functions(index)
 	end
 end
 
+function class_contains(where, what)
+	local class = fullnames[where]
+	if not class then return false end
+	for _, child in ipairs(class) do
+		if child.xarg.name == what then return true
+		elseif child.label == 'Enum' then
+			for _, enum in ipairs(child) do
+				if enum.xarg.name == what then return true end
+			end
+		end
+	end
+	return false
+end
 
+--- Fixes default arguments.
+-- Default arguments are processed outside of the enclosing class, so every reference to an
+-- enum or variable needs to be properly prefixed with the class name.
 function fix_arguments(index)
 	for a in pairs(index) do
 		if a.label=='Argument'
@@ -34,22 +50,43 @@ function fix_arguments(index)
 			and (not string.match(a.xarg.defaultvalue, '^".*"$'))
 			and a.xarg.defaultvalue~='true'
 			and a.xarg.defaultvalue~='false'
-			and (not string.match(a.xarg.defaultvalue, '^0[xX]%d+$')) then
-			local dv, call = string.match(a.xarg.defaultvalue, '(.-)(%(%))')
+			and (not string.match(a.xarg.defaultvalue, '^0[.xX][%da-fA-F]+$'))
+		then
+			local dv, call = string.match(a.xarg.defaultvalue, '(.-)(%(.-%))')
 			dv = dv or a.xarg.defaultvalue
 			call = call or ''
 			local context = a.xarg.context
+			-- try to determine the class scope which contains the default value (dv)
 			while not fullnames[context..'::'..dv] and context~='' do
 				context = string.match(context, '^(.*)::') or ''
 			end
+			-- try in superclass (FIXME: try all superclasses)
+			if not fullnames[context..'::'..dv] then
+				context = a.xarg.context
+				local class = fullnames[context]
+				if class.xarg.bases then
+					context = class.xarg.bases:match('[^;]+')
+				end
+			end
+			-- workaround for enums and values in the context class
+			local callValue = call:sub(2,-2)
+			if #callValue>0 then
+				callValue = callValue:gsub('[%a][%a%d]+', function(id)
+					if class_contains(context, id) then return context..'::'..id end
+				end)
+				call = '('..callValue..')'
+			end
+			local firstChar = dv:sub(1,1)
 			if fullnames[context..'::'..dv] then
+				-- remove unneeded context prefix
 				if fullnames[context..'::'..dv].xarg.name==fullnames[context..'::'..dv].xarg.member_of_class then
 					context = string.match(context, '^(.*)::') or ''
 				end
 				a.xarg.defaultvalue = context..'::'..dv..call
-			elseif fullnames[dv] then
+			elseif fullnames[dv] or dv == dv:upper() or (firstChar == 'Q' and #call == 0) or firstChar == "'" then
 				a.xarg.defaultvalue = dv..call
 			else
+				ignore(a.xarg.context..'::'..a.xarg.name, 'Unsupported default value', a.xarg.defaultvalue)
 				a.xarg.default = nil
 				a.xarg.defaultvalue = nil
 			end

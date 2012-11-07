@@ -438,6 +438,12 @@ void lqtL_unregister (lua_State *L, const void *p) {
 
 void lqtL_pushudata (lua_State *L, const void *p, const char *name) {
     bool already = false;
+    
+    if (p == NULL) {
+        lua_pushnil(L); // (1)
+        return;
+    }
+    
     lqtL_ensurepointer(L, p); // (1)
     if (lua_getmetatable(L, -1)) {
         // (2)
@@ -766,12 +772,12 @@ void *lqtL_convert(lua_State *L, int n, const char *to_type) {
     luaL_getmetatable(L, to_type);
     if (lua_isnil(L, -1)) {
         lua_settop(L, oldtop);
-        return false;
+        return NULL;
     }
     lua_getfield(L, -1, "__convert");
     if (lua_isnil(L, -1)) {
         lua_settop(L, oldtop);
-        return false;
+        return NULL;
     }
     lqt_convertfunc func = (lqt_convertfunc) lua_touserdata(L, -1);
     lua_settop(L, oldtop);

@@ -151,8 +151,14 @@ TypeInfo TypeInfo::resolveType (TypeInfo const &__type, CodeModelItem __scope)
     }
 
     if (TypeAliasModelItem __alias = model_dynamic_cast<TypeAliasModelItem> (__item))
-        if (__alias->type().qualifiedName() != otherType.qualifiedName())
-            return resolveType (TypeInfo::combine (__alias->type (), otherType), __scope);
+        if (__alias->type().qualifiedName() != otherType.qualifiedName()) {
+            const TypeInfo &aliasType = __alias->type();
+            // prevent infinite recursion introduced in Qt 4.8.0
+            if (__type == aliasType)
+                return __type;
+            TypeInfo combined = combine(aliasType, otherType);
+            return resolveType(combined, __scope);
+        }
 
     return otherType;
 }
@@ -197,7 +203,7 @@ QString TypeInfo::toString() const
   return tmp;
 }
 
-bool TypeInfo::operator==(const TypeInfo &other)
+bool TypeInfo::operator==(const TypeInfo &other) const
 {
   if (arrayElements().count() != other.arrayElements().count())
       return false;

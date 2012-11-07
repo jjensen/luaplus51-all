@@ -146,7 +146,7 @@ public:
   void setArguments(const QList<TypeInfo> &arguments);
   void addArgument(const TypeInfo &arg) { m_arguments.append(arg); }
 
-  bool operator==(const TypeInfo &other);
+  bool operator==(const TypeInfo &other) const;
   bool operator!=(const TypeInfo &other) { return !(*this==other); }
 
   // ### arrays and templates??
