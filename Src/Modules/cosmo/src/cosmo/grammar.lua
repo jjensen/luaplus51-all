@@ -67,31 +67,33 @@ local shortstring = (lpeg.P'"' * ( (lpeg.P'\\' * 1) + (1 - (lpeg.S'"\n\r\f')) )^
 
 local space = (lpeg.S'\n \t\r\f')^0
  
-local syntax = [[
-  template <- (<item>* -> {} !.) -> compiletemplate
-  item <- <text> / <templateappl> / (. => error)
-  text <- ({~ (!<selector> ('$$' -> '$' / .))+ ~}) -> compiletext
-  selector <- ('$(' %s {~ <exp> ~} %s ')') -> parseexp / 
-              ('$' %alphanum+ ('|' %alphanum+)*) -> parseselector
-  templateappl <- ({~ <selector> ~} {~ <args>? ~} !'{' 
-		   ({%longstring} -> compilesubtemplate)? (%s ','? %s ({%longstring} -> compilesubtemplate))* -> {} !(','? %s %start)) 
-		     -> compileapplication
-  args <- '{' %s '}' / '{' %s <arg> %s (',' %s <arg> %s)* ','? %s '}'
-  arg <- <attr> / <exp>
-  attr <- <symbol> %s '=' !'=' %s <exp> / '[' !'[' !'=' %s <exp> %s ']' %s '=' %s <exp>
-  symbol <- %alpha %alphanum*
-  explist <- <exp> (%s ',' %s <exp>)* (%s ',')?
-  exp <- <simpleexp> (%s <binop> %s <simpleexp>)*
-  simpleexp <- <args> / %string / %longstring -> parsels / %number / 'true' / 'false' / 
-     'nil' / <unop> %s <exp> / <prefixexp> / (. => error)
-  unop <- '-' / 'not' / '#' 
-  binop <- '+' / '-' / '*' / '/' / '^' / '%' / '..' / '<=' / '<' / '>=' / '>' / '==' / '~=' /
-     'and' / 'or'
-  prefixexp <- ( <selector> / {%name} -> addenv / '(' %s <exp> %s ')' ) 
-    ( %s <args> / '.' %name / ':' %name %s ('(' %s ')' / '(' %s <explist> %s ')') / 
-    '[' %s <exp> %s ']' / '(' %s ')' / '(' %s <explist> %s ')' / 
-    %string / %longstring -> parsels %s )*
-]]
+local function syntax(lbra, rbra)
+  return [[
+      template <- (<item>* -> {} !.) -> compiletemplate
+      item <- <text> / <templateappl> / (. => error)
+      text <- ({~ (!<selector> ('$$' -> '$' / .))+ ~}) -> compiletext
+      selector <- ('$]] .. lbra .. [[' %s {~ <exp> ~} %s ']] .. rbra .. [[') -> parseexp / 
+         ('$' %alphanum+ ('|' %alphanum+)*) -> parseselector
+      templateappl <- ({~ <selector> ~} {~ <args>? ~} !'{' 
+	 ({%longstring} -> compilesubtemplate)? (%s ','? %s ({%longstring} -> compilesubtemplate))* -> {} !(','? %s %start)) 
+	 -> compileapplication
+      args <- '{' %s '}' / '{' %s <arg> %s (',' %s <arg> %s)* ','? %s '}'
+      arg <- <attr> / <exp>
+      attr <- <symbol> %s '=' !'=' %s <exp> / '[' !'[' !'=' %s <exp> %s ']' %s '=' %s <exp>
+      symbol <- %alpha %alphanum*
+      explist <- <exp> (%s ',' %s <exp>)* (%s ',')?
+      exp <- <simpleexp> (%s <binop> %s <simpleexp>)*
+      simpleexp <- <args> / %string / %longstring -> parsels / %number / 'true' / 'false' / 
+         'nil' / <unop> %s <exp> / <prefixexp> / (. => error)
+      unop <- '-' / 'not' / '#' 
+      binop <- '+' / '-' / '*' / '/' / '^' / '%' / '..' / '<=' / '<' / '>=' / '>' / '==' / '~=' /
+          'and' / 'or'
+      prefixexp <- ( <selector> / {%name} -> addenv / '(' %s <exp> %s ')' ) 
+          ( %s <args> / '.' %name / ':' %name %s ('(' %s ')' / '(' %s <explist> %s ')') / 
+          '[' %s <exp> %s ']' / '(' %s ')' / '(' %s <explist> %s ')' / 
+          %string / %longstring -> parsels %s )*
+  ]]
+end
 
 local function pos_to_line(str, pos)
   local s = str:sub(1, pos)
@@ -150,4 +152,10 @@ local syntax_defs = {
   compilesubtemplate = ast_subtemplate
 }
 
-ast = re.compile(syntax, syntax_defs)
+function new(lbra, rbra)
+  lbra = lbra or "("
+  rbra = rbra or ")"
+  return re.compile(syntax(lbra, rbra), syntax_defs)
+end
+
+default = new()

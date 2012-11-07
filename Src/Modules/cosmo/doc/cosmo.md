@@ -42,11 +42,15 @@ code in the templates.
 <a name="Overview"></a>Installation
 =================================================
 
-The current version of Cosmo is 10.03.31. This version adds
-expressions to selectors $(\<exp\>), allows nested \[\[ \]\] in templates,
-makes commas between subtemplates optional, and adds a second parameter
-to cosmo.yield that tells Cosmo the first parameter is a literal to be
-included in the expansion instead of an environment.
+The current version of Cosmo is 10.04.06. This release fixes a bug
+in the previous release, 10.03.31, that raised errors when a selector
+had embedded quotes.
+
+The previous version, 10.03.31, added, expressions to selectors $(\<exp\>), 
+allowed nested \[\[ \]\] in templates, made commas between subtemplates 
+optional, and added a second parameter to cosmo.yield that tells Cosmo 
+the first parameter is a literal to be included in the expansion instead 
+of an environment.
 
 Cosmo is installed as a rock. To install the most recent release
 do `luarocks install cosmo`. The Cosmo rock is in the standard

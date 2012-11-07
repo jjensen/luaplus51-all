@@ -40,12 +40,22 @@ local function check_selector(name, selector)
   end
 end
 
+local function unparse_name(parsed_selector)
+  local name = parsed_selector:match("^env%['([%w_]+)'%]$")
+  if name then name = "$" .. name end
+  return name or parsed_selector
+end
+
 function interpreter.appl(state, appl)
   assert(appl.tag == "appl")
   local selector, args, subtemplates = appl.selector, appl.args, appl.subtemplates
-  local env, out = state.env, state.out
-  local selector_name = selector
-  selector = loadstring("local env = (...); return " .. selector)(env) or function () return '' end
+  local env, out, opts = state.env, state.out, state.opts
+  local selector_name = unparse_name(selector)
+  local default
+  if opts.fallback then
+    default = subtemplates[1]
+  end
+  selector = loadstring("local env = (...); return " .. selector)(env)
   if #subtemplates == 0 then
     if args and args ~= "" and args ~= "{}" then
       check_selector(selector_name, selector)
@@ -55,6 +65,9 @@ function interpreter.appl(state, appl)
       if is_callable(selector) then
 	insert(out, tostring(selector()))
       else
+	if not selector and opts.passthrough then
+	  selector = selector_name
+	end
 	insert(out, tostring(selector or ""))
       end
     end
@@ -71,7 +84,7 @@ function interpreter.appl(state, appl)
 	  else
 	    e = prepare_env(e, env)
 	  end
-	  interpreter.template({ env = e, out = out }, subtemplates[e.self._template or 1])
+	  interpreter.template({ env = e, out = out, opts = opts }, subtemplates[e.self._template or 1] or default)
 	end
       end
     else
@@ -82,7 +95,7 @@ function interpreter.appl(state, appl)
 	  else
 	    e = prepare_env(e, env) 
 	  end
-	  interpreter.template({ env = e, out = out }, subtemplates[e.self._template or 1])
+	  interpreter.template({ env = e, out = out, opts = opts }, subtemplates[e.self._template or 1] or default)
 	end
       else
 	check_selector(selector_name, selector)
@@ -95,7 +108,7 @@ function interpreter.appl(state, appl)
 	    else
 	      e = prepare_env(e, env)
 	    end
-	    interpreter.template({ env = e, out = out }, subtemplates[e.self._template or 1])
+	    interpreter.template({ env = e, out = out, opts = opts }, subtemplates[e.self._template or 1] or default)
 	  end
 	end
       end
@@ -115,7 +128,8 @@ end
 function fill(template, env, opts)
    opts = opts or {}
    local out = opts.out or {}
+   grammar.ast = opts.parser or grammar.default
    if type(env) == "string" then env = { it = env } end
-   interpreter.template({ env = env, out = out }, grammar.ast:match(template))
+   interpreter.template({ env = env, out = out, opts = opts }, grammar.ast:match(template))
    return concat(out, opts.delim)
 end
