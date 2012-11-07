@@ -3,9 +3,8 @@
 --
 -- @author Thiago Costa Ponte (thiago@ideais.com.br)
 --
--- @copyright 2004-2007 Kepler Project
+-- @copyright 2004-2011 Kepler Project
 --
--- @release $Id: sql.lua,v 1.4 2007/09/05 12:15:31 tomas Exp $
 -------------------------------------------------------------------------------
 
 require"logging"
@@ -38,7 +37,7 @@ function logging.sql(params)
                             local logDate = os.date("%Y-%m-%d %H:%M:%S")
                             local insert  = string.format("INSERT INTO %s (%s, %s, %s) VALUES ('%s', '%s', '%s')",
                                                           params.tablename, params.logdatefield, params.loglevelfield, 
-                                                          params.logmessagefield, logDate, level, message)
+                                                          params.logmessagefield, logDate, level, string.gsub(message, "'", "''"))
                             
                             local ret, err = pcall(con.execute, con, insert)
                             if not ret then
@@ -60,3 +59,6 @@ function logging.sql(params)
                         end
                       )
 end
+
+return logging.sql
+

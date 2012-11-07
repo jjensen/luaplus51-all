@@ -1,66 +1,3 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
-<head>
-	<title>LuaLogging: A simple API to use logging features in Lua</title>
-    <link rel="stylesheet" href="http://www.keplerproject.org/doc.css" type="text/css"/>
-	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-</head>
-<body>
-	
-<div id="container">
-
-<div id="product">
-	<div id="product_logo"><a href="http://www.keplerproject.org">
-		<img alt="LuaLogging logo" src="lualogging-128.png"/>
-	</a></div>
-	<div id="product_name"><big><strong>LuaLogging</strong></big></div>
-	<div id="product_description">A simple API to use logging features in Lua</div>
-</div> <!-- id="product" -->
-
-<div id="main">
-	
-<div id="navigation">
-<h1>LuaLogging</h1>
-	<ul>
-		<li><a href="index.html">Home</a>
-			<ul>
-				<li><a href="index.html#overview">Overview</a></li>
-				<li><a href="index.html#status">Status</a></li>
-				<li><a href="index.html#download">Download</a></li>
-                <li><a href="index.html#dependencies">Dependencies</a></li>
-				<li><a href="index.html#history">History</a></li>
-				<li><a href="index.html#credits">Credits</a></li>
-				<li><a href="index.html#contact">Contact</a></li>
-			</ul>
-		</li>
-		<li><strong>Manual</strong>
-			<ul>
-				<li><a href="manual.html#introduction">Introduction</a></li>
-				<li><a href="manual.html#installation">Installation</a></li>
-				<li><a href="manual.html#logger">Logger objects</a></li>
-				<li><a href="manual.html#examples">Examples</a></li>
-			</ul>
-		</li>
-		<li><a href="manual.html#appenders">Appenders</a>
-			<ul>
-				<li><a href="console.html">Console</a></li>
-				<li><a href="file.html">File</a></li>
-				<li><a href="sql.html">SQL</a></li>
-				<li><a href="socket.html">Socket</a></li>
-				<li><a href="email.html">Email</a></li>
-			</ul>
-		</li>
-        <li><a href="http://luaforge.net/projects/lualogging/">Project</a>
-            <ul>
-                <li><a href="http://luaforge.net/tracker/?group_id=51">Bug Tracker</a></li>
-                <li><a href="http://luaforge.net/scm/?group_id=51">CVS</a></li>
-            </ul>
-        </li>
-		<li><a href="license.html">License</a></li>
-	</ul>
-</div> <!-- id="navigation" -->
-
 <div id="content">
 
 <h2><a name="introduction"></a>Introduction</h2>
@@ -131,22 +68,22 @@ defined as <code>logging.WARN</code> then <code>logging.INFO</code> and
 <h3>Methods</h3>
 
 <dl class="reference">
-    <dt><strong>logger:log (level, message)</strong></dt>
+    <dt><strong>logger:log (level, [message]|[table]|[format, ...]|[function, ...])</strong></dt>
     <dd>Logs a message with the specified level.</dd>
     
-    <dt><strong>logger:debug (message)</strong></dt>
+    <dt><strong>logger:debug ([message]|[table]|[format, ...]|[function, ...])</strong></dt>
     <dd>Logs a message with DEBUG level.</dd>
     
-    <dt><strong>logger:info (message)</strong></dt>
+    <dt><strong>logger:info ([message]|[table]|[format, ...]|[function, ...])</strong></dt>
     <dd>Logs a message with INFO level.</dd>
     
-    <dt><strong>logger:warn (message)</strong></dt>
+    <dt><strong>logger:warn ([message]|[table]|[format, ...]|[function, ...])</strong></dt>
     <dd>Logs a message with WARN level.</dd>
     
-    <dt><strong>logger:error (message)</strong></dt>
+    <dt><strong>logger:error ([message]|[table]|[format, ...]|[function, ...])</strong></dt>
     <dd>Logs a message with ERROR level.</dd>
     
-    <dt><strong>logger:fatal (message)</strong></dt>
+    <dt><strong>logger:fatal ([message]|[table]|[format, ...]|[function, ...])</strong></dt>
     <dd>Logs a message with FATAL level.</dd>
     
     <dt><strong>logger:setLevel (level)</strong></dt>
@@ -172,6 +109,22 @@ logger:log(logging.INFO, "sending email")
 logger:info("trying to contact server")
 logger:warn("server did not responded yet")
 logger:error("server unreachable")
+
+-- dump a table in a log message
+local tab = { a = 1, b = 2 }
+logger:debug(tab)
+
+-- use string.format() style formatting
+logger:info("val1='%s', val2=%d", "string value", 1234)
+
+-- complex log formatting.
+local function log_callback(val1, val2)
+	-- Do some complex pre-processing of parameters, maybe dump a table to a string.
+	return string.format("val1='%s', val2=%d", val1, val2)
+end
+-- function 'log_callback' will only be called if the current log level is "DEBUG"
+logger:debug(log_callback, "string value", 1234)
+
 </pre>
 
 <p>Upon execution of the above example the following lines will
@@ -192,6 +145,7 @@ The following appenders are included in the standard distribution.
 <ul>
 <li><a href="console.html">Console</a></li>
 <li><a href="file.html">File</a></li>
+<li><a href="rolling_file.html">Rolling File</a></li>
 <li><a href="sql.html">SQL</a></li>
 <li><a href="socket.html">Socket</a></li>
 <li><a href="email.html">Email</a></li>
@@ -209,15 +163,3 @@ create a <code>logging.file</code> object instead, passing the
 filename as argument. As simple as this.</p>
 
 </div> <!-- id="content" -->
-
-</div> <!-- id="main" -->
-
-<div id="about">
-	<p><a href="http://validator.w3.org/check?uri=referer">Valid XHTML 1.0!</a></p>
-	<p><small>$Id: manual.html,v 1.15 2007/10/30 19:57:59 carregal Exp $</small></p>
-</div> <!-- id="about" -->
-
-</div> <!-- id="container" -->
-
-</body>
-</html>

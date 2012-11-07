@@ -3,9 +3,8 @@
 --
 -- @author Thiago Costa Ponte (thiago@ideais.com.br)
 --
--- @copyright 2004-2007 Kepler Project
+-- @copyright 2004-2011 Kepler Project
 --
--- @release $Id: email.lua,v 1.4 2007/09/05 12:15:31 tomas Exp $
 -------------------------------------------------------------------------------
 
 require"logging"
@@ -40,3 +39,6 @@ function logging.email(params)
                         end
                       )
 end
+
+return logging.email
+

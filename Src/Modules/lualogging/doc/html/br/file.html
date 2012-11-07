@@ -12,13 +12,13 @@
 
 <div id="product">
 	<div id="product_logo"><a href="http://www.keplerproject.org">
-    <img alt="Logotipo do LuaLogging" src="lualogging-128.png"/></a></div>
-	<div id="product_name"><big><b>LuaLogging</b></big></div>
+    <img alt="Logotipo do LuaLogging" src="../images/lualogging-128.png"/></a></div>
+	<div id="product_name"><big><strong>LuaLogging</strong></big></div>
 	<div id="product_description">Uma API simples para usar recursos de log em Lua</div>
 </div> <!-- id="product" -->
 
 <div id="main">
-	
+
 <div id="navigation">
 <h1>LuaLogging</h1>
 	<ul>
@@ -43,10 +43,15 @@
 		<li><a href="manual.html#appenders">Appenders</a>
 			<ul>
 				<li><a href="console.html">Console</a></li>
-				<li><a href="file.html">Arquivo</a></li>
+				<li><strong>Arquivo</strong></li>
 				<li><a href="sql.html">SQL</a></li>
-				<li><strong>Soquete</strong></li>
+				<li><a href="socket.html">Soquete</a></li>
 				<li><a href="email.html">Email</a></li>
+			</ul>
+		</li>
+		<li><a href="https://github.com/Neopallium/lualogging">Project</a>
+			<ul>
+				<li><a href="https://github.com/Neopallium/lualogging/issues">Bug Tracker</a></li>
 			</ul>
 		</li>
 		<li><a href="license.html">Licen&ccedil;a</a></li>
@@ -55,24 +60,30 @@
 
 <div id="content">
 
-<h2>Appender de <em>socket</em></h2>
+<h2>Appender de arquivo</h2>
 
-<p>Este appender pode ser usado para enviar solicita&ccedil;&otilde;es de log
-por um <em>socket</em>. O appender de <em>socket</em> depende do
-<a href="http://www.tecgraf.puc-rio.br/luasocket">LuaSocket</a>
-para ser executado.<br/> Depois de cada solicita&ccedil;&atilde;o de log,
-uma conex&atilde;o &eacute; aberta, a mensagem, enviada e a conex&atilde;o, fechada.</p>
+<p>O appender de arquivo pode ser usado para escrever mensagens de log em
+um arquivo. Ele usa rotinas de E/S de Lua para realizar essa tarefa.</p>
 
 <pre class="example">
-function logging.socket(address, port [,logPattern])
+function logging.file(filename, [datePattern], [logPattern])
 </pre>
 
 <ul>
-    <li><code>address</code>:<br /> O endere&ccedil;o pode ser um endere&ccedil;o IP
-    ou o nome de um host ao qual a mensagem de log ser&aacute; enviada.</li>
+    <li><code>filename</code>:<br /> O nome do arquivo de destino da grava&ccedil;&atilde;o.
+    A cada chamada para registrar uma mensagem, o arquivo &eacute; aberto para
+    anexa&ccedil;&atilde;o e fechado imediatamente.<br /> Se n&atilde;o for
+    poss&iacute;vel abrir o arquivo para anexa&ccedil;&atilde;o, a solicita&ccedil;&atilde;o
+    de log retorna nil e uma mensagem de erro.</li>
     
-    <li><code>port</code>:<br /> A porta deve ser um n&uacute;mero inteiro dentro do
-    intervalo [1..64K).</li>
+    <li><code>datePattern</code>:<br /> Trata-se de um par&acirc;metro opcional
+    que pode ser usado para especificar um padr&atilde;o de data que ser&aacute;
+    passado para a fun&ccedil;&atilde;o
+    <a href="http://www.lua.org/manual/5.0/manual.html#libiosys"><code>os.date</code></a>
+    de modo a compor o nome do arquivo.<br /> Isso &eacute; &uacute;til para criar
+    arquivos de log di&aacute;rios ou mensais. Se o usu&aacute;rio quiser criar um
+    arquivo de log por dia, deve especificar um padr&atilde;o <code>&quot;%A-%m-%d&quot;</code>
+    e um nome de arquivo como <code>&quot;temp%s.log&quot;</code>.</li>
     
     <li><code>logPattern</code>:<br /> &Eacute; poss&iacute;vel especificar um
     padr&atilde;o para controlar o modo como a mensagem &eacute; gravada.<br />
@@ -82,13 +93,13 @@ function logging.socket(address, port [,logPattern])
 <h2>Exemplo</h2>
 
 <pre class="example">
-require&quot;logging.socket&quot;
+require&quot;logging.file&quot;
 
-local logger = logging.socket(&quot;localhost&quot;, 5000)
+local logger = logging.file(&quot;teste%s.log&quot;, &quot;%A-%m-%d&quot;)
 
-logger:info(&quot;logging.socket test&quot;)
-logger:debug(&quot;debugging...&quot;)
-logger:error(&quot;error!&quot;)
+logger:info(&quot;teste de logging.file&quot;)
+logger:debug(&quot;depurando...&quot;)
+logger:error(&quot;erro!&quot;)
 </pre>
 
 </div> <!-- id="content" -->
@@ -98,7 +109,6 @@ logger:error(&quot;error!&quot;)
 <div id="about">
 	<p><a href="http://validator.w3.org/check?uri=referer">
     <img src="http://www.w3.org/Icons/valid-xhtml10" alt="XHTML 1.0 v&aacute;lido!" height="31" width="88" /></a></p>
-	<p><small>$Id: socket.html,v 1.2 2005/11/17 21:27:18 tuler Exp $</small></p>
 </div> <!-- id="about" -->
 
 </div> <!-- id="container" -->

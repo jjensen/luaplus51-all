@@ -1,10 +1,11 @@
 {
 
 local SRCS =
+		logging.lua
 		logging/console.lua
 		logging/email.lua
 		logging/file.lua
-		logging/logging.lua
+		logging/rolling_file.lua
 		logging/socket.lua
 		logging/sql.lua
 ;

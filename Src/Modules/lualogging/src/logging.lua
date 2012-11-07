@@ -5,16 +5,18 @@
 -- @author Andre Carregal (info@keplerproject.org)
 -- @author Thiago Costa Ponte (thiago@ideais.com.br)
 --
--- @copyright 2004-2007 Kepler Project
--- @release $Id: logging.lua,v 1.12 2007/10/30 19:57:59 carregal Exp $
+-- @copyright 2004-2011 Kepler Project
 -------------------------------------------------------------------------------
 
-local type, table, string, assert, _tostring = type, table, string, assert, tostring
+local type, table, string, _tostring, tonumber = type, table, string, tostring, tonumber
+local select = select
+local error = error
+local format = string.format
 
 module("logging")
 
 -- Meta information
-_COPYRIGHT = "Copyright (C) 2004-2007 Kepler Project"
+_COPYRIGHT = "Copyright (C) 2004-2011 Kepler Project"
 _DESCRIPTION = "A simple API to use logging features in Lua"
 _VERSION = "LuaLogging 1.1.4"
 
@@ -37,14 +39,51 @@ ERROR = "ERROR"
 -- lead the application to abort
 FATAL = "FATAL"
 
-local LEVEL = {
-	[DEBUG] = 1,
-	[INFO]  = 2,
-	[WARN]  = 3,
-	[ERROR] = 4,
-	[FATAL] = 5,
-}
+local LEVEL = {"DEBUG", "INFO", "WARN", "ERROR", "FATAL"}
+local MAX_LEVELS = #LEVEL
+-- make level names to order
+for i=1,MAX_LEVELS do
+	LEVEL[LEVEL[i]] = i
+end
 
+-- private log function, with support for formating a complex log message.
+local function LOG_MSG(self, level, fmt, ...)
+	local f_type = type(fmt)
+	if f_type == 'string' then
+		if select('#', ...) > 0 then
+			return self:append(level, format(fmt, ...))
+		else
+			-- only a single string, no formating needed.
+			return self:append(level, fmt)
+		end
+	elseif f_type == 'function' then
+		-- fmt should be a callable function which returns the message to log
+		return self:append(level, fmt(...))
+	end
+	-- fmt is not a string and not a function, just call tostring() on it.
+	return self:append(level, tostring(fmt))
+end
+
+-- create the proxy functions for each log level.
+local LEVEL_FUNCS = {}
+for i=1,MAX_LEVELS do
+	local level = LEVEL[i]
+	LEVEL_FUNCS[i] = function(self, ...)
+		-- no level checking needed here, this function will only be called if it's level is active.
+		return LOG_MSG(self, level, ...)
+	end
+end
+
+-- do nothing function for disabled levels.
+local function disable_level() end
+
+-- improved assertion funciton.
+local function assert(exp, ...)
+	-- if exp is true, we are finished so don't do any processing of the parameters
+	if exp then return exp, ... end
+	-- assertion failed, raise error
+	error(format(...), 2)
+end
 
 -------------------------------------------------------------------------------
 -- Creates a new logger object
@@ -59,30 +98,36 @@ function new(append)
 	end
 
 	local logger = {}
-	logger.level = DEBUG
 	logger.append = append
 
 	logger.setLevel = function (self, level)
-		assert(LEVEL[level], string.format("undefined level `%s'", tostring(level)))
+		local order = LEVEL[level]
+		assert(order, "undefined level `%s'", _tostring(level))
 		self.level = level
+		self.level_order = order
+		-- enable/disable levels
+		for i=1,MAX_LEVELS do
+			local name = LEVEL[i]:lower()
+			if i >= order then
+				self[name] = LEVEL_FUNCS[i]
+			else
+				self[name] = disable_level
+			end
+		end
 	end
 
-	logger.log = function (self, level, message)
-		assert(LEVEL[level], string.format("undefined level `%s'", tostring(level)))
-		if LEVEL[level] < LEVEL[self.level] then
+	-- generic log function.
+	logger.log = function (self, level, ...)
+		local order = LEVEL[level]
+		assert(order, "undefined level `%s'", _tostring(level))
+		if order < self.level_order then
 			return
 		end
-		if type(message) ~= "string" then
-		  message = tostring(message)
-		end
-		return logger:append(level, message)
+		return LOG_MSG(self, level, ...)
 	end
 
-	logger.debug = function (logger, message) return logger:log(DEBUG, message) end
-	logger.info  = function (logger, message) return logger:log(INFO,  message) end
-	logger.warn  = function (logger, message) return logger:log(WARN,  message) end
-	logger.error = function (logger, message) return logger:log(ERROR, message) end
-	logger.fatal = function (logger, message) return logger:log(FATAL, message) end
+	-- initialize log level.
+	logger:setLevel(DEBUG)
 	return logger
 end
 
