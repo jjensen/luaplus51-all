@@ -5,7 +5,10 @@
 #define __threading_h__ 1
 
 /* Platform detection
-*/
+ * win32-pthread:
+ * define HAVE_WIN32_PTHREAD and PTW32_INCLUDE_WINDOWS_H in your project configuration when building for win32-pthread.
+ * link against pthreadVC2.lib, and of course have pthreadVC2.dll somewhere in your path.
+ */
 #ifdef _WIN32_WCE
   #define PLATFORM_POCKETPC
 #elif (defined _WIN32)
@@ -35,13 +38,16 @@ typedef unsigned int uint_t;
 #include <time.h>
 
 /* Note: ERROR is a defined entity on Win32
+  PENDING: The Lua VM hasn't done anything yet.
+  RUNNING, WAITING: Thread is inside the Lua VM. If the thread is forcefully stopped, we can't lua_close() the Lua State.
+  DONE, ERROR_ST, CANCELLED: Thread execution is outside the Lua VM. It can be lua_close()d.
 */
 enum e_status { PENDING, RUNNING, WAITING, DONE, ERROR_ST, CANCELLED };
 
 #define THREADAPI_WINDOWS 1
 #define THREADAPI_PTHREAD 2
 
-#if (defined PLATFORM_WIN32) || (defined PLATFORM_POCKETPC)
+#if( defined( PLATFORM_WIN32) || defined( PLATFORM_POCKETPC)) && !defined( HAVE_WIN32_PTHREAD)
 #define THREADAPI THREADAPI_WINDOWS
 #else // (defined PLATFORM_WIN32) || (defined PLATFORM_POCKETPC)
 #define THREADAPI THREADAPI_PTHREAD
@@ -111,8 +117,11 @@ enum e_status { PENDING, RUNNING, WAITING, DONE, ERROR_ST, CANCELLED };
   //    FreeBSD 6.2 has pthread_yield()
   //    ...
   //
-  #ifdef PLATFORM_OSX
+  #if defined( PLATFORM_OSX)
     #define YIELD() pthread_yield_np()
+  #elif defined( PLATFORM_WIN32) || defined( PLATFORM_POCKETPC)
+    // for some reason win32-pthread doesn't have pthread_yield(), but sched_yield()
+    #define YIELD() sched_yield()
   #else
     #define YIELD() pthread_yield()
   #endif
@@ -208,5 +217,6 @@ bool_t THREAD_WAIT_IMPL( THREAD_T *ref, double secs, SIGNAL_T *signal_ref, MUTEX
 #endif // // THREADWAIT_METHOD == THREADWAIT_CONDVAR
 
 void THREAD_KILL( THREAD_T *ref );
+void THREAD_SETNAME( char const* _name);
 
 #endif // __threading_h__
