@@ -4,10 +4,10 @@ local SRCS =
 		app.lua
 		array2d.lua
 		class.lua
-		classx.lua
 		comprehension.lua
 		config.lua
 		data.lua
+		Date.lua
 		dir.lua
 		file.lua
 		func.lua
@@ -17,19 +17,26 @@ local SRCS =
 		lexer.lua
 		list.lua
 		luabalanced.lua
+		Map.lua
+		MultiMap.lua
 		operator.lua
+		OrderedMap.lua
 		path.lua
 		permute.lua
 		pretty.lua
 		seq.lua
+		Set.lua
 		sip.lua
 		strict.lua
 		stringio.lua
 		stringx.lua
 		tablex.lua
+		template.lua
 		test.lua
 		text.lua
 		utils.lua
+		xml.lua
+		#platf/luajava.lua
 ;
 
 Lua.Module penlight : : lua/pl/$(SRCS) ;

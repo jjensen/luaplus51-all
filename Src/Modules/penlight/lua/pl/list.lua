@@ -1,22 +1,22 @@
---- Python-style list class. <p>
--- Based on original code by Nick Trout.
--- <p>
--- <b>Please Note</b>: methods that change the list will return the list.
--- This is to allow for method chaining, but please note that <tt>ls = ls:sort()</tt>
+--- Python-style list class.
+--
+-- **Please Note**: methods that change the list will return the list.
+-- This is to allow for method chaining, but please note that `ls = ls:sort()`
 -- does not mean that a new copy of the list is made. In-place (mutable) methods
 -- are marked as returning 'the list' in this documentation.
--- <p>
--- See the Guide for further <a href="../../index.html#list">discussion</a>
--- <p>
+--
+-- See the Guide for further @{02-arrays.md.Python_style_Lists|discussion}
+--
 -- See <a href="http://www.python.org/doc/current/tut/tut.html">http://www.python.org/doc/current/tut/tut.html</a>, section 5.1
--- <p>
--- <b>Note</b>: The comments before some of the functions are from the Python docs
+--
+-- **Note**: The comments before some of the functions are from the Python docs
 -- and contain Python code.
--- <p>
--- Written for Lua version 4.0 <br />
--- Redone for Lua 5.1, Steve Donovan.
--- @class module
--- @name pl.list
+--
+-- Written for Lua version Nick Trout 4.0; Redone for Lua 5.1, Steve Donovan.
+--
+-- Dependencies: `pl.utils`, `pl.tablex`
+-- @module pl.List
+-- @pragma nostrip
 
 local tinsert,tremove,concat,tsort = table.insert,table.remove,table.concat,table.sort
 local setmetatable, getmetatable,type,tostring,assert,string,next = setmetatable,getmetatable,type,tostring,assert,string,next
@@ -33,29 +33,30 @@ local assert_arg = utils.assert_arg
 local normalize_slice = tablex._normalize_slice
 
 --[[
-module ('pl.list',utils._module)
+module ('pl.List',utils._module)
 ]]
-
-local list = {}
 
 local Multimap = utils.stdmt.MultiMap
 -- metatable for our list objects
-list.List = utils.stdmt.List
-local List = list.List
+local List = utils.stdmt.List
 List.__index = List
-List._name = "List"
 List._class = List
 
+local iter
 
 -- we give the metatable its own metatable so that we can call it like a function!
 setmetatable(List,{
     __call = function (tbl,arg)
-        return List:new(arg)
+        return List.new(arg)
     end,
 })
 
-local function makelist (t)
-    return setmetatable(t,List)
+local function makelist (t,obj)
+    local klass = List
+    if obj then
+        klass = getmetatable(obj)
+    end
+    return setmetatable(t,klass)
 end
 
 local function is_list(t)
@@ -66,25 +67,52 @@ local function simple_table(t)
   return type(t) == 'table' and not is_list(t) and #t > 0
 end
 
+function List:_init (src)
+    if src then
+        for v in iter(src) do
+            tinsert(self,v)
+        end
+    end
+end
+
 --- Create a new list. Can optionally pass a table;
 -- passing another instance of List will cause a copy to be created
--- we pass anything which isn't a simple table to iter() to work out
--- an appropriate iterator  @see iter
+-- we pass anything which isn't a simple table to iterate() to work out
+-- an appropriate iterator  @see List.iterate
 -- @param t An optional list-like table
 -- @return a new List
 -- @usage ls = List();  ls = List {1,2,3,4}
-function List:new(t)
-  if not t then t={}
-  elseif not simple_table(t) then
-    local tbl = t
-    t = {}
-    for v in iter(tbl) do
-      tinsert(t,v)
+function List.new(t)
+    local ls
+    if not simple_table(t) then
+        ls = {}
+        List._init(ls,t)
+    else
+        ls = t
     end
-  end
-  makelist(t,List)
-  return t
+    makelist(ls)
+    return ls
 end
+
+function List:clone()
+    local ls = makelist({},self)
+    List._init(ls,self)
+    return ls
+end
+
+function List.default_map_with(T)
+    return function(self,name)
+       local f = T[name]
+       if f then
+          return function(self,...)
+             return self:map(f,...)
+          end
+       else
+          error("method not found: "..name,2)
+       end
+    end
+end
+
 
 ---Add an item to the end of the list.
 -- @param i An item
@@ -182,19 +210,27 @@ end
 -- @param x A data value
 -- @return number of times x appears
 function List:count(x)
-  local cnt=0
-  for i=1,#self do
-    if self[i]==x then cnt=cnt+1 end
-  end
-  return cnt
+    local cnt=0
+    for i=1,#self do
+        if self[i]==x then cnt=cnt+1 end
+    end
+    return cnt
 end
 
 --- Sort the items of the list, in place.
--- @param cmp an optional comparison function; '<' is used if not given.
+-- @param cmp an optional comparison function, default '<'
 -- @return the list
 function List:sort(cmp)
-  tsort(self,cmp)
-  return self
+    if cmp then cmp = function_arg(1,cmp) end
+    tsort(self,cmp)
+    return self
+end
+
+--- return a sorted copy of this list.
+-- @param cmp an optional comparison function, default '<'
+-- @return a new list
+function List:sorted(cmp)
+    return List(self):sort(cmp)
 end
 
 --- Reverse the elements of the list, in place.
@@ -208,6 +244,19 @@ function List:reverse()
         t[i],t[k] = t[k],t[i]
     end
     return self
+end
+
+--- return the minimum and the maximum value of the list.
+-- @return minimum value
+-- @return maximum value
+function List:minmax()
+    local vmin,vmax = 1e70,-1e70
+    for i = 1,#self do
+        local v = self[i]
+        if v < vmin then vmin = v end
+        if v > vmax then vmax = v end
+    end
+    return vmin,vmax
 end
 
 --- Emulate list slicing.  like  'list[first:last]' in Python.
@@ -224,24 +273,37 @@ end
 --- empty the list.
 -- @return the list
 function List:clear()
-  for i=1,#self do tremove(self,i) end
-  return self
+    for i=1,#self do tremove(self) end
+    return self
 end
+
+local eps = 1.0e-10
 
 --- Emulate Python's range(x) function.
 -- Include it in List table for tidiness
 -- @param start A number
--- @param finish A number greater than start; if zero, then 0..start-1
--- @usage List.range(0,3) == List {0,1,2,3}
-function List.range(start,finish)
+-- @param finish A number greater than start; if absent,
+-- then start is 1 and finish is start
+-- @param incr an optional increment (may be less than 1)
+-- @return a List from start .. finish
+-- @usage List.range(0,3) == List{0,1,2,3}
+-- @usage List.range(4) = List{1,2,3,4}
+-- @usage List.range(5,1,-1) == List{5,4,3,2,1}
+function List.range(start,finish,incr)
   if not finish then
-    start = 0
-    finish = finish - 1
+    finish = start
+    start = 1
+  end
+  if incr then
+    assert_arg(3,incr,'number')
+    if not utils.is_integer(incr) then finish = finish + eps end
+  else
+    incr = 1
   end
   assert_arg(1,start,'number')
   assert_arg(2,finish,'number')
-  local  t = List:new()
-  for i=start,finish do tinsert(t,i) end
+  local t = List.new()
+  for i=start,finish,incr do tinsert(t,i) end
   return t
 end
 
@@ -292,12 +354,12 @@ function List:slice_assign(i1,i2,seq)
     return self
 end
 
---- concatenation operator .. .
+--- concatenation operator.
 -- @param L another List
 -- @return a new list consisting of the list with the elements of the new list appended
 function List:__concat(L)
     assert_arg(1,L,'table')
-    local ls = List(self)
+    local ls = self:clone()
     ls:extend(L)
     return ls
 end
@@ -313,15 +375,14 @@ function List:__eq(L)
     return true
 end
 
---- join the elements of a list using a delimiter.<br>
+--- join the elements of a list using a delimiter. <br>
 -- This method uses tostring on all elements.
 -- @param delim a delimiter string, can be empty.
 -- @return a string
-function List:join (delim,v2s)
-    v2s = v2s or tostring
+function List:join (delim)
     delim = delim or ''
     assert_arg(1,delim,'string')
-    return concat(imap(v2s,self),delim)
+    return concat(imap(tostring,self),delim)
 end
 
 --- join a list of strings. <br>
@@ -334,14 +395,14 @@ List.concat = concat
 
 local function tostring_q(val)
     local s = tostring(val)
-    if type(val) ~= 'number' then
+    if type(val) == 'string' then
         s = '"'..s..'"'
     end
     return s
 end
 
 --- how our list should be rendered as a string. Uses join().
--- @see pl.list.List:join
+-- @see List:join
 function List:__tostring()
     return '{'..self:join(',',tostring_q)..'}'
 end
@@ -368,22 +429,41 @@ function List.__call(t,v,i)
 end
 --]]
 
+local MethodIter = {}
+
+function MethodIter:__index (name)
+    return function(mm,...)
+        return self.list:foreachm(name,...)
+    end
+end
+
 --- call the function for each element of the list.
 -- @param fun a function or callable object
+-- @param ... optional values to pass to function
 function List:foreach (fun,...)
-    local t = self
+    if fun==nil then
+        return setmetatable({list=self},MethodIter)
+    end
     fun = function_arg(1,fun)
-    for i = 1,#t do
-        fun(t[i],...)
+    for i = 1,#self do
+        fun(self[i],...)
+    end
+end
+
+function List:foreachm (name,...)
+    for i = 1,#self do
+        local obj = self[i]
+        local f = assert(obj[name],"method not found on object")
+        f(obj,...)
     end
 end
 
 --- create a list of all elements which match a function.
 -- @param fun a boolean function
--- @param optional argument to be passed as second argument of the predicate
+-- @param arg optional argument to be passed as second argument of the predicate
 -- @return a new filtered list.
 function List:filter (fun,arg)
-    return makelist(filter(self,fun,arg))
+    return makelist(filter(self,fun,arg),self)
 end
 
 --- split a string using a delimiter.
@@ -396,36 +476,53 @@ function List.split (s,delim)
     return makelist(split(s,delim))
 end
 
+local MethodMapper = {}
+
+function MethodMapper:__index (name)
+    return function(mm,...)
+        return self.list:mapm(name,...)
+    end
+end
+
 --- apply a function to all elements.
--- Any extra arguments will be passed to the function
+-- Any extra arguments will be passed to the function; if the function
+-- is `nil` then `map` returns a mapper object that maps over a method
+-- of the items
 -- @param fun a function of at least one argument
--- @param arg1 an optional argument
 -- @param ... arbitrary extra arguments.
 -- @return a new list: {f(x) for x in self}
+-- @usage List{'one','two'}:map(string.upper) == {'ONE','TWO'}
+-- @usage List{'one','two'}:map():sub(1,2) == {'on','tw'}
 -- @see pl.tablex.imap
 function List:map (fun,...)
-    return imap(fun,self,...)
+    if fun==nil then
+        return setmetatable({list=self},MethodMapper)
+    end
+    return makelist(imap(fun,self,...),self)
 end
 
 --- apply a function to all elements, in-place.
 -- Any extra arguments are passed to the function.
 -- @param fun A function that takes at least one argument
 -- @param ... arbitrary extra arguments.
-function List:transform (fun,t,...)
+-- @return the list.
+function List:transform (fun,...)
     transform(fun,self,...)
+	return self
 end
 
 --- apply a function to elements of two lists.
 -- Any extra arguments will be passed to the function
 -- @param fun a function of at least two arguments
+-- @param ls another list
 -- @param ... arbitrary extra arguments.
 -- @return a new list: {f(x,y) for x in self, for x in arg1}
 -- @see pl.tablex.imap2
 function List:map2 (fun,ls,...)
-    return makelist(imap2(fun,self,ls,...))
+    return makelist(imap2(fun,self,ls,...),self)
 end
 
---- apply a named meethod to all elements.
+--- apply a named method to all elements.
 -- Any extra arguments will be passed to the method.
 -- @param name name of method
 -- @param ... extra arguments
@@ -437,10 +534,10 @@ function List:mapm (name,...)
     for i = 1,#t do
       local val = t[i]
       local fn = val[name]
-      if not fn then error(type(val).." does not have method "..name) end
+      if not fn then error(type(val).." does not have method "..name,2) end
       res[i] = fn(val,...)
     end
-    return makelist(res)
+    return makelist(res,self)
 end
 
 --- 'reduce' a list using a binary function.
@@ -457,7 +554,7 @@ end
 -- @param ... will also be passed to the function
 -- @return a table where the keys are the returned values, and the values are Lists
 -- of values where the function returned that key. It is given the type of Multimap.
--- @see pl.classx.MultiMap
+-- @see pl.MultiMap
 function List:partition (fun,...)
     fun = function_arg(1,fun)
     local res = {}
@@ -480,9 +577,9 @@ end
 -- This captures the Python concept of 'sequence'.
 -- For tables, iterates over all values with integer indices.
 -- @param seq a sequence; a string (over characters), a table, a file object (over lines) or an iterator function
--- @usage for x in iter {1,10,22,55} do io.write(x,',') end ==> 1,10,22,55
--- @usage for ch in iter 'help' do do io.write(ch,' ') end ==> h e l p
-function iter(seq)
+-- @usage for x in iterate {1,10,22,55} do io.write(x,',') end ==> 1,10,22,55
+-- @usage for ch in iterate 'help' do do io.write(ch,' ') end ==> h e l p
+function List.iterate(seq)
     if type(seq) == 'string' then
         local idx = 0
         local n = #seq
@@ -510,6 +607,7 @@ function iter(seq)
         return seq:lines()
     end
 end
+iter = List.iterate
 
-return list
+return List
 

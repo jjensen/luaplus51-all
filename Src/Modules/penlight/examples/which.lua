@@ -1,8 +1,9 @@
 -- a simple implementation of the which command. This looks for
 -- the given file on the path. On windows, it will assume an extension
 -- of .exe if no extension is given.
-local List = require 'pl.list'.List
+local List = require 'pl.List'
 local path = require 'pl.path'
+local app = require 'pl.app'
 
 local pathl = List.split(os.getenv 'PATH',path.dirsep)
 
@@ -12,7 +13,8 @@ function which (file)
     if res then return res[1] end
 end
 
-local file = arg[1] or arg[-1] -- i.e. location of lua executable
+local _,lua = app.lua()
+local file = arg[1] or lua -- i.e. location of lua executable
 local try
 
 if not file then return print 'must provide a filename' end

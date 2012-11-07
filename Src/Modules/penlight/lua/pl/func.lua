@@ -1,7 +1,22 @@
---- Functional helpers like composition,binding and placeholder expressions. <br>
--- See <a href="../../index.html#func">the Guide</a>
--- @class module
--- @name pl.func
+--- Functional helpers like composition, binding and placeholder expressions.
+-- Placeholder expressions are useful for short anonymous functions, and were
+-- inspired by the Boost Lambda library.
+--
+--    > utils.import 'pl.func'
+--    > ls = List{10,20,30}
+--    > = ls:map(_1+1)
+--    {11,21,31}
+--
+-- They can also be used to _bind_ particular arguments of a function.
+--
+--    > p = bind(print,'start>',_0)
+--    > p(10,20,30)
+--    > start>   10   20  30
+--
+-- See @{07-functional.md.Creating_Functions_from_Functions|the Guide}
+--
+-- Dependencies: `pl.utils`, `pl.tablex`
+-- @module pl.func
 local type,select,setmetatable,getmetatable,rawset = type,select,setmetatable,getmetatable,rawset
 local concat,append = table.concat,table.insert
 local max = math.max
@@ -13,10 +28,6 @@ local tablex = require 'pl.tablex'
 local map = tablex.map
 local _DEBUG = rawget(_G,'_DEBUG')
 local assert_arg = utils.assert_arg
-
---[[
-module ('pl.func',utils._module)
-]]
 
 local func = {}
 
@@ -46,11 +57,11 @@ local function CPH (idx)
     return P {op='X',repr='_C'..idx, index=idx}
 end
 
-_1,_2,_3,_4,_5 = PH(1),PH(2),PH(3),PH(4),PH(5)
-_0 = P{op='X',repr='...',index=0}
+func._1,func._2,func._3,func._4,func._5 = PH(1),PH(2),PH(3),PH(4),PH(5)
+func._0 = P{op='X',repr='...',index=0}
 
 function func.Var (name)
-    local ls = utils.split(name,',')
+    local ls = utils.split(name,'[%s,]+')
     local res = {}
     for _,n in ipairs(ls) do
         append(res,P{op='X',repr=n,index=0})
@@ -62,7 +73,9 @@ function func._ (value)
     return P{op='X',repr=value,index='wrap'}
 end
 
-Nil = func.Var 'nil'
+local repr
+
+func.Nil = func.Var 'nil'
 
 function _PEMT.__index(obj,key)
     return P{op='[]',obj,key}
@@ -87,6 +100,7 @@ end
 function func.Len (arg)
     return P{op='#',arg}
 end
+
 
 local function binreg(context,t)
     for name,op in pairs(t) do
@@ -124,7 +138,7 @@ end
 
 --- register a function for use in placeholder expressions.
 -- @param fun a function
--- @param an optional name
+-- @param name an optional name
 -- @return a placeholder functiond
 function func.register (fun,name)
     assert_arg(1,fun,'function')
@@ -180,7 +194,9 @@ end
 
 --- create a string representation of a placeholder expression.
 -- @param e a placeholder expression
-function func.repr (e,lastpred)
+-- @param lastpred not used
+function repr (e,lastpred)
+    local tail = func.tail
     if isPE(e) then
         local pred = operators[e.op]
         local ls = map(repr,e,pred)
@@ -212,16 +228,18 @@ function func.repr (e,lastpred)
     elseif type(e) == 'string' then
         return '"'..e..'"'
     elseif type(e) == 'function' then
-        local name = lookup_imported_name(e)
+        local name = func.lookup_imported_name(e)
         if name then return name else return tostring(e) end
     else
         return tostring(e) --should not really get here!
     end
 end
+func.repr = repr
 
 -- collect all the non-PE values in this PE into vlist, and replace each occurence
 -- with a constant PH (_C1, etc). Return the maximum placeholder index found.
-function func.collect_values (e,vlist)
+local collect_values
+function collect_values (e,vlist)
     if isPE(e) then
         if e.op ~= 'X' then
             local m = 0
@@ -248,6 +266,7 @@ function func.collect_values (e,vlist)
         return 0
     end
 end
+func.collect_values = collect_values
 
 --- instantiate a PE into an actual function. First we find the largest placeholder used,
 -- e.g. _2; from this a list of the formal parameters can be build. Then we collect and replace
@@ -257,7 +276,7 @@ end
 -- @return a function
 function func.instantiate (e)
     local consts,values,parms = {},{},{}
-    local rep
+    local rep, err, fun
     local n = func.collect_values(e,values)
     for i = 1,#values do
         append(consts,'_C'..i)
@@ -269,7 +288,7 @@ function func.instantiate (e)
     consts = concat(consts,',')
     parms = concat(parms,',')
     rep = repr(e)
-    fstr = ('return function(%s) return function(%s) return %s end end'):format(consts,parms,rep)
+    local fstr = ('return function(%s) return function(%s) return %s end end'):format(consts,parms,rep)
     if _DEBUG then print(fstr) end
     fun,err = loadstring(fstr,'fun')
     if not fun then return nil,err end

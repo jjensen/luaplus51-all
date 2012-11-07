@@ -1,6 +1,12 @@
 --- Useful test utilities.
--- @class module
--- @name pl.test
+--
+--    test.asserteq({1,2},{1,2}) -- can compare tables
+--    test.asserteq(1.2,1.19,0.02) -- compare FP numbers within precision
+--    T = test.tuple -- used for comparing multiple results
+--    test.asserteq(T(string.find(" me","me")),T(2,3))
+--
+-- Dependencies: `pl.utils`, `pl.tablex`, `pl.pretty`, `pl.path`, `debug`
+-- @module pl.test
 
 local tablex = require 'pl.tablex'
 local utils = require 'pl.utils'
@@ -12,40 +18,64 @@ local debug = require 'debug'
 local io,debug = io,debug
 
 local function dump(x)
-	if type(x) == 'table' and not (getmetatable(x) and getmetatable(x).__tostring) then
-		return pretty.write(x,' ',true)
-	else
-		return tostring(x)
-	end
+    if type(x) == 'table' and not (getmetatable(x) and getmetatable(x).__tostring) then
+        return pretty.write(x,' ',true)
+    elseif type(x) == 'string' then
+        return '"'..x..'"'
+    else
+        return tostring(x)
+    end
 end
-
---[[
-module ('pl.test',utils._module)
-]]
 
 local test = {}
 
-local function complain (x,y)
+local function complain (x,y,msg)
     local i = debug.getinfo(3)
-    io.stderr:write('assertion failed at '..path.basename(i.short_src)..':'..i.currentline..'\n')
-    print("got:",dump(x))
-    print("needed:",dump(y))
-    utils.quit(1,"these values were not equal")
+    local err = io.stderr
+    err:write(path.basename(i.short_src)..':'..i.currentline..': assertion failed\n')
+    err:write("got:\t",dump(x),'\n')
+    err:write("needed:\t",dump(y),'\n')
+    utils.quit(1,msg or "these values were not equal")
 end
+
+--- general test complain message.
+-- Useful for composing new test functions (see tests/tablex.lua for an example)
+-- @param x a value
+-- @param y value to compare first value against
+-- @param msg message
+test.complain = complain
 
 --- like assert, except takes two arguments that must be equal and can be tables.
 -- If they are plain tables, it will use tablex.deepcompare.
 -- @param x any value
 -- @param y a value equal to x
-function test.asserteq (x,y)
-    if x ~= y then
-        local res = false
-        if type(x) == 'table' and type(y) == 'table' then
-            res = tablex.deepcompare(x,y,true)
-        end
-        if not res then
-            complain(x,y)
-        end
+-- @param eps an optional tolerance for numerical comparisons
+function test.asserteq (x,y,eps)
+    local res = x == y
+    if not res then
+        res = tablex.deepcompare(x,y,true,eps)
+    end
+    if not res then
+        complain(x,y)
+    end
+end
+
+--- assert that the first string matches the second.
+-- @param s1 a string
+-- @param s2 a string
+function test.assertmatch (s1,s2)
+    if not s1:match(s2) then
+        complain (s1,s2,"these strings did not match")
+    end
+end
+
+--- assert that the function raises a particular error.
+-- @param fn a table of the form {function,arg1,...}
+-- @param e a string to match the error against
+function test.assertraise(fn,e)
+    local ok, err = pcall(unpack(fn))
+    if not err or err:match(e)==nil then
+        complain (err,e,"these errors did not match")
     end
 end
 
@@ -95,6 +125,7 @@ end
 -- @param msg a descriptive message
 -- @param n number of times to call the function
 -- @param fun the function
+-- @param ... optional arguments to fun
 function test.timer(msg,n,fun,...)
     local start = clock()
     for i = 1,n do fun(...) end

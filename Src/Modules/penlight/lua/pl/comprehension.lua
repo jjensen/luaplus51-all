@@ -1,8 +1,8 @@
---- List comprehensions implemented in Lua. <p>
+--- List comprehensions implemented in Lua.
 --
--- See the <a href="http://lua-users.org/wiki/ListComprehensions">wiki page</a>
--- <pre class=example>
---   local C= require 'pl.comprehension' . new()
+-- See the [wiki page](http://lua-users.org/wiki/ListComprehensions)
+--
+--    local C= require 'pl.comprehension' . new()
 --
 --    C ('x for x=1,10') ()
 --    ==> {1,2,3,4,5,6,7,8,9,10}
@@ -21,24 +21,24 @@
 --    ==> {{1,1},{1,2},{2,1},{2,2}}
 --    C '{x,y} for x for y' ({1,2},{10,20})
 --    ==> {{1,10},{1,20},{2,10},{2,20}}
---   assert(C 'sum(x^2 for x)' {2,3,4} == 2^2+3^2+4^2)
--- </pre>
+--    assert(C 'sum(x^2 for x)' {2,3,4} == 2^2+3^2+4^2)
 --
--- <p> (c) 2008 David Manura. Licensed under the same terms as Lua (MIT license).
--- <p> -- See <a href="../../index.html#T31">the Guide</a>
--- @class module
--- @name pl.comprehension
+-- (c) 2008 David Manura. Licensed under the same terms as Lua (MIT license).
+--
+-- Dependencies: `pl.utils`, `pl.luabalanced`
+--
+-- See @{07-functional.md.List_Comprehensions|the Guide}
+-- @module pl.comprehension
 
---[[ -- An unfortunately necessary hack for LuaDoc
-module ('pl.comprehension')
-]]
-
-local lb = require "pl.luabalanced"
 local utils = require 'pl.utils'
+
+local status,lb = pcall(require, "pl.luabalanced")
+if not status then
+    lb = require 'luabalanced'
+end
 
 local math_max = math.max
 local table_concat = table.concat
-
 
 -- fold operations
 -- http://en.wikipedia.org/wiki/Fold_(higher-order_function)
@@ -220,7 +220,7 @@ local function wrap_comprehension(code, ninputs, max_param, invallists, env)
   end
   code = code .. ' return __result '
   --print('DEBUG:', code)
-  local f, err = loadin(env,code)
+  local f, err = utils.load(code,'tmp','t',env)
   if not f then assert(false, err .. ' with generated code ' .. code) end
   return f
 end
@@ -253,10 +253,8 @@ local function new(env)
   -- performance penalty.
 
   if not env then
-    if _VERSION=='Lua 5.1' then env = getfenv(2)
-    else env = _G
-    end
-   end
+    env = getfenv(2)
+  end
 
   local mt = {}
   local cache = setmetatable({}, mt)
@@ -284,12 +282,5 @@ end
 
 local comprehension = {}
 comprehension.new = new
-
--- a default instance
-local C = new()
-utils.add_function_factory(getmetatable "",function(s)
-    return C(s)
-end)
-
 
 return comprehension

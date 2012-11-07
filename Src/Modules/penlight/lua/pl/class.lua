@@ -1,35 +1,29 @@
 --- Provides a reuseable and convenient framework for creating classes in Lua.
--- Two possible notations: <code> B = class(A) </code> or <code> class.B(A) </code>.
+-- Two possible notations:
+--
+--    B = class(A)
+--    class.B(A)
+--
 -- The latter form creates a named class.
--- This module also provides Map and Set classes.
--- See the Guide for further <a href="../../index.html#class">discussion</a>
--- @class module
--- @name pl.class
+--
+-- See the Guide for further @{01-introduction.md.Simplifying_Object_Oriented_Programming_in_Lua|discussion}
+-- @module pl.class
 
---[[
-module ('pl.class')
-]]
-
--- utils keeps the predefined metatables for these useful interfaces,
--- so that other modules (such as tablex) can tag their output accordingly.
--- However, users are not required to use this module.
-local tablex = require 'pl.tablex'
-local utils = require 'pl.utils'
-local stdmt = utils.stdmt
-local is_callable = utils.is_callable
-local tmakeset,deepcompare,merge,keys,difference,tupdate = tablex.makeset,tablex.deepcompare,tablex.merge,tablex.keys,tablex.difference,tablex.update
-local pretty_write = require 'pl.pretty' . write
-local Map = stdmt.Map
-local Set = stdmt.Set
-local List = stdmt.List
-
-local class = {Set = Set, Map = Map}
-
+local error, getmetatable, io, pairs, rawget, rawset, setmetatable, tostring, type =
+    _G.error, _G.getmetatable, _G.io, _G.pairs, _G.rawget, _G.rawset, _G.setmetatable, _G.tostring, _G.type
 -- this trickery is necessary to prevent the inheritance of 'super' and
 -- the resulting recursive call problems.
 local function call_ctor (c,obj,...)
     -- nice alias for the base class ctor
-    if rawget(c,'_base') then obj.super = c._base._init end
+    local base = rawget(c,'_base')
+    if base then
+        local parent_ctor = rawget(base,'_init')
+        if parent_ctor then
+            obj.super = function(obj,...)
+                call_ctor(base,obj,...)
+            end
+        end
+    end
     local res = c._init(obj,...)
     obj.super = nil
     return res
@@ -60,6 +54,12 @@ local function _class_tostring (obj)
     return str
 end
 
+local function tupdate(td,ts)
+    for k,v in pairs(ts) do
+        td[k] = v
+    end
+end
+
 local function _class(base,c_arg,c)
     c = c or {}     -- a new class instance, which is the metatable for all objects of this type
     -- the class will be the metatable for all its objects,
@@ -73,7 +73,7 @@ local function _class(base,c_arg,c)
         -- inherit the 'not found' handler, if present
         if rawget(c,'_handler') then mt.__index = c._handler end
     elseif base ~= nil then
-        error("must derive from a table type")
+        error("must derive from a table type",3)
     end
 
     c.__index = c
@@ -117,36 +117,27 @@ local function _class(base,c_arg,c)
     c.is_a = is_a
     c.class_of = class_of
     c._class = c
-    -- any object can have a specified delegate which is called with unrecognized methods
-    -- if _handler exists and obj[key] is nil, then pass onto handler!
-    c.delegate = function(self,obj)
-        mt.__index = function(tbl,key)
-            local method = obj[key]
-            if method then
-                return function(self,...)
-                    return method(obj,...)
-                end
-            elseif self._handler then
-                return self._handler(tbl,key)
-            end
-        end
-    end
+
     return c
 end
 
 --- create a new class, derived from a given base class.
--- supporting two class creation syntaxes:
--- either 'Name = class()' or'class.Name()'
--- @class function
--- @name class
+-- Supporting two class creation syntaxes:
+-- either `Name = class(base)` or `class.Name(base)`
+-- @function class
 -- @param base optional base class
 -- @param c_arg optional parameter to class ctor
 -- @param c optional table to be used as class
-class.class = setmetatable({},{
+local class
+class = setmetatable({},{
     __call = function(fun,...)
         return _class(...)
     end,
     __index = function(tbl,key)
+        if key == 'class' then
+            io.stderr:write('require("pl.class").class is deprecated. Use require("pl.class")\n')
+            return class
+        end
         local env = _G
         return function(...)
             local c = _class(...)
@@ -157,198 +148,33 @@ class.class = setmetatable({},{
     end
 })
 
- 
--- the Map class ---------------------
-class.class(nil,nil,Map)
+class.properties = class()
 
-local function makemap (m)
-    return setmetatable(m,Map)
-end
-
-function Map:_init (t)
-    local mt = getmetatable(t)
-    if mt == Set or mt == Map then
-        self:update(t)
-    else
-        return t -- otherwise assumed to be a map-like table
+function class.properties._class_init(klass)
+    klass.__index = function(t,key)
+        -- normal class lookup!
+        local v = klass[key]
+        if v then return v end
+        -- is it a getter?
+        v = rawget(klass,'get_'..key)
+        if v then
+            return v(t)
+        end
+        -- is it a field?
+        return rawget(t,'_'..key)
+    end
+    klass.__newindex = function (t,key,value)
+        -- if there's a setter, use that, otherwise directly set table
+        local p = 'set_'..key
+        local setter = klass[p]
+        if setter then
+            setter(t,value)
+        else
+            rawset(t,key,value)
+        end
     end
 end
 
-
-local function makelist(t)
-    return setmetatable(t,List)
-end
-
---- list of keys.
-Map.keys = tablex.keys
-
---- list of values.
-Map.values = tablex.values
-
---- return an iterator over all key-value pairs.
-function Map:iter ()
-    return pairs(self)
-end
-
---- return a List of all key-value pairs, sorted by the keys.
-function Map:items()
-    local ls = makelist(tablex.pairmap (function (k,v) return makelist {k,v} end, self))
-	ls:sort(function(t1,t2) return t1[1] < t2[1] end)
-	return ls
-end
-
--- Will return the existing value, or if it doesn't exist it will set
--- a default value and return it.
-function Map:setdefault(key, defaultval)
-   return self[key] or self:set(key,defaultval) or defaultval
-end
-
---- size of map.
--- note: this is a relatively expensive operation!
--- @class function
--- @name Map:len
-Map.len = tablex.size
-
---- put a value into the map.
--- @param key the key
--- @param val the value
-function Map:set (key,val)
-    self[key] = val
-end
-
---- get a value from the map.
--- @param key the key
--- @return the value, or nil if not found.
-function Map:get (key)
-    return rawget(self,key)
-end
-
-local index_by = tablex.index_by
-
--- get a list of values indexed by a list of keys.
--- @param keys a list-like table of keys
--- @return a new list
-function Map:getvalues (keys)
-    return makelist(index_by(self,keys))
-end
-
-Map.iter = pairs
-
-Map.update = tablex.update
-
-function Map:__eq (m)
-    -- note we explicitly ask deepcompare _not_ to use __eq!
-    return deepcompare(self,m,true)
-end
-
-function Map:__tostring ()
-    return pretty_write(self,'')
-end
-
--- the Set class --------------------
-class.class(Map,nil,Set)
-
-local function makeset (t)
-    return setmetatable(t,Set)
-end
-
-function Set:_init (t)
-    local mt = getmetatable(t)
-    if mt == Set or mt == Map then
-        for k in pairs(t) do self[k] = true end
-    else
-        for _,v in ipairs(t) do self[v] = true end
-    end
-end
-
-function Set:__tostring ()
-    return '['..self:keys():join ','..']'
-end
-
---- add a value to a set.
--- @param key a value
-function Set:set (key)
-    self[key] = true
-end
-
---- remove a value from a set.
--- @param key a value
-function Set:unset (key)
-    self[key] = nil
-end
-
---- get a list of the values in a set.
--- @class function
--- @name Set:values
-Set.values = Map.keys
-
---- map a function over the values of a set.
--- @param fn a function
--- @param ... extra arguments to pass to the function.
--- @return a new set
-function Set:map (fn,...)
-    fn = utils.function_arg(1,fn)
-    local res = {}
-    for k in pairs(self) do
-        res[fn(k,...)] = true
-    end
-    return makeset(res)
-end
-
---- union of two sets (also +).
--- @param set another set
--- @return a new set
-function Set:union (set)
-    return merge(self,set,true)
-end
-Set.__add = Set.union
-
---- intersection of two sets (also *).
--- @param set another set
--- @return a new set
-function Set:intersection (set)
-    return merge(self,set,false)
-end
-Set.__mul = Set.intersection
-
---- new set with elements in the set that are not in the other (also -).
--- @param set another set
--- @return a new set
-function Set:difference (set)
-    return difference(self,set,false)
-end
-Set.__sub = Set.difference
-
--- a new set with elements in _either_ the set _or_ other but not both (also ^).
--- @param set another set
--- @return a new set
-function Set:symmetric_difference (set)
-    return difference(self,set,true)
-end
-Set.__pow = Set.symmetric_difference
-
---- is the first set a subset of the second?.
--- @return true or false
-function Set:issubset (set)
-    for k in pairs(self) do
-        if not set[k] then return false end
-    end
-    return true
-end
-Set.__lt = Set.subset
-
---- is the set empty?.
--- @return true or false
-function Set:issempty ()
-    return next(self) == nil
-end
-
---- are the sets disjoint? (no elements in common).
--- Uses naive definition, i.e. that intersection is empty
--- @param set another set
--- @return true or false
-function Set:isdisjoint (set)
-    return self:intersection(set):isempty()
-end
 
 return class
+

@@ -1,17 +1,18 @@
 --- Iterators for extracting words or numbers from an input source.
--- <pre class=example>
+--
 --    require 'pl'
---    local total,n = <a href="pl.seq.html#seq.sum">seq.sum</a>(input.numbers())
+--    local total,n = seq.sum(input.numbers())
 --    print('average',total/n)
--- </pre>
--- <p> See <a href="../../index.html#lexer">here</a>
--- @class module
--- @name pl.input
+--
+-- See @{06-data.md.Reading_Unstructured_Text_Data|here}
+--
+-- Dependencies: `pl.utils`
+-- @module pl.input
 local strfind = string.find
 local strsub = string.sub
 local strmatch = string.match
-local pairs,type,unpack,tonumber = pairs,type,unpack,tonumber
 local utils = require 'pl.utils'
+local pairs,type,unpack,tonumber = pairs,type,unpack or table.unpack,tonumber
 local patterns = utils.patterns
 local io = io
 local assert_arg = utils.assert_arg
@@ -67,7 +68,7 @@ function input.create_getter(f)
        end
     else
       -- anything that supports the read() method!
-      if not f.read then utils.error('not a file-like object') end
+      if not f.read then error('not a file-like object') end
       return function() return f:read() end
     end
   else
@@ -107,7 +108,7 @@ end
 -- By default, will fail if it cannot convert a field to a number.
 -- @param ids a list of field indices, or a maximum field index
 -- @param delim delimiter to parse fields (default space)
--- @param f a source (@see create_getter)
+-- @param f a source @see create_getter
 -- @param opts option table, {no_fail=true}
 -- @return an iterator with the field values
 -- @usage for x,y in fields {2,3} do print(x,y) end -- 2nd and 3rd fields from stdin

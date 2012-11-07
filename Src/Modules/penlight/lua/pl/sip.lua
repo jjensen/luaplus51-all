@@ -1,34 +1,49 @@
---- Simple Input Patterns (SIP). <p>
+--- Simple Input Patterns (SIP).
 -- SIP patterns start with '$', then a
--- one-letter type, and then an optional variable in curly braces. <p>
--- Example:
--- <pre class=example>
---  sip.match('$v=$q','name="dolly"',res)
---  ==> res=={'name','dolly'}
---  sip.match('($q{first},$q{second})','("john","smith")',res)
---  ==> res=={second='smith',first='john'}
--- </pre>
--- <pre>
--- <b>Type names</b>
--- v    identifier
--- i     integer
--- f     floating-point
--- q    quoted string
--- ([{&lt;  match up to closing bracket
--- </pre>
--- <p>
--- See <a href="../../index.html#sip">the Guide</a>
--- @class module
--- @name pl.sip
+-- one-letter type, and then an optional variable in curly braces.
+--
+--    sip.match('$v=$q','name="dolly"',res)
+--    ==> res=={'name','dolly'}
+--    sip.match('($q{first},$q{second})','("john","smith")',res)
+--    ==> res=={second='smith',first='john'}
+--
+-- ''Type names''
+--
+--    v    identifier
+--    i     integer
+--    f     floating-point
+--    q    quoted string
+--    ([{<  match up to closing bracket
+--
+-- See @{08-additional.md.Simple_Input_Patterns|the Guide}
+--
+-- @module pl.sip
 
-local utils = require 'pl.utils'
-local patterns = utils.patterns
+if not rawget(_G,'loadstring') then -- Lua 5.2 full compatibility
+    loadstring = load
+    unpack = table.unpack
+end
+
 local append,concat = table.insert,table.concat
 local concat = table.concat
 local ipairs,loadstring,type,unpack = ipairs,loadstring,type,unpack
 local io,_G = io,_G
 local print,rawget = print,rawget
-local assert_arg = utils.assert_arg
+
+local patterns = {
+    FLOAT = '[%+%-%d]%d*%.?%d*[eE]?[%+%-]?%d*',
+    INTEGER = '[+%-%d]%d*',
+    IDEN = '[%a_][%w_]*',
+    FILE = '[%a%.\\][:%][%w%._%-\\]*',
+    OPTION = '[%a_][%w_%-]*',
+}
+
+local function assert_arg(idx,val,tp)
+    if type(val) ~= tp then
+        error("argument "..idx.." must be "..tp, 2)
+    end
+end
+
 
 --[[
 module ('pl.sip',utils._module)
@@ -51,8 +66,8 @@ end
 local function escape (spec)
     --_G.print('spec',spec)
     local res = spec:gsub('[%-%.%+%[%]%(%)%^%%%?%*]','%%%1'):gsub('%$%%(%S)','$%1')
-	--_G.print('res',res)
-	return res
+    --_G.print('res',res)
+    return res
 end
 
 local function imcompressible (s)
@@ -64,24 +79,39 @@ end
 -- unless this occurs within a number or an identifier. So we mark
 -- the four possible imcompressible patterns first and then replace.
 -- The possible alnum patterns are v,f,a,d,x,l and u.
-local function compress_spaces (s)    
+local function compress_spaces (s)
     s = s:gsub('%$[vifadxlu]%s+%$[vfadxlu]',imcompressible)
     s = s:gsub('[%w_]%s+[%w_]',imcompressible)
-    s = s:gsub('[%w_]%s+%$[vfadxlu]',imcompressible)    
-    s = s:gsub('%$[vfadxlu]%s+[%w_]',imcompressible)        
+    s = s:gsub('[%w_]%s+%$[vfadxlu]',imcompressible)
+    s = s:gsub('%$[vfadxlu]%s+[%w_]',imcompressible)
     s = s:gsub('%s+','%%s*')
     s = s:gsub('\001',' ')
     return s
 end
 
---- convert a SIP pattern into the equivalent Lua regular expression.
+local pattern_map = {
+  v = group(patterns.IDEN),
+  i = group(patterns.INTEGER),
+  f = group(patterns.FLOAT),
+  o = group(patterns.OPTION),
+  r = '(%S.*)',
+  p = '([%a]?[:]?[\\/%.%w_]+)'
+}
+
+function sip.custom_pattern(flag,patt)
+    pattern_map[flag] = patt
+end
+
+--- convert a SIP pattern into the equivalent Lua string pattern.
 -- @param spec a SIP pattern
--- @param fieldnames an optional table which is to be filled with fieldnames
--- @param fieldtypes an optional table which maps the names to their types
+-- @param options a table; only the <code>at_start</code> field is
+-- currently meaningful and esures that the pattern is anchored
+-- at the start of the string.
+-- @return a Lua string pattern.
 function sip.create_pattern (spec,options)
     assert_arg(1,spec,'string')
     local fieldnames,fieldtypes = {},{}
-    
+
     if type(spec) == 'string' then
         spec = escape(spec)
     else
@@ -112,7 +142,7 @@ function sip.create_pattern (spec,options)
         spec = spec:sub(1,-2)..'$r'
         if named_vars then spec = spec..'{rest}' end
     end
-    
+
 
     local names
 
@@ -139,14 +169,8 @@ function sip.create_pattern (spec,options)
             addfield(name,type)
         end
         local res
-        if type == 'v' then
-            res = group(patterns.IDEN)
-        elseif type == 'i' then
-            res = group(patterns.INTEGER)
-        elseif type == 'f' then
-            res = group(patterns.FLOAT)
-        elseif type == 'r' then
-            res = '(%S.*)'
+        if pattern_map[type] then
+            res = pattern_map[type]
         elseif type == 'q' then
             -- some Lua pattern matching voodoo; we want to match '...' as
             -- well as "...", and can use the fact that %n will match a
@@ -154,8 +178,6 @@ function sip.create_pattern (spec,options)
             -- to accomodate the extra spurious match (which is either ' or ")
             addfield(name,type)
             res = '(["\'])(.-)%'..(kount-2)
-        elseif type == 'p' then
-            res = '([%a]?[:]?[\\/%.%w_]+)'
         else
             local endbracket = brackets[type]
             if endbracket then
@@ -190,7 +212,7 @@ function sip.create_spec_fun(spec,options)
     for i = 1,#fieldnames do
         append(ls,'mm'..i)
     end
-    local fun = ('return (function(s,res)\n\t\local %s = s:match(%q)\n'):format(concat(ls,','),spec)
+    local fun = ('return (function(s,res)\n\tlocal %s = s:match(%q)\n'):format(concat(ls,','),spec)
     fun = fun..'\tif not mm1 then return false end\n'
     local k=1
     for i,f in ipairs(fieldnames) do
@@ -203,12 +225,12 @@ function sip.create_spec_fun(spec,options)
             end
             if named_vars then
                 fun = ('%s\tres.%s = %s\n'):format(fun,f,var)
-            else                
+            else
                 if fieldtypes[f] ~= 'Q' then -- we skip the string-delim capture
                     fun = ('%s\tres[%d] = %s\n'):format(fun,k,var)
                     k = k + 1
                 end
-            end            
+            end
         end
     end
     return fun..'\treturn true\nend)\n', named_vars
@@ -226,7 +248,7 @@ function sip.compile(spec,options)
     local fun,names = sip.create_spec_fun(spec,options)
     if not fun then return nil,names end
     if rawget(_G,'_DEBUG') then print(fun) end
-    chunk,err = loadstring(fun,'tmp')
+    local chunk,err = loadstring(fun,'tmp')
     if err then return nil,err end
     return chunk(),names
 end
@@ -297,7 +319,7 @@ function sip.read (f)
     f = f or io.stdin
     if type(f) == 'string' then
         f,err = io.open(f)
-        if not f then utils.quit(1,err) end
+        if not f then return nil,err end
         owned = true
     end
     local res = {}

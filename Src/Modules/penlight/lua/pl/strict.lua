@@ -1,9 +1,8 @@
---- checks uses of undeclared global variables.
+--- Checks uses of undeclared global variables.
 -- All global variables must be 'declared' through a regular assignment
 -- (even assigning nil will do) in a main chunk before being used
 -- anywhere or assigned to inside a function.
--- @class module
--- @name pl.strict
+-- @module pl.strict
 
 require 'debug'
 local getinfo, error, rawset, rawget = debug.getinfo, error, rawset, rawget
@@ -44,22 +43,22 @@ handler = function(t,n)
 end
 
 function package.strict (mod)
-	local mt = getmetatable(mod)
-	if mt == nil then
-	  mt = {}
-	  setmetatable(mod, mt)
-	end
-	mt.__declared = {}
-	mt.__newindex = function(t, n, v)
-		mt.__declared[n] = true
-		rawset(t, n, v)
-	end
-	mt.__index = function(t,n)
-	  if not mt.__declared[n] then
-		error("variable '"..n.."' is not declared", 2)
-	  end
-	  return rawget(t, n)
-	end
+    local mt = getmetatable(mod)
+    if mt == nil then
+      mt = {}
+      setmetatable(mod, mt)
+    end
+    mt.__declared = {}
+    mt.__newindex = function(t, n, v)
+        mt.__declared[n] = true
+        rawset(t, n, v)
+    end
+    mt.__index = function(t,n)
+      if not mt.__declared[n] then
+        error("variable '"..n.."' is not declared", 2)
+      end
+      return rawget(t, n)
+    end
 end
 
 if not hooked then

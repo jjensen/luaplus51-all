@@ -1,77 +1,89 @@
---- Lexical scanner for creating a sequence of tokens from text. <br>
--- <p><code>lexer.scan(s)</code> returns an iterator over all tokens found in the 
--- string <code>s</code>. This iterator returns two values, a token type string 
--- (such as 'string' for quoted string, 'iden' for identifier) and the value of the 
+--- Lexical scanner for creating a sequence of tokens from text.
+-- `lexer.scan(s)` returns an iterator over all tokens found in the
+-- string `s`. This iterator returns two values, a token type string
+-- (such as 'string' for quoted string, 'iden' for identifier) and the value of the
 -- token.
--- <p>
+--
 -- Versions specialized for Lua and C are available; these also handle block comments
--- and classify keywords as 'keyword' tokens. For example: 
--- <pre class=example>
--- > s = 'for i=1,n do'
--- > for t,v in lexer.lua(s)  do print(t,v) end
--- keyword for
--- iden    i 
--- =       = 
--- number  1
--- ,       , 
--- iden    n
--- keyword do 
--- </pre>
--- See the Guide for further <a href="../../index.html#lexer">discussion</a> <br>
--- @class module
--- @name pl.lexer
+-- and classify keywords as 'keyword' tokens. For example:
+--
+--    > s = 'for i=1,n do'
+--    > for t,v in lexer.lua(s)  do print(t,v) end
+--    keyword for
+--    iden    i
+--    =       =
+--    number  1
+--    ,       ,
+--    iden    n
+--    keyword do
+--
+-- See the Guide for further @{06-data.md.Lexical_Scanning|discussion}
+-- @module pl.lexer
 
-local utils = require 'pl.utils'
 local yield,wrap = coroutine.yield,coroutine.wrap
 local strfind = string.find
 local strsub = string.sub
 local append = table.insert
-local assert_arg = utils.assert_arg
---[[
-module ('pl.lexer',utils._module)
-]]
+
+local function assert_arg(idx,val,tp)
+    if type(val) ~= tp then
+        error("argument "..idx.." must be "..tp, 2)
+    end
+end
 
 local lexer = {}
 
 local NUMBER1 = '^[%+%-]?%d+%.?%d*[eE][%+%-]?%d+'
 local NUMBER2 = '^[%+%-]?%d+%.?%d*'
 local NUMBER3 = '^0x[%da-fA-F]+'
+local NUMBER4 = '^%d+%.?%d*[eE][%+%-]?%d+'
+local NUMBER5 = '^%d+%.?%d*'
 local IDEN = '^[%a_][%w_]*'
 local WSPACE = '^%s+'
-local STRING1 = "^'.-[^\\]'"
-local STRING2 = '^".-[^\\]"'
-local STRING3 = '^[\'"][\'"]'
+local STRING0 = [[^(['\"]).-\\%1]]
+local STRING1 = [[^(['\"]).-[^\]%1]]
+local STRING3 = "^((['\"])%2)" -- empty string
 local PREPRO = '^#.-[^\\]\n'
 
 local plain_matches,lua_matches,cpp_matches,lua_keyword,cpp_keyword
 
 local function tdump(tok)
-	return yield(tok,tok)
+    return yield(tok,tok)
 end
 
 local function ndump(tok,options)
     if options and options.number then
         tok = tonumber(tok)
     end
-	return yield("number",tok)
+    return yield("number",tok)
 end
 
+-- regular strings, single or double quotes; usually we want them
+-- without the quotes
 local function sdump(tok,options)
     if options and options.string then
         tok = tok:sub(2,-2)
     end
-	return yield("string",tok)
+    return yield("string",tok)
+end
+
+-- long Lua strings need extra work to get rid of the quotes
+local function sdump_l(tok,options)
+    if options and options.string then
+        tok = tok:sub(3,-3)
+    end
+    return yield("string",tok)
 end
 
 local function chdump(tok,options)
     if options and options.string then
         tok = tok:sub(2,-2)
     end
-	return yield("char",tok)
+    return yield("char",tok)
 end
 
 local function cdump(tok)
-	return yield("comment",tok)
+    return yield('comment',tok)
 end
 
 local function wsdump (tok)
@@ -102,19 +114,22 @@ local function cpp_vdump(tok)
     end
 end
 
---- create a plain token iterator from a string.
+--- create a plain token iterator from a string or file-like object.
 -- @param s the string
 -- @param matches an optional match table (set of pattern-action pairs)
 -- @param filter a table of token types to exclude, by default {space=true}
 -- @param options a table of options; by default, {number=true,string=true},
 -- which means convert numbers and strip string quotes.
 function lexer.scan (s,matches,filter,options)
-    assert_arg(1,s,'string')
-	filter = filter or {space=true}
-	options = options or {number=true,string=true}
+    --assert_arg(1,s,'string')
+    local file = type(s) ~= 'string' and s
+    filter = filter or {space=true}
+    options = options or {number=true,string=true}
     if filter then
         if filter.space then filter[wsdump] = true end
-		if filter.comments then filter[cdump] = true end
+        if filter.comments then
+            filter[cdump] = true
+        end
     end
     if not matches then
         if not plain_matches then
@@ -125,44 +140,41 @@ function lexer.scan (s,matches,filter,options)
                 {NUMBER1,ndump},
                 {NUMBER2,ndump},
                 {STRING3,sdump},
+                {STRING0,sdump},
                 {STRING1,sdump},
-                {STRING2,sdump},
                 {'^.',tdump}
             }
         end
         matches = plain_matches
     end
-	function lex ()
-		local i1,i2,idx,res1,res2,tok,pat,fun
-		local sz = #s
+    local function lex ()
+        local i1,i2,idx,res1,res2,tok,pat,fun,capt
+        local line = 1
+        if file then s = file:read()..'\n' end
+        local sz = #s
         local idx = 1
         --print('sz',sz)
-		while true do
-			for _,m in ipairs(matches) do
+        while true do
+            for _,m in ipairs(matches) do
                 pat = m[1]
                 fun = m[2]
-				i1,i2 = strfind(s,pat,idx)
---~                 if s:sub(idx,idx) == '/' then
---~                     print(i1,pat,s:sub(idx))
---~                 end
-				if i1 then
-					tok = strsub(s,i1,i2)
-					idx = i2 + 1
-                    --print(s,pat,idx,tok,filter,filter[fun])
+                i1,i2 = strfind(s,pat,idx)
+                if i1 then
+                    tok = strsub(s,i1,i2)
+                    idx = i2 + 1
                     if not (filter and filter[fun]) then
                         lexer.finished = idx > sz
                         res1,res2 = fun(tok,options)
-                        --print(res1,res2)
                     end
                     if res1 then
+                        local tp = type(res1)
                         -- insert a token list
-                        if type(res1)=='table' then
+                        if tp=='table' then
                             yield('','')
                             for _,t in ipairs(res1) do
-                                --print('insert',t[1],t[2])
                                 yield(t[1],t[2])
                             end
-                        else -- or search up to some special pattern
+                        elseif tp == 'string' then -- or search up to some special pattern
                             i1,i2 = strfind(s,res1,idx)
                             if i1 then
                                 tok = strsub(s,i1,i2)
@@ -172,16 +184,30 @@ function lexer.scan (s,matches,filter,options)
                                 yield('','')
                                 idx = sz + 1
                             end
-							if idx > sz then return end
+                            --if idx > sz then return end
+                        else
+                            yield(line,idx)
                         end
                     end
-					if idx > sz then return  -- print 'ret';
-					else break end
-				end
-			end
-		end
-	end
-	return wrap(lex)
+                    if idx > sz then
+                        if file then
+                            --repeat -- next non-empty line
+                                line = line + 1
+                                s = file:read()
+                                if not s then return end
+                            --until not s:match '^%s*$'
+                            s = s .. '\n'
+                            idx ,sz = 1,#s
+                            break
+                        else
+                            return
+                        end
+                    else break end
+                end
+            end
+        end
+    end
+    return wrap(lex)
 end
 
 local function isstring (s)
@@ -217,6 +243,14 @@ function lexer.getline (tok)
     return v
 end
 
+--- get current line number. <br>
+-- Only available if the input source is a file-like object.
+-- @param tok a token stream
+-- @return the line number and current column
+function lexer.lineno (tok)
+    return tok(0)
+end
+
 --- get the rest of the stream.
 -- @param tok a token stream
 -- @return a string
@@ -244,47 +278,48 @@ function lexer.get_keywords ()
 end
 
 
---- create a Lua token iterator from a string. Will return the token type and value.
+--- create a Lua token iterator from a string or file-like object.
+-- Will return the token type and value.
 -- @param s the string
 -- @param filter a table of token types to exclude, by default {space=true,comments=true}
 -- @param options a table of options; by default, {number=true,string=true},
 -- which means convert numbers and strip string quotes.
 function lexer.lua(s,filter,options)
-    assert_arg(1,s,'string')
-	filter = filter or {space=true,comments=true}
+    filter = filter or {space=true,comments=true}
     lexer.get_keywords()
     if not lua_matches then
         lua_matches = {
             {WSPACE,wsdump},
             {NUMBER3,ndump},
             {IDEN,lua_vdump},
-            {NUMBER1,ndump},
-            {NUMBER2,ndump},
+            {NUMBER4,ndump},
+            {NUMBER5,ndump},
             {STRING3,sdump},
+            {STRING0,sdump},
             {STRING1,sdump},
-            {STRING2,sdump},
+            {'^%-%-%[%[.-%]%]',cdump},
             {'^%-%-.-\n',cdump},
-            {'^%[%[.+%]%]',sdump},
-            {'^%-%-%[%[.+%]%]',cdump},
+            {'^%[%[.-%]%]',sdump_l},
             {'^==',tdump},
             {'^~=',tdump},
             {'^<=',tdump},
             {'^>=',tdump},
             {'^%.%.%.',tdump},
+            {'^%.%.',tdump},
             {'^.',tdump}
         }
     end
     return lexer.scan(s,lua_matches,filter,options)
 end
 
---- create a C/C++ token iterator from a string. Will return the token type type and value.
+--- create a C/C++ token iterator from a string or file-like object.
+-- Will return the token type type and value.
 -- @param s the string
 -- @param filter a table of token types to exclude, by default {space=true,comments=true}
 -- @param options a table of options; by default, {number=true,string=true},
 -- which means convert numbers and strip string quotes.
 function lexer.cpp(s,filter,options)
-    assert_arg(1,s,'string')
-	filter = filter or {comments=true}
+    filter = filter or {comments=true}
     if not cpp_keyword then
         cpp_keyword = {
             ["class"] = true, ["break"] = true,  ["do"] = true, ["sizeof"] = true,
@@ -294,9 +329,11 @@ function lexer.cpp(s,filter,options)
             ["if"] = true, ["static"] = true,  ["const"] = true, ["typedef"] = true,
             ["enum"] = true, ["char"] = true, ["int"] = true, ["bool"] = true,
             ["long"] = true, ["float"] = true, ["true"] = true, ["delete"] = true,
-            ["double"] = true,  ["while"] = true, ["new"] = true, ["delete"] = true,
+            ["double"] = true,  ["while"] = true, ["new"] = true,
             ["namespace"] = true, ["try"] = true, ["catch"] = true,
             ["switch"] = true, ["case"] = true, ["extern"] = true,
+            ["return"] = true,["default"] = true,['unsigned']  = true,['signed'] = true,
+            ["union"] =  true, ["volatile"] = true, ["register"] = true,["short"] = true,
         }
     end
     if not cpp_matches then
@@ -305,11 +342,10 @@ function lexer.cpp(s,filter,options)
             {PREPRO,pdump},
             {NUMBER3,ndump},
             {IDEN,cpp_vdump},
-            {NUMBER1,ndump},
-            {NUMBER2,ndump},
+            {NUMBER4,ndump},
+            {NUMBER5,ndump},
             {STRING3,sdump},
             {STRING1,chdump},
-            {STRING2,sdump},
             {'^//.-\n',cdump},
             {'^/%*.-%*/',cdump},
             {'^==',tdump},
@@ -331,7 +367,7 @@ function lexer.cpp(s,filter,options)
             {'^.',tdump}
         }
     end
-    return scan(s,cpp_matches,filter,options)
+    return lexer.scan(s,cpp_matches,filter,options)
 end
 
 --- get a list of parameters separated by a delimiter from a stream.
@@ -345,24 +381,28 @@ function lexer.get_separated_list(tok,endtoken,delim)
     local parm_values = {}
     local level = 1 -- used to count ( and )
     local tl = {}
-    local function tappend (tl,tok,val)
-        val = val or tok
-        append(tl,{tok,val})
+    local function tappend (tl,t,val)
+        val = val or t
+        append(tl,{t,val})
     end
     local is_end
     if endtoken == '\n' then
-        is_end = function(tok,val)
-            return tok == 'space' and val:find '\n'
+        is_end = function(t,val)
+            return t == 'space' and val:find '\n'
         end
     else
-        is_end = function (tok)
-            return tok == endtoken
+        is_end = function (t)
+            return t == endtoken
         end
     end
+    local token,value
     while true do
         token,value=tok()
-        if not token then return end -- end of stream is an error!
-        if token == '(' then
+        if not token then return nil,'EOS' end -- end of stream is an error!
+        if is_end(token,value) and level == 1 then
+            append(parm_values,tl)
+            break
+        elseif token == '(' then
             level = level + 1
             tappend(tl,'(')
         elseif token == ')' then
@@ -376,24 +416,21 @@ function lexer.get_separated_list(tok,endtoken,delim)
         elseif token == delim and level == 1 then
             append(parm_values,tl) -- a new parm
             tl = {}
-        elseif is_end(token,value) and level == 1 then
-            append(parm_values,tl)
-            break
         else
             tappend(tl,token,value)
         end
     end
-    return parm_values
+    return parm_values,{token,value}
 end
 
 --- get the next non-space token from the stream.
 -- @param tok the token stream.
 function lexer.skipws (tok)
-	local t,v = tok()
-	while t == 'space' do
-		t,v = tok()
-	end
-	return t,v
+    local t,v = tok()
+    while t == 'space' do
+        t,v = tok()
+    end
+    return t,v
 end
 
 local skipws = lexer.skipws
@@ -407,13 +444,13 @@ function lexer.expecting (tok,expected_type,no_skip_ws)
     assert_arg(1,tok,'function')
     assert_arg(2,expected_type,'string')
     local t,v
-	if no_skip_ws then
-		t,v = tok()
-	else
-		t,v = skipws(tok)
-	end
-	if t ~= expected_type then utils.error ("expecting "..expected_type) end
-	return v
+    if no_skip_ws then
+        t,v = tok()
+    else
+        t,v = skipws(tok)
+    end
+    if t ~= expected_type then error ("expecting "..expected_type,2) end
+    return v
 end
 
 return lexer
