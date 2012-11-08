@@ -1137,7 +1137,8 @@ static const struct luaL_reg filefind_lib[] = {
 
 
 int luaopen_filefind(lua_State* L) {
-	luaL_register(L, "filefind", filefind_lib);
+	lua_newtable(L);
+	luaL_register(L, NULL, filefind_lib);
 	filefind_create_metatable(L);
 	glob_create_metatable(L);
 	return 1;
