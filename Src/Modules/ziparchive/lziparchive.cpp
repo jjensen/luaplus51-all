@@ -1489,7 +1489,8 @@ static const struct luaL_reg lziparchivelib[] = {
 
 extern "C" int luaopen_ziparchive(lua_State* L)
 {
-	luaL_register(L, "ziparchive", lziparchivelib);
+	lua_newtable(L);
+	luaL_register(L, NULL, lziparchivelib);
 
 	lua_pushnumber(L, ZipArchive::UNCOMPRESSED);
 	lua_setfield(L, -2, "UNCOMPRESSED");
