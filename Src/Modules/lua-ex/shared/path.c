@@ -87,7 +87,7 @@ int path_create(const char* inPath)
 #if defined(WIN32)
       if (pathPtr > path + 1) {
         if (pathPtr[-1] == ':') {
-            *pathPtr++ = ch;
+            *pathPtr = ch;
 			break;
         }
 	  }
@@ -98,7 +98,7 @@ int path_create(const char* inPath)
 #else
         if (S_ISDIR(fileInfo.st_mode)) {
 #endif // defined(WIN32)
-          *pathPtr++ = ch;
+          *pathPtr = ch;
           break;
 	    } else {
           return 0;
@@ -108,6 +108,8 @@ int path_create(const char* inPath)
 	}
 	--pathPtr;
   }
+
+  ++pathPtr;
 
   /* Create any remaining directories. */
   while ((ch = *pathPtr)) {
