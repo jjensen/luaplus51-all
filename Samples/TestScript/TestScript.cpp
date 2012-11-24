@@ -38,20 +38,13 @@ void NewUserdataBoxTest()
 	
 namespace LPCD
 {
-    inline bool	Match(TypeWrapper<std::string>, lua_State* L, int idx)
-		{  return lua_type(L, idx) == LUA_TSTRING;  }
-	inline bool	Match(TypeWrapper<std::string&>, lua_State* L, int idx)
-		{  return lua_type(L, idx) == LUA_TSTRING;  }
-	inline bool	Match(TypeWrapper<const std::string&>, lua_State* L, int idx)
-		{  return lua_type(L, idx) == LUA_TSTRING;  }
-    inline std::string Get(TypeWrapper<std::string>, lua_State* L, int idx)
-		{  return static_cast<const char*>(lua_tostring(L, idx));  }
-    inline std::string Get(TypeWrapper<std::string&>, lua_State* L, int idx)
-		{  return static_cast<const char*>(lua_tostring(L, idx));  }
-    inline std::string Get(TypeWrapper<const std::string&>, lua_State* L, int idx)
-		{  return static_cast<const char*>(lua_tostring(L, idx));  }
-	inline void Push(lua_State* L, std::string& value)								{  lua_pushstring(L, value.c_str());  }
-	inline void Push(lua_State* L, const std::string& value)						{  lua_pushstring(L, value.c_str());  }
+	template<> struct Type<std::string> {
+		static inline void Push(lua_State* L, const std::string& value)						{  lua_pushstring(L, value.c_str());  }
+		static inline bool Match(lua_State* L, int idx)										{  return lua_type(L, idx) == LUA_TSTRING;  }
+		static inline std::string Get(lua_State* L, int idx)								{  return static_cast<const char*>(lua_tostring(L, idx));  }
+	};
+	template<> struct Type<std::string&> : public Type<std::string> {};
+	template<> struct Type<const std::string&> : public Type<std::string> {};
 }
 
 
@@ -685,17 +678,6 @@ void TestThreeThreads()
 }
 
 
-void TestDumpGlobals()
-{
-	LuaStateOwner state(false);
-	state->DoString("GlobalTable = { 1, 2, 3, 4 }");
-	state->DoString("GlobalValue = 5");
-#if LUAPLUS_DUMPOBJECT
-	state->DumpGlobals("dump.lua");
-#endif // LUAPLUS_DUMPOBJECT
-}
-
-
 void DumpTest()
 {
 	LuaStateOwner state(false);
@@ -866,7 +848,7 @@ int PrintSomethingGlobal(lua_State* L)
 	return 0;
 }
 
-
+/*
 void lua_StateCallbackTest()
 {
 	lua_State* L = lua_open();
@@ -886,7 +868,7 @@ void lua_StateCallbackTest()
 
 	lua_close(L);
 }
-
+*/
 
 void MemoryTest()
 {
@@ -1113,54 +1095,23 @@ public:
 
 namespace LPCD
 {
-	template <int NUM_CHARS>
-	inline void Push(lua_State* L, char value[NUM_CHARS])
-	{
-		lua_pushstring(L, value);
-	}
-
-	template <int NUM_CHARS>
-	inline bool	Match(TypeWrapper<char [NUM_CHARS]>, lua_State* L, int idx)
-	{
-		return lua_type(L, idx) == LUA_TSTRING;
-	}
-
-/*	template <int NUM_CHARS>
-	inline const char* Get(TypeWrapper<char [NUM_CHARS]>, lua_State* L, int idx)
-	{
-		return lua_tostring(L, idx);
-	}
-*/
-	template<> inline void Push<VECTOR>(lua_State* L, VECTOR value)
-	{
-		LuaState* state = lua_State_to_LuaState(L);
-		LuaObject obj = state->BoxPointer((void*)&value);
-		obj.SetMetatable(state->GetRegistry()["VECTOR"]);
-	}
-
-	inline bool	Match(TypeWrapper<VECTOR>, lua_State* L, int idx)
-	{
-		LuaState* state = lua_State_to_LuaState(L);
-		LuaObject obj = state->Stack(idx);
-		return obj.GetMetatable() == state->GetRegistry()["VECTOR"];
-	}
-
-	inline bool	Match(TypeWrapper<VECTOR&>, lua_State* L, int idx)
-	{
-		LuaState* state = lua_State_to_LuaState(L);
-		LuaObject obj = state->Stack(idx);
-		return obj.GetMetatable() == state->GetRegistry()["VECTOR"];
-	}
-
-	inline VECTOR Get(TypeWrapper<VECTOR>, lua_State* L, int idx)
-	{
-		return *(VECTOR*)lua_unboxpointer(L, idx);
-	}
-
-	inline VECTOR& Get(TypeWrapper<VECTOR&>, lua_State* L, int idx)
-	{
-		return *(VECTOR*)lua_unboxpointer(L, idx);
-	}
+	template<> struct Type<VECTOR> {
+		static inline void Push(lua_State* L, const VECTOR& value) {
+			LuaState* state = lua_State_to_LuaState(L);
+			LuaObject obj = state->BoxPointer((void*)&value);
+			obj.SetMetatable(state->GetRegistry()["VECTOR"]);
+		}
+		static inline bool Match(lua_State* L, int idx) {
+			LuaState* state = lua_State_to_LuaState(L);
+			LuaObject obj = state->Stack(idx);
+			return obj.GetMetatable() == state->GetRegistry()["VECTOR"];
+		}
+		static inline VECTOR Get(lua_State* L, int idx) {
+			return *(VECTOR*)lua_unboxpointer(L, idx);
+		}
+	};
+	template<> struct Type<VECTOR&> : public Type<VECTOR> {};
+	template<> struct Type<const VECTOR&> : public Type<VECTOR> {};
 }
 
 
@@ -2910,7 +2861,7 @@ int __cdecl main(int argc, char* argv[])
 	}
 	LookupTest();
 	MemoryTest();
-	lua_StateCallbackTest();
+//	lua_StateCallbackTest();
 	MultiObjectTest();
 	IntegerTest();
 
@@ -2947,7 +2898,7 @@ int __cdecl main(int argc, char* argv[])
 
 
 	DumpTest();
-	TestDumpGlobals();
+//	TestDumpGlobals();
 	TestGCObject();
 	TestThreeThreads();
 	TestNewCall();
