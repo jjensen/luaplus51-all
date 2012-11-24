@@ -41,84 +41,189 @@ namespace LPCD {
 	struct LuaNil {
 	};
 
-	template<typename T> void Push(lua_State* L, T value);
+	template<typename T>
+	struct Type {
+		static inline void Push(lua_State* L, const T& value);
+	};
 
-	template<class T> struct TypeWrapper {};
+	// bool types
+	template<> struct Type<bool> {
+		static inline void Push(lua_State* L, bool value)								{  lua_pushboolean(L, value);  }
+		static inline bool Match(lua_State* L, int idx)									{  return lua_type(L, idx) == LUA_TBOOLEAN;  }
+		static inline bool Get(lua_State* L, int idx)									{  return lua_toboolean(L, idx) != 0;  }
+	};
+	template<> struct Type<bool&> : public Type<bool> {};
+	template<> struct Type<const bool&> : public Type<bool> {};
 
-	inline bool	Match(TypeWrapper<bool>, lua_State* L, int idx)
-		{  return lua_type(L, idx) == LUA_TBOOLEAN;  }
-	inline bool	Match(TypeWrapper<char>, lua_State* L, int idx)
-		{  return lua_type(L, idx) == LUA_TNUMBER;  }
-	inline bool	Match(TypeWrapper<unsigned char>, lua_State* L, int idx)
-		{  return lua_type(L, idx) == LUA_TNUMBER;  }
-	inline bool	Match(TypeWrapper<short>, lua_State* L, int idx)
-		{  return lua_type(L, idx) == LUA_TNUMBER;  }
-	inline bool	Match(TypeWrapper<unsigned short>, lua_State* L, int idx)
-		{  return lua_type(L, idx) == LUA_TNUMBER;  }
-	inline bool	Match(TypeWrapper<int>, lua_State* L, int idx)
-		{  return lua_type(L, idx) == LUA_TNUMBER;  }
-	inline bool	Match(TypeWrapper<unsigned int>, lua_State* L, int idx)
-		{  return lua_type(L, idx) == LUA_TNUMBER;  }
-	inline bool	Match(TypeWrapper<long>, lua_State* L, int idx)
-		{  return lua_type(L, idx) == LUA_TNUMBER;  }
-	inline bool	Match(TypeWrapper<unsigned long>, lua_State* L, int idx)
-		{  return lua_type(L, idx) == LUA_TNUMBER;  }
-	inline bool	Match(TypeWrapper<float>, lua_State* L, int idx)
-		{  int type = lua_type(L, idx);  return type == LUA_TNUMBER;  }
-	inline bool	Match(TypeWrapper<double>, lua_State* L, int idx)
-		{  int type = lua_type(L, idx);  return type == LUA_TNUMBER;  }
-	inline bool	Match(TypeWrapper<const char*>, lua_State* L, int idx)
-		{  return lua_type(L, idx) == LUA_TSTRING;  }
-	inline bool	Match(TypeWrapper<lua_State*>, lua_State* L, int idx)
-		{  return lua_type(L, idx) == LUA_TNONE;  }
-	inline bool	Match(TypeWrapper<void*>, lua_State* L, int idx)
-		{  return lua_type(L, idx) == LUA_TLIGHTUSERDATA;  }
+	// char types
+	template<> struct Type<char> {
+		static inline void Push(lua_State* L, char value)								{  lua_pushinteger(L, value);  }
+		static inline bool Match(lua_State* L, int idx)									{  return lua_type(L, idx) == LUA_TNUMBER;  }
+		static inline char Get(lua_State* L, int idx)									{  return static_cast<char>(lua_tonumber(L, idx));  }
+	};
+	template<> struct Type<char&> : public Type<char> {};
+	template<> struct Type<const char&> : public Type<char> {};
 
-	inline void				Get(TypeWrapper<void>, lua_State*, int)
-		{  }
-	inline bool				Get(TypeWrapper<bool>, lua_State* L, int idx)
-		{  return lua_toboolean(L, idx) != 0;  }
-	inline char				Get(TypeWrapper<char>, lua_State* L, int idx)
-		{  return static_cast<char>(lua_tonumber(L, idx));  }
-	inline unsigned char	Get(TypeWrapper<unsigned char>, lua_State* L, int idx)
-		{  return static_cast<unsigned char>(lua_tonumber(L, idx));  }
-	inline short			Get(TypeWrapper<short>, lua_State* L, int idx)
-		{  return static_cast<short>(lua_tonumber(L, idx));  }
-	inline unsigned short	Get(TypeWrapper<unsigned short>, lua_State* L, int idx)
-		{  return static_cast<unsigned short>(lua_tonumber(L, idx));  }
-	inline int				Get(TypeWrapper<int>, lua_State* L, int idx)
-		{  return static_cast<int>(lua_tonumber(L, idx));  }
-	inline unsigned int		Get(TypeWrapper<unsigned int>, lua_State* L, int idx)
-		{  return static_cast<unsigned int>(lua_tonumber(L, idx));  }
-	inline long				Get(TypeWrapper<long>, lua_State* L, int idx)
-		{  return static_cast<long>(lua_tonumber(L, idx));  }
-	inline unsigned long	Get(TypeWrapper<unsigned long>, lua_State* L, int idx)
-		{  return static_cast<unsigned long>(lua_tonumber(L, idx));  }
-	inline float			Get(TypeWrapper<float>, lua_State* L, int idx)
-		{  return static_cast<float>(lua_tonumber(L, idx));  }
-	inline double			Get(TypeWrapper<double>, lua_State* L, int idx)
-		{  return static_cast<double>(lua_tonumber(L, idx));  }
-	inline const char*		Get(TypeWrapper<const char*>, lua_State* L, int idx)
-		{  return static_cast<const char*>(lua_tostring(L, idx));  }
-	inline LuaNil			Get(TypeWrapper<LuaNil>, lua_State* L, int idx)
-		{  (void)L, (void)idx;  return LuaNil();  }
-	inline lua_CFunction	Get(TypeWrapper<lua_CFunction>, lua_State* L, int idx)
-		{  return static_cast<lua_CFunction>(lua_tocfunction(L, idx));  }
-	inline void*			Get(TypeWrapper<void*>, lua_State* L, int idx)
-		{  return static_cast<void*>(lua_touserdata(L, idx));  }
-	inline lua_State*		Get(TypeWrapper<lua_State*>, lua_State* L, int /*idx*/)
-		{  return L;  }
+	// unsigned char types
+	template<> struct Type<unsigned char> {
+		static inline void Push(lua_State* L, unsigned char value)						{  lua_pushinteger(L, value);  }
+		static inline bool Match(lua_State* L, int idx)									{  return lua_type(L, idx) == LUA_TNUMBER;  }
+		static inline unsigned char Get(lua_State* L, int idx)							{  return static_cast<unsigned char>(lua_tonumber(L, idx));  }
+	};
+	template<> struct Type<unsigned char&> : public Type<unsigned char> {};
+	template<> struct Type<const unsigned char&> : public Type<unsigned char> {};
+
+	// short types
+	template<> struct Type<short> {
+		static inline void Push(lua_State* L, short value)								{  lua_pushinteger(L, value);  }
+		static inline bool Match(lua_State* L, int idx)									{  return lua_type(L, idx) == LUA_TNUMBER;  }
+		static inline short Get(lua_State* L, int idx)									{  return static_cast<short>(lua_tonumber(L, idx));  }
+	};
+	template<> struct Type<short&> : public Type<short> {};
+	template<> struct Type<const short&> : public Type<short> {};
+
+	// unsigned short types
+	template<> struct Type<unsigned short> {
+		static inline void Push(lua_State* L, unsigned short value)						{  lua_pushinteger(L, value);  }
+		static inline bool Match(lua_State* L, int idx)									{  return lua_type(L, idx) == LUA_TNUMBER;  }
+		static inline unsigned short Get(lua_State* L, int idx)							{  return static_cast<unsigned short>(lua_tonumber(L, idx));  }
+	};
+	template<> struct Type<unsigned short&> : public Type<unsigned short> {};
+	template<> struct Type<const unsigned short&> : public Type<unsigned short> {};
+
+	// int types
+	template<> struct Type<int> {
+		static inline void Push(lua_State* L, int value)								{  lua_pushinteger(L, value);  }
+		static inline bool Match(lua_State* L, int idx)									{  return lua_type(L, idx) == LUA_TNUMBER;  }
+		static inline int Get(lua_State* L, int idx)									{  return static_cast<int>(lua_tonumber(L, idx));  }
+	};
+	template<> struct Type<int&> : public Type<int> {};
+	template<> struct Type<const int&> : public Type<int> {};
+
+	// unsigned int types
+	template<> struct Type<unsigned int> {
+		static inline void Push(lua_State* L, unsigned int value)						{  lua_pushinteger(L, value);  }
+		static inline bool Match(lua_State* L, int idx)									{  return lua_type(L, idx) == LUA_TNUMBER;  }
+		static inline unsigned int Get(lua_State* L, int idx)							{  return static_cast<unsigned int>(lua_tonumber(L, idx));  }
+	};
+	template<> struct Type<unsigned int&> : public Type<unsigned int> {};
+	template<> struct Type<const unsigned int&> : public Type<unsigned int> {};
+
+	// long types
+	template<> struct Type<long> {
+		static inline void Push(lua_State* L, long value)								{  lua_pushinteger(L, value);  }
+		static inline bool Match(lua_State* L, int idx)									{  return lua_type(L, idx) == LUA_TNUMBER;  }
+		static inline long Get(lua_State* L, int idx)									{  return static_cast<long>(lua_tonumber(L, idx));  }
+	};
+	template<> struct Type<long&> : public Type<long> {};
+	template<> struct Type<const long&> : public Type<long> {};
+
+	// unsigned long types
+	template<> struct Type<unsigned long> {
+		static inline void Push(lua_State* L, unsigned long value)						{  lua_pushinteger(L, value);  }
+		static inline bool Match(lua_State* L, int idx)									{  return lua_type(L, idx) == LUA_TNUMBER;  }
+		static inline unsigned long Get(lua_State* L, int idx)							{  return static_cast<unsigned long>(lua_tonumber(L, idx));  }
+	};
+	template<> struct Type<unsigned long&> : public Type<unsigned long> {};
+	template<> struct Type<const unsigned long&> : public Type<unsigned long> {};
+
+	// float types
+	template<> struct Type<float> {
+		static inline void Push(lua_State* L, float value)								{  lua_pushnumber(L, (lua_Number)value);  }
+		static inline bool Match(lua_State* L, int idx)									{  return lua_type(L, idx) == LUA_TNUMBER;  }
+		static inline float Get(lua_State* L, int idx)									{  return static_cast<float>(lua_tonumber(L, idx));  }
+	};
+	template<> struct Type<float&> : public Type<float> {};
+	template<> struct Type<const float&> : public Type<float> {};
+
+	// double types
+	template<> struct Type<double> {
+		static inline void Push(lua_State* L, double value)								{  lua_pushnumber(L, (lua_Number)value);  }
+		static inline bool Match(lua_State* L, int idx)									{  return lua_type(L, idx) == LUA_TNUMBER;  }
+		static inline double Get(lua_State* L, int idx)									{  return static_cast<double>(lua_tonumber(L, idx));  }
+	};
+	template<> struct Type<double&> : public Type<double> {};
+	template<> struct Type<const double&> : public Type<double> {};
+
+	// character pointer types
+	template<> struct Type<char*> {
+		static inline void Push(lua_State* L, const char* value)						{  lua_pushstring(L, value);  }
+		static inline bool Match(lua_State* L, int idx)									{  return lua_type(L, idx) == LUA_TSTRING;  }
+		static inline const char* Get(lua_State* L, int idx)							{  return static_cast<const char*>(lua_tostring(L, idx));  }
+	};
+	template<> struct Type<const char*> : public Type<char*> {};
+
+	// character array types
+	template<int NUM_CHARS> struct Type<char [NUM_CHARS]> {
+		static inline void Push(lua_State* L, const char value[NUM_CHARS])				{  lua_pushstring(L, value);  }
+		static inline bool Match(lua_State* L, int idx)									{  return lua_type(L, idx) == LUA_TSTRING;  }
+		static inline const char* Get(lua_State* L, int idx)							{  return static_cast<const char*>(lua_tostring(L, idx));  }
+	};
+	template<int NUM_CHARS> struct Type<const char [NUM_CHARS]> {
+		static inline void Push(lua_State* L, const char value[NUM_CHARS])				{  lua_pushstring(L, value);  }
+		static inline bool Match(lua_State* L, int idx)									{  return lua_type(L, idx) == LUA_TSTRING;  }
+		static inline const char* Get(lua_State* L, int idx)							{  return static_cast<const char*>(lua_tostring(L, idx));  }
+	};
+
+	// nil type
+	template<> struct Type<const LuaNil&> {
+		static inline void Push(lua_State* L, const LuaNil& value)						{  lua_pushnil(L);  }
+		static inline bool Match(lua_State* L, int idx)									{  return true;  }
+		static inline LuaNil Get(lua_State* L, int idx)									{  (void)L, (void)idx;  return LuaNil();  }
+	};
+
+	// c function type
+	template<> struct Type<lua_CFunction> {
+		static inline void Push(lua_State* L, const lua_CFunction value)				{  lua_pushcclosure(L, value, 0);  }
+		static inline bool Match(lua_State* L, int idx)									{  return true;  }
+		static inline lua_CFunction Get(lua_State* L, int idx)							{  return static_cast<lua_CFunction>(lua_tocfunction(L, idx));  }
+	};
+
+	// void types
+	template<> struct Type<void*> {
+		static inline void Push(lua_State* L, const void* value)						{  lua_pushlightuserdata(L, (void*)value);  }
+		static inline bool Match(lua_State* L, int idx)									{  return lua_type(L, idx) == LUA_TLIGHTUSERDATA;  }
+		static inline void* Get(lua_State* L, int idx)									{  return static_cast<void*>(lua_touserdata(L, idx));  }
+	};
+	template<> struct Type<const void*> : public Type<void*> {};
+
+	// light userdata type
+	template<> struct Type<const LuaLightUserdata&> {
+		static inline void Push(lua_State* L, const LuaLightUserdata& value)			{  lua_pushlightuserdata(L, (void*)value.m_value);  }
+		static inline bool Match(lua_State* L, int idx)									{  return lua_type(L, idx) == LUA_TLIGHTUSERDATA;  }
+		static inline void* Get(lua_State* L, int idx)									{  return static_cast<void*>(lua_touserdata(L, idx));  }
+	};
+
+	// userdata types
+	template<> struct Type<LuaUserdata> {
+		static inline void Push(lua_State* L, LuaUserdata value)						{  *(void **)(lua_newuserdata(L, sizeof(void *))) = (void*)value.m_value;  }
+		static inline bool Match(lua_State* L, int idx)									{  return lua_type(L, idx) == LUA_TUSERDATA;  }
+		static inline void* Get(lua_State* L, int idx)									{  return static_cast<void*>(lua_touserdata(L, idx));  }
+	};
+	template<> struct Type<LuaUserdata&> : public Type<LuaUserdata> {};
+	template<> struct Type<const LuaUserdata&> : public Type<LuaUserdata> {};
+
+	inline void Push(lua_State* L, const char* value, int len)							{  lua_pushlstring(L, value, len);  }
+
+//	inline void				Get(TypeWrapper<void>, lua_State*, int)
+//		{  }
+
+//	inline lua_State*		Get(TypeWrapper<lua_State*>, lua_State* L, int /*idx*/)
+//		{  return L;  }
+
+//	inline bool	Match(TypeWrapper<lua_State*>, lua_State* L, int idx)
+//		{  return lua_type(L, idx) == LUA_TNONE;  }
 
 	//////////////////////////////////////////////////////////////////////////
 
-	#define luaL_argassert(arg, _index_) if (!Match(TypeWrapper<P##arg>(), L, _index_)) \
+	#define luaL_argassert(arg, _index_) if (!Type<P##arg>::Match(L, _index_)) \
 				luaL_argerror(L, _index_, "bad argument")
 
 	template<class RT>
 	struct ReturnSpecialization {
 		static int Call(RT (*func)(), lua_State* L, int /*index*/) {
 			RT ret = func();
-			Push(L, ret);
+			Type<RT>::Push(L, ret);
 			return 1;
 		}
 
@@ -128,9 +233,9 @@ namespace LPCD {
 			luaL_argassert(1, index + 0);
 
 			RT ret = func(
-				Get(TypeWrapper<P1>(), L, index + 0)
+				Type<P1>::Get(L, index + 0)
 			);
-			Push(L, ret);
+			Type<RT>::Push(L, ret);
 			return 1;
 		}
 
@@ -141,10 +246,10 @@ namespace LPCD {
 			luaL_argassert(2, index + 1);
 
 			RT ret = func(
-				Get(TypeWrapper<P1>(), L, index + 0),
-				Get(TypeWrapper<P2>(), L, index + 1)
+				Type<P1>::Get(L, index + 0),
+				Type<P2>::Get(L, index + 1)
 			);
-			Push(L, ret);
+			Type<RT>::Push(L, ret);
 			return 1;
 		}
 
@@ -156,11 +261,11 @@ namespace LPCD {
 			luaL_argassert(3, index + 2);
 
 			RT ret = func(
-				Get(TypeWrapper<P1>(), L, index + 0),
-				Get(TypeWrapper<P2>(), L, index + 1),
-				Get(TypeWrapper<P3>(), L, index + 2)
+				Type<P1>::Get(L, index + 0),
+				Type<P2>::Get(L, index + 1),
+				Type<P3>::Get(L, index + 2)
 			);
-			Push(L, ret);
+			Type<RT>::Push(L, ret);
 			return 1;
 		}
 
@@ -173,12 +278,12 @@ namespace LPCD {
 			luaL_argassert(4, index + 3);
 
 			RT ret = func(
-				Get(TypeWrapper<P1>(), L, index + 0),
-				Get(TypeWrapper<P2>(), L, index + 1),
-				Get(TypeWrapper<P3>(), L, index + 2),
-				Get(TypeWrapper<P4>(), L, index + 3)
+				Type<P1>::Get(L, index + 0),
+				Type<P2>::Get(L, index + 1),
+				Type<P3>::Get(L, index + 2),
+				Type<P4>::Get(L, index + 3)
 			);
-			Push(L, ret);
+			Type<RT>::Push(L, ret);
 			return 1;
 		}
 
@@ -193,13 +298,13 @@ namespace LPCD {
 			luaL_argassert(5, index + 4);
 
 			RT ret = func(
-				Get(TypeWrapper<P1>(), L, index + 0),
-				Get(TypeWrapper<P2>(), L, index + 1),
-				Get(TypeWrapper<P3>(), L, index + 2),
-				Get(TypeWrapper<P4>(), L, index + 3),
-				Get(TypeWrapper<P5>(), L, index + 4)
+				Type<P1>::Get(L, index + 0),
+				Type<P2>::Get(L, index + 1),
+				Type<P3>::Get(L, index + 2),
+				Type<P4>::Get(L, index + 3),
+				Type<P5>::Get(L, index + 4)
 			);
-			Push(L, ret);
+			Type<RT>::Push(L, ret);
 			return 1;
 		}
 
@@ -215,14 +320,14 @@ namespace LPCD {
 			luaL_argassert(6, index + 5);
 
 			RT ret = func(
-				Get(TypeWrapper<P1>(), L, index + 0),
-				Get(TypeWrapper<P2>(), L, index + 1),
-				Get(TypeWrapper<P3>(), L, index + 2),
-				Get(TypeWrapper<P4>(), L, index + 3),
-				Get(TypeWrapper<P5>(), L, index + 4),
-				Get(TypeWrapper<P6>(), L, index + 5)
+				Type<P1>::Get(L, index + 0),
+				Type<P2>::Get(L, index + 1),
+				Type<P3>::Get(L, index + 2),
+				Type<P4>::Get(L, index + 3),
+				Type<P5>::Get(L, index + 4),
+				Type<P6>::Get(L, index + 5)
 			);
-			Push(L, ret);
+			Type<RT>::Push(L, ret);
 			return 1;
 		}
 
@@ -239,15 +344,15 @@ namespace LPCD {
 			luaL_argassert(7, index + 6);
 
 			RT ret = func(
-				Get(TypeWrapper<P1>(), L, index + 0),
-				Get(TypeWrapper<P2>(), L, index + 1),
-				Get(TypeWrapper<P3>(), L, index + 2),
-				Get(TypeWrapper<P4>(), L, index + 3),
-				Get(TypeWrapper<P5>(), L, index + 4),
-				Get(TypeWrapper<P6>(), L, index + 5),
-				Get(TypeWrapper<P7>(), L, index + 6)
+				Type<P1>::Get(L, index + 0),
+				Type<P2>::Get(L, index + 1),
+				Type<P3>::Get(L, index + 2),
+				Type<P4>::Get(L, index + 3),
+				Type<P5>::Get(L, index + 4),
+				Type<P6>::Get(L, index + 5),
+				Type<P7>::Get(L, index + 6)
 			);
-			Push(L, ret);
+			Type<RT>::Push(L, ret);
 			return 1;
 		}
 
@@ -265,16 +370,16 @@ namespace LPCD {
 			luaL_argassert(8, index + 7);
 
 			RT ret = func(
-				Get(TypeWrapper<P1>(), L, index + 0),
-				Get(TypeWrapper<P2>(), L, index + 1),
-				Get(TypeWrapper<P3>(), L, index + 2),
-				Get(TypeWrapper<P4>(), L, index + 3),
-				Get(TypeWrapper<P5>(), L, index + 4),
-				Get(TypeWrapper<P6>(), L, index + 5),
-				Get(TypeWrapper<P7>(), L, index + 6),
-				Get(TypeWrapper<P8>(), L, index + 7)
+				Type<P1>::Get(L, index + 0),
+				Type<P2>::Get(L, index + 1),
+				Type<P3>::Get(L, index + 2),
+				Type<P4>::Get(L, index + 3),
+				Type<P5>::Get(L, index + 4),
+				Type<P6>::Get(L, index + 5),
+				Type<P7>::Get(L, index + 6),
+				Type<P8>::Get(L, index + 7)
 			);
-			Push(L, ret);
+			Type<RT>::Push(L, ret);
 			return 1;
 		}
 
@@ -294,17 +399,17 @@ namespace LPCD {
 			luaL_argassert(9, index + 8);
 
 			RT ret = func(
-				Get(TypeWrapper<P1>(), L, index + 0),
-				Get(TypeWrapper<P2>(), L, index + 1),
-				Get(TypeWrapper<P3>(), L, index + 2),
-				Get(TypeWrapper<P4>(), L, index + 3),
-				Get(TypeWrapper<P5>(), L, index + 4),
-				Get(TypeWrapper<P6>(), L, index + 5),
-				Get(TypeWrapper<P7>(), L, index + 6),
-				Get(TypeWrapper<P8>(), L, index + 7),
-				Get(TypeWrapper<P9>(), L, index + 8)
+				Type<P1>::Get(L, index + 0),
+				Type<P2>::Get(L, index + 1),
+				Type<P3>::Get(L, index + 2),
+				Type<P4>::Get(L, index + 3),
+				Type<P5>::Get(L, index + 4),
+				Type<P6>::Get(L, index + 5),
+				Type<P7>::Get(L, index + 6),
+				Type<P8>::Get(L, index + 7),
+				Type<P9>::Get(L, index + 8)
 			);
-			Push(L, ret);
+			Type<RT>::Push(L, ret);
 			return 1;
 		}
 
@@ -325,18 +430,18 @@ namespace LPCD {
 			luaL_argassert(10, index + 9);
 
 			RT ret = func(
-				Get(TypeWrapper<P1>(), L, index + 0),
-				Get(TypeWrapper<P2>(), L, index + 1),
-				Get(TypeWrapper<P3>(), L, index + 2),
-				Get(TypeWrapper<P4>(), L, index + 3),
-				Get(TypeWrapper<P5>(), L, index + 4),
-				Get(TypeWrapper<P6>(), L, index + 5),
-				Get(TypeWrapper<P7>(), L, index + 6),
-				Get(TypeWrapper<P8>(), L, index + 7),
-				Get(TypeWrapper<P9>(), L, index + 8),
-				Get(TypeWrapper<P10>(), L, index + 9)
+				Type<P1>::Get(L, index + 0),
+				Type<P2>::Get(L, index + 1),
+				Type<P3>::Get(L, index + 2),
+				Type<P4>::Get(L, index + 3),
+				Type<P5>::Get(L, index + 4),
+				Type<P6>::Get(L, index + 5),
+				Type<P7>::Get(L, index + 6),
+				Type<P8>::Get(L, index + 7),
+				Type<P9>::Get(L, index + 8),
+				Type<P10>::Get(L, index + 9)
 			);
-			Push(L, ret);
+			Type<RT>::Push(L, ret);
 			return 1;
 		}
 
@@ -347,7 +452,7 @@ namespace LPCD {
 		template <typename Callee>
 		static int Call(Callee& callee, RT (Callee::*func)(), lua_State* L, int /*index*/) {
 			RT ret = (callee.*func)();
-			Push(L, ret);
+			Type<RT>::Push(L, ret);
 			return 1;
 		}
 
@@ -355,7 +460,7 @@ namespace LPCD {
 		template <typename Callee>
 		static int Call(Callee& callee, RT (Callee::*func)() const, lua_State* L, int /*index*/) {
 			RT ret = (callee.*func)();
-			Push(L, ret);
+			Type<RT>::Push(L, ret);
 			return 1;
 		}
 
@@ -365,9 +470,9 @@ namespace LPCD {
 			luaL_argassert(1, index + 0);
 
 			RT ret = (callee.*func)(
-				Get(TypeWrapper<P1>(), L, index + 0)
+				Type<P1>::Get(L, index + 0)
 			);
-			Push(L, ret);
+			Type<RT>::Push(L, ret);
 			return 1;
 		}
 
@@ -377,9 +482,9 @@ namespace LPCD {
 			luaL_argassert(1, index + 0);
 
 			RT ret = (callee.*func)(
-				Get(TypeWrapper<P1>(), L, index + 0)
+				Type<P1>::Get(L, index + 0)
 			);
-			Push(L, ret);
+			Type<RT>::Push(L, ret);
 			return 1;
 		}
 
@@ -390,10 +495,10 @@ namespace LPCD {
 			luaL_argassert(2, index + 1);
 
 			RT ret = (callee.*func)(
-				Get(TypeWrapper<P1>(), L, index + 0),
-				Get(TypeWrapper<P2>(), L, index + 1)
+				Type<P1>::Get(L, index + 0),
+				Type<P2>::Get(L, index + 1)
 			);
-			Push(L, ret);
+			Type<RT>::Push(L, ret);
 			return 1;
 		}
 
@@ -403,10 +508,10 @@ namespace LPCD {
 			luaL_argassert(2, index + 1);
 
 			RT ret = (callee.*func)(
-				Get(TypeWrapper<P1>(), L, index + 0),
-				Get(TypeWrapper<P2>(), L, index + 1)
+				Type<P1>::Get(L, index + 0),
+				Type<P2>::Get(L, index + 1)
 			);
-			Push(L, ret);
+			Type<RT>::Push(L, ret);
 			return 1;
 		}
 
@@ -417,11 +522,11 @@ namespace LPCD {
 			luaL_argassert(3, index + 2);
 
 			RT ret = (callee.*func)(
-				Get(TypeWrapper<P1>(), L, index + 0),
-				Get(TypeWrapper<P2>(), L, index + 1),
-				Get(TypeWrapper<P3>(), L, index + 2)
+				Type<P1>::Get(L, index + 0),
+				Type<P2>::Get(L, index + 1),
+				Type<P3>::Get(L, index + 2)
 			);
-			Push(L, ret);
+			Type<RT>::Push(L, ret);
 			return 1;
 		}
 
@@ -432,11 +537,11 @@ namespace LPCD {
 			luaL_argassert(3, index + 2);
 
 			RT ret = (callee.*func)(
-				Get(TypeWrapper<P1>(), L, index + 0),
-				Get(TypeWrapper<P2>(), L, index + 1),
-				Get(TypeWrapper<P3>(), L, index + 2)
+				Type<P1>::Get(L, index + 0),
+				Type<P2>::Get(L, index + 1),
+				Type<P3>::Get(L, index + 2)
 			);
-			Push(L, ret);
+			Type<RT>::Push(L, ret);
 			return 1;
 		}
 
@@ -449,12 +554,12 @@ namespace LPCD {
 			luaL_argassert(4, index + 3);
 
 			RT ret = (callee.*func)(
-				Get(TypeWrapper<P1>(), L, index + 0),
-				Get(TypeWrapper<P2>(), L, index + 1),
-				Get(TypeWrapper<P3>(), L, index + 2),
-				Get(TypeWrapper<P4>(), L, index + 3)
+				Type<P1>::Get(L, index + 0),
+				Type<P2>::Get(L, index + 1),
+				Type<P3>::Get(L, index + 2),
+				Type<P4>::Get(L, index + 3)
 			);
-			Push(L, ret);
+			Type<RT>::Push(L, ret);
 			return 1;
 		}
 
@@ -467,12 +572,12 @@ namespace LPCD {
 			luaL_argassert(4, index + 3);
 
 			RT ret = (callee.*func)(
-				Get(TypeWrapper<P1>(), L, index + 0),
-				Get(TypeWrapper<P2>(), L, index + 1),
-				Get(TypeWrapper<P3>(), L, index + 2),
-				Get(TypeWrapper<P4>(), L, index + 3)
+				Type<P1>::Get(L, index + 0),
+				Type<P2>::Get(L, index + 1),
+				Type<P3>::Get(L, index + 2),
+				Type<P4>::Get(L, index + 3)
 			);
-			Push(L, ret);
+			Type<RT>::Push(L, ret);
 			return 1;
 		}
 
@@ -486,13 +591,13 @@ namespace LPCD {
 			luaL_argassert(5, index + 4);
 
 			RT ret = (callee.*func)(
-				Get(TypeWrapper<P1>(), L, index + 0),
-				Get(TypeWrapper<P2>(), L, index + 1),
-				Get(TypeWrapper<P3>(), L, index + 2),
-				Get(TypeWrapper<P4>(), L, index + 3),
-				Get(TypeWrapper<P5>(), L, index + 4)
+				Type<P1>::Get(L, index + 0),
+				Type<P2>::Get(L, index + 1),
+				Type<P3>::Get(L, index + 2),
+				Type<P4>::Get(L, index + 3),
+				Type<P5>::Get(L, index + 4)
 			);
-			Push(L, ret);
+			Type<RT>::Push(L, ret);
 			return 1;
 		}
 
@@ -506,13 +611,13 @@ namespace LPCD {
 			luaL_argassert(5, index + 4);
 
 			RT ret = (callee.*func)(
-				Get(TypeWrapper<P1>(), L, index + 0),
-				Get(TypeWrapper<P2>(), L, index + 1),
-				Get(TypeWrapper<P3>(), L, index + 2),
-				Get(TypeWrapper<P4>(), L, index + 3),
-				Get(TypeWrapper<P5>(), L, index + 4)
+				Type<P1>::Get(L, index + 0),
+				Type<P2>::Get(L, index + 1),
+				Type<P3>::Get(L, index + 2),
+				Type<P4>::Get(L, index + 3),
+				Type<P5>::Get(L, index + 4)
 			);
-			Push(L, ret);
+			Type<RT>::Push(L, ret);
 			return 1;
 		}
 
@@ -527,14 +632,14 @@ namespace LPCD {
 			luaL_argassert(6, index + 5);
 
 			RT ret = (callee.*func)(
-				Get(TypeWrapper<P1>(), L, index + 0),
-				Get(TypeWrapper<P2>(), L, index + 1),
-				Get(TypeWrapper<P3>(), L, index + 2),
-				Get(TypeWrapper<P4>(), L, index + 3),
-				Get(TypeWrapper<P5>(), L, index + 4),
-				Get(TypeWrapper<P6>(), L, index + 5)
+				Type<P1>::Get(L, index + 0),
+				Type<P2>::Get(L, index + 1),
+				Type<P3>::Get(L, index + 2),
+				Type<P4>::Get(L, index + 3),
+				Type<P5>::Get(L, index + 4),
+				Type<P6>::Get(L, index + 5)
 			);
-			Push(L, ret);
+			Type<RT>::Push(L, ret);
 			return 1;
 		}
 
@@ -549,14 +654,14 @@ namespace LPCD {
 			luaL_argassert(6, index + 5);
 
 			RT ret = (callee.*func)(
-				Get(TypeWrapper<P1>(), L, index + 0),
-				Get(TypeWrapper<P2>(), L, index + 1),
-				Get(TypeWrapper<P3>(), L, index + 2),
-				Get(TypeWrapper<P4>(), L, index + 3),
-				Get(TypeWrapper<P5>(), L, index + 4),
-				Get(TypeWrapper<P6>(), L, index + 5)
+				Type<P1>::Get(L, index + 0),
+				Type<P2>::Get(L, index + 1),
+				Type<P3>::Get(L, index + 2),
+				Type<P4>::Get(L, index + 3),
+				Type<P5>::Get(L, index + 4),
+				Type<P6>::Get(L, index + 5)
 			);
-			Push(L, ret);
+			Type<RT>::Push(L, ret);
 			return 1;
 		}
 
@@ -572,15 +677,15 @@ namespace LPCD {
 			luaL_argassert(7, index + 6);
 
 			RT ret = (callee.*func)(
-				Get(TypeWrapper<P1>(), L, index + 0),
-				Get(TypeWrapper<P2>(), L, index + 1),
-				Get(TypeWrapper<P3>(), L, index + 2),
-				Get(TypeWrapper<P4>(), L, index + 3),
-				Get(TypeWrapper<P5>(), L, index + 4),
-				Get(TypeWrapper<P6>(), L, index + 5),
-				Get(TypeWrapper<P7>(), L, index + 6)
+				Type<P1>::Get(L, index + 0),
+				Type<P2>::Get(L, index + 1),
+				Type<P3>::Get(L, index + 2),
+				Type<P4>::Get(L, index + 3),
+				Type<P5>::Get(L, index + 4),
+				Type<P6>::Get(L, index + 5),
+				Type<P7>::Get(L, index + 6)
 			);
-			Push(L, ret);
+			Type<RT>::Push(L, ret);
 			return 1;
 		}
 
@@ -596,15 +701,15 @@ namespace LPCD {
 			luaL_argassert(7, index + 6);
 
 			RT ret = (callee.*func)(
-				Get(TypeWrapper<P1>(), L, index + 0),
-				Get(TypeWrapper<P2>(), L, index + 1),
-				Get(TypeWrapper<P3>(), L, index + 2),
-				Get(TypeWrapper<P4>(), L, index + 3),
-				Get(TypeWrapper<P5>(), L, index + 4),
-				Get(TypeWrapper<P6>(), L, index + 5),
-				Get(TypeWrapper<P7>(), L, index + 6)
+				Type<P1>::Get(L, index + 0),
+				Type<P2>::Get(L, index + 1),
+				Type<P3>::Get(L, index + 2),
+				Type<P4>::Get(L, index + 3),
+				Type<P5>::Get(L, index + 4),
+				Type<P6>::Get(L, index + 5),
+				Type<P7>::Get(L, index + 6)
 			);
-			Push(L, ret);
+			Type<RT>::Push(L, ret);
 			return 1;
 		}
 
@@ -621,16 +726,16 @@ namespace LPCD {
 			luaL_argassert(8, index + 7);
 
 			RT ret = (callee.*func)(
-				Get(TypeWrapper<P1>(), L, index + 0),
-				Get(TypeWrapper<P2>(), L, index + 1),
-				Get(TypeWrapper<P3>(), L, index + 2),
-				Get(TypeWrapper<P4>(), L, index + 3),
-				Get(TypeWrapper<P5>(), L, index + 4),
-				Get(TypeWrapper<P6>(), L, index + 5),
-				Get(TypeWrapper<P7>(), L, index + 6),
-				Get(TypeWrapper<P8>(), L, index + 7)
+				Type<P1>::Get(L, index + 0),
+				Type<P2>::Get(L, index + 1),
+				Type<P3>::Get(L, index + 2),
+				Type<P4>::Get(L, index + 3),
+				Type<P5>::Get(L, index + 4),
+				Type<P6>::Get(L, index + 5),
+				Type<P7>::Get(L, index + 6),
+				Type<P8>::Get(L, index + 7)
 			);
-			Push(L, ret);
+			Type<RT>::Push(L, ret);
 			return 1;
 		}
 
@@ -647,16 +752,16 @@ namespace LPCD {
 			luaL_argassert(8, index + 7);
 
 			RT ret = (callee.*func)(
-				Get(TypeWrapper<P1>(), L, index + 0),
-				Get(TypeWrapper<P2>(), L, index + 1),
-				Get(TypeWrapper<P3>(), L, index + 2),
-				Get(TypeWrapper<P4>(), L, index + 3),
-				Get(TypeWrapper<P5>(), L, index + 4),
-				Get(TypeWrapper<P6>(), L, index + 5),
-				Get(TypeWrapper<P7>(), L, index + 6),
-				Get(TypeWrapper<P8>(), L, index + 7)
+				Type<P1>::Get(L, index + 0),
+				Type<P2>::Get(L, index + 1),
+				Type<P3>::Get(L, index + 2),
+				Type<P4>::Get(L, index + 3),
+				Type<P5>::Get(L, index + 4),
+				Type<P6>::Get(L, index + 5),
+				Type<P7>::Get(L, index + 6),
+				Type<P8>::Get(L, index + 7)
 			);
-			Push(L, ret);
+			Type<RT>::Push(L, ret);
 			return 1;
 		}
 
@@ -675,17 +780,17 @@ namespace LPCD {
 			luaL_argassert(9, index + 8);
 
 			RT ret = (callee.*func)(
-				Get(TypeWrapper<P1>(), L, index + 0),
-				Get(TypeWrapper<P2>(), L, index + 1),
-				Get(TypeWrapper<P3>(), L, index + 2),
-				Get(TypeWrapper<P4>(), L, index + 3),
-				Get(TypeWrapper<P5>(), L, index + 4),
-				Get(TypeWrapper<P6>(), L, index + 5),
-				Get(TypeWrapper<P7>(), L, index + 6),
-				Get(TypeWrapper<P8>(), L, index + 7),
-				Get(TypeWrapper<P9>(), L, index + 8)
+				Type<P1>::Get(L, index + 0),
+				Type<P2>::Get(L, index + 1),
+				Type<P3>::Get(L, index + 2),
+				Type<P4>::Get(L, index + 3),
+				Type<P5>::Get(L, index + 4),
+				Type<P6>::Get(L, index + 5),
+				Type<P7>::Get(L, index + 6),
+				Type<P8>::Get(L, index + 7),
+				Type<P9>::Get(L, index + 8)
 			);
-			Push(L, ret);
+			Type<RT>::Push(L, ret);
 			return 1;
 		}
 
@@ -704,17 +809,17 @@ namespace LPCD {
 			luaL_argassert(9, index + 8);
 
 			RT ret = (callee.*func)(
-				Get(TypeWrapper<P1>(), L, index + 0),
-				Get(TypeWrapper<P2>(), L, index + 1),
-				Get(TypeWrapper<P3>(), L, index + 2),
-				Get(TypeWrapper<P4>(), L, index + 3),
-				Get(TypeWrapper<P5>(), L, index + 4),
-				Get(TypeWrapper<P6>(), L, index + 5),
-				Get(TypeWrapper<P7>(), L, index + 6),
-				Get(TypeWrapper<P8>(), L, index + 7),
-				Get(TypeWrapper<P9>(), L, index + 8)
+				Type<P1>::Get(L, index + 0),
+				Type<P2>::Get(L, index + 1),
+				Type<P3>::Get(L, index + 2),
+				Type<P4>::Get(L, index + 3),
+				Type<P5>::Get(L, index + 4),
+				Type<P6>::Get(L, index + 5),
+				Type<P7>::Get(L, index + 6),
+				Type<P8>::Get(L, index + 7),
+				Type<P9>::Get(L, index + 8)
 			);
-			Push(L, ret);
+			Type<RT>::Push(L, ret);
 			return 1;
 		}
 
@@ -734,18 +839,18 @@ namespace LPCD {
 			luaL_argassert(10, index + 9);
 
 			RT ret = (callee.*func)(
-				Get(TypeWrapper<P1>(), L, index + 0),
-				Get(TypeWrapper<P2>(), L, index + 1),
-				Get(TypeWrapper<P3>(), L, index + 2),
-				Get(TypeWrapper<P4>(), L, index + 3),
-				Get(TypeWrapper<P5>(), L, index + 4),
-				Get(TypeWrapper<P6>(), L, index + 5),
-				Get(TypeWrapper<P7>(), L, index + 6),
-				Get(TypeWrapper<P8>(), L, index + 7),
-				Get(TypeWrapper<P9>(), L, index + 8),
-				Get(TypeWrapper<P10>(), L, index + 9)
+				Type<P1>::Get(L, index + 0),
+				Type<P2>::Get(L, index + 1),
+				Type<P3>::Get(L, index + 2),
+				Type<P4>::Get(L, index + 3),
+				Type<P5>::Get(L, index + 4),
+				Type<P6>::Get(L, index + 5),
+				Type<P7>::Get(L, index + 6),
+				Type<P8>::Get(L, index + 7),
+				Type<P9>::Get(L, index + 8),
+				Type<P10>::Get(L, index + 9)
 			);
-			Push(L, ret);
+			Type<RT>::Push(L, ret);
 			return 1;
 		}
 
@@ -765,18 +870,18 @@ namespace LPCD {
 			luaL_argassert(10, index + 9);
 
 			RT ret = (callee.*func)(
-				Get(TypeWrapper<P1>(), L, index + 0),
-				Get(TypeWrapper<P2>(), L, index + 1),
-				Get(TypeWrapper<P3>(), L, index + 2),
-				Get(TypeWrapper<P4>(), L, index + 3),
-				Get(TypeWrapper<P5>(), L, index + 4),
-				Get(TypeWrapper<P6>(), L, index + 5),
-				Get(TypeWrapper<P7>(), L, index + 6),
-				Get(TypeWrapper<P8>(), L, index + 7),
-				Get(TypeWrapper<P9>(), L, index + 8),
-				Get(TypeWrapper<P10>(), L, index + 9)
+				Type<P1>::Get(L, index + 0),
+				Type<P2>::Get(L, index + 1),
+				Type<P3>::Get(L, index + 2),
+				Type<P4>::Get(L, index + 3),
+				Type<P5>::Get(L, index + 4),
+				Type<P6>::Get(L, index + 5),
+				Type<P7>::Get(L, index + 6),
+				Type<P8>::Get(L, index + 7),
+				Type<P9>::Get(L, index + 8),
+				Type<P10>::Get(L, index + 9)
 			);
-			Push(L, ret);
+			Type<RT>::Push(L, ret);
 			return 1;
 		}
 	};
@@ -796,7 +901,7 @@ namespace LPCD {
 			luaL_argassert(1, index + 0);
 
 			func(
-				Get(TypeWrapper<P1>(), L, index + 0)
+				Type<P1>::Get(L, index + 0)
 			);
 			return 0;
 		}
@@ -808,8 +913,8 @@ namespace LPCD {
 			luaL_argassert(2, index + 1);
 
 			func(
-				Get(TypeWrapper<P1>(), L, index + 0),
-				Get(TypeWrapper<P2>(), L, index + 1)
+				Type<P1>::Get(L, index + 0),
+				Type<P2>::Get(L, index + 1)
 			);
 			return 0;
 		}
@@ -822,9 +927,9 @@ namespace LPCD {
 			luaL_argassert(3, index + 2);
 
 			func(
-				Get(TypeWrapper<P1>(), L, index + 0),
-				Get(TypeWrapper<P2>(), L, index + 1),
-				Get(TypeWrapper<P3>(), L, index + 2)
+				Type<P1>::Get(L, index + 0),
+				Type<P2>::Get(L, index + 1),
+				Type<P3>::Get(L, index + 2)
 			);
 			return 0;
 		}
@@ -837,10 +942,10 @@ namespace LPCD {
 			luaL_argassert(4, index + 3);
 
 			func(
-				Get(TypeWrapper<P1>(), L, index + 0),
-				Get(TypeWrapper<P2>(), L, index + 1),
-				Get(TypeWrapper<P3>(), L, index + 2),
-				Get(TypeWrapper<P4>(), L, index + 3)
+				Type<P1>::Get(L, index + 0),
+				Type<P2>::Get(L, index + 1),
+				Type<P3>::Get(L, index + 2),
+				Type<P4>::Get(L, index + 3)
 			);
 			return 0;
 		}
@@ -854,11 +959,11 @@ namespace LPCD {
 			luaL_argassert(5, index + 4);
 
 			func(
-				Get(TypeWrapper<P1>(), L, index + 0),
-				Get(TypeWrapper<P2>(), L, index + 1),
-				Get(TypeWrapper<P3>(), L, index + 2),
-				Get(TypeWrapper<P4>(), L, index + 3),
-				Get(TypeWrapper<P5>(), L, index + 4)
+				Type<P1>::Get(L, index + 0),
+				Type<P2>::Get(L, index + 1),
+				Type<P3>::Get(L, index + 2),
+				Type<P4>::Get(L, index + 3),
+				Type<P5>::Get(L, index + 4)
 			);
 			return 0;
 		}
@@ -873,12 +978,12 @@ namespace LPCD {
 			luaL_argassert(6, index + 5);
 
 			func(
-				Get(TypeWrapper<P1>(), L, index + 0),
-				Get(TypeWrapper<P2>(), L, index + 1),
-				Get(TypeWrapper<P3>(), L, index + 2),
-				Get(TypeWrapper<P4>(), L, index + 3),
-				Get(TypeWrapper<P5>(), L, index + 4),
-				Get(TypeWrapper<P6>(), L, index + 5)
+				Type<P1>::Get(L, index + 0),
+				Type<P2>::Get(L, index + 1),
+				Type<P3>::Get(L, index + 2),
+				Type<P4>::Get(L, index + 3),
+				Type<P5>::Get(L, index + 4),
+				Type<P6>::Get(L, index + 5)
 			);
 			return 0;
 		}
@@ -894,13 +999,13 @@ namespace LPCD {
 			luaL_argassert(7, index + 6);
 
 			func(
-				Get(TypeWrapper<P1>(), L, index + 0),
-				Get(TypeWrapper<P2>(), L, index + 1),
-				Get(TypeWrapper<P3>(), L, index + 2),
-				Get(TypeWrapper<P4>(), L, index + 3),
-				Get(TypeWrapper<P5>(), L, index + 4),
-				Get(TypeWrapper<P6>(), L, index + 5),
-				Get(TypeWrapper<P7>(), L, index + 6)
+				Type<P1>::Get(L, index + 0),
+				Type<P2>::Get(L, index + 1),
+				Type<P3>::Get(L, index + 2),
+				Type<P4>::Get(L, index + 3),
+				Type<P5>::Get(L, index + 4),
+				Type<P6>::Get(L, index + 5),
+				Type<P7>::Get(L, index + 6)
 			);
 			return 0;
 		}
@@ -917,14 +1022,14 @@ namespace LPCD {
 			luaL_argassert(8, index + 7);
 
 			func(
-				Get(TypeWrapper<P1>(), L, index + 0),
-				Get(TypeWrapper<P2>(), L, index + 1),
-				Get(TypeWrapper<P3>(), L, index + 2),
-				Get(TypeWrapper<P4>(), L, index + 3),
-				Get(TypeWrapper<P5>(), L, index + 4),
-				Get(TypeWrapper<P6>(), L, index + 5),
-				Get(TypeWrapper<P7>(), L, index + 6),
-				Get(TypeWrapper<P8>(), L, index + 7)
+				Type<P1>::Get(L, index + 0),
+				Type<P2>::Get(L, index + 1),
+				Type<P3>::Get(L, index + 2),
+				Type<P4>::Get(L, index + 3),
+				Type<P5>::Get(L, index + 4),
+				Type<P6>::Get(L, index + 5),
+				Type<P7>::Get(L, index + 6),
+				Type<P8>::Get(L, index + 7)
 			);
 			return 0;
 		}
@@ -943,15 +1048,15 @@ namespace LPCD {
 			luaL_argassert(9, index + 8);
 
 			func(
-				Get(TypeWrapper<P1>(), L, index + 0),
-				Get(TypeWrapper<P2>(), L, index + 1),
-				Get(TypeWrapper<P3>(), L, index + 2),
-				Get(TypeWrapper<P4>(), L, index + 3),
-				Get(TypeWrapper<P5>(), L, index + 4),
-				Get(TypeWrapper<P6>(), L, index + 5),
-				Get(TypeWrapper<P7>(), L, index + 6),
-				Get(TypeWrapper<P8>(), L, index + 7),
-				Get(TypeWrapper<P9>(), L, index + 8)
+				Type<P1>::Get(L, index + 0),
+				Type<P2>::Get(L, index + 1),
+				Type<P3>::Get(L, index + 2),
+				Type<P4>::Get(L, index + 3),
+				Type<P5>::Get(L, index + 4),
+				Type<P6>::Get(L, index + 5),
+				Type<P7>::Get(L, index + 6),
+				Type<P8>::Get(L, index + 7),
+				Type<P9>::Get(L, index + 8)
 			);
 			return 0;
 		}
@@ -971,16 +1076,16 @@ namespace LPCD {
 			luaL_argassert(10, index + 9);
 
 			func(
-				Get(TypeWrapper<P1>(), L, index + 0),
-				Get(TypeWrapper<P2>(), L, index + 1),
-				Get(TypeWrapper<P3>(), L, index + 2),
-				Get(TypeWrapper<P4>(), L, index + 3),
-				Get(TypeWrapper<P5>(), L, index + 4),
-				Get(TypeWrapper<P6>(), L, index + 5),
-				Get(TypeWrapper<P7>(), L, index + 6),
-				Get(TypeWrapper<P8>(), L, index + 7),
-				Get(TypeWrapper<P9>(), L, index + 8),
-				Get(TypeWrapper<P10>(), L, index + 9)
+				Type<P1>::Get(L, index + 0),
+				Type<P2>::Get(L, index + 1),
+				Type<P3>::Get(L, index + 2),
+				Type<P4>::Get(L, index + 3),
+				Type<P5>::Get(L, index + 4),
+				Type<P6>::Get(L, index + 5),
+				Type<P7>::Get(L, index + 6),
+				Type<P8>::Get(L, index + 7),
+				Type<P9>::Get(L, index + 8),
+				Type<P10>::Get(L, index + 9)
 			);
 			return 0;
 		}
@@ -1007,7 +1112,7 @@ namespace LPCD {
 			luaL_argassert(1, index + 0);
 
 			(callee.*func)(
-				Get(TypeWrapper<P1>(), L, index + 0)
+				Type<P1>::Get(L, index + 0)
 			);
 			return 0;
 		}
@@ -1018,7 +1123,7 @@ namespace LPCD {
 			luaL_argassert(1, index + 0);
 
 			(callee.*func)(
-				Get(TypeWrapper<P1>(), L, index + 0)
+				Type<P1>::Get(L, index + 0)
 			);
 			return 0;
 		}
@@ -1030,8 +1135,8 @@ namespace LPCD {
 			luaL_argassert(2, index + 1);
 
 			(callee.*func)(
-				Get(TypeWrapper<P1>(), L, index + 0),
-				Get(TypeWrapper<P2>(), L, index + 1)
+				Type<P1>::Get(L, index + 0),
+				Type<P2>::Get(L, index + 1)
 			);
 			return 0;
 		}
@@ -1042,8 +1147,8 @@ namespace LPCD {
 			luaL_argassert(2, index + 1);
 
 			(callee.*func)(
-				Get(TypeWrapper<P1>(), L, index + 0),
-				Get(TypeWrapper<P2>(), L, index + 1)
+				Type<P1>::Get(L, index + 0),
+				Type<P2>::Get(L, index + 1)
 			);
 			return 0;
 		}
@@ -1055,9 +1160,9 @@ namespace LPCD {
 			luaL_argassert(3, index + 2);
 
 			(callee.*func)(
-				Get(TypeWrapper<P1>(), L, index + 0),
-				Get(TypeWrapper<P2>(), L, index + 1),
-				Get(TypeWrapper<P3>(), L, index + 2)
+				Type<P1>::Get(L, index + 0),
+				Type<P2>::Get(L, index + 1),
+				Type<P3>::Get(L, index + 2)
 			);
 			return 0;
 		}
@@ -1069,9 +1174,9 @@ namespace LPCD {
 			luaL_argassert(3, index + 2);
 
 			(callee.*func)(
-				Get(TypeWrapper<P1>(), L, index + 0),
-				Get(TypeWrapper<P2>(), L, index + 1),
-				Get(TypeWrapper<P3>(), L, index + 2)
+				Type<P1>::Get(L, index + 0),
+				Type<P2>::Get(L, index + 1),
+				Type<P3>::Get(L, index + 2)
 			);
 			return 0;
 		}
@@ -1085,10 +1190,10 @@ namespace LPCD {
 			luaL_argassert(4, index + 3);
 
 			(callee.*func)(
-				Get(TypeWrapper<P1>(), L, index + 0),
-				Get(TypeWrapper<P2>(), L, index + 1),
-				Get(TypeWrapper<P3>(), L, index + 2),
-				Get(TypeWrapper<P4>(), L, index + 3)
+				Type<P1>::Get(L, index + 0),
+				Type<P2>::Get(L, index + 1),
+				Type<P3>::Get(L, index + 2),
+				Type<P4>::Get(L, index + 3)
 			);
 			return 0;
 		}
@@ -1102,10 +1207,10 @@ namespace LPCD {
 			luaL_argassert(4, index + 3);
 
 			(callee.*func)(
-				Get(TypeWrapper<P1>(), L, index + 0),
-				Get(TypeWrapper<P2>(), L, index + 1),
-				Get(TypeWrapper<P3>(), L, index + 2),
-				Get(TypeWrapper<P4>(), L, index + 3)
+				Type<P1>::Get(L, index + 0),
+				Type<P2>::Get(L, index + 1),
+				Type<P3>::Get(L, index + 2),
+				Type<P4>::Get(L, index + 3)
 			);
 			return 0;
 		}
@@ -1120,11 +1225,11 @@ namespace LPCD {
 			luaL_argassert(5, index + 4);
 
 			(callee.*func)(
-				Get(TypeWrapper<P1>(), L, index + 0),
-				Get(TypeWrapper<P2>(), L, index + 1),
-				Get(TypeWrapper<P3>(), L, index + 2),
-				Get(TypeWrapper<P4>(), L, index + 3),
-				Get(TypeWrapper<P5>(), L, index + 4)
+				Type<P1>::Get(L, index + 0),
+				Type<P2>::Get(L, index + 1),
+				Type<P3>::Get(L, index + 2),
+				Type<P4>::Get(L, index + 3),
+				Type<P5>::Get(L, index + 4)
 			);
 			return 0;
 		}
@@ -1139,11 +1244,11 @@ namespace LPCD {
 			luaL_argassert(5, index + 4);
 
 			(callee.*func)(
-				Get(TypeWrapper<P1>(), L, index + 0),
-				Get(TypeWrapper<P2>(), L, index + 1),
-				Get(TypeWrapper<P3>(), L, index + 2),
-				Get(TypeWrapper<P4>(), L, index + 3),
-				Get(TypeWrapper<P5>(), L, index + 4)
+				Type<P1>::Get(L, index + 0),
+				Type<P2>::Get(L, index + 1),
+				Type<P3>::Get(L, index + 2),
+				Type<P4>::Get(L, index + 3),
+				Type<P5>::Get(L, index + 4)
 			);
 			return 0;
 		}
@@ -1159,12 +1264,12 @@ namespace LPCD {
 			luaL_argassert(6, index + 5);
 
 			(callee.*func)(
-				Get(TypeWrapper<P1>(), L, index + 0),
-				Get(TypeWrapper<P2>(), L, index + 1),
-				Get(TypeWrapper<P3>(), L, index + 2),
-				Get(TypeWrapper<P4>(), L, index + 3),
-				Get(TypeWrapper<P5>(), L, index + 4),
-				Get(TypeWrapper<P6>(), L, index + 5)
+				Type<P1>::Get(L, index + 0),
+				Type<P2>::Get(L, index + 1),
+				Type<P3>::Get(L, index + 2),
+				Type<P4>::Get(L, index + 3),
+				Type<P5>::Get(L, index + 4),
+				Type<P6>::Get(L, index + 5)
 			);
 			return 0;
 		}
@@ -1180,12 +1285,12 @@ namespace LPCD {
 			luaL_argassert(6, index + 5);
 
 			(callee.*func)(
-				Get(TypeWrapper<P1>(), L, index + 0),
-				Get(TypeWrapper<P2>(), L, index + 1),
-				Get(TypeWrapper<P3>(), L, index + 2),
-				Get(TypeWrapper<P4>(), L, index + 3),
-				Get(TypeWrapper<P5>(), L, index + 4),
-				Get(TypeWrapper<P6>(), L, index + 5)
+				Type<P1>::Get(L, index + 0),
+				Type<P2>::Get(L, index + 1),
+				Type<P3>::Get(L, index + 2),
+				Type<P4>::Get(L, index + 3),
+				Type<P5>::Get(L, index + 4),
+				Type<P6>::Get(L, index + 5)
 			);
 			return 0;
 		}
@@ -1202,13 +1307,13 @@ namespace LPCD {
 			luaL_argassert(7, index + 6);
 
 			(callee.*func)(
-				Get(TypeWrapper<P1>(), L, index + 0),
-				Get(TypeWrapper<P2>(), L, index + 1),
-				Get(TypeWrapper<P3>(), L, index + 2),
-				Get(TypeWrapper<P4>(), L, index + 3),
-				Get(TypeWrapper<P5>(), L, index + 4),
-				Get(TypeWrapper<P6>(), L, index + 5),
-				Get(TypeWrapper<P7>(), L, index + 6)
+				Type<P1>::Get(L, index + 0),
+				Type<P2>::Get(L, index + 1),
+				Type<P3>::Get(L, index + 2),
+				Type<P4>::Get(L, index + 3),
+				Type<P5>::Get(L, index + 4),
+				Type<P6>::Get(L, index + 5),
+				Type<P7>::Get(L, index + 6)
 			);
 			return 0;
 		}
@@ -1225,13 +1330,13 @@ namespace LPCD {
 			luaL_argassert(7, index + 6);
 
 			(callee.*func)(
-				Get(TypeWrapper<P1>(), L, index + 0),
-				Get(TypeWrapper<P2>(), L, index + 1),
-				Get(TypeWrapper<P3>(), L, index + 2),
-				Get(TypeWrapper<P4>(), L, index + 3),
-				Get(TypeWrapper<P5>(), L, index + 4),
-				Get(TypeWrapper<P6>(), L, index + 5),
-				Get(TypeWrapper<P7>(), L, index + 6)
+				Type<P1>::Get(L, index + 0),
+				Type<P2>::Get(L, index + 1),
+				Type<P3>::Get(L, index + 2),
+				Type<P4>::Get(L, index + 3),
+				Type<P5>::Get(L, index + 4),
+				Type<P6>::Get(L, index + 5),
+				Type<P7>::Get(L, index + 6)
 			);
 			return 0;
 		}
@@ -1249,14 +1354,14 @@ namespace LPCD {
 			luaL_argassert(8, index + 7);
 
 			(callee.*func)(
-				Get(TypeWrapper<P1>(), L, index + 0),
-				Get(TypeWrapper<P2>(), L, index + 1),
-				Get(TypeWrapper<P3>(), L, index + 2),
-				Get(TypeWrapper<P4>(), L, index + 3),
-				Get(TypeWrapper<P5>(), L, index + 4),
-				Get(TypeWrapper<P6>(), L, index + 5),
-				Get(TypeWrapper<P7>(), L, index + 6),
-				Get(TypeWrapper<P8>(), L, index + 7)
+				Type<P1>::Get(L, index + 0),
+				Type<P2>::Get(L, index + 1),
+				Type<P3>::Get(L, index + 2),
+				Type<P4>::Get(L, index + 3),
+				Type<P5>::Get(L, index + 4),
+				Type<P6>::Get(L, index + 5),
+				Type<P7>::Get(L, index + 6),
+				Type<P8>::Get(L, index + 7)
 			);
 			return 0;
 		}
@@ -1274,14 +1379,14 @@ namespace LPCD {
 			luaL_argassert(8, index + 7);
 
 			(callee.*func)(
-				Get(TypeWrapper<P1>(), L, index + 0),
-				Get(TypeWrapper<P2>(), L, index + 1),
-				Get(TypeWrapper<P3>(), L, index + 2),
-				Get(TypeWrapper<P4>(), L, index + 3),
-				Get(TypeWrapper<P5>(), L, index + 4),
-				Get(TypeWrapper<P6>(), L, index + 5),
-				Get(TypeWrapper<P7>(), L, index + 6),
-				Get(TypeWrapper<P8>(), L, index + 7)
+				Type<P1>::Get(L, index + 0),
+				Type<P2>::Get(L, index + 1),
+				Type<P3>::Get(L, index + 2),
+				Type<P4>::Get(L, index + 3),
+				Type<P5>::Get(L, index + 4),
+				Type<P6>::Get(L, index + 5),
+				Type<P7>::Get(L, index + 6),
+				Type<P8>::Get(L, index + 7)
 			);
 			return 0;
 		}
@@ -1301,15 +1406,15 @@ namespace LPCD {
 			luaL_argassert(9, index + 8);
 
 			(callee.*func)(
-				Get(TypeWrapper<P1>(), L, index + 0),
-				Get(TypeWrapper<P2>(), L, index + 1),
-				Get(TypeWrapper<P3>(), L, index + 2),
-				Get(TypeWrapper<P4>(), L, index + 3),
-				Get(TypeWrapper<P5>(), L, index + 4),
-				Get(TypeWrapper<P6>(), L, index + 5),
-				Get(TypeWrapper<P7>(), L, index + 6),
-				Get(TypeWrapper<P8>(), L, index + 7),
-				Get(TypeWrapper<P9>(), L, index + 8)
+				Type<P1>::Get(L, index + 0),
+				Type<P2>::Get(L, index + 1),
+				Type<P3>::Get(L, index + 2),
+				Type<P4>::Get(L, index + 3),
+				Type<P5>::Get(L, index + 4),
+				Type<P6>::Get(L, index + 5),
+				Type<P7>::Get(L, index + 6),
+				Type<P8>::Get(L, index + 7),
+				Type<P9>::Get(L, index + 8)
 			);
 			return 0;
 		}
@@ -1329,15 +1434,15 @@ namespace LPCD {
 			luaL_argassert(9, index + 8);
 
 			(callee.*func)(
-				Get(TypeWrapper<P1>(), L, index + 0),
-				Get(TypeWrapper<P2>(), L, index + 1),
-				Get(TypeWrapper<P3>(), L, index + 2),
-				Get(TypeWrapper<P4>(), L, index + 3),
-				Get(TypeWrapper<P5>(), L, index + 4),
-				Get(TypeWrapper<P6>(), L, index + 5),
-				Get(TypeWrapper<P7>(), L, index + 6),
-				Get(TypeWrapper<P8>(), L, index + 7),
-				Get(TypeWrapper<P9>(), L, index + 8)
+				Type<P1>::Get(L, index + 0),
+				Type<P2>::Get(L, index + 1),
+				Type<P3>::Get(L, index + 2),
+				Type<P4>::Get(L, index + 3),
+				Type<P5>::Get(L, index + 4),
+				Type<P6>::Get(L, index + 5),
+				Type<P7>::Get(L, index + 6),
+				Type<P8>::Get(L, index + 7),
+				Type<P9>::Get(L, index + 8)
 			);
 			return 0;
 		}
@@ -1358,16 +1463,16 @@ namespace LPCD {
 			luaL_argassert(10, index + 9);
 
 			(callee.*func)(
-				Get(TypeWrapper<P1>(), L, index + 0),
-				Get(TypeWrapper<P2>(), L, index + 1),
-				Get(TypeWrapper<P3>(), L, index + 2),
-				Get(TypeWrapper<P4>(), L, index + 3),
-				Get(TypeWrapper<P5>(), L, index + 4),
-				Get(TypeWrapper<P6>(), L, index + 5),
-				Get(TypeWrapper<P7>(), L, index + 6),
-				Get(TypeWrapper<P8>(), L, index + 7),
-				Get(TypeWrapper<P9>(), L, index + 8),
-				Get(TypeWrapper<P10>(), L, index + 9)
+				Type<P1>::Get(L, index + 0),
+				Type<P2>::Get(L, index + 1),
+				Type<P3>::Get(L, index + 2),
+				Type<P4>::Get(L, index + 3),
+				Type<P5>::Get(L, index + 4),
+				Type<P6>::Get(L, index + 5),
+				Type<P7>::Get(L, index + 6),
+				Type<P8>::Get(L, index + 7),
+				Type<P9>::Get(L, index + 8),
+				Type<P10>::Get(L, index + 9)
 			);
 			return 0;
 		}
@@ -1388,16 +1493,16 @@ namespace LPCD {
 			luaL_argassert(10, index + 9);
 
 			(callee.*func)(
-				Get(TypeWrapper<P1>(), L, index + 0),
-				Get(TypeWrapper<P2>(), L, index + 1),
-				Get(TypeWrapper<P3>(), L, index + 2),
-				Get(TypeWrapper<P4>(), L, index + 3),
-				Get(TypeWrapper<P5>(), L, index + 4),
-				Get(TypeWrapper<P6>(), L, index + 5),
-				Get(TypeWrapper<P7>(), L, index + 6),
-				Get(TypeWrapper<P8>(), L, index + 7),
-				Get(TypeWrapper<P9>(), L, index + 8),
-				Get(TypeWrapper<P10>(), L, index + 9)
+				Type<P1>::Get(L, index + 0),
+				Type<P2>::Get(L, index + 1),
+				Type<P3>::Get(L, index + 2),
+				Type<P4>::Get(L, index + 3),
+				Type<P5>::Get(L, index + 4),
+				Type<P6>::Get(L, index + 5),
+				Type<P7>::Get(L, index + 6),
+				Type<P8>::Get(L, index + 7),
+				Type<P9>::Get(L, index + 8),
+				Type<P10>::Get(L, index + 9)
 			);
 			return 0;
 		}
@@ -1664,29 +1769,6 @@ namespace LPCD {
 			return (callee.*func)(L);
 		}
 	};
-
-	template<> inline void Push<bool>(lua_State* L, bool value)						{  lua_pushboolean(L, value);  }
-	template<> inline void Push<char>(lua_State* L, char value)						{  lua_pushnumber(L, (lua_Number)value);  }
-	template<> inline void Push<unsigned char>(lua_State* L, unsigned char value)	{  lua_pushnumber(L, (lua_Number)value);  }
-	template<> inline void Push<short>(lua_State* L, short value)					{  lua_pushnumber(L, (lua_Number)value);  }
-	template<> inline void Push<unsigned short>(lua_State* L, unsigned short value)	{  lua_pushnumber(L, (lua_Number)value);  }
-	template<> inline void Push<int>(lua_State* L, int value)						{  lua_pushnumber(L, (lua_Number)value);  }
-	template<> inline void Push<unsigned int>(lua_State* L, unsigned int value)		{  lua_pushnumber(L, (lua_Number)value);  }
-	template<> inline void Push<long>(lua_State* L, long value)						{  lua_pushnumber(L, (lua_Number)value);  }
-	template<> inline void Push<unsigned long>(lua_State* L, unsigned long value)	{  lua_pushnumber(L, (lua_Number)value);  }
-	template<> inline void Push<double>(lua_State* L, double value)					{  lua_pushnumber(L, (lua_Number)value);  }
-	template<> inline void Push<float>(lua_State* L, float value)					{  lua_pushnumber(L, (lua_Number)value);  }
-	template<> inline void Push<char*>(lua_State* L, char* value)					{  lua_pushstring(L, value);  }
-	template<> inline void Push<const char*>(lua_State* L, const char* value)		{  lua_pushstring(L, value);  }
-	inline void Push(lua_State* L, const char* value, int len)						{  lua_pushlstring(L, value, len);  }
-	template<> inline void Push<const LuaNil&>(lua_State* L, const LuaNil&)			{  lua_pushnil(L);  }
-	template<> inline void Push<lua_CFunction>(lua_State* L, lua_CFunction value)	{  lua_pushcclosure(L, value, 0);  }
-	template<> inline void Push<const void*>(lua_State* L, const void* value)		{  lua_pushlightuserdata(L, (void*)value);  }
-	template<> inline void Push<void*>(lua_State* L, void* value)					{  lua_pushlightuserdata(L, value);  }
-	template<> inline void Push<const LuaLightUserdata&>(lua_State* L, const LuaLightUserdata& value)	{  lua_pushlightuserdata(L, (void*)value.m_value);  }
-    template<> inline void Push<const LuaUserdata&>(lua_State* L, const LuaUserdata& value)				{  *(void **)(lua_newuserdata(L, sizeof(void *))) = (void*)value.m_value;  }
-    template<> inline void Push<LuaUserdata&>(lua_State* L, LuaUserdata& value)		{  *(void **)(lua_newuserdata(L, sizeof(void *))) = (void*)value.m_value;  }
-    template<> inline void Push<LuaUserdata>(lua_State* L, LuaUserdata value)		{  *(void **)(lua_newuserdata(L, sizeof(void *))) = (void*)value.m_value;  }
 } // namespace LPCD
 
 
@@ -1949,7 +2031,7 @@ namespace LPCD {
 		static int PropertyGet(lua_State* L) {
 			Object* obj = (Object*)LPCD::GetObjectUserdata(L);
 			void* offset = lua_touserdata(L, 3);
-			LPCD::Push(L, *(VarType*)((unsigned char*)obj + (unsigned int)offset));
+			LPCD::Type<VarType>::Push(L, *(VarType*)((unsigned char*)obj + (unsigned int)offset));
 			return 1;
 		}
 
@@ -1957,10 +2039,10 @@ namespace LPCD {
 			Object* obj = (Object*)LPCD::GetObjectUserdata(L);
 			void* offset = lua_touserdata(L, 4);
 
-			if (!Match(TypeWrapper<VarType>(), L, 3))
+			if (!LPCD::Type<VarType>::Match(L, 3))
 				luaL_argerror(L, 3, "bad argument");
 
-			*(VarType*)((unsigned char*)obj + (unsigned int)offset) = Get(TypeWrapper<VarType>(), L, 3);
+			*(VarType*)((unsigned char*)obj + (unsigned int)offset) = LPCD::Type<VarType>::Get(L, 3);
 			return 0;
 		}
 	};
@@ -1971,7 +2053,7 @@ namespace LPCD {
 		static int PropertyGet(lua_State* L) {
 			Object* obj = (Object*)LPCD::GetInPlaceObjectUserdata(L);
 			void* offset = lua_touserdata(L, 3);
-			LPCD::Push(L, *(VarType*)((unsigned char*)obj + (unsigned int)offset));
+			LPCD::Type<VarType>::Push(L, *(VarType*)((unsigned char*)obj + (unsigned int)offset));
 			return 1;
 		}
 
@@ -1979,10 +2061,10 @@ namespace LPCD {
 			Object* obj = (Object*)LPCD::GetInPlaceObjectUserdata(L);
 			void* offset = lua_touserdata(L, 4);
 
-			if (!Match(TypeWrapper<VarType>(), L, 3))
+			if (!Type<VarType>::Match(L, 3))
 				luaL_argerror(L, 3, "bad argument");
 
-			*(VarType*)((unsigned char*)obj + (unsigned int)offset) = Get(TypeWrapper<VarType>(), L, 3);
+			*(VarType*)((unsigned char*)obj + (unsigned int)offset) = Type<VarType>::Get(L, 3);
 			return 0;
 		}
 	};
@@ -1993,7 +2075,7 @@ namespace LPCD {
 		static int PropertyGet(lua_State* L) {
 			void* offset = lua_touserdata(L, lua_upvalueindex(1));
 
-			LPCD::Push(L, *(VarType*)offset);
+			LPCD::Type<VarType>::Push(L, *(VarType*)offset);
 
 			return 1;
 		}
@@ -2001,10 +2083,10 @@ namespace LPCD {
 		static int PropertySet(lua_State* L) {
 			void* offset = lua_touserdata(L, lua_upvalueindex(1));
 
-			if (!Match(TypeWrapper<VarType>(), L, 1))
+			if (!LPCD::Type<VarType>::Match(L, 1))
 				luaL_argerror(L, 2, "bad argument");
 
-			*(VarType*)offset = LPCD::Get(LPCD::TypeWrapper<VarType>(), L, 1);
+			*(VarType*)offset = LPCD::Type<VarType>::Get(L, 1);
 
 			return 1;
 		}

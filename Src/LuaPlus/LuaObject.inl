@@ -1099,7 +1099,7 @@ inline LuaObject& LuaObject::AssignUserdata(LuaState* state, void* value) {
 	if (L)
 		lua_fastunref(L, ref);
 	L = _L;
-	LPCD::Push(L, LPCD::LuaUserdata(value));
+	LPCD::Type<LPCD::LuaUserdata>::Push(L, LPCD::LuaUserdata(value));
 	ref = lua_fastref(L);
 	return *this;
 }

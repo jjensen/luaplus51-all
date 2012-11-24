@@ -220,11 +220,13 @@ protected:
 namespace LPCD {
 	using namespace LuaPlus;
 
-	inline void Push(lua_State* L, LuaStackObject& value)			{  (void)L; value.Push();  }
-	inline bool	Match(TypeWrapper<LuaStackObject>, lua_State* L, int idx)
-		{  (void)L, (void)idx;  return true;  }
-	inline LuaStackObject	Get(TypeWrapper<LuaStackObject>, lua_State* L, int idx)
-		{  return LuaStackObject(lua_State_to_LuaState(L), idx);  }
+	template<> struct Type<LuaStackObject> {
+		static inline void Push(lua_State* L, const LuaStackObject& value)						{  lua_pushvalue(L, value.m_stackIndex);  }
+		static inline bool Match(lua_State* L, int idx)											{  (void)L, (void)idx;  return true;  }
+		static inline LuaStackObject Get(lua_State* L, int idx)									{  return LuaStackObject(lua_State_to_LuaState(L), idx);  }
+	};
+	template<> struct Type<LuaStackObject&> : public Type<LuaStackObject> {};
+	template<> struct Type<const LuaStackObject&> : public Type<LuaStackObject> {};
 } // namespace LPCD
 
 #endif // LUAPLUS__LUASTACKOBJECT_H

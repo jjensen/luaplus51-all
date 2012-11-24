@@ -38,7 +38,7 @@ public:
 			const char* errorString = lua_tostring(L, -1);  (void)errorString;
 			luaplus_assert(0);
 		}
-		return LPCD::Get(LPCD::TypeWrapper<RT>(), L, -1);
+		return LPCD::Type<RT>::Get(L, -1);
 	}
 
 	template <typename P1>
@@ -47,13 +47,13 @@ public:
 		LuaAutoBlock autoBlock(L);
 		functionObj.Push(L);
 
-		LPCD::Push(L, p1);
+		LPCD::Type<P1>::Push(L, p1);
 
 		if (lua_pcall(L, 1, 1, 0)) {
 			const char* errorString = lua_tostring(L, -1);  (void)errorString;
 			luaplus_assert(0);
 		}
-		return LPCD::Get(LPCD::TypeWrapper<RT>(), L, -1);
+		return LPCD::Type<RT>::Get(L, -1);
 	}
 
 	template <typename P1, typename P2>
@@ -62,14 +62,14 @@ public:
 		LuaAutoBlock autoBlock(L);
 		functionObj.Push(L);
 
-		LPCD::Push(L, p1);
-		LPCD::Push(L, p2);
+		LPCD::Type<P1>::Push(L, p1);
+		LPCD::Type<P2>::Push(L, p2);
 
 		if (lua_pcall(L, 2, 1, 0)) {
 			const char* errorString = lua_tostring(L, -1);  (void)errorString;
 			luaplus_assert(0);
 		}
-		return LPCD::Get(LPCD::TypeWrapper<RT>(), L, -1);
+		return LPCD::Type<RT>::Get(L, -1);
 	}
 
 	template <typename P1, typename P2, typename P3>
@@ -78,15 +78,15 @@ public:
 		LuaAutoBlock autoBlock(L);
 		functionObj.Push(L);
 
-		LPCD::Push(L, p1);
-		LPCD::Push(L, p2);
-		LPCD::Push(L, p3);
+		LPCD::Type<P1>::Push(L, p1);
+		LPCD::Type<P2>::Push(L, p2);
+		LPCD::Type<P3>::Push(L, p3);
 
 		if (lua_pcall(L, 3, 1, 0)) {
 			const char* errorString = lua_tostring(L, -1);  (void)errorString;
 			luaplus_assert(0);
 		}
-		return LPCD::Get(LPCD::TypeWrapper<RT>(), L, -1);
+		return LPCD::Type<RT>::Get(L, -1);
 	}
 
 	template <typename P1, typename P2, typename P3, typename P4>
@@ -95,16 +95,16 @@ public:
 		LuaAutoBlock autoBlock(L);
 		functionObj.Push(L);
 
-		LPCD::Push(L, p1);
-		LPCD::Push(L, p2);
-		LPCD::Push(L, p3);
-		LPCD::Push(L, p4);
+		LPCD::Type<P1>::Push(L, p1);
+		LPCD::Type<P2>::Push(L, p2);
+		LPCD::Type<P3>::Push(L, p3);
+		LPCD::Type<P4>::Push(L, p4);
 
 		if (lua_pcall(L, 4, 1, 0)) {
 			const char* errorString = lua_tostring(L, -1);  (void)errorString;
 			luaplus_assert(0);
 		}
-		return LPCD::Get(LPCD::TypeWrapper<RT>(), L, -1);
+		return LPCD::Type<RT>::Get(L, -1);
 	}
 
 	template <typename P1, typename P2, typename P3, typename P4, typename P5>
@@ -113,17 +113,17 @@ public:
 		LuaAutoBlock autoBlock(L);
 		functionObj.Push(L);
 
-		LPCD::Push(L, p1);
-		LPCD::Push(L, p2);
-		LPCD::Push(L, p3);
-		LPCD::Push(L, p4);
-		LPCD::Push(L, p5);
+		LPCD::Type<P1>::Push(L, p1);
+		LPCD::Type<P2>::Push(L, p2);
+		LPCD::Type<P3>::Push(L, p3);
+		LPCD::Type<P4>::Push(L, p4);
+		LPCD::Type<P5>::Push(L, p5);
 
 		if (lua_pcall(L, 5, 1, 0)) {
 			const char* errorString = lua_tostring(L, -1);  (void)errorString;
 			luaplus_assert(0);
 		}
-		return LPCD::Get(LPCD::TypeWrapper<RT>(), L, -1);
+		return LPCD::Type<RT>::Get(L, -1);
 	}
 
 	template <typename P1, typename P2, typename P3, typename P4, typename P5, typename P6>
@@ -132,18 +132,18 @@ public:
 		LuaAutoBlock autoBlock(L);
 		functionObj.Push(L);
 
-		LPCD::Push(L, p1);
-		LPCD::Push(L, p2);
-		LPCD::Push(L, p3);
-		LPCD::Push(L, p4);
-		LPCD::Push(L, p5);
-		LPCD::Push(L, p6);
+		LPCD::Type<P1>::Push(L, p1);
+		LPCD::Type<P2>::Push(L, p2);
+		LPCD::Type<P3>::Push(L, p3);
+		LPCD::Type<P4>::Push(L, p4);
+		LPCD::Type<P5>::Push(L, p5);
+		LPCD::Type<P6>::Push(L, p6);
 
 		if (lua_pcall(L, 6, 1, 0)) {
 			const char* errorString = lua_tostring(L, -1);  (void)errorString;
 			luaplus_assert(0);
 		}
-		return LPCD::Get(LPCD::TypeWrapper<RT>(), L, -1);
+		return LPCD::Type<RT>::Get(L, -1);
 	}
 
 	template <typename P1, typename P2, typename P3, typename P4, typename P5, typename P6, typename P7>
@@ -152,19 +152,19 @@ public:
 		LuaAutoBlock autoBlock(L);
 		functionObj.Push(L);
 
-		LPCD::Push(L, p1);
-		LPCD::Push(L, p2);
-		LPCD::Push(L, p3);
-		LPCD::Push(L, p4);
-		LPCD::Push(L, p5);
-		LPCD::Push(L, p6);
-		LPCD::Push(L, p7);
+		LPCD::Type<P1>::Push(L, p1);
+		LPCD::Type<P2>::Push(L, p2);
+		LPCD::Type<P3>::Push(L, p3);
+		LPCD::Type<P4>::Push(L, p4);
+		LPCD::Type<P5>::Push(L, p5);
+		LPCD::Type<P6>::Push(L, p6);
+		LPCD::Type<P7>::Push(L, p7);
 
 		if (lua_pcall(L, 7, 1, 0)) {
 			const char* errorString = lua_tostring(L, -1);  (void)errorString;
 			luaplus_assert(0);
 		}
-		return LPCD::Get(LPCD::TypeWrapper<RT>(), L, -1);
+		return LPCD::Type<RT>::Get(L, -1);
 	}
 
 protected:
@@ -202,7 +202,7 @@ public:
 		LuaAutoBlock autoBlock(L);
 		functionObj.Push(L);
 
-		LPCD::Push(L, p1);
+		LPCD::Type<P1>::Push(L, p1);
 
 		if (lua_pcall(L, 1, 0, 0)) {
 			const char* errorString = lua_tostring(L, -1);  (void)errorString;
@@ -216,8 +216,8 @@ public:
 		LuaAutoBlock autoBlock(L);
 		functionObj.Push(L);
 
-		LPCD::Push(L, p1);
-		LPCD::Push(L, p2);
+		LPCD::Type<P1>::Push(L, p1);
+		LPCD::Type<P2>::Push(L, p2);
 
 		if (lua_pcall(L, 2, 0, 0)) {
 			const char* errorString = lua_tostring(L, -1);  (void)errorString;
@@ -231,9 +231,9 @@ public:
 		LuaAutoBlock autoBlock(L);
 		functionObj.Push(L);
 
-		LPCD::Push(L, p1);
-		LPCD::Push(L, p2);
-		LPCD::Push(L, p3);
+		LPCD::Type<P1>::Push(L, p1);
+		LPCD::Type<P2>::Push(L, p2);
+		LPCD::Type<P3>::Push(L, p3);
 
 		if (lua_pcall(L, 3, 0, 0)) {
 			const char* errorString = lua_tostring(L, -1);  (void)errorString;
@@ -247,10 +247,10 @@ public:
 		LuaAutoBlock autoBlock(L);
 		functionObj.Push(L);
 
-		LPCD::Push(L, p1);
-		LPCD::Push(L, p2);
-		LPCD::Push(L, p3);
-		LPCD::Push(L, p4);
+		LPCD::Type<P1>::Push(L, p1);
+		LPCD::Type<P2>::Push(L, p2);
+		LPCD::Type<P3>::Push(L, p3);
+		LPCD::Type<P4>::Push(L, p4);
 
 		if (lua_pcall(L, 4, 0, 0)) {
 			const char* errorString = lua_tostring(L, -1);  (void)errorString;
@@ -264,11 +264,11 @@ public:
 		LuaAutoBlock autoBlock(L);
 		functionObj.Push(L);
 
-		LPCD::Push(L, p1);
-		LPCD::Push(L, p2);
-		LPCD::Push(L, p3);
-		LPCD::Push(L, p4);
-		LPCD::Push(L, p5);
+		LPCD::Type<P1>::Push(L, p1);
+		LPCD::Type<P2>::Push(L, p2);
+		LPCD::Type<P3>::Push(L, p3);
+		LPCD::Type<P4>::Push(L, p4);
+		LPCD::Type<P5>::Push(L, p5);
 
 		if (lua_pcall(L, 5, 0, 0)) {
 			const char* errorString = lua_tostring(L, -1);  (void)errorString;
@@ -282,12 +282,12 @@ public:
 		LuaAutoBlock autoBlock(L);
 		functionObj.Push(L);
 
-		LPCD::Push(L, p1);
-		LPCD::Push(L, p2);
-		LPCD::Push(L, p3);
-		LPCD::Push(L, p4);
-		LPCD::Push(L, p5);
-		LPCD::Push(L, p6);
+		LPCD::Type<P1>::Push(L, p1);
+		LPCD::Type<P2>::Push(L, p2);
+		LPCD::Type<P3>::Push(L, p3);
+		LPCD::Type<P4>::Push(L, p4);
+		LPCD::Type<P5>::Push(L, p5);
+		LPCD::Type<P6>::Push(L, p6);
 
 		if (lua_pcall(L, 6, 0, 0)) {
 			const char* errorString = lua_tostring(L, -1);  (void)errorString;
@@ -301,13 +301,13 @@ public:
 		LuaAutoBlock autoBlock(L);
 		functionObj.Push(L);
 
-		LPCD::Push(L, p1);
-		LPCD::Push(L, p2);
-		LPCD::Push(L, p3);
-		LPCD::Push(L, p4);
-		LPCD::Push(L, p5);
-		LPCD::Push(L, p6);
-		LPCD::Push(L, p7);
+		LPCD::Type<P1>::Push(L, p1);
+		LPCD::Type<P2>::Push(L, p2);
+		LPCD::Type<P3>::Push(L, p3);
+		LPCD::Type<P4>::Push(L, p4);
+		LPCD::Type<P5>::Push(L, p5);
+		LPCD::Type<P6>::Push(L, p6);
+		LPCD::Type<P7>::Push(L, p7);
 
 		if (lua_pcall(L, 7, 0, 0)) {
 			const char* errorString = lua_tostring(L, -1);  (void)errorString;

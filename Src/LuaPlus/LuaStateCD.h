@@ -17,14 +17,11 @@ namespace LPCD
 {
 	using namespace LuaPlus;
 
-
-	LUAPLUS_CLASS_API void Push(lua_State* L, int (*value)(LuaState*));
-
-	inline bool	Match(TypeWrapper<LuaState*>, lua_State* L, int idx)
-		{  return lua_type(L, idx) == LUA_TNONE;  }
-
-	inline LuaState* Get(TypeWrapper<LuaState*>, lua_State* L, int /*idx*/)
-		{  return lua_State_to_LuaState(L);  }
+	template<> struct Type<int (*)(LuaState*)> {
+		LUAPLUS_CLASS_API static void Push(lua_State* L, int (*value)(LuaState*));
+		static inline bool Match(lua_State* L, int idx)									{  return lua_type(L, idx) == LUA_TFUNCTION;  }
+		static inline void* Get(lua_State* L, int /*idx*/)								{  return lua_State_to_LuaState(L);  }
+	};
 
 	inline int LuaStateFunctionDispatcher(lua_State* L) {
 		typedef int (*Functor)(LuaPlus::LuaState*);
