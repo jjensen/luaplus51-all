@@ -98,8 +98,8 @@ public:
 	LuaStackObject PushInteger(int n);
 	LuaStackObject PushLString(const char *s, size_t len);
 	LuaStackObject PushString(const char *s);
-	LUAPLUS_CLASS_API LuaStackObject PushVFString(const char* fmt, va_list argp);
-	LUAPLUS_CLASS_API LuaStackObject PushFString(const char* fmt, ...);
+	LUAPLUS_CLASS_API const char* PushVFString(const char* fmt, va_list argp);
+	LUAPLUS_CLASS_API const char* PushFString(const char* fmt, ...);
 
 	LuaStackObject PushCClosure(lua_CFunction fn, int n);
 	LuaStackObject PushCClosure(int (*f)(LuaState*), int n);

@@ -10,6 +10,7 @@
 #ifndef LUAPLUS__LUASTATE_INL
 #define LUAPLUS__LUASTATE_INL
 
+#include <stdarg.h>
 #include <string.h>
 #include <assert.h>
 #include "LuaStateCD.h"
@@ -291,6 +292,20 @@ LUAPLUS_INLINE LuaStackObject LuaState::PushString(const char *s)
 {
 	lua_pushstring(LuaState_to_lua_State(this), s);
 	return LuaStackObject(this, lua_gettop(LuaState_to_lua_State(this)));
+}
+
+LUAPLUS_INLINE const char* LuaState::PushFString(const char *fmt, ...)
+{
+	va_list argp;
+	va_start(argp, fmt);
+	const char* ret = lua_pushvfstring(LuaState_to_lua_State(this), fmt, argp);
+	va_end(argp);
+	return ret;
+}
+
+LUAPLUS_INLINE const char* LuaState::PushVFString(const char *fmt, va_list argp)
+{
+	return lua_pushvfstring(LuaState_to_lua_State(this), fmt, argp);
 }
 
 LUAPLUS_INLINE LuaStackObject LuaState::PushCClosure(lua_CFunction fn, int n)
