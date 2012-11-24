@@ -358,11 +358,6 @@ namespace tilde
 				return lua_tostring(lvm, -1);
 			}
 
-			case LuaType_TABLE:
-			{
-				return lua_pushfstring(lvm, "TABLE %p", lua_topointer(lvm, index));
-			}
-
 			case LuaType_FUNCTION:
 			{
 				lua_Debug debugInfo;
@@ -379,9 +374,34 @@ namespace tilde
 				return lua_tostring(lvm, -1);
 			}
 
+			case LuaType_TABLE:
 			case LuaType_USERDATA:
 			{
-				return lua_pushfstring(lvm, "USERDATA %p", lua_topointer(lvm, index));
+				if (lua_getmetatable(lvm, index))				// metatable
+				{
+					lua_pushstring(lvm, "__tostring");				// metatable "__tostring"
+					lua_rawget(lvm, -2);							// metatable __tostring
+
+					if (lua_isfunction(lvm, -1))
+					{
+						lua_pushvalue(lvm, index);					// metatable __tostring object
+						if (lua_pcall(lvm, 1, 1, 0) == 0)			// metatable
+						{
+							if (lua_isstring(lvm, -1))
+								return lua_tostring(lvm, -1);
+						}
+						lua_pop(lvm, 1);
+					}
+					else
+					{
+						lua_pop(lvm, 2);
+					}
+				}
+
+				if (type == LuaType_TABLE)
+					return lua_pushfstring(lvm, "TABLE %p", lua_topointer(lvm, index));
+				else
+					return lua_pushfstring(lvm, "USERDATA %p", lua_topointer(lvm, index));
 			}
 
 			case LuaType_THREAD:
@@ -766,7 +786,61 @@ namespace tilde
 			}
 		}
 
-		if(objectType == LuaType_TABLE)
+		bool foundWatchMembers = false;
+		if(objectType == LuaType_USERDATA || objectType == LuaType_TABLE)
+		{
+			stack_balanced_check balancedCheck(lvm, 4);
+
+			if (lua_getmetatable(lvm, objectIndex))				// metatable
+			{
+				lua_pushstring(lvm, "__watchmembers");				// metatable "__watchmembers"
+				lua_rawget(lvm, -2);								// metatable __watchmembers
+
+				if (!lua_isnil(lvm, -1))
+				{
+					foundWatchMembers = true;
+
+					if (lua_isfunction(lvm, -1))
+					{
+						lua_pushvalue(lvm, objectIndex);				// metatable __watchmembers object
+						if (lua_pcall(lvm, 1, 1, 0) == 0)				// metatable __watchmembers
+						{
+						}
+					}
+
+					if (lua_istable(lvm, -1))
+					{
+						int memberTableIndex = lua_gettop(lvm);
+
+						for (int i = 1; ; ++i)
+						{
+							lua_rawgeti(lvm, memberTableIndex, i);		// metatable __watchmembers key
+							if (lua_isnil(lvm, -1))
+							{
+								lua_pop(lvm, 1);						// metatable __watchmembers
+								break;
+							}
+							rootvar->m_hasEntries = true;
+							if(rootvar->m_expanded)
+							{
+								lua_pushvalue(lvm, -1);					// metatable __watchmembers key key
+								lua_gettable(lvm, objectIndex);			// metatable __watchmembers key value
+								UpdateVariable(rootvar, lvm, memberTableIndex + 1, memberTableIndex + 2, VariableClass_TableEntry);
+								lua_pop(lvm, 2);						// metatable __watchmembers
+							}
+							else
+							{
+								lua_pop(lvm, 1);						// metatable __watchmembers
+							}
+						}
+					}
+				}
+
+				lua_pop(lvm, 2);									//
+			}
+		}
+
+		if(!foundWatchMembers && objectType == LuaType_TABLE)
 		{
 			lua_pushnil(lvm);
 			if(lua_next(lvm, objectIndex))
