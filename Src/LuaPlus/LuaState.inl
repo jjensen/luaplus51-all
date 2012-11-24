@@ -338,6 +338,12 @@ LUAPLUS_INLINE LuaStackObject LuaState::PushThread()
 	return LuaStackObject(this, lua_gettop(LuaState_to_lua_State(this)));
 }
 
+LUAPLUS_INLINE LuaStackObject LuaState::Push(const LuaObject& obj)
+{
+	obj.Push(this);
+	return LuaStackObject(this, lua_gettop(LuaState_to_lua_State(this)));
+}
+
 
 // get functions (Lua -> stack)
 LUAPLUS_INLINE void LuaState::GetTable(int index)

@@ -109,6 +109,8 @@ public:
 	LuaStackObject PushLightUserdata(void* p);
 	LuaStackObject PushThread();
 
+	LuaStackObject Push(const LuaObject& obj);
+
 	// get functions (Lua -> stack)
 	void GetTable(int index);
 	void GetField(int index, const char* key);
