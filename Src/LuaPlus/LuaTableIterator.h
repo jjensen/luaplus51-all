@@ -93,7 +93,7 @@ inline void LuaTableIterator::Reset() {
 	// will be invalid.
 //	m_isDone = !LuaPlusH_next(state, &m_tableObj, &m_keyObj, &m_valueObj);
 #if LUA_FASTREF_SUPPORT
-	m_keyObj.Push();
+	m_keyObj.Push(state);
 	m_isDone = lua_next(m_tableObj.GetCState(), m_tableObj.GetRef()) == 0;
 #else
 	lua_getfastref(m_tableObj.GetCState(), m_tableObj.GetRef());
@@ -139,7 +139,7 @@ inline bool LuaTableIterator::Next() {
 
 	// Do the Lua table iteration.
 #if LUA_FASTREF_SUPPORT
-	m_keyObj.Push();
+	m_keyObj.Push(state);
 	m_isDone = lua_next(m_tableObj.GetCState(), m_tableObj.GetRef()) == 0;
 #else
 	lua_getfastref(m_tableObj.GetCState(), m_tableObj.GetRef());

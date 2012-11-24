@@ -424,10 +424,19 @@ inline bool LuaObject::GetBoolean() const {
 }
 
 
-inline LuaStackObject LuaObject::Push() const {
-	luaplus_assert(L);
-	lua_getfastref(L, ref);
-	return LuaStackObject(L, lua_gettop(L));
+inline LuaStackObject LuaObject::Push(lua_State* outL) const {
+	luaplus_assert(outL);
+	lua_getfastref(outL, ref);
+	return LuaStackObject(outL, lua_gettop(outL));
+}
+
+
+inline LuaStackObject LuaObject::Push(LuaState* state) const {
+	luaplus_assert(state);
+	lua_State* outL = state->GetCState();
+	luaplus_assert(outL);
+	lua_getfastref(outL, ref);
+	return LuaStackObject(outL, lua_gettop(outL));
 }
 
 
@@ -456,8 +465,8 @@ inline void LuaObject::Insert(LuaObject& obj) {
 	luaplus_assert(lua_istable(L, -1));
 	lua_getfield(L, -1, "insert");
 	luaplus_assert(lua_isfunction(L, -1));
-	Push();
-	obj.Push();
+	Push(L);
+	obj.Push(L);
 	if (lua_pcall(L, 2, 0, 0) != 0) {
 		luaplus_assert(0);
 	}
@@ -472,9 +481,9 @@ inline void LuaObject::Insert(int index, LuaObject& obj) {
 	luaplus_assert(lua_istable(L, -1));
 	lua_getfield(L, -1, "insert");
 	luaplus_assert(lua_isfunction(L, -1));
-	Push();
+	Push(L);
 	lua_pushinteger(L, index);
-	obj.Push();
+	obj.Push(L);
 	if (lua_pcall(L, 3, 0, 0) != 0) {
 		luaplus_assert(0);
 	}
@@ -488,7 +497,7 @@ inline void LuaObject::Remove(int index) {
 	luaplus_assert(lua_istable(L, -1));
 	lua_getfield(L, -1, "remove");
 	luaplus_assert(lua_isfunction(L, -1));
-	Push();
+	Push(L);
 	lua_pushinteger(L, index);
 	if (lua_pcall(L, 2, 0, 0) != 0) {
 		luaplus_assert(0);
@@ -503,7 +512,7 @@ inline void LuaObject::Sort() {
 	luaplus_assert(lua_istable(L, -1));
 	lua_getfield(L, -1, "sort");
 	luaplus_assert(lua_isfunction(L, -1));
-	Push();
+	Push(L);
 	lua_call(L, 1, 0);
 	lua_pop(L, 1);
 }
@@ -511,7 +520,7 @@ inline void LuaObject::Sort() {
 
 inline size_t LuaObject::GetCount() const {
 	luaplus_assert(L);
-	Push();
+	Push(L);
 	int count = lua_objlen(L, -1);
 	lua_pop(L, 1);
 	return count;

@@ -565,7 +565,7 @@ bool LuaState::DumpObject(LuaStateOutFile& file, LuaObject& key, LuaObject& valu
 			else if (value.IsFunction())
 			{
 				lua_Debug ar;
-				value.Push();
+				value.Push(this);
 				lua_getinfo(*this, ">S", &ar);
 //				printf("%d\n", ar.linedefined);
 				file.Print("-- ");
@@ -909,7 +909,7 @@ bool LuaState::DumpObject(LuaStateOutFile& file, const char* name, LuaObject& va
 			else if (value.IsFunction())
 			{
 				lua_Debug ar;
-				value.Push();
+				value.Push(this);
 				lua_getinfo(*this, ">S", &ar);
 //				printf("%d\n", ar.linedefined);
 				file.Print("-- %s", name);
@@ -1003,7 +1003,7 @@ bool LuaState::DumpObject(const char* filename, const char* name, LuaObject& val
 			else if (value.IsFunction())
 			{
 				lua_Debug ar;
-				value.Push();
+				value.Push(this);
 				lua_getinfo(*this, ">S", &ar);
 //				printf("%d\n", ar.linedefined);
 				file->Print("-- %s", name);

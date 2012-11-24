@@ -21,7 +21,7 @@ LUAPLUS_INLINE LuaCall::LuaCall(LuaObject& functionObj)
 	, numArgs(0) {
 	luaplus_assert(functionObj.IsFunction());
 	startResults = lua_gettop(L) + 1;
-	functionObj.Push();
+	functionObj.Push(L);
 }
 
 LUAPLUS_INLINE LuaCall& operator<<(LuaCall& call, const LuaArgNil& /*value*/) {
@@ -94,7 +94,7 @@ LUAPLUS_INLINE LuaCall& operator<<(LuaCall& call, LuaStackObject& value) {
 
 LUAPLUS_INLINE LuaCall& operator<<(LuaCall& call, LuaObject& value) {
 	luaplus_assert(call.L == value.GetCState());
-	value.Push();
+	value.Push(call.L);
 	++call.numArgs;
 	return call;
 }

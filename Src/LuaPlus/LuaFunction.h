@@ -32,7 +32,7 @@ public:
 	RT operator()() {
 		lua_State* L = functionObj.GetCState();
 		LuaAutoBlock autoBlock(L);
-		functionObj.Push();
+		functionObj.Push(L);
 
 		if (lua_pcall(L, 0, 1, 0)) {
 			const char* errorString = lua_tostring(L, -1);  (void)errorString;
@@ -45,7 +45,7 @@ public:
 	RT operator()(P1 p1) {
 		lua_State* L = functionObj.GetCState();
 		LuaAutoBlock autoBlock(L);
-		functionObj.Push();
+		functionObj.Push(L);
 
 		LPCD::Push(L, p1);
 
@@ -60,7 +60,7 @@ public:
 	RT operator()(P1 p1, P2 p2) {
 		lua_State* L = functionObj.GetCState();
 		LuaAutoBlock autoBlock(L);
-		functionObj.Push();
+		functionObj.Push(L);
 
 		LPCD::Push(L, p1);
 		LPCD::Push(L, p2);
@@ -76,7 +76,7 @@ public:
 	RT operator()(P1 p1, P2 p2, P3 p3) {
 		lua_State* L = functionObj.GetCState();
 		LuaAutoBlock autoBlock(L);
-		functionObj.Push();
+		functionObj.Push(L);
 
 		LPCD::Push(L, p1);
 		LPCD::Push(L, p2);
@@ -93,7 +93,7 @@ public:
 	RT operator()(P1 p1, P2 p2, P3 p3, P4 p4) {
 		lua_State* L = functionObj.GetCState();
 		LuaAutoBlock autoBlock(L);
-		functionObj.Push();
+		functionObj.Push(L);
 
 		LPCD::Push(L, p1);
 		LPCD::Push(L, p2);
@@ -111,7 +111,7 @@ public:
 	RT operator()(P1 p1, P2 p2, P3 p3, P4 p4, P5 p5) {
 		lua_State* L = functionObj.GetCState();
 		LuaAutoBlock autoBlock(L);
-		functionObj.Push();
+		functionObj.Push(L);
 
 		LPCD::Push(L, p1);
 		LPCD::Push(L, p2);
@@ -130,7 +130,7 @@ public:
 	RT operator()(P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6) {
 		lua_State* L = functionObj.GetCState();
 		LuaAutoBlock autoBlock(L);
-		functionObj.Push();
+		functionObj.Push(L);
 
 		LPCD::Push(L, p1);
 		LPCD::Push(L, p2);
@@ -150,7 +150,7 @@ public:
 	RT operator()(P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7) {
 		lua_State* L = functionObj.GetCState();
 		LuaAutoBlock autoBlock(L);
-		functionObj.Push();
+		functionObj.Push(L);
 
 		LPCD::Push(L, p1);
 		LPCD::Push(L, p2);
@@ -188,7 +188,7 @@ public:
 	void operator()() {
 		lua_State* L = functionObj.GetCState();
 		LuaAutoBlock autoBlock(L);
-		functionObj.Push();
+		functionObj.Push(L);
 
 		if (lua_pcall(L, 0, 0, 0)) {
 			const char* errorString = lua_tostring(L, -1);  (void)errorString;
@@ -200,7 +200,7 @@ public:
 	void operator()(P1 p1) {
 		lua_State* L = functionObj.GetCState();
 		LuaAutoBlock autoBlock(L);
-		functionObj.Push();
+		functionObj.Push(L);
 
 		LPCD::Push(L, p1);
 
@@ -214,7 +214,7 @@ public:
 	void operator()(P1 p1, P2 p2) {
 		lua_State* L = functionObj.GetCState();
 		LuaAutoBlock autoBlock(L);
-		functionObj.Push();
+		functionObj.Push(L);
 
 		LPCD::Push(L, p1);
 		LPCD::Push(L, p2);
@@ -229,7 +229,7 @@ public:
 	void operator()(P1 p1, P2 p2, P3 p3) {
 		lua_State* L = functionObj.GetCState();
 		LuaAutoBlock autoBlock(L);
-		functionObj.Push();
+		functionObj.Push(L);
 
 		LPCD::Push(L, p1);
 		LPCD::Push(L, p2);
@@ -245,7 +245,7 @@ public:
 	void operator()(P1 p1, P2 p2, P3 p3, P4 p4) {
 		lua_State* L = functionObj.GetCState();
 		LuaAutoBlock autoBlock(L);
-		functionObj.Push();
+		functionObj.Push(L);
 
 		LPCD::Push(L, p1);
 		LPCD::Push(L, p2);
@@ -262,7 +262,7 @@ public:
 	void operator()(P1 p1, P2 p2, P3 p3, P4 p4, P5 p5) {
 		lua_State* L = functionObj.GetCState();
 		LuaAutoBlock autoBlock(L);
-		functionObj.Push();
+		functionObj.Push(L);
 
 		LPCD::Push(L, p1);
 		LPCD::Push(L, p2);
@@ -280,7 +280,7 @@ public:
 	void operator()(P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6) {
 		lua_State* L = functionObj.GetCState();
 		LuaAutoBlock autoBlock(L);
-		functionObj.Push();
+		functionObj.Push(L);
 
 		LPCD::Push(L, p1);
 		LPCD::Push(L, p2);
@@ -299,7 +299,7 @@ public:
 	void operator()(P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7) {
 		lua_State* L = functionObj.GetCState();
 		LuaAutoBlock autoBlock(L);
-		functionObj.Push();
+		functionObj.Push(L);
 
 		LPCD::Push(L, p1);
 		LPCD::Push(L, p2);

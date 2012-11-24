@@ -932,7 +932,7 @@ LUAPLUS_INLINE int LuaState::DoString( const char *str, LuaObject& fenvObj ) {
 	int status = luaL_loadbuffer(L, str, strlen(str), str);
 	if (status != 0)
 		return status;
-	fenvObj.Push();
+	fenvObj.Push(L);
 	SetFEnv(-2);
 	return lua_pcall(L, 0, LUA_MULTRET, 0);
 }
@@ -943,7 +943,7 @@ LUAPLUS_INLINE int LuaState::DoFile( const char *filename, LuaObject& fenvObj ) 
 	int status = luaL_loadfile(L, filename);
 	if (status != 0)
 		return status;
-	fenvObj.Push();
+	fenvObj.Push(L);
 	SetFEnv(-2);
 	return lua_pcall(L, 0, LUA_MULTRET, 0);
 }
@@ -954,7 +954,7 @@ LUAPLUS_INLINE int LuaState::DoBuffer( const char *buff, size_t size, const char
 	int status = luaL_loadbuffer(L, buff, size, name);
 	if (status != 0)
 		return status;
-	fenvObj.Push();
+	fenvObj.Push(L);
 	SetFEnv(-2);
 	return lua_pcall(L, 0, LUA_MULTRET, 0);
 }

@@ -97,7 +97,8 @@ public:
 	void* GetLightUserdata() const;
 	bool GetBoolean() const;
 
-	LuaStackObject Push() const;
+	LuaStackObject Push(lua_State* L) const;
+	LuaStackObject Push(LuaState* state) const;
 
 	LuaObject GetMetatable() const;
 	LuaObject& SetMetatable(const LuaObject& valueObj);
@@ -326,7 +327,7 @@ namespace LPCD {
 
 	inline LuaPlus::LuaObject PropertyMetatable_GetFunctions(const LuaPlus::LuaObject& metatableObj) {
 		lua_State* L = metatableObj.GetCState();
-		metatableObj.Push();							// metatable
+		metatableObj.Push(L);							// metatable
 		lpcd_propertymetatable_getfunctions(L, lua_gettop(L));
 		LuaPlus::LuaObject retObj(L, true);
 		lua_pop(L, 1);
@@ -336,7 +337,7 @@ namespace LPCD {
 	template <typename Object, typename VarType>
 	inline void PropertyCreate(const LuaPlus::LuaObject& metatableObj, const char* varName, VarType Object::* var, bool read = true, bool write = true) {
 		lua_State* L = metatableObj.GetCState();
-		metatableObj.Push();							// metatable
+		metatableObj.Push(L);							// metatable
 		lpcd_propertycreate(L, lua_gettop(L), varName, var, read, write);
 		lua_pop(L, 1);
 	}
@@ -344,7 +345,7 @@ namespace LPCD {
 
 	inline void Metatable_IntegratePropertySupport(LuaPlus::LuaObject& metatableObj, bool inPlace = false) {
 		lua_State* L = metatableObj.GetCState();
-		metatableObj.Push();				// metatable
+		metatableObj.Push(L);							// metatable
 		lpcd_integratepropertysupport(L, lua_gettop(L), inPlace);
 		lua_pop(L, 1);						//
 	}
@@ -352,9 +353,8 @@ namespace LPCD {
 
 	template <typename Object, typename VarType>
 	inline void Register_MemberPropertyGetFunction(LuaPlus::LuaObject& obj, const char* funcName, VarType Object::* var) {
-		obj.Push();
-
 		lua_State* L = obj.GetCState();
+		obj.Push(L);
 		lua_pushstring(L, funcName);
 		lpcd_pushmemberpropertygetclosure(L, var);
 		lua_rawset(L, -3);
@@ -364,9 +364,8 @@ namespace LPCD {
 
 	template <typename Object, typename VarType>
 	void Register_MemberPropertySetFunction(LuaPlus::LuaObject& obj, const char* funcName, VarType Object::* var) {
-		obj.Push();
-
 		lua_State* L = obj.GetCState();
+		obj.Push(L);
 		lua_pushstring(L, funcName);
 		lpcd_pushmemberpropertysetclosure(L, var);
 		lua_rawset(L, -3);
@@ -377,9 +376,8 @@ namespace LPCD {
 
 	template <typename VarType>
 	void Register_GlobalPropertyGetFunction(const LuaPlus::LuaObject& obj, const char* funcName, VarType* var) {
-		obj.Push();
-
 		lua_State* L = obj.GetCState();
+		obj.Push(L);
 		lua_pushstring(L, funcName);
 		lpcd_pushglobalpropertygetclosure(L, var);
 		lua_rawset(L, -3);
@@ -389,9 +387,8 @@ namespace LPCD {
 
 	template <typename VarType>
 	void Register_GlobalPropertySetFunction(const LuaPlus::LuaObject& obj, const char* funcName, VarType* var) {
-		obj.Push();
-
 		lua_State* L = obj.GetCState();
+		obj.Push(L);
 		lua_pushstring(L, funcName);
 		lpcd_pushglobalpropertysetclosure(L, var);
 		lua_rawset(L, -3);
