@@ -2118,7 +2118,7 @@ bool ZipArchive::FileCopy(File& srcFile, const char* destFilename, int compressi
 
 	// Create the destination file entry.
 	ZipEntryFileHandle destFileHandle;
-	if (!FileCreateInternal(destFilename, destFileHandle, compressionMethod, compressionLevel, fileTime))
+	if (!FileCreate(destFilename, destFileHandle, compressionMethod, compressionLevel, fileTime))
 		return false;
 
 	// Operate in 64k buffers.
