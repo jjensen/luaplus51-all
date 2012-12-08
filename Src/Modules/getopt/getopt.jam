@@ -1,0 +1,11 @@
+{
+
+local SRCS =
+		getopt.lua
+;
+
+Lua.Module lua-getopt : : src/$(SRCS) ;
+
+CopyFiles lua-getopt : $(LUA_LDIR) : $(SUBDIR)/src/$(SRCS) ;
+
+}
