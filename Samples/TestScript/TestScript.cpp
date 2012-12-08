@@ -1205,7 +1205,7 @@ void TestClass()
     assert(ret == 0);
     
     LuaObject createFunctionObj = state->GetGlobal("Dog");
-    createFunctionObj.Push();
+    createFunctionObj.Push(state);
     state->PushString("Golden Retriever");
     state->PCall(1, 1, 0);
     LuaObject myObject(state, -1);
@@ -2608,7 +2608,7 @@ void TestCoroutine()
 	LuaObject threadObj = LuaState::CreateThread(state);
 	LuaState* threadState = threadObj.GetState();
 	LuaObject functionObj = threadState->GetGlobal("TestCoroutine");
-	functionObj.Push();
+	functionObj.Push(threadState);
 	int ret = threadState->CoResume(0);
 	ret = threadState->CoResume(0);
 	ret = threadState->CoResume(0);
