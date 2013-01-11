@@ -9,7 +9,8 @@ local function xml_depth(vals)
 		return vals[1]
 	end
 
-	local children = {}
+	local orderTable = {}
+	local children = { ['*'] = orderTable }
 
 	for i = 1, #vals do
 		local val = vals[i]
@@ -21,8 +22,9 @@ local function xml_depth(vals)
 				children[val.tag] = tagEntry
 			end
 
-			entry = {}
+			local entry = {}
 			tagEntry[#tagEntry + 1] = entry
+			orderTable[#orderTable + 1] = { val.tag, #tagEntry }
 
 			entry['@'] = val.attr
 			entry['#'] = xml_depth(val)
@@ -41,7 +43,7 @@ function luaize(data)
 
 	local vals, err = lom.parse(data)
 
-    array = xml_depth(vals);
+    array = xml_depth(vals)
 
 	return array
 end
