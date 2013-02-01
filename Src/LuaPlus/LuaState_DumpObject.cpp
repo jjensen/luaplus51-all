@@ -220,7 +220,7 @@ static void WriteKey(LuaStateOutFile& file, LuaObject& key) {
 		if (isdigit(*ptr))
 			isAlphaNumeric = false;
 		while (*ptr) {
-			if (!isalnum(*ptr)  &&  *ptr != '_') {
+			if (!isalnum((unsigned char)*ptr)  &&  *ptr != '_') {
 				isAlphaNumeric = false;
 				break;
 			}
