@@ -49,6 +49,7 @@ struct http_connection {
 	int status;
 	char *host;
 	struct sockaddr_in address;
+	char *actualHost;
 	int resolved_address;
 	int persistent;
 	int lazy;
@@ -796,7 +797,12 @@ http_send_request(HTTP_CONNECTION *connection, HTTP_REQUEST *request)
 
 	http_create_memory_storage((HTTP_MEMORY_STORAGE**)&storage, NULL, 0);
 
-	http_collect_strings(storage, http_method[request->method], " ", request->resource, " ", version, "\r\n", NULL);
+	http_collect_strings(storage, http_method[request->method], " ", NULL);
+	if (connection->actualHost)
+	{
+		http_collect_strings(storage, "http://", connection->actualHost, NULL);
+	}
+	http_collect_strings(storage, request->resource, " ", version, "\r\n", NULL);
 	for(field_cursor = request->first_header_field; field_cursor != NULL; field_cursor = field_cursor->next_field)
 	{
 		http_collect_strings(storage, field_cursor->name, ": ", field_cursor->value, "\r\n", NULL);
@@ -1148,7 +1154,7 @@ http_receive_response_entity(HTTP_CONNECTION *connection, HTTP_RESPONSE *respons
 			}
 		}
 	}
-	if (!is_multipart  &&  content_size <= 0)
+	if (!is_multipart  &&  content_size <= 0  &&  !is_chunked)
 	{
 		stage = HTTP_THE_DEVIL_TAKES_IT; /* no content */
 	}
@@ -1599,6 +1605,8 @@ http_exec(HTTP_CONNECTION *connection, int method, const char *resource,
 	{
 		if((error = on_response_header(connection, request, response, data)) != HT_OK)
 		{
+			if (error == HT_IO_ERROR)
+				error = 404;
 			http_receive_response_entity(connection, response);
 			http_exec_set_sys_error(connection, error);
 			return error;
@@ -1609,6 +1617,8 @@ http_exec(HTTP_CONNECTION *connection, int method, const char *resource,
 	{
 		if((error = on_response_entity(connection, request, response, data)) != HT_OK)
 		{
+			if (error == HT_IO_ERROR)
+				error = 404;
 			http_exec_set_sys_error(connection, error);
 			return error;
 		}
@@ -1617,6 +1627,13 @@ http_exec(HTTP_CONNECTION *connection, int method, const char *resource,
 	http_destroy_request(&request);
 	http_destroy_response(&response);
 	return error;
+}
+
+void http_set_actual_host(HTTP_CONNECTION *connection, const char* actualHost)
+{
+	if (connection->actualHost)
+		_http_allocator(_http_allocator_user_data, connection->actualHost, 0);
+	connection->actualHost = wd_strdup(actualHost);
 }
 
 void http_set_connect_callback(HTTP_CONNECTION *connection, int (*connect_callback)(void *), void *userData)

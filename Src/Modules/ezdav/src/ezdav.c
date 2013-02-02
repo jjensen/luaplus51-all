@@ -599,8 +599,10 @@ static HTTP_CONNECTION* ezdav_connection_checkmetatable(lua_State *L, int index)
 
 static int ezdav_connection_attributes(lua_State* L) {
 	HTTP_CONNECTION* connection = ezdav_connection_checkmetatable_internal(L, 1);
-	if (l_ezdav_dir_first(L, connection) == 0)
+	if (l_ezdav_dir_first(L, connection) == 0) {
+		http_exec_set_sys_error(connection, 404);
 		return 0;
+	}
 
 	luaL_getmetatable(L, EZDAV_DIR_METATABLE);
 	lua_setmetatable(L, -2);
@@ -752,6 +754,15 @@ static int ezdav_connection_error_message(lua_State *L) {
 }
 
 
+static int ezdav_connection_set_actual_host(lua_State *L) {
+	HTTP_CONNECTION* connection = ezdav_connection_checkmetatable(L, 1);
+	const char* host = luaL_checkstring(L, 2);
+	http_set_actual_host(connection, host);
+
+	return 0;
+}
+
+
 static int ezdav_connection_gc(lua_State *L) {
 	ezdav_connection_close(L);
 	return 0;
@@ -773,6 +784,7 @@ static const struct luaL_reg ezdav_connection_index_functions[] = {
 	{ "abandon_lock",		ezdav_connection_abandon_lock },
 	{ "error",				ezdav_connection_error },
 	{ "error_message",		ezdav_connection_error_message },
+	{ "set_actual_host",	ezdav_connection_set_actual_host },
 	{ NULL, NULL },
 };
 
