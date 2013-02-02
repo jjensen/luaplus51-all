@@ -215,11 +215,13 @@ static void WriteKey(LuaStateOutFile& file, LuaObject& key) {
 		sprintf(keyName, "[%.16g]", key.GetNumber());
 		file.Print("%s", keyName);
 	} else if (key.IsString()) {
+		size_t keyLen = key.StrLen();
 		const char* ptr = key.GetString();
+		const char* endPtr = ptr + keyLen;
 		bool isAlphaNumeric = true;
-		if (isdigit(*ptr))
+		if (isdigit((unsigned char)*ptr))
 			isAlphaNumeric = false;
-		while (*ptr) {
+		while (ptr < endPtr) {
 			if (!isalnum((unsigned char)*ptr)  &&  *ptr != '_') {
 				isAlphaNumeric = false;
 				break;
