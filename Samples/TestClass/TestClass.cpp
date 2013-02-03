@@ -5,22 +5,13 @@ using namespace LuaPlus;
 
 namespace LPCD
 {
-    inline bool      Match(TypeWrapper<std::string>, lua_State* L, int idx)
-	 {  return lua_type(L, idx) == LUA_TSTRING;  }
-    inline bool   Match(TypeWrapper<std::string&>, lua_State* L, int idx)
-	 {  return lua_type(L, idx) == LUA_TSTRING;  }
-    inline bool   Match(TypeWrapper<const std::string&>, lua_State* L, int idx)
-	 {  return lua_type(L, idx) == LUA_TSTRING;  }
-    inline std::string Get(TypeWrapper<std::string>, lua_State* L, int idx)
-	 {  return static_cast<const char*>(lua_tostring(L, idx));  }
-    inline std::string Get(TypeWrapper<std::string&>, lua_State* L, int idx)
-	 {  return static_cast<const char*>(lua_tostring(L, idx));  }
-    inline std::string Get(TypeWrapper<const std::string&>, lua_State* L, int idx)
-	 {  return static_cast<const char*>(lua_tostring(L, idx));  }
-    inline void Push(lua_State* L, std::string& value)
-	 {  lua_pushstring(L, value.c_str());  }
-    inline void Push(lua_State* L, const std::string& value)
-	 {  lua_pushstring(L, value.c_str());  }
+	template<> struct Type<std::string> {
+		static inline void Push(lua_State* L, const std::string& value)				{  lua_pushstring(L, value.c_str());  }
+		static inline bool Match(lua_State* L, int idx)								{  return lua_type(L, idx) == LUA_TSTRING;  }
+		static inline std::string Get(lua_State* L, int idx)						{  return lua_tostring(L, idx);  }
+	};
+	template<> struct Type<std::string&> : public Type<std::string> {};
+	template<> struct Type<const std::string&> : public Type<std::string> {};
 }
 
 
@@ -80,47 +71,23 @@ public:
 };
 
 namespace LPCD {
-	template <int NUM_CHARS>
-	inline void Push(lua_State* L, char value[NUM_CHARS]) {
-		lua_pushstring(L, value);
-	}
-
-	template <int NUM_CHARS>
-	inline bool   Match(TypeWrapper<char [NUM_CHARS]>, lua_State* L, int idx) {
-		return lua_type(L, idx) == LUA_TSTRING;
-	}
-
-/*     template <int NUM_CHARS>
-	inline const char* Get(TypeWrapper<char [NUM_CHARS]>, lua_State* L, int idx)
-	{
-		return lua_tostring(L, idx);
-	}
-*/
-	inline void Push(lua_State* L, const VECTOR& value) {
-		LuaState* state = lua_State_to_LuaState(L);
-		LuaObject obj = state->BoxPointer((void*)&value);
-		obj.SetMetatable(state->GetRegistry()["VECTOR"]);
-	}
-
-	inline bool   Match(TypeWrapper<VECTOR>, lua_State* L, int idx) {
-		LuaState* state = lua_State_to_LuaState(L);
-		LuaObject obj = state->Stack(idx);
-		return obj.GetMetatable() == state->GetRegistry()["VECTOR"];
-	}
-
-	inline bool   Match(TypeWrapper<VECTOR&>, lua_State* L, int idx) {
-		LuaState* state = lua_State_to_LuaState(L);
-		LuaObject obj = state->Stack(idx);
-		return obj.GetMetatable() == state->GetRegistry()["VECTOR"];
-	}
-
-	inline VECTOR Get(TypeWrapper<VECTOR>, lua_State* L, int idx) {
-		return *(VECTOR*)lua_unboxpointer(L, idx);
-	}
-
-	inline VECTOR& Get(TypeWrapper<VECTOR&>, lua_State* L, int idx) {
-		return *(VECTOR*)lua_unboxpointer(L, idx);
-	}
+	template<> struct Type<VECTOR> {
+		static inline void Push(lua_State* L, const VECTOR& value) {
+			LuaState* state = lua_State_to_LuaState(L);
+			LuaObject obj = state->BoxPointer((void*)&value);
+			obj.SetMetatable(state->GetRegistry()["VECTOR"]);
+		}
+		static inline bool Match(lua_State* L, int idx) {
+			LuaState* state = lua_State_to_LuaState(L);
+			LuaObject obj = state->Stack(idx);
+			return obj.GetMetatable() == state->GetRegistry()["VECTOR"];
+		}
+		static inline VECTOR Get(lua_State* L, int idx) {
+			return *(VECTOR*)lua_unboxpointer(L, idx);
+		}
+	};
+	template<> struct Type<VECTOR&> : public Type<VECTOR> {};
+	template<> struct Type<const VECTOR&> : public Type<VECTOR> {};
 }
 
 
@@ -136,7 +103,7 @@ int MONSTER_new(LuaState* state){
 	MONSTER* monster = new MONSTER;
 	monsterObj.SetLightUserdata("__object", monster);
 	monsterObj.SetMetatable(monsterMetatableObj);
-	monsterObj.Push();
+	monsterObj.Push(state);
 	return 1;
 }
 
@@ -224,7 +191,7 @@ MONSTER* get_MONSTER2_inplace(lua_State* L, int index, bool throwError = true) {
 void Vector4MonsterMetatableTest() {
 	lua_State* L = lua_open();
 
-	Class(L, "VECTOR")
+	LPCD::Class(L, "VECTOR")
 		.Property("x", &VECTOR::x)
 		.Property("y", &VECTOR::y)
 		.Property("z", &VECTOR::z)
@@ -233,7 +200,7 @@ void Vector4MonsterMetatableTest() {
 	lua_register(L, "Vector", &new_VECTOR2);
 
 	// ENTITY
-	Class(L, "ENTITY")
+	LPCD::Class(L, "ENTITY")
 		.Property("position", &MONSTER::position)
 		.Property("name", &MONSTER::name)
 		.ObjectDirect("printName", (ENTITY*)0, &ENTITY::printName)
@@ -241,13 +208,13 @@ void Vector4MonsterMetatableTest() {
 	;
 
 	// POSITION_ENTITY
-	Class(L, "POSITION_ENTITY", "ENTITY")
+	LPCD::Class(L, "POSITION_ENTITY", "ENTITY")
 		.Property("position", &MONSTER::position)
 		.MetatableFunction("__gc", &ENTITY___gc)
 	;
 
 	// MONSTER
-	Class(L, "MONSTER", "POSITION_ENTITY")
+	LPCD::Class(L, "MONSTER", "POSITION_ENTITY")
 		.ObjectDirect("printMe", (MONSTER*)0, &MONSTER::printMe)
 		.Property("alive", &MONSTER::alive)
 		.MetatableFunction("__gc", &ENTITY___gc)
@@ -299,7 +266,7 @@ void Vector4MonsterMetatableTest() {
 
 
 	// ENTITY_inplace
-	InPlaceClass(L, "ENTITY_inplace")
+	LPCD::InPlaceClass(L, "ENTITY_inplace")
 		.Property("position", &MONSTER::position)
 		.Property("name", &MONSTER::name)
 		.ObjectDirect("printName", (ENTITY*)0, &ENTITY::printName)
@@ -307,13 +274,13 @@ void Vector4MonsterMetatableTest() {
 	;
 
 	// POSITION_ENTITY_inplace
-	InPlaceClass(L, "POSITION_ENTITY_inplace", "ENTITY_inplace")
+	LPCD::InPlaceClass(L, "POSITION_ENTITY_inplace", "ENTITY_inplace")
 		.Property("position", &MONSTER::position)
 		.MetatableFunction("__gc", &ENTITY_inplace___gc)
 	;
 
 	// MONSTER_inplace
-	InPlaceClass(L, "MONSTER_inplace", "POSITION_ENTITY_inplace")
+	LPCD::InPlaceClass(L, "MONSTER_inplace", "POSITION_ENTITY_inplace")
 		.ObjectDirect("printMe", (MONSTER*)0, &MONSTER::printMe)
 		.Property("alive", &MONSTER::alive)
 		.MetatableFunction("__gc", &ENTITY_inplace___gc)
@@ -326,6 +293,10 @@ void Vector4MonsterMetatableTest() {
 	lua_getglobal(L, "Monster1InPlace");
 	MONSTER* monsterInPlace = get_MONSTER2_inplace(L, -1);
 	lua_pop(L, 1);
+	lua_getglobal(L, "Monster1InPlace");
+	lua_pushstring(L, "alive");
+	lua_pushnumber(L, 0);
+	lua_settable(L, -3);
 	luaL_dostring(L, "Monster1InPlace.alive = 1");
 	luaL_dostring(L, "Monster1InPlace.position.x = 5");
 	luaL_dostring(L, "Monster1InPlace.position.y = 10");
