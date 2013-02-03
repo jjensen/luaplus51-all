@@ -1,0 +1,11 @@
+{
+
+local SRCS =
+		src/LuaState_DumpObject.cpp
+		src/LuaStateOutFile.h
+		src/LuaStateOutString.h
+;
+
+LuaPlus.CModule prettydump : : $(SRCS) ;
+
+}
