@@ -1853,7 +1853,7 @@ namespace LPCD {
 			if (subType == LUA_TLIGHTUSERDATA) {
 				ret = lua_touserdata(L, -1);
 			} else if (subType == LUA_TUSERDATA) {
-				ret = *(void **)(lua_touserdata(L, -1));
+				ret = lua_touserdata(L, -1);
 			} else {
 				luaL_error(L, "The table does not have a userdata member called __object.");
 			}
