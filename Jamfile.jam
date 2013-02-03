@@ -8,8 +8,8 @@ Workspace LuaPlus :
 		LuaPlusStatic
 ;
 
-SubIncludeRelative Src LuaPlus SharedLib : LuaPlusSharedLib ;
-SubIncludeRelative Src LuaPlus StaticLib : LuaPlusStaticLib ;
+SubIncludeRelative Src LuaPlus : LuaPlusSharedLib ;
+SubIncludeRelative Src LuaPlus : LuaPlusStaticLib ;
 SubIncludeRelative Tools Lua Lua ;
 SubIncludeRelative Tools Lua LuaC ;
 

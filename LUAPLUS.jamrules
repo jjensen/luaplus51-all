@@ -44,7 +44,7 @@ if $(OS) = NT {
 }
 
 rule LuaPlus.CModule TARGET : OUTPUT_NAME : SOURCES : MODULES_SUBDIR {
-	SubInclude LUAPLUS Src LuaPlus SharedLib : LuaPlusSharedLib ;
+	SubInclude LUAPLUS Src LuaPlus : LuaPlusSharedLib ;
 
 	TARGET = [ ActiveTarget $(TARGET) ] ;
 

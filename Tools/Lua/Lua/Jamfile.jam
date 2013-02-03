@@ -28,7 +28,7 @@ rule LuaApplication TARGET : OPTIONS
 {
 	ActiveTarget $(TARGET) ;
 
-	SubInclude LUAPLUS Src LuaPlus SharedLib : LuaPlusSharedLib ;
+	SubInclude LUAPLUS Src LuaPlus : LuaPlusSharedLib ;
 
 	if $(MSVCNT)
 	{

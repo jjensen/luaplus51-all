@@ -10,7 +10,7 @@ local SRCS =
 rule LuaCApplication TARGET {
 	ActiveTarget $(TARGET) ;
 
-	SubInclude LUAPLUS Src LuaPlus StaticLib : LuaPlusStaticLib ;
+	SubInclude LUAPLUS Src LuaPlus : LuaPlusStaticLib ;
 
 	C.IncludeDirectories $(TARGET) : $(LUAPLUS)/Src/LuaPlus/src ;
 	C.LinkLibraries $(TARGET) : LuaPlusStatic ;
