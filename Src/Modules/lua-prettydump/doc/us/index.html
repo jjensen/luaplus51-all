@@ -40,7 +40,9 @@
 
 <p><em>prettydump</em> is a Lua module for pretty printing Lua values, especially tables.  All data types are handled, though some write themselves out as comments (such as functions, userdata, and threads).</p>
 
-<p>It is derived from former LuaPlus versions that had built-in pretty printing support.  Depending on setup, the <em>prettydump</em> goes to great lengths to not modify any of the internal Lua state.</p>
+<p><em>prettydump</em> is derived from former LuaPlus versions that had built-in pretty printing support.  In the LuaPlus nextgen branch, that pretty printing support has been largely removed.</p>
+
+<p>Depending on setup (whether LuaPlus is the driving engine), the <em>prettydump</em> module goes to great lengths to not modify any of the internal Lua state.</p>
 
 
 <h2>Example</h2>
@@ -65,15 +67,17 @@
 
 <h2>Module <code>prettydump</code></h2>
 
-<p><strong>result = prettydump.dumpascii(whereToWrite, key, value, alphabetical, indentLevel, maxIndentLevel, writeAll</strong></p>
+<p><strong>result = prettydump.dumpascii(whereToWrite, key, value, alphabetical, indentLevel, maxIndentLevel, writeAll)</strong></p>
 
-<p>whereToWrite - The name of the file to write to disk or the string <code>":string"</code> to return the pretty printed value dump as a string.
-key - The key name of the initial Lua table to write to disk.  This is usually a string, but it could be a number, too.  If the key is <code>nil</code>, no key is written.
-value - The value to write.
-alphabetical - If <code>true</code>, each table's keys are sorted.  (Optional: Defaults to true.)
-indentLevel - The number of tabs to indent each line.  (Optional: Defaults to 0.)
-maxIndentLevel - The maximum number of nested tables allowed in the write.  If this value is exceeded, then no carriage returns are inserted.  (Optional: Defaults to 0xFFFFFFFF.)
-writeAll - If true, writes all Lua objects out, including function and user data information. (Optional: Defaults to false.)</p>
+<ul>
+    <li><code>whereToWrite</code> - The name of the file to write to disk or the string <code>":string"</code> to return the pretty printed value dump as a string.</li>
+    <li><code>key</code> - The key name of the initial Lua table to write to disk.  This is usually a string, but it could be a number, too.  If the key is <code>nil</code>, no key is written.</li>
+    <li><code>value</code> - The value to write.</li>
+    <li><code>alphabetical</code> - If <code>true</code>, each table's keys are sorted.  (Optional: Defaults to true.)</li>
+    <li><code>indentLevel</code> - The number of tabs to indent each line.  (Optional: Defaults to 0.)</li>
+    <li><code>maxIndentLevel</code> - The maximum number of nested tables allowed in the write.  If this value is exceeded, then no carriage returns are inserted.  (Optional: Defaults to 0xFFFFFFFF.)</li>
+    <li><code>writeAll</code> - If true, writes all Lua objects out, including function and user data information. (Optional: Defaults to false.)</li>
+</ul>
 
 
 <p><strong>result = prettydump.format(formatstring, ...)</strong></p>

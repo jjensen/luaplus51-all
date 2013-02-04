@@ -230,6 +230,12 @@ int str_format_helper (luaL_Buffer *b, lua_State *L, int arg) {
 
 #define bufflen(B)	((B)->p - (B)->buffer)
 
+enum DumpObjectTypes {
+	DUMP_ALPHABETICAL		= 0x00000001,
+	DUMP_WRITEALL			= 0x00000002,
+	DUMP_WRITETABLEPOINTERS = 0x00000004,
+};
+
 static int LS_LuaFilePrint(LuaState* state) {
 	LuaStateOutFile* file = (LuaStateOutFile*)state->Stack(1).GetUserdata();
 
@@ -257,7 +263,7 @@ static int LS_LuaFileIndent(LuaState* state) {
 }
 
 
-bool LuaState::CallFormatting(LuaObject& tableObj, LuaStateOutFile& file, int indentLevel,
+static bool CallFormatting(LuaObject& tableObj, LuaStateOutFile& file, int indentLevel,
 		bool writeAll, bool alphabetical, bool writeTablePointers, unsigned int maxIndentLevel) {
 	LuaObject metatableObj = tableObj.GetMetatable();
 	if (metatableObj.IsNil())
@@ -514,7 +520,7 @@ private:
 /**
 	Writes a Lua object to a text file.
 **/
-bool LuaState::DumpObject(LuaStateOutFile& file, LuaObject& key, LuaObject& value,
+static bool DumpObject(LuaState* state, LuaStateOutFile& file, LuaObject& key, LuaObject& value,
 						 unsigned int flags, int indentLevel, unsigned int maxIndentLevel)
 {
 	bool alreadyDumpedKey = (flags & 0xF0000000) != 0;
@@ -563,8 +569,8 @@ bool LuaState::DumpObject(LuaStateOutFile& file, LuaObject& key, LuaObject& valu
 			else if (value.IsFunction())
 			{
 				lua_Debug ar;
-				value.Push(this);
-				lua_getinfo(*this, ">S", &ar);
+				value.Push(state);
+				lua_getinfo(*state, ">S", &ar);
 //				printf("%d\n", ar.linedefined);
 				file.Print("-- ");
 				if (!key.IsNil())
@@ -676,8 +682,8 @@ bool LuaState::DumpObject(LuaStateOutFile& file, LuaObject& key, LuaObject& valu
 						}
 
 						// Write the object as an unnamed entry.
-						LuaObject nilObj(this);
-						DumpObject(file, nilObj, value, flags, indentLevel + 1, maxIndentLevel);
+						LuaObject nilObj(state);
+						DumpObject(state, file, nilObj, value, flags, indentLevel + 1, maxIndentLevel);
 
 						// We've definitely passed the head item now.
 						headSequential = false;
@@ -753,7 +759,7 @@ bool LuaState::DumpObject(LuaStateOutFile& file, LuaObject& key, LuaObject& valu
 					KeyValue& info = keys.GetNext(keysIt);
 
 					// Write the table entry.
-					bool ret = DumpObject(file, info.key, info.value, flags,
+					bool ret = DumpObject(state, file, info.key, info.value, flags,
 							indentLevel + 1, maxIndentLevel);
 
 					// Add a comma after the table entry.
@@ -815,7 +821,7 @@ bool LuaState::DumpObject(LuaStateOutFile& file, LuaObject& key, LuaObject& valu
 					}
 
 					// Write the table entry.
-					bool ret = DumpObject(file, key, it.GetValue(), flags,
+					bool ret = DumpObject(state, file, key, it.GetValue(), flags,
 						indentLevel + 1, maxIndentLevel);
 
 					// Add a comma after the table entry.
@@ -880,7 +886,7 @@ bool LuaState::DumpObject(LuaStateOutFile& file, LuaObject& key, LuaObject& valu
 /**
 	Writes a Lua object to a text file.
 **/
-bool LuaState::DumpObject(LuaStateOutFile& file, const char* name, LuaObject& value,
+static bool DumpObject(LuaState* state, LuaStateOutFile& file, const char* name, LuaObject& value,
 						 unsigned int flags, int indentLevel, unsigned int maxIndentLevel)
 {
 	// Yes, this is hack-ish.
@@ -907,8 +913,8 @@ bool LuaState::DumpObject(LuaStateOutFile& file, const char* name, LuaObject& va
 			else if (value.IsFunction())
 			{
 				lua_Debug ar;
-				value.Push(this);
-				lua_getinfo(*this, ">S", &ar);
+				value.Push(state);
+				lua_getinfo(*state, ">S", &ar);
 //				printf("%d\n", ar.linedefined);
 				file.Print("-- %s", name);
 				file.Print(" = '!!!FUNCTION!!! %s %d'\n", ar.source, ar.linedefined);
@@ -936,17 +942,20 @@ bool LuaState::DumpObject(LuaStateOutFile& file, const char* name, LuaObject& va
 		file.Print("%s = ", name);
 	}
 
-	LuaObject key(this);
-	bool ret = DumpObject(file, key, value, flags | 0xF0000000, indentLevel, maxIndentLevel);
+	LuaObject key(state);
+	bool ret = DumpObject(state, file, key, value, flags | 0xF0000000, indentLevel, maxIndentLevel);
 	file.Print("\n");
 	return ret;
 }
 
 
+static bool DumpObject(LuaState* state, const char* filename, const char* name, LuaObject& value,
+						 unsigned int flags, int indentLevel, unsigned int maxIndentLevel);
+
+
 /**
-	Save the complete script state.
 **/
-bool LuaState::DumpObject(const char* filename, LuaObject& key, LuaObject& value,
+static bool DumpObject(LuaState* state, const char* filename, LuaObject& key, LuaObject& value,
 						 unsigned int flags, int indentLevel, unsigned int maxIndentLevel)
 {
 	if (!key.IsString())
@@ -958,19 +967,18 @@ bool LuaState::DumpObject(const char* filename, LuaObject& key, LuaObject& value
 		if (!file->Open(filename))
 			return false;
 
-		return DumpObject(*file, key, value, flags, indentLevel, maxIndentLevel);
+		return DumpObject(state, *file, key, value, flags, indentLevel, maxIndentLevel);
 	}
 	else
 	{
-		return DumpObject(filename, key.GetString(), value, flags, indentLevel, maxIndentLevel);
+		return DumpObject(state, filename, key.GetString(), value, flags, indentLevel, maxIndentLevel);
 	}
 }
 
 
 /**
-	Save the complete script state.
 **/
-bool LuaState::DumpObject(const char* filename, const char* name, LuaObject& value,
+static bool DumpObject(LuaState* state, const char* filename, const char* name, LuaObject& value,
 						 unsigned int flags, int indentLevel, unsigned int maxIndentLevel)
 {
 	// Open the text file to write the script state to.
@@ -1001,8 +1009,8 @@ bool LuaState::DumpObject(const char* filename, const char* name, LuaObject& val
 			else if (value.IsFunction())
 			{
 				lua_Debug ar;
-				value.Push(this);
-				lua_getinfo(*this, ">S", &ar);
+				value.Push(state);
+				lua_getinfo(*state, ">S", &ar);
 //				printf("%d\n", ar.linedefined);
 				file->Print("-- %s", name);
 				file->Print(" = '!!!FUNCTION!!! %s %d'\n", ar.source, ar.linedefined);
@@ -1033,8 +1041,8 @@ bool LuaState::DumpObject(const char* filename, const char* name, LuaObject& val
 		file->Print("%s = ", name);
 	}
 
-	LuaObject key(this);
-	bool ret = DumpObject(*file, key, value, flags | 0xF0000000, indentLevel, maxIndentLevel);
+	LuaObject key(state);
+	bool ret = DumpObject(state, *file, key, value, flags | 0xF0000000, indentLevel, maxIndentLevel);
 	file->Print("\n");
 	return ret;
 }
@@ -1061,7 +1069,7 @@ LUA_EXTERN_C void luaplus_dumptable(lua_State* L, int index)
 	LuaPlus::LuaState* state = lua_State_to_LuaState(L);
 	LuaPlus::LuaObject valueObj(state, index);
 	LuaPlus::LuaStateOutString stringFile;
-	state->DumpObject(stringFile, NULL, valueObj, LuaPlus::LuaState::DUMP_ALPHABETICAL | LuaPlus::LuaState::DUMP_WRITEALL, 0, -1);
+	state->DumpObject(stringFile, NULL, valueObj, DUMP_ALPHABETICAL | DUMP_WRITEALL, 0, -1);
 	state->PushString(stringFile.GetBuffer());
 }
 
@@ -1079,7 +1087,7 @@ extern "C" int luaplus_ls_LuaDumpObject( lua_State* L )
 		LuaPlus::LuaObject valueObj(fileObj);
 		LuaPlus::LuaObject nameObj;
 		LuaPlus::LuaStateOutString stringFile;
-		state->DumpObject(stringFile, NULL, valueObj, LuaPlus::LuaState::DUMP_ALPHABETICAL, 0, -1);
+		state->DumpObject(stringFile, NULL, valueObj, DUMP_ALPHABETICAL, 0, -1);
 		state->PushString(stringFile.GetBuffer());
 		return 1;
 	}
@@ -1105,7 +1113,7 @@ extern "C" int luaplus_ls_LuaDumpObject( lua_State* L )
 	bool alphabetical = alphabeticalObj.IsBoolean() ? alphabeticalObj.GetBoolean() : true;
 	unsigned int maxIndentLevel = maxIndentLevelObj.IsInteger() ? (unsigned int)maxIndentLevelObj.GetInteger() : 0xFFFFFFFF;
 
-	unsigned int flags = (alphabetical ? LuaPlus::LuaState::DUMP_ALPHABETICAL : 0) | (writeAll ? LuaPlus::LuaState::DUMP_WRITEALL : 0);
+	unsigned int flags = (alphabetical ? DUMP_ALPHABETICAL : 0) | (writeAll ? DUMP_WRITEALL : 0);
 
 	if (fileName)
 	{
