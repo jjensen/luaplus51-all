@@ -268,7 +268,11 @@ void LuaHostWindows::Detail::Poll()
 	timeval timeout;
 	timeout.tv_sec = 0;
 	timeout.tv_usec = 0;
+#if defined(WIN32)
 	int count = select(0, &readfds, NULL, NULL, &timeout);
+#else
+	int count = select(m_serverSocket > m_debuggerSocket ? m_serverSocket + 1 : m_debuggerSocket + 1, &readfds, NULL, NULL, &timeout);
+#endif
 
 	if(count == SOCKET_ERROR)
 		error("select() failed (error %d)", SocketError);
