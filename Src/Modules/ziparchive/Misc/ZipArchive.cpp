@@ -1797,18 +1797,11 @@ uint64_t ZipArchive::FileWrite(ZipEntryFileHandle& fileHandle, const void* buffe
 
     ZipEntryInfo* fileEntry = GetFileEntry(fileHandle.detail->fileEntryIndex);
 
-#if ZIPARCHIVE_ENCRYPTION
-	if (this->defaultPassword.Length() == 0)
+	fileEntry->m_crc = crc32(fileEntry->m_crc, (uint8_t*)buffer, (uInt)count);
+	if (m_flags & SUPPORT_MD5)
 	{
-#endif // ZIPARCHIVE_ENCRYPTION
-		fileEntry->m_crc = crc32(fileEntry->m_crc, (uint8_t*)buffer, (uInt)count);
-		if (m_flags & SUPPORT_MD5)
-		{
-			MD5Update(&fileHandle.detail->md5writecontext, (unsigned char*)buffer, (unsigned int)count);
-		}
-#if ZIPARCHIVE_ENCRYPTION
+		MD5Update(&fileHandle.detail->md5writecontext, (unsigned char*)buffer, (unsigned int)count);
 	}
-#endif
 
 	if (fileEntry->m_compressionMethod == UNCOMPRESSED)
 	{
