@@ -1091,6 +1091,7 @@ http_receive_response_entity(HTTP_CONNECTION *connection, HTTP_RESPONSE *respons
 	char* boundary = NULL;
 	int multipart_content_read_count = 0, multipart_content_size = 0;
 	HTTP_RESPONSE *multipart_response = NULL;
+	int connection_close_requested;
 	if(connection == NULL || response == NULL)
 	{
 		return HT_INVALID_ARGUMENT;
@@ -1099,6 +1100,7 @@ http_receive_response_entity(HTTP_CONNECTION *connection, HTTP_RESPONSE *respons
 	{
 		return connection->status;
 	}
+	connection_close_requested = http_has_header_field(response, "Connection", "Close");
 	if(response->status_code != 204 && response->status_code != 205 && response->status_code != 304 && response->status_code > 199)
 	{
 		content_size = http_find_header_field_number(response, "Content-Length", LONG_MIN);
@@ -1154,7 +1156,7 @@ http_receive_response_entity(HTTP_CONNECTION *connection, HTTP_RESPONSE *respons
 			}
 		}
 	}
-	if (!is_multipart  &&  content_size <= 0  &&  !is_chunked)
+	if (!is_multipart  &&  content_size <= 0  &&  !is_chunked  &&  !connection_close_requested)
 	{
 		stage = HTTP_THE_DEVIL_TAKES_IT; /* no content */
 	}
@@ -1335,8 +1337,14 @@ http_receive_response_entity(HTTP_CONNECTION *connection, HTTP_RESPONSE *respons
 				if (is_chunked)
 					content_size_to_read = min(content_size - content_read_count, content_size_to_read);
 			}
+			else if (content_size == LONG_MIN)
+			{
+				content_size_to_read = connection->read_count - connection->read_index;
+			}
 			else
+			{
 				content_size_to_read = min(content_size - content_read_count, connection->read_count - connection->read_index);
+			}
 			if(response->content != NULL)
 			{
 				http_storage_write(response->content, &connection->read_buffer[connection->read_index], content_size_to_read);
@@ -1357,7 +1365,7 @@ http_receive_response_entity(HTTP_CONNECTION *connection, HTTP_RESPONSE *respons
 	}
 	if(connection->persistent  &&  !connection->lazy)
 	{
-		if(http_has_header_field(response, "Connection", "Close"))
+		if(connection_close_requested)
 		{
 			http_request_reconnection(connection);
 		}
@@ -1367,7 +1375,9 @@ http_receive_response_entity(HTTP_CONNECTION *connection, HTTP_RESPONSE *respons
 		http_destroy_response(&multipart_response);
 	if (content_type)
 		_http_allocator(_http_allocator_user_data, content_type, 0);
-	if (connection->read_count < 0)
+	if (connection_close_requested  &&  connection->read_count < 0  &&  connection->read_count != IO_CLOSED)
+		return HT_NETWORK_ERROR;
+	if (!connection_close_requested  &&  connection->read_count < 0)
 		return HT_NETWORK_ERROR;
 	return HT_OK;
 }

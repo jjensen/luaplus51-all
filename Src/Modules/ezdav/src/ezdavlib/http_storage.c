@@ -219,7 +219,7 @@ http_create_file_storage(HTTP_FILE_STORAGE **storage, const char *filename, cons
 	if(new_storage->file == NULL)
 	{
 		http_destroy_file_storage(new_storage);
-		return HT_MEMORY_ERROR;
+		return HT_IO_ERROR;
 	}
 	setvbuf(new_storage->file, NULL, _IOFBF, 64 * 1024);
 
@@ -335,7 +335,7 @@ int http_create_offset_file_storage(HTTP_OFFSET_FILE_STORAGE **storage, const ch
 	if(new_storage->file == NULL)
 	{
 		http_destroy_offset_file_storage(new_storage);
-		return HT_MEMORY_ERROR;
+		return HT_IO_ERROR;
 	}
 	setvbuf(new_storage->file, NULL, _IOFBF, 64 * 1024);
 
