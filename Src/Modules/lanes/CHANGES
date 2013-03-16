@@ -1,5 +1,65 @@
 CHANGES:
 
+CHANGE 61: BGe 14-Mar-13
+   * version 3.6.0
+   * protect_allocator is an API change -> version bump
+   * bugfix: allocator protection should be done once per primary Lua state, not once only the first time ever Lanes is required
+
+CHANGE 60: BGe 13-Mar-13
+   * version 3.5.2
+   * stricter validation of with_timers config option: validator was accepting any non-boolean value
+   * new configuration option protect_allocator for VMs with thread unsafe allocators (such as LuaJIT)
+   * removed some obsolete bits of dead code
+
+CHANGE 59: BGe 12-Feb-13
+   * version 3.5.1
+   * new lanes.h header and API call luaopen_lanes_embedded() for embedders
+   * "lanes.core" is an acceptable library in the generator libs argument
+   * library "*" wildcard also opens lanes.core
+   * tweaked code for Xbox 360 build
+
+CHANGE 58: BGe 30-Jan-13
+   * version 3.5.0
+   * new: API lanes.require(), use it instead of regular require() for modules that export C functions you need to send over.
+   * new: lanes no longer require 'lanes.core' by default in every created state. Use {required={"lanes.core"}} if you need to transfer lanes functions.
+   * internal: because of the above, reworked the timer implementation to remove upvalue-dependency on lanes.core
+   * new: API lanes.timer_lane, to be able to operate on timer lane if need be
+   * improved: if a module is a full userdata, scan its metatable for function database population
+   * improved: on_state_create can be a Lua function
+   * changed: on_state_create is called after the base libraries are loaded
+   * package[loaders|searchers] is no longer transfered as function naming depends on slot order
+   * internal: changed separator from '.' to '/' in lookup databases to be able to distinguish search levels and dot coming from module names
+   * added some mode debug spew
+   * updated tests to reflect the above changes
+
+CHANGE 57: BGe 28-Jan-13
+   * More detailed DEBUG_SPEW logs
+   * A bit of code cosmetics
+
+CHANGE 56: BGe 25-Jan-13
+   * version 3.4.4
+   * bugfix: take into account the fact that "coroutine" is no longer part of base library in Lua 5.2
+   * bugfix: if "bit32" was listed in the libraries, it wouldn't open (library list parsing failing on digits)
+   * bugfix: Use luaL_requiref() to open standard libraries in Lua 5.2 as we should
+   * bugfix: any Lua state created by Lanes reuses the allocator function of the originating state
+   * bugfix: don't call on_state_create() while GC is suspended during lua state initialization
+
+CHANGE 55: BGe 24-Jan-13
+   * version 3.4.3
+   * raise an error if lane generator libs specification contains a lib more than once
+   * bit32 is a valid lib name in the libs specification (silently ignored by the Lua 5.1 build)
+   * improved lanes.nameof to search inside table- and userdata- metatables for an object's name
+   * bugfix: fixed an unwarranted error when trying to discover a function name upon a failed transfer
+   * contents of package.[path,cpath,preload,loaders|searchers] are pulled *only once* inside keeper states at initialisation
+   * Lua function upvalues equal to the global environment aren't copied by value, but bound to the destination's global environment
+     especially useful for Lua 5.2 _ENV
+   * bugfix: fixed loading of base libraries that didn't create the global tables when built for Lua 5.2
+
+CHANGE 54: BGe 10-Jan-13
+   * version 3.4.2
+   * Don't pull "package" settings in the timer lane
+   * removed a limitation preventing Lua functions with indirect recursive upvalue references from being transferable
+
 CHANGE 53: BGe 11-Dec-2012
    * version 3.4.1
    * new function lanes.timers(), returns a list of all active timers.
@@ -87,7 +147,7 @@ CHANGE 35 BGe 17-Feb-2012
 
 CHANGE 34 BGe 14-Nov-2011
    * removed packagepath and packagecpath options, replaced by a package table, whose fields path, cpath, loaders, preload are transfered
-   * code cleanup to facilitate transition between WIN32 and PTHREAD impleentations
+   * code cleanup to facilitate transition between WIN32 and PTHREAD implementations
    * tentative fix for desinit crashes when free running lanes are killed at process shutdown
 
 CHANGE 33 BGe 5-Nov-2011: Lanes version 3.0-beta
@@ -182,7 +242,7 @@ CHANGE 19 BGe 2-Dec-2010:
 
 CHANGE 18 BGe 6-Oct-2010:
     Fixed 'memory leak' in some situations where a free running lane is collected before application shutdown
-	A bit of code cleanup
+    A bit of code cleanup
 
 CHANGE 17 BGe 21-Sept-2010:
     Fixed stupid compilation errors.

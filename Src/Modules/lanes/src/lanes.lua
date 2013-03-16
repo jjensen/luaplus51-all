@@ -52,7 +52,7 @@ lanes.configure = function( _params)
 	end
 
 	-- 
-	-- Cache globals for code that might run under sandboxing 
+	-- Cache globals for code that might run under sandboxing
 	--
 	local assert = assert
 	local string_gmatch = assert( string.gmatch)
@@ -62,7 +62,7 @@ lanes.configure = function( _params)
 	local tostring = assert( tostring)
 	local error = assert( error)
 
-	local default_params = { nb_keepers = 1, on_state_create = nil, shutdown_timeout = 0.25, with_timers = true, track_lanes = nil}
+	local default_params = { nb_keepers = 1, on_state_create = nil, shutdown_timeout = 0.25, with_timers = true, track_lanes = nil, protect_allocator = false}
 	local param_checkers =
 	{
 		nb_keepers = function( _val)
@@ -71,14 +71,26 @@ lanes.configure = function( _params)
 		end,
 		with_timers = function( _val)
 			-- with_timers may be nil or boolean
-			return _val and type( _val) == "boolean" or true
+			if _val then
+				return type( _val) == "boolean"
+			else
+				return true -- _val is either false or nil
+			end
+		end,
+		protect_allocator = function( _val)
+			-- protect_allocator may be nil or boolean
+			if _val then
+				return type( _val) == "boolean"
+			else
+				return true -- _val is either false or nil
+			end
 		end,
 		on_state_create = function( _val)
 			-- on_state_create may be nil or a function
 			return _val and type( _val) == "function" or true
 		end,
 		shutdown_timeout = function( _val)
-			-- nb_keepers should be a number >= 0
+			-- shutdown_timeout should be a number >= 0
 			return type( _val) == "number" and _val >= 0
 		end,
 		track_lanes = function( _val)
@@ -117,14 +129,11 @@ lanes.configure = function( _params)
 	assert( type( core)=="table")
 
 	-- configure() is available only the first time lanes.core is required process-wide, and we *must* call it to have the other functions in the interface
-	if core.configure then core.configure( _params.nb_keepers, _params.on_state_create, _params.shutdown_timeout, _params.track_lanes) end
+	if core.configure then core.configure( _params.nb_keepers, _params.on_state_create, _params.shutdown_timeout, _params.track_lanes, _params.protect_allocator) end
 
 	local thread_new = assert( core.thread_new)
 
 	local set_singlethreaded = assert( core.set_singlethreaded)
-
-	local now_secs = assert( core.now_secs)
-	local wakeup_conv = assert( core.wakeup_conv)
 
 	local max_prio = assert( core.max_prio)
 
@@ -202,18 +211,20 @@ end
 -- and call the generator later (maybe multiple times, with different parameters) 
 -- or add on actual thread arguments to also ignite the thread on the same call.
 
-local valid_libs= {
-    ["package"]= true,
-    ["table"]= true,
-    ["io"]= true,
-    ["os"]= true,
-    ["string"]= true,
-    ["math"]= true,
-    ["debug"]= true,
-    --
-    ["base"]= true,
-    ["coroutine"]= true,
-    ["*"]= true
+local valid_libs=
+{
+	["package"] = true,
+	["table"] = true,
+	["io"] = true,
+	["os"] = true,
+	["string"] = true,
+	["math"] = true,
+	["debug"] = true,
+	["bit32"] = true, -- Lua 5.2 only, ignored silently under 5.1
+	--
+	["base"] = true,
+	["coroutine"] = true, -- part of "base" in Lua 5.1
+	["lanes.core"] = true
 }
 
 -- PUBLIC LANES API
@@ -251,11 +262,19 @@ local function gen( ... )
 
     -- Check 'libs' already here, so the error goes in the right place
     -- (otherwise will be noticed only once the generator is called)
+    -- "*" is a special case that doesn't require individual checking
     --
-    if libs then
-        for s in string_gmatch(libs, "[%a*]+") do
+    if libs and libs ~= "*" then
+        local found = {}
+        -- check that the caller only provides reserved library names
+        for s in string_gmatch(libs, "[%a%d.]+") do
             if not valid_libs[s] then
-                error( "Bad library name: "..s )
+                error( "Bad library name: " .. s)
+            else
+                found[s] = (found[s] or 0) + 1
+                if found[s] > 1 then
+                    error( "libs specification contains '" .. s .. "' more than once")
+                end
             end
         end
     end
@@ -273,7 +292,7 @@ local function gen( ... )
         elseif k=="package" then
             package_tbl = (type( v) == "table") and v or error( "Bad package: " .. tostring( v), lev)
         elseif k=="required" then
-            required= (type( v) == "table") and v or error( "Bad required: " .. tostring( v), lev)
+            required= (type( v) == "table") and v or error( "Bad 'required' option: expecting table, got " .. type( v), lev)
         --..
         elseif k==1 then error( "unkeyed option: ".. tostring(v), lev )
         else error( "Bad option: ".. tostring(k), lev )
@@ -303,6 +322,7 @@ local linda = core.linda
 
 -- PUBLIC LANES API
 local timer = function() error "timers are not active" end
+local timer_lane = nil
 local timers = timer
 
 if _params.with_timers ~= false then
@@ -330,158 +350,161 @@ timer_gateway:set(first_time_key,true)
 -- has 'table' always declared)
 --
 if first_time then
-    local table_remove= assert( table.remove )
-    local table_insert= assert( table.insert )
 
-    --
-    -- { [deep_linda_lightuserdata]= { [deep_linda_lightuserdata]=linda_h, 
-    --                                 [key]= { wakeup_secs [,period_secs] } [, ...] },
-    -- }
-    --
-    -- Collection of all running timers, indexed with linda's & key.
-    --
-    -- Note that we need to use the deep lightuserdata identifiers, instead
-    -- of 'linda_h' themselves as table indices. Otherwise, we'd get multiple
-    -- entries for the same timer.
-    --
-    -- The 'hidden' reference to Linda proxy is used in 'check_timers()' but
-    -- also important to keep the Linda alive, even if all outside world threw
-    -- away pointers to it (which would ruin uniqueness of the deep pointer).
-    -- Now we're safe.
-    --
-    local collection= {}
-
-    local function get_timers()
-        local r = {}
-        for deep, t in pairs( collection) do
-            -- WR( tostring( deep))
-            local l = t[deep]
-            for key, timer_data in pairs( t) do
-                if key ~= deep then
-                    table_insert( r, {l, key, timer_data})
-                end
-            end
-        end
-        return r
-    end
-    --
-    -- set_timer( linda_h, key [,wakeup_at_secs [,period_secs]] )
-    --
-    local function set_timer( linda, key, wakeup_at, period )
-        assert( wakeup_at==nil or wakeup_at>0.0 )
-        assert( period==nil or period>0.0 )
-
-        local linda_deep= linda:deep()
-        assert( linda_deep )
-
-        -- Find or make a lookup for this timer
-        --
-        local t1= collection[linda_deep]
-        if not t1 then
-            t1= { [linda_deep]= linda }     -- proxy to use the Linda
-            collection[linda_deep]= t1
-        end
-    
-        if wakeup_at==nil then
-            -- Clear the timer
-            --
-            t1[key]= nil
-
-            -- Remove empty tables from collection; speeds timer checks and
-            -- lets our 'safety reference' proxy be gc:ed as well.
-            --
-            local empty= true
-            for k,_ in pairs(t1) do
-                if k~= linda_deep then
-                    empty= false; break
-                end
-            end
-            if empty then
-                collection[linda_deep]= nil
-            end
-            
-            -- Note: any unread timer value is left at 'linda[key]' intensionally;
-            --       clearing a timer just stops it.
-        else
-            -- New timer or changing the timings
-            --
-            local t2= t1[key]
-            if not t2 then
-                t2= {}; t1[key]= t2
-            end
-    
-            t2[1]= wakeup_at
-            t2[2]= period   -- can be 'nil'
-        end
-    end
-
-    -----
-    -- [next_wakeup_at]= check_timers()
-    --
-    -- Check timers, and wake up the ones expired (if any)
-    --
-    -- Returns the closest upcoming (remaining) wakeup time (or 'nil' if none).
-    --
-    local function check_timers()
-
-        local now= now_secs()
-        local next_wakeup
-
-        for linda_deep,t1 in pairs(collection) do
-            for key,t2 in pairs(t1) do
-                --
-                if key==linda_deep then
-                    -- no 'continue' in Lua :/
-                else
-                    -- 't2': { wakeup_at_secs [,period_secs] }
-                    --
-                    local wakeup_at= t2[1]
-                    local period= t2[2]     -- may be 'nil'
-                    
-                    if wakeup_at <= now then    
-                        local linda= t1[linda_deep]
-                        assert(linda)
-    
-                        linda:set( key, now )
-        
-                        -- 'pairs()' allows the values to be modified (and even
-                        -- removed) as far as keys are not touched
-                                                
-                        if not period then
-                            -- one-time timer; gone
-                            --
-                            t1[key]= nil
-                            wakeup_at= nil   -- no 'continue' in Lua :/
-                        else
-                            -- repeating timer; find next wakeup (may jump multiple repeats)
-                            --
-                            repeat
-                                wakeup_at= wakeup_at+period
-                            until wakeup_at > now
-    
-                            t2[1]= wakeup_at
-                        end
-                    end
-                    
-                    if wakeup_at and ((not next_wakeup) or (wakeup_at < next_wakeup)) then
-                        next_wakeup= wakeup_at
-                    end 
-                end
-            end -- t2 loop
-        end -- t1 loop
-        
-        return next_wakeup  -- may be 'nil'
-    end    
-
-    -----
-    -- Snore loop (run as a lane on the background)
-    --
-    -- High priority, to get trustworthy timings.
-    --
-    -- We let the timer lane be a "free running" thread; no handle to it
-    -- remains.
-    --
+	-----
+	-- Snore loop (run as a lane on the background)
+	--
+	-- High priority, to get trustworthy timings.
+	--
+	-- We let the timer lane be a "free running" thread; no handle to it
+	-- remains.
+	--
 	local timer_body = function()
+		-- require lanes.core inside the timer body to prevent pulling now_secs() through an uvpvalue
+		local core = require "lanes.core"
+
+		--
+		-- { [deep_linda_lightuserdata]= { [deep_linda_lightuserdata]=linda_h, 
+		--                                 [key]= { wakeup_secs [,period_secs] } [, ...] },
+		-- }
+		--
+		-- Collection of all running timers, indexed with linda's & key.
+		--
+		-- Note that we need to use the deep lightuserdata identifiers, instead
+		-- of 'linda_h' themselves as table indices. Otherwise, we'd get multiple
+		-- entries for the same timer.
+		--
+		-- The 'hidden' reference to Linda proxy is used in 'check_timers()' but
+		-- also important to keep the Linda alive, even if all outside world threw
+		-- away pointers to it (which would ruin uniqueness of the deep pointer).
+		-- Now we're safe.
+		--
+		local collection = {}
+		local table_insert = assert( table.insert)
+
+		local get_timers = function()
+			local r = {}
+			for deep, t in pairs( collection) do
+				-- WR( tostring( deep))
+				local l = t[deep]
+				for key, timer_data in pairs( t) do
+					if key ~= deep then
+						table_insert( r, {l, key, timer_data})
+					end
+				end
+			end
+			return r
+		end -- get_timers()
+
+		--
+		-- set_timer( linda_h, key [,wakeup_at_secs [,period_secs]] )
+		--
+		local set_timer = function( linda, key, wakeup_at, period)
+			assert( wakeup_at == nil or wakeup_at > 0.0)
+			assert( period == nil or period > 0.0)
+
+			local linda_deep = linda:deep()
+			assert( linda_deep)
+
+			-- Find or make a lookup for this timer
+			--
+			local t1 = collection[linda_deep]
+			if not t1 then
+				t1 = { [linda_deep] = linda}     -- proxy to use the Linda
+				collection[linda_deep] = t1
+			end
+		
+			if wakeup_at == nil then
+				-- Clear the timer
+				--
+				t1[key]= nil
+
+				-- Remove empty tables from collection; speeds timer checks and
+				-- lets our 'safety reference' proxy be gc:ed as well.
+				--
+				local empty = true
+				for k, _ in pairs( t1) do
+					if k ~= linda_deep then
+						empty = false
+						break
+					end
+				end
+				if empty then
+					collection[linda_deep] = nil
+				end
+
+				-- Note: any unread timer value is left at 'linda[key]' intensionally;
+				--       clearing a timer just stops it.
+			else
+				-- New timer or changing the timings
+				--
+				local t2 = t1[key]
+				if not t2 then
+					t2= {}
+					t1[key]= t2
+				end
+		
+				t2[1] = wakeup_at
+				t2[2] = period   -- can be 'nil'
+			end
+		end -- set_timer()
+
+		local now_secs = core.now_secs
+		assert( type( now_secs) == "function")
+		-----
+		-- [next_wakeup_at]= check_timers()
+		-- Check timers, and wake up the ones expired (if any)
+		-- Returns the closest upcoming (remaining) wakeup time (or 'nil' if none).
+		local check_timers = function()
+			local now = now_secs()
+			local next_wakeup
+
+			for linda_deep,t1 in pairs(collection) do
+				for key,t2 in pairs(t1) do
+					--
+					if key==linda_deep then
+						-- no 'continue' in Lua :/
+					else
+						-- 't2': { wakeup_at_secs [,period_secs] }
+						--
+						local wakeup_at= t2[1]
+						local period= t2[2]     -- may be 'nil'
+
+						if wakeup_at <= now then    
+							local linda= t1[linda_deep]
+							assert(linda)
+		
+							linda:set( key, now )
+				
+							-- 'pairs()' allows the values to be modified (and even
+							-- removed) as far as keys are not touched
+
+							if not period then
+								-- one-time timer; gone
+								--
+								t1[key]= nil
+								wakeup_at= nil   -- no 'continue' in Lua :/
+							else
+								-- repeating timer; find next wakeup (may jump multiple repeats)
+								--
+								repeat
+										wakeup_at= wakeup_at+period
+								until wakeup_at > now
+
+								t2[1]= wakeup_at
+							end
+						end
+										
+						if wakeup_at and ((not next_wakeup) or (wakeup_at < next_wakeup)) then
+							next_wakeup= wakeup_at
+						end 
+					end
+				end -- t2 loop
+			end -- t1 loop
+
+			return next_wakeup  -- may be 'nil'
+		end -- check_timers()
+
 		local timer_gateway_batched = timer_gateway.batched
 		set_debug_threadname( "LanesTimer")
 		set_finalizer( function( err, stk)
@@ -494,7 +517,7 @@ if first_time then
 			end
 		end)
 		while true do
-			local next_wakeup= check_timers()
+			local next_wakeup = check_timers()
 
 			-- Sleep until next timer to wake up, or a set/clear command
 			--
@@ -520,9 +543,9 @@ if first_time then
 			--	WR( "timer lane: no linda, aborted?")
 			end
 		end
-	end
-	gen( "*", { priority=max_prio}, timer_body)() -- "*" instead of "io,package" for LuaJIT compatibility...
-end
+	end -- timer_body()
+	timer_lane = gen( "*", { package= {}, priority = max_prio}, timer_body)() -- "*" instead of "io,package" for LuaJIT compatibility...
+end -- first_time
 
 -----
 -- = timer( linda_h, key_val, date_tbl|first_secs [,period_secs] )
@@ -532,13 +555,13 @@ timer = function( linda, key, a, period )
     if getmetatable( linda) ~= "Linda" then
         error "expecting a Linda"
     end
-    if a==0.0 then
+    if a == 0.0 then
         -- Caller expects to get current time stamp in Linda, on return
         -- (like the timer had expired instantly); it would be good to set this
         -- as late as possible (to give most current time) but also we want it
         -- to precede any possible timers that might start striking.
         --
-        linda:set( key, now_secs() )
+        linda:set( key, core.now_secs())
 
         if not period or period==0.0 then
             timer_gateway:send( TGW_KEY, linda, key, nil, nil )   -- clear the timer
@@ -547,8 +570,8 @@ timer = function( linda, key, a, period )
         a= period
     end
 
-    local wakeup_at= type(a)=="table" and wakeup_conv(a)    -- given point of time
-                                       or (a and now_secs()+a or nil)
+    local wakeup_at= type(a)=="table" and core.wakeup_conv(a)    -- given point of time
+                                       or (a and core.now_secs()+a or nil)
     -- queue to timer
     --
     timer_gateway:send( TGW_KEY, linda, key, wakeup_at, period )
@@ -631,15 +654,17 @@ local function genatomic( linda, key, initial_val )
 end
 
 	-- activate full interface
+	lanes.require = core.require
 	lanes.gen = gen
 	lanes.linda = core.linda
 	lanes.cancel_error = core.cancel_error
 	lanes.nameof = core.nameof
 	lanes.threads = (_params.track_lanes and core.threads) and core.threads or function() error "lane tracking is not available" end
 	lanes.timer = timer
+	lanes.timer_lane = timer_lane
 	lanes.timers = timers
 	lanes.genlock = genlock
-	lanes.now_secs = now_secs
+	lanes.now_secs = core.now_secs
 	lanes.genatomic = genatomic
 	-- from now on, calling configure does nothing but checking that we don't call it with parameters that changed compared to the first invocation
 	lanes.configure = function( _params2)

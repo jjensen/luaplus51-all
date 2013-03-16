@@ -37,7 +37,8 @@
 		<p class="bar">
 			<a href="#description">Description</a> &middot;
 			<a href="#systems">Supported systems</a> &middot;
-			<a href="#installing">Building and Installing</a>
+			<a href="#installing">Building and Installing</a> &middot;
+			<a href="#embedding">Embedding</a>
 		</p>
 
 		<p class="bar">
@@ -63,13 +64,13 @@
 		<font size="-1">
 			<p>
 				<br>
-				<i>Copyright &copy; 2007-12 Asko Kauppi, Benoit Germain. All rights reserved.</i>
+				<i>Copyright &copy; 2007-13 Asko Kauppi, Benoit Germain. All rights reserved.</i>
 				<br>
 				Lua Lanes is published under the same <a href="http://en.wikipedia.org/wiki/MIT_License">MIT license</a> as Lua 5.1 and 5.2.
 			</p>
 
 			<p>
-				This document was revised on 17-Dec-12, and applies to version <tt>3.4.1</tt>.
+				This document was revised on 14-Mar-13, and applies to version <tt>3.6.0</tt>.
 			</p>
 		</font>
 	</center>
@@ -164,6 +165,65 @@
 </pre>
 
 
+<!-- embedding +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+<hr/>
+<h2 id="embedding">Embedding</h2>
+<p>
+	When Lanes is embedded, it is possible to statically initialize with
+</p>
+<table border=1 bgcolor="#E0E0FF" cellpadding="10" style="width:50%">
+	<tr>
+		<td>
+			<pre>	extern void LANES_API luaopen_lanes_embedded( lua_State* L, lua_CFunction _luaopen_lanes);</pre>
+		</td>
+	</tr>
+</table>
+<p>
+	<tt>luaopen_lanes_embedded</tt> leaves the module table on the stack. <tt>lanes.configure()</tt> must still be called in order to use Lanes.
+	<br/>
+	If <tt>_luaopen_lanes</tt> is <tt>NULL</tt>, a default loader will simply attempt the equivalent of <tt>luaL_dofile( L, "lanes.lua")</tt>.
+</p>
+
+<p>
+	To embed Lanes, compile source files in you application. In any Lua state were you want to use Lanes, initialize it as follows:
+</p>
+
+<p>
+	<table border="1" bgcolor="#FFFFE0" cellpadding="10" style="width:50%">
+	<tr>
+			<td>
+				<pre>	#include "lanes.h"</pre>
+				<br/>
+				<pre>	int load_lanes_lua( lua_State* L)</pre>
+				<pre>	{</pre>
+				<pre>		// retrieve lanes.lua from wherever it is stored and return the result of its execution</pre>
+				<pre>		// trivial example 1:</pre>
+				<pre>		luaL_dofile( L, "lanes.lua");</pre>
+				<br/>
+				<pre>		// trivial example 2:</pre>
+				<pre>		luaL_dostring( L, bin2c_lanes_lua);</pre>
+				<pre>	}</pre>
+				<br/>
+				<pre>	void embed_lanes( lua_State* L)</pre>
+				<pre>	{</pre>
+				<pre>		// we need base libraries for Lanes for work</pre>
+				<pre>		luaL_openlibs( L);</pre>
+				<pre>		...</pre>
+				<pre>		// will attempt luaL_dofile( L, "lanes.lua");</pre>
+				<pre>		luaopen_lanes_embedded( L, NULL);</pre>
+				<pre>		lua_pop( L, 1);</pre>
+				<pre>		// another example with a custom loader</pre>
+				<pre>		luaopen_lanes_embedded( L, load_lanes_lua);</pre>
+				<pre>		lua_pop( L, 1);</pre>
+				<br/>
+				<pre>		// a little test to make sure things work as expected</pre>
+				<pre>		luaL_dostring( L, "local lanes = require 'lanes'.configure{with_timers = false}; local l = lanes.linda()");</pre>
+				<pre>	}</pre>
+			</td>
+		</tr>
+	</table>
+</p>
+
 <!-- launching +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
 <hr/>
 
@@ -224,11 +284,24 @@
 				<code>.with_timers</code>
 			</td>
 			<td>
-				<tt>nil</tt>/<tt>false</tt>/anything
+				<tt>nil</tt>/<tt>false</tt>/<tt>true</tt>
 			</td>
 			<td>
-				If equal to <tt>false</tt>, Lanes doesn't start the timer service, and the associated API will be absent from the interface (see below).
-				Any other non-<tt>nil</tt> value starts the timer service. Default is <tt>true</tt>.
+				If equal to <tt>false</tt> or <tt>nil</tt>, Lanes doesn't start the timer service, and the associated API will be absent from the interface (see below).
+				Default is <tt>true</tt>.
+			</td>
+		</tr>
+
+		<tr valign=top>
+			<td>
+				<code>.protect_allocator</code>
+			</td>
+			<td>
+				<tt>nil</tt>/<tt>false</tt>/<tt>true</tt>
+			</td>
+			<td>
+				(Since v3.5.2) If equal to <tt>true</tt>, Lanes wraps all calls to the state's allocator function inside a mutex. Useful when running Lanes with LuaJIT, whose allocator is not threadsafe.
+				Default is <tt>nil</tt>.
 			</td>
 		</tr>
 
@@ -246,13 +319,20 @@
 
 		<tr valign=top>
 			<td>
-				<code>.on_create_state</code>
+				<code>.on_state_create</code>
 			</td>
 			<td>
-				C function/<tt>nil</tt>
+				function/<tt>nil</tt>
 			</td>
 			<td>
-				If provided, will be called in every created Lua state (keepers and lanes) right after it is created, and *before* any library is loaded. That way, all C functions it loads in the state can be added to the function lookup database. Default is <tt>nil</tt>.
+				If provided, will be called in every created Lua state (keepers and lanes) right after initializing the base libraries.
+				<br>
+				Typical usage is twofold:
+				<ul>
+					<li>Tweak <tt>package.loaders</tt></li>
+					<li>Load some additional C functions in the global space (of course only a C function will be able to do this).</li>
+				</ul>
+				That way, all changes in the state can be properly taken into account when building the function lookup database. Default is <tt>nil</tt>.
 			</td>
 		</tr>
 
@@ -269,6 +349,22 @@
 		</tr>
 	</table>
 </p>
+
+<p>
+	NEW (version 3.5.0)
+	<br>
+	Once Lanes is configured, one should register with Lanes the modules exporting functions that will be transferred either during lane generation or through <a href="#lindas">lindas</a>.
+	<br>
+	Use <tt>lanes.require()</tt> for this purpose. This will call the original <tt>require()</tt>, then add the result to the lookup databases.
+</p>
+
+<table border="1" bgcolor="#FFFFE0" cellpadding="10" style="width:50%">
+	<tr>
+		<td>
+			<pre>	local m = lanes.require "modname"</pre>
+		</td>
+	</tr>
+</table>
 
 <hr/>
 <h2 id="creation">Creation</h2>
@@ -415,7 +511,7 @@
 			</td>
 			<td/>
 			<td>
-				all standard libraries (including those specific to LuaJIT and not listed above)
+				All standard libraries (including those specific to LuaJIT and not listed above), as well as <tt>lanes.core</tt>. This must be used alone.
 			</td>
 		</tr>
 	</table>
@@ -468,6 +564,8 @@
 				These tables are built from the modules listed here. <tt>required</tt> must be a list of strings, each one being the name of a module to be required. Each module is required with <tt>require()</tt> before the lanes function is invoked.
 				So, from the required module's point of view, requiring it manually from inside the lane body or having it required this way doesn't change anything. From the lane body's point of view, the only difference is that a module not creating a global won't be accessible.
 				Therefore, a lane body will also have to require a module manually, but this won't do anything more (see Lua's <tt>require</tt> documentation).
+				<br>
+				ATTEMPTING TO TRANSFER A FUNCTION REGISTERED BY A MODULE NOT LISTED HERE WILL RAISE AN ERROR.
 			</td>
 		</tr>
 		<tr valign=top>
@@ -487,9 +585,13 @@
 			</td>
 			<td> table</td>
 			<td>
+				Introduced at version 3.0.
+				<br>
 				Specifying it when <code>libs_str</code> doesn't cause the <code>package</code> library to be loaded will generate an error.
 				<br>
 				If not specified, the created lane will receive the current values of <tt>package</tt>. Only <tt>path</tt>, <tt>cpath</tt>, <tt>preload</tt> and <tt>loaders</tt> (Lua 5.1)/<tt>searchers</tt> (Lua 5.2) are transfered.
+				<br>
+				IMPORTANT: The contents of whatever package table is actually provided to the lane won't be known to the keeper states: they will stick to whatever was found in the main state's package table when Lane was required.
 			</td>
 		</tr>
 	</table>
@@ -563,7 +665,7 @@
 			</td>
 			<td/>
 			<td>
-				running, not suspended on a Linda call.
+				running, not suspended on a <a href="#lindas">Linda</a> call.
 			</td>
 		</tr>
 		<tr>
@@ -573,7 +675,7 @@
 			</td>
 			<td/>
 			<td>
-				waiting at a Linda <tt>:receive()</tt> or <tt>:send()</tt>
+				waiting at a <a href="#lindas">Linda</a> <tt>:receive()</tt> or <tt>:send()</tt>
 			</td>
 		</tr>
 		<tr>
@@ -707,7 +809,7 @@
 </pre></td></tr></table>
 
 <p>
-	If you want to wait for multiple lanes to finish (any of a set of lanes), use a <a href="#lindas">Linda</a> object. Give each lane a specific id, and send that id over a Linda once that thread is done (as the last thing you do).
+	If you want to wait for multiple lanes to finish (any of a set of lanes), use a <a href="#lindas">Linda</a> object. Give each lane a specific id, and send that id over a <a href="#lindas">Linda</a> once that thread is done (as the last thing you do).
 </p>
 
 <table border=1 bgcolor="#FFFFE0" cellpadding="10" style="width:50%"><tr><td><pre>
@@ -736,7 +838,7 @@
 </p>
 
 <p>
-	If the lane is still running after the timeout expired and <tt>force_kill</tt> is <tt>true</tt>, the OS thread running the lane is forcefully killed. This means no GC, and should generally be the last resort.
+	If the lane is still running after the timeout expired and <tt>force_kill</tt> is <tt>true</tt>, the OS thread running the lane is forcefully killed. This means no GC, probable OS resource leaks (thread stack, locks, DLL notifications), and should generally be the last resort.
 </p>
 
 <p>
@@ -746,7 +848,7 @@
 <p>
 	Cancellation is tested <u>before</u> going to sleep in <tt>receive()</tt> or <tt>send()</tt> calls and after executing <tt>cancelstep</tt> Lua statements. Starting with version 3.0-beta, a pending <tt>receive()</tt>or <tt>send()</tt> call is awakened.
 	<br>
-	This means the execution of the lane will resume although the operation has not completed, to give the lane a chance to detect cancellation (even in the case the code waits on a linda with infinite timeout).
+	This means the execution of the lane will resume although the operation has not completed, to give the lane a chance to detect cancellation (even in the case the code waits on a <a href="#lindas">linda</a> with infinite timeout).
 	<br>
 	The code should be able to handle this situation appropriately if required (in other words, it should gracefully handle the fact that it didn't receive the expected values).
 	<br>
@@ -1097,6 +1199,9 @@ events to a common Linda, but... :).</font>
 <p>
 	<ul>
 		<li>Booleans, numbers, strings, light userdata, Lua functions and tables of such can always be passed.</li>
+			<ul>
+				<li>Versions 3.4.1 and earlier had an undocumented limitation: Lua functions with an indirect recursive Lua function upvalue raised an error when transfered. This limitation disappeared with version 3.4.2.</li>
+			</ul>
 		<li>
 			Cyclic tables and/or duplicate references are allowed and reproduced appropriately, but only <u>within the same transmission</u>.
 			<ul>
@@ -1116,12 +1221,17 @@ events to a common Linda, but... :).</font>
 			</ul>
 		</li>
 		<li>
+			Lua 5.2 functions may have a special <tt>_ENV</tt> upvalue if they perform 'global namespace' lookups. Unless special care is taken, this upvalue defaults to the table found at <tt>LUA_RIDX_GLOBALS</tt>.
+			Obviously, we don't want to transfer the whole global table along with each Lua function. Therefore, any upvalue equal to the global table is not transfered by value, but simply bound
+			to the global table in the destination state. Note that this also applies when Lanes is built for Lua 5.1, as it doesn't hurt.
+		</li>
+		<li>
 			Full userdata can be passed only if it's prepared using the <a href="#deep_userdata">deep userdata</a> system, which handles its lifespan management
 			<ul>
 				<li>In particular, lane handles cannot be passed between lanes.</li>
 			</ul>
 		</li>
-		<li>Coroutines cannot be passed. A coroutine's Lua state is tied to the Lua state that created it, and there is no way the mixed C/Lua stack of a couroutine can be transfered from one Lua state to another.</li>
+		<li>Coroutines cannot be passed. A coroutine's Lua state is tied to the Lua state that created it, and there is no way the mixed C/Lua stack of a coroutine can be transfered from one Lua state to another.</li>
 	</ul>
 </p>
 
@@ -1155,7 +1265,7 @@ events to a common Linda, but... :).</font>
 	// expects a C function on top of the source Lua stack
 	copy_func( lua_State *dest, lua_State* source)
 	{
-		// extract C function pointer from source
+		// fetch function 'name' from source lookup database
 		char const* funcname = lookup_func_name( source, -1);
 		// lookup a function bound to this name in the destination state, and push it on the stack
 		push_resolved_func( dest, funcname);
@@ -1197,14 +1307,14 @@ events to a common Linda, but... :).</font>
 		<li>
 			Lua 5.2 introduced a hash randomizer seed which causes table iteration to yield a different key order on different VMs even when the tables are populated the exact same way.
 			When Lua is built with compatibility options (such as LUA_COMPAT_ALL), this causes several base libraries to register functions under multiple names.
-			This, with the randomizer, can cause the first name of a function to be different on different VMs, which breaks function transfer.
+			This, with the randomizer, can cause the first encountered name of a function to be different on different VMs, which breaks function transfer.
 			<b>This means that Lua 5.2 must be built WITHOUT compatibility options to be able to use Lanes.</b>
 			Even under Lua 5.1, this may cause trouble (even if this would be much less frequent).
-			Unfortunately, this fails with <tt>string.gfind</tt>/<tt>string.gmatch</tt> when Lua 5.1 is built with <tt>LUA_COMPAT_GFIND</tt> (which is the case of LuaBinaries),
+			Unfortunately, we get bitten by <tt>string.gfind</tt>/<tt>string.gmatch</tt> when Lua 5.1 is built with <tt>LUA_COMPAT_GFIND</tt> (which is the case of LuaBinaries),
 			so for the time being, Lanes fails only for Lua 5.2 as the randomizer is the real show breaker here.
 		</li>
 	</ul>
-	Another more direct reason of failed transfer is that the destination state doesn't know about the C function that has to be transferred. This occurs if a function is transferred in a lane before it had a chance to scan the module.
+	Another more immediate reason of failed transfer is when the destination state doesn't know about the C function that has to be transferred. This occurs if a function is transferred in a lane before it had a chance to scan the module.
 	If the C function is sent through a linda, it is enough for the destination lane body to have required the module before the function is sent.
 	But if the lane body provided to the generator has a C function as upvalue, the transfer itself must succeed, therefore the module that imported that C function must be required in the destination lane before the lane body starts executing. This is where the <a href = "#.required"><tt>.required</tt></a> options play their role.
 </p>
