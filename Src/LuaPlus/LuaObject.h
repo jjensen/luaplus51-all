@@ -65,6 +65,7 @@ public:
 	const char* TypeName() const;
 	int Type() const;
 
+	bool IsValid() const;
 	bool IsNil() const;
 	bool IsTable() const;
 	bool IsUserdata() const;

@@ -167,6 +167,11 @@ inline int LuaObject::Type() const {
 }
 
 
+inline bool LuaObject::IsValid() const {
+	return L != NULL;
+}
+
+
 // Mirrors lua_isnil().
 inline bool LuaObject::IsNil() const {
 	if (!L)
