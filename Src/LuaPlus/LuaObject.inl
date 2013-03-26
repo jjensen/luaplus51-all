@@ -1378,17 +1378,18 @@ inline LuaObject LuaObject::Lookup(const char* key) const {
 				return table[(int)num];
 			}
 
+			LuaObject obj = table[(const char*)lastPos];
 #if !defined(_MSC_VER)
             delete [] buf;
 #endif
-			return table[lastPos];
+			return obj;
 		}
 
 		*curPos = 0;
 		if (LuaObject_str2d(lastPos, &num)) {
 			table = table[(int)num];
 		} else {
-			table = table[lastPos];
+			table = table[(const char*)lastPos];
 		}
 
 		if (table.IsNil()) {
