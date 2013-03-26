@@ -321,7 +321,7 @@ inline void MergeObjects(LuaObject& mergeTo, LuaObject& mergeFrom, bool replaceD
 			{
 				if (toNodeKeyObj.IsNil()  ||  replaceDuplicates)
 				{
-					toNodeKeyObj = mergeTo.CreateTable(it.GetKey());
+					toNodeKeyObj = mergeTo.CreateTable(obj);
 				}
 				MergeObjects(toNodeKeyObj, it.GetValue(), replaceDuplicates);
 			}
