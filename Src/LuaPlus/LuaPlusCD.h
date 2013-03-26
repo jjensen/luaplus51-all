@@ -43,7 +43,6 @@ namespace LPCD {
 
 	template<typename T>
 	struct Type {
-		static inline void Push(lua_State* L, const T& value);
 	};
 
 	// bool types
