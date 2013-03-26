@@ -1297,8 +1297,6 @@ inline LuaObject LuaObject::Clone() const {
 
 
 inline void LuaObject::DeepClone(LuaObject& outObj) const {
-	luaplus_assert(0);
-#if TODO
 	if (IsTable())
 	{
 		outObj.AssignNewTable(outObj.GetState());
@@ -1338,7 +1336,6 @@ inline void LuaObject::DeepClone(LuaObject& outObj) const {
 			case LUA_TTABLE:	DeepClone(outObj);													break;
 		}
 	}
-#endif
 }
 
 
