@@ -1,0 +1,7 @@
+Verse is a Jabber/XMPP library for Lua. It aims to abstract the protocol 
+as much as possible, yet still give easy access to the basics for those 
+that want that.
+
+For more information, visit http://matthewwild.co.uk/projects/verse/
+
+Bug reports, feedback, and kind gifts should be sent to me at matthewwild.co.uk

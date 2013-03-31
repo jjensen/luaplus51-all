@@ -1,0 +1,37 @@
+#
+# For more information see http://matthewwild.co.uk/projects/verse
+#
+# For quick installation on Debian/Ubuntu try the below, or 
+# simply execute this file if you are lazy by running: bash INSTALL
+
+# Install required packages:
+sudo apt-get install build-essential lua5.1 liblua5.1-dev subversion scons
+
+# Download strophe from SVN:
+pushd ..
+svn co http://code.stanziq.com/svn/strophe ./strophe
+pushd strophe/trunk/libstrophe
+
+# Download and apply some patches: (will be eventually included in strophe before 1.0 release)
+wget http://matthewwild.co.uk/projects/verse/strophe-verse-changes.patch -O- | patch -p0
+wget http://matthewwild.co.uk/projects/code/xpath.c -O src/xpath.c
+
+# Build strophe:
+scons
+popd
+
+# Download and extract Lua:
+wget http://www.lua.org/ftp/lua-5.1.4.tar.gz
+tar xzf lua-5.1.4.tar.gz
+
+# Compile Lua:
+pushd lua-5.1.4
+make linux
+popd
+popd
+
+# Create a directory necessary for installation:
+sudo mkdir -p /usr/lib/lua/5.1
+
+# Build verse:
+./build

@@ -1,0 +1,94 @@
+{
+
+local SRCS ;
+
+local EXPAT_SRCS =
+		../expat/lib/xmlparse.c
+		../expat/lib/xmlrole.c
+		../expat/lib/xmltok.c
+		../expat/lib/ascii.h
+		../expat/lib/asciitab.h
+		../expat/lib/expat.h
+		../expat/lib/expat_external.h
+		../expat/lib/iasciitab.h
+		../expat/lib/internal.h
+		../expat/lib/latin1tab.h
+		../expat/lib/nametab.h
+		../expat/lib/utf8tab.h
+		../expat/lib/xmlrole.h
+		../expat/lib/xmltok.h
+		../expat/lib/xmltok_impl.h
+;
+
+local LIBSTROPHE_SRCS =
+		libstrophe/src/auth.c
+		libstrophe/src/common.h
+		libstrophe/src/conn.c
+		libstrophe/src/ctx.c
+		libstrophe/src/event.c
+		libstrophe/src/handler.c
+		libstrophe/src/hash.c
+		libstrophe/src/hash.h
+		libstrophe/src/jid.c
+		libstrophe/src/md5.c
+		libstrophe/src/md5.h
+		libstrophe/src/oocontext.cpp
+		libstrophe/src/oostanza.cpp
+		libstrophe/src/ostypes.h
+		libstrophe/src/parser.h
+		libstrophe/src/parser_expat.c
+		#libstrophe/src/parser_libxml2.c
+		libstrophe/src/sasl.c
+		libstrophe/src/sasl.h
+		libstrophe/src/sha1.c
+		libstrophe/src/sha1.h
+		libstrophe/src/snprintf.c
+		libstrophe/src/sock.c
+		libstrophe/src/sock.h
+		libstrophe/src/stanza.c
+		libstrophe/src/thread.c
+		libstrophe/src/thread.h
+		libstrophe/src/tls.h
+		libstrophe/src/tls_dummy.c
+		#libstrophe/src/tls_gnutls.c
+		#libstrophe/src/tls_openssl.c
+		#libstrophe/src/tls_schannel.c
+		libstrophe/src/util.c
+		libstrophe/src/util.h
+;
+
+C.Defines verse-strophe : XML_STATIC HAVE_MEMMOVE ;
+C.IncludeDirectories verse-strophe : ../expat/lib ;
+
+C.IncludeDirectories verse-strophe : libstrophe ;
+
+if $(NT)
+{
+	C.LinkPrebuiltLibraries verse-strophe : advapi32 winmm ws2_32 ;
+}
+
+local VERSE_SRCS =
+		verse/core.lua
+		verse/init.lua
+		verse/XEP0060.lua
+		verse/XEP0092.lua
+		verse/XEP0118.lua
+		verse/XEP0163.lua
+;
+
+SRCS +=
+		strophe_wrap.c
+		$(VERSE_SRCS)
+		$(LIBSTROPHE_SRCS)
+		$(EXPAT_SRCS)
+;
+
+SourceGroup verse-strophe : expat : $(EXPAT_SRCS) ;
+SourceGroup verse-strophe : libstrophe : $(LIBSTROPHE_SRCS) ;
+SourceGroup verse-strophe : verse : $(VERSE_SRCS) ;
+
+CopyFiles verse-strophe : $(LUA_LDIR)/verse-strophe : $(SUBDIR)/$(VERSE_SRCS) ;
+
+Lua.CModule verse-strophe : strophe : $(SRCS) ;
+
+}

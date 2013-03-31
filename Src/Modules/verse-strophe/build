@@ -1,0 +1,73 @@
+##############################################################
+# Compilation script for Verse, the Lua XMPP library
+# (C) Copyright 2008 Matthew Wild <me@matthewwild.co.uk>
+# 
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program (in a file named COPYING). If not, write to 
+# the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, 
+# Boston, MA  02110-1301, USA.
+# 
+# For information about purchasing an exemption for use with
+# proprietary software under terms other than the above, please
+# contact <contact@heavy-horse.co.uk>.
+#
+##############################################################
+
+# Path to a copy of the (compiled) strophe source:
+# If you don't already have it run: svn co http://code.stanziq.com/svn/strophe ~/Development/strophe
+# After checkout, cd to strophe/trunk/libstrophe/ and run 'scons'
+STROPHE=../strophe/trunk/libstrophe
+
+# Path to a copy of the (compiled) Lua source:
+# A tar archive of the Lua distribution can be found at http://lua.org/
+# After download, extract and cd to lua-5.1.x/ and run eg. 'make linux'
+LUA=../lua-5.1.4
+
+##############################################################
+
+if [ ! -d "$STROPHE" ]; then 
+	echo "Uh-oh... the STROPHE variable is set to a path that doesn't exist: $STROPHE"
+	echo "Please edit the path in build.sh accordingly.";
+	exit 1;
+fi
+
+if [ ! -d "$LUA" ]; then 
+	echo "Uh-oh... the LUA variable is set to a path that doesn't exist: $LUA"
+	echo "Please edit the path in build.sh accordingly.";
+	exit 1;
+fi
+
+if [ -f strophe.i ]; then 
+
+	swig -lua -Wall -I"$STROPHE" strophe.i
+
+	if [ $? -ne 0 ]; then echo -e "\n\nSWIG wrapper generation failed.\n\nMaybe you don't have the latest version of SWIG?"; exit 1; fi
+fi
+
+gcc -g -shared strophe_wrap.c "$STROPHE/libstrophe.a" "$STROPHE/libexpat.a" "$LUA/src/liblua.a" -I"$STROPHE" -I"$STROPHE"/expat/lib -I "$LUA/src" -lresolv -o strophe.so
+
+if [ $? -ne 0 ]; then echo -e "\n\nCompilation failed."; exit 1; fi
+
+LUA_CPATH='./?.so' LUA_PATH='./?/init.lua' lua -e "local s,r = pcall(require, 'verse'); if s and strophe.xmpp_connect_client then print('Verse seems to have built ok'); else print('BUILD FAILED: '..r or 'strophe not linked?'); end"
+
+if [ $? -eq 0 ];
+	then echo "Installing... (may require more privileges)"
+	
+	echo "Creating /usr/{share,lib}/lua/5.1 if they don't exist..."
+	test -e /usr/share/lua/5.1 -a -e /usr/lib/lua/5.1 || sudo mkdir -p /usr/{share,lib}/lua/5.1
+	
+	echo sudo cp -R strophe.so /usr/lib/lua/5.1/
+	sudo cp -R strophe.so /usr/lib/lua/5.1/
+	echo sudo cp -R verse /usr/share/lua/5.1/
+	sudo cp -R verse /usr/share/lua/5.1/
+fi

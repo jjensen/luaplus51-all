@@ -1,0 +1,181 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<style type="text/css">
+		body
+		{ margin-left:5em; margin-right:5em; }
+		a
+		{ text-decoration:none; }
+		a:hover { text-decoration: underline; color:darkred; }
+		a:visited { color:darkred; }
+		a img { border-style:none; }
+		pre
+		{ background-color:black; color:white; border-style:solid; border-color:#aaaaaa; border-width:3px; }
+	</style>
+<link rel="stylesheet" href="im.css" type="text/css">
+</head>
+<body>
+<center><img src="verse.png" alt="verse logo"></center>
+<h1>Introduction</h1>
+		<p>
+			<a href="http://matthewwild.co.uk/projects/verse/">&lt;Verse&gt;</a> is a <a href="http://www.jabber.org/">&lt;Jabber&gt;</a>/<a href="http://www.xmpp.org/">&lt;XMPP&gt;</a> library for <a href="http://lua.org/">&lt;Lua&gt;</a>. It is based on the C version of the <a href="http://code.stanziq.com/strophe/">&lt;strophe&gt;</a> library.
+		</p>
+			
+		<p>
+			One handy feature of verse is that only the core protocol is implemented by default. Extensions to 
+			the protocol (either <a href="http://www.xmpp.org/extensions/">&lt;XEPs&gt;</a>, or custom-made protocols) can be 'described', and then used 
+			by any verse application. It is the developer's intention to include support for as many <a href="http://www.xmpp.org/extensions/">&lt;XEPs&gt;</a> as 
+			possible with verse, any number of which can be optionally loaded by the application when initialising 
+			the library.
+		</p>
+		
+		<p>For more information, or to give comments, feedback, bug reports and kind words, contact: me (at) matthewwild.co.uk</p>
+	<h1>Initialising the library</h1>
+		<p>First things first,</p>
+			<pre>			require 'verse'</pre>
+		<p>That was easy :)</p>
+	<h1>Making a connection</h1>
+		<p>
+			Verse makes extensive use of handlers to provide notification of events. Every application will have at least 
+			one handler... the connection handler. This function gets called when the application gets connected (or disconnected) 
+			to/from the server.
+		</p>
+		
+		<pre>
+			-- An example connection handler
+			function conn_handler(e)
+				print("Connected!");
+			end
+		</pre>
+		<p>
+			As you can see, this is a straightforward Lua function. The single parameter 'e' (you can call it whatever you like) is 
+			a table containing various information about the connection. More on this later.
+		</p>
+		<p>
+			Once you have your connection handler, you need a connection. Getting this is easy, just call:
+		</p>
+		<pre>
+			conn = verse.connect("juliet@capulet.lit/balcony", "iheartromeo", conn_handler);
+		</pre>
+		<p>
+			As you can see this takes the JID (with or without a resource), a password, and the connection handler.A fourth, optional,
+			parameter allows you to specify a server to connect directly to. For example "talk.google.com" for gmail users. This will 
+			not be necessary when strophe gains support for SRV records.
+		</p>
+		<p>One last thing after calling connect()... we need to tell verse to start listening to the connection:</p>
+		<pre>
+			verse.run();
+		</pre>
+		<p>
+			You now have all you need to make a connection. Run the script, and you should see the text "Connected!" come from your connection handler. Nice work :)
+		</p>
+	<h1>Sending presence</h1>
+		<p>
+			Presence is a large part of XMPP. Presence is what tells others on the network when you are online, and in what state (online, away from computer, do not disturb, "Gone to lunch!", etc.).
+		</p>
+		<p>The first thing to do after signing in is to publish your initial presence. This couldn't be easier. In the connection handler, put a line:</p>
+		<pre>
+			verse.presence():send(e.conn);
+		</pre>
+		<p>
+			Told ya' it was easy! Lets take a look at what this actually does though.
+		</p>
+		<p>
+			Data in XMPP is relayed in snippets of XML, known as 'stanzas'. There are 3 main types of stanza; presence, message, and iq. Each one has a from, a to, and an id attribute, also often a type. The one you just sent looked like this:
+		</p>
+		<pre>
+			&lt;presence/&gt;
+			
+		</pre>
+		<p>Yep, that's it. You see no to attribute, so this went just to your server (which will then broadcast to your contacts on your behalf). We also set our status to available, which is the default status. An example of a presence stanza with additional information:</p>
+		<pre>
+			&lt;presence&gt;
+				&lt;show&gt;away&lt;/show&gt;
+			&lt;/presence&gt;
+			
+		</pre>
+		<p>This will show other people on your contact list that you are away. That's great, but how do we incorporate this into our original code? Simple:</p>
+		<pre>
+			verse.presence()
+				:tag("show") -- Adds a child tag of the &lt;presence&gt; called &lt;show&gt;,
+					:text("away") -- Adds some text to the &lt;show&gt; tag
+				:send(e.conn);
+		</pre>
+		<p>Ok, we've covered the basics, and you probably want to get on and do your own stuff, so let me just finish off with introducing you to the tools to craft your own stanzas from scratch.</p>
+	<h1>Stanza constructors</h1>
+		<p>Verse provides a multitude of ways to create and manipulate stanzas. It has constructors for the three stanza types, plus some generic ones for adding custom elements to stanzas.</p>
+		<h2>verse.presence()</h2>
+<i>table</i>/<b>attributes:</b>Attributes of the stanza<br><p>Creates and returns a presence stanza, with the specified (if any) attributes.</p>
+		<h2>verse.message()</h2>
+<i>table</i>/<b>attributes:</b>Attributes of the stanza<br><p>Creates and returns a message stanza, with the specified (if any) attributes.</p>
+		<h2>verse.iq()</h2>
+<i>table</i>/<b>attributes:</b>Attributes of the stanza<br><p>Creates and returns an iq stanza.</p>
+	<h1>Additional stanza constructors and helpers</h1>
+		<p>These stanza methods allow you to insert new child elements and easily create custom stanzas. See below for the "Building stanzas" section for more information.</p>
+		<h2>:query()</h2>
+<i>string</i>/<b>xmlns:</b>XMLNS of the the IQ <a href="http://www.xmpp.org/internet-drafts/draft-saintandre-rfc3920bis-06.html#stanzas-semantics-iq">|payload|</a>.<br><p>Inserts into the stanza a &lt;query&gt; element tagged with the specified namespace.</p>
+		<h2>:tag()</h2>
+<i>string</i>/<b>name:</b>Name of the tag<br><i>string</i>/<b>attributes:</b>A table specifying attributes for the tag.<br><p>Inserts into the stanza a new element with the specified name and attributes.</p>
+		<h2>:text()</h2>
+<i>string</i>/<b>text:</b>A text string<br><p>Inserts into the stanza a text node.</p>
+		<h2>:up()</h2>
+<p>A helper function to step up the tree when building a stanza. See the "Building stanzas" section for more info and examples.</p>
+	<h1>Building stanzas</h1>
+		<p>Given the tools described above, it should be possible to craft any XML stanza you need. Some examples are given below.</p>
+		<p>Example 1: A software version request</p>
+		<pre>
+			&lt;iq 
+			    type='get' 
+			    to='juliet@capulet.com/balcony' id='version_1'&gt;
+				&lt;query xmlns='jabber:iq:version'/&gt;
+			&lt;/iq&gt;
+		
+		</pre>
+		<p>In Lua code using verse, this would be:</p>
+		<pre>
+			verse.iq{ to = "juliet@capulet.com/balcony", type = "get" }
+				:query("jabber:iq:version")
+		</pre>
+		<p></p>
+		<p>Example 2: On the phone presence</p>
+		<pre>
+			&lt;presence to="romeo@montague.lit" type="available"&gt;
+				&lt;show&gt;away&lt;/show&gt;
+				&lt;status&gt;on the phone&lt;/status&gt;
+			&lt;/presence&gt;
+		
+		</pre>
+		<p>would be generated with...</p>
+		<pre>
+			verse.presence{ to = "romeo@matague.lit", type = "available" }
+				:tag("show"):text("away"):up()
+				:tag("status"):text("on the phone")
+		</pre>
+		<p>Here you see an example of the up() method, which is required to step back up the tree, for when you want to add adjacent tags. For example, without it, &lt;status&gt; would have ended up a child of &lt;show&gt;</p>
+	<h1>Using protocol extensions</h1>
+		<p>It's all very well being able to easily build XML from the ground up, but that can get tedious for common tasks after a while. This is why verse supports add-on modules, for protocol extensions.</p>
+		<p>As an example, a module could implement code for <a href="http://www.xmpp.org/extensions/xep-0045"><img src="xep.png">XEP-0045 Multi-User Chat</a>. It would then supply new functions for performing common MUC operations (joining, leaving, kicking, banning).</p>
+		<p>In addition to making it easier to *send* stanzas, extension modules are also able to define 'events'. The module may supply a list of rules, and when an incoming stanza matches that rule, the associated event will be 'fired'. It is possible to associate handler functions with events, so your code can catch and react to these events.</p>
+		<p>An example below shows full code to publish and retrieve <a href="http://www.xmpp.org/extensions/xep-0118"><img src="xep.png">XEP-0118 User Tune</a> announcements:</p>
+		<pre>
+			require 'verse'
+			require 'verse.XEP0118'
+			function conn_handler(e)
+				verse.XEP0118.publish{ artist = "Big Bird and Friends", title = "Sesame Street Theme" }:send(e.conn);
+				verse.XEP0118.request_last{ to = "friend@example.com" }:send(e.conn); -- Request friend's current music
+			end
+			
+			function tune_handler(e, tune)
+				print(tune.from.." is listening to '"..(tune.title or "some music").."' by '"..(tune.artist or "someone").."'");
+			end
+			
+			-- Associate our tune_handler function with XEP0118's "response" event...
+			verse.hook_event("XEP0118", "response", tune_handler);
+			
+			-- Finally, connect and run...
+			conn = verse.connect("me@example.com", "youllneverguess", conn_handler);
+			verse.run();
+		</pre>
+	<a id="end" name="end"></a>
+</body>
+</html>
