@@ -81,7 +81,7 @@ int PathCreate(const char* inPath)
 #endif
   }
 
-  while ((ch = *inPath++)) {
+  while ((ch = *inPath++) != 0) {
     if (ch == '/'  ||  ch == '\\') {
       char* colonPtr;
       int isDriveLetter;
@@ -109,7 +109,9 @@ int PathCreate(const char* inPath)
 }
 
 
+#if ZIPARCHIVE_MD5_SUPPORT
 char emptyMD5[16] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+#endif // ZIPARCHIVE_MD5_SUPPORT
 
 #define Z_BUFSIZE 16384
 
@@ -213,6 +215,8 @@ struct ZipExtraHeader
 	unsigned short dataSize;
 };
 
+#if ZIPARCHIVE_MD5_SUPPORT
+
 struct FWKCS_MD5
 {
 	enum
@@ -234,6 +238,8 @@ struct FWKCS_MD5
 #else
 };
 #endif
+
+#endif // ZIPARCHIVE_MD5_SUPPORT
 
 #if defined(__GNUC__)  ||  defined(__CWCC__)  ||  defined(__MWERKS__)
 #pragma pack(pop)
@@ -352,6 +358,8 @@ void ZipEntryInfo::SetCRC(uint32_t crc) {
 }
 
 
+#if ZIPARCHIVE_MD5_SUPPORT
+
 void ZipEntryInfo::SetMD5(unsigned char* md5) {
 	if (memcmp(m_md5, md5, 16) != 0)
 	{
@@ -359,6 +367,8 @@ void ZipEntryInfo::SetMD5(unsigned char* md5) {
 		m_parentDrive->m_changed = true;
 	}
 }
+
+#endif // ZIPARCHIVE_MD5_SUPPORT
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -382,7 +392,9 @@ public:
 #if ZIPARCHIVE_ENCRYPTION
 	fcrypt_ctx  zcx[1];
 #endif // ZIPARCHIVE_ENCRYPTION
+#if ZIPARCHIVE_MD5_SUPPORT
 	MD5_CTX md5writecontext;
+#endif // ZIPARCHIVE_MD5_SUPPORT
 };
 
 
@@ -787,7 +799,9 @@ bool ZipArchive::Open(File& parentFile, const char* filename, bool readOnly, uin
 
 		fileEntryPtr += sizeof(ZipEntryInfo) + stringLen;
 
+#if ZIPARCHIVE_MD5_SUPPORT
 		bool setMD5 = false;
+#endif // ZIPARCHIVE_MD5_SUPPORT
 
 		uint8_t* extraPtr = (uint8_t*)zipFileHeader->GetExtra();
 		size_t extraSize = zipFileHeader->size_file_extra;
@@ -797,19 +811,23 @@ bool ZipArchive::Open(File& parentFile, const char* filename, bool readOnly, uin
 				extraHeader->dataSize = SwapEndian(extraHeader->dataSize);
 			}
 
+#if ZIPARCHIVE_MD5_SUPPORT
 			if (extraHeader->headerIdBytes[0] == FWKCS_MD5::HEADER_ID_A  &&  extraHeader->headerIdBytes[1] == FWKCS_MD5::HEADER_ID_B) {
 				if (m_flags & SUPPORT_MD5) {
 					memcpy(fileEntry.m_md5, extraPtr + 4 + 3, 16);
 					setMD5 = 1;
 				}
 			}
+#endif // ZIPARCHIVE_MD5_SUPPORT
 
 			extraSize -= 4 + extraHeader->dataSize;
 			extraPtr += 4 + extraHeader->dataSize;
 		}
 
+#if ZIPARCHIVE_MD5_SUPPORT
 		if (!setMD5)
 			memset(fileEntry.m_md5, 0, sizeof(fileEntry.m_md5));
+#endif // ZIPARCHIVE_MD5_SUPPORT
 
 		zipDirPtr += sizeof(ZipFileHeader) + zipFileHeader->size_filename + zipFileHeader->size_file_extra + zipFileHeader->size_file_comment;
 	}
@@ -882,6 +900,8 @@ bool ZipArchive::Close()
 
 
 ///////////////////////////////////////////////////////////////////////////////
+#if ZIPARCHIVE_MD5_SUPPORT
+
 void ZipArchive::UpdateMD5s()
 {
 	if (!IsOpened())
@@ -926,6 +946,8 @@ void ZipArchive::UpdateMD5s()
 	delete [] buffer;
 }
 
+#endif // ZIPARCHIVE_MD5_SUPPORT
+
 
 /**
 **/
@@ -937,6 +959,7 @@ void ZipArchive::_WriteDirectory(int64_t dirOffset, int64_t dirHeaderOffset)
 		zcx[0] = this->defaultzcx[0];
 #endif
 
+#if ZIPARCHIVE_MD5_SUPPORT
 	// MD5 structure.
 	FWKCS_MD5 md5info;
 	if (m_flags & SUPPORT_MD5)
@@ -952,6 +975,7 @@ void ZipArchive::_WriteDirectory(int64_t dirOffset, int64_t dirHeaderOffset)
 			md5info.dataSize = SwapEndian(md5info.dataSize);
 		}
 	}
+#endif // ZIPARCHIVE_MD5_SUPPORT
 
 	// Write all the directory entries.
     for (size_t i = 0; i < m_fileEntryCount; ++i)
@@ -971,7 +995,11 @@ void ZipArchive::_WriteDirectory(int64_t dirOffset, int64_t dirHeaderOffset)
 		zipFileHeader.uncompressed_size = entry.m_uncompressedSize;
 		int size_filename = (int)strlen(entry.GetFilename());
 		zipFileHeader.size_filename = (uint16_t)size_filename;
+#if ZIPARCHIVE_MD5_SUPPORT
 		int size_file_extra = (m_flags & SUPPORT_MD5) ? sizeof(md5info) : 0;
+#else
+		int size_file_extra = 0;
+#endif // ZIPARCHIVE_MD5_SUPPORT
 		zipFileHeader.size_file_extra = size_file_extra;
 		zipFileHeader.size_file_comment = 0;
 		zipFileHeader.disk_num_start = 0;
@@ -1018,6 +1046,7 @@ void ZipArchive::_WriteDirectory(int64_t dirOffset, int64_t dirHeaderOffset)
 			m_parentFile->Write((const char*)entry.GetFilename(), zipFileHeader.size_filename);
 		}
 
+#if ZIPARCHIVE_MD5_SUPPORT
 		// Write MD5.
 		if (m_flags & SUPPORT_MD5)
 		{
@@ -1033,6 +1062,7 @@ void ZipArchive::_WriteDirectory(int64_t dirOffset, int64_t dirHeaderOffset)
 				m_parentFile->Write(&md5info, sizeof(md5info));
 			}
 		}
+#endif // ZIPARCHIVE_MD5_SUPPORT
 
 		dirOffset += sizeof(ZipFileHeader) + size_filename + size_file_extra;
 	}
@@ -1098,7 +1128,11 @@ bool ZipArchive::Flush(const FlushOptions* flushOptions)
 		if (entry.GetOffset() < lowestFileOffset)
 			lowestFileOffset = entry.GetOffset();
 		int size_filename = (int)strlen(entry.GetFilename());
+#if ZIPARCHIVE_MD5_SUPPORT
 		int size_file_extra = (m_flags & SUPPORT_MD5) ? sizeof(FWKCS_MD5) : 0;
+#else
+		int size_file_extra = 0;
+#endif // ZIPARCHIVE_MD5_SUPPORT
 		directorySize += sizeof(ZipFileHeader) + size_filename + size_file_extra;
 	}
 
@@ -1282,9 +1316,11 @@ bool ZipArchive::FileCreate(const char* fileName, ZipEntryFileHandle& fileHandle
 	}
 #endif // ZIPARCHIVE_ENCRYPTION
 
+#if ZIPARCHIVE_MD5_SUPPORT
 	if (m_flags & SUPPORT_MD5) {
 		MD5Init(&fileHandle.detail->md5writecontext);
 	}
+#endif // ZIPARCHIVE_MD5_SUPPORT
 
 	return ret;
 } // FileCreate()
@@ -1307,7 +1343,7 @@ bool ZipArchive::FileOpenIndexInternal(size_t index, ZipEntryFileHandle& fileHan
 
 	fileHandle.detail->bufferedData = NULL;
 
-    // Add this virtual file to the open files list.
+	// Add this file entry to the open files list.
 	fileHandle.nextOpenFile = m_headOpenFile;
 	if (m_headOpenFile)
 		m_headOpenFile->prevOpenFile = &fileHandle;
@@ -1318,6 +1354,7 @@ bool ZipArchive::FileOpenIndexInternal(size_t index, ZipEntryFileHandle& fileHan
 } // FileOpenIndexInternal()
 
 
+///////////////////////////////////////////////////////////////////////////////
 /**
 	Opens an existing file entry within the zip archive.
 
@@ -1362,8 +1399,11 @@ bool ZipArchive::FileOpenIndex(size_t index, ZipEntryFileHandle& fileHandle)
 
 	ZipLocalHeader localHeader;
 
-	m_parentFile->Seek(fileEntry.m_offset);
-	m_parentFile->Read(&localHeader, sizeof(ZipLocalHeader));
+	if (m_parentFile->Seek(fileEntry.m_offset) != fileEntry.m_offset)
+		return false;
+
+	if (m_parentFile->Read(&localHeader, sizeof(ZipLocalHeader)) != sizeof(ZipLocalHeader))
+		return false;
 
 #if ZIPARCHIVE_ENCRYPTION
 	fcrypt_ctx headerzcx[1];
@@ -1485,10 +1525,12 @@ bool ZipArchive::FileClose(ZipEntryFileHandle& fileHandle)
 			fileEntry->m_uncompressedSize = (uint32_t)fileHandle.detail->curUncompressedFilePosition;
 		}
 
+#if ZIPARCHIVE_MD5_SUPPORT
 		if (m_flags & SUPPORT_MD5)
 		{
 			MD5Final(fileEntry->m_md5, &fileHandle.detail->md5writecontext);
 		}
+#endif // ZIPARCHIVE_MD5_SUPPORT
 	}
 
 	FileCloseInternal(fileHandle);
@@ -2083,7 +2125,9 @@ bool ZipArchive::FileCopy(ZipEntryFileHandle& srcFileHandle, const char* destFil
 	}
 
 	destFileEntry->m_crc = srcFileEntry->m_crc;
+#if ZIPARCHIVE_MD5_SUPPORT
 	memcpy(destFileEntry->m_md5, srcFileEntry->m_md5, sizeof(destFileEntry->m_md5));
+#endif // ZIPARCHIVE_MD5_SUPPORT
 	destFileEntry->m_compressedSize = srcFileEntry->m_compressedSize;
 	destFileEntry->m_uncompressedSize = srcFileEntry->m_uncompressedSize;
 
@@ -2188,6 +2232,7 @@ bool ZipArchive::BufferCopy(const void* buffer, uint64_t size, ZipEntryFileHandl
 					entry->SetTimeStamp(fileTime);
 				}
 
+#if ZIPARCHIVE_MD5_SUPPORT
 				if (memcmp(entry->m_md5, emptyMD5, sizeof(emptyMD5)) == 0)
 				{
 					// Calculate the MD5 of the buffer.
@@ -2199,6 +2244,7 @@ bool ZipArchive::BufferCopy(const void* buffer, uint64_t size, ZipEntryFileHandl
 
 					entry->SetMD5(digest);
 				}
+#endif // ZIPARCHIVE_MD5_SUPPORT
 
 				return true;
 			}
@@ -2229,7 +2275,9 @@ bool ZipArchive::BufferCopy(const void* buffer, uint64_t size, ZipEntryFileHandl
 					if (FileCopy(cacheFileHandle, NULL, &fileTime))
 					{
 						// Just in case.
+#if ZIPARCHIVE_MD5_SUPPORT
 						entry->SetMD5(digest);
+#endif // ZIPARCHIVE_MD5_SUPPORT
 						return true;
 					}
 				}
@@ -2284,6 +2332,7 @@ bool ZipArchive::BufferCopy(const void* buffer, uint64_t size, const char* destF
 					entry->SetTimeStamp(fileTime);
 				}
 
+#if ZIPARCHIVE_MD5_SUPPORT
 				if (memcmp(entry->m_md5, emptyMD5, sizeof(emptyMD5)) == 0)
 				{
 					// Calculate the MD5 of the buffer.
@@ -2295,6 +2344,7 @@ bool ZipArchive::BufferCopy(const void* buffer, uint64_t size, const char* destF
 
 					entry->SetMD5(digest);
 				}
+#endif // ZIPARCHIVE_MD5_SUPPORT
 
 				return true;
 			}
@@ -2326,7 +2376,9 @@ bool ZipArchive::BufferCopy(const void* buffer, uint64_t size, const char* destF
 					{
 						// Just in case.
 						ZipEntryInfo* entry = FindFileEntry(destFilename);
+#if ZIPARCHIVE_MD5_SUPPORT
 						entry->SetMD5(digest);
+#endif // ZIPARCHIVE_MD5_SUPPORT
 						return true;
 					}
 				}
@@ -2445,7 +2497,11 @@ bool ZipArchive::NeedsPack(PackOptions* packOptions)
 			if (entry.GetOffset() < lowestFileOffset)
 				lowestFileOffset = entry.GetOffset();
 			int size_filename = (int)strlen(entry.GetFilename());
+#if ZIPARCHIVE_MD5_SUPPORT
 			int size_file_extra = (m_flags & SUPPORT_MD5) ? sizeof(FWKCS_MD5) : 0;
+#else
+			int size_file_extra = 0;
+#endif // ZIPARCHIVE_MD5_SUPPORT
 			directorySize += sizeof(ZipFileHeader) + size_filename + size_file_extra;
 		}
 
@@ -2561,7 +2617,11 @@ bool ZipArchive::Pack(PackOptions* packOptions)
 		for (size_t i = 0; i < m_fileEntryCount; ++i) {
 			ZipEntryInfo& entry = *GetFileEntry(i);
 			int size_filename = (int)strlen(entry.GetFilename());
+#if ZIPARCHIVE_MD5_SUPPORT
 			int size_file_extra = (m_flags & SUPPORT_MD5) ? sizeof(FWKCS_MD5) : 0;
+#else
+			int size_file_extra = 0;
+#endif // ZIPARCHIVE_MD5_SUPPORT
 			initialOffset += sizeof(ZipFileHeader) + size_filename + size_file_extra;
 		}
 
@@ -2811,8 +2871,11 @@ bool ZipArchive::ProcessFileList(ZipArchive::FileOrderList& fileOrderList, Proce
 			HeapString entryName = fileOrderInfo.srcPath.Sub(pipePos + 1);
 			ZipEntryInfo* openArchiveFileEntry = NULL;
 
-			if (fileOrderInfo.fileTime == 0  ||  fileOrderInfo.size == 0  ||  fileOrderInfo.crc == 0  ||
-					memcmp(fileOrderInfo.md5, emptyMD5, sizeof(emptyMD5)) == 0) {
+			if (fileOrderInfo.fileTime == 0  ||  fileOrderInfo.size == 0  ||  fileOrderInfo.crc == 0
+#if ZIPARCHIVE_MD5_SUPPORT
+					|| memcmp(fileOrderInfo.md5, emptyMD5, sizeof(emptyMD5)) == 0
+#endif // ZIPARCHIVE_MD5_SUPPORT
+				) {
 				ZipArchive* openArchive = fileOrderInfo.sourceArchive ? fileOrderInfo.sourceArchive : PFL_OpenArchive(archiveFileName, openArchives, m_flags);
 				openArchiveFileEntry = openArchive->FindFileEntry(entryName);
 			}
@@ -2837,11 +2900,13 @@ bool ZipArchive::ProcessFileList(ZipArchive::FileOrderList& fileOrderList, Proce
 				}
 			}
 
+#if ZIPARCHIVE_MD5_SUPPORT
 			if (memcmp(fileOrderInfo.md5, emptyMD5, sizeof(emptyMD5)) == 0) {
 				if (openArchiveFileEntry) {
 					memcpy(fileOrderInfo.md5, openArchiveFileEntry->GetMD5(), sizeof(fileOrderInfo.md5));
 				}
 			}
+#endif // ZIPARCHIVE_MD5_SUPPORT
 
 			fileOrderInfo.needUpdate = true;
 
@@ -2905,7 +2970,11 @@ bool ZipArchive::ProcessFileList(ZipArchive::FileOrderList& fileOrderList, Proce
 			if (!info->used)
 				continue;
 			int size_filename = (int)info->entryName.Length();
+#if ZIPARCHIVE_MD5_SUPPORT
 			int size_file_extra = (m_flags & SUPPORT_MD5) ? sizeof(FWKCS_MD5) : 0;
+#else
+			int size_file_extra = 0;
+#endif // ZIPARCHIVE_MD5_SUPPORT
 			initialOffset += sizeof(ZipFileHeader) + size_filename + size_file_extra;
 		}
 	}
@@ -3030,12 +3099,14 @@ bool ZipArchive::ProcessFileList(ZipArchive::FileOrderList& fileOrderList, Proce
 		if (info->crc != 0)
 			info->needUpdate |= (info->crc != entry->GetCRC());
 
+#if ZIPARCHIVE_MD5_SUPPORT
 		// If we're expected to have MD5s and the MD5 hasn't been set or doesn't match, update the file.
 		if (m_flags & SUPPORT_MD5) {
 			info->needUpdate |= (memcmp(entry->GetMD5(), emptyMD5, sizeof(emptyMD5)) == 0);
 			if (memcmp(info->md5, emptyMD5, sizeof(emptyMD5)) != 0)
 				info->needUpdate |= (memcmp(entry->GetMD5(), info->md5, sizeof(info->md5)) != 0);
 		}
+#endif // ZIPARCHIVE_MD5_SUPPORT
 
         // After all the checks, do we need to update the file?
 		if (info->needUpdate  &&  info->size == entry->GetUncompressedSize()) {
@@ -3046,7 +3117,13 @@ bool ZipArchive::ProcessFileList(ZipArchive::FileOrderList& fileOrderList, Proce
 				// Did the caller provide a callback to retrieve the checksum?  If so, call it.
 				int found = 0;
 				if (options->retrieveChecksumCallback) {
-					found = options->retrieveChecksumCallback(info->srcPath, &info->crc, (unsigned char*)&info->md5, options->retrieveChecksumUserData);
+					found = options->retrieveChecksumCallback(info->srcPath, &info->crc,
+#if ZIPARCHIVE_MD5_SUPPORT
+							(unsigned char*)&info->md5,
+#else
+							NULL,
+#endif // ZIPARCHIVE_MD5_SUPPORT
+							options->retrieveChecksumUserData);
 				}
 
 				// We still don't have a checksum.  Calculate it ourselves.
@@ -3068,10 +3145,12 @@ bool ZipArchive::ProcessFileList(ZipArchive::FileOrderList& fileOrderList, Proce
 			bool different = false;
 			different |= (info->compressionMethod != entry->GetCompressionMethod());
 			different |= (info->crc != entry->GetCRC());
+#if ZIPARCHIVE_MD5_SUPPORT
 			if (m_flags & SUPPORT_MD5) {
 				if (memcmp(info->md5, emptyMD5, sizeof(emptyMD5)) != 0)
 					different |= (memcmp(entry->GetMD5(), info->md5, sizeof(info->md5)) != 0);
 			}
+#endif // ZIPARCHIVE_MD5_SUPPORT
 		    if (!different)
 		    {
 				if (options->checkOnly)
@@ -3291,14 +3370,23 @@ bool ZipArchive::ProcessFileList(ZipArchive::FileOrderList& fileOrderList, Proce
 					(info.size == 0  ||  info.size >= options->fileCacheSizeThreshold)) {
 			// Do we need a CRC and MD5 update?  If the file order list doesn't provide the CRC
 			// or MD5, we have to calculate it.
-			if (info.lastWriteTime != info.fileTime  ||  info.crc == 0  ||
-						memcmp(info.md5, emptyMD5, sizeof(emptyMD5)) == 0) {
+			if (info.lastWriteTime != info.fileTime  ||  info.crc == 0
+#if ZIPARCHIVE_MD5_SUPPORT
+						||  memcmp(info.md5, emptyMD5, sizeof(emptyMD5)) == 0
+#endif // ZIPARCHIVE_MD5_SUPPORT
+					) {
 				info.fileTime = info.lastWriteTime;
 
 				// Did the caller provide a callback to retrieve the checksum?  If so, call it.
 				int found = 0;
 				if (options->retrieveChecksumCallback) {
-					found = options->retrieveChecksumCallback(info.srcPath, &info.crc, (unsigned char*)&info.md5, options->retrieveChecksumUserData);
+					found = options->retrieveChecksumCallback(info.srcPath, &info.crc,
+#if ZIPARCHIVE_MD5_SUPPORT
+							(unsigned char*)&info.md5,
+#else
+							NULL,
+#endif // ZIPARCHIVE_MD5_SUPPORT
+							options->retrieveChecksumUserData);
 				}
 
 				// We still don't have a checksum.  Calculate it ourselves.

@@ -29,6 +29,10 @@
 
 namespace Misc {
 
+#ifndef ZIPARCHIVE_MD5_SUPPORT
+#define ZIPARCHIVE_MD5_SUPPORT 1
+#endif // ZIPARCHIVE_MD5_SUPPORT
+
 //#define ZIPARCHIVE_DEFAULT_MD5 SUPPORT_MD5
 #define ZIPARCHIVE_DEFAULT_MD5 0
 
@@ -69,11 +73,12 @@ public:
     uint32_t GetCompressionMethod() const       {  return m_compressionMethod;  }
 	const char* GetFilename() const		        {  return m_filename;  }
 
-	unsigned char* GetMD5() const				{  return (unsigned char*)&m_md5;  }
-
 	void SetTimeStamp(time_t fileTime);
 	void SetCRC(uint32_t crc);
+#if ZIPARCHIVE_MD5_SUPPORT
+	unsigned char* GetMD5() const				{  return (unsigned char*)&m_md5;  }
 	void SetMD5(unsigned char* md5);
+#endif // ZIPARCHIVE_MD5_SUPPORT
 
 protected:
 	time_t          m_fileTime;
@@ -81,7 +86,9 @@ protected:
 	uint32_t			m_compressedSize;
     uint32_t           m_uncompressedSize;
 	uint32_t			m_crc;
+#if ZIPARCHIVE_MD5_SUPPORT
 	unsigned char	m_md5[16];
+#endif // ZIPARCHIVE_MD5_SUPPORT
     uint32_t           m_compressionMethod;
 
 	ZipArchive*		m_parentDrive;
@@ -99,7 +106,9 @@ public:
 	enum {  INVALID_FILE_ENTRY = (size_t)-1  };
     enum {  UNCOMPRESSED = 0, DEFLATED = 8  };
     enum {
+#if ZIPARCHIVE_MD5_SUPPORT
 		SUPPORT_MD5 = 0x00000001,
+#endif // ZIPARCHIVE_MD5_SUPPORT
 		EXTRA_DIRECTORY_AT_BEGINNING = 0x00000002,
 	};
 
@@ -171,7 +180,9 @@ public:
 	bool Open(File& parentFile, const char* fileName, bool readOnly = true, uint32_t flags = ZIPARCHIVE_DEFAULT_MD5, const char* defaultPassword = NULL);
 	bool Close(void);
 
+#if ZIPARCHIVE_MD5_SUPPORT
 	void UpdateMD5s();
+#endif // ZIPARCHIVE_MD5_SUPPORT
 
 	struct FlushOptions
 	{
