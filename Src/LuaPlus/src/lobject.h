@@ -56,13 +56,30 @@ typedef struct GCheader {
 /*
 ** Union of all Lua values
 */
+#if LUA_PACK_VALUE  &&  defined(LUA_BIG_ENDIAN)
+typedef union {
+  struct {
+    int _pad0;
+  GCObject *gc;
+  };
+  struct {
+    int _pad1;
+  void *p;
+  };
+  lua_Number n;
+  struct {
+    int _pad2;
+    int b;
+  };
+} Value;
+#else
 typedef union {
   GCObject *gc;
   void *p;
   lua_Number n;
   int b;
 } Value;
-
+#endif
 
 /*
 ** Tagged Values
@@ -79,6 +96,8 @@ typedef struct lua_TValue {
 
 #else
 
+#if !defined(LUA_BIG_ENDIAN)
+
 #define TValuefields	union { \
   struct { \
     int _pad0; \
@@ -91,9 +110,25 @@ typedef struct lua_TValue {
   } _t; \
   Value value; \
 }
+#define LUA_TVALUE_NIL {0, add_sig(LUA_TNIL)}
+#else
+#define TValuefields	union { \
+  struct { \
+    int tt_sig; \
+    int _pad0; \
+  } _ts; \
+  struct { \
+    short sig; \
+    short tt; \
+    int _pad; \
+  } _t; \
+  Value value; \
+}
+#define LUA_TVALUE_NIL {add_sig(LUA_TNIL), 0}
+#endif
+
 #define LUA_NOTNUMBER_SIG (-1)
 #define add_sig(tt) ( 0xffff0000 | (tt) )
-#define LUA_TVALUE_NIL {0, add_sig(LUA_TNIL)}
 
 typedef TValuefields TValue;
 
