@@ -1,0 +1,10 @@
+{
+
+local SRCS =
+		slnudata.c
+		slnunico.c
+;
+
+Lua.CModule slnunicode : unicode : $(SRCS) ;
+
+}
