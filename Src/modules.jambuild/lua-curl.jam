@@ -1,4 +1,8 @@
-{
+if ! [ Glob $(SUBDIR)/src/curl-7.21.6/include/curl : curl.h ] {
+	Echo * Not building cURL, because the curl-7.21.6/ directory does not exist. ;
+} else {
+
+IncludeModule c/openssl ;
 
 local CURL_LIB_SRCS =
 		amigaos.c
@@ -283,28 +287,21 @@ local SRCS =
 
 C.ActiveTarget cURL ;
 
+if ! [ C.UseOpenSSL : test ] {
+	Echo * Not building cURL, because OpenSSL was not found. ;
+	return ;
+}
+
 SourceGroup : libcurl : $(CURL_LIB_SRCS) ;
 SourceGroup : zlib : $(ZLIB_SRCS) ;
 
 if $(MSVCNT)  &&  $(PLATFORM) in win32 win64 {
+	C.UseOpenSSL : link ;
 	C.Defines : __WIN32__ CURL_STATICLIB CURL_DISABLE_LDAP ;
 	C.Defines : HAVE_ZLIB_H HAVE_ZLIB HAVE_LIBZ ;
 	C.IncludeDirectories : ../zlib ;
-	C.Defines : USE_SSLEAY ;
-
-	if $(PLATFORM) = win32 {
-		C.IncludeDirectories : c:/OpenSSL-Win32/include c:/OpenSSL-Win32/include/openssl ;
-		C.LinkDirectories : c:/OpenSSL-Win32/lib/VC/static ;
-	} else {
-		C.IncludeDirectories : c:/OpenSSL-Win64/include c:/OpenSSL-Win64/include/openssl ;
-		C.LinkDirectories : c:/OpenSSL-Win64/lib/VC/static ;
-	}
-
-	#C.LinkPrebuiltLibraries : libeay32 ssleay32 ;
-	C.LinkPrebuiltLibraries : libeay32MT ssleay32MT advapi32 gdi32 user32 ;
 
 	C.IncludeDirectories : src/curl-7.21.6/include ;
-	C.LinkPrebuiltLibraries : ws2_32 ;
 
 	Lua.CModule : : $(CURL_LIB_SRCS) $(SRCS) ;
 }
