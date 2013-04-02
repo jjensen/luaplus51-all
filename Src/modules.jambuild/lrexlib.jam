@@ -1,4 +1,4 @@
-if $(NT)
+if $(NT)  &&  [ Glob $(SUBDIR)/pcre-8.30 : pcre.h ]
 {
 
 local PCRE_SRCS = ;
