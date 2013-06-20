@@ -70,7 +70,7 @@
 			</p>
 
 			<p>
-				This document was revised on 14-Mar-13, and applies to version <tt>3.6.0</tt>.
+				This document was revised on 20-May-13, and applies to version <tt>3.6.2</tt>.
 			</p>
 		</font>
 	</center>
@@ -880,6 +880,23 @@
 	An error in a finalizer itself overrides the state of the regular chunk (in practise, it would be highly preferable <i>not</i> to have errors in finalizers). If one finalizer errors, the others may not get called.
 </p>
 
+<table border="1" bgcolor="#FFFFE0" cellpadding="10" style="width:50%"><tr><td><pre>
+	local lane_body = function()
+		set_finalizer( function( err, stk)
+			if err and type( err) ~= "userdata" then
+				-- no special error: true error
+				print( " error: "..tostring(err))
+			elseif type( err) == "userdata" then
+				-- lane cancellation is performed by throwing a special userdata as error
+				print( "after cancel")
+			else
+				-- no error: we just got finalized
+				print( "finalized")
+			end
+		end)
+	end
+</pre></td></tr></table>
+
 
 <!-- lindas +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
 <hr/>
@@ -1308,10 +1325,8 @@ events to a common Linda, but... :).</font>
 			Lua 5.2 introduced a hash randomizer seed which causes table iteration to yield a different key order on different VMs even when the tables are populated the exact same way.
 			When Lua is built with compatibility options (such as LUA_COMPAT_ALL), this causes several base libraries to register functions under multiple names.
 			This, with the randomizer, can cause the first encountered name of a function to be different on different VMs, which breaks function transfer.
-			<b>This means that Lua 5.2 must be built WITHOUT compatibility options to be able to use Lanes.</b>
-			Even under Lua 5.1, this may cause trouble (even if this would be much less frequent).
-			Unfortunately, we get bitten by <tt>string.gfind</tt>/<tt>string.gmatch</tt> when Lua 5.1 is built with <tt>LUA_COMPAT_GFIND</tt> (which is the case of LuaBinaries),
-			so for the time being, Lanes fails only for Lua 5.2 as the randomizer is the real show breaker here.
+			Even under Lua 5.1, this may cause trouble if some module registers a function under several keys.
+			To circumvent this, Lanes has to select one name among all candidates, and the rule for this is to keep the 'smaller' one: first in bytes, then in lexical order.
 		</li>
 	</ul>
 	Another more immediate reason of failed transfer is when the destination state doesn't know about the C function that has to be transferred. This occurs if a function is transferred in a lane before it had a chance to scan the module.
