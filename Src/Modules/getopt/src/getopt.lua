@@ -274,7 +274,7 @@ function M.getOpt (argIn, options)
   local noProcess = nil
   local argOut, optOut, errors = {[0] = argIn[0]}, {}, {}
   -- get an argument for option opt
-  local function getArg (o, opt, arg, oldarg)
+  local function getArg (o, opt, arg)
     if o.type == nil then
       if arg ~= nil then
         table.insert (errors, "option `" .. opt .. "' doesn't take an argument")
@@ -291,14 +291,18 @@ function M.getOpt (argIn, options)
         return nil
       end
     end
-    return arg or 1 -- make sure arg has a value
+    return arg or true -- make sure arg has a value
   end
 
   local function parseOpt (opt, arg)
     local o = options.name[opt]
     if o ~= nil then
-      optOut[o.name[1]] = optOut[o.name[1]] or {}
-      table.insert (optOut[o.name[1]], getArg (o, opt, arg, optOut[o.name[1]]))
+      if o.var then
+        optOut[o.name[1]] = optOut[o.name[1]] or {}
+        table.insert (optOut[o.name[1]], getArg (o, opt, arg))
+      else
+        optOut[o.name[1]] = getArg (o, opt, arg)
+      end
     else
       table.insert (errors, "unrecognized option `-" .. opt .. "'")
     end
