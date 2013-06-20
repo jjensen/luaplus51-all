@@ -12,16 +12,14 @@
 -- See  @{03-strings.md.File_style_I_O_on_Strings|the Guide}.
 -- @module pl.stringio
 
-if not rawget(_G,'loadstring') then -- Lua 5.2 full compatibility
-    unpack = table.unpack
-end
+local unpack = rawget(_G,'unpack') or rawget(table,'unpack')
 
 local getmetatable,tostring,unpack,tonumber = getmetatable,tostring,unpack,tonumber
 local concat,append = table.concat,table.insert
 
 local stringio = {}
 
---- Writer class
+-- Writer class
 local SW = {}
 SW.__index = SW
 
@@ -58,7 +56,7 @@ end
 function SW:seek()
 end
 
---- Reader class
+-- Reader class
 local SR = {}
 SR.__index = SR
 

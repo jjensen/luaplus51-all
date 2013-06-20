@@ -23,11 +23,11 @@ testpath ([[../../alice/jones]],'../../alice','jones','')
 testpath ([[alice]],'','alice','')
 testpath ([[/path-to/dog/]],[[/path-to/dog]],'','')
 
-asserteq( path.isdir( "../docs" ), true )
-asserteq( path.isdir( "../docs/config.ld" ), false )
+asserteq( path.isdir( "../doc" ), true )
+asserteq( path.isdir( "../doc/config.ld" ), false )
 
-asserteq( path.isfile( "../docs" ), false )
-asserteq( path.isfile( "../docs/config.ld" ), true )
+asserteq( path.isfile( "../doc" ), false )
+asserteq( path.isfile( "../doc/config.ld" ), true )
 
 local norm = path.normpath
 local p = norm '/a/b'
@@ -55,4 +55,16 @@ end
 
 asserteq(norm '1/2/../3/4/../5',norm '1/3/5')
 
+assert(path.join("somepath",".") == "somepath"..path.sep..".")
+assert(path.join(".","readme.txt") == "."..path.sep.."readme.txt")
+assert(path.join("/a_dir", "abs_path/") == "/a_dir"..path.sep.."abs_path/")
+assert(path.join("a_dir", "/abs_path/") == "/abs_path/")
+assert(path.join("a_dir", "/abs_path/", "/abs_path2/") == "/abs_path2/")
+assert(path.join("a_dir", "/abs_path/", "not_abs_path2/") == "/abs_path/not_abs_path2/")
+assert(path.join("a_dir", "/abs_path/", "not_abs_path2/", "/abs_path3/", "not_abs_path4/") == "/abs_path3/not_abs_path4/")
+assert(path.join("first","second","third") == "first"..path.sep.."second"..path.sep.."third")
+assert(path.join("first","second","") == "first"..path.sep.."second"..path.sep)
+assert(path.join("first","","third") == "first"..path.sep.."third")
+assert(path.join("","second","third") == "second"..path.sep.."third")
+assert(path.join("","") == "")
 

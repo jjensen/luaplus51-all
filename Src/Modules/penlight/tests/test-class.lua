@@ -22,6 +22,10 @@ function B:_init ()
     self.b = 2
 end
 
+function B:foo ()
+    self.eee = 1
+end
+
 asserteq(B(),{a=1,b=2})
 
 -- can continue this chain
@@ -32,6 +36,16 @@ function C:_init ()
     self:super()
     self.c = 3
 end
+
+function C:foo ()
+    -- recommended way to call inherited version of method...
+    B.foo(self)
+end
+
+c = C()
+c:foo()
+
+asserteq(c,{a=1,b=2,c=3,eee=1})
 
 --- metamethods!
 

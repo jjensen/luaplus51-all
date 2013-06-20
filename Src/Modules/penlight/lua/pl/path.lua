@@ -33,10 +33,23 @@ end
 attrib = attributes
 path.attrib = attrib
 path.link_attrib = link_attrib
+
+--- Lua iterator over the entries of a given directory.
+-- Behaves like `lfs.dir`
 path.dir = lfs.dir
+
+--- Creates a directory.
 path.mkdir = lfs.mkdir
+
+--- Removes a directory.
 path.rmdir = lfs.rmdir
+
+---- Get the working directory.
+path.currentdir = currentdir
+
+--- Changes the working directory.
 path.chdir = lfs.chdir
+
 
 --- is this a directory?
 -- @param P A file path
@@ -224,7 +237,8 @@ function path.isabs(P)
 end
 
 --- return the path resulting from combining the individual paths.
--- if the second path is absolute, we return that path.
+-- if the second (or later) path is absolute, we return the last absolute path (joined with any non-absolute paths following).
+-- empty elements (except the last) will be ignored.
 -- @param p1 A file path
 -- @param p2 A file path
 -- @param ... more file paths
@@ -242,7 +256,7 @@ function path.join(p1,p2,...)
     end
     if path.isabs(p2) then return p2 end
     local endc = at(p1,#p1)
-    if endc ~= path.sep and endc ~= other_sep then
+    if endc ~= path.sep and endc ~= other_sep and endc ~= "" then
         p1 = p1..path.sep
     end
     return p1..p2
@@ -344,10 +358,10 @@ end
 
 
 ---Return a suitable full path to a new temporary file name.
--- unlike os.tmpnam(), it always gives you a writeable path (uses %TMP% on Windows)
+-- unlike os.tmpnam(), it always gives you a writeable path (uses TEMP environment variable on Windows)
 function path.tmpname ()
     local res = tmpnam()
-    if path.is_windows then res = getenv('TMP')..res end
+    if path.is_windows then res = getenv('TEMP')..res end
     return res
 end
 
@@ -378,7 +392,7 @@ end
 
 --- return the full path where a particular Lua module would be found.
 -- Both package.path and package.cpath is searched, so the result may
--- either be a Lua file or a shared libarary.
+-- either be a Lua file or a shared library.
 -- @param mod name of the module
 -- @return on success: path of module, lua or binary
 -- @return on error: nil,error string
