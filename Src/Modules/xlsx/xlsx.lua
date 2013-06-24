@@ -59,46 +59,50 @@ local __sheetMetatable = {
         local sheetData = sheetDoc.worksheet[1]['#'].sheetData
         local rows = {}
         local columns = {}
-        for _, rowNode in ipairs(sheetData[1]['#'].row) do
-            local rowNum = tonumber(rowNode['@'].r)
-			if not rows[rowNum] then
-				rows[rowNum] = {}
-			end
-            for _, columnNode in ipairs(rowNode['#'].c) do
-                local colType = columnNode['@'].t or 'n'
-                local cellS = columnNode['@'].s
-
-                -- Generate the proper column index.
-                local cellId = columnNode['@'].r
-                local colLetters = cellId:match(colRowPattern)
-                local colNum = 0
-                if colLetters then
-                    local index = 1
-                    repeat
-                        colNum = colNum * 26
-                        colNum = colNum + colLetters:byte(index) - ('A'):byte(1) + 1
-                        index = index + 1
-                    until index > #colLetters
+        if sheetData[1]['#'].row then
+            for _, rowNode in ipairs(sheetData[1]['#'].row) do
+                local rowNum = tonumber(rowNode['@'].r)
+                if not rows[rowNum] then
+                    rows[rowNum] = {}
                 end
+                if rowNode['#'].c then
+                    for _, columnNode in ipairs(rowNode['#'].c) do
+                        local colType = columnNode['@'].t or 'n'
+                        local cellS = columnNode['@'].s
 
-                if columnNode['#'].v then
-                    local data = columnNode['#'].v[1]['#']
-                    if colType == 's' then
-                        data = self.workbook.sharedStrings[tonumber(data) + 1]
+                        -- Generate the proper column index.
+                        local cellId = columnNode['@'].r
+                        local colLetters = cellId:match(colRowPattern)
+                        local colNum = 0
+                        if colLetters then
+                            local index = 1
+                            repeat
+                                colNum = colNum * 26
+                                colNum = colNum + colLetters:byte(index) - ('A'):byte(1) + 1
+                                index = index + 1
+                            until index > #colLetters
+                        end
+
+                        if columnNode['#'].v then
+                            local data = columnNode['#'].v[1]['#']
+                            if colType == 's' then
+                                data = self.workbook.sharedStrings[tonumber(data) + 1]
+                            end
+
+                            --local formula
+                            --if columnNode['#'].f then
+                                --assert()
+                            --end
+
+                            if not columns[colNum] then
+                                columns[colNum] = {}
+                            end
+                            local cell = Cell(rowNum, colNum, data, formula)
+                            table.insert(rows[rowNum], cell)
+                            table.insert(columns[colNum], cell)
+                            self.__cells[cellId] = cell
+                        end
                     end
-
-                    --local formula
-                    --if columnNode['#'].f then
-                        --assert()
-                    --end
-
-                    if not columns[colNum] then
-                        columns[colNum] = {}
-                    end
-                    local cell = Cell(rowNum, colNum, data, formula)
-                    table.insert(rows[rowNum], cell)
-                    table.insert(columns[colNum], cell)
-                    self.__cells[cellId] = cell
                 end
             end
         end
@@ -231,7 +235,19 @@ function M.Workbook(filename)
     self.sharedStrings = {}
     if sharedStringsXml then
         for _, str in ipairs(sharedStringsXml.sst[1]['#'].si) do
-            self.sharedStrings[#self.sharedStrings + 1] = str['#'].t[1]['#']
+            if str['#'].r then
+                local concatenatedString = {}
+                for _, rstr in ipairs(str['#'].r) do
+					local t = rstr['#'].t[1]['#']
+					if type(t) == 'string' then
+						concatenatedString[#concatenatedString + 1] = rstr['#'].t[1]['#']
+					end
+                end
+                concatenatedString = table.concat(concatenatedString)
+                self.sharedStrings[#self.sharedStrings + 1] = concatenatedString
+            else
+                self.sharedStrings[#self.sharedStrings + 1] = str['#'].t[1]['#']
+            end
         end
     end
 
@@ -270,3 +286,5 @@ print(sheet.B1)
 
 
 --]]
+
+-- vim: set tabstop=4 expandtab:
