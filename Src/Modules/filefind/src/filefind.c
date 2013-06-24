@@ -382,7 +382,7 @@ static int filefind_index_number_of_links(lua_State* L) {
 }
 
 
-static int filefind_index_table_helper(lua_State* L, struct FileFindInfo* info) {
+static int filefind_index_table_helper(lua_State* L, struct FileFindInfo* info, int simple_query) {
 	lua_newtable(L);
 	filefind_index_filename_helper(L, info);
 	lua_setfield(L, -2, "filename");
@@ -406,15 +406,18 @@ static int filefind_index_table_helper(lua_State* L, struct FileFindInfo* info) 
 	lua_setfield(L, -2, "is_link");
 	filefind_index_is_readonly_helper(L, info);
 	lua_setfield(L, -2, "is_readonly");
-	filefind_index_number_of_links_helper(L, info);
-	lua_setfield(L, -2, "number_of_links");
+
+	if (!simple_query) {
+		filefind_index_number_of_links_helper(L, info);
+		lua_setfield(L, -2, "number_of_links");
+	}
 	return 1;
 }
 
 
 static int filefind_index_table(lua_State* L) {
 	struct FileFindInfo* info = filefind_checkmetatable(L, 1);
-	return filefind_index_table_helper(L, info);
+	return filefind_index_table_helper(L, info, 1);
 }
 
 
@@ -572,8 +575,7 @@ static int l_filefind_first(lua_State *L) {
 	{
 		info->dirp = opendir(slashPtr ? info->path : ".");
 		if (info->dirp) {
-			if (!FileFindNextMatch(info))
-				return 0;
+			FileFindNextMatch(info)
 		}
 	}
 #endif
@@ -633,7 +635,7 @@ static int l_filefind_attributes(lua_State* L) {
 	if (!info->dirp)
 		return 0;
 #endif
-	filefind_index_table_helper(L, info);
+	filefind_index_table_helper(L, info, 1);
 	filefind_close_helper(L, info);
 	return 1;
 }
@@ -1031,6 +1033,8 @@ static int l_filefind_FILETIME_to_time_t(lua_State* L) {
 	FILETIME fileTime;
 	FILETIME localTime;
 	SYSTEMTIME sysTime;
+	TIME_ZONE_INFORMATION tzi;
+	DWORD dst;
 	struct tm atm;
 
 	if (lua_isnumber(L, 1)  &&  lua_isnumber(L, 2)) {
@@ -1070,13 +1074,15 @@ static int l_filefind_FILETIME_to_time_t(lua_State* L) {
 		return 0;
 	}
 
+	dst = GetTimeZoneInformation(&tzi);
+
 	atm.tm_sec = sysTime.wSecond;
 	atm.tm_min = sysTime.wMinute;
 	atm.tm_hour = sysTime.wHour;
 	atm.tm_mday = sysTime.wDay;
 	atm.tm_mon = sysTime.wMonth - 1;        /* tm_mon is 0 based */
 	atm.tm_year = sysTime.wYear - 1900;     /* tm_year is 1900 based */
-	atm.tm_isdst = -1;
+	atm.tm_isdst = (int)dst - 1;
 	lua_pushnumber(L, (lua_Number)mktime(&atm));
 	return 1;
 }
