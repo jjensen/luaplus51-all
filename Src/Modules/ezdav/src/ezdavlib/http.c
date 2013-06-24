@@ -24,6 +24,7 @@ typedef int SOCKET;
 #include <limits.h>
 #define close	closesocket
 #else
+#include <unistd.h>
 #include <sys/socket.h>
 #include <resolv.h>
 #include <netdb.h>
@@ -330,17 +331,16 @@ static int
 		http_disconnect(&new_connection);
 		return HT_MEMORY_ERROR;
 	}
+	new_connection->socketd = INVALID_SOCKET;
 	if (!lazy)
 	{
-		if (http_reconnect(new_connection) == HT_NETWORK_ERROR)
+		new_connection->persistent = 1;
+		if (http_reconnect(new_connection) != HT_OK)
 		{
 			http_disconnect(&new_connection);
 			return HT_NETWORK_ERROR;
 		}
-	}
-	else
-	{
-		new_connection->socketd = INVALID_SOCKET;
+		new_connection->persistent = 0;
 	}
 	new_connection->lazy = lazy;
 	new_connection->persistent = HT_TRUE;

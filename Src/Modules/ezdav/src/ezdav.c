@@ -823,9 +823,11 @@ static int l_ezdav_connection_open(lua_State *L) {
 
 		luaL_getmetatable(L, EZDAV_CONNECTION_METATABLE);
 		lua_setmetatable(L, -2);
+
+		return 1;
 	}
 
-	return 1;
+	return 0;
 }
 
 
