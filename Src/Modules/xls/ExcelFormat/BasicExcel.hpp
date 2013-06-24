@@ -730,6 +730,7 @@ protected:
 	vector<SECT> blocksIndices_;
 	vector<SECT> sblocksIndices_;
 
+public:
 	// Properties related functions and data members
 	class DirectoryEntry // struct StructuredStorageDirectoryEntry
 	{
@@ -774,6 +775,7 @@ protected:
 		DFPROPTYPE _dptPropType;		// 0x7C reserved for future use, must be zero
 	};
 
+protected:
 	class PropertyTree
 	{
 	public:
