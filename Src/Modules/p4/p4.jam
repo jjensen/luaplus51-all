@@ -48,7 +48,7 @@ if $(NT) {
 }
 
 if $(OS) = MACOSX {
-	C.LinkFrameworks p4 : CoreFoundation ;
+	C.LinkFrameworks p4 : ApplicationServices Foundation CoreFoundation ;
 }
 
 C.IncludeDirectories p4 : $(P4API)/include ;
