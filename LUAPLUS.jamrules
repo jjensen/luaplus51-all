@@ -50,10 +50,12 @@ rule LuaPlus.CModule TARGET : OUTPUT_NAME : SOURCES : MODULES_SUBDIR {
 
 	Depends all : $(TARGET) ;
 
-	C.Defines $(TARGET) : LUAPLUS_DLL ;
 	LuaPlusDefines $(TARGET) ;
 	C.IncludeDirectories $(TARGET) : "$(LUAPLUS)/Src" "$(LUAPLUS)/Src/LuaPlus/src" ;
-	C.LinkLibraries $(TARGET) : lua51 ;
+
+	if $(OS) != MACOSX  &&  $(OS) != LINUX {
+		C.LinkLibraries $(TARGET) : lua51 ;
+	}
 
 	OUTPUT_NAME ?= $(TARGET) ;
 
