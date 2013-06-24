@@ -1153,7 +1153,7 @@ static const struct luaL_reg prettydump_lib[] = {
 };
 
 
-int luaopen_prettydump(lua_State* L) {
+extern "C" int luaopen_prettydump(lua_State* L) {
 	lua_newtable(L);
 	luaL_register(L, NULL, prettydump_lib);
 	return 1;
