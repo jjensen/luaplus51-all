@@ -691,7 +691,7 @@ static void instantiate_typedef(struct parser* P, struct ctype* tt, const struct
     struct ctype pt = *tt;
     *tt = *ft;
 
-    tt->const_mask = pt.const_mask;
+    tt->const_mask |= pt.const_mask;
     tt->is_packed = pt.is_packed;
 
     if (tt->is_packed) {
@@ -2074,12 +2074,15 @@ static int parse_root(lua_State* L, struct parser* P)
             parse_typedef(L, P);
 
         } else if (IS_LITERAL(tok, "static")) {
+            struct ctype at;
+
             int64_t val;
             require_token(L, P, &tok);
             if (!IS_CONST(tok)) {
                 luaL_error(L, "expected 'static const int' on line %d", P->line);
             }
-            check_token(L, P, TOK_TOKEN, "int", "expected 'static const int' on line %d", P->line);
+
+            parse_type(L, P, &at);
 
             require_token(L, P, &tok);
             if (tok.type != TOK_TOKEN) {
@@ -2094,9 +2097,23 @@ static int parse_root(lua_State* L, struct parser* P)
 
             push_upval(L, &constants_key);
             lua_pushlstring(L, tok.str, tok.size);
-            lua_pushnumber(L, (int) val);
+
+            switch (at.type) {
+                case INT8_TYPE:
+                case INT16_TYPE:
+                case INT32_TYPE:
+                    if (at.is_unsigned)
+                        lua_pushnumber(L, (unsigned int) val);
+                    else
+                        lua_pushnumber(L, (int) val);
+                    break;
+
+                default:
+                    luaL_error(L, "expected a valid 8-, 16-, or 32-bit signed or unsigned integer type after 'static const' on line %d", P->line);
+            }
+
             lua_rawset(L, -3);
-            lua_pop(L, 1); /*constants*/
+            lua_pop(L, 2); /*constants and type*/
 
         } else {
             /* type declaration, type definition, or function declaration */
