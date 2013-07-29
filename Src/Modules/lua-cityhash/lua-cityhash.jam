@@ -1,0 +1,14 @@
+{
+
+local SRCS =
+        lcityhash.cpp
+        City.cpp
+        City.h
+        Platform.h
+        pstdint.h
+;
+
+Lua.CModule cityhash : : $(SRCS) ;
+
+}
+
