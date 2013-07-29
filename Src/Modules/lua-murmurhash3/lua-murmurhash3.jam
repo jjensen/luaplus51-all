@@ -1,0 +1,14 @@
+{
+
+local SRCS =
+        lmurmurhash3.c
+        MurmurHash3.cpp
+        MurmurHash3.h
+        PMurHash.c
+        PMurHash.h
+;
+
+Lua.CModule murmurhash3 : : $(SRCS) ;
+
+}
+
