@@ -2108,6 +2108,13 @@ static int parse_root(lua_State* L, struct parser* P)
                         lua_pushnumber(L, (int) val);
                     break;
 
+                case INT64_TYPE:
+                    if (at.is_unsigned)
+                        lua_pushnumber(L, (uint64_t) val);
+                    else
+                        lua_pushnumber(L, (int64_t) val);
+                    break;
+
                 default:
                     luaL_error(L, "expected a valid 8-, 16-, or 32-bit signed or unsigned integer type after 'static const' on line %d", P->line);
             }
