@@ -1126,12 +1126,14 @@ extern "C" int luaplus_ls_LuaDumpObject( lua_State* L )
 		}
 		else
 		{
-			state->DumpObject(fileName, nameObj, valueObj, flags, (unsigned int)indentLevelObj.GetInteger(), maxIndentLevel);
+			state->PushBoolean(state->DumpObject(fileName, nameObj, valueObj, flags, (unsigned int)indentLevelObj.GetInteger(), maxIndentLevel));
+			return 1;
 		}
 	}
 	else
 	{
-		state->DumpObject(file, nameObj, valueObj, flags, (unsigned int)indentLevelObj.GetInteger(), maxIndentLevel);
+		state->PushBoolean(state->DumpObject(file, nameObj, valueObj, flags, (unsigned int)indentLevelObj.GetInteger(), maxIndentLevel));
+		return 1;
 	}
 
 	return 0;
