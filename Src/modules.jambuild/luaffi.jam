@@ -1,4 +1,4 @@
-if $(PLATFORM) in win32 win64 macosx32  # For now
+if $(PLATFORM) in * win32 win64 macosx32  # For now
 {
 
 local SRCS =
@@ -9,16 +9,14 @@ local SRCS =
 		parser.c
 ;
 
-ActiveTarget luaffi ;
-
-#CopyFile luaffi : $(LUA_LDIR)/alien.lua : $(SUBDIR)/src/alien.lua ;
+C.ActiveTarget luaffi ;
 
 #if $(PLATFORM) = win64 {
 #	C.Defines luaffi : X86_64 ;
 #}
 
 if $(MSVCNT) {
-	C.IncludeDirectories : msvc ;
+	C.IncludeDirectories luaffi : msvc ;
 }
 
 actions _DynAsm {
@@ -42,14 +40,14 @@ rule DynAsm TARGET : ARCHITECTURE_DEFINE : OUTPUT_HEADER : DASC_FILE {
 	Clean clean:$(TARGET) : $(OUTPUT_HEADER) ;
 }
 
-C.IncludeDirectories : $(LOCATE_TARGET) ;
+C.IncludeDirectories luaffi : $(LOCATE_TARGET) ;
 
 if $(PLATFORM) = win32 {
-    C.Defines : LUA_FFI_BUILD_AS_DLL ;
-	C.LinkPrebuiltLibraries : kernel32 user32 gdi32 ;
+    C.Defines luaffi : LUA_FFI_BUILD_AS_DLL ;
+	C.LinkPrebuiltLibraries luaffi : kernel32 user32 gdi32 ;
 }
 
-Lua.CModule : ffi : $(SRCS) ;
+Lua.CModule luaffi : ffi : $(SRCS) ;
 
 if $(PLATFORM) = win32 {
     DynAsm luaffi : X32WIN : call_x86.h : call_x86.dasc ;
