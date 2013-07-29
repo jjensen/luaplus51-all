@@ -4,6 +4,7 @@ local SRCS =
 		app.lua
 		array2d.lua
 		class.lua
+		compat.lua
 		comprehension.lua
 		config.lua
 		data.lua
@@ -11,6 +12,7 @@ local SRCS =
 		dir.lua
 		file.lua
 		func.lua
+		import_into.lua
 		init.lua
 		input.lua
 		lapp.lua
