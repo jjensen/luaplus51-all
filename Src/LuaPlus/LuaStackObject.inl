@@ -19,8 +19,8 @@ namespace LuaPlus
 /**
 	Constructor.
 **/
-LUAPLUS_INLINE LuaStackObject::LuaStackObject( lua_State* _L, int stackIndex ) :
-	L( _L ),
+LUAPLUS_INLINE LuaStackObject::LuaStackObject( lua_State* inL, int stackIndex ) :
+	L( inL ),
 	m_stackIndex( stackIndex )
 {
 }
@@ -532,8 +532,8 @@ LUAPLUS_INLINE LuaStack::LuaStack(LuaState* state)
 }
 
 	
-LUAPLUS_INLINE LuaStack::LuaStack(lua_State* _L) :
-    L( _L )
+LUAPLUS_INLINE LuaStack::LuaStack(lua_State* inL) :
+    L( inL )
 {
 }
 
