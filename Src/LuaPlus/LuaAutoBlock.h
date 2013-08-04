@@ -31,8 +31,8 @@ public:
 		, stackTop(lua_gettop(L)) {
 	}
 
-	LuaAutoBlock(lua_State* _L)
-		: L(_L)
+	LuaAutoBlock(lua_State* inL)
+		: L(inL)
 		, stackTop(lua_gettop(L)) {
 	}
 
