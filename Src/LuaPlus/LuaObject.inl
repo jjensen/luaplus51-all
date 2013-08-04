@@ -1100,7 +1100,7 @@ inline LuaObject& LuaObject::AssignString(LuaState* state, const char* value, in
 
 inline LuaObject& LuaObject::AssignUserdata(LuaState* state, void* value) {
 	lua_State* inL = LuaState_to_lua_State(state);
-	luaplus_assert(_L);
+	luaplus_assert(inL);
 	if (L)
 		lua_fastunref(L, ref);
 	L = inL;
