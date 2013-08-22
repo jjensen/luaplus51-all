@@ -1,0 +1,30 @@
+# Download instructions
+{
+	actions screenoutput Download:curl {
+		cd "$(SOURCE_DIR:P)"
+		del $(URL:BS)
+		rem curl -s -O $(URL)
+		wget $(URL)
+		unzip $(URL:BS)
+		del $(URL:BS)
+	}
+
+	rule Download-curl TARGET : URL : ZIP_DIR {
+		TARGET = $(SUBDIR)/src/$(ZIP_DIR) ;
+		SOURCE_DIR on $(TARGET) = $(TARGET) ;
+		URL on $(TARGET) = $(URL) ;
+		Depends download:curl : $(TARGET) ;
+		Download:curl $(TARGET) ;
+		CleanTree clean:download:curl : $(TARGET) ;
+	}
+
+	Depends download:curl : $(SUBDIR) ;
+	Download-curl curl : http://curl.haxx.se/download/curl-7.21.6.zip : curl-7.21.6 ;
+
+	NotFile download:curl ;
+	Depends download : download:curl ;
+	Depends clean:download : clean:download:curl ;
+	NotFile clean:download:curl ;
+	Always clean:download:curl ;
+}
+
