@@ -304,6 +304,8 @@ if $(MSVCNT)  &&  $(PLATFORM) in win32 win64 {
 	C.IncludeDirectories : src/curl-7.21.6/include ;
 
 	Lua.CModule : : $(CURL_LIB_SRCS) $(SRCS) ;
+	Depends lua-curl : cURL ;
+	Depends clean:lua-curl : clean:cURL ;
 }
 
 }
