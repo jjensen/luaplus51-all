@@ -1,13 +1,14 @@
 # Download instructions
 {
 	actions screenoutput Download:apr:clone {
-		cd "$(1:P)"
+		cd "@(@($(1:P):P):P)"
 		git clone git://github.com/xolox/lua-apr.git
 	}
 
 	actions screenoutput Download:apr {
 		cd "$(SOURCE_DIR:P)"
 		del $(URL:BS)
+		rem curl -s -O $(URL)
 		wget $(URL)
 		unzip $(URL:BS)
 		ren $(ZIP_DIR) $(SOURCE_DIR:BS)
@@ -19,17 +20,17 @@
 		SOURCE_DIR on $(TARGET) = $(TARGET) ;
 		URL on $(TARGET) = $(URL) ;
 		ZIP_DIR on $(TARGET) = $(ZIP_DIR) ;
-		Depends download:apr : $(TARGET) : $(SUBDIR) ;
+		Depends download:apr : $(TARGET) : $(SUBDIR)/.git/config ;
 		Download:apr $(TARGET) ;
-		CleanTree clean:download:apr : $(TARGET) ;
 		#Depends clean:download:apr : $(TARGET) ;
 	}
 
-	Depends download:apr : $(SUBDIR) ;
-	Download:apr:clone $(SUBDIR) ;
-	Download-apr apr : http://apache.mirrors.redwire.net//apr/apr-1.4.5-win32-src.zip : apr-1.4.5 ;
-	Download-apr apr-iconv : http://apache.tradebit.com/pub//apr/apr-iconv-1.2.1-win32-src-r2.zip : apr-iconv-1.2.1 ;
-	Download-apr apr-util : http://apache.tradebit.com/pub//apr/apr-util-1.3.12-win32-src.zip : apr-util-1.3.12 ;
+	Depends download:apr : $(SUBDIR)/.git/config ;
+	Download:apr:clone $(SUBDIR)/.git/config ;
+	CleanTree clean:download:apr : $(SUBDIR) ;
+	Download-apr apr : http://mirror.cogentco.com/pub/apache/apr/apr-1.4.8-win32-src.zip : apr-1.4.8 ;
+	Download-apr apr-iconv : http://mirror.cogentco.com/pub/apache/apr/apr-iconv-1.2.1-win32-src-r2.zip : apr-iconv-1.2.1 ;
+	Download-apr apr-util : http://mirror.cogentco.com/pub/apache/apr/apr-util-1.5.2-win32-src.zip : apr-util-1.5.2 ;
 
 	NotFile download:apr ;
 	Depends download : download:apr ;

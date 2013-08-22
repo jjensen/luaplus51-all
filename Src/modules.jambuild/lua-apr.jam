@@ -155,7 +155,10 @@ local APRUTIL_SRCS =
 		apr-util/buckets/apr_buckets_socket.c
 		apr-util/crypto/apr_md4.c
 		apr-util/crypto/apr_md5.c
+		apr-util/crypto/apr_passwd.c
 		apr-util/crypto/apr_sha1.c
+		apr-util/crypto/crypt_blowfish.c
+		apr-util/crypto/crypt_blowfish.h
 		apr-util/crypto/getuuid.c
 		apr-util/crypto/uuid.c
 		apr-util/dbd/apr_dbd.c
