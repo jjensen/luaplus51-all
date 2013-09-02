@@ -7993,7 +7993,7 @@ fail:
 }
 #endif
 
-static const struct luaL_reg swig_commands[] = {
+static const struct luaL_Reg swig_commands[] = {
     { "xmpp_initialize", _wrap_xmpp_initialize},
     { "xmpp_shutdown", _wrap_xmpp_shutdown},
     { "xmpp_version_check", _wrap_xmpp_version_check},
@@ -8560,7 +8560,11 @@ SWIGEXPORT int SWIG_init(lua_State* L)
 {
   int i;
   /* start with global table */
+#if LUA_VERSION_NUM >= 502
+  lua_pushglobaltable(L);
+#else
   lua_pushvalue(L,LUA_GLOBALSINDEX);
+#endif
   /* SWIG's internal initalisation */
   SWIG_InitializeModule((void*)L);
   SWIG_PropagateClientData();
