@@ -181,6 +181,10 @@ static const struct luaL_Reg str_funcs[] = {
 
 LUALIB_API int luaopen_replace(lua_State *L) {
 	lua_newtable(L);
-	luaL_register(L, "", str_funcs);
+#if LUA_VERSION_NUM >= 502
+	luaL_setfuncs(L, str_funcs, 0);
+#else
+	luaL_register(L, NULL, str_funcs);
+#endif
 	return 1;
 }
