@@ -1,0 +1,14 @@
+--- This file is part of LuaDist project
+
+name = "luacom"
+version = "1.4.1"
+
+desc = "Use and implement Microsoft Component Object Model (COM/OLE/ActiveX) objects in Lua"
+author = "Vinicius Almendra, Renato Cerqueira"
+license = "MIT/X11"
+url = "http://lua-users.org/wiki/LuaCom"
+maintainer = "David Manura"
+
+depends = {
+	"lua ~> 5.1"
+}

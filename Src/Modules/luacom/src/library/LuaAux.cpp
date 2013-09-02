@@ -7,16 +7,8 @@
 #include <string.h>
 
 #include "LuaAux.h"
-
-extern "C"
-{
 #include "LuaCompat.h"
-}
 
-
-// RCS Info
-static char *rcsid = "$Id: LuaAux.cpp,v 1.2 2007/12/20 06:51:15 dmanura Exp $";
-static char *rcsname = "$Name: HEAD $";
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -102,9 +94,9 @@ void LuaAux::printLuaTable(lua_State *L, stkIndex t)
   }
 }
 
-const char* LuaAux::makeLuaErrorMessage(int return_value, const char* msg)
+tStringBuffer LuaAux::makeLuaErrorMessage(int return_value, const char* msg)
 {
-  static char message[1000];
+  char message[1000];
   message[0] = '\0';
 
   if(return_value == 0)

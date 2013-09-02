@@ -8,9 +8,9 @@ local SRCS =
 		src/library/luabeans.h
 		src/library/luacom.cpp
 		src/library/luacom5.lua
-		src/library/luacom_internal.h
-		src/library/LuaCompat.c
+		src/library/LuaCompat.cpp
 		src/library/LuaCompat.h
+		src/library/luacom_internal.h
 		src/library/t_luacom.lua
 		src/library/tCOMUtil.cpp
 		src/library/tCOMUtil.h
@@ -68,7 +68,7 @@ C.Defines luacom : LUA5 "LUACOM_DLL=\\\"luacom.dll\\\"" ;
 C.IncludeDirectories luacom : include src/library ;
 C.IncludeDirectories luacom : $(LOCATE_SOURCE) ;
 
-C.LinkPrebuiltLibraries luacom : advapi32 gdi32 htmlhelp shlwapi ;
+C.LinkPrebuiltLibraries luacom : advapi32 gdi32 htmlhelp ole32 oleaut32 shlwapi user32 ;
 Lua.CModule luacom : : $(SRCS) ;
 
 }

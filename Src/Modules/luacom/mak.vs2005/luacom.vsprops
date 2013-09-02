@@ -18,11 +18,11 @@
 	/>
 	<UserMacro
 		Name="LUAC"
-		Value="$(LUA_BINDIR)\luac$(LUA_SUFFIX).exe"
+		Value="$(LUA) ..\mak\luac.lua"
 	/>
 	<UserMacro
 		Name="BIN2C"
-		Value="$(LUA_BINDIR)\bin2c$(LUA_SUFFIX).exe"
+		Value="$(LUA) ..\mak\bin2c.lua"
 	/>
 	<UserMacro
 		Name="LUA"

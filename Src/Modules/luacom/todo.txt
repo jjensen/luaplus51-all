@@ -1,11 +1,11 @@
-Projeto LuaCOM
+LuaCOM Project
 --------------
 
-1. BUGS urgentes
+1. Urgent BUGS
 2. TODO
 
 --------------------------------------
-1. Bugs Urgentes
+1. Urgent Bugs
 --------------------------------------
 
 
@@ -13,97 +13,92 @@ Projeto LuaCOM
 2. TODO
 --------------------------------------
 
-### Lista 1
+### List 1
 
-- Curso de LuaCOM (incluindo como descobrir as interfaces dos componentes)
+- Add LuaCOM course (including how to discover component interfaces)
 
-* Procurar implementar em Lua as novas funcionalidades do LuaCOM
-	- Fazer funcao para exportar em html a documentacao de uma type library
-	  já mostrando como aquelas coisas podem ser usadas a partir do Luacom
-	  (por exemplo, mostrando que os propputs e propgets parametrizados devem
-	  ser usados como funcoes)
+* Look at implementing new function in Lua for LuaCOM
+	- Make a function to export in HTML the documentation of a type library,
+	  showing how those things can be used with LuaCOM
+	  (for example, showing that propputs and propgets parameters must
+	  be used as functions)
 
-* Implementar geração automática de IDL a partir de uma descrição de
-  interfaces estruturada em Lua
+* Implement an automatic generator from IDL to an interface description
+  structured in Lua
 
-- Permitir customizar a conversão de tipos Lua -> COM, seja 
+- Allow customization of type conversions from Lua -> COM, seja
   via "type casts", seja via tag method de type conversion
-  - Incluindo conversão automática de objetos Lua em objetos
-    COM via tabela tag-typeinfo
+  - Including automatic conversion of Lua objects to COM objects
+    via tag-typeinfo table
   - Permitir para que tipo o luacom deve converter um objeto Lua
     (override do FUNCDESC)
 
-- Permitir acessar documentacao a partir de www.tecgraf.puc-rio.br/luacom
+- Implement conversion of a COM object in a Lua table, in case
+  the COM object resides in the same process, thread, or Lua state.
 
-- Implementar conversão de um objeto COM em uma tabela Lua, caso
-  o objeto COM resida no mesmo processo, thread e estado Lua
+* Allow creation of type libraries using LuaCOM
 
-* Permitir a criação de type libraries usando o LuaCOM
+* Allow implentations of in-process servers.
 
-* Permitir a implementação de servidores in process
+- BUG: perhaps vbscript has not accepted in-out SAFEARRAYS because
+  LuaCOM always creates zero-based arrays
 
-- BUG: talvez o vbscript nao aceite SAFEARRAYS in-out por causa do LuaCOM criar
-  sempre zero-based arrays
+#### List 2
 
+- Test LuaCOM with free-threaded
 
-#### Lista 2
+- Resolve the problem of the order in which lua_close and OleUninitialize are called
+  - Free everything in luacom_close
 
-- Testar LuaCOM com free-threaded
+- Improve performance
+  - reduce dynamic memory allocation - FUNCDESC's, strings etc
+  - Create a cache of FUNCDESCs, resolving the problem of two objects
+    implicitly created and destroyed
+  - Improve treatment of SAFEARRAYs (change Get and Put element--they are very slow)
 
-- Resolver problema da ordem com que lua_close e OleUninitialize são chamados
-  - Liberar tudo no luacom_close
+- Implement UnRegister, to facilitate tests without leaving garbage in the registry
 
-- Melhorar performance 
-  - diminuir alocação dinâmica de memória - FUNCDESC's, strings etc
-  - Fazer cache de FUNCDESCs, resolvendo o problema dos objetos criados e destruídos implicitamente
-  - Melhorar tratamento de SAFEARRAYs (trocar Get e Put element, são muito lentos)
+- Make coverage tests (taking special care with objects without typeinfo)
 
-- Implementar o UnRegister, para facilitar testes sem deixar
-  lixo no Registry
+- Test string2safearray, omission of arguments, functions with out
+  parameters but without return value, test with default parameters,
+  testar passar array com tipo errado para VB (número de um
+  tipo ao invés de outro),
 
-- Fazer teste de cobertura (cuidado especial com os objetos sem typeinfo)  
+- Find a way to specify /return DATE/TIME with tables
 
-- Testar string2safearray, omissão de argumentos, funções com parâmetros de
-  saída mas sem return value, testar com parâmetros com valor default, testar
-  passar array com tipo errado para VB (número de um tipo ao invés de outro),
-
-- Colocar um meio de especificar/retornar DATE/TIME com tabelas
-
-- Permitir que eventos gerados no LuaCOM possam utilizar parâmetros
-  de saída quando houver apenas um connection point
-
-- Tirar arquivos intermediarios do CVS
+- Allow events generated in LuaCOM to use exit parameters when
+  connection will have only one point.
 
 - Colocar todos os exemplos da documentacao na arvore, para
   evitar furos (compilá-los)
 
 
-##### Lista 3
+##### List 3
 
-- Permitir uso de objetos implementados em LuaCOM através de
-  páginas HTML com VBScript (tem que permitir algum tipo de
+- Allow objects implemented in LuaCOM through HTML pages with
+  VBScript (tem que permitir algum tipo de
   persistência -- talvez permitir mais de um getObject de
   cada vez)
 
 - proput parametrizado: não é suportado fazer um propput parametrizado via
-  tLuaDispatch em um campo que não seja tabela (por exemplo, um userdata).
+  tLuaDispatch em um campo que não seja tabela (for example, a userdata).
 
-- Implementar um controle OLE genérico baseado em NativeCanvas
+- Implement a generic OLE control based on NativeCanvas
 
-- Testar implementacao de objeto COM usando userdatas
+- Test implementation of COM objects using userdatas
   * Acho que já funciona (tolua)
 
-- Permitir mais de um connection point
+- Allow more than one connection point
 
-- Implementação de passagem/recebimento de parâmetros vararg
-  * Parece pouco importante
+- Implementation of passing/receiving vararg parameters
+  * It seems of small importance
  
-- Testar uso do LuaCOM com múltiplos estados Lua
+- Test using LuaCOM with multiple Lua states
 
-- Permitir que aplicação cliente obtenha o ponteiro IDispatch de um objeto
-  LuaCOM
+- Allow a client application to obtain the IDispatch pointer of an object
 
 - Acertar property get e put em tLuaDispatch, especialmente no caso dos
   indexados        
 
-- remover lua_ref
+- Remove lua_ref.

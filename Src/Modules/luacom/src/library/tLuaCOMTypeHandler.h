@@ -6,15 +6,12 @@
 #if !defined(AFX_TLUACOMTYPEHANDLER_H__2CAF122C_E09B_11D3_BD2F_444553540000__INCLUDED_)
 #define AFX_TLUACOMTYPEHANDLER_H__2CAF122C_E09B_11D3_BD2F_444553540000__INCLUDED_
 
-#if _MSC_VER >= 1000
-#pragma once
-#endif // _MSC_VER >= 1000
-
 #include <ole2.h>
 
 #include "luabeans.h"
 #include "tLuaObjList.h"
 #include "LuaAux.h"
+#include "tCOMUtil.h"
 
 class tLuaCOM;
 
@@ -61,7 +58,7 @@ public:
   tLuaCOMTypeHandler(ITypeInfo *ptypeinfo);
   virtual ~tLuaCOMTypeHandler();
 
-	static TYPEDESC processTYPEDESC(
+  static TYPEDESC processTYPEDESC(
     ITypeInfo* typeinfo,
     TYPEDESC tdesc);
 
@@ -79,20 +76,20 @@ protected:
   SAFEARRAYBOUND* getRightOrderedBounds(SAFEARRAYBOUND *bounds, 
                                         unsigned long num_dimensions);
 
-	void Coerce(VARIANTARG& dest, VARIANTARG src, VARTYPE vt);
-	long VariantSize(VARTYPE vt);
-	static TYPEDESC processSAFEARRAY(ITypeInfo* typeinfo, TYPEDESC& tdesc);
-	void toByRefParam(VARIANT& var_source, VARIANTARG * pvarg_dest);
-	void initByRefParam(VARIANTARG* pvarg, VARTYPE vt, bool alloc_memory = true);
-	void pushIUnknown(lua_State* L, IUnknown *punk);
-	bool isIUnknown(lua_State* L, stkIndex value);
-	static TYPEDESC processAliases(
+  void Coerce(VARIANTARG& dest, VARIANTARG src, VARTYPE vt);
+  long VariantSize(VARTYPE vt);
+  static TYPEDESC processSAFEARRAY(ITypeInfo* typeinfo, TYPEDESC& tdesc);
+  void toByRefParam(VARIANT& var_source, VARIANTARG * pvarg_dest);
+  void initByRefParam(VARIANTARG* pvarg, VARTYPE vt, bool alloc_memory = true);
+  void pushIUnknown(lua_State* L, IUnknown *punk);
+  bool isIUnknown(lua_State* L, stkIndex value);
+  static TYPEDESC processAliases(
     ITypeInfo* typeinfo,
     const TYPEDESC& tdesc);
-	static TYPEDESC processUSERDEFINED(
+  static TYPEDESC processUSERDEFINED(
     ITypeInfo* typeinfo,
     const TYPEDESC& tdesc);
-	static TYPEDESC processPTR(
+  static TYPEDESC processPTR(
     ITypeInfo* typeinfo,
     const TYPEDESC& tdesc);
 
@@ -116,7 +113,7 @@ protected:
   void string2safearray(const char* str, size_t len, VARIANTARG& varg);
   void safearray2string(lua_State* L, VARIANTARG & varg);
 
-  ITypeInfo * m_typeinfo;
+  tCOMPtr<ITypeInfo> m_typeinfo;
 };
 
 #define LUACOM_IUNKNOWN_TAGNAME "_LuaCOM_IUnknown_tag"

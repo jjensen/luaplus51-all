@@ -1,48 +1,53 @@
-This is LuaCom 1.4
-
 * Installation Steps
 --------------------
 
-  1. Install LuaRocks
-  2. Do "luarocks install luacom"
+* Using the binary distribution
+-------------------------------
 
-  or (the hard way)...
+  LuaCOM is available in binary form as part of
+  Lua for Windows: http://code.google.com/p/luaforwindows/ .
+  This is the easiest way to start using LuaCOM.
+
+* Installing from LuaRocks (from source or maybe binary)
+----------------------------------------------------------
+
+  1. Install LuaRocks (www.luarocks.org).
+  2. Do "luarocks install luacom".
+  
+* Installing from LuaDist (from source or maybe binary)
+-------------------------------------------------------
+
+  1. Install LuaDist (www.luadist.org).
+  2. Do "luadist install luacom".
+
+* Installing from source (without LuaRocks or LuaDist)
+------------------------------------------------------
+
+  If installing from source, it's recommented to use the CMake build:
+
+    mkdir build
+    cd build
+    cmake ..
+    cmake --build .
+      
+    cmake --build . --target test              (optionally run tests)
+                                  (replace "test" with "RUN_TESTS" in Visual Studio)
+
+  What you get:
+
+    * the luacom DLL (luacom.dll)
+    * the luacom library (luacom.lib)
+    * include files in ./include
+
+  These are the only directories you need for development.
+
+  There are also some older build files (GNU make, nmake, vcproj, and tecmake)
+  but they are not as well maintained.
+
+* Installing from source via nmake
+----------------------------------
 
   1. Make sure that Lua is installed in your system.
   2. Edit the Makefile file to suit your environment.
      (in general, you only need to specify where Lua is installed)
   3. Run "nmake" from the luacom directory.
-
-
-* What you get
---------------
-
-  If "nmake" succeeds, you get:
-        * the luacom interpreter and dll in ./bin
-        * the luacom library in ./lib (luacom.lib)
-        * include files in ./include
-  These are the only directories you need for development.
-
-
-* Tested Platforms
-------------------
-
-  Operating System:   MS Windows XP
-  Lua version:        5.1
-  Compiler:           MS Visual C++ 2005
-
-
-* If you have problems (and solutions!)
----------------------------------------
-
-  If "nmake" fails, please let us know (luacom@tecgraf.puc-rio.br).
-  If you make changes to "Makefile", please send them to us.
-
-
-* More Information:
--------------------
-
-   LuaCom:  http://www.tecgraf.puc-rio.br/~rcerq/luacom
-
-   Lua:     http://www.lua.org
-

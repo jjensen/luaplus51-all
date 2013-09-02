@@ -20,9 +20,8 @@ build = {
        	build_variables = {
          LUA_LIBDLL = "$(LUA_LIBDIR)",
 	 LUA_INC = "$(LUA_INCDIR)",
-         LUA = "$(LUA_LIBDIR)\\lua5.1.exe",
-         LUAC = "$(LUA_LIBDIR)\\luac5.1.exe",
-         BIN2C = "$(LUA_LIBDIR)\\bin2c5.1.exe"
+         LUA = "$(LUA)",
+         LUA_LIBSDLL = "$(LUA_LIB)"
        	},
         build_target = "lc_dll",
        	install_variables = {

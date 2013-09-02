@@ -226,7 +226,7 @@ SOURCE=..\src\dll\luacom_dll.def
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\library\LuaCompat.c
+SOURCE=..\src\library\LuaCompat.cpp
 # End Source File
 # Begin Source File
 

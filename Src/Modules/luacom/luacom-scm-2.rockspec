@@ -1,8 +1,7 @@
 package = "LuaCOM"
-version = "cvs-1"
+version = "scm-2"
 source = {
-   url = "cvs://:pserver:anonymous:@cvs.luaforge.net:/cvsroot/luacom",
-   cvs_tag = "HEAD",
+   url = "git://github.com/davidm/luacom.git"
 }
 description = {
    summary = "Use COM libraries from Lua",
