@@ -67,7 +67,7 @@ local SRCS =
 
 #C.DefFile luasql.sqlite3 : src/sqlite3.def ;
 
-C.Defines sqlite3 : SQLITE_ENABLE_FTS3 ;
+C.Defines luasql.sqlite3 : SQLITE_ENABLE_FTS3 ;
 
 C.IncludeDirectories luasql.sqlite3 : ../sqlite3/sqlite ;
 
