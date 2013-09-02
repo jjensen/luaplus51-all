@@ -23,20 +23,16 @@
 #ifndef PYTHONINLUA_H
 #define PYTHONINLUA_H
 
-#define POBJECT "PyObject"
+#define POBJECT "POBJECT"
 
 int py_convert(lua_State *L, PyObject *o, int withnone);
 
 typedef struct {
-	PyObject *o;
-	int asindx;
+    PyObject *o;
+    int asindx;
 } py_object;
 
-void stackDump(lua_State *L);
-void tableDump(lua_State *L, int t);
-
-py_object *check_py_object(lua_State *L, int ud);
-
+py_object* luaPy_to_pobject(lua_State *L, int n);
 LUA_API int luaopen_python(lua_State *L);
 
 #endif

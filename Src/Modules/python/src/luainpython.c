@@ -20,38 +20,18 @@
  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 */
-#define PY_SSIZE_T_CLEAN
 #include <Python.h>
 
-#include <setjmp.h>
+/* need this to build with Lua 5.2: enables lua_strlen() macro */
+#define LUA_COMPAT_ALL
 
 #include <lua.h>
+#include <luaconf.h>
 #include <lauxlib.h>
 #include <lualib.h>
 
 #include "pythoninlua.h"
 #include "luainpython.h"
-
-jmp_buf errjmp;
-
-static int py_lua_panic(lua_State* L)
-{
-	size_t len;
-	const char *s = lua_tolstring(L, -1, &len);
-	PyObject *o = PyString_FromStringAndSize(s, len);
-	PyErr_SetObject(PyExc_RuntimeError, o);
-	longjmp(errjmp, -1);
-	return (-1);
-}
-
-#define TRY     do {							\
-        lua_CFunction old_panic = lua_atpanic(LuaState, py_lua_panic);	\
-	if (setjmp(errjmp) == 0) {
-#define CATCH    lua_atpanic(LuaState, old_panic);	\
-        } else {					\
-		  lua_atpanic(LuaState, old_panic);
-#define ENDTRY   }} while (0)
-
 
 lua_State *LuaState = NULL;
 
@@ -59,523 +39,499 @@ static PyObject *LuaObject_New(int n);
 
 PyObject *LuaConvert(lua_State *L, int n)
 {
-	PyObject *ret = NULL;
+    
+    PyObject *ret = NULL;
 
-	switch (lua_type(L, n)) {
+    switch (lua_type(L, n)) {
 
-		case LUA_TNIL:
-			Py_INCREF(Py_None);
-			ret = Py_None;
-			break;
+        case LUA_TNIL:
+            Py_INCREF(Py_None);
+            ret = Py_None;
+            break;
 
-		case LUA_TSTRING: {
-			size_t len;
-			const char *s = lua_tolstring(L, n, &len);
-			ret = PyString_FromStringAndSize(s, len);
-			break;
-		}
+        case LUA_TSTRING: {
+            const char *s = lua_tostring(L, n);
+            int len = lua_strlen(L, n);
+            ret = PyUnicode_FromStringAndSize(s, len);
+            break;
+        }
 
-		case LUA_TNUMBER: {
-			lua_Number num = lua_tonumber(L, n);
-#ifdef LUA_NUMBER_DOUBLE
-			if (num != (long)num) {
-				ret = PyFloat_FromDouble(n);
-			} else
-#endif
-			{
-				ret = PyInt_FromLong((long)num);
-			}
-			break;
-		}
+        case LUA_TNUMBER: {
+            lua_Number num = lua_tonumber(L, n);
+            if (num != (long)num) {
+                ret = PyFloat_FromDouble(num);
+            } else {
+                ret = PyLong_FromLong((long)num);
+            }
+            break;
+        }
 
-		case LUA_TBOOLEAN:
-			if (lua_toboolean(L, n)) {
-				Py_INCREF(Py_True);
-				ret = Py_True;
-			} else {
-				Py_INCREF(Py_False);
-				ret = Py_False;
-			}
-			break;
+        case LUA_TBOOLEAN:
+            if (lua_toboolean(L, n)) {
+                Py_INCREF(Py_True);
+                ret = Py_True;
+            } else {
+                Py_INCREF(Py_False);
+                ret = Py_False;
+            }
+            break;
 
-		case LUA_TUSERDATA: {
-			py_object *obj = check_py_object(L, n);
+        case LUA_TUSERDATA: {
+            py_object *obj = luaPy_to_pobject(L, n);
 
-			if (obj) {
-				Py_INCREF(obj->o);
-				ret = obj->o;
-				break;
-			}
+            if (obj) {
+                Py_INCREF(obj->o);
+                ret = obj->o;
+                break;
+            }
 
-			/* Otherwise go on and handle as custom. */
-		}
+            /* Otherwise go on and handle as custom. */
+        }
 
-		default:
-			ret = LuaObject_New(n);
-			break;
-	}
+        default:
+            ret = LuaObject_New(n);
+            break;
+    }
 
-	return ret;
-}
-
-static int e_py_convert(lua_State *L, PyObject *o, int withnone)
-{
-	int r = 0;
-	TRY {
-		r = py_convert(L, o, withnone);
-	} CATCH {
-		r = 0;
-	} ENDTRY;
-	if (!r) {
-		PyErr_SetString(PyExc_RuntimeError, "can't convert");
-	}
-	return r;
+    return ret;
 }
 
 static PyObject *LuaCall(lua_State *L, PyObject *args)
 {
-	PyObject *ret = NULL;
-	PyObject *arg;
-	int nargs, rc, i;
+    PyObject *ret = NULL;
+    PyObject *arg;
+    int nargs, rc, i;
 
-	assert(PyTuple_Check(args));
+    if (!PyTuple_Check(args)) {
+        PyErr_SetString(PyExc_TypeError, "tuple expected");
+        lua_settop(L, 0);
+        return NULL;
+    }
 
-	nargs = PyTuple_Size(args);
-	for (i = 0; i != nargs; i++) {
-		arg = PyTuple_GetItem(args, i);
-		if (arg == NULL) {
-			PyErr_Format(PyExc_TypeError,
-				     "failed to get tuple item #%d", i);
-			lua_settop(L, 0);
-			return NULL;
-		}
-		rc = e_py_convert(L, arg, 0);
-		if (!rc) {
-			PyErr_Format(PyExc_TypeError,
-				     "failed to convert argument #%d", i);
-			lua_settop(L, 0);
-			return NULL;
-		}
-	}
+    nargs = PyTuple_Size(args);
+    for (i = 0; i != nargs; i++) {
+        arg = PyTuple_GetItem(args, i);
+        if (arg == NULL) {
+            PyErr_Format(PyExc_TypeError,
+                     "failed to get tuple item #%d", i);
+            lua_settop(L, 0);
+            return NULL;
+        }
+        rc = py_convert(L, arg, 0);
+        if (!rc) {
+            PyErr_Format(PyExc_TypeError,
+                     "failed to convert argument #%d", i);
+            lua_settop(L, 0);
+            return NULL;
+        }
+    }
 
-	if (lua_pcall(L, nargs, LUA_MULTRET, 0) != 0) {
-		PyErr_Format(PyExc_Exception,
-			     "error: %s", lua_tostring(L, -1));
-		return NULL;
-	}
+    if (lua_pcall(L, nargs, LUA_MULTRET, 0) != 0) {
+        PyErr_Format(PyExc_Exception,
+                 "error: %s", lua_tostring(L, -1));
+        return NULL;
+    }
 
-	nargs = lua_gettop(L);
-	if (nargs == 1) {
-		ret = LuaConvert(L, 1);
-		if (!ret) {
-			PyErr_SetString(PyExc_TypeError,
-				        "failed to convert return");
-			lua_settop(L, 0);
-			Py_DECREF(ret);
-			return NULL;
-		}
-	} else if (nargs > 1) {
-		ret = PyTuple_New(nargs);
-		if (!ret) {
-			PyErr_SetString(PyExc_RuntimeError,
-					"failed to create return tuple");
-			lua_settop(L, 0);
-			return NULL;
-		}
-		for (i = 0; i != nargs; i++) {
-			arg = LuaConvert(L, i+1);
-			if (!arg) {
-				PyErr_Format(PyExc_TypeError,
-					     "failed to convert return #%d", i);
-				lua_settop(L, 0);
-				Py_DECREF(ret);
-				return NULL;
-			}
-			PyTuple_SetItem(ret, i, arg);
-		}
-	} else {
-		Py_INCREF(Py_None);
-		ret = Py_None;
-	}
-	
-	lua_settop(L, 0);
+    nargs = lua_gettop(L);
+    if (nargs == 1) {
+        ret = LuaConvert(L, 1);
+        if (!ret) {
+            PyErr_SetString(PyExc_TypeError,
+                        "failed to convert return");
+            lua_settop(L, 0);
+            Py_DECREF(ret);
+            return NULL;
+        }
+    } else if (nargs > 1) {
+        ret = PyTuple_New(nargs);
+        if (!ret) {
+            PyErr_SetString(PyExc_RuntimeError,
+                    "failed to create return tuple");
+            lua_settop(L, 0);
+            return NULL;
+        }
+        for (i = 0; i != nargs; i++) {
+            arg = LuaConvert(L, i+1);
+            if (!arg) {
+                PyErr_Format(PyExc_TypeError,
+                         "failed to convert return #%d", i);
+                lua_settop(L, 0);
+                Py_DECREF(ret);
+                return NULL;
+            }
+            PyTuple_SetItem(ret, i, arg);
+        }
+    } else {
+        Py_INCREF(Py_None);
+        ret = Py_None;
+    }
+    
+    lua_settop(L, 0);
 
-	return ret;
+    return ret;
 }
-
-#define L LuaState
 
 static PyObject *LuaObject_New(int n)
 {
-	LuaObject *obj = PyObject_New(LuaObject, &LuaObject_Type);
-	if (obj) {
-		lua_pushvalue(L, n);
-		obj->ref = luaL_ref(L, LUA_REGISTRYINDEX);
-		obj->refiter = LUA_NOREF;
-	}
-	return (PyObject*) obj;
+    LuaObject *obj = PyObject_New(LuaObject, &LuaObject_Type);
+    if (obj) {
+        lua_pushvalue(LuaState, n);
+        obj->ref = luaL_ref(LuaState, LUA_REGISTRYINDEX);
+        obj->refiter = 0;
+    }
+    return (PyObject*) obj;
 }
 
 static void LuaObject_dealloc(LuaObject *self)
 {
-	luaL_unref(L, LUA_REGISTRYINDEX, self->ref);
-	if (self->refiter != LUA_NOREF)
-		luaL_unref(L, LUA_REGISTRYINDEX, self->refiter);
-	self->ob_type->tp_free((PyObject *)self);
+    luaL_unref(LuaState, LUA_REGISTRYINDEX, self->ref);
+    if (self->refiter)
+        luaL_unref(LuaState, LUA_REGISTRYINDEX, self->refiter);
+    Py_TYPE(self)->tp_free((PyObject *)self);
 }
 
 static PyObject *LuaObject_getattr(PyObject *obj, PyObject *attr)
 {
-	PyObject *ret = NULL;
-	int rc;
-	lua_rawgeti(L, LUA_REGISTRYINDEX, ((LuaObject*)obj)->ref);
-	if (lua_isnil(L, -1)) {
-		PyErr_SetString(PyExc_RuntimeError, "lost reference");
-		goto error;
-	}
-	rc = e_py_convert(L, attr, 0);
-	if (rc) {
-		TRY {
-			lua_gettable(L, -2);
-		} CATCH {
-			goto error;
-		} ENDTRY;
+    PyObject *ret;
+    int rc;
 
-		ret = LuaConvert(L, -1);
-	} else {
-		PyErr_SetString(PyExc_ValueError, "can't convert attr/key");
-	}
-  error:
-	lua_settop(L, 0);
-	return ret;
+    lua_rawgeti(LuaState, LUA_REGISTRYINDEX, ((LuaObject*)obj)->ref);
+    if (lua_isnil(LuaState, -1)) {
+        lua_pop(LuaState, 1);
+        PyErr_SetString(PyExc_RuntimeError, "lost reference");
+        return NULL;
+    }
+    
+    if (!lua_isstring(LuaState, -1)
+        && !lua_istable(LuaState, -1)
+        && !lua_isuserdata(LuaState, -1))
+    {
+        lua_pop(LuaState, 1);
+        PyErr_SetString(PyExc_RuntimeError, "not an indexable value");
+        return NULL;
+    }
+
+	ret = NULL;
+    rc = py_convert(LuaState, attr, 0);
+    if (rc) {
+        lua_gettable(LuaState, -2);
+        ret = LuaConvert(LuaState, -1);
+    } else {
+        PyErr_SetString(PyExc_ValueError, "can't convert attr/key");
+    }
+    lua_settop(LuaState, 0);
+    return ret;
 }
 
 static int LuaObject_setattr(PyObject *obj, PyObject *attr, PyObject *value)
 {
-	int ret = -1;
-	int rc;
-	lua_rawgeti(L, LUA_REGISTRYINDEX, ((LuaObject*)obj)->ref);
-	if (lua_isnil(L, -1)) {
-		PyErr_SetString(PyExc_RuntimeError, "lost reference");
-		goto error;
-	}
-	if (!lua_istable(L, -1)) {
-		PyErr_SetString(PyExc_TypeError, "Lua object is not a table");
-		goto error;
-	}
-	rc = e_py_convert(L, attr, 0);
-	if (rc) {
-		rc = e_py_convert(L, value, 0);
-		if (rc) {
-			TRY {
-				lua_settable(L, -3);
-			} CATCH {
-				ret = -1;
-				goto error;
-			} ENDTRY;
-			ret = 0;
-		} else {
-			PyErr_SetString(PyExc_ValueError,
-					"can't convert value");
-		}
-	} else {
-		PyErr_SetString(PyExc_ValueError, "can't convert key/attr");
-	}
-  error:
-	lua_settop(L, 0);
-	return ret;
+    int ret = -1;
+    int rc;
+    lua_rawgeti(LuaState, LUA_REGISTRYINDEX, ((LuaObject*)obj)->ref);
+    if (lua_isnil(LuaState, -1)) {
+        lua_pop(LuaState, 1);
+        PyErr_SetString(PyExc_RuntimeError, "lost reference");
+        return -1;
+    }
+    if (!lua_istable(LuaState, -1)) {
+        lua_pop(LuaState, -1);
+        PyErr_SetString(PyExc_TypeError, "Lua object is not a table");
+        return -1;
+    }
+    rc = py_convert(LuaState, attr, 0);
+    if (rc) {
+        if (NULL == value) {
+            lua_pushnil(LuaState);
+            rc = 1;
+        } else {
+            rc = py_convert(LuaState, value, 0);
+        }
+
+        if (rc) {
+            lua_settable(LuaState, -3);
+            ret = 0;
+        } else {
+            PyErr_SetString(PyExc_ValueError,
+                    "can't convert value");
+        }
+    } else {
+        PyErr_SetString(PyExc_ValueError, "can't convert key/attr");
+    }
+    lua_settop(LuaState, 0);
+    return ret;
 }
 
 static PyObject *LuaObject_str(PyObject *obj)
 {
-	PyObject *ret = NULL;
-	const char *s;
-	int r = 0;
-	lua_rawgeti(L, LUA_REGISTRYINDEX, ((LuaObject*)obj)->ref);
-	TRY {
-		r = luaL_callmeta(L, -1, "__tostring");
-	} CATCH { 
-	} ENDTRY;
-	if (r) {
-		s = lua_tostring(L, -1);
-		lua_pop(L, 1);
-		if (s) ret = PyString_FromString(s);
-	}
-	if (!ret) {
-		int type = lua_type(L, -1);
-		switch (type) {
-			case LUA_TTABLE:
-			case LUA_TFUNCTION:
-				ret = PyString_FromFormat("<Lua %s at %p/r=%d>",
-							  lua_typename(L, type),
-							  lua_topointer(L, -1),
-							  ((LuaObject*)obj)->ref);
-				break;
-			
-			case LUA_TUSERDATA:
-			case LUA_TLIGHTUSERDATA:
-				ret = PyString_FromFormat("<Lua %s at %p>",
-					lua_typename(L, type),
-					lua_touserdata(L, -1));
-				break;
+    PyObject *ret = NULL;
+    const char *s;
+    lua_rawgeti(LuaState, LUA_REGISTRYINDEX, ((LuaObject*)obj)->ref);
+    if (luaL_callmeta(LuaState, -1, "__tostring")) {
+        s = lua_tostring(LuaState, -1);
+        lua_pop(LuaState, 1);
+        if (s) ret = PyUnicode_FromString(s);
+    }
+    if (!ret) {
+        int type = lua_type(LuaState, -1);
+        switch (type) {
+            case LUA_TTABLE:
+            case LUA_TFUNCTION:
+                ret = PyUnicode_FromFormat("<Lua %s at %p>",
+                    lua_typename(LuaState, type),
+                    lua_topointer(LuaState, -1));
+                break;
+            
+            case LUA_TUSERDATA:
+            case LUA_TLIGHTUSERDATA:
+                ret = PyUnicode_FromFormat("<Lua %s at %p>",
+                    lua_typename(LuaState, type),
+                    lua_touserdata(LuaState, -1));
+                break;
 
-			case LUA_TTHREAD:
-				ret = PyString_FromFormat("<Lua %s at %p>",
-					lua_typename(L, type),
-					(void*)lua_tothread(L, -1));
-				break;
+            case LUA_TTHREAD:
+                ret = PyUnicode_FromFormat("<Lua %s at %p>",
+                    lua_typename(LuaState, type),
+                    (void*)lua_tothread(LuaState, -1));
+                break;
 
-			default:
-				ret = PyString_FromFormat("<Lua %s>",
-					lua_typename(L, type));
-				break;
+            default:
+                ret = PyUnicode_FromFormat("<Lua %s>",
+                    lua_typename(LuaState, type));
+                break;
 
-		}
-	}
-	lua_pop(L, 1);
-	return ret;
+        }
+    }
+    lua_pop(LuaState, 1);
+    return ret;
 }
 
 static PyObject *LuaObject_call(PyObject *obj, PyObject *args)
 {
-	lua_settop(L, 0);
-	lua_rawgeti(L, LUA_REGISTRYINDEX, ((LuaObject*)obj)->ref);
-	return LuaCall(L, args);
+    lua_settop(LuaState, 0);
+    lua_rawgeti(LuaState, LUA_REGISTRYINDEX, ((LuaObject*)obj)->ref);
+    return LuaCall(LuaState, args);
 }
 
 static PyObject *LuaObject_iternext(LuaObject *obj)
 {
-	PyObject *ret = NULL;
-	int r = 0;
+    PyObject *ret = NULL;
 
-	lua_rawgeti(L, LUA_REGISTRYINDEX, ((LuaObject*)obj)->ref);
+    lua_rawgeti(LuaState, LUA_REGISTRYINDEX, ((LuaObject*)obj)->ref);
 
-	if (obj->refiter == LUA_NOREF)
-		lua_pushnil(L);
-	else
-		lua_rawgeti(L, LUA_REGISTRYINDEX, obj->refiter);
+    if (obj->refiter == 0)
+        lua_pushnil(LuaState);
+    else
+        lua_rawgeti(LuaState, LUA_REGISTRYINDEX, obj->refiter);
 
-	TRY {
-		r = lua_next(L, -2);
-	} CATCH {
-	} ENDTRY;
-	if (r != 0) {
-		/* Remove value. */
-		lua_pop(L, 1);
-		ret = LuaConvert(L, -1);
-		/* Save key for next iteration. */
-		if (obj->refiter == LUA_NOREF)
-			obj->refiter = luaL_ref(L, LUA_REGISTRYINDEX);
-		else
-			lua_rawseti(L, LUA_REGISTRYINDEX, obj->refiter);
-	} else if (obj->refiter != LUA_NOREF) {
-		luaL_unref(L, LUA_REGISTRYINDEX, obj->refiter);
-		obj->refiter = LUA_NOREF;
-	}
+    if (lua_next(LuaState, -2) != 0) {
+        /* Remove value. */
+        lua_pop(LuaState, 1);
+        ret = LuaConvert(LuaState, -1);
+        /* Save key for next iteration. */
+        if (!obj->refiter)
+            obj->refiter = luaL_ref(LuaState, LUA_REGISTRYINDEX);
+        else
+            lua_rawseti(LuaState, LUA_REGISTRYINDEX, obj->refiter);
+    } else if (obj->refiter) {
+        luaL_unref(LuaState, LUA_REGISTRYINDEX, obj->refiter);
+        obj->refiter = 0;
+    }
 
-	return ret;
+    return ret;
 }
 
-static Py_ssize_t LuaObject_length(LuaObject *obj)
+static int LuaObject_length(LuaObject *obj)
 {
-	size_t len;
-	lua_rawgeti(L, LUA_REGISTRYINDEX, ((LuaObject*)obj)->ref);
-	len = lua_objlen(L, -1);
-	lua_settop(L, 0);
-	return len;
+    int len;
+    lua_rawgeti(LuaState, LUA_REGISTRYINDEX, ((LuaObject*)obj)->ref);
+    len = lua_objlen(LuaState, -1);
+    lua_settop(LuaState, 0);
+    return len;
 }
 
 static PyObject *LuaObject_subscript(PyObject *obj, PyObject *key)
 {
-	return LuaObject_getattr(obj, key);
+    return LuaObject_getattr(obj, key);
 }
 
 static int LuaObject_ass_subscript(PyObject *obj,
-				   PyObject *key, PyObject *value)
+                   PyObject *key, PyObject *value)
 {
-	return LuaObject_setattr(obj, key, value);
+    return LuaObject_setattr(obj, key, value);
 }
 
 static PyMappingMethods LuaObject_as_mapping = {
-	(lenfunc)LuaObject_length,	/*mp_length*/
-	(binaryfunc)LuaObject_subscript,/*mp_subscript*/
-	(objobjargproc)LuaObject_ass_subscript,/*mp_ass_subscript*/
+#if PY_VERSION_HEX >= 0x02050000
+    (lenfunc)LuaObject_length,    /*mp_length*/
+#else
+    (inquiry)LuaObject_length,    /*mp_length*/
+#endif
+    (binaryfunc)LuaObject_subscript,/*mp_subscript*/
+    (objobjargproc)LuaObject_ass_subscript,/*mp_ass_subscript*/
 };
 
 PyTypeObject LuaObject_Type = {
-	PyObject_HEAD_INIT(NULL)
-	0,			/*ob_size*/
-	"lua.custom",		/*tp_name*/
-	sizeof(LuaObject),	/*tp_basicsize*/
-	0,			/*tp_itemsize*/
-	(destructor)LuaObject_dealloc, /*tp_dealloc*/
-	0,			/*tp_print*/
-	0,			/*tp_getattr*/
-	0,			/*tp_setattr*/
-	0,			/*tp_compare*/
-	LuaObject_str,		/*tp_repr*/
-	0,			/*tp_as_number*/
-	0,			/*tp_as_sequence*/
-	&LuaObject_as_mapping,	/*tp_as_mapping*/
-	0,			/*tp_hash*/
-	(ternaryfunc)LuaObject_call,	      /*tp_call*/
-	LuaObject_str,		 /*tp_str*/
-	LuaObject_getattr,	/*tp_getattro*/
-	LuaObject_setattr,	/*tp_setattro*/
-	0,			/*tp_as_buffer*/
-	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /*tp_flags*/
-	"Lua bridge object",	/*tp_doc*/
-	0,			/*tp_traverse*/
-	0,			/*tp_clear*/
-	0,			/*tp_richcompare*/
-	0,			/*tp_weaklistoffset*/
-	PyObject_SelfIter,	/*tp_iter*/
-	(iternextfunc)LuaObject_iternext, /*tp_iternext*/
-	0,       		/*tp_methods*/
-	0,       		/*tp_members*/
-	0,                      /*tp_getset*/
-	0,                      /*tp_base*/
-	0,                      /*tp_dict*/
-	0,                      /*tp_descr_get*/
-	0,                      /*tp_descr_set*/
-	0,                      /*tp_dictoffset*/
-	0,			/*tp_init*/
-	0,			/*tp_alloc*/
-	0,			/*tp_new*/
-	0,			/*tp_free*/
-	0,                      /*tp_is_gc*/
+    PyVarObject_HEAD_INIT(NULL, 0)
+    "lua.custom",             /*tp_name*/
+    sizeof(LuaObject),        /*tp_basicsize*/
+    0,                        /*tp_itemsize*/
+    (destructor)LuaObject_dealloc, /*tp_dealloc*/
+    0,                        /*tp_print*/
+    0,                        /*tp_getattr*/
+    0,                        /*tp_setattr*/
+    0,                        /*tp_compare*/
+    LuaObject_str,            /*tp_repr*/
+    0,                        /*tp_as_number*/
+    0,                        /*tp_as_sequence*/
+    &LuaObject_as_mapping,    /*tp_as_mapping*/
+    0,                        /*tp_hash*/
+    (ternaryfunc)LuaObject_call,     /*tp_call*/
+    LuaObject_str,            /*tp_str*/
+    LuaObject_getattr,       /*tp_getattro*/
+    LuaObject_setattr,        /*tp_setattro*/
+    0,                        /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /*tp_flags*/
+    "custom lua object",      /*tp_doc*/
+    0,                        /*tp_traverse*/
+    0,                        /*tp_clear*/
+    0,                        /*tp_richcompare*/
+    0,                        /*tp_weaklistoffset*/
+    PyObject_SelfIter,        /*tp_iter*/
+    (iternextfunc)LuaObject_iternext, /*tp_iternext*/
+    0,                        /*tp_methods*/
+    0,                        /*tp_members*/
+    0,                        /*tp_getset*/
+    0,                        /*tp_base*/
+    0,                        /*tp_dict*/
+    0,                        /*tp_descr_get*/
+    0,                        /*tp_descr_set*/
+    0,                        /*tp_dictoffset*/
+    0,                        /*tp_init*/
+    PyType_GenericAlloc,      /*tp_alloc*/
+    PyType_GenericNew,        /*tp_new*/
+    PyObject_Del,            /*tp_free*/
+    0,                        /*tp_is_gc*/
 };
 
 
 PyObject *Lua_run(PyObject *args, int eval)
 {
-	PyObject *ret = NULL;
-	char *buf = NULL;
-	char *s;
-	Py_ssize_t len;
+    PyObject *ret;
+    char *buf = NULL;
+    char *s;
+    int len;
 
-	if (!PyArg_ParseTuple(args, "s#", &s, &len))
-		goto error;
+    if (!PyArg_ParseTuple(args, "s#", &s, &len))
+        return NULL;
 
-	if (eval) {
-		size_t retlen = sizeof("return ")-1;
-		size_t lenbuf = retlen + len;
-		buf = PyMem_New(char, lenbuf+1);
-		strcpy(buf, "return ");
-		memcpy(buf+retlen, s, len);
-		buf[lenbuf] = '\0';
-		s = buf;
-		len = lenbuf;
-	}
+    if (eval) {
+        buf = (char *) malloc(strlen("return ")+len+1);
+        strcpy(buf, "return ");
+        strncat(buf, s, len);
+        s = buf;
+        len = strlen("return ")+len;
+    }
 
-	if (luaL_loadbuffer(L, s, len, "<python>") != 0) {
-		PyErr_Format(PyExc_RuntimeError,
-			     "error loading code: %s",
-			     lua_tostring(L, -1));
-		goto error;
-	}
+    if (luaL_loadbuffer(LuaState, s, len, "<python>") != 0) {
+        PyErr_Format(PyExc_RuntimeError,
+                 "error loading code: %s",
+                 lua_tostring(LuaState, -1));
+        return NULL;
+    }
 
-	PyMem_Free(buf);
-	
-	if (lua_pcall(L, 0, 1, 0) != 0) {
-		PyErr_Format(PyExc_RuntimeError,
-			     "error executing code: %s",
-			     lua_tostring(L, -1));
-		goto error;
-	}
+    free(buf);
+    
+    if (lua_pcall(LuaState, 0, 1, 0) != 0) {
+        PyErr_Format(PyExc_RuntimeError,
+                 "error executing code: %s",
+                 lua_tostring(LuaState, -1));
+        return NULL;
+    }
 
-	ret = LuaConvert(L, -1);
-  error:
-	lua_settop(L, 0);
-	return ret;
+    ret = LuaConvert(LuaState, -1);
+    lua_settop(LuaState, 0);
+    return ret;
 }
 
 PyObject *Lua_execute(PyObject *self, PyObject *args)
 {
-	return Lua_run(args, 0);
+    return Lua_run(args, 0);
 }
 
 PyObject *Lua_eval(PyObject *self, PyObject *args)
 {
-	return Lua_run(args, 1);
+    return Lua_run(args, 1);
 }
 
 PyObject *Lua_globals(PyObject *self, PyObject *args)
 {
-	PyObject *ret = NULL;
-	lua_pushvalue(L, LUA_GLOBALSINDEX);
-	if (lua_isnil(L, -1)) {
-		PyErr_SetString(PyExc_RuntimeError,
-				"lost globals reference");
-		lua_pop(L, 1);
-		return NULL;
-	}
-	ret = LuaConvert(L, -1);
-	if (!ret)
-		PyErr_Format(PyExc_TypeError,
-			     "failed to convert globals table");
-	lua_settop(L, 0);
-	return ret;
+    PyObject *ret = NULL;
+    lua_getglobal(LuaState, "_G");
+    if (lua_isnil(LuaState, -1)) {
+        PyErr_SetString(PyExc_RuntimeError,
+                "lost globals reference");
+        lua_pop(LuaState, 1);
+        return NULL;
+    }
+    ret = LuaConvert(LuaState, -1);
+    if (!ret)
+        PyErr_Format(PyExc_TypeError,
+                 "failed to convert globals table");
+    lua_settop(LuaState, 0);
+    return ret;
 }
 
 static PyObject *Lua_require(PyObject *self, PyObject *args)
 {
-	lua_pushliteral(L, "require");
-	lua_rawget(L, LUA_GLOBALSINDEX);
-	if (lua_isnil(L, -1)) {
-		lua_pop(L, 1);
-		PyErr_SetString(PyExc_RuntimeError, "require is not defined");
-		return NULL;
-	}
-	return LuaCall(L, args);
+    lua_getglobal(LuaState, "require");
+    if (lua_isnil(LuaState, -1)) {
+        lua_pop(LuaState, 1);
+        PyErr_SetString(PyExc_RuntimeError, "require is not defined");
+        return NULL;
+    }
+    return LuaCall(LuaState, args);
 }
 
 static PyMethodDef lua_methods[] = {
-	{"execute",	Lua_execute,	METH_VARARGS,		NULL},
-	{"eval",	Lua_eval,	METH_VARARGS,		NULL},
-	{"globals",	Lua_globals,	METH_NOARGS,		NULL},
-	{"require", 	Lua_require,	METH_VARARGS,		NULL},
-	{NULL,		NULL}
+    {"execute",    Lua_execute,    METH_VARARGS,        NULL},
+    {"eval",       Lua_eval,       METH_VARARGS,        NULL},
+    {"globals",    Lua_globals,    METH_NOARGS,         NULL},
+    {"require",    Lua_require,    METH_VARARGS,        NULL},
+    {NULL,         NULL}
 };
 
-static void *py_lua_alloc(void *ud, void *ptr, size_t osize, size_t nsize, const char* name, unsigned int alloc_flags)
-{
-	(void)ud; (void)osize;
-	if (nsize == 0) {
-		PyMem_Free(ptr);
-		return NULL;
-	} else {
-		return PyMem_Realloc(ptr, nsize);
-	}
-}
-
-static int py_lua_module_panic(lua_State* L)
-{
-	const char *s = lua_tostring(L, -1);
-	fprintf(stderr, "Error in lua module: %s\n", s);
-	fprintf(stderr, "exiting (sorry)\n");
-	fflush(stderr);
-	return (-1);
-}
+#if PY_MAJOR_VERSION >= 3
+static struct PyModuleDef lua_module = {
+    PyModuleDef_HEAD_INIT,
+    "lua",
+    "Lunatic-Python Python-Lua bridge",
+    -1,
+    lua_methods
+};
+#endif
 
 #if defined(WIN32)
 #include <windows.h>
 #endif /* WIN32 */
 
-DL_EXPORT(void)
-initlua(void)
+PyMODINIT_FUNC PyInit_lua(void)
 {
-	PyObject *m;
+    PyObject *m;
 
-	LuaObject_Type.tp_new = PyType_GenericNew;
-	if (PyType_Ready(&LuaObject_Type) < 0)
-		return;
+#if PY_MAJOR_VERSION >= 3
+    if (PyType_Ready(&LuaObject_Type) < 0) return NULL;
+    m = PyModule_Create(&lua_module);
+    if (m == NULL) return NULL;
+#else
+    if (PyType_Ready(&LuaObject_Type) < 0) return;
+    m = Py_InitModule3("lua", lua_methods,
+                       "Lunatic-Python Python-Lua bridge");
+    if (m == NULL) return;
+#endif
 
-	m = Py_InitModule3("lua", lua_methods,
-			   "Lua as a Python module.");
-	if (!m)
-		return;
-	if (!L) {
+    Py_INCREF(&LuaObject_Type);
+
+    if (!LuaState) {
 #if defined(WIN32)
 		FILE* file;
 		char filename[_MAX_PATH];
@@ -622,15 +578,14 @@ initlua(void)
 				fclose(file);
 			}
 		}
-//		L = lua_open();
-//		lua_cpcall(L, &pmain, NULL);
 #endif /* WIN32 */
-		L = lua_newstate(py_lua_alloc, py_lua_module_panic);
-		luaL_openlibs(L);
-		if (lua_cpcall(L, luaopen_python, NULL) != 0) {
-			PyErr_SetString(PyExc_RuntimeError,
-					"can't open python lib in lua");
-		}
-		lua_settop(L, 0);
-	}
+        LuaState = luaL_newstate();
+        luaL_openlibs(LuaState);
+        luaopen_python(LuaState);
+        lua_settop(LuaState, 0);
+    }
+
+#if PY_MAJOR_VERSION >= 3
+    return m;
+#endif
 }
