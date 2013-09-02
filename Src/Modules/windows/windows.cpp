@@ -1609,7 +1609,7 @@ static int l_SendKeys(lua_State* L) {
 }
 
 
-static const struct luaL_reg windows_funcs[] = {
+static const struct luaL_Reg windows_funcs[] = {
 	{ "GetForegroundWindow", l_GetForegroundWindow },
 	{ "GetActiveWindow", l_GetActiveWindow },
 	{ "GetFocus", l_GetFocus },
@@ -1621,6 +1621,11 @@ static const struct luaL_reg windows_funcs[] = {
 
 
 LUALIB_API int luaopen_windows(lua_State* L) {
-	luaL_register(L, "windows", windows_funcs);
+	lua_newtable(L);
+#if LUA_VERSION_NUM >= 502
+	luaL_setfuncs(L, windows_funcs, 0);
+#else
+	luaL_register(L, NULL, windows_funcs);
+#endif
 	return 1;
 }
