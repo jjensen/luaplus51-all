@@ -25,6 +25,9 @@ The file stable.lua should be copied to a directory in your Lua path.
 
 History
 
+Version 1.3.0 [30/Jan/2013]
+* Support for Lua 5.2
+
 Version 1.2.3 [20/Oct/2009]
 * Fixing an old reference to "arg" instead of {...} - Reported by MFarm
 

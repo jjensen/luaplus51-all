@@ -3,7 +3,7 @@
 require"rings"
 
 local init_cmd = [[
-require"stable"]]
+stable = require"stable"]]
 
 local count_cmd = [[
 count = stable.get"shared_counter" or 0

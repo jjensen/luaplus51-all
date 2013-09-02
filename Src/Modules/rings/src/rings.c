@@ -17,6 +17,16 @@
 #define STATE_METATABLE "rings state metatable"
 #define RINGS_CACHE     "rings cache"
 
+/* default initialization for fresh states */
+#define RINGS_INITIALIZE luaL_openlibs
+
+#if LUA_VERSION_NUM < 502
+#  define luaL_newlib(L,l) (lua_newtable(L), luaL_register(L,NULL,l))
+#  define luaL_setfuncs(L,l,n) luaL_register(L,NULL,l)
+#else
+#  define lua_setfenv(L,i) lua_setupvalue(L, i, 1)
+#  define lua_strlen(L,i)  lua_rawlen(L, (i))
+#endif
 
 typedef struct {
   lua_State *L;
@@ -67,6 +77,13 @@ static void copy_values (lua_State *dst, lua_State *src, int i, int top) {
       case LUA_TLIGHTUSERDATA: {
         lua_pushlightuserdata (dst, lua_touserdata (src, i));
         break;
+      }
+      case LUA_TFUNCTION: {
+        lua_CFunction f = lua_tocfunction(src, i);
+        if(f)
+          lua_pushcfunction(dst, f);
+        else
+          lua_pushnil(dst);
       }
       case LUA_TNIL:
       default:
@@ -204,20 +221,20 @@ static int state_new (lua_State *L) {
       lua_settop(L, 0);
       lua_getglobal(L, "_G");
       if(lua_isnil(L, 1)) {
-	lua_settop(L, 0);
+        lua_settop(L, 0);
         lua_newtable(L);
       }
     }
   }
   s = (state_data *)lua_newuserdata (L, sizeof (state_data));
   if(s == NULL) {
-    lua_pushliteral(L, "rings: could not create state data"); 
+    lua_pushliteral(L, "rings: could not create state data");
     lua_error(L);
   }
   s->L = NULL;
   luaL_getmetatable (L, STATE_METATABLE);
   lua_setmetatable (L, -2);
-  s->L = lua_open ();
+  s->L = luaL_newstate ();
   if(s->L == NULL) {
     lua_pushliteral(L, "rings: could not create new state");
     lua_error(L);
@@ -231,15 +248,14 @@ static int state_new (lua_State *L) {
   lua_pushvalue(L, 1);
   lua_settable(L, -3);
   lua_pop(L, 1);
- 
+
    /* load base libraries */
-  luaL_openlibs(s->L);
+  RINGS_INITIALIZE(s->L);
 
   /* define dostring function (which runs strings on the master state) */
-  lua_pushliteral (s->L, "remotedostring");
   lua_pushlightuserdata (s->L, s->L);
   lua_pushcclosure (s->L, master_dostring, 1);
-  lua_settable (s->L, LUA_GLOBALSINDEX);
+  lua_setglobal (s->L, "remotedostring");
 
   /* fetches debug.traceback to registry */
   lua_getglobal(s->L, "debug");
@@ -266,18 +282,18 @@ static int state_new (lua_State *L) {
 ** Returns `true' in case of success; `nil' when the state was already closed.
 */
 static int slave_close (lua_State *L) {
-	state_data *s = (state_data *)luaL_checkudata (L, 1, STATE_METATABLE);
-	luaL_argcheck (L, s != NULL, 1, "not a Lua State");
-	if (s->L != NULL) {
-	  lua_pushliteral(L, RINGS_ENV);
-	  lua_gettable(L, LUA_REGISTRYINDEX);
-	  lua_pushlightuserdata(L, s->L);
-	  lua_pushnil(L);
-	  lua_settable(L, -3);
-	  lua_close (s->L);
-	  s->L = NULL;
-	}
-	return 0;
+        state_data *s = (state_data *)luaL_checkudata (L, 1, STATE_METATABLE);
+        luaL_argcheck (L, s != NULL, 1, "not a Lua State");
+        if (s->L != NULL) {
+          lua_pushliteral(L, RINGS_ENV);
+          lua_gettable(L, LUA_REGISTRYINDEX);
+          lua_pushlightuserdata(L, s->L);
+          lua_pushnil(L);
+          lua_settable(L, -3);
+          lua_close (s->L);
+          s->L = NULL;
+        }
+        return 0;
 }
 
 
@@ -285,35 +301,35 @@ static int slave_close (lua_State *L) {
 ** Creates the metatable for the state on top of the stack.
 */
 static int state_createmetatable (lua_State *L) {
-	/* State methods */
-	struct luaL_reg methods[] = {
-		{"close", slave_close},
-		{"dostring", slave_dostring},
-		{NULL, NULL},
-	};
-	/* State metatable */
-	if (!luaL_newmetatable (L, STATE_METATABLE)) {
-		return 0;
-	}
-	/* define methods */
-	luaL_register(L, NULL, methods);
-	/* define metamethods */
-	lua_pushliteral (L, "__gc");
-	lua_pushcfunction (L, slave_close);
-	lua_settable (L, -3);
+        /* State methods */
+        struct luaL_Reg methods[] = {
+                {"close", slave_close},
+                {"dostring", slave_dostring},
+                {NULL, NULL},
+        };
+        /* State metatable */
+        if (!luaL_newmetatable (L, STATE_METATABLE)) {
+                return 0;
+        }
+        /* define methods */
+        luaL_setfuncs(L, methods, 0);
+        /* define metamethods */
+        lua_pushliteral (L, "__gc");
+        lua_pushcfunction (L, slave_close);
+        lua_settable (L, -3);
 
-	lua_pushliteral (L, "__index");
-	lua_pushvalue (L, -2);
-	lua_settable (L, -3);
+        lua_pushliteral (L, "__index");
+        lua_pushvalue (L, -2);
+        lua_settable (L, -3);
 
-	lua_pushliteral (L, "__tostring");
-	lua_pushcfunction (L, state_tostring);
-	lua_settable (L, -3);
+        lua_pushliteral (L, "__tostring");
+        lua_pushcfunction (L, state_tostring);
+        lua_settable (L, -3);
 
-	lua_pushliteral (L, "__metatable");
-	lua_pushliteral (L, "You're not allowed to get the metatable of a Lua State");
-	lua_settable (L, -3);
-	return 1;
+        lua_pushliteral (L, "__metatable");
+        lua_pushliteral (L, "You're not allowed to get the metatable of a Lua State");
+        lua_settable (L, -3);
+        return 1;
 }
 
 
@@ -321,14 +337,14 @@ static int state_createmetatable (lua_State *L) {
 **
 */
 static void set_info (lua_State *L) {
-	lua_pushliteral (L, "_COPYRIGHT");
-	lua_pushliteral (L, "Copyright (C) 2006 Kepler Project");
-	lua_settable (L, -3);
-	lua_pushliteral (L, "_DESCRIPTION");
-	lua_pushliteral (L, "Rings: Multiple Lua States");
-	lua_settable (L, -3);    lua_pushliteral (L, "_VERSION");
-	lua_pushliteral (L, "Rings 1.2.2");
-	lua_settable (L, -3);
+        lua_pushliteral (L, "_COPYRIGHT");
+        lua_pushliteral (L, "Copyright (C) 2006 Kepler Project");
+        lua_settable (L, -3);
+        lua_pushliteral (L, "_DESCRIPTION");
+        lua_pushliteral (L, "Rings: Multiple Lua States");
+        lua_settable (L, -3);    lua_pushliteral (L, "_VERSION");
+        lua_pushliteral (L, "Rings 1.2.2");
+        lua_settable (L, -3);
 }
 
 
@@ -336,33 +352,36 @@ static void set_info (lua_State *L) {
 ** Opens library.
 */
 int luaopen_rings (lua_State *L) {
-	/* Library functions */
-	struct luaL_reg rings[] = {
-		{"new", state_new},
-		{NULL, NULL},
-	};
-	if (!state_createmetatable (L))
-		return 0;
-	lua_pop (L, 1);
-	/* define library functions */
-	luaL_register(L, RINGS_TABLENAME, rings);
-    lua_pushliteral(L, RINGS_ENV);
-	lua_newtable (L);
-	lua_settable (L, LUA_REGISTRYINDEX);
-	set_info (L);
+        /* Library functions */
+        struct luaL_Reg rings[] = {
+                {"new", state_new},
+                {NULL, NULL},
+        };
+        if (!state_createmetatable (L))
+                return 0;
+        lua_pop (L, 1);
+        /* define library functions */
+        lua_newtable(L);
+        luaL_newlib(L, rings);
+        lua_pushvalue(L, -1);
+        lua_setglobal(L, RINGS_TABLENAME);
+        lua_pushliteral(L, RINGS_ENV);
+        lua_newtable (L);
+        lua_settable (L, LUA_REGISTRYINDEX);
+        set_info (L);
 
-	/* fetches debug.traceback to registry */
-	lua_getglobal(L, "debug");
-	if(!lua_isnil(L, -1)) {
-	  lua_pushliteral(L, "traceback");
-	  lua_gettable(L, -2);
-	  lua_pushliteral(L, "rings_traceback");
-	  lua_pushvalue(L, -2);
-	  lua_settable(L, LUA_REGISTRYINDEX);
-	  lua_pop(L, 2);
-	} else {
-	  lua_pop(L, 1);
-	}
+        /* fetches debug.traceback to registry */
+        lua_getglobal(L, "debug");
+        if(!lua_isnil(L, -1)) {
+          lua_pushliteral(L, "traceback");
+          lua_gettable(L, -2);
+          lua_pushliteral(L, "rings_traceback");
+          lua_pushvalue(L, -2);
+          lua_settable(L, LUA_REGISTRYINDEX);
+          lua_pop(L, 2);
+        } else {
+          lua_pop(L, 1);
+        }
 
-	return 1;
+        return 1;
 }

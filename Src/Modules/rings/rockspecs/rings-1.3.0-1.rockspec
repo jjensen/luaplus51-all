@@ -1,8 +1,10 @@
 package = "Rings"
-version = "cvs-4"
+version = "1.3.0-1"
+
 source = {
-   url = "git://github.com/keplerproject/rings.git"
+   url = "http://www.keplerproject.org/rings/rings-1.3.0.tar.gz",
 }
+
 description = {
    summary = "Create new Lua states from within Lua",
    detailed = [[

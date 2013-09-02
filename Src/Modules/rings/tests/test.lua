@@ -4,14 +4,14 @@
 -- checks for a value and throw an error if it is invalid.
 ---------------------------------------------------------------------
 function assert2 (expected, value, msg)
-	if not msg then
-		msg = ''
-	else
-		msg = msg..'\n'
-	end
-	return assert (value == expected,
-		msg.."wrong value (["..tostring(value).."] instead of "..
-		tostring(expected)..")")
+        if not msg then
+                msg = ''
+        else
+                msg = msg..'\n'
+        end
+        return assert (value == expected,
+                msg.."wrong value (["..tostring(value).."] instead of "..
+                tostring(expected)..")")
 end
 
 ---------------------------------------------------------------------
@@ -19,20 +19,20 @@ end
 ---------------------------------------------------------------------
 local objmethods = { "close", "dostring", }
 function test_object (obj)
-	-- checking object type.
-	assert2 (true, type(obj) == "userdata" or type(obj) == "table", "incorrect object type")
-	-- trying to get metatable.
-	assert2 ("You're not allowed to get the metatable of a Lua State",
-		getmetatable(obj), "error permitting access to object's metatable")
-	-- trying to set metatable.
-	assert2 (false, pcall (setmetatable, S, {}))
-	-- checking existence of object's methods.
-	for i = 1, table.getn (objmethods) do
-		local method = obj[objmethods[i]]
-		assert2 ("function", type(method))
-		assert2 (false, pcall (method), "no 'self' parameter accepted")
-	end
-	return obj
+        -- checking object type.
+        assert2 (true, type(obj) == "userdata" or type(obj) == "table", "incorrect object type")
+        -- trying to get metatable.
+        assert2 ("You're not allowed to get the metatable of a Lua State",
+                getmetatable(obj), "error permitting access to object's metatable")
+        -- trying to set metatable.
+        assert2 (false, pcall (setmetatable, S, {}))
+        -- checking existence of object's methods.
+        for i = 1, #objmethods do
+                local method = obj[objmethods[i]]
+                assert2 ("function", type(method))
+                assert2 (false, pcall (method), "no 'self' parameter accepted")
+        end
+        return obj
 end
 
 ---------------------------------------------------------------------
@@ -69,12 +69,12 @@ assert2 (1, _x, "Unexpected initialized variable (x = "..tostring(_x)..")")
 io.write(".")
 global = 2
 local ok, _x = S:dostring[[
-	local ok, _x = remotedostring"return global"
-	if not ok then
-		error(_x)
-	else
-		return _x
-	end
+        local ok, _x = remotedostring"return global"
+        if not ok then
+                error(_x)
+        else
+                return _x
+        end
 ]]
 assert2 (true, ok, "Unexpected error: "..tostring(_x).." (status == "..tostring(ok)..")")
 assert2 (global, _x, "Unexpected error: "..tostring(_x).." (status == "..tostring(ok)..")")
@@ -85,17 +85,17 @@ f1 = function () return "funcao 1" end
 f2 = function () return "funcao 2" end
 f3 = function () return "funcao 3" end
 data = {
-	key1 = { f1, f2, f3, },
-	key2 = { f3, f1, f2, },
+        key1 = { f1, f2, f3, },
+        key2 = { f3, f1, f2, },
 }
 local ok, k, i, f = S:dostring ([[
-	require"math"
-	require"os"
-	math.randomseed(os.time())
-	local key = "key"..math.random(2)
-	local i = math.random(3)
-	local ok, f = remotedostring("return data."..key.."["..i.."]()")
-	return key, i, f
+        require"math"
+        require"os"
+        math.randomseed(os.time())
+        local key = "key"..math.random(2)
+        local i = math.random(3)
+        local ok, f = remotedostring("return data."..key.."["..i.."]()")
+        return key, i, f
 ]], package.path)
 assert2 (true, ok, "Unexpected error: "..k)
 assert2 ("string", type(k), string.format ("Wrong #1 return value (expected string, got "..type(k)..")"))
@@ -118,7 +118,7 @@ return unpack (arg)]], unpack (data))
 local _data = { S:dostring(cmd, data[1], data[2], data[3], data[4]) }
 assert2 (true, table.remove (_data, 1), "Unexpected error: "..tostring(_data[2]))
 for i, v in ipairs (data) do
-	assert2 (v, _data[i])
+        assert2 (v, _data[i])
 end
 
 -- Transfering userdata
@@ -142,7 +142,7 @@ assert (f4 == f5, "Cache is not working")
 
 -- Checking Stable
 io.write(".")
-assert (S:dostring[[require"stable"]])
+assert (S:dostring[[stable = require"stable"]])
 assert (type(_state_persistent_table_) == "table", "Stable could not create persistent table")
 assert (S:dostring[[stable.set("key", "value")]])
 assert (_state_persistent_table_.key == "value", "Stable could not store a value")
@@ -162,7 +162,7 @@ assert (NS:dostring ([[
 pcall(require, "luarocks.require")
 package.path = ...
 ]], package.path))
-assert (NS:dostring[[require"stable"]])
+assert (NS:dostring[[stable = require"stable"]])
 assert (type(_state_persistent_table_) == "table", "Stable persistent table was removed")
 assert (_state_persistent_table_.key == "value", "Stable key vanished")
 assert (NS:dostring[[assert(stable.get"key" == "value")]])
