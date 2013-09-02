@@ -7,6 +7,37 @@ extern "C" {
 #include "lstate.h"
 }
 
+#if LUA_VERSION_NUM >= 502
+#define luaL_register(a, b, c) luaL_setfuncs(a, c, 0)
+#define lua_objlen lua_rawlen
+
+LUALIB_API int luaL_argerror (lua_State *L, int narg, const char *extramsg) {
+  lua_Debug ar;
+  if (!lua_getstack(L, 0, &ar))  /* no stack frame? */
+    return luaL_error(L, "bad argument #%d (%s)", narg, extramsg);
+  lua_getinfo(L, "n", &ar);
+  if (strcmp(ar.namewhat, "method") == 0) {
+    narg--;  /* do not count `self' */
+    if (narg == 0)  /* error is in the self argument itself? */
+      return luaL_error(L, "calling " LUA_QS " on bad self (%s)",
+                           ar.name, extramsg);
+  }
+  if (ar.name == NULL)
+    ar.name = "?";
+  return luaL_error(L, "bad argument #%d to " LUA_QS " (%s)",
+                        narg, ar.name, extramsg);
+}
+
+
+LUALIB_API int luaL_typerror (lua_State *L, int narg, const char *tname) {
+  const char *msg = lua_pushfstring(L, "%s expected, got %s",
+                                    tname, luaL_typename(L, narg));
+  return luaL_argerror(L, narg, msg);
+}
+
+
+#endif
+
 #define XLS_WCHAR_METATABLE "xls.wcharMetatable"
 #define WORKBOOK_METATABLE "xls.WorkbookMetatable"
 #define WORKSHEET_METATABLE "xls.WorksheetMetatable"
@@ -14,6 +45,7 @@ extern "C" {
 #define FONT_METATABLE "xls.Font"
 #define CELLFORMAT_METATABLE "xls.CellFormat"
 
+// luaL_typerror always used with arg at ndx == NULL
 static void tag_error (lua_State *L, int narg, int tag) {
 	luaL_typerror(L, narg, lua_typename(L, tag));
 }
@@ -116,7 +148,7 @@ static int lxls_wchar___len(lua_State* L) {
 }
 
 
-static const struct luaL_reg xls_wchar_funcs[] = {
+static const struct luaL_Reg xls_wchar_funcs[] = {
 	{ "__gc",				lxls_wchar___gc },
 
 	{ "__tostring",			lxls_wchar___tostring },
@@ -437,7 +469,7 @@ int lBasicExcel_RenameWorksheet(lua_State* L) {
 }
 
 
-static const struct luaL_reg BasicExcel_funcs[] = {
+static const struct luaL_Reg BasicExcel_funcs[] = {
 	{ "__gc",				lBasicExcel___gc },
 
 	{ "CellFormat",			lBasicExcel_CellFormat },
@@ -587,7 +619,7 @@ int lBasicExcelWorksheet_MergeCells(lua_State* L) {
 
 #endif // EXPERIMENTAL_CELL_MERGING
 
-static const struct luaL_reg BasicExcelWorksheet_funcs[] = {
+static const struct luaL_Reg BasicExcelWorksheet_funcs[] = {
 	{ "GetAnsiSheetName",  	lBasicExcelWorksheet_GetAnsiSheetName },
 	{ "GetUnicodeSheetName",lBasicExcelWorksheet_GetUnicodeSheetName },
 	{ "GetSheetName",  		lBasicExcelWorksheet_GetSheetName },
@@ -808,7 +840,7 @@ int lBasicExcelCell_SetMergedColumns(lua_State* L) {
 }
 
 
-static const struct luaL_reg BasicExcelCell_funcs[] = {
+static const struct luaL_Reg BasicExcelCell_funcs[] = {
 	{ "Type",  				lBasicExcelCell_Type },
 
 	{ "Get",  				lBasicExcelCell_Get },
@@ -918,7 +950,7 @@ int lExcelFont_set_font_name(lua_State* L) {
 }
 
 
-static const struct luaL_reg ExcelFont_funcs[] = {
+static const struct luaL_Reg ExcelFont_funcs[] = {
 	{ "__gc",				lExcelFont___gc },
 	{ "set_height",    		lExcelFont_set_height },
 	{ "set_weight",    		lExcelFont_set_weight },
@@ -1316,7 +1348,7 @@ int lCellFormat_set_borderlines(lua_State* L) {
 }
 
 
-static const struct luaL_reg CellFormat_funcs[] = {
+static const struct luaL_Reg CellFormat_funcs[] = {
 	{ "__gc",				lCellFormat___gc },
 	{ "get_xf_idx",    		lCellFormat_get_xf_idx },
 	{ "flush",    			lCellFormat_flush },
@@ -1482,7 +1514,7 @@ static int lxls_wchar(lua_State* L) {
 }
 
 
-static const struct luaL_reg lxlslib[] = {
+static const struct luaL_Reg lxlslib[] = {
 	{ "Workbook",			lxls_BasicExcel },
 	{ "Font",				lxls_ExcelFont },
 	{ "MAKE_COLOR2",		lxls_MAKECOLOR2 },
