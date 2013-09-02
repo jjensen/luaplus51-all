@@ -73,7 +73,7 @@ static int Ltostring(lua_State *L) {
     return 1;
 }
 
-static const luaL_reg R[] = {
+static const luaL_Reg R[] = {
     { "clone",	Lclone	},
     { "digest",	Ldigest	},
     { "reset",	Lreset	},
@@ -110,7 +110,7 @@ static int Lfasthash128(lua_State *L) {
 }
 
 
-static const struct luaL_reg lmurmurhash3lib[] = {
+static const struct luaL_Reg lmurmurhash3lib[] = {
     { "new", Lnew },
     { "hash32", Lhash32 },
     { "fasthash32", Lfasthash32 },
@@ -119,15 +119,23 @@ static const struct luaL_reg lmurmurhash3lib[] = {
 };
 
 
-LUAMODULE_API int luaopen_murmurhash3(lua_State *L) {
+int luaopen_murmurhash3(lua_State *L) {
     lua_newtable(L);
+#if LUA_VERSION_NUM >= 502
+    luaL_setfuncs(L, lmurmurhash3lib, 0);
+#else
     luaL_register(L, NULL, lmurmurhash3lib);
+#endif
     lua_pushliteral(L, "version");
     lua_pushliteral(L, MYVERSION);
     lua_settable(L, -3);
 
     luaL_newmetatable(L, MURMURHASH3_METATABLE);
+#if LUA_VERSION_NUM >= 502
+    luaL_setfuncs(L, R, 0);
+#else
     luaL_openlib(L, NULL, R, 0);
+#endif
     lua_pushliteral(L, "__index");
     lua_pushvalue(L, -2);
     lua_settable(L, -3);
