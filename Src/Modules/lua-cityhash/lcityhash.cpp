@@ -18,15 +18,19 @@ static int Lhash64(lua_State *L) {
     return 1;
 }
 
-static const struct luaL_reg lcityhashlib[] = {
+static const struct luaL_Reg lcityhashlib[] = {
     { "hash64", Lhash64 },
     {NULL, NULL},
 };
 
 
-extern "C" LUAMODULE_API int luaopen_cityhash(lua_State *L) {
+extern "C" int luaopen_cityhash(lua_State *L) {
     lua_newtable(L);
+#if LUA_VERSION_NUM >= 502
+    luaL_setfuncs(L, lcityhashlib, 0);
+#else
     luaL_register(L, NULL, lcityhashlib);
+#endif
     lua_pushliteral(L, "version");
     lua_pushliteral(L, MYVERSION);
     lua_settable(L, -3);
