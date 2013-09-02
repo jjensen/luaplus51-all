@@ -16,7 +16,7 @@ using namespace LuaPlus;
 /* macro to `unsign' a character */
 #define uchar(c)        ((unsigned char)(c))
 
-LUA_EXTERN_C int str_format_helper (luaL_Buffer* b, lua_State *L, int arg);
+extern "C" int str_format_helper (luaL_Buffer* b, lua_State *L, int arg);
 
 static void luaI_addquotednonwidebinary (LuaPlus::LuaStateOutFile& file, const char* s, size_t l) {
 	file.Print("%c", '"');
@@ -1064,16 +1064,6 @@ void LuaStateOutFile::Indent(unsigned int indentLevel)
 
 
 
-LUA_EXTERN_C void luaplus_dumptable(lua_State* L, int index)
-{
-	LuaPlus::LuaState* state = lua_State_to_LuaState(L);
-	LuaPlus::LuaObject valueObj(state, index);
-	LuaPlus::LuaStateOutString stringFile;
-	state->DumpObject(stringFile, NULL, valueObj, DUMP_ALPHABETICAL | DUMP_WRITEALL, 0, -1);
-	state->PushString(stringFile.GetBuffer());
-}
-
-
 // LuaDumpObject(file, key, value, alphabetical, indentLevel, maxIndentLevel, writeAll)
 extern "C" int luaplus_ls_LuaDumpObject( lua_State* L )
 {
@@ -1087,7 +1077,7 @@ extern "C" int luaplus_ls_LuaDumpObject( lua_State* L )
 		LuaPlus::LuaObject valueObj(fileObj);
 		LuaPlus::LuaObject nameObj;
 		LuaPlus::LuaStateOutString stringFile;
-		state->DumpObject(stringFile, NULL, valueObj, DUMP_ALPHABETICAL, 0, -1);
+		DumpObject(state, stringFile, NULL, valueObj, DUMP_ALPHABETICAL, 0, -1);
 		state->PushString(stringFile.GetBuffer());
 		return 1;
 	}
@@ -1120,19 +1110,19 @@ extern "C" int luaplus_ls_LuaDumpObject( lua_State* L )
 		if (strcmp(fileName, ":string") == 0)
 		{
 			LuaPlus::LuaStateOutString stringFile;
-			state->DumpObject(stringFile, nameObj, valueObj, flags, indentLevelObj.GetInteger(), maxIndentLevel);
+			DumpObject(state, stringFile, nameObj, valueObj, flags, indentLevelObj.GetInteger(), maxIndentLevel);
 			state->PushString(stringFile.GetBuffer());
 			return 1;
 		}
 		else
 		{
-			state->PushBoolean(state->DumpObject(fileName, nameObj, valueObj, flags, (unsigned int)indentLevelObj.GetInteger(), maxIndentLevel));
+			state->PushBoolean(DumpObject(state, fileName, nameObj, valueObj, flags, (unsigned int)indentLevelObj.GetInteger(), maxIndentLevel));
 			return 1;
 		}
 	}
 	else
 	{
-		state->PushBoolean(state->DumpObject(file, nameObj, valueObj, flags, (unsigned int)indentLevelObj.GetInteger(), maxIndentLevel));
+		state->PushBoolean(DumpObject(state, file, nameObj, valueObj, flags, (unsigned int)indentLevelObj.GetInteger(), maxIndentLevel));
 		return 1;
 	}
 
@@ -1148,7 +1138,7 @@ int str_format (lua_State *L) {
   return 1;
 }
 
-static const struct luaL_reg prettydump_lib[] = {
+static const struct luaL_Reg prettydump_lib[] = {
 	{ "dumpascii", luaplus_ls_LuaDumpObject },
 	{ "format", str_format },
 	{NULL, NULL},
@@ -1157,7 +1147,11 @@ static const struct luaL_reg prettydump_lib[] = {
 
 extern "C" int luaopen_prettydump(lua_State* L) {
 	lua_newtable(L);
+#if LUA_VERSION_NUM >= 502
+	luaL_setfuncs(L, prettydump_lib, 0);
+#else
 	luaL_register(L, NULL, prettydump_lib);
+#endif
 	return 1;
 }
 
