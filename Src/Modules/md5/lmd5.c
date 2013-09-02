@@ -1,22 +1,30 @@
 /*
 * lmd5.c
-* MD5 library for Lua 5.0 based on Rivest's API
+* MD5 library for Lua 5.1 based on Rivest's API
 * Luiz Henrique de Figueiredo <lhf@tecgraf.puc-rio.br>
-* 12 Nov 2008 20:09:42
+* 28 Feb 2013 21:15:09
 * This code is hereby placed in the public domain.
 */
 
 #include <stdio.h>
 #include <stdlib.h>
-
-#include "lmd5.h"
+#include <string.h>
 
 #include "lua.h"
 #include "lauxlib.h"
 
-#define MYVERSION	MYNAME " library for " LUA_VERSION " / Nov 2008 / "\
+#include "lmd5.h"
+
+#define MYVERSION	MYNAME " library for " LUA_VERSION " / Feb 2013 / "\
 			"using " AUTHOR
 #define MYTYPE		MYNAME " context"
+
+#if LUA_VERSION_NUM <= 501
+void luaL_setmetatable (lua_State *L, const char *tname) {
+  luaL_getmetatable(L, tname);
+  lua_setmetatable(L, -2);
+}
+#endif
 
 static MD5_CTX *Pget(lua_State *L, int i)
 {
@@ -26,8 +34,7 @@ static MD5_CTX *Pget(lua_State *L, int i)
 static MD5_CTX *Pnew(lua_State *L)
 {
  MD5_CTX *c=lua_newuserdata(L,sizeof(MD5_CTX));
- luaL_getmetatable(L,MYTYPE);
- lua_setmetatable(L,-2);
+ luaL_setmetatable(L,MYTYPE);
  return c;
 }
 
@@ -50,18 +57,23 @@ static int Lreset(lua_State *L)			/** reset(c) */
 {
  MD5_CTX *c=Pget(L,1);
  MD5Init(c);
- return 0;
+ lua_settop(L,1);
+ return 1;
 }
 
-static int Lupdate(lua_State *L)		/** update(c,s) */
+static int Lupdate(lua_State *L)		/** update(c,s,...) */
 {
- size_t l;
  MD5_CTX *c=Pget(L,1);
- const char *s=luaL_checklstring(L,2,&l);
- MD5Update(c,s,l);
- return 0;
+ int i,n=lua_gettop(L);
+ for (i=2; i<=n; i++)
+ {
+  size_t l;
+  const char *s=luaL_checklstring(L,i,&l);
+  MD5Update(c,s,l);
+ }
+ lua_settop(L,1);
+ return 1;
 }
-
 static int Ldigest(lua_State *L)		/** digest(c or s,[raw]) */
 {
  unsigned char digest[N];
@@ -80,18 +92,23 @@ static int Ldigest(lua_State *L)		/** digest(c or s,[raw]) */
   MD5Final(digest,&c);
  }
  if (lua_toboolean(L,2))
-  lua_pushlstring(L,digest,sizeof(digest));
+  lua_pushlstring(L,(char*)digest,sizeof(digest));
  else
  {
-  char hex[2*N+1];
+  char *digit="0123456789abcdef";
+  char hex[2*N],*h;
   int i;
-  for (i=0; i<N; i++) sprintf(hex+2*i,"%02x",digest[i]);
-  lua_pushlstring(L,hex,sizeof(hex)-1);
+  for (h=hex,i=0; i<N; i++)
+  {
+   *h++=digit[digest[i] >> 4];
+   *h++=digit[digest[i] & 0x0F];
+  }
+  lua_pushlstring(L,hex,sizeof(hex));
  }
  return 1;
 }
 
-static int Ltostring(lua_State *L)		/** tostring(c) */
+static int Ltostring(lua_State *L)		/** __tostring(c) */
 {
  MD5_CTX *c=Pget(L,1);
  lua_pushfstring(L,"%s %p",MYTYPE,(void*)c);
@@ -133,33 +150,32 @@ static int Lupdatefile(lua_State *L)
 }
 
 
-static const luaL_reg R[] =
+static const luaL_Reg R[] =
 {
+	{ "__tostring",	Ltostring},
 	{ "clone",	Lclone	},
 	{ "digest",	Ldigest	},
 	{ "new",	Lnew	},
 	{ "reset",	Lreset	},
-	{ "tostring",	Ltostring},
 	{ "update",	Lupdate	},
 	{ "updatefile", Lupdatefile },
 	{ NULL,		NULL	}
 };
 
-LUAMODULE_API int luaopen_md5(lua_State *L)
+LUALIB_API int luaopen_md5(lua_State *L)
 {
  luaL_newmetatable(L,MYTYPE);
+#if LUA_VERSION_NUM >= 502
+ luaL_setfuncs(L,R,0);
+#else
  lua_pushvalue(L,-1);
  luaL_openlib(L,NULL,R,0);
+#endif
  lua_pushliteral(L,"version");			/** version */
  lua_pushliteral(L,MYVERSION);
  lua_settable(L,-3);
  lua_pushliteral(L,"__index");
  lua_pushvalue(L,-2);
  lua_settable(L,-3);
- lua_pushliteral(L,"__tostring");
- lua_pushliteral(L,"tostring");
- lua_gettable(L,-3);
- lua_settable(L,-3);
- lua_setglobal(L,MYNAME);
  return 1;
 }

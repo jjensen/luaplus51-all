@@ -1,14 +1,41 @@
 {
 
+IncludeModule c/openssl ;
+
 local SRCS =
 		lmd5.c
 		lmd5.h
-		md5.h
-		md5c.c
-		md5global.h
 ;
 
-Lua.CModule md5 : : $(SRCS) ;
+#######################
+ActiveTarget md5 ;
+C.Defines : USE_MD5_OPENSSL ;
+C.UseOpenSSL : link ;
+Lua.CModule : : $(SRCS) ;
+
+#######################
+ActiveTarget sha1 ;
+C.Defines : USE_SHA1_OPENSSL ;
+C.UseOpenSSL : link ;
+Lua.CModule : : $(SRCS) ;
+
+#######################
+ActiveTarget sha256 ;
+C.Defines : USE_SHA256_OPENSSL ;
+C.UseOpenSSL : link ;
+Lua.CModule : : $(SRCS) ;
+
+#######################
+ActiveTarget sha384 ;
+C.Defines : USE_SHA384_OPENSSL ;
+C.UseOpenSSL : link ;
+Lua.CModule : : $(SRCS) ;
+
+#######################
+ActiveTarget sha512 ;
+C.Defines : USE_SHA512_OPENSSL ;
+C.UseOpenSSL : link ;
+Lua.CModule : : $(SRCS) ;
 
 }
 

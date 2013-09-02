@@ -1,7 +1,7 @@
-# makefile for md5/sha1 library for Lua
+# makefile for message digest library for Lua
 
 # change these to reflect your Lua installation
-LUA= /tmp/lhf/lua-5.1.4
+LUA= /tmp/lhf/lua-5.2.1
 LUAINC= $(LUA)/src
 LUALIB= $(LUA)/src
 LUABIN= $(LUA)/src
@@ -12,57 +12,52 @@ LUABIN= $(LUA)/src
 #LUALIB= $(LUA)/lib
 #LUABIN= $(LUA)/bin
 
-### change these to reflect your MD5 library
-MYNAME= md5
-#
-# MD5 library available in libcrypto (openssl)
-#	make DEFS=-DUSE_MD5_OPENSSL MD5LIB=-lcrypto
-DEFS= -DUSE_MD5_OPENSSL
-MD5LIB= -lcrypto
-#
-# Rivest's MD5 library from source -- rename or link global.h as md5global.h
-#	make DEFS=-DUSE_MD5_RIVEST MD5LIB=md5c.o
-#DEFS= -DUSE_MD5_RIVEST
-#MD5LIB= md5c.o
-#MD5OBJ= $(MD5LIB)
-#
-# Deutsch's MD5 library from source
-#	make DEFS=-DUSE_MD5_DEUTSCH MD5LIB=md5.o
-#DEFS= -DUSE_MD5_DEUTSCH
-#MD5LIB= md5.o
-#MD5OBJ= $(MD5LIB)
-#
-# Plumb's MD5 library from source
-#	make DEFS=-DUSE_MD5_PLUMB MD5LIB=md5.o
-#DEFS= -DUSE_MD5_PLUMB
-#MD5LIB= md5.o
-#MD5OBJ= $(MD5LIB)
-
-### change these to reflect your SHA1 library
-#MYNAME= sha1
-#
-# SHA1 library available in libcrypto (openssl)
-#	make DEFS=-DUSE_SHA1_OPENSSL MD5LIB=-lcrypto MYNAME=sha1
-#DEFS= -DUSE_SHA1_OPENSSL
-#MD5LIB= -lcrypto
-#
-# rfc3174 SHA1 library from source
-#	make DEFS=-DUSE_SHA1_RFC MD5LIB=sha1.o MYNAME=sha1
-#DEFS= -DUSE_SHA1_RFC
-#MD5LIB= sha1.o
-#MD5OBJ= $(MD5LIB)
-#
-# skalibs SHA1 SHA1 library from source
-#	make DEFS=-DUSE_SHA1_SKALIBS MD5LIB=sha1.o MYNAME=sha1
-#DEFS= -DUSE_SHA1_SKALIBS
-#MD5LIB= sha1.o
-#MD5OBJ= $(MD5LIB)
-
 # probably no need to change anything below here
 CC= gcc
 CFLAGS= $(INCS) $(DEFS) $(WARN) -O2 $G
-WARN= #-ansi -pedantic -Wall
-INCS= -I$(LUAINC) $(MD5INC)
+WARN= -ansi -pedantic -Wall -Wextra
+INCS= -I$(LUAINC)
+MAKESO= $(CC) -shared
+#MAKESO= $(CC) -bundle -undefined dynamic_lookup
+
+# default is md5
+MYNAME=md5
+DEFS=-DUSE_MD5_OPENSSL
+SUM=$(MYNAME)sum
+
+default: all
+
+digests: md2 md4 md5 sha1 sha224 sha256 sha384 sha512 ripemd160
+
+md2:
+	$(MAKE) all MYNAME=$@ DEFS=-DUSE_MD2_OPENSSL SUM="openssl $@"
+
+md4:
+	$(MAKE) all MYNAME=$@ DEFS=-DUSE_MD4_OPENSSL SUM="openssl $@"
+
+md5:
+	$(MAKE) all MYNAME=$@ DEFS=-DUSE_MD5_OPENSSL
+
+sha1:
+	$(MAKE) all MYNAME=$@ DEFS=-DUSE_SHA1_OPENSSL
+
+sha224:
+	$(MAKE) all MYNAME=$@ DEFS=-DUSE_SHA224_OPENSSL
+
+sha256:
+	$(MAKE) all MYNAME=$@ DEFS=-DUSE_SHA256_OPENSSL
+
+sha384:
+	$(MAKE) all MYNAME=$@ DEFS=-DUSE_SHA384_OPENSSL
+
+sha512:
+	$(MAKE) all MYNAME=$@ DEFS=-DUSE_SHA512_OPENSSL
+
+ripemd160:
+	$(MAKE) all MYNAME=$@ DEFS=-DUSE_RIPEMD160_OPENSSL SUM="openssl rmd160"
+
+mdc2:
+	$(MAKE) all MYNAME=$@ DEFS=-DUSE_MDC2_OPENSSL SUM="openssl mdc2"
 
 MYLIB= l$(MYNAME)
 T= $(MYNAME).so
@@ -73,35 +68,23 @@ all:	test
 
 test:	$T
 	$(LUABIN)/lua -l$(MYNAME) $(TEST)
+	-@echo -n "$(MYNAME)	" ; $(SUM) < README
 
 o:	$(MYLIB).o
 
 so:	$T
 
-$T:	$(OBJS) $(MD5OBJ)
-	$(CC) -o $@ -shared $(OBJS) $(MD5LIB)
+$T:	$(OBJS)
+	$(MAKESO) -o $@ $(OBJS) -lcrypto
 
 clean:
-	rm -f $(OBJS) $T core core.* $(MD5OBJ)
+	rm -f $(OBJS) $T core core.* l*.o *.so
 
 doc:
-	@echo "$(MYNAME) library:"
-	@fgrep '/**' $(MYLIB).c | cut -f2 -d/ | tr -d '*' | sort | column
+	@echo "digest library:"
+	@fgrep '/**' lmd5.c | cut -f2 -d/ | tr -d '*' | sort | column
 
-# distribution
-
-FTP= $(HOME)/public/ftp/lua/5.1
-D= $(MYNAME)
-A= $(MYLIB).tar.gz
-TOTAR= Makefile,README,lmd5.c,lmd5.h,lsha1.c,test.lua
-
-distr:	clean
-	tar zcvf $A -C .. $D/{$(TOTAR)}
-	touch -r $A .stamp
-	mv $A $(FTP)
-
-diff:	clean
-	tar zxf $(FTP)/$A
-	diff $D .
+$(MYLIB).o:	lmd5.c lmd5.h
+	$(CC) $(CFLAGS) -o $@ -c lmd5.c
 
 # eof
