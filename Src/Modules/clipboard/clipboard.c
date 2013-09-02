@@ -53,7 +53,7 @@ static int l_puttext(lua_State* L) {
 }
 
 
-static const struct luaL_reg clipboard_funcs[] = {
+static const struct luaL_Reg clipboard_funcs[] = {
 	{ "gettext", l_gettext },
 	{ "puttext", l_puttext },
 	{ NULL, NULL }
@@ -61,7 +61,12 @@ static const struct luaL_reg clipboard_funcs[] = {
 
 
 LUALIB_API int luaopen_clipboard(lua_State* L) {
-	luaL_register(L, "clipboard", clipboard_funcs);
+	lua_newtable(L);
+#if LUA_VERSION_NUM >= 502
+	luaL_setfuncs(L, clipboard_funcs, 0);
+#else
+	luaL_register(L, NULL, clipboard_funcs);
+#endif
 	return 1;
 }
 
