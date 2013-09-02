@@ -919,7 +919,7 @@ static int ex_path_unescape(lua_State *L) {
 
 
 int luaopen_os_path(lua_State *L) {
-  const luaL_reg ex_os_pathlib[] = {
+  const luaL_Reg ex_os_pathlib[] = {
     /* environment */
     {"add_slash",         ex_path_add_slash},
     {"add_extension",     ex_path_add_extension},
