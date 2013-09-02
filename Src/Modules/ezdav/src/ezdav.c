@@ -7,6 +7,10 @@
 #include "high_level_webdav_functions.h"
 #include "davglob.h"
 
+#if LUA_VERSION_NUM >= 502
+#define luaL_register(a, b, c) luaL_setfuncs(a, c, 0)
+#endif
+
 #if _MSC_VER  &&  _MSC_VER <= 1300
 double ui64ToDouble(unsigned __int64 ui64)
 {
@@ -103,7 +107,7 @@ static int ezdav_dir_gc(lua_State *L) {
 }
 
 
-static const struct luaL_reg ezdav_dir_index_functions[] = {
+static const struct luaL_Reg ezdav_dir_index_functions[] = {
 	{ "next",					ezdav_dir_next },
 	{ "close",					ezdav_dir_close },
 	{ NULL, NULL },
@@ -201,7 +205,7 @@ static int ezdav_dir_index_table(lua_State* L) {
 }
 
 
-static const struct luaL_reg ezdav_dir_index_properties[] = {
+static const struct luaL_Reg ezdav_dir_index_properties[] = {
 	{ "filename",				ezdav_dir_index_filename },
 	{ "href",					ezdav_dir_index_href },
 	{ "creation_time",			ezdav_dir_index_creation_time },
@@ -397,7 +401,7 @@ static int glob_gc(lua_State *L) {
 }
 
 
-static const struct luaL_reg glob_index_functions[] = {
+static const struct luaL_Reg glob_index_functions[] = {
 	{ "next",					glob_next },
 	{ "close",					glob_close },
 	{ NULL, NULL },
@@ -476,7 +480,7 @@ static int glob_index_table(lua_State* L) {
 }
 
 
-static const struct luaL_reg glob_index_properties[] = {
+static const struct luaL_Reg glob_index_properties[] = {
 	{ "filename",				glob_index_filename },
 	{ "creation_time",			glob_index_creation_time },
 	{ "write_time",				glob_index_write_time },
@@ -769,7 +773,7 @@ static int ezdav_connection_gc(lua_State *L) {
 }
 
 
-static const struct luaL_reg ezdav_connection_index_functions[] = {
+static const struct luaL_Reg ezdav_connection_index_functions[] = {
 	{ "attributes",			ezdav_connection_attributes },
 	{ "close",				ezdav_connection_close },
 	{ "glob",				ezdav_connection_glob },
@@ -849,7 +853,7 @@ static int l_ezdav_connection_lazy_open(lua_State *L) {
 
 
 
-static const struct luaL_reg ezdav_lib[] = {
+static const struct luaL_Reg ezdav_lib[] = {
 	{ "open", l_ezdav_connection_open },
 	{ "lazy_open", l_ezdav_connection_lazy_open },
 	{NULL, NULL},
