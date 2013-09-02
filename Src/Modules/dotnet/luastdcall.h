@@ -3,7 +3,7 @@
 // there's probably a "correct" way to solve this but right now I prefer the one that works :)
 
 extern "C" {
-#include "../../LuaPlus/src/lua.h"
+#include "lua.h"
 }
 
 /*

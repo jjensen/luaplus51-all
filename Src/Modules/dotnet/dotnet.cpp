@@ -55,7 +55,7 @@ void p(lua_State* L,char *str) {
 	lua_call(L,1,0);
 }
 
-extern "C" LUAMODULE_API int luaopen_luanet(lua_State* L)
+extern "C" int luaopen_luanet(lua_State* L)
 {
 	lua_pushstring(L, "LUAINTERFACE LOADED");
         lua_gettable(L, LUA_REGISTRYINDEX);

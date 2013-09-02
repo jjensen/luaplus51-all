@@ -1,11 +1,9 @@
 // steffenj: replaced all occurances of LUA_DLLEXPORT with LUA_DLLEXPORT due to "macro redefinition" error
 // there's probably a "correct" way to solve this but right now I prefer the one that works :)
 
-#include "../../LuaPlus/LuaPlus.h"
-
 extern "C" {
-#include "../../LuaPlus/src/lualib.h"
-#include "../../LuaPlus/src/lauxlib.h"
+#include "lualib.h"
+#include "lauxlib.h"
 }
 #include "luastdcall.h"
 #include <stdio.h>
@@ -24,14 +22,14 @@ static int stdcall_closure(lua_State *L) {
 }
 
 
-extern "C" LUAMODULE_API void lua_pushstdcallcfunction(lua_State *L,lua_stdcallCFunction fn) {
+extern "C" void lua_pushstdcallcfunction(lua_State *L,lua_stdcallCFunction fn) {
   lua_pushlightuserdata(L, fn);
   lua_pushcclosure(L, stdcall_closure, 1);
 }
 
 
 
-extern "C" LUAMODULE_API int luaL_checkmetatable(lua_State *L,int index) {
+extern "C" int luaL_checkmetatable(lua_State *L,int index) {
   int retVal=0;
   if(lua_getmetatable(L,index)!=0) {
     lua_pushlightuserdata(L,&tag);
@@ -42,7 +40,7 @@ extern "C" LUAMODULE_API int luaL_checkmetatable(lua_State *L,int index) {
   return retVal;
 }
 
-extern "C" LUAMODULE_API void *luanet_gettag() {
+extern "C" void *luanet_gettag() {
   return &tag;
 }
 
@@ -74,7 +72,7 @@ void *checkudata(lua_State *L, int ud, const char *tname)
 }
 
 
-extern "C" LUAMODULE_API int luanet_tonetobject(lua_State *L,int index) {
+extern "C" int luanet_tonetobject(lua_State *L,int index) {
   int *udata;
   if(lua_type(L,index)==LUA_TUSERDATA) {
     if(luaL_checkmetatable(L,index)) {
@@ -91,18 +89,18 @@ extern "C" LUAMODULE_API int luanet_tonetobject(lua_State *L,int index) {
   return -1;
 }
 
-extern "C" LUAMODULE_API void luanet_newudata(lua_State *L,int val) {
+extern "C" void luanet_newudata(lua_State *L,int val) {
   int* pointer=(int*)lua_newuserdata(L,sizeof(int));
   *pointer=val;
 }
 
-extern "C" LUAMODULE_API int luanet_checkudata(lua_State *L,int index,const char *meta) {
+extern "C" int luanet_checkudata(lua_State *L,int index,const char *meta) {
   int *udata=(int*)checkudata(L,index,meta);
   if(udata!=NULL) return *udata;
   return -1;
 }
 
-extern "C" LUAMODULE_API int luanet_rawnetobj(lua_State *L,int index) {
+extern "C" int luanet_rawnetobj(lua_State *L,int index) {
   int *udata=(int*)lua_touserdata(L,index);
   if(udata!=NULL) return *udata;
   return -1;
