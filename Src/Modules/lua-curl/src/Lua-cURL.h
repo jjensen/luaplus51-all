@@ -33,6 +33,7 @@
 #include <curl/easy.h>
 
 /* custom metatables */
+#define LUACURL_LIBNAME "cURL"
 #define LUACURL_EASYMETATABLE "CURL.easy"
 #define LUACURL_MULTIMETATABLE "CURL.multi"
 #define LUACURL_SHAREMETATABLE "CURL.shared"
@@ -71,7 +72,7 @@ int l_easy_init (lua_State *L);
 int l_easy_perform (lua_State *L);
 int l_easy_unescape (lua_State *L);
 int l_easy_post(lua_State *L);
- int l_easy_userdata(lua_State *L);
+int l_easy_userdata(lua_State *L);
 
 /* multi interface */
 int l_multi_init (lua_State *L);
@@ -90,7 +91,7 @@ int l_easy_setopt_register (lua_State *L);
 int l_easy_callback_newtable(lua_State *L);
 
 /* init private list of curl_slists */
-void  l_easy_setopt_init_slists(lua_State *L, l_easy_private *privp);
+void l_easy_setopt_init_slists(lua_State *L, l_easy_private *privp);
 void l_easy_setopt_free_slists(l_easy_private *privp);
 
 /* setup callback function */
@@ -113,5 +114,20 @@ int l_tostring (lua_State *L);
 int l_easy_gc (lua_State *L);
 int l_setopt(lua_State *L);
 int l_getopt(lua_State *L);
+
+
+#define LUACURL_LIB
+
+#if defined(BUILD_AS_DLL) && defined(WIN32)
+	#if defined(LUACURL_LIB)
+	#define LUACURL_API __declspec(dllexport)
+	#else
+	#define LUACURL_API __declspec(dllimport)
+	#endif
+#else
+	#define LUACURL_API extern
+#endif
+
+LUACURL_API int luaopen_cURL(lua_State* L);
 
 #endif

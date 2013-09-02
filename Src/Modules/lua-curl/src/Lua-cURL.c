@@ -27,6 +27,12 @@
 /* malloc */
 #include <stdlib.h>
 
+#if LUA_VERSION_NUM < 502
+  #define luaL_newlibtable(L,l) lua_createtable(L,0,sizeof(l)/sizeof((l)[0]))
+  #define luaL_newlib(L,l) (luaL_newlibtable(L,l),luaL_register(L,NULL,l))
+  #define luaL_setfuncs(L,l,nups) luaL_register(L,NULL,l)
+#endif
+
 /* methods assigned to easy table */
 static const struct luaL_Reg luacurl_easy_m[] = {
   {"escape", l_easy_escape},
@@ -274,6 +280,7 @@ int l_version_info (lua_State *L) {
 
   if (d->age >= 3) {
     lua_pushliteral(L, "iconv_ver_num");
+    
     lua_pushinteger(L, d->iconv_ver_num);
     lua_settable(L, -3);
   }
@@ -291,14 +298,15 @@ int l_easy_gc(lua_State *L) {
 }
 
 /* registration hook function */
-int luaopen_cURL(lua_State *L) {
+LUACURL_API int luaopen_cURL(lua_State* L) {
   CURLcode  rc;
 
   /* EASY START */
   luaL_newmetatable(L, LUACURL_EASYMETATABLE);
 
   /* register in easymetatable */
-  luaL_register(L, NULL, luacurl_easy_m);
+  luaL_setfuncs(L, luacurl_easy_m, 0);
+
 
   /* easymetatable.__index = easymetatable */
   lua_pushvalue(L, -1);
@@ -313,7 +321,7 @@ int luaopen_cURL(lua_State *L) {
   luaL_newmetatable(L, LUACURL_SHAREMETATABLE);
 
   /* register in sharemetatable */
-  luaL_register(L, NULL, luacurl_share_m);
+  luaL_setfuncs(L, luacurl_share_m, 0);
 
   /* sharemetatable.__index = sharemetatable */
   lua_pushvalue(L, -1);
@@ -321,20 +329,29 @@ int luaopen_cURL(lua_State *L) {
 
   /* MULTI START */
   luaL_newmetatable(L, LUACURL_MULTIMETATABLE);
-  luaL_register(L, NULL, luacurl_multi_m);
+  luaL_setfuncs(L, luacurl_multi_m, 0);
     /* multemetatable.__index = multimetatable */
   lua_pushvalue(L, -1);
   lua_setfield(L, -2, "__index");
 
 
-  /* creaty uniqe table in registry to store state */
+  /* creaty uniqe table in registry to store state*/
   lua_newtable(L);
+  /*weak table*/
+  /*
+  lua_pushvalue(L,-1);
+  lua_pushliteral(L,"v");
+  lua_setfield(L,-2,"__mode");
+  lua_setmetatable(L,-2);
+  */
   lua_setfield(L, LUA_REGISTRYINDEX, MULTIREGISTRY_KEY);
   lua_pop(L, 1);		/* pop table */
 
 
   /* return module functions */
-  luaL_register(L, "cURL", luacurl_f);
+  luaL_newlib(L, luacurl_f);
+  lua_pushvalue(L,-1);
+  lua_setglobal(L,LUACURL_LIBNAME);
 
   /* initialize curl once */
   if ((rc = curl_global_init(CURL_GLOBAL_ALL)) != CURLE_OK)

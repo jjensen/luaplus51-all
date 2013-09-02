@@ -21,6 +21,9 @@
 * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ******************************************************************************/
 
+/* free() */
+#include <stdlib.h>
+
 #include <string.h>
 
 #include "Lua-cURL.h"
@@ -147,6 +150,38 @@ static int l_easy_setopt_share(lua_State *L) {
 }
 
 
+static int l_easy_setopt_httpauth(lua_State *L) {
+  l_easy_private *privatep = luaL_checkudata(L, 1, LUACURL_EASYMETATABLE);
+  CURL *curl = privatep->curl;
+  CURLoption *optionp = LUACURL_OPTIONP_UPVALUE(L, 1);
+  const char *value = luaL_checkstring(L, 2);
+
+  long type;
+
+  if (!strcmp("NONE", value))
+    type = CURLAUTH_NONE;
+  else if (!strcmp("BASIC", value))
+    type = CURLAUTH_BASIC;
+  else if (!strcmp("DIGEST", value))
+    type = CURLAUTH_DIGEST;
+  else if (!strcmp("GSSNEGOTIATE", value))
+    type = CURLAUTH_GSSNEGOTIATE;
+  else if (!strcmp("NTLM", value))
+    type = CURLAUTH_NTLM;
+  else if (!strcmp("CURLAUTH_ANY", value))
+    type = CURLAUTH_ANY;
+  else if (!strcmp("ANYSAFE", value))
+    type = CURLAUTH_ANYSAFE;
+  else
+    luaL_error(L, "Invalid httpauth: %s", value);
+
+  if (curl_easy_setopt(curl, *optionp, type) != CURLE_OK)
+    luaL_error(L, "%s", privatep->error);
+  return 0;
+}
+
+
+
 /* closures assigned to setopt in setopt table */
 static struct {
   const char *name;
@@ -178,6 +213,8 @@ static struct {
   {P"referer", CURLOPT_REFERER, l_easy_setopt_string},
   {P"useragent", CURLOPT_USERAGENT, l_easy_setopt_string},
   {P"httpheader", CURLOPT_HTTPHEADER, l_easy_setopt_strings},
+  {P"httpauth", CURLOPT_HTTPAUTH, l_easy_setopt_httpauth},
+  {P"timeout", CURLOPT_TIMEOUT, l_easy_setopt_long},
 /*  Not implemented:  {P"http200aliases", CURLOPT_HTTP200ALIASES, l_easy_setopt_long}, */
   {P"cookie", CURLOPT_COOKIE, l_easy_setopt_string},
   {P"cookiefile", CURLOPT_COOKIEFILE, l_easy_setopt_string},

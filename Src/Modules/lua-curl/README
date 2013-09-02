@@ -1,0 +1,3 @@
+For installation instructions — see http://msva.github.com/lua-curl
+
+WARNING: 'multi' mode is incompatible with curl built with threads support.

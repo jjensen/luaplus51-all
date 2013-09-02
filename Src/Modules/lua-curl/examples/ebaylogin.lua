@@ -1,5 +1,5 @@
 -- try eBay login
-require("cURL")
+local cURL = require("cURL")
 
 headers = {"Accept: text/*",
 	   "Accept-Language: en",

@@ -26,7 +26,7 @@
 #include "Lua-cURL.h"
 #include "Lua-utility.h"
 
-static int l_easy_readfunction(void *ptr, size_t size, size_t nmemb, void *stream) {
+static size_t l_easy_readfunction(void *ptr, size_t size, size_t nmemb, void *stream) {
   lua_State* L = (lua_State*)stream;
   size_t n;
   int old_top = lua_gettop(L);
@@ -42,7 +42,7 @@ static int l_easy_readfunction(void *ptr, size_t size, size_t nmemb, void *strea
   return n;
 }
 
-static int l_easy_writefunction(void *ptr, size_t size, size_t nmemb, void *stream) {
+static size_t l_easy_writefunction(void *ptr, size_t size, size_t nmemb, void *stream) {
   lua_State* L = (lua_State*)stream;
 
   lua_getfield(L, -1, "writefunction");
@@ -51,7 +51,7 @@ static int l_easy_writefunction(void *ptr, size_t size, size_t nmemb, void *stre
   return nmemb*size;
 }
 
-static int l_easy_headerfunction(void *ptr, size_t size, size_t nmemb, void *stream) {
+static size_t l_easy_headerfunction(void *ptr, size_t size, size_t nmemb, void *stream) {
   lua_State* L = (lua_State*)stream;
   lua_getfield(L, -1, "headerfunction");
   lua_pushlstring(L, (char*) ptr, nmemb * size);

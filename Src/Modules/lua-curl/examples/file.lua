@@ -1,4 +1,4 @@
-require("cURL")
+local cURL = require("cURL")
 
 -- open output file
 f = io.open("example_homepage", "w")

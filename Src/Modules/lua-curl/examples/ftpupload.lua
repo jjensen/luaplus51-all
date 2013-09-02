@@ -1,6 +1,6 @@
 -- simple "On the fly" fileupload
 
-require("cURL")
+local cURL = require("cURL")
 
 c=cURL.easy_init()
 c:setopt_url("ftp://ftptest:secret0815@targethost/file.dat")

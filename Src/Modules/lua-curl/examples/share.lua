@@ -1,5 +1,5 @@
 -- Cookie data will be shared across the easy handles to do an authorized download
-require("cURL")
+local cURL = require("cURL")
 
 -- create share handle (share COOKIE and DNS Cache)
 s = cURL.share_init()

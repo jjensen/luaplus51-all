@@ -22,10 +22,11 @@
 ******************************************************************************/
 
 #include <stdlib.h>		/* malloc */
-#ifndef __WIN32__
+#if !defined(_WINDOWS) && !defined(_WIN32)
 #include <sys/select.h>		/* select */
 #else
 #include <winsock2.h>
+#pragma comment(lib,"ws2_32.lib")
 #endif
 #include <string.h>		/* strerror */
 #include <errno.h>
@@ -34,10 +35,10 @@
 #include "Lua-utility.h"
 
 /* REGISTRYINDEX[MULTIREGISTRY_KEY]  = {
-   MULTIPOINTER = { 1={ 1=type, 2=data, 3=EASY_HANDLE}
-                  { 2={ 1=type, 2=data, 3=EASY_HANDLE}
-   EASYPOINTER1 = {EASYUSERDATA1}
-   EASYPOINTER2 = {EASYPOINTER2}
+   MULTIPOINTER = { 1={ 1=type, 2=data, 3=EASYPOINTER1}
+                  { 2={ 1=type, 2=data, 3=EASYPOINTER2}
+   EASYPOINTER1 = {1=EASYUSERDATA1,2=datamalloc,3=headermalloc}
+   EASYPOINTER2 = {1=EASYUSERDATA2,2=datamalloc,3=headermalloc}
 }
  */
 
@@ -78,13 +79,20 @@ int l_multi_init(lua_State *L) {
   lua_getfield(L, LUA_REGISTRYINDEX, MULTIREGISTRY_KEY);
   lua_pushlightuserdata(L, multi_userdata);
   lua_newtable(L);
+  /*weak table*/
+  /*
+  lua_pushvalue(L,-1);
+  lua_pushliteral(L,"v");
+  lua_setfield(L,-2,"__mode");
+  lua_setmetatable(L,-2);
+  */
   lua_settable(L, -3);
   lua_pop(L, 1);
   /* return userdata */
   return 1;
 }
 
-static int l_multi_internalcallback(void *ptr, size_t size, size_t nmemb, void *stream) {
+static size_t l_multi_internalcallback(void *ptr, size_t size, size_t nmemb, void *stream) {
   l_multi_callbackdata *callbackdata = (l_multi_callbackdata*) stream;
   /* append data */
   lua_State *L = callbackdata->L;
@@ -102,7 +110,7 @@ static int l_multi_internalcallback(void *ptr, size_t size, size_t nmemb, void *
   lua_remove(L, -2);
 
   /* create new table containing callbackdata */
-  lua_newtable(L);
+  lua_createtable(L,3,0);
   /* insert table entries */
   /* data */
   lua_pushlstring(L, ptr, size * nmemb);
@@ -129,10 +137,6 @@ static int l_multi_internalcallback(void *ptr, size_t size, size_t nmemb, void *
 l_multi_callbackdata* l_multi_create_callbackdata(lua_State *L, char *name, l_easy_private *easyp, l_multi_userdata *multip) {
   l_multi_callbackdata *callbackdata;
 
-  /* TODO: sanity check */
-  /*   luaL_error(L, "callbackdata exists: %d, %s", easyp, name); */
-
-  /* shrug! we need to garbage-collect this */
   callbackdata = (l_multi_callbackdata*) malloc(sizeof(l_multi_callbackdata));
   if (callbackdata == NULL)
     luaL_error(L, "can't malloc callbackdata");
@@ -164,11 +168,14 @@ int l_multi_add_handle (lua_State *L) {
   lua_gettable(L, -2);
   /* remove registry table */
   lua_remove(L, -2);
+  lua_createtable(L,3,0);
   lua_pushlightuserdata(L, easyp);
-  lua_pushvalue(L, 2);
-  lua_settable(L, -3);
+  lua_pushvalue(L, -2);
+  lua_settable(L, -4);
   /* remove multiregistry table from stack */
-  lua_pop(L, 1);
+  //lua_remove(L, -2);
+  lua_pushvalue(L,2);
+  lua_rawseti(L,-2,1);
 
   privatep->n_easy++;
   data_callbackdata = l_multi_create_callbackdata(L, "data", easyp, privatep);
@@ -178,12 +185,18 @@ int l_multi_add_handle (lua_State *L) {
   if (curl_easy_setopt(easyp->curl, CURLOPT_WRITEFUNCTION, l_multi_internalcallback) != CURLE_OK)
     luaL_error(L, "%s", easyp->error);
 
-  /* shrug! we need to garbage-collect this */
+  lua_pushlightuserdata(L,data_callbackdata);
+  lua_rawseti(L,-2,2);
+
   header_callbackdata = l_multi_create_callbackdata(L, "header", easyp, privatep);
   if (curl_easy_setopt(easyp->curl, CURLOPT_WRITEHEADER , header_callbackdata) != CURLE_OK)
     luaL_error(L, "%s", easyp->error);
   if (curl_easy_setopt(easyp->curl, CURLOPT_WRITEFUNCTION, l_multi_internalcallback) != CURLE_OK)
     luaL_error(L, "%s", easyp->error);
+
+  lua_pushlightuserdata(L,header_callbackdata);
+  lua_rawseti(L,-2,3);
+
   return 0;
 }
 
@@ -252,6 +265,8 @@ static int l_multi_perform_internal (lua_State *L) {
   lua_rawgeti(L, n, 1);		/* data */
   lua_rawgeti(L, n, 2);		/* type */
   lua_rawgeti(L, n, 3);		/* easy */
+  lua_rawgeti(L, -1,1);
+  lua_remove(L,-2);
   lua_remove(L, n);
   return 3;
 }
@@ -263,7 +278,32 @@ int l_multi_perform (lua_State *L) {
 }
 
 int l_multi_gc (lua_State *L) {
+  int i;
   l_multi_userdata *privatep = luaL_checkudata(L, 1, LUACURL_MULTIMETATABLE);
   /*   printf("Not implemented: have to cleanup easyhandles: %d\n", privatep->n_easy); */
+  lua_getfield(L, LUA_REGISTRYINDEX, MULTIREGISTRY_KEY);
+  lua_pushlightuserdata(L, privatep);
+  lua_gettable(L, -2);
+  lua_remove(L,-2);
+
+  i = lua_gettop(L);
+
+  if(lua_istable(L,i)){
+	  lua_pushnil(L);
+	  while(0 != lua_next(L,i)){
+		if(lua_isuserdata(L,-2)){         //lightuserdata
+		  lua_rawgeti(L,-1,2);
+		  free(lua_touserdata(L,-1));
+		  lua_pop(L,1);
+		  lua_rawgeti(L,-1,3);
+		  free(lua_touserdata(L,-1));
+		  lua_pop(L,1);
+		}
+		else{                             //number
+
+		}
+		lua_pop(L,1);
+	  }
+  }
   return 0;
 }
