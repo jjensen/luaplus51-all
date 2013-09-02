@@ -1,4 +1,4 @@
-# Makefile for Lua BitOp -- a bit operations library for Lua 5.1.
+# Makefile for Lua BitOp -- a bit operations library for Lua 5.1/5.2.
 # To compile with MSVC please run: msvcbuild.bat
 # To compile with MinGW please run: mingw32-make -f Makefile.mingw
 
@@ -6,16 +6,19 @@
 INCLUDES= -I/usr/local/include
 
 DEFINES=
-# Use this if you need to compile for an old ARM ABI with swapped FPA doubles
+# Use this for the old ARM ABI with swapped FPA doubles.
+# Do NOT use this for modern ARM EABI with VFP or soft-float!
 #DEFINES= -DSWAPPED_DOUBLE
 
 # Lua executable name. Used to find the install path and for testing.
 LUA= lua
 
 CC= gcc
-SOCFLAGS= -fPIC
-SOCC= $(CC) -shared $(SOCFLAGS)
-CFLAGS= -Wall -O2 -fomit-frame-pointer $(SOCFLAGS) $(DEFINES) $(INCLUDES)
+CCOPT= -O2 -fomit-frame-pointer
+CCWARN= -Wall
+SOCC= $(CC) -shared
+SOCFLAGS= -fPIC $(CCOPT) $(CCWARN) $(DEFINES) $(INCLUDES) $(CFLAGS)
+SOLDFLAGS= -fPIC $(LDFLAGS)
 RM= rm -f
 INSTALL= install -p
 INSTALLPATH= $(LUA) installpath.lua
@@ -27,10 +30,13 @@ all: $(MODSO)
 
 # Alternative target for compiling on Mac OS X:
 macosx:
-	$(MAKE) all "SOCC=MACOSX_DEPLOYMENT_TARGET=10.3 $(CC) -dynamiclib -single_module -undefined dynamic_lookup $(SOCFLAGS)"
+	$(MAKE) all "SOCC=MACOSX_DEPLOYMENT_TARGET=10.4 $(CC) -dynamiclib -single_module -undefined dynamic_lookup"
+
+$(MODNAME).o: $(MODNAME).c
+	$(CC) $(SOCFLAGS) -c -o $@ $<
 
 $(MODSO): $(MODNAME).o
-	$(SOCC) -o $@ $<
+	$(SOCC) $(SOLDFLAGS) -o $@ $<
 
 install: $(MODSO)
 	$(INSTALL) $< `$(INSTALLPATH) $(MODNAME)`
