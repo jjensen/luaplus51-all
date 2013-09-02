@@ -1,4 +1,4 @@
-This is a uuid library for Lua 5.1. It generates Universally Unique Identifiers
+This is a uuid library for Lua 5.2. It generates Universally Unique Identifiers
 using libuuid, which is part of the e2fsprogs package and is available at
 	http://e2fsprogs.sourceforge.net/
 If you're running Linux, libuuid is probably already installed.

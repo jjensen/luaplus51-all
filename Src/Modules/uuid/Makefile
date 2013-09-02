@@ -1,7 +1,7 @@
 # makefile for uuid library for Lua
 
 # change these to reflect your Lua installation
-LUA= /tmp/lhf/lua-5.1.4
+LUA= /tmp/lhf/lua-5.2.0
 LUAINC= $(LUA)/src
 LUALIB= $(LUA)/src
 LUABIN= $(LUA)/src
@@ -15,10 +15,10 @@ LUABIN= $(LUA)/src
 # probably no need to change anything below here
 CC= gcc
 CFLAGS= $(INCS) $(WARN) -O2 $G
-WARN= -ansi -pedantic -Wall
+WARN= -ansi -pedantic -Wall -Wextra
 INCS= -I$(LUAINC)
 MAKESO= $(CC) -shared
-#MAKESO= env MACOSX_DEPLOYMENT_TARGET=10.3 $(CC) -bundle -undefined dynamic_lookup
+#MAKESO= $(CC) -bundle -undefined dynamic_lookup
 
 MYNAME= uuid
 MYLIB= l$(MYNAME)
@@ -44,23 +44,5 @@ clean:
 doc:
 	@echo "$(MYNAME) library:"
 	@fgrep '/**' $(MYLIB).c | cut -f2 -d/ | tr -d '*' | sort | column
-
-# distribution
-W= ftp/lua/5.1
-D= $(MYNAME)
-A= $(MYLIB).tar.gz
-TOTAR= Makefile,README,$(MYLIB).c,test.lua,Makefile.win32,README.win32,wuuid.c,wuuid.h
-
-distr:	clean
-	tar zcvf $A -C .. $D/{$(TOTAR)}
-	touch -r $A .stamp
-	scp -p $A www:www/$W
-
-diff:	clean download
-	tar zxf $A
-	diff $D .
-
-download:
-	wget -q -N http://www.tecgraf.puc-rio.br/~lhf/$W/$A
 
 # eof

@@ -1,6 +1,6 @@
 -- test uuid library
 
-require"uuid"
+local uuid=require"uuid"
 
 print(uuid.version)
 print""
@@ -23,12 +23,12 @@ print""
 
 function test(x,expect)
  local isvalid=uuid.isvalid(x)
- print(x,isvalid,expect,isvalid==expect and "pass" or "FAIL")
+ print(x,isvalid,expect,isvalid==expect and "ok" or "FAIL")
 end
 
 U="uuid validation"
 U=U..string.rep(" ",#u-#U)
-print(U,"isvalid","expect")
+print(U,"isvalid","expect","pass")
 -- from tst_uuid.c
 test("84949cc5-4701-4a84-895b-354c584a981b", true)
 test("84949CC5-4701-4A84-895B-354C584A981B", true)
