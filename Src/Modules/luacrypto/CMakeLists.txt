@@ -22,6 +22,12 @@ if ( WIN32 )
   add_definitions ( "-DLUACRYPTO_API=__declspec(dllexport)" )
 endif ( WIN32 )
 
+option( DONT_USE_OPENSSL_DEPRECATED_FUNCTIONS
+	"Prevent the use of deprecated public/private key generation functions" ON)
+if ( DONT_USE_OPENSSL_DEPRECATED_FUNCTIONS )
+	add_definitions ( -DDONT_USE_OPENSSL_DEPRECATED_FUNCTIONS )
+endif ( DONT_USE_OPENSSL_DEPRECATED_FUNCTIONS )
+
 install_lua_module ( crypto src/lcrypto.c )
 target_link_libraries ( crypto ${CRYPTO_LIBRARY} ${SSL_LIBRARY} ${LIBS})
 

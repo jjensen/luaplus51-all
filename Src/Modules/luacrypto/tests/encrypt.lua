@@ -5,7 +5,7 @@ function hexprint(s)
 	print(crypto.hex(s))
 end
 
-require 'crypto'
+crypto = require 'crypto'
 
 -- TESTING HEX
 

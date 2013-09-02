@@ -3,7 +3,7 @@
 -- See Copyright Notice in license.html
 --]]
 
-require("crypto")
+crypto = require("crypto")
 
 local digest = crypto.digest
 local hmac = crypto.hmac

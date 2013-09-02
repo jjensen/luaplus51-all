@@ -5,7 +5,7 @@
 -- See Copyright Notice in license.html
 --]]
 
-require "crypto"
+crypto = require "crypto"
 local rand = crypto.rand
 
 print("RAND version: " .. crypto._VERSION)
