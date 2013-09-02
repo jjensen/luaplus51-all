@@ -25,8 +25,8 @@ Pump, Support, Library">
 </td></tr>
 </table>
 <p class=bar>
-<a href="home.html">home</a> &middot;
-<a href="home.html#download">download</a> &middot;
+<a href="index.html">home</a> &middot;
+<a href="index.html#download">download</a> &middot;
 <a href="installation.html">installation</a> &middot;
 <a href="introduction.html">introduction</a> &middot;
 <a href="reference.html">reference</a> 
@@ -224,8 +224,8 @@ local ltn12 = require("ltn12")
 
 -- copy a file
 ltn12.pump.all(
-  ltn12.source.file(io.open("original.png")),
-  ltn12.sink.file(io.open("copy.png"))
+  ltn12.source.file(io.open("original.png", "rb")),
+  ltn12.sink.file(io.open("copy.png", "wb"))
 )
 </pre>
 
@@ -379,8 +379,8 @@ local ltn12 = require("ltn12")
 
 -- copy a file
 ltn12.pump.all(
-  ltn12.source.file(io.open("original.png")),
-  ltn12.sink.file(io.open("copy.png"))
+  ltn12.source.file(io.open("original.png", "rb")),
+  ltn12.sink.file(io.open("copy.png", "wb"))
 )
 </pre>
 
@@ -411,8 +411,8 @@ Creates and returns a source that produces the contents of a
 <hr>
 <center>
 <p class=bar>
-<a href="home.html">home</a> &middot;
-<a href="home.html#down">download</a> &middot;
+<a href="index.html">home</a> &middot;
+<a href="index.html#down">download</a> &middot;
 <a href="installation.html">installation</a> &middot;
 <a href="introduction.html">introduction</a> &middot;
 <a href="reference.html">reference</a>

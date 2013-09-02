@@ -25,10 +25,13 @@ local SRCS =
 	src/io.h
 	src/luasocket.c
 	src/luasocket.h
+	src/mime.c
+	src/mime.h
 	src/options.c
 	src/options.h
 	src/select.c
 	src/select.h
+	#src/serial.c
 	src/socket.h
 	src/tcp.c
 	src/tcp.h
@@ -36,10 +39,14 @@ local SRCS =
 	src/timeout.h
 	src/udp.c
 	src/udp.h
+	#src/unix.c
+	#src/unix.h
 
 	src/ftp.lua
+	src/headers.lua
 	src/http.lua
 	src/ltn12.lua
+	src/mbox.lua
 	src/mime.lua
 	src/smtp.lua
 	src/socket.lua
@@ -50,8 +57,10 @@ local SRCS =
 ;
 
 CopyFile socket : $(LUA_LDIR)/socket/ftp.lua : $(SUBDIR)/src/ftp.lua ;
+CopyFile socket : $(LUA_LDIR)/socket/headers.lua : $(SUBDIR)/src/headers.lua ;
 CopyFile socket : $(LUA_LDIR)/socket/http.lua : $(SUBDIR)/src/http.lua ;
 CopyFile socket : $(LUA_LDIR)/ltn12.lua : $(SUBDIR)/src/ltn12.lua ;
+CopyFile socket : $(LUA_LDIR)/socket/mbox.lua : $(SUBDIR)/src/mbox.lua ;
 CopyFile socket : $(LUA_LDIR)/mime.lua : $(SUBDIR)/src/mime.lua ;
 CopyFile socket : $(LUA_LDIR)/socket/smtp.lua : $(SUBDIR)/src/smtp.lua ;
 CopyFile socket : $(LUA_LDIR)/socket.lua : $(SUBDIR)/src/socket.lua ;
@@ -63,7 +72,7 @@ C.Defines : LUASOCKET_EXPORTS ;
 if $(MSVCNT)
 {
 	C.Defines : "LUASOCKET_API=__declspec(dllexport)" ;
-	C.LinkPrebuiltLibraries : wsock32 ;
+	C.LinkPrebuiltLibraries : ws2_32 ;
 }
 
 C.OutputName socket : core ;
