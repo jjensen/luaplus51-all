@@ -1,50 +1,57 @@
 {
 
-local EXTRA_SRCS ;
-if $(MSVCNT)
-{
-	EXTRA_SRCS = src/wsocket.c src/wsocket.h ;
-}
-else
-{
-	EXTRA_SRCS = src/usocket.c src/usocket.h ;
+local LUASOCKET_SRCS =
+		src/luasocket/buffer.c
+		src/luasocket/buffer.h
+		src/luasocket/io.c
+		src/luasocket/io.h
+		src/luasocket/socket.h
+		src/luasocket/timeout.c
+		src/luasocket/timeout.h
+		src/luasocket/usocket.c
+		src/luasocket/usocket.h
+		src/luasocket/wsocket.c
+		src/luasocket/wsocket.h
+;
+
+if $(MSVCNT) {
+	C.ExcludeFromBuild luasec : src/luasocket/usocket.c ;
+} else {
+	C.ExcludeFromBuild luasec : src/luasocket/wsocket.c ;
 }
 
 local SRCS =
-	src/buffer.c
-	src/buffer.h
-	src/context.c
-	src/context.h
-	src/io.c
-	src/io.h
-	src/socket.h
-	src/ssl.c
-	src/ssl.h
-	src/ssl.lua
-	src/timeout.c
-	src/timeout.h
-	$(EXTRA_SRCS)
+		src/config.h
+		src/context.c
+		src/context.h
+		src/ec.h
+		src/https.lua
+		src/options.h
+		src/options.lua
+		src/ssl.c
+		src/ssl.h
+		src/ssl.lua
+		src/x509.c
+		src/x509.h
 ;
 
-CopyFile luasec : $(LUA_LDIR)/https.lua : $(SUBDIR)/src/https.lua ;
+CopyFile luasec : $(LUA_LDIR)/ssl/https.lua : $(SUBDIR)/src/https.lua ;
+CopyFile luasec : $(LUA_LDIR)/ssl/options.lua : $(SUBDIR)/src/options.lua ;
 CopyFile luasec : $(LUA_LDIR)/ssl.lua : $(SUBDIR)/src/ssl.lua ;
+
+C.IncludeDirectories luasec : src ;
 
 if $(MSVCNT)  &&  $(PLATFORM) in win32 win64 {
 	C.Defines luasec : "LUASEC_API=__declspec(dllexport)" ;
 	C.LinkPrebuiltLibraries luasec : wsock32 ;
-	if $(PLATFORM) = win32 {
-		C.IncludeDirectories luasec : c:/OpenSSL-Win32/include c:/OpenSSL-Win32/include/openssl ;
-		C.LinkDirectories luasec : c:/OpenSSL-Win32/lib/VC/static ;
-	} else {
-		C.IncludeDirectories luasec : c:/OpenSSL-Win64/include c:/OpenSSL-Win64/include/openssl ;
-		C.LinkDirectories luasec : c:/OpenSSL-Win64/lib/VC/static ;
-	}
-	C.LinkPrebuiltLibraries luasec : libeay32MT ssleay32MT advapi32 gdi32 user32 ;
 } else {
 	C.Defines luasec : LUASEC_API ;
 }
 
-Lua.CModule luasec : ssl ssl_core : $(SRCS) ;
+IncludeModule c/openssl ;
+C.UseOpenSSL luasec : link ;
+
+Lua.CModule luasec : ssl ssl_core : $(SRCS) $(LUASOCKET_SRCS) ;
 
 }
 

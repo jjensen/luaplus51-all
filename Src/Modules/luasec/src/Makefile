@@ -2,61 +2,60 @@ CMOD=ssl.so
 LMOD=ssl.lua
 
 OBJS= \
- timeout.o \
- buffer.o \
- io.o \
- usocket.o \
+ x509.o \
  context.o \
  ssl.o
 
-LIBS=-lssl -lcrypto
+LIBS=-lssl -lcrypto -lluasocket
 
 WARN=-Wall -pedantic
 
-BSD_CFLAGS=-O2 -fpic $(WARN) $(INCDIR) $(DEFS)
-BSD_LDFLAGS=-O -shared -fpic $(LIBDIR)
+BSD_CFLAGS=-O2 -fPIC $(WARN) $(INCDIR) $(DEFS)
+BSD_LDFLAGS=-O -fPIC -shared $(LIBDIR)
 
-LNX_CFLAGS=-O2 -fpic $(WARN) $(INCDIR) $(DEFS)
-LNX_LDFLAGS=-O -shared -fpic $(LIBDIR)
+LNX_CFLAGS=-O2 -fPIC $(WARN) $(INCDIR) $(DEFS)
+LNX_LDFLAGS=-O -fPIC -shared $(LIBDIR)
 
 MAC_ENV=env MACOSX_DEPLOYMENT_TARGET='$(MACVER)'
 MAC_CFLAGS=-O2 -fno-common $(WARN) $(INCDIR) $(DEFS)
 MAC_LDFLAGS=-bundle -undefined dynamic_lookup $(LIBDIR)
 
-CC=gcc
-LD=$(MYENV) gcc
-CFLAGS=$(MYCFLAGS)
-LDFLAGS=$(MYLDFLAGS)
+INSTALL	?= install
+CC	?= cc
+LD	?= $(MYENV) cc
+CFLAGS	+= $(MYCFLAGS)
+LDFLAGS	+= $(MYLDFLAGS)
+DESTDIR	?= /
 
-.PHONY: all clean install none linux bsd macosx
+.PHONY: all clean install none linux bsd macosx luasocket
 
 all:
 
 install: $(CMOD) $(LMOD)
-	mkdir -p $(LUAPATH)/ssl
-	cp $(CMOD) $(LUACPATH)
-	cp $(LMOD) $(LUAPATH)
-	cp https.lua $(LUAPATH)/ssl
+	$(INSTALL) -d $(DESTDIR)$(LUAPATH)/ssl $(DESTDIR)$(LUACPATH)
+	$(INSTALL) -D $(CMOD) $(DESTDIR)$(LUACPATH)
+	$(INSTALL) -m644 -D $(LMOD) $(DESTDIR)$(LUAPATH)
+	$(INSTALL) -m644 -D https.lua $(DESTDIR)$(LUAPATH)/ssl
 
 linux:
-	@$(MAKE) $(CMOD) MYCFLAGS="$(LNX_CFLAGS)" MYLDFLAGS="$(LNX_LDFLAGS)"
+	@$(MAKE) $(CMOD) MYCFLAGS="$(LNX_CFLAGS)" MYLDFLAGS="$(LNX_LDFLAGS)" EXTRA="$(EXTRA)"
 
 bsd:
-	@$(MAKE) $(CMOD) MYCFLAGS="$(BSD_CFLAGS)" MYLDFLAGS="$(BSD_LDFLAGS)"
+	@$(MAKE) $(CMOD) MYCFLAGS="$(BSD_CFLAGS)" MYLDFLAGS="$(BSD_LDFLAGS)" EXTRA="$(EXTRA)"
 
 macosx:
-	@$(MAKE) $(CMOD) MYCFLAGS="$(MAC_CFLAGS)" MYLDFLAGS="$(MAC_LDFLAGS)" MYENV="$(MAC_ENV)"
+	@$(MAKE) $(CMOD) MYCFLAGS="$(MAC_CFLAGS)" MYLDFLAGS="$(MAC_LDFLAGS)" MYENV="$(MAC_ENV)" EXTRA="$(EXTRA)"
 
+luasocket:
+	@cd luasocket && $(MAKE)
 
-$(CMOD): $(OBJS)
+$(CMOD): $(EXTRA) $(OBJS)
 	$(LD) $(LDFLAGS) -o $@ $(OBJS) $(LIBS)
 
 clean:
+	cd luasocket && $(MAKE) clean
 	rm -f $(OBJS) $(CMOD)
 
-buffer.o: buffer.c buffer.h io.h timeout.h
-io.o: io.c io.h timeout.h
-timeout.o: timeout.c timeout.h
-usocket.o: usocket.c socket.h io.h timeout.h usocket.h
-context.o: context.c context.h
-ssl.o: ssl.c socket.h io.h timeout.h usocket.h buffer.h context.h context.c
+x509.o: x509.c x509.h config.h
+context.o: context.c context.h ec.h config.h
+ssl.o: ssl.c ssl.h context.h x509.h config.h
