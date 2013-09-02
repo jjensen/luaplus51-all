@@ -883,7 +883,11 @@ LUALIB_API int luaopen_zlib(lua_State *L)
     /*
     ** Stack: metatable
     */
+#if LUA_VERSION_NUM >= 502
+	luaL_setfuncs(L, lzstream_meta, 0);
+#else
     luaL_register(L, NULL, lzstream_meta);
+#endif
 
     lua_pop(L, 1);                      /* remove metatable from stack */
 
@@ -934,7 +938,11 @@ LUALIB_API int luaopen_zlib(lua_State *L)
     PUSH_NUMBER(GZIP_WINDOWBITS, 16)
     PUSH_NUMBER(RAW_WINDOWBITS, -1)
 
+#if LUA_VERSION_NUM >= 502
+	luaL_setfuncs(L, zlib, 0);
+#else
     luaL_register(L, NULL, zlib);
+#endif
 
     /*
     ** Stack: zlib table
