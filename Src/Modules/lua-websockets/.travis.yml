@@ -1,0 +1,12 @@
+python:
+  - "2.7"
+
+install:
+  - sudo pip install autobahntestsuite
+  - sudo apt-get install libev-dev
+  - sudo apt-get install luajit
+  - sudo apt-get install luarocks
+  - sudo luarocks install busted
+
+script: "sudo luarocks make rockspecs/lua-websockets-scm-1.rockspec && LUA=luajit ./test.sh"
+
