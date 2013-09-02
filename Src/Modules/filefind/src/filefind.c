@@ -13,6 +13,9 @@
 #define FILEGLOB_NEED_FILETIME_TO_TIME_T_CONVERSION
 #include "fileglob.h"
 
+#if LUA_VERSION_NUM >= 502
+#define luaL_register(a, b, c) luaL_setfuncs(a, c, 0)
+#endif
 
 #if _MSC_VER  &&  _MSC_VER <= 1300
 double ui64ToDouble(unsigned __int64 ui64)
@@ -173,7 +176,7 @@ static int filefind_gc(lua_State *L) {
 }
 
 
-static const struct luaL_reg filefind_index_functions[] = {
+static const struct luaL_Reg filefind_index_functions[] = {
 	{ "next",					filefind_next },
 	{ "close",					filefind_close },
 	{ NULL, NULL },
@@ -421,7 +424,7 @@ static int filefind_index_table(lua_State* L) {
 }
 
 
-static const struct luaL_reg filefind_index_properties[] = {
+static const struct luaL_Reg filefind_index_properties[] = {
 	{ "filename",				filefind_index_filename },
 	{ "creation_time",			filefind_index_creation_time },
 	{ "access_time",			filefind_index_access_time },
@@ -681,7 +684,7 @@ static int glob_gc(lua_State *L) {
 }
 
 
-static const struct luaL_reg glob_index_functions[] = {
+static const struct luaL_Reg glob_index_functions[] = {
 	{ "next",					glob_next },
 	{ "close",					glob_close },
 	{ NULL, NULL },
@@ -843,7 +846,7 @@ static int glob_index_table(lua_State* L) {
 }
 
 
-static const struct luaL_reg glob_index_properties[] = {
+static const struct luaL_Reg glob_index_properties[] = {
 	{ "filename",				glob_index_filename },
 	{ "creation_time",			glob_index_creation_time },
 	{ "access_time",			glob_index_access_time },
@@ -1127,7 +1130,7 @@ static int l_filefind_time_t_to_FILETIME(lua_State* L) {
 #endif // WIN32
 
 
-static const struct luaL_reg filefind_lib[] = {
+static const struct luaL_Reg filefind_lib[] = {
 	{ "attributes", l_filefind_attributes },
 	{ "first", l_filefind_first },
 	{ "match", l_filefind_match },
