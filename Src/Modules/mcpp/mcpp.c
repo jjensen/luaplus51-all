@@ -4,6 +4,10 @@
 #include <stdio.h>
 #include "mcpp/src/mcpp_lib.h"
 
+#if LUA_VERSION_NUM >= 502
+#define lua_objlen lua_rawlen
+#endif
+
 static int l_preprocess(lua_State* L) {
 	int argc;
 	int i;
@@ -49,13 +53,17 @@ static int l_preprocess(lua_State* L) {
 }
 
 
-static const struct luaL_reg mcpp_funcs[] = {
+static const struct luaL_Reg mcpp_funcs[] = {
 	{ "preprocess", l_preprocess },
 	{ NULL, NULL }
 };
 
 
 LUALIB_API int luaopen_mcpp(lua_State* L) {
+#if LUA_VERSION_NUM >= 502
+	luaL_setfuncs(L, mcpp_funcs, 0);
+#else
 	luaL_register(L, "mcpp", mcpp_funcs);
+#endif
 	return 1;
 }
