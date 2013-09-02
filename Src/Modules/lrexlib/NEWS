@@ -1,3 +1,10 @@
+2013-01-08  Release 2.7.2
+
+  * Fixed the use of alternative allocators, and a memory leak.
+  * Simplify the build system further.
+  * Change rockspec to build from git now that github no longer
+    supports downloads.
+
 2012-10-18  Release 2.7.1
 
   * Fixed Lua 5.1 compatibility, broken in 2.7.0.

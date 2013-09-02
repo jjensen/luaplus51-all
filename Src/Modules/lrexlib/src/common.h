@@ -92,5 +92,7 @@ void set_int_field (lua_State *L, const char* field, int val);
 int  get_flags (lua_State *L, const flag_pair **arr);
 const char *get_flag_key (const flag_pair *fp, int val);
 void *Lmalloc (lua_State *L, size_t size);
+void *Lrealloc (lua_State *L, void *p, size_t osize, size_t nsize);
+void Lfree (lua_State *L, void *p, size_t size);
 
 #endif

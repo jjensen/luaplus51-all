@@ -7,4 +7,3 @@ ChangeLog
 release-notes
 /*.rockspec
 /luarocks
-pcre-*/

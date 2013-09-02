@@ -40,6 +40,7 @@ SourceGroup lrexlib : pcre : $(PCRE_SRCS) ;
 #if $(MSVCNT) {
 	C.Defines lrexlib : HAVE_CONFIG_H PCRE_STATIC REX_API= ;
 	C.Defines lrexlib : HAVE_STDINT_H=0 HAVE_INTTYPES_H=0 ;
+	C.Defines lrexlib : "VERSION=\\\"2.7.2\\\"" ;
 	C.IncludeDirectories lrexlib : pcre-8.30 ;
 #}
 

@@ -105,7 +105,9 @@ static const unsigned char *gettranslate (lua_State *L, int pos) {
   if (lua_isnoneornil (L, pos))
     return NULL;
 
-  translate = (const unsigned char *) Lmalloc (L, ALG_TRANSLATE_SIZE);
+  translate = (const unsigned char *) malloc (ALG_TRANSLATE_SIZE);
+  if (!translate)
+    luaL_error (L, "malloc failed");
   memset ((unsigned char *) translate, 0, ALG_TRANSLATE_SIZE); /* initialize all members to 0 */
   for (i = 0; i <= UCHAR_MAX; i++) {
     lua_pushinteger (L, i);

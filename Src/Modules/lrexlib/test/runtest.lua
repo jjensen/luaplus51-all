@@ -5,6 +5,7 @@ local ok
 ok, alien = pcall (require, "alien")
 if not ok then
   io.stderr:write ("Warning: alien not found, so cannot run tests with buffer subjects\n")
+  alien = nil
 end
 
 do

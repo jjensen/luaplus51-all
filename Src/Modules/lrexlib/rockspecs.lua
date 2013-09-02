@@ -1,31 +1,30 @@
-local flavours = {"PCRE", "POSIX", "oniguruma", "TRE", "GNU"}
-
 -- Rockspec data
 
 -- Variables to be interpolated:
 --
 -- flavour: regex library
 -- version
--- md5sum: checksum of distribution tarball
 
--- When Lua 5.1 support is dropped, use an env argument with loadfile
--- instead of wrapping in a table
+local flavours = {"PCRE", "POSIX", "oniguruma", "TRE", "GNU"}
+local version_dashed = version:gsub ("%.", "-")
+
+-- FIXME: When Lua 5.1 support is dropped, use an env argument with
+-- loadfile instead of wrapping in a table
 return {
 
 default = {
   package = "Lrexlib-"..flavour,
   version = version.."-1",
   source = {
-    url = "https://github.com/downloads/rrthomas/lrexlib/lrexlib-"..version..".zip",
-    md5 = md5sum
+    url = "git://github.com/rrthomas/lrexlib.git",
+    tag = "rel-"..version_dashed,
   },
   description = {
     summary = "Regular expression library binding ("..flavour.." flavour).",
     detailed = [[
-      Lrexlib is a regular expression library for Lua 5.1 and 5.2, which
-      provides bindings for several regular expression libraries.
-      This rock provides the ]]..flavour..[[ bindings.
-    ]],
+Lrexlib is a regular expression library for Lua 5.1 and 5.2, which
+provides bindings for several regular expression libraries.
+This rock provides the ]]..flavour..[[ bindings.]],
     homepage = "http://github.com/rrthomas/lrexlib",
     license = "MIT/X11"
   },

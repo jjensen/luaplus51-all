@@ -2,13 +2,12 @@
 
 require "std"
 
-if select ("#", ...) < 2 then
-  io.stderr:write "Usage: mkrockspecs VERSION MD5SUM\n"
+if select ("#", ...) < 1 then
+  io.stderr:write "Usage: mkrockspecs VERSION\n"
   os.exit ()
 end
 
 version = select (1, ...)
-md5sum = select (2, ...)
 
 function format (x, indent)
   indent = indent or ""

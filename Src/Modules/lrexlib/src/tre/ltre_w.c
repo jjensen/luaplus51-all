@@ -111,6 +111,8 @@ static int compile_regex (lua_State *L, const TArgComp *argC, TPosix **pud) {
   if (argC->cflags & REG_NOSUB)
     ud->r.re_nsub = 0;
   ud->match = (regmatch_t *) Lmalloc (L, (ALG_NSUB(ud) + 1) * sizeof (regmatch_t));
+  if (!ud->match)
+    luaL_error (L, "malloc failed");
   lua_pushvalue (L, ALG_ENVIRONINDEX);
   lua_setmetatable (L, -2);
 

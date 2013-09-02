@@ -733,6 +733,6 @@ static void alg_register (lua_State *L, const luaL_Reg *r_methods,
   lua_pushvalue(L, -1);
   lua_setglobal(L, REX_LIBNAME);
 #endif
-  lua_pushfstring (L, "Lrexlib (for %s)", name);
+  lua_pushfstring (L, REX_VERSION" (for %s)", name);
   lua_setfield (L, -2, "_VERSION");
 }

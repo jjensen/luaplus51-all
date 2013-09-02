@@ -1,45 +1,55 @@
 # Makefile for lrexlib
 
-# See src/*/Makefile for user-definable settings
-
-REGNAMES = gnu pcre posix oniguruma tre
+VERSION = 2.7.2
 PROJECT = lrexlib
-VERSION = 2.7.1
 PROJECT_VERSIONED = $(PROJECT)-$(VERSION)
-DISTFILE = $(PROJECT_VERSIONED).zip
 
-install: dist
-	@for i in *.rockspec; do \
-	  luarocks make $$i; \
+# Commands
+LUA = lua
+LUAROCKS = luarocks
+CP = cp -a
+RM = rm
+RST2HTML = rst2html
+REGNAMES = gnu pcre posix oniguruma tre
+LUAROCKS_COMMAND = make
+
+
+.SUFFIXES: .txt .html
+
+HTML = doc/index.html doc/manual.html
+
+.txt.html:
+	$(RST2HTML) --stylesheet-path=doc/lrexlib.css --link-stylesheet --initial-header-level=2 --date --time $< $@
+
+build:
+	$(MAKE) install LUAROCKS="$(LUAROCKS) --tree=luarocks"
+
+install: rockspecs
+	for i in *.rockspec; do \
+	  $(LUAROCKS) $(LUAROCKS_COMMAND) $$i; \
 	done
 
-check:
-	@if test -z "$(LUA)"; then echo "Set LUA to run tests"; exit 1; fi
-	@for i in $(REGNAMES); do \
+rockspecs:
+	rm -f *.rockspec
+	$(LUA) mkrockspecs.lua $(VERSION)
+
+doc/index.txt: README.rst
+	$(CP) $< $@
+
+check: build
+	for i in $(REGNAMES); do \
 	  LUA_PATH="test/?.lua;$(LUA_PATH)" $(LUA) test/runtest.lua -dsrc/$$i $$i; \
 	done
 
-docs:
-	@make -C doc
+clean:
+	$(RM) $(HTML) doc/index.txt *.rockspec
 
-rockspecs: dist
-	rm -f *.rockspec
-	lua mkrockspecs.lua $(VERSION) `md5sum $(DISTFILE)`
-
-dist: docs
-	git2cl > ChangeLog
-	cd .. && rm -f $(DISTFILE) && zip $(DISTFILE) -r $(PROJECT) -x "lrexlib/.git/*" "*.gitignore" "*.o" "*.a" "*.so" "*.so.*" "*.zip" "*SciTE.properties" "*scite.properties" "*.rockspec" "lrexlib/luarocks/*" && mv $(DISTFILE) $(PROJECT) && cd $(PROJECT) && unzip $(DISTFILE) && mv $(PROJECT) $(PROJECT_VERSIONED) && rm -f $(DISTFILE) && zip $(DISTFILE) -r $(PROJECT_VERSIONED) && rm -rf $(PROJECT_VERSIONED)
-
-WOGER_ARGS = package=$(PROJECT) package_name=$(PROJECT) version=$(VERSION) description="Lua binding for regex libraries" notes=release-notes dist_type="zip" github_user=rrthomas
-
-release: rockspecs check
+# FIXME: Extract URL from rockspec
+release: check
 	agrep -d 'Release' $(VERSION) NEWS | tail -n +3 | head -n -2 > release-notes && \
 	git diff --exit-code && \
 	git tag -a -m "Release tag" rel-`echo $(VERSION) | sed -e 's/\./-/g'` && \
 	git push && git push --tags && \
-	woger github $(WOGER_ARGS) && \
-	for i in *.rockspec; do \
-	  LUAROCKS_CONFIG=luarocks-config.lua luarocks --tree=luarocks build $$i; \
-	done && \
-	woger lua $(WOGER_ARGS)
+	$(MAKE) build LUAROCKS_COMMAND=build && \
+	woger lua package=$(PROJECT) package_name=$(PROJECT) version=$(VERSION) description="Lua binding for regex libraries" notes=release-notes home="https://github.com/rrthomas/$(PROJECT)"
 	rm -f release-notes
