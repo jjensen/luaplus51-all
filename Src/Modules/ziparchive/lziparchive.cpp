@@ -25,6 +25,36 @@ extern "C" {
 
 #include <time.h>
 
+#if LUA_VERSION_NUM >= 502
+#define luaL_register(a, b, c) luaL_setfuncs(a, c, 0)
+#define lua_objlen lua_rawlen
+
+LUALIB_API int luaL_argerror (lua_State *L, int narg, const char *extramsg) {
+  lua_Debug ar;
+  if (!lua_getstack(L, 0, &ar))  /* no stack frame? */
+    return luaL_error(L, "bad argument #%d (%s)", narg, extramsg);
+  lua_getinfo(L, "n", &ar);
+  if (strcmp(ar.namewhat, "method") == 0) {
+    narg--;  /* do not count `self' */
+    if (narg == 0)  /* error is in the self argument itself? */
+      return luaL_error(L, "calling " LUA_QS " on bad self (%s)",
+                           ar.name, extramsg);
+  }
+  if (ar.name == NULL)
+    ar.name = "?";
+  return luaL_error(L, "bad argument #%d to " LUA_QS " (%s)",
+                        narg, ar.name, extramsg);
+}
+
+
+LUALIB_API int luaL_typerror (lua_State *L, int narg, const char *tname) {
+  const char *msg = lua_pushfstring(L, "%s expected, got %s",
+                                    tname, luaL_typename(L, narg));
+  return luaL_argerror(L, narg, msg);
+}
+
+#endif
+
 #if _MSC_VER  &&  _MSC_VER <= 1300
 double ui64ToDouble(unsigned __int64 ui64)
 {
@@ -1376,13 +1406,13 @@ int LS_AdjustTime_t(lua_State* L) {
 }
 
 
-static const struct luaL_reg lziparchivefilehandle_funcs[] = {
+static const struct luaL_Reg lziparchivefilehandle_funcs[] = {
 	{ "__gc",				filehandle_gc },
 	{ NULL, NULL },
 };
 
 
-static const struct luaL_reg lziparchive_funcs[] = {
+static const struct luaL_Reg lziparchive_funcs[] = {
 	{ "open",				lziparchive_open },
 	{ "openfrommemory",		lziparchive_openfrommemory },
 	{ "close",				lziparchive_close },
@@ -1475,7 +1505,7 @@ static int LS_filecrcmd5(lua_State* L)
 }
 
 
-static const struct luaL_reg lziparchivelib[] = {
+static const struct luaL_Reg lziparchivelib[] = {
 	{ "new",				lziparchive_new },
 	{ "open",				lziparchive_new_open },
 	{ "help",				LS_Help },
