@@ -19,15 +19,15 @@
 #endif
 
 #ifdef __WXGTK__
-#include <locale.h>
+    #include <locale.h>
 #endif
 
 #include <wx/cmdline.h>
 #include <wx/fs_mem.h>
 #include <wx/image.h>
 
-#include "wxlua/include/wxlua.h"
-#include "wxluasocket/include/wxldserv.h"
+#include "wxlua/wxlua.h"
+#include "wxlua/debugger/wxldserv.h"
 #include "wxlua.h"
 #include "editor.h"
 
@@ -41,12 +41,6 @@ extern "C"
 #ifndef wxICON_NONE
 #define wxICON_NONE 0 // for 2.8 compat
 #endif
-
-#ifdef __WXMSW__
-    void RedirectIOToDosConsole(bool alloc_new_if_needed);
-#endif // __WXMSW__
-
-#define ID_WXLUA_CONSOLE 100
 
 // Declare the binding initialization functions
 // Note : We could also do this "extern bool wxLuaBinding_XXX_init();" and
@@ -214,7 +208,7 @@ bool wxLuaStandaloneApp::OnInit()
                 m_dos_stdout = true;
             }
 
-            RedirectIOToDosConsole(m_dos_stdout);
+            wxlua_RedirectIOToDosConsole(m_dos_stdout, 500);
 #endif // __WXMSW__
 
             if (parser.Found(wxT("msgdlg")))
@@ -228,10 +222,8 @@ bool wxLuaStandaloneApp::OnInit()
             {
                 arg_count++; // remove arg
                 m_want_console = true;
-                // Note: The wxLuaConsoleWrapper::m_luaConsole will be nulled when it closes in
-                //       wxLuaConsole::OnCloseWindow.
-                m_luaConsoleWrapper.SetConsole(new wxLuaConsole(&m_luaConsoleWrapper, NULL, ID_WXLUA_CONSOLE));
-                m_luaConsoleWrapper.GetConsole()->Show(true);
+                wxLuaConsole::GetConsole(true)->Show(true);
+                wxLuaConsole::GetConsole()->SetLuaState(m_wxlState);
             }
 
             // Check if we are to run some Lua code stat
@@ -280,7 +272,7 @@ bool wxLuaStandaloneApp::OnInit()
                         DisplayMessage(_("The wxLua debugger server port is not a number : wxLua -d[host]:[port]\n"), true);
                 }
 
-                return (m_luaConsoleWrapper.IsOk()); // will exit app when console is closed
+                return (wxLuaConsole::HasConsole()); // will exit app when console is closed
             }
 
 
@@ -350,7 +342,7 @@ bool wxLuaStandaloneApp::OnInit()
             run_ok = false;
     }
 
-    return m_luaConsoleWrapper.IsOk() || run_ok;
+    return wxLuaConsole::HasConsole() || run_ok;
 }
 
 int wxLuaStandaloneApp::OnExit()
@@ -368,10 +360,9 @@ int wxLuaStandaloneApp::OnExit()
 
     m_want_console = false; // no more messages
 
-    if (m_luaConsoleWrapper.IsOk() && !m_luaConsoleWrapper.GetConsole()->IsBeingDeleted())
+    if (wxLuaConsole::HasConsole())
     {
-        m_luaConsoleWrapper.GetConsole()->Destroy();
-        m_luaConsoleWrapper.SetConsole(NULL);
+        wxLuaConsole::GetConsole()->Destroy();
     }
 
     if (m_mem_bitmap_added)
@@ -394,10 +385,10 @@ void wxLuaStandaloneApp::DisplayMessage(const wxString &msg, bool is_error,
 {
     // If they closed the console, but specified they wanted it
     // on the command-line, recreate it.
-    if (m_want_console && (!m_luaConsoleWrapper.IsOk()))
+    if (m_want_console && !wxLuaConsole::HasConsole())
     {
-        m_luaConsoleWrapper.SetConsole(new wxLuaConsole(&m_luaConsoleWrapper, NULL, ID_WXLUA_CONSOLE));
-        m_luaConsoleWrapper.GetConsole()->Show(true);
+        wxLuaConsole::GetConsole(true)->Show(true);
+        wxLuaConsole::GetConsole()->SetLuaState(m_wxlState);
     }
 
     if (!is_error)
@@ -405,12 +396,14 @@ void wxLuaStandaloneApp::DisplayMessage(const wxString &msg, bool is_error,
         if (m_print_stdout)
             wxPrintf(wxT("%s\n"), msg.c_str());
 
-        if (m_luaConsoleWrapper.IsOk())
-            m_luaConsoleWrapper.GetConsole()->AppendText(msg + wxT("\n"));
+        if (wxLuaConsole::HasConsole())
+            wxLuaConsole::GetConsole(false)->AppendText(msg + wxT("\n"));
 
         if (m_print_msgdlg)
         {
-            int ret = wxMessageBox(msg + wxT("\n\nPress cancel to ignore future print messages."), wxT("wxLua Print"), wxOK|wxCANCEL|wxCENTRE|wxICON_NONE);
+            int ret = wxMessageBox(msg + wxT("\n\nPress cancel to ignore future print messages."),
+                                   wxT("wxLua Print"),
+                                   wxOK|wxCANCEL|wxCENTRE|wxICON_NONE);
             if (ret == wxCANCEL)
                 m_print_msgdlg = false;
         }
@@ -420,15 +413,15 @@ void wxLuaStandaloneApp::DisplayMessage(const wxString &msg, bool is_error,
         //if (m_print_stdout) // always print errors, FIXME: to stderr or is stdout ok?
         wxPrintf(wxT("%s\n"), msg.c_str());
 
-        if (m_luaConsoleWrapper.IsOk())
+        if (wxLuaConsole::HasConsole())
         {
             wxTextAttr attr(*wxRED);
             attr.SetFlags(wxTEXT_ATTR_TEXT_COLOUR);
-            m_luaConsoleWrapper.GetConsole()->AppendTextWithAttr(msg + wxT("\n"), attr);
-            m_luaConsoleWrapper.GetConsole()->SetExitWhenClosed(true);
+            wxLuaConsole::GetConsole(false)->AppendTextWithAttr(msg + wxT("\n"), attr);
+            wxLuaConsole::GetConsole(false)->SetExitWhenClosed(true);
 
             if (wxlState.Ok())
-                m_luaConsoleWrapper.GetConsole()->DisplayStack(wxlState);
+                wxLuaConsole::GetConsole(false)->DisplayStack(wxlState);
         }
 
         if (m_wxlDebugTarget != NULL)
@@ -436,7 +429,9 @@ void wxLuaStandaloneApp::DisplayMessage(const wxString &msg, bool is_error,
 
         if (m_print_msgdlg)
         {
-            int ret = wxMessageBox(msg + wxT("\n\nPress cancel to ignore future error messages."), wxT("wxLua Print"), wxOK|wxCANCEL|wxCENTRE|wxICON_ERROR);
+            int ret = wxMessageBox(msg + wxT("\n\nPress cancel to ignore future error messages."),
+                                   wxT("wxLua - Lua Error"),
+                                   wxOK|wxCANCEL|wxCENTRE|wxICON_ERROR);
             if (ret == wxCANCEL)
                 m_print_msgdlg = false;
         }
@@ -448,57 +443,3 @@ void wxLuaStandaloneApp::OnLua( wxLuaEvent &event )
     DisplayMessage(event.GetString(), event.GetEventType() == wxEVT_LUA_ERROR,
                    event.GetwxLuaState());
 }
-
-#ifdef __WXMSW__
-
-static const WORD MAX_CONSOLE_LINES = 500;
-
-void RedirectIOToDosConsole(bool alloc_new_if_needed)
-{
-    // Code from http://dslweb.nwnexus.com/~ast/dload/guicon.htm
-    int  hConHandle = 0;
-    long lStdHandle = 0;
-    CONSOLE_SCREEN_BUFFER_INFO coninfo; memset(&coninfo, 0, sizeof(CONSOLE_SCREEN_BUFFER_INFO));
-    FILE *fp = 0; // we don't close this, let the OS close it when the app exits
-
-    // Try to attach to the parent process if it's a console, i.e. we're run from a DOS prompt.
-    BOOL attached_ok = AttachConsole( ATTACH_PARENT_PROCESS );
-
-    if (attached_ok == 0) // failed attaching
-    {
-        // we tried to attach, but failed don't alloc a new one
-        if (!alloc_new_if_needed)
-            return;
-
-        // Unable to attach, allocate a console for this app
-        AllocConsole();
-    }
-
-    // set the screen buffer to be big enough to let us scroll text
-    GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &coninfo);
-    coninfo.dwSize.Y = MAX_CONSOLE_LINES;
-    SetConsoleScreenBufferSize(GetStdHandle(STD_OUTPUT_HANDLE), coninfo.dwSize);
-    // redirect unbuffered STDOUT to the console
-    lStdHandle = (long)GetStdHandle(STD_OUTPUT_HANDLE);
-    hConHandle = _open_osfhandle(lStdHandle, _O_TEXT);
-    fp = _fdopen( hConHandle, "w" );
-    *stdout = *fp;
-    setvbuf( stdout, NULL, _IONBF, 0 );
-    // redirect unbuffered STDIN to the console
-    lStdHandle = (long)GetStdHandle(STD_INPUT_HANDLE);
-    hConHandle = _open_osfhandle(lStdHandle, _O_TEXT);
-    fp = _fdopen( hConHandle, "r" );
-    *stdin = *fp;
-    setvbuf( stdin, NULL, _IONBF, 0 );
-    // redirect unbuffered STDERR to the console
-    lStdHandle = (long)GetStdHandle(STD_ERROR_HANDLE);
-    hConHandle = _open_osfhandle(lStdHandle, _O_TEXT);
-    fp = _fdopen( hConHandle, "w" );
-    *stderr = *fp;
-    setvbuf( stderr, NULL, _IONBF, 0 );
-    // make cout, wcout, cin, wcin, wcerr, cerr, wclog and clog
-    // point to console as well
-    std::ios::sync_with_stdio();
-}
-
-#endif // __WXMSW__

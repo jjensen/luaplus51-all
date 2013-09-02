@@ -57,6 +57,7 @@ function PenToTable(pen)
 end
 
 function TableToPen(penTable)
+    local unpack = unpack or table.unpack -- Lua 5.1/5.2 compat
     local c = wx.wxColour(unpack(penTable.colour))
     local pen = wx.wxPen(c, penTable.width, penTable.style)
     c:delete()
@@ -80,13 +81,17 @@ function DrawPoints(drawDC)
         drawDC:SetPen(pen)
         pen:delete()
 
-        local point = listValue[1]
-        local last_point = point
-        for point_index = 2, #listValue do
-            point = listValue[point_index]
-            drawDC:DrawLine(last_point.x, last_point.y, point.x, point.y)
-            last_point = point
-        end
+        -- Draw each point individually...
+        --local point = listValue[1]
+        --local last_point = point
+        --for point_index = 2, #listValue do
+        --    point = listValue[point_index]
+        --    drawDC:DrawLine(last_point.x, last_point.y, point.x, point.y)
+        --    last_point = point
+        --end
+
+        -- or draw them all at once...
+        drawDC:DrawLines(listValue)
     end
 
     lastDrawn = #pointsList
@@ -483,7 +488,8 @@ function main()
             local i = math.floor(8*x/w)+1 + 8*math.floor(2*y/h)
             if colourWinColours[i] then
                 local s = "Set pen color : "..colourWinColours[i]
-                if colourWin:GetToolTip() ~= s then
+                local toolTip = colourWin:GetToolTip()
+                if (toolTip == nil) or (toolTip:GetTip() ~= s) then
                     colourWin:SetToolTip(s)
                 end
             end

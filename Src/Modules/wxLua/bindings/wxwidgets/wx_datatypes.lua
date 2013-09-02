@@ -314,6 +314,15 @@ wx_dataTypeTable =
     Name = "wxAuiDefaultTabArt",
     ValueType = "class",
   },
+  wxAuiDefaultToolBarArt = {
+    BaseClasses = {
+      [1] = "wxAuiToolBarArt",
+    },
+    Condition = "wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI",
+    IsNumber = false,
+    Name = "wxAuiDefaultToolBarArt",
+    ValueType = "class",
+  },
   wxAuiDockArt = {
     Condition = "wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI",
     IsNumber = false,
@@ -517,6 +526,60 @@ wx_dataTypeTable =
     IsNumber = false,
     Name = "wxAuiTabCtrl",
     ValueType = "class",
+  },
+  wxAuiToolBar = {
+    BaseClasses = {
+      [1] = "wxControl",
+    },
+    Condition = "wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI",
+    IsNumber = false,
+    Name = "wxAuiToolBar",
+    ValueType = "class",
+  },
+  wxAuiToolBarArt = {
+    Condition = "wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI",
+    IsNumber = false,
+    Name = "wxAuiToolBarArt",
+    ValueType = "class",
+  },
+  wxAuiToolBarArtSetting = {
+    Condition = "wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI",
+    IsNumber = true,
+    Name = "wxAuiToolBarArtSetting",
+    ValueType = "enum",
+  },
+  wxAuiToolBarEvent = {
+    BaseClasses = {
+      [1] = "wxNotifyEvent",
+    },
+    Condition = "wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI",
+    IsNumber = false,
+    Name = "wxAuiToolBarEvent",
+    ValueType = "class",
+  },
+  wxAuiToolBarItem = {
+    Condition = "wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI",
+    IsNumber = false,
+    Name = "wxAuiToolBarItem",
+    ValueType = "class",
+  },
+  wxAuiToolBarItemArray = {
+    Condition = "wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI",
+    IsNumber = false,
+    Name = "wxAuiToolBarItemArray",
+    ValueType = "class",
+  },
+  wxAuiToolBarStyle = {
+    Condition = "wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI",
+    IsNumber = true,
+    Name = "wxAuiToolBarStyle",
+    ValueType = "enum",
+  },
+  wxAuiToolBarToolTextOrientation = {
+    Condition = "wxLUA_USE_wxAUI && wxCHECK_VERSION(2,8,0) && wxUSE_AUI",
+    IsNumber = true,
+    Name = "wxAuiToolBarToolTextOrientation",
+    ValueType = "enum",
   },
   wxAutoBufferedPaintDC = {
     BaseClasses = {
@@ -1300,6 +1363,12 @@ wx_dataTypeTable =
     IsNumber = false,
     Name = "wxDirPickerCtrl",
     ValueType = "class",
+  },
+  wxDirTraverseResult = {
+    Condition = "(wxLUA_USE_wxDir) && (wxCHECK_VERSION(2,9,4))",
+    IsNumber = true,
+    Name = "wxDirTraverseResult",
+    ValueType = "enum",
   },
   wxDirection = {
     IsNumber = true,
@@ -2305,12 +2374,6 @@ wx_dataTypeTable =
     Name = "wxHelpSearchMode",
     ValueType = "enum",
   },
-  wxHotkeyModifier = {
-    Condition = "wxUSE_HOTKEY",
-    IsNumber = true,
-    Name = "wxHotkeyModifier",
-    ValueType = "enum",
-  },
   wxHtmlCell = {
     BaseClasses = {
       [1] = "wxObject",
@@ -2722,6 +2785,11 @@ wx_dataTypeTable =
     IsNumber = false,
     Name = "wxKeyEvent",
     ValueType = "class",
+  },
+  wxKeyModifier = {
+    IsNumber = true,
+    Name = "wxKeyModifier",
+    ValueType = "enum",
   },
   wxKeyType = {
     Condition = "wxLUA_USE_wxList && !wxUSE_STL",
@@ -3606,14 +3674,10 @@ wx_dataTypeTable =
     Name = "wxPoint2DInt",
     ValueType = "class",
   },
-  wxPointList = {
-    BaseClasses = {
-      [1] = "wxList",
-    },
-    Condition = "(wxLUA_USE_wxPointSizeRect) && (wxCHECK_VERSION(2,9,0))",
-    IsNumber = false,
-    Name = "wxPointList",
-    ValueType = "class",
+  wxPointArray_FromLuaTable = {
+    IsNumber = true,
+    Name = "wxPointArray_FromLuaTable",
+    ValueType = "special",
   },
   wxPolygonFillMode = {
     Condition = "wxLUA_USE_wxDC",
@@ -4146,6 +4210,15 @@ wx_dataTypeTable =
     Condition = "(wxLUA_USE_wxSizer) && (wxCHECK_VERSION(2,8,0))",
     IsNumber = false,
     Name = "wxSizerItem",
+    ValueType = "class",
+  },
+  wxSizerItemList = {
+    BaseClasses = {
+      [1] = "wxList",
+    },
+    Condition = "(wxLUA_USE_wxSizer) && (wxCHECK_VERSION(2,8,0))",
+    IsNumber = false,
+    Name = "wxSizerItemList",
     ValueType = "class",
   },
   wxSlider = {
@@ -4925,6 +4998,11 @@ wx_dataTypeTable =
     Name = "wxUint8",
     ValueType = "number",
   },
+  wxUniChar = {
+    IsNumber = true,
+    Name = "wxUniChar",
+    ValueType = "number",
+  },
   wxUpdateUI = {
     IsNumber = true,
     Name = "wxUpdateUI",
@@ -5093,6 +5171,15 @@ wx_dataTypeTable =
     Name = "wxWord",
     ValueType = "number",
   },
+  wxWrapSizer = {
+    BaseClasses = {
+      [1] = "wxBoxSizer",
+    },
+    Condition = "(wxLUA_USE_wxSizer) && (wxCHECK_VERSION(2,8,0)) && (wxCHECK_VERSION(2,9,0))",
+    IsNumber = false,
+    Name = "wxWrapSizer",
+    ValueType = "class",
+  },
   wxXPMHandler = {
     BaseClasses = {
       [1] = "wxImageHandler",
@@ -5198,6 +5285,7 @@ wx_preprocConditionTable =
   ["%wxchkver_2_8"] = "wxCHECK_VERSION(2,8,0)",
   ["%wxchkver_2_8_0"] = "wxCHECK_VERSION(2,8,0)",
   ["%wxchkver_2_8_1"] = "wxCHECK_VERSION(2,8,1)",
+  ["%wxchkver_2_8_12"] = "wxCHECK_VERSION(2,8,12)",
   ["%wxchkver_2_8_4"] = "wxCHECK_VERSION(2,8,4)",
   ["%wxchkver_2_8_5"] = "wxCHECK_VERSION(2,8,5)",
   ["%wxchkver_2_8_6"] = "wxCHECK_VERSION(2,8,6)",
@@ -5314,6 +5402,8 @@ wx_preprocConditionTable =
   wxLUA_USE_wxPenList = "wxLUA_USE_wxPenList",
   wxLUA_USE_wxPicker = "wxLUA_USE_wxPicker",
   wxLUA_USE_wxPointSizeRect = "wxLUA_USE_wxPointSizeRect",
+  wxLUA_USE_wxPopupTransientWindow = "wxLUA_USE_wxPopupTransientWindow",
+  wxLUA_USE_wxPopupWindow = "wxLUA_USE_wxPopupWindow",
   wxLUA_USE_wxPrint = "wxLUA_USE_wxPrint",
   wxLUA_USE_wxProcess = "wxLUA_USE_wxProcess",
   wxLUA_USE_wxProgressDialog = "wxLUA_USE_wxProgressDialog",

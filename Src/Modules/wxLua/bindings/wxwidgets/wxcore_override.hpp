@@ -1126,7 +1126,7 @@ static int LUACALL wxLua_wxMouseEvent_GetPositionXY(lua_State *L)
 %override wxLua_wxEvtHandler_Connect
 // void Connect(int id, int lastId, wxEventType eventType, LuaFunction func)
 
-#include "wxlua/include/wxlcallb.h"
+#include "wxlua/wxlcallb.h"
 // Connect an event to a handler. This Lua 'C' function supports
 // function calls with either three or four parameters. These parameters
 // are:         The class (which must be derived from wxEvtHandler),
@@ -1255,7 +1255,7 @@ static int LUACALL wxLua_wxEvtHandler_Connect(lua_State *L)
 %override wxLua_wxEvtHandler_Disconnect
 // void Disconnect(int id, int lastId, wxEventType eventType)
 
-#include "wxlua/include/wxlcallb.h"
+#include "wxlua/wxlcallb.h"
 static int LUACALL wxLua_wxEvtHandler_Disconnect(lua_State *L)
 {
     wxCHECK_MSG(wxluatype_wxEvtHandler != -1, 0, wxT("wxEvtHandler is not wrapped by wxLua"));
@@ -1961,6 +1961,26 @@ static int LUACALL wxLua_wxImage_HSVtoRGB(lua_State *L)
 }
 %end
 
+%override wxLua_wxImage_GetAlphaData
+//     unsigned char* GetAlpha() const
+static int LUACALL wxLua_wxImage_GetAlphaData(lua_State *L)
+{
+    // get this
+    wxImage * self = (wxImage *)wxluaT_getuserdatatype(L, 1, wxluatype_wxImage);
+    // call GetAlpha
+    char* returns = (char*)self->GetAlpha();
+
+    if(returns) {
+        // push the result pointer
+        lua_pushlstring(L, returns, self->GetWidth()*self->GetHeight());
+    } else {
+        lua_pushnil(L);
+    }
+
+    return 1;
+}
+%end
+
 %override wxLua_wxImage_SetAlphaData
 // void SetAlpha(unsigned char *alpha = NULL,bool static_data = false)
 static int LUACALL wxLua_wxImage_SetAlphaData(lua_State *L)
@@ -1974,8 +1994,8 @@ static int LUACALL wxLua_wxImage_SetAlphaData(lua_State *L)
     if ((len == 0) || !self->Ok()) wxlua_argerrormsg(L, wxT("Invalid data or wxImage to call SetAlphaData() to."));
     // don't actually call SetAlpha since it takes ownership of data
     // just copy it to the image
-    self->SetAlpha(NULL); // the wxImage has created the alpha channel
-    size_t size = 3*self->GetWidth()*self->GetHeight();
+    self->SetAlpha(NULL); // the wxImage will create the alpha channel for us
+    size_t size = self->GetWidth()*self->GetHeight();
     memcpy(self->GetAlpha(), data, wxMin(len, size));
     // return the number of parameters
     return 0;

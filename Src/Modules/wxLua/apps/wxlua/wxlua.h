@@ -13,10 +13,9 @@
 
 #include <wx/app.h>
 
-#include "wxluasocket/include/wxldtarg.h"
-#include "lconsole.h"
-
-class WXDLLIMPEXP_FWD_WXLUA wxLuaEvent;
+#include "wxlua/debugger/wxldtarg.h"
+#include "wxlua/wxlstate.h"
+#include "wxlua/wxlconsole.h"
 
 // ----------------------------------------------------------------------------
 // wxLuaStandaloneApp
@@ -36,7 +35,6 @@ public:
 
     wxString            m_programName;
     wxLuaState          m_wxlState;
-    wxLuaConsoleWrapper m_luaConsoleWrapper;
     bool                m_print_stdout;
     bool                m_dos_stdout;
     bool                m_print_msgdlg;

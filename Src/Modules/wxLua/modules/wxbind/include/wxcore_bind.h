@@ -12,13 +12,13 @@
 #include "wxluasetup.h"
 #include "wxbind/include/wxbase_bind.h"
 
-#include "wxlua/include/wxlstate.h"
-#include "wxlua/include/wxlbind.h"
+#include "wxlua/wxlstate.h"
+#include "wxlua/wxlbind.h"
 
 // ---------------------------------------------------------------------------
 // Check if the version of binding generator used to create this is older than
 //   the current version of the bindings.
-//   See 'bindings/genwxbind.lua' and 'modules/wxlua/include/wxldefs.h'
+//   See 'bindings/genwxbind.lua' and 'modules/wxlua/wxldefs.h'
 #if WXLUA_BINDING_VERSION > 30
 #   error "The WXLUA_BINDING_VERSION in the bindings is too old, regenerate bindings."
 #endif //WXLUA_BINDING_VERSION > 30
@@ -107,7 +107,7 @@ extern WXDLLIMPEXP_BINDWXCORE wxLuaBinding* wxLuaBinding_wxcore_init();
 
 #if (wxLUA_USE_wxPrint && wxUSE_PRINTING_ARCHITECTURE) && (wxLUA_USE_wxLuaPrintout)
     #include "wxbind/include/wxcore_wxlcore.h"
-    #include "wxlua/include/wxlua_bind.h"
+    #include "wxlua/wxlua_bind.h"
 #endif // (wxLUA_USE_wxPrint && wxUSE_PRINTING_ARCHITECTURE) && (wxLUA_USE_wxLuaPrintout)
 
 #if (wxLUA_USE_wxPrint && wxUSE_PRINTING_ARCHITECTURE) && (wxUSE_POSTSCRIPT)
@@ -117,6 +117,10 @@ extern WXDLLIMPEXP_BINDWXCORE wxLuaBinding* wxLuaBinding_wxcore_init();
 #if (wxLUA_USE_wxSizer) && (wxCHECK_VERSION(2,8,0))
     #include "wx/gbsizer.h"
 #endif // (wxLUA_USE_wxSizer) && (wxCHECK_VERSION(2,8,0))
+
+#if (wxLUA_USE_wxSizer) && (wxCHECK_VERSION(2,8,0)) && (wxCHECK_VERSION(2,9,0))
+    #include "wx/wrapsizer.h"
+#endif // (wxLUA_USE_wxSizer) && (wxCHECK_VERSION(2,8,0)) && (wxCHECK_VERSION(2,9,0))
 
 #if (wxLUA_USE_wxSizer) && (wxLUA_USE_wxLayoutConstraints && (!wxCHECK_VERSION(2,6,0)))
     #include "wx/layout.h"
@@ -647,10 +651,6 @@ extern WXDLLIMPEXP_BINDWXCORE wxLuaBinding* wxLuaBinding_wxcore_init();
     extern WXDLLIMPEXP_DATA_BINDWXCORE(int) wxluatype_wxLogGui;
 #endif // (wxLUA_USE_wxLog && wxUSE_LOG) && (wxUSE_LOGGUI)
 
-#if (wxLUA_USE_wxPointSizeRect) && (wxCHECK_VERSION(2,9,0))
-    extern WXDLLIMPEXP_DATA_BINDWXCORE(int) wxluatype_wxPointList;
-#endif // (wxLUA_USE_wxPointSizeRect) && (wxCHECK_VERSION(2,9,0))
-
 #if (wxLUA_USE_wxPrint && wxUSE_PRINTING_ARCHITECTURE) && (defined(__WXMSW__) || defined(__WXMAC__))
     extern WXDLLIMPEXP_DATA_BINDWXCORE(int) wxluatype_wxPrinterDC;
 #endif // (wxLUA_USE_wxPrint && wxUSE_PRINTING_ARCHITECTURE) && (defined(__WXMSW__) || defined(__WXMAC__))
@@ -677,7 +677,12 @@ extern WXDLLIMPEXP_BINDWXCORE wxLuaBinding* wxLuaBinding_wxcore_init();
     extern WXDLLIMPEXP_DATA_BINDWXCORE(int) wxluatype_wxSizer;
     extern WXDLLIMPEXP_DATA_BINDWXCORE(int) wxluatype_wxSizerFlags;
     extern WXDLLIMPEXP_DATA_BINDWXCORE(int) wxluatype_wxSizerItem;
+    extern WXDLLIMPEXP_DATA_BINDWXCORE(int) wxluatype_wxSizerItemList;
 #endif // (wxLUA_USE_wxSizer) && (wxCHECK_VERSION(2,8,0))
+
+#if (wxLUA_USE_wxSizer) && (wxCHECK_VERSION(2,8,0)) && (wxCHECK_VERSION(2,9,0))
+    extern WXDLLIMPEXP_DATA_BINDWXCORE(int) wxluatype_wxWrapSizer;
+#endif // (wxLUA_USE_wxSizer) && (wxCHECK_VERSION(2,8,0)) && (wxCHECK_VERSION(2,9,0))
 
 #if (wxLUA_USE_wxSizer) && (wxCHECK_VERSION(2,8,0)) && (wxUSE_BUTTON)
     extern WXDLLIMPEXP_DATA_BINDWXCORE(int) wxluatype_wxStdDialogButtonSizer;

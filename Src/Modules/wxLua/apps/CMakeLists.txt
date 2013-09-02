@@ -2,14 +2,17 @@
 # CMake build file
 # ---------------------------------------------------------------------------
 
-include(../build/CMakeFunctions.txt)
+include(../build/CMakeFunctions.cmake)
 
 # ---------------------------------------------------------------------------
 # Project name, sets ${wxLuaApps_SOURCE_DIR} and ${wxLuaApps_BINARY_DIR}
 
 project( wxLuaApps )
 
-set( wxLua_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../ CACHE INTERNAL "Root dir of wxLua" FORCE)
+if (NOT DEFINED wxLua_ROOT_DIR)
+    set(wxLua_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../ CACHE INTERNAL
+        "Root dir of wxLua" FORCE)
+endif()
 
 # ---------------------------------------------------------------------------
 # CMake build file for wxLua apps
@@ -31,7 +34,7 @@ ADD_EXECUTABLE_FULL( wxLua_app WIN32 MACOSX_BUNDLE
     LINK_LIBRARIES
         #wxLuaBindLib
         ${wxLuaBind_ALL_LIBS}
-        wxLuaSocketLib
+        wxLuaDebuggerLib
         wxLuaDebugLib
         wxLuaLib
         LuaLib
@@ -60,7 +63,7 @@ ADD_EXECUTABLE_FULL( wxLuaCan WIN32 MACOSX_BUNDLE
     LINK_LIBRARIES
         #wxLuaBindLib
         ${wxLuaBind_ALL_LIBS}
-        wxLuaSocketLib
+        wxLuaDebuggerLib
         wxLuaDebugLib
         wxLuaLib
         LuaLib
@@ -103,7 +106,7 @@ ADD_EXECUTABLE_FULL( wxLuaEdit WIN32 MACOSX_BUNDLE
         wxStEditLib
         #wxLuaBindLib
         ${wxLuaBind_ALL_LIBS}
-        wxLuaSocketLib
+        wxLuaDebuggerLib
         wxLuaDebugLib
         wxLuaLib
         LuaLib
@@ -111,7 +114,7 @@ ADD_EXECUTABLE_FULL( wxLuaEdit WIN32 MACOSX_BUNDLE
     PROPERTIES FOLDER "wxLua/apps"
     INSTALL ${WXLUA_APP_INSTALL_FLAGS})
 
-if (BUILD_SHARED_LIBS)
+if (BUILD_SHARED_LIBS_WIN_DLLS)
     APPEND_TARGET_PROPERTIES(wxLuaEdit PROPERTIES COMPILE_DEFINITIONS "WXUSINGDLL_STEDIT")
 endif()
 
@@ -135,7 +138,7 @@ ADD_EXECUTABLE_FULL( wxLuaFreeze WIN32 MACOSX_BUNDLE
     LINK_LIBRARIES
         #wxLuaBindLib
         ${wxLuaBind_ALL_LIBS}
-        wxLuaSocketLib
+        wxLuaDebuggerLib
         wxLuaDebugLib
         wxLuaLib
         LuaLib

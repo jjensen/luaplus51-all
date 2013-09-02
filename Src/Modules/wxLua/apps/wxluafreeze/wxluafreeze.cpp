@@ -22,7 +22,7 @@
 #endif
 
 #ifdef __WXGTK__
-#include <locale.h>
+    #include <locale.h>
 #endif
 
 //#include "wx/cmdline.h"
@@ -30,8 +30,10 @@
 #include <wx/image.h>
 #include <wx/file.h>
 #include <wx/filename.h>
-#include "wxlua/include/wxlua.h"
-#include "wxlua/include/wxlstate.h"
+
+#include "wxlua/wxlua.h"
+#include "wxlua/wxlstate.h"
+#include "wxlua/wxlconsole.h"
 
 // implemented below
 wxFileName wxFindAppFullName(const wxString& argv0, const wxString& cwd, const wxString& appVariableName);
@@ -61,13 +63,12 @@ public:
     int  OnExit();
 
     // load the script from the end of this file
-    //  if only_check then return LOADSCRIPT_MISSING if no script
-    //    else wxEmptyString
+    //  if only_check then return LOADSCRIPT_MISSING if no script else wxEmptyString
     wxString LoadScript(const wxString& filename, bool only_check = false);
 
-    // implementation
+    // Handle wxLua events
     void OnLua(wxLuaEvent &event);
-    // output print statements and errors
+    // Output print statements and errors
     void OutputPrint(const wxString& str);
 
     wxLuaState m_wxlState;
@@ -85,8 +86,8 @@ DECLARE_APP(wxLuaFreezeApp)
 IMPLEMENT_APP(wxLuaFreezeApp)
 
 BEGIN_EVENT_TABLE(wxLuaFreezeApp, wxApp)
-    EVT_LUA_PRINT       (wxID_ANY, wxLuaFreezeApp::OnLua)
-    EVT_LUA_ERROR       (wxID_ANY, wxLuaFreezeApp::OnLua)
+    EVT_LUA_PRINT(wxID_ANY, wxLuaFreezeApp::OnLua)
+    EVT_LUA_ERROR(wxID_ANY, wxLuaFreezeApp::OnLua)
 END_EVENT_TABLE()
 
 bool wxLuaFreezeApp::OnInit()
@@ -104,6 +105,9 @@ bool wxLuaFreezeApp::OnInit()
 
     // load all image handlers for the wxLua script to make things easy
     wxInitAllImageHandlers();
+
+    // let print() go to the current console, but do not open a new one.
+    wxlua_RedirectIOToDosConsole(false, 500);
 
     // Initialize the wxLua bindings we want to use.
     // See notes for WXLUA_DECLARE_BIND_ALL above.
@@ -151,7 +155,7 @@ bool wxLuaFreezeApp::OnInit()
     {
         // now load our script to run that should have been appended to this file
         //  by wxluafreeze.lua
-        wxString script = LoadScript(m_fileName);
+        wxString script(LoadScript(m_fileName));
         if (!script.IsEmpty())
         {
             wxlua_pushargs(m_wxlState.GetLuaState(), argv, argc, 0);
@@ -257,12 +261,9 @@ void wxLuaFreezeApp::OnLua(wxLuaEvent &event)
 
 void wxLuaFreezeApp::OutputPrint(const wxString& str)
 {
-#ifdef __WXMSW__
-    // in msw printf statements go nowhere
-    wxMessageBox(str, wxFileName(m_fileName).GetName());
-#else
+    // Note: This works in MSW too since we pipe output to the DOS console using
+    //       the redirector (if it was opened from one).
     wxPrintf(wxT("%s\n"), str.c_str());
-#endif // __WXMSW__
 }
 
 // --------------------------------------------------------------------------
