@@ -16,6 +16,10 @@ extern "C" {
 #include "p4mapmaker.h"
 #include <new>
 
+#if LUA_VERSION_NUM >= 502
+#define luaL_Register(a, b, c) luaL_setfuncs(a, c, 0)
+#endif
+
 static Ident ident = {
 	IdentMagic "P4Lua" " (0.9)", "08/12/10"
 };
@@ -110,7 +114,7 @@ static int p4_mergedata_index(lua_State *L) {
 }
 
 
-static const struct luaL_reg p4_mergedata_index_funcs[] = {
+static const struct luaL_Reg p4_mergedata_index_funcs[] = {
 	{ "your_name",					p4_mergedata_index_your_name },
 	{ "their_name",					p4_mergedata_index_their_name },
 	{ "base_name",					p4_mergedata_index_base_name },
@@ -123,19 +127,24 @@ static const struct luaL_reg p4_mergedata_index_funcs[] = {
 };
 
 
-static const struct luaL_reg p4_mergedata_funcs[] = {
+static const struct luaL_Reg p4_mergedata_funcs[] = {
 	{ "__gc",						p4_mergedata_gc },
 	{ "run_merge",					p4_mergedata_run_merge },
 	{ NULL, NULL },
 };
 
 
+
 static void p4_mergedata_create_metatable(lua_State *L) {
 	luaL_newmetatable(L, P4_MERGEDATA_METATABLE);			// metatable
-	luaL_register(L, NULL, p4_mergedata_funcs);
+#if LUA_VERSION_NUM <= 502
+	luaL_Register(L, NULL, p4_mergedata_funcs);
+#else
+	luaL_setfuncs(L, p4_mergedata_funcs, 0);
+#endif
 	lua_pushliteral(L, "__index");
 	lua_newtable(L);
-	luaL_register(L, NULL, p4_mergedata_index_funcs);
+	luaL_Register(L, NULL, p4_mergedata_index_funcs);
 	lua_pushcclosure(L, p4_mergedata_index, 1);
 	lua_settable(L, -3);
 	lua_pop(L, 1);
@@ -201,7 +210,7 @@ static int p4_message_index(lua_State *L) {
 }
 
 
-static const struct luaL_reg p4_message_index_funcs[] = {
+static const struct luaL_Reg p4_message_index_funcs[] = {
 	{ "severity",					p4_message_index_severity },
 	{ "generic",					p4_message_index_generic },
 	{ "msgid",						p4_message_index_msgid },
@@ -209,7 +218,7 @@ static const struct luaL_reg p4_message_index_funcs[] = {
 };
 
 
-static const struct luaL_reg p4_message_funcs[] = {
+static const struct luaL_Reg p4_message_funcs[] = {
 	{ "__gc",						p4_message___gc },
 	{ "__tostring",					p4_message___tostring },
 	{ NULL, NULL },
@@ -228,10 +237,10 @@ int p4_message_new(lua_State* L, const Error * message) {
 
 static void p4_message_create_metatable(lua_State *L) {
 	luaL_newmetatable(L, P4_MESSAGE_METATABLE);			// metatable
-	luaL_register(L, NULL, p4_message_funcs);
+	luaL_Register(L, NULL, p4_message_funcs);
 	lua_pushliteral(L, "__index");
 	lua_newtable(L);
-	luaL_register(L, NULL, p4_message_index_funcs);
+	luaL_Register(L, NULL, p4_message_index_funcs);
 	lua_pushcclosure(L, p4_message_index, 1);
 	lua_settable(L, -3);
 	lua_pop(L, 1);
@@ -422,7 +431,7 @@ static int p4_map_new(lua_State* L) {
 	return 1;
 }
 
-static const struct luaL_reg p4_map_funcs[] = {
+static const struct luaL_Reg p4_map_funcs[] = {
 	{ "__gc",						p4_map_gc },
 	{ "as_array",					p4_map_as_array },
 	{ "clear",						p4_map_clear },
@@ -442,7 +451,7 @@ static const struct luaL_reg p4_map_funcs[] = {
 
 static void p4_map_create_metatable(lua_State *L) {
 	luaL_newmetatable(L, P4_MAP_METATABLE);			// metatable
-	luaL_register(L, NULL, p4_map_funcs);
+	luaL_Register(L, NULL, p4_map_funcs);
 	lua_pushliteral( L, "__index" );
 	lua_pushvalue( L, -2 );
 	lua_settable( L, -3 );
@@ -654,7 +663,7 @@ static int p4_connection_index_server_unicode(lua_State *L) {
 }
 
 
-static const struct luaL_reg p4_connection_index_funcs[] = {
+static const struct luaL_Reg p4_connection_index_funcs[] = {
 	{ "api_level",		p4_connection_index_api_level },
 	{ "charset",		p4_connection_index_charset },
 	{ "client",			p4_connection_index_client },
@@ -848,7 +857,7 @@ static int p4_connection_newindex_exception_level(lua_State *L) {
 }
 
 
-static const struct luaL_reg p4_connection_newindex_funcs[] = {
+static const struct luaL_Reg p4_connection_newindex_funcs[] = {
 	{ "api_level",		p4_connection_newindex_api_level },
 	{ "charset",		p4_connection_newindex_charset },
 	{ "client",			p4_connection_newindex_client },
@@ -1226,7 +1235,7 @@ static int p4_retrieve_gui_connections( lua_State *L ) {
 }
 
 
-static const struct luaL_reg p4_connection_funcs[] = {
+static const struct luaL_Reg p4_connection_funcs[] = {
 	{ "connect",					p4_connection_connect },
 	{ "connected",					p4_connection_connected },
 	{ "disconnect",					p4_connection_disconnect },
@@ -1249,15 +1258,15 @@ static int p4_connection_create_metatable(lua_State *L) {
 //	lua_settable(L, -3);									// metatable
 	lua_pushliteral(L, "__index");							// metatable __index
 	lua_newtable(L);										// metatable __index table
-	luaL_register (L, NULL, p4_connection_funcs);
+	luaL_Register (L, NULL, p4_connection_funcs);
 	lua_newtable(L);										// metatable __index table table
-	luaL_register(L, NULL, p4_connection_index_funcs);
+	luaL_Register(L, NULL, p4_connection_index_funcs);
 	lua_pushvalue( L, -4 );
 	lua_pushcclosure( L, p4_connection_index, 3 );
 	lua_settable(L, -3);
 	lua_pushliteral(L, "__newindex");
 	lua_newtable(L);
-	luaL_register(L, NULL, p4_connection_newindex_funcs);
+	luaL_Register(L, NULL, p4_connection_newindex_funcs);
 	lua_pushcclosure(L, p4_connection_newindex, 1);
 	lua_settable(L, -3);
 
@@ -1285,7 +1294,7 @@ static int p4_identify(lua_State *L) {
 }
 
 
-static const struct luaL_reg p4lib[] = {
+static const struct luaL_Reg p4lib[] = {
 	{ "P4", l_create_connection },
 	{ "identify", p4_identify },
 	{ "Map", p4_map_new },
@@ -1295,7 +1304,7 @@ static const struct luaL_reg p4lib[] = {
 
 
 extern "C" int luaopen_p4_p4api (lua_State *L) {
-	luaL_register(L, "P4", p4lib);
+	luaL_Register(L, "P4", p4lib);
 	p4_connection_create_metatable(L);
 	p4_map_create_metatable(L);
 	p4_mergedata_create_metatable(L);
