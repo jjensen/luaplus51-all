@@ -851,7 +851,7 @@ int PrintSomethingGlobal(lua_State* L)
 /*
 void lua_StateCallbackTest()
 {
-	lua_State* L = lua_open();
+	lua_State* L = luaL_newstate();
 
 	lua_StateObjectHelper helper;
 
@@ -1107,7 +1107,8 @@ namespace LPCD
 			return obj.GetMetatable() == state->GetRegistry()["VECTOR"];
 		}
 		static inline VECTOR Get(lua_State* L, int idx) {
-			return *(VECTOR*)lua_unboxpointer(L, idx);
+			LuaState* state = lua_State_to_LuaState(L);
+			return *(VECTOR*)state->UnBoxPointer(idx);
 		}
 	};
 	template<> struct Type<VECTOR&> : public Type<VECTOR> {};
@@ -1460,15 +1461,13 @@ void TestGC()
     {
     }
     state->GC(LUA_GCRESTART, 1);
-    lua_pushstring(L, "SomeKey");
     lua_pushstring(L, "SomeValue");
-    lua_rawset(L, LUA_GLOBALSINDEX);
+    lua_setglobal(L, "SomeKey");
     while (state->GC(LUA_GCSTEP, 1) != 1)
     {
     }
-    lua_pushstring(L, "SomeKey");
     lua_pushnil(state->GetCState());
-    lua_rawset(L, LUA_GLOBALSINDEX);
+    lua_setglobal(L, "SomeKey");
     while (state->GC(LUA_GCSTEP, 1) != 1)
     {
     }
@@ -1497,7 +1496,7 @@ void TestGC2()
 
 void TestRC1()
 {
-	lua_State* L = lua_open();
+	lua_State* L = luaL_newstate();
 	lua_pushnumber(L, 10);
 	lua_pop(L, 1);
 	lua_pushstring(L, "Hello");
@@ -1536,12 +1535,12 @@ int GCFunc(lua_State* L)
 
 void SimpleGCTest()
 {
-	lua_State* L = lua_open();
+	lua_State* L = luaL_newstate();
 	lua_pushcclosure(L, GCFunc, 0);
 	lua_pop(L, 1);
 	lua_close(L);
 
-	L = lua_open();
+	L = luaL_newstate();
 	lua_pushnumber(L, 5);
 	lua_pop(L, 1);
 
@@ -1585,7 +1584,7 @@ void SimpleGCTest()
 
 void UserTest()
 {
-	lua_State* L = lua_open();
+	lua_State* L = luaL_newstate();
 
 	int top1 = lua_gettop(L);
 
@@ -1655,9 +1654,14 @@ static int GCTest_pmain (lua_State *L)
 }
 
 
+#define lua_cpcall(L,f,u)  \
+	(lua_pushcfunction(L, (f)), \
+	 lua_pushlightuserdata(L,(u)), \
+	 lua_pcall(L,1,0,0))
+
 void GCTest()
 {
-	lua_State* L = lua_open();
+	lua_State* L = luaL_newstate();
 	lua_cpcall(L, &GCTest_pmain, NULL);
 
 	luaL_dofile(L, "../../test/sieve.lua");
@@ -1682,7 +1686,7 @@ void GCTest()
 
 void SimpleTest()
 {
-    lua_State* L = lua_open();
+    lua_State* L = luaL_newstate();
 
     unsigned* idPtr = (unsigned*)lua_newuserdata( L, sizeof(unsigned) );
     *idPtr = 0x12345678;
@@ -1706,21 +1710,31 @@ int myrawset( lua_State* L )
 
 int GlobalNewIndexRawSetTest(void)
 {
-    lua_State* L = lua_open();
+    lua_State* L = luaL_newstate();
 
     lua_newtable( L );
     lua_pushliteral( L, "__newindex" );
     lua_pushcclosure( L, myrawset, 0 );
     lua_rawset( L, -3 );
 
+#if LUA_VERSION_NUM == 501
     lua_setmetatable( L, LUA_GLOBALSINDEX );
+#elif LUA_VERSION_NUM >= 502
+	lua_pushglobaltable( L );
+#endif
+    lua_setmetatable( L, -1 );
 
-    lua_pushstring( L, "abc" );
     lua_pushnumber( L, 42 );
-    lua_settable( L, LUA_GLOBALSINDEX );
+    lua_setglobal( L, "abc" );
 
+#if LUA_VERSION_NUM == 501
     lua_pushnil( L );
     while( lua_next( L, LUA_GLOBALSINDEX ) != 0 ) /* assertion failure occurs in lua_next */
+#elif LUA_VERSION_NUM >= 502
+	lua_pushglobaltable( L );
+    lua_pushnil( L );
+    while( lua_next( L, -2 ) != 0 ) /* assertion failure occurs in lua_next */
+#endif
     {
         lua_pop( L, 1 );
     }
@@ -1761,7 +1775,7 @@ static int NullOutNext_Inner(lua_State* L)
 
 int NullOutNext()
 {
-    lua_State* L = lua_open();
+    lua_State* L = luaL_newstate();
 	int status = lua_cpcall(L, NullOutNext_Inner, 0);
 	report(L, status);
 	lua_close(L);
@@ -1777,21 +1791,31 @@ int __newindexMetatableDoNothing( lua_State* L )
 
 int GlobalNewIndexDoNothingTest(void)
 {
-    lua_State* L = lua_open();
+    lua_State* L = luaL_newstate();
 
     lua_newtable( L );
     lua_pushliteral( L, "__newindex" );
     lua_pushcclosure( L, __newindexMetatableDoNothing, 0 );
     lua_rawset( L, -3 );
 
+#if LUA_VERSION_NUM == 501
     lua_setmetatable( L, LUA_GLOBALSINDEX );
+#elif LUA_VERSION_NUM >= 502
+	lua_pushglobaltable( L );
+#endif
+    lua_setmetatable( L, -1 );
 
-    lua_pushstring( L, "abc" );
     lua_pushnumber( L, 42 );
-    lua_settable( L, LUA_GLOBALSINDEX );
+    lua_setglobal( L, "abc" );
 
+#if LUA_VERSION_NUM == 501
     lua_pushnil( L );
     while( lua_next( L, LUA_GLOBALSINDEX ) != 0 ) /* assertion failure occurs in lua_next */
+#elif LUA_VERSION_NUM >= 502
+	lua_pushglobaltable( L );
+    lua_pushnil( L );
+    while( lua_next( L, -2 ) != 0 ) /* assertion failure occurs in lua_next */
+#endif
     {
         lua_pop( L, 1 );
     }
@@ -1801,7 +1825,7 @@ int GlobalNewIndexDoNothingTest(void)
 
 void FEnvTest()
 {
-    lua_State* L = lua_open();
+    lua_State* L = luaL_newstate();
 
 	luaopen_base(L);
 
@@ -1825,7 +1849,7 @@ void FEnvTest()
 
 void MiniTests()
 {
-	lua_State* L = lua_open();
+	lua_State* L = luaL_newstate();
 
 	lua_pushstring(L, "Hello");
 	lua_pushstring(L, "Hi");
@@ -1876,7 +1900,7 @@ void MiniTests()
 
 void NextTest()
 {
-	lua_State* L = lua_open();
+	lua_State* L = luaL_newstate();
 
 	luaL_dostring(L, "MyTable = { Key1 = 5, KeyA = 10, KeyQ = 15 }");
 
@@ -1903,7 +1927,7 @@ void NextTest()
 
 void ConcatTest()
 {
-	lua_State* L = lua_open();
+	lua_State* L = luaL_newstate();
 
 	luaL_dostring(L, "s = 'Hello' .. '*' .. 'Everybody'");
 
@@ -1913,7 +1937,7 @@ void ConcatTest()
 
 void SetTopTest()
 {
-	lua_State* L = lua_open();
+	lua_State* L = luaL_newstate();
 
 	lua_pushstring(L, "Hello");
 	lua_pushstring(L, "Hi");
@@ -1924,659 +1948,9 @@ void SetTopTest()
 }
 
 
-///////////////////////////////////////////////////////////////////////////////
-// issue_1
-//
-// Cleanarray is not validating the range before accessing the stack elements.
-// Lua allows setting the stack pointer to an invalid position without
-// accessing the elements, although any subsequent stack operation would crash
-// as well; this is minor however the API should behave similarly.
-//////////////////////////////////////////////////////////////////////////////
-void issue_1( lua_State *L )
-{
-//    lua_pop(L, 2);
-    printf( "Issue 1 passed\n" );
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// issue_2
-//
-// Related to the LuaRC cleanarray modification to ldo.c luaD_reallocstack when
-// growing the stack. The elements within L->old_stack_last < L->stack_last
-// (within the new stack) are assumed to be initialized by cleanarray. These
-// are uninitialized by realloc and causes the (i_o2->tt >= LUA_TSTRING) test
-// to pass depending on the contents of that uninitialized memory. It then
-// crashes in ((--gcvalue(i_o2)->gch.ref)<=0)) dereferencing i_o2->value.
-//
-//     L->old_stack --------  L->stack --------
-//                  |  D1  |           |  D1  |
-//                  --------           --------
-//                  |  E   |           |  E   |
-//                  --------           --------
-//                  |  D2  |           |  D2  |
-//                  --------           --------
-//       L->old_top |      |    L->top |      |
-//                  --------           --------
-//                  |  D3  |           |  D3  | properly cleaned
-//                  --------           --------
-//L->old_stack_last | XXXX |      tpos | ???? | cleanvalue called on this
-//                  --------           --------
-//                                     | ???? | cleanvalue called on this
-//                                     --------
-//                       L->stack_last | XXXX |
-//                                     --------
-//
-// It should probably cleararray from L->top to tpos, then call
-// setnilvalue2n on (tpos < L->stack_last).  The following seems to work.
-//
-//    void luaD_reallocstack (lua_State *L, int newsize) {
-//        // DAP BEGIN -- realloc temp fix
-//        TObject* tpos;
-//        int remaining = L->stack_last - L->top; // used to proper<snip>
-//        // DAP END -- realloc temp fix
-//
-//        TObject *oldstack = L->stack;
-//        luaM_reallocvector(L, L->stack, L->stacksize, newsize, TObject);
-//        L->stacksize = newsize;
-//        L->stack_last = L->stack+newsize-1-EXTRA_STACK;
-//        correctstack(L, oldstack);
-//
-//        //cleanarray(L->top, L->stack_last);
-//        // DAP BEGIN -- realloc temp fix
-//        tpos = L->top+remaining;
-//        cleanarray(L->top, tpos);
-//        while (tpos < L->stack_last)
-//            setnilvalue2n(tpos++);
-//        // DAP END -- realloc temp fix
-//    }
-//////////////////////////////////////////////////////////////////////////////
-void issue_2( lua_State *L )
-{
-    for (int i = 0; i < 2000; ++i)
-    {
-        lua_checkstack(L, 1);
-        lua_pushstring(L, "Hello");
-    }
-
-    lua_pop(L, 1999);
-    lua_pop(L, 1);
-
-    assert(_CrtCheckMemory());
-	lua_gc(L, LUA_GCCOLLECT, 0);
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// issue_3
-//
-// The collection of userdata with __gc metatables can corrupt existing stack
-// elements.
-//
-//-----------------------------------------------------------------------------
-// Assertion failed: i_o->value.gc->gch.tt == 4, file c:\dev\luarc\src\lapi.c,
-// line 416
-//-----------------------------------------------------------------------------
-//
-// If you have a userdata with __gc metatable at the stack top (L->top) with a
-// RC of 1, then push anything on the stack LuaRC asserts. The following
-// happens in the process of replacing the userdata with a string from
-// lua_pushstring:
-//
-//  * userdata info is copied into a temp variable via lua_makeobjectbackup
-//  * string object is created and placed at stack top (L->top) and its RC
-//    incremented.
-//  * userdata RC (through temp var) is decremented because string is in the
-//    process of replacing it.
-//  * lua_releaseobject (a LuaRC call) is called on userdata (through temp var)
-//    because RC = 0.
-//  * lua_releaseobject calls do1gcTM which checks if the userdata contains a
-//    metatable (which it does).
-//  * the metatable is placed at the stack top (replacing the string we just
-//    put there <--- BAD) and userdata goes at top+1.
-//  * the stack top is adjusted by +2 and the metatable __gc is called popping
-//    the arg and function off and setting stack top back -2.
-//  * the type of the object at stack top is LUA_TNIL (due to cleanup), but the
-//    gc still points to the __gc function object.
-//  * we resume with the rest of the string move and assert because the gc type
-//    is not LUA_TSTRING.
-//
-// A quick and dirty workaround increments L->top before calling do1gcTM in
-// lua_releaseobject, then decrementing it afterwards which seems to prevent
-// the corruption but it'll break the first time something puts two or more
-// elements there so I don't trust it at all :P
-//
-//    void lua_releaseobject(lua_State *L, GCObject* o) {
-//        ...
-//        case LUA_TUSERDATA: {
-//          /* we're freeing this object, but fake ref count it, <snip>
-//			o->gch.ref = 1;
-//
-//          // DAP BEGIN -- __gc userdata corruption workaround
-//          L->top++;
-//          // DAP END -- __gc userdata corruption workaround
-//
-//            do1gcTM(L, gcotou(o));
-//
-//          // DAP BEGIN -- __gc userdata corruption workaround
-//          L->top--;
-//          // DAP END -- __gc userdata corruption workaround
-//
-//			Unlink((GCObject*)gcotou(o));
-//
-//            lua_releasetable(L, gcotou(o)->uv.metatable);
-//
-//			luaM_free(L, o, sizeudata(gcotou(o)->uv.len));
-//			break;
-//		}
-//      ...
-//////////////////////////////////////////////////////////////////////////////
-int issue_3_gc( lua_State* L )
-{
-	printf( "issue_3 gc\n");
-	return 0;
-}
-
-void issue_3( lua_State *L )
-{
-    // create a userdata
-	lua_newuserdata(L, sizeof(unsigned int));
-
-	// create a table to become the metatable
-	lua_newtable(L);
-
-	// add a gc function
-	lua_pushstring(L, "__gc");
-	lua_pushcclosure(L, issue_3_gc, 0);
-	lua_settable(L, -3);
-
-    // add the table as a metatable
-    lua_setmetatable(L, -2);
-
-    // put a copy of the userdata at L->top
-    lua_insert(L, -1);
-
-    // pop the original userdata off L->top-1 to get the ref of the one at L->top down to 1.
-    lua_pop(L,1);
-    // push something on stack to get the userdata back to L->top
-    lua_pushnumber(L,1);
-
-    // now push anything on the stack and it will die.
-    //lua_pushnil(L);
-    //lua_pushboolean( L, true );
-    //lua_pushnumber( L, 5 );
-    lua_pushstring( L, "test" );
-
-    printf( "Issue 3 passed\n" );
-}
-
-//////////////////////////////////////////////////////////////////////////////
-// issue_4
-//
-// When resuming the caller of a function, during cleaning up
-// (cleanarray(res, L->top) in luaD_poscall), LuaRC attempts to re-enter
-// luaD_call via do1gcTM while collecting a userdata with __gc metatable.
-//
-//-----------------------------------------------------------------------------
-// Assertion failed: !(L->ci->state & (1<<2)), file c:\dev\luarc\src\ldo.c,
-// line 330
-//-----------------------------------------------------------------------------
-//
-//While cleaning the stack elements from the function call before adjusting
-// L->top back to res.
-//
-//void luaD_poscall (lua_State *L, int wanted, StkId firstResult) {
-//    ...
-//    cleanarray(res, L->top)
-//       // visits (L->top - 2) and (L->top -1) calling cleanvalue on them
-//       // which calls lua_releaseobject in the case they are collectable and
-//       // decrements RC == 0.
-//       //
-//       // In the stack dump below, -2 is in the process of being released.
-//       // lua_release has already decremented the RC and is about to
-//       // call lua_releaseobject
-//       // ---> YOU ARE HERE
-//       lua_releaseobject(L,gcvalue(i_o2));
-//
-//// stack dump as soon as we enter lua_releaseobject
-//-------------------------------------------------------------------------------
-//Stack top [9] addr[03336F44] last[033373A4] size[90] base[03336EB4]
-//   [-5] (03336EF4) (number)
-//   [-4] (03336F04) (string) { gc[033EB9CC] ref[3] tt[string] mark[0] }
-//   [-3] (03336F14) (table) { gc[0331635C] ref[2] tt[table] mark[0] }
-//   [-2] (03336F24) (table) { gc[033163A0] ref[0] tt[table] mark[0] }
-//   [-1] (03336F34) (table) { gc[0331635C] ref[2] tt[table] mark[0] }
-//-->[ 0] (03336F44) (nil)
-//   [ 1] (03336F54) (nil)
-//   [ 2] (03336F64) (nil)
-//   [ 3] (03336F74) (nil)
-//   [ 4] (03336F84) (nil)
-//   [ 5] (03336F94) (nil)
-//-------------------------------------------------------------------------------
-//void lua_releaseobject(lua_State *L, GCObject* o) {
-//    ...
-//    case LUA_TTABLE: {
-//        Table *h = gcotoh(o);
-//        Unlink((GCObject*)h);
-//
-//        // now we're in lua_releaseobject and know we're dealing with a table.
-//        // we call traversetable
-//        // ---> YOU ARE HERE
-//        traversetable(L, h);
-//        ...
-//
-//static void traversetable (lua_State *L, Table *h) {
-//    ...
-//    if (!weakvalue) {
-//        i = h->sizearray;
-//        // i = 2 here
-//        while (i--)
-//        {
-//            // i = 1
-//            // ---> YOU ARE HERE
-//            lua_release(L, &h->array[i]);
-//            ...
-//
-//void lua_releaseobject(lua_State *L, GCObject* o) {
-//    ...
-//    case LUA_TUSERDATA: {
-//        /* we're freeing this object, but fake ref count it, because <snip>
-//       o->gch.ref = 1;
-//
-//       // ---> YOU ARE HERE
-//       do1gcTM(L, gcotou(o));
-//       ...
-//
-//
-//// redump of stack to illustrate L->top++ hack as soon as we enter do1gcTM
-//-------------------------------------------------------------------------------
-//Stack top [10] addr[03336F54] last[033373A4] size[90] base[03336EB4]
-//   [-5] (03336F04) (string) { gc[033EB9CC] ref[3] tt[string] mark[0] }
-//   [-4] (03336F14) (table) { gc[0331635C] ref[2] tt[table] mark[0] }
-//   [-3] (03336F24) (table) { gc[033163A0] ref[0] tt[table] mark[0] }
-//   [-2] (03336F34) (table) { gc[0331635C] ref[2] tt[table] mark[0] }
-//   [-1] (03336F44) (nil)
-//-->[ 0] (03336F54) (nil)
-//   [ 1] (03336F64) (nil)
-//   [ 2] (03336F74) (nil)
-//   [ 3] (03336F84) (nil)
-//   [ 4] (03336F94) (nil)
-//   [ 5] (03336FA4) (table) { gc[03316538] ref[2] tt[table] mark[0] }
-//-------------------------------------------------------------------------------
-//void do1gcTM (lua_State *L, Udata *udata) {
-//    ...
-//    const TObject *tm = fasttm(L, udata->uv.metatable, TM_GC);
-//    // tm != NULL here as we have a metatable
-//    if (tm != NULL) {
-//        setobj2s(L->top, tm);
-//        setuvalue(L->top+1, udata);
-//        L->top += 2;
-//        // ---> YOU ARE HERE
-//        luaD_call(L, L->top - 2, 0);
-//    }
-//}
-//
-//// metatable function and userdata have been pushed on stack and we're
-//// about to call luaD_call. stack dump as soon as we enter luaD_call
-//-------------------------------------------------------------------------------
-//Stack top [12] addr[03336F74] last[033373A4] size[90] base[03336EB4]
-//   [-5] (03336F24) (table) { gc[033163A0] ref[0] tt[table] mark[0] }
-//   [-4] (03336F34) (table) { gc[0331635C] ref[2] tt[table] mark[0] }
-//   [-3] (03336F44) (nil)
-//   [-2] (03336F54) (function) { gc[03911350] ref[2] tt[function] mark[0] }
-//   [-1] (03336F64) (userdata) { gc[03911398] ref[2] tt[userdata] mark[2] }
-//-->[ 0] (03336F74) (nil)
-//   [ 1] (03336F84) (nil)
-//   [ 2] (03336F94) (nil)
-//   [ 3] (03336FA4) (table) { gc[03316538] ref[2] tt[table] mark[0] }
-//   [ 4] (03336FB4) (number) value[0]
-//   [ 5] (03336FC4) (nil)
-//-------------------------------------------------------------------------------
-//void luaD_call (lua_State *L, StkId func, int nResults) {
-//  StkId firstResult;
-//  // L->ci->state == 12 here (CF_SAVEDPC | CI_CALLING)
-//  lua_assert(!(L->ci->state & CI_CALLING)); ---> BOOM!
-//
-//////////////////////////////////////////////////////////////////////////////
-int issue_4_gc( lua_State* L )
-{
-	printf( "issue_4 gc\n");
-	return 0;
-}
-
-void lua_issue_4_userdata_new( lua_State *L )
-{
-    // create a userdata
-	lua_newuserdata( L, sizeof( unsigned int ) );
-
-	// create a table to become the metatable
-    lua_newtable(L);
-
-	// add a gc function
-    lua_pushstring(L, "__gc");
-    lua_pushcfunction(L, issue_4_gc );
-    lua_settable(L, -3);
-
-    // add the table as a metatable
-    lua_setmetatable(L, -2);
-}
-
-int lua_issue_4_create_userdata( lua_State *L )
-{
-    lua_issue_4_userdata_new( L );
-    return 1;
-}
-
-int lua_issue_4_test( lua_State *L )
-{
-    // Assertion happens shortly after we return from here.
-    return 0;
-}
-
-int lua_issue_4_new( lua_State *L )
-{
-    lua_newtable(L);
-
-    lua_pushstring(L, "create_userdata");
-    lua_pushcfunction(L, lua_issue_4_create_userdata);
-    lua_rawset(L, 1);
-
-    lua_pushstring(L, "test");
-    lua_pushcfunction(L, lua_issue_4_test);
-    lua_rawset(L, 1);
-
-    return 1;
-}
-
-static const struct luaL_reg lua_issue_4_lib[] = {
-    {"issue_4", lua_issue_4_new },
-    {NULL,  NULL}
-};
-
-int issue_4_error( lua_State *L )
-{
-    printf( "Error [%s]\n", lua_tostring(L, -1) );
-    lua_pop(L,1);
-    return 0;
-}
-
-void issue_4( lua_State *L )
-{
-    luaopen_base(L);
-
-    // hook for creating our userdata from script
-	luaL_openlib(L, "Issue_4", lua_issue_4_lib, 0);
-
-    // ensure stack is clean
-    lua_settop(L, 0);
-	lua_gc(L, LUA_GCCOLLECT, 0);
-
-    // call script to return obj to call on stack
-  	luaL_dofile( L, "issue_4.lua" );
-
-    // lookup func on table
-    lua_pushstring(L, "doit");
-    lua_gettable(L, -2);
-
-    // put func infront of obj
-    lua_insert(L, -2);
-
-    // create arg to function
-    lua_issue_4_userdata_new(L);
-
-    // insert fb under self and args
-    int base = lua_gettop( L ) - 2;
-    lua_pushcclosure( L, issue_4_error, 0 );
-    lua_insert( L, base );
-
-     // call the function passing in self and userdata arg
-    lua_pcall(L, 2, 0, base );
-
-    printf( "Issue 4 passed\n" );
-}
-
-static int issue5callback(lua_State* L)
-{
-    lua_pushstring(L, "Hello!");
-    return 1;
-}
-
-static int issue5callback2(lua_State* L)
-{
-    lua_issue_4_userdata_new(L);
-    return 1;
-}
-
-
-void issue_5()
-{
-    lua_State* L = lua_open();
-
-    lua_pushcclosure(L, issue5callback2, 0);
-    lua_pcall(L, 0, 0, 0);
-
-    lua_pushcclosure(L, issue5callback, 0);
-    lua_pcall(L, 0, 0, 0);
-
-    lua_close(L);
-}
-
-
-void IssuesTest()
-{
-    lua_State* L = lua_open();
-
-    issue_1(L);
-	issue_2(L);
-    // no issue 2 repro
-    issue_3(L);
-//    issue_4(L);
-
-    printf( "End\n" );
-    lua_close(L);
-//    getch();
-}
-
-const char script[] = "							\
-												\
-	function bug()								\
-												\
-		local a={}								\
-		if( true ) then							\
-			a[0] = new_udata()					\
-			b = new_udata()						\
-		end										\
-												\
-	end											\
-												\
-	co = coroutine.create( bug )				\
-	coroutine.resume( co )						\
-	collectgarbage( 'collect' )";
-
-
-
-int new_udata( lua_State *l )
-{
-	lua_newuserdata( l, 4 );
-	luaL_getmetatable( l, "udata" );
-	lua_setmetatable( l, -2 );
-	return( 1 );
-}
-
-int udata_gc( lua_State *l )
-{
-	return( 0 );
-}
-
-
-luaL_reg udata_meta[] = { {"__gc",udata_gc}, {0,0} };
-
-void CoroutineIssue( void )
-{
-	lua_State *l = lua_open();
-
-	luaopen_base( l );
-
-	lua_register( l, "new_udata", new_udata );
-
-	luaL_newmetatable( l, "udata" );
-	luaL_openlib( l, 0, udata_meta, 0 );
-	lua_pop( l, 1 );
-
-	luaL_dostring( l, script );
-
-	lua_close( l );
-}
-
-void UpvalueTest()
-{
-	lua_State *L = lua_open();
-
-	luaL_dostring(L,
-"for index = 1, 3 do\n"
-"	local actualName = 'Hello'\n"
-"	function TestFunction()\n"
-"		function NestedFunction()\n"
-"			local safeName = actualName\n"
-"		end\n"
-"	end\n"
-"	TestFunction()\n"
-"end\n");
-
-	lua_close( L );
-}
-
-
-static int FuncUserdata_pmain (lua_State *L)
-{
-    lua_pushcfunction(L, luaopen_base);
-    lua_pushstring(L, "");
-    lua_call(L, 1, 0);
-
-    lua_pushcfunction(L, luaopen_base);
-    lua_pushstring(L, LUA_IOLIBNAME);
-    lua_call(L, 1, 0);
-
-	return 0;
-}
-
-void FuncUserdata()
-{
-	lua_State *l = lua_open();
-	luaL_openlibs(l);
-
-	lua_cpcall(l, &FuncUserdata_pmain, NULL);
-
-	lua_register( l, "new_udata", new_udata );
-
-	luaL_newmetatable( l, "udata" );
-	luaL_openlib( l, 0, udata_meta, 0 );
-	lua_pop( l, 1 );
-
-    luaL_dostring( l, "function Test() local a = io.open('TestScript.cpp') end   Test()" );
-
-	lua_close( l );
-}
-
-int DestructorLeftOnStackTest_gc(lua_State *l)
-{
-	return 0;
-}
-
-
-void DestructorLeftOnStackTest()
-{
-	lua_State *L = lua_open();
-
-	// Create a cycle: table P with P.child.parent = P
-	lua_newtable( L );							// P
-	lua_pushstring( L, "child" );				// P "child"
-	lua_newtable( L );							// P "child" t
-	lua_pushstring( L, "parent" );				// P "child" t "parent"
-	lua_pushvalue( L, -4 );						// P "child" t "parent" P
-	lua_rawset( L, -3 );						// P "child" t
-	lua_rawset( L, -3 );						// P
-
-	// Stick something in it that has a non-trivial finalizer.
-	lua_pushstring( L, "gc_finalizing_ud" );	// P "gc_finalizing_ud"
-	lua_newuserdata( L, 1 );					// P "gc_finalizing_ud" ud
-	lua_newtable( L );							// P "gc_finalizing_ud" ud t
-	lua_pushstring( L, "__gc" );				// P "gc_finalizing_ud" ud t "__gc"
-	lua_pushcfunction( L, DestructorLeftOnStackTest_gc );	// P "gc_finalizing_ud" ud t "__gc" DestructorLeftOnStackTest_gc
-	lua_rawset( L, -3 );						// P "gc_finalizing_ud" ud t
-	lua_setmetatable( L, -2 );					// P "gc_finalizing_ud" ud
-	lua_rawset( L, -3 );						// P
-
-	// Forget the table.
-	lua_pop( L, 1 );							// *empty*
-
-	// Force garbage collect.
-	lua_gc(L, LUA_GCCOLLECT, 0);
-
-	// Push some stuff on the stack, see what happens.
-	lua_pushstring( L, "a" );
-	lua_pushstring( L, "b" );
-	lua_pushstring( L, "c" );
-
-	lua_close( L );
-}
-
-
-int WeakValueTableTest_gc(lua_State *l)
-{
-	// Force garbage collect.
-	lua_gc(l, LUA_GCCOLLECT, 0);
-	return 0;
-}
-
-void WeakValueTableTest()
-{
-	lua_State *l = lua_open();
-
-	luaopen_base( l );
-
-	// registry.weak_value_table = { __metatable = { __mode = "v" }, gc_finalizing_ud = userdata { __metatable = { __gc = WeakValueTableTest_gc } } }
-
-	// Create a weak value table.
-	lua_pushstring( l, "weak_value_table" );	// "weak_value_table"
-	lua_newtable( l );							// "weak_value_table" t1
-	lua_newtable( l );							// "weak_value_table" t1 t2
-	lua_pushstring( l, "__mode" );				// "weak_value_table" t1 t2 "__mode"
-	lua_pushstring( l, "v" );					// "weak_value_table" t1 t2 "__mode" "v"
-	lua_rawset( l, -3 );						// "weak_value_table" t1 t2
-	lua_setmetatable( l, -2 );					// "weak_value_table" t1
-
-	// Stick something in it that has a non-trivial finalizer.
-	lua_pushstring( l, "gc_finalizing_ud" );	// "weak_value_table" t1 "gc_finalizing_ud"
-	lua_newuserdata( l, 1 );					// "weak_value_table" t1 "gc_finalizing_ud" ud
-	lua_newtable( l );							// "weak_value_table" t1 "gc_finalizing_ud" ud t3
-	lua_pushstring( l, "__gc" );				// "weak_value_table" t1 "gc_finalizing_ud" ud t3 "__gc"
-	lua_pushcfunction( l, WeakValueTableTest_gc );	// "weak_value_table" t1 "gc_finalizing_ud" ud t3 "__gc" WeakValueTableTest_gc
-	lua_rawset( l, -3 );						// "weak_value_table" t1 "gc_finalizing_ud" ud t3
-	lua_setmetatable( l, -2 );					// "weak_value_table" t1 "gc_finalizing_ud" ud
-	lua_rawset( l, -3 );						// "weak_value_table" t1
-
-	// Stash it in the registry.
-	lua_rawset( l, LUA_REGISTRYINDEX );			// *empty*
-
-	// Force garbage collect.
-	lua_gc(l, LUA_GCCOLLECT, 0);
-
-	// Attempt to fetch the table from the registry.
-	lua_pushstring( l, "weak_value_table" );
-	lua_rawget( l, LUA_REGISTRYINDEX );
-
-	lua_close( l );
-}
-
 void RCTests()
 {
 	SimpleGCTest();
-	WeakValueTableTest();
-	DestructorLeftOnStackTest();
-    FuncUserdata();
-	UpvalueTest();
-    CoroutineIssue();
-
-    issue_5();
 
 	SetTopTest();
 	ConcatTest();
@@ -2609,13 +1983,13 @@ void TestCoroutine()
 	LuaState* threadState = threadObj.GetState();
 	LuaObject functionObj = threadState->GetGlobal("TestCoroutine");
 	functionObj.Push(threadState);
-	int ret = threadState->CoResume(0);
-	ret = threadState->CoResume(0);
-	ret = threadState->CoResume(0);
-	ret = threadState->CoResume(0);
-	ret = threadState->CoResume(0);
-	ret = threadState->CoResume(0);
-	ret = threadState->CoResume(0);
+	int ret = threadState->Resume(NULL, 0);
+	ret = threadState->Resume(NULL, 0);
+	ret = threadState->Resume(NULL, 0);
+	ret = threadState->Resume(NULL, 0);
+	ret = threadState->Resume(NULL, 0);
+	ret = threadState->Resume(NULL, 0);
+	ret = threadState->Resume(NULL, 0);
 }
 
 
@@ -2832,7 +2206,6 @@ int __cdecl main(int argc, char* argv[])
 	DoStringErrorTest();
     GlobalErrorTest();
     TestStdString();
-    IssuesTest();
 	VectorMonsterMetatableTest();
 
 #if LUAPLUS_EXTENSIONS
@@ -2878,8 +2251,7 @@ int __cdecl main(int argc, char* argv[])
 //		obj.CreateTable(i);
 	}
 
-		lua_pushstring(*state, "ReturnTrue");
-		lua_gettable(*state, LUA_GLOBALSINDEX);
+		lua_getglobal(*state, "ReturnTrue");
 	for (i = 0; i < 1000000; ++i)
 	{
 		lua_pushvalue(*state, -1);
