@@ -81,12 +81,12 @@ public:
 	bool IsLightUserdata() const;
 	bool IsBoolean() const;
 
-	int ToInteger();
+	lua_Integer ToInteger();
 	lua_Number ToNumber();
 	const char* ToString();
 	size_t ObjLen();
 
-	int GetInteger() const;
+	lua_Integer GetInteger() const;
 	float GetFloat() const;
 	double GetDouble() const;
 	lua_Number GetNumber() const;

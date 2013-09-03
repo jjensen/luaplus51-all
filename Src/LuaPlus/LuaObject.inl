@@ -289,7 +289,7 @@ inline bool LuaObject::IsBoolean() const {
 
 
 // Mirrors lua_tointeger()
-inline int LuaObject::ToInteger() {
+inline lua_Integer LuaObject::ToInteger() {
 	luaplus_assert(L);
 	LUA_FASTREF_PUSH();
 #if LUA_FASTREF_SUPPORT
@@ -347,7 +347,7 @@ inline size_t LuaObject::ObjLen() {
 }
 
 
-inline int LuaObject::GetInteger() const {
+inline lua_Integer LuaObject::GetInteger() const {
 	luaplus_assert(L  &&  IsInteger());
 	LUA_FASTREF_PUSH();
 	return lua_tointeger(L, LUA_FASTREF_REF_1);
