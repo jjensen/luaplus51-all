@@ -43,6 +43,8 @@ rule LuaPlusFixUpTarget TARGET
 if $(OS) = NT {
 	if $(LUA_VERSION) in lua51-luaplus {
 		LUA_CDIR = $(LUAPLUS_OUTPUT_DIRECTORY)/modules ;
+	} else {
+		LUA_CDIR = $(LUAPLUS_OUTPUT_DIRECTORY) ;
 	}
 	LUA_LDIR = $(LUAPLUS_OUTPUT_DIRECTORY)/lua ;
 } else {
