@@ -1678,7 +1678,7 @@ static void inter_copy_func( lua_State* L2, uint_t L2_cache_i, lua_State* L, uin
 			*/
 			{
 				char const* upname;
-#if LUA_VERSION_NUM == 502
+#if LUA_VERSION_NUM >= 502
 				// With Lua 5.2, each Lua function gets its environment as one of its upvalues (named LUA_ENV, aka "_ENV" by default)
 				// Generally this is LUA_RIDX_GLOBALS, which we don't want to copy from the source to the destination state...
 				// -> if we encounter an upvalue equal to the global table in the source, bind it to the destination's global table
@@ -1687,7 +1687,7 @@ static void inter_copy_func( lua_State* L2, uint_t L2_cache_i, lua_State* L, uin
 				for( n = 0; (upname = lua_getupvalue( L, i, 1 + n)) != NULL; ++ n)
 				{                                                  // ... _G up[n]
 					DEBUGSPEW_CODE( fprintf( stderr, INDENT_BEGIN "UPNAME[%d]: %s\n" INDENT_END, n, upname));
-#if LUA_VERSION_NUM == 502
+#if LUA_VERSION_NUM >= 502
 					if( lua_rawequal( L, -1, -2)) // is the upvalue equal to the global table?
 					{
 						lua_pushglobaltable( L2);                                               // ... {cache} ... function <upvalues>
@@ -1702,7 +1702,7 @@ static void inter_copy_func( lua_State* L2, uint_t L2_cache_i, lua_State* L, uin
 					}
 					lua_pop( L, 1);                                  // ... _G
 				}
-#if LUA_VERSION_NUM == 502
+#if LUA_VERSION_NUM >= 502
 				lua_pop( L, 1);                                    // ...
 #endif // LUA_VERSION_NUM
 			}
