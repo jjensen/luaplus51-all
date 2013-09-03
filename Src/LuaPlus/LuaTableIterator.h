@@ -97,7 +97,7 @@ inline void LuaTableIterator::Reset() {
 	m_isDone = lua_next(m_tableObj.GetCState(), m_tableObj.GetRef()) == 0;
 #else
 	lua_getfastref(m_tableObj.GetCState(), m_tableObj.GetRef());
-	m_keyObj.Push();
+	m_keyObj.Push(state);
 	m_isDone = lua_next(m_tableObj.GetCState(), -2) == 0;
 	lua_remove(m_tableObj.GetCState(), m_isDone ? -1 : -3);
 #endif // !LUA_FASTREF_SUPPORT
@@ -143,7 +143,7 @@ inline bool LuaTableIterator::Next() {
 	m_isDone = lua_next(m_tableObj.GetCState(), m_tableObj.GetRef()) == 0;
 #else
 	lua_getfastref(m_tableObj.GetCState(), m_tableObj.GetRef());
-	m_keyObj.Push();
+	m_keyObj.Push(state);
 	m_isDone = lua_next(m_tableObj.GetCState(), -2) == 0;
 	lua_remove(m_tableObj.GetCState(), m_isDone ? -1 : -3);
 #endif // LUA_FASTREF_SUPPORT
