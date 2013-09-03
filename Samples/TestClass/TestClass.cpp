@@ -83,7 +83,8 @@ namespace LPCD {
 			return obj.GetMetatable() == state->GetRegistry()["VECTOR"];
 		}
 		static inline VECTOR Get(lua_State* L, int idx) {
-			return *(VECTOR*)lua_unboxpointer(L, idx);
+			LuaState* state = lua_State_to_LuaState(L);
+			return *(VECTOR*)state->UnBoxPointer(idx);
 		}
 	};
 	template<> struct Type<VECTOR&> : public Type<VECTOR> {};
@@ -189,7 +190,7 @@ MONSTER* get_MONSTER2_inplace(lua_State* L, int index, bool throwError = true) {
 
 
 void Vector4MonsterMetatableTest() {
-	lua_State* L = lua_open();
+	lua_State* L = luaL_newstate();
 
 	LPCD::Class(L, "VECTOR")
 		.Property("x", &VECTOR::x)
@@ -310,7 +311,7 @@ void Vector4MonsterMetatableTest() {
 
 
 void Vector3MonsterMetatableTest() {
-	lua_State* L = lua_open();
+	lua_State* L = luaL_newstate();
 
 	lpcd_newclassmetatable(L, "VECTOR", NULL);
 	lpcd_propertycreate(L, -1, "x", &VECTOR::x);
@@ -388,7 +389,7 @@ void Vector3MonsterMetatableTest() {
 
 
 void Vector2MonsterMetatableTest() {
-	lua_State* L = lua_open();
+	lua_State* L = luaL_newstate();
 
 	luaL_newmetatable(L, "VECTOR");				// vector_metatable
 	lpcd_integratepropertysupport(L, -1);
