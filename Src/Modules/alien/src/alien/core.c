@@ -16,7 +16,7 @@
 #include "lauxlib.h"
 #include "ffi.h"
 
-#if LUA_VERSION_NUM == 502
+#if LUA_VERSION_NUM >= 502
 #define lua_setfenv lua_setuservalue
 #define lua_getfenv lua_getuservalue
 #define lua_objlen lua_rawlen
