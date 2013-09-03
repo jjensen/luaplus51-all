@@ -32,6 +32,78 @@ local LUAPLUS_SRCS =
 ;
 
 ###############################################################################
+local LUA51_SRCS =
+		lua51/src/lapi.c
+		lua51/src/lapi.h
+		lua51/src/lauxlib.c
+		lua51/src/lauxlib.h
+		lua51/src/lbaselib.c
+		lua51/src/lcode.c
+		lua51/src/lcode.h
+		lua51/src/ldblib.c
+		lua51/src/ldebug.c
+		lua51/src/ldebug.h
+		lua51/src/ldo.c
+		lua51/src/ldo.h
+		lua51/src/ldump.c
+		lua51/src/lfunc.c
+		lua51/src/lfunc.h
+		lua51/src/lgc.c
+		lua51/src/lgc.h
+		lua51/src/linit.c
+		lua51/src/liolib.c
+		lua51/src/llex.c
+		lua51/src/llex.h
+		lua51/src/llimits.h
+		lua51/src/lmathlib.c
+		lua51/src/lmem.c
+		lua51/src/lmem.h
+		lua51/src/loadlib.c
+		lua51/src/lobject.c
+		lua51/src/lobject.h
+		lua51/src/lopcodes.c
+		lua51/src/lopcodes.h
+		lua51/src/loslib.c
+		lua51/src/lparser.c
+		lua51/src/lparser.h
+		lua51/src/lstate.c
+		lua51/src/lstate.h
+		lua51/src/lstring.c
+		lua51/src/lstring.h
+		lua51/src/lstrlib.c
+		lua51/src/ltable.c
+		lua51/src/ltable.h
+		lua51/src/ltablib.c
+		lua51/src/ltm.c
+		lua51/src/ltm.h
+		lua51/src/lua.h
+		lua51/src/luaconf.h
+		lua51/src/lualib.h
+		lua51/src/lundump.c
+		lua51/src/lundump.h
+		lua51/src/lvm.c
+		lua51/src/lvm.h
+		lua51/src/lzio.c
+		lua51/src/lzio.h
+		lua51/src/print.c
+;
+
+ActiveTarget lua51-static ;
+
+SourceGroup : lua51 : $(LUA51_SRCS) ;
+SourceGroup : LuaPlus : $(LUAPLUS_SRCS) ;
+
+C.IncludeDirectories : lua51/src ;
+
+C.Defines : LUA_OPNAMES ;
+
+LuaPlusDefines lua51-static ;
+
+C.OutputName : lua51-static ;
+
+C.Library : $(LUA51_SRCS) $(LUAPLUS_SRCS) ;
+
+###############################################################################
 local LUA51_LUAPLUS_SRCS =
 		lua51-luaplus/src/lapi.c
 		lua51-luaplus/src/lapi.h
@@ -103,5 +175,161 @@ C.OutputName : lua51-luaplus-static ;
 
 C.Library : $(LUA51_LUAPLUS_SRCS) $(LUAPLUS_SRCS) ;
 
+
+##################################################################
+local LUA52_SRCS =
+		lua52/src/lapi.c
+		lua52/src/lapi.h
+		lua52/src/lauxlib.c
+		lua52/src/lauxlib.h
+		lua52/src/lbaselib.c
+		lua52/src/lbitlib.c
+		lua52/src/lcode.c
+		lua52/src/lcode.h
+		lua52/src/lcorolib.c
+		lua52/src/lctype.c
+		lua52/src/lctype.h
+		lua52/src/ldblib.c
+		lua52/src/ldebug.c
+		lua52/src/ldebug.h
+		lua52/src/ldo.c
+		lua52/src/ldo.h
+		lua52/src/ldump.c
+		lua52/src/lfunc.c
+		lua52/src/lfunc.h
+		lua52/src/lgc.c
+		lua52/src/lgc.h
+		lua52/src/linit.c
+		lua52/src/liolib.c
+		lua52/src/llex.c
+		lua52/src/llex.h
+		lua52/src/llimits.h
+		lua52/src/lmathlib.c
+		lua52/src/lmem.c
+		lua52/src/lmem.h
+		lua52/src/loadlib.c
+		lua52/src/lobject.c
+		lua52/src/lobject.h
+		lua52/src/lopcodes.c
+		lua52/src/lopcodes.h
+		lua52/src/loslib.c
+		lua52/src/lparser.c
+		lua52/src/lparser.h
+		lua52/src/lstate.c
+		lua52/src/lstate.h
+		lua52/src/lstring.c
+		lua52/src/lstring.h
+		lua52/src/lstrlib.c
+		lua52/src/ltable.c
+		lua52/src/ltable.h
+		lua52/src/ltablib.c
+		lua52/src/ltm.c
+		lua52/src/ltm.h
+		#lua52/src/lua.c
+		lua52/src/lua.h
+		lua52/src/lua.hpp
+		#lua52/src/luac.c
+		lua52/src/luaconf.h
+		lua52/src/lualib.h
+		lua52/src/lundump.c
+		lua52/src/lundump.h
+		lua52/src/lvm.c
+		lua52/src/lvm.h
+		lua52/src/lzio.c
+		lua52/src/lzio.h
+;
+
+ActiveTarget lua52-static ;
+
+SourceGroup : lua52 : $(LUA52_SRCS) ;
+SourceGroup : LuaPlus : $(LUAPLUS_SRCS) ;
+
+C.IncludeDirectories : lua52/src ;
+
+C.Defines : LUA_OPNAMES ;
+
+LuaPlusDefines lua52-static ;
+
+C.OutputName : lua52-static ;
+
+C.Library : $(LUA52_SRCS) $(LUAPLUS_SRCS) ;
+
+##################################################################
+local LUA53_SRCS =
+		lua53/src/lapi.c
+		lua53/src/lapi.h
+		lua53/src/lauxlib.c
+		lua53/src/lauxlib.h
+		lua53/src/lbaselib.c
+		lua53/src/lbitlib.c
+		lua53/src/lcode.c
+		lua53/src/lcode.h
+		lua53/src/lcorolib.c
+		lua53/src/lctype.c
+		lua53/src/lctype.h
+		lua53/src/ldblib.c
+		lua53/src/ldebug.c
+		lua53/src/ldebug.h
+		lua53/src/ldo.c
+		lua53/src/ldo.h
+		lua53/src/ldump.c
+		lua53/src/lfunc.c
+		lua53/src/lfunc.h
+		lua53/src/lgc.c
+		lua53/src/lgc.h
+		lua53/src/linit.c
+		lua53/src/liolib.c
+		lua53/src/llex.c
+		lua53/src/llex.h
+		lua53/src/llimits.h
+		lua53/src/lmathlib.c
+		lua53/src/lmem.c
+		lua53/src/lmem.h
+		lua53/src/loadlib.c
+		lua53/src/lobject.c
+		lua53/src/lobject.h
+		lua53/src/lopcodes.c
+		lua53/src/lopcodes.h
+		lua53/src/loslib.c
+		lua53/src/lparser.c
+		lua53/src/lparser.h
+		lua53/src/lstate.c
+		lua53/src/lstate.h
+		lua53/src/lstring.c
+		lua53/src/lstring.h
+		lua53/src/lstrlib.c
+		lua53/src/ltable.c
+		lua53/src/ltable.h
+		lua53/src/ltablib.c
+		lua53/src/ltm.c
+		lua53/src/ltm.h
+		#lua53/src/lua.c
+		lua53/src/lua.h
+		lua53/src/lua.hpp
+		#lua53/src/luac.c
+		lua53/src/luaconf.h
+		lua53/src/lualib.h
+		lua53/src/lundump.c
+		lua53/src/lundump.h
+		lua53/src/lvm.c
+		lua53/src/lvm.h
+		lua53/src/lzio.c
+		lua53/src/lzio.h
+;
+
+ActiveTarget lua53-static ;
+
+SourceGroup : lua53 : $(LUA52_SRCS) ;
+SourceGroup : LuaPlus : $(LUAPLUS_SRCS) ;
+
+C.IncludeDirectories : lua53/src ;
+
+C.Defines : LUA_OPNAMES ;
+
+LuaPlusDefines lua53-static ;
+
+C.OutputName : lua53-static ;
+
+C.Library : $(LUA53_SRCS) $(LUAPLUS_SRCS) ;
 
 }

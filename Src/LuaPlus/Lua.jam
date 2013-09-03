@@ -24,6 +24,8 @@ if $(LUA_VERSION) in lua51-luaplus {
 	{
 		SRCS += $(TILDE_SRCS) ;
 	}
+} else {
+	SRCS += $(LUA_VERSION)/src/lua.c ;
 }
 
 rule LuaApplication TARGET : OPTIONS
@@ -34,11 +36,23 @@ rule LuaApplication TARGET : OPTIONS
 
 	if $(MSVCNT)
 	{
-		if $(LUA_VERSION) in lua51-luaplus {
+		if $(LUA_VERSION) in lua51 lua51-luaplus {
 			switch $(CONFIG) {
 				case debug :		C.LinkFlags : /DELAYLOAD:lua51_debug.dll ;
 				case release :		C.LinkFlags : /DELAYLOAD:lua51.dll ;
 				case releaseltcg :	C.LinkFlags : /DELAYLOAD:lua51.dll ;
+			}
+		} else if $(LUA_VERSION) in lua52 {
+			switch $(CONFIG) {
+				case debug :		C.LinkFlags : /DELAYLOAD:lua52_debug.dll ;
+				case release :		C.LinkFlags : /DELAYLOAD:lua52.dll ;
+				case releaseltcg :	C.LinkFlags : /DELAYLOAD:lua52.dll ;
+			}
+		} else if $(LUA_VERSION) in lua53 {
+			switch $(CONFIG) {
+				case debug :		C.LinkFlags : /DELAYLOAD:lua53_debug.dll ;
+				case release :		C.LinkFlags : /DELAYLOAD:lua53.dll ;
+				case releaseltcg :	C.LinkFlags : /DELAYLOAD:lua53.dll ;
 			}
 		}
 		C.LinkPrebuiltLibraries : DelayImp ;

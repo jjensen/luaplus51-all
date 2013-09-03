@@ -318,7 +318,7 @@ namespace LPCD {
 	using namespace LuaPlus;
 
 	template<> struct Type<LuaObject> {
-		static inline void Push(lua_State* L, const LuaObject& value)						{  lua_getfastref(L, value.GetRef());  }
+		static inline void Push(lua_State* L, const LuaObject& value)						{  value.Push(L);  }
 		static inline bool Match(lua_State* L, int idx)										{  (void)L, (void)idx;  return true;  }
 		static inline LuaPlus::LuaObject Get(lua_State* L, int idx)							{  return LuaObject(lua_State_to_LuaState(L), idx);  }
 	};

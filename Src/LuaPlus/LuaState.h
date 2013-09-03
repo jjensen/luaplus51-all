@@ -36,10 +36,10 @@ public:
 
 
 	///////////////////////////////////////////////////////////////////////////
-	LUAPLUS_CLASS_API static LuaState* Create();
-	LUAPLUS_CLASS_API static LuaState* Create(bool initStandardLibrary);
-	LUAPLUS_CLASS_API static LuaObject CreateThread(LuaState* parentState);
-	LUAPLUS_CLASS_API static void Destroy(LuaState* state);
+	static LuaState* Create();
+	static LuaState* Create(bool initStandardLibrary);
+	static LuaObject CreateThread(LuaState* parentState);
+	static void Destroy(LuaState* state);
 
 	lua_CFunction AtPanic(lua_CFunction panicf);
 
@@ -48,13 +48,17 @@ public:
 	// Basic stack manipulation.
 	LuaStackObject Stack(int index);
 	LuaStackObject StackTop();
+
+	int AbsIndex(int index);
 	int GetTop();
 	void SetTop(int index);
+	void PushGlobalTable();
 	void PushValue(int index);
 	void PushValue(LuaStackObject& object);
 	void Remove(int index);
 	void Insert(int index);
 	void Replace(int index);
+	void Copy(int fromindex, int toindex);
 	int CheckStack(int size);
 
 	void XMove(LuaState* to, int n);
@@ -75,37 +79,56 @@ public:
 	int Type(int index) const;
 	const char* TypeName(int type);
 
-	int Equal(int index1, int index2);
- 	int Equal(const LuaObject& o1, const LuaObject& o2);
-	int RawEqual(int index1, int index2);
-	int LessThan(int index1, int index2);
-	int LessThan(const LuaObject& o1, const LuaObject& o2);
-
 	lua_Number ToNumber(int index);
+	lua_Number ToNumberX(int index, int *isnum);
 	lua_Integer ToInteger(int index);
+	lua_Integer ToIntegerX(int index, int *isnum);
+#if LUA_VERSION_NUM == 501
+	unsigned int ToUnsigned(int index);
+	unsigned int ToUnsignedX(int index, int *isnum);
+#elif LUA_VERSION_NUM >= 502
+	lua_Unsigned ToUnsigned(int index);
+	lua_Unsigned ToUnsignedX(int index, int *isnum);
+#endif
 	int ToBoolean(int index);
 	const char* ToLString(int index, size_t* len);
 	const char* ToString(int index);
+	size_t RawLen(int index);
 	size_t ObjLen(int index);
 	lua_CFunction ToCFunction(int index);
 	void* ToUserdata(int index);
 	lua_State* ToThread(int index);
 	const void* ToPointer(int index);
 
+	// Comparison and arithmetic functions
+	void Arith(int op);
+	int RawEqual(int index1, int index2);
+	int Compare(int index1, int index2, int op);
+
+	int Equal(int index1, int index2);
+ 	int Equal(const LuaObject& o1, const LuaObject& o2);
+	int LessThan(int index1, int index2);
+	int LessThan(const LuaObject& o1, const LuaObject& o2);
+
 	// push functions (C -> stack)
 	LuaStackObject PushNil();
 	LuaStackObject PushNumber(lua_Number n);
-	LuaStackObject PushInteger(int n);
+	LuaStackObject PushInteger(lua_Integer n);
+#if LUA_VERSION_NUM == 501
+	LuaStackObject PushUnsigned(unsigned int n);
+#elif LUA_VERSION_NUM >= 502
+	LuaStackObject PushUnsigned(lua_Unsigned n);
+#endif
 	LuaStackObject PushLString(const char *s, size_t len);
 	LuaStackObject PushString(const char *s);
-	LUAPLUS_CLASS_API const char* PushVFString(const char* fmt, va_list argp);
-	LUAPLUS_CLASS_API const char* PushFString(const char* fmt, ...);
+	const char* PushVFString(const char* fmt, va_list argp);
+	const char* PushFString(const char* fmt, ...);
 
 	LuaStackObject PushCClosure(lua_CFunction fn, int n);
 	LuaStackObject PushCClosure(int (*f)(LuaState*), int n);
 
 	LuaStackObject PushCFunction(lua_CFunction f);
-	LuaStackObject PushBoolean(bool value);
+	LuaStackObject PushBoolean(int value);
 	LuaStackObject PushLightUserdata(void* p);
 	LuaStackObject PushThread();
 
@@ -116,9 +139,11 @@ public:
 	void GetField(int index, const char* key);
 	void RawGet(int index);
 	void RawGetI(int index, int n);
+	void RawGetP(int index, const void* p);
 	LuaStackObject CreateTable(int narr = 0, int nrec = 0);
 	LuaStackObject NewUserdata(size_t size);
 	LuaStackObject GetMetatable(int objindex);
+	LuaStackObject GetUservalue(int index);
 	LuaStackObject GetFEnv(int index);
 
 	// LuaPlus ---->
@@ -131,19 +156,24 @@ public:
 	LuaStackObject GetGlobal_Stack(const char *name);
 
 	// set functions(stack -> Lua)
+	void SetGlobal(const char* key);
 	void SetTable(int index);
 	void SetField(int index, const char* key);
 	void RawSet(int index);
 	void RawSetI(int index, int n);
+	void RawSetP(int index, const void* p);
 	void SetMetatable(int index);
+	void SetUservalue(int index);
 	void SetFEnv(int index);
 
 	// `load' and `call' functions (load and run Lua code)
+	void CallK(int nargs, int nresults, int ctx, lua_CFunction k);
 	void Call(int nargs, int nresults);
+	int GetCtx(int *ctx);
+	int PCallK(int nargs, int nresults, int errfunc, int ctx, lua_CFunction k);
 	int PCall(int nargs, int nresults, int errfunc);
 	int CPCall(lua_CFunction func, void* ud);
-	int Load(lua_Reader reader, void *dt, const char *chunkname);
-	int WLoad(lua_Reader reader, void *data, const char *chunkname);
+	int Load(lua_Reader reader, void* data, const char* chunkname, const char* mode);
 
 #if LUA_ENDIAN_SUPPORT
 	int Dump(lua_Writer writer, void* data, int strip, char endian);
@@ -154,15 +184,10 @@ public:
 	/*
 	** coroutine functions
 	*/
+	int YieldK(int nresults, int ctx, lua_CFunction k);
 	int Yield_(int nresults);
-	int Resume(int narg);
+	int Resume(lua_State *from, int narg);
 	int Status();
-
-	/* deprecated begin */
-	int CoYield(int nresults);
-	int CoResume(int narg);
-	int CoStatus();
-	/* deprecated end */
 
 	/*
 	** garbage-collection function and options
@@ -178,6 +203,8 @@ public:
 
 	void Concat(int n);
 
+	void Len(int index);
+
 	lua_Alloc GetAllocF(void **ud);
 	void SetAllocF(lua_Alloc f, void *ud);
 
@@ -188,7 +215,6 @@ public:
 
 	void Register(const char* key, lua_CFunction f);
 	size_t StrLen(int index);
-	void SetGlobal(const char* key);
 
 
 	// debug functions
@@ -196,8 +222,10 @@ public:
 	int GetInfo(const char* what, lua_Debug* ar);
 	const char* GetLocal(const lua_Debug* ar, int n);
 	const char* SetLocal(const lua_Debug* ar, int n);
-	const char* GetUpValue(int funcindex, int n);
-	const char* SetUpValue(int funcindex, int n);
+	const char* GetUpvalue(int funcindex, int n);
+	const char* SetUpvalue(int funcindex, int n);
+	void *UpvalueID(int fidx, int n);
+	void UpvalueJoin(int fidx1, int n1, int fidx2, int n2);
 
 	int SetHook(lua_Hook func, int mask, int count);
 	lua_Hook GetHook();
@@ -214,6 +242,7 @@ public:
 
 	// lauxlib functions.
 	void OpenLib(const char *libname, const luaL_Reg *l, int nup);
+	void NewLib(const luaL_Reg *l, int nup);
 	void LRegister(const char *libname, const luaL_Reg *l);
 	int GetMetaField(int obj, const char *e);
 	int CallMeta(int obj, const char *e);
@@ -225,6 +254,13 @@ public:
 	lua_Number OptNumber(int nArg, lua_Number def);
 	lua_Integer CheckInteger(int numArg);
 	lua_Integer OptInteger(int nArg, lua_Integer def);
+#if LUA_VERSION_NUM == 501
+	unsigned int CheckUnsigned(int numArg);
+	unsigned int OptUnsigned(int nArg, unsigned int def);
+#elif LUA_VERSION_NUM >= 502
+	lua_Unsigned CheckUnsigned(int numArg);
+	lua_Unsigned OptUnsigned(int nArg, lua_Unsigned def);
+#endif
 	lua_Integer CheckBoolean(int narg);
 	lua_Integer OptBoolean(int narg, lua_Integer def);
 	void CheckStack(int sz, const char* msg);
@@ -232,21 +268,39 @@ public:
 	void CheckAny(int narg);
 
 	LuaObject NewMetatable(const char* tname);
+	LuaObject GetMetatable(const char* metatableName);
+	LuaObject SetMetatable(const char* metatableName);
+	void* TestUData(int ud, const char *tname);
 	void* CheckUData(int ud, const char* tname);
 
-	int Where(int lvl);
+	void Where(int lvl);
 	int Error(const char* fmt, ...);
 
 	int CheckOption(int narg, const char *def, const char *const lst[]);
 
+	int FileResult(int stat, const char *fname);
+	int ExecResult(int stat);
+
 	int Ref(int t);
 	void Unref(int t, int ref);
 
+	int LoadFileX(const char* filename, const char* mode);
 	int LoadFile(const char* filename);
+	int LoadBufferX(const char* buff, size_t size, const char* name, const char* mode);
 	int LoadBuffer(const char* buff, size_t size, const char* name);
 	int LoadString(const char* str);
 
+	lua_Integer L_len(int index);
+
 	const char* GSub(const char *s, const char *p, const char *r);
+
+	void SetFuncs(const luaL_Reg *l, int nup);
+
+	int GetSubTable(int idx, const char *fname);
+
+	void Traceback(lua_State *L1, const char *msg, int level);
+
+	void RequireF(const char *modname, lua_CFunction openf, int glb);
 
 	const char* FindTable(int idx, const char *fname, int szhint);
 
@@ -267,19 +321,18 @@ public:
 	int DoBuffer(const char *buff, size_t size, const char *name, LuaObject& fenvObj);
 
 	const char* LTypeName(int index);
-	LuaObject GetMetatable(const char* metatableName);
 
 	LuaObject NewUserdataBox(void* u);
 
 #if LUAPLUS_DUMPOBJECT
-	LUAPLUS_CLASS_API bool DumpObject(const char* filename, const char* name, LuaObject& value, unsigned int flags = DUMP_ALPHABETICAL,
+	LUAPLUS_API bool DumpObject(const char* filename, const char* name, LuaObject& value, unsigned int flags = DUMP_ALPHABETICAL,
 					int indentLevel = 0, unsigned int maxIndentLevel = 0xffffffff);
-	LUAPLUS_CLASS_API bool DumpObject(const char* filename, LuaObject& key, LuaObject& value, unsigned int flags = DUMP_ALPHABETICAL,
+	LUAPLUS_API bool DumpObject(const char* filename, LuaObject& key, LuaObject& value, unsigned int flags = DUMP_ALPHABETICAL,
 					int indentLevel = 0, unsigned int maxIndentLevel = 0xffffffff);
 
-	LUAPLUS_CLASS_API bool DumpObject(LuaStateOutFile& file, const char* name, LuaObject& value, unsigned int flags = DUMP_ALPHABETICAL,
+	LUAPLUS_API bool DumpObject(LuaStateOutFile& file, const char* name, LuaObject& value, unsigned int flags = DUMP_ALPHABETICAL,
 					int indentLevel = 0, unsigned int maxIndentLevel = 0xffffffff);
-	LUAPLUS_CLASS_API bool DumpObject(LuaStateOutFile& file, LuaObject& key, LuaObject& value, unsigned int flags = DUMP_ALPHABETICAL,
+	LUAPLUS_API bool DumpObject(LuaStateOutFile& file, LuaObject& key, LuaObject& value, unsigned int flags = DUMP_ALPHABETICAL,
 					int indentLevel = 0, unsigned int maxIndentLevel = 0xffffffff);
 #endif // LUAPLUS_DUMPOBJECT
 
@@ -290,7 +343,7 @@ public:
 	LuaStackObject BoxPointer(void* u);
 	void* UnBoxPointer(int stackIndex);
 
-	int UpValueIndex(int i);
+	int UpvalueIndex(int i);
 
 	LuaObject GetLocalByName( int level, const char* name );
 
@@ -299,9 +352,11 @@ protected:
 	~LuaState();
 	LuaState& operator=(LuaState& src);		// Not implemented.
 
+#if LUAPLUS_DUMPOBJECT
 	bool CallFormatting(LuaObject& tableObj, LuaStateOutFile& file, int indentLevel,
 			bool writeAll, bool alphabetical, bool writeTablePointers,
 			unsigned int maxIndentLevel);
+#endif // LUAPLUS_DUMPOBJECT
 };
 
 
@@ -368,6 +423,18 @@ private:
 
 
 } // namespace LuaPlus
+
+
+namespace LPCD {
+	using namespace LuaPlus;
+
+	template<> struct Type<LuaPlus::LuaState*> {
+		static inline void Push(lua_State* L, LuaPlus::LuaState* value)						{  lua_pushlightuserdata(L, value);  }
+		static inline bool Match(lua_State* L, int idx)										{  (void)L, (void)idx;  return true;  }
+		static inline LuaPlus::LuaState* Get(lua_State* L, int idx)							{  return lua_State_to_LuaState(L);  }
+	};
+} // namespace LPCD
+
 
 
 

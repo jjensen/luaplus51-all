@@ -7,6 +7,7 @@
 // The code presented in this file may be used in any environment it is
 // acceptable to use Lua.
 ///////////////////////////////////////////////////////////////////////////////
+#define LUA_CORE
 #include "LuaPlus.h"
 
 #include <ctype.h>
@@ -14,7 +15,7 @@
 /* macro to `unsign' a character */
 #define uchar(c)        ((unsigned char)(c))
 
-LUA_EXTERN_C int str_format_helper (luaL_Buffer* b, lua_State *L, int arg);
+extern "C" int str_format_helper (luaL_Buffer* b, lua_State *L, int arg);
 
 namespace LuaPlus {
 
@@ -43,6 +44,7 @@ static void luaI_addquotednonwidebinary (LuaStateOutFile& file, const char* s, s
 	file.Print("%c", '"');
 }
 
+#if LUA_VERSION_NUM == 501
 
 #define L_ESC		'%'
 
@@ -256,6 +258,7 @@ static int LS_LuaFileIndent(LuaState* state) {
 	return 0;
 }
 
+#endif
 
 #if LUAPLUS_DUMPOBJECT
 
@@ -1060,15 +1063,16 @@ void LuaStateOutFile::Indent(unsigned int indentLevel)
 
 } // namespace LuaPlus
 
-
-LUA_EXTERN_C int str_format_helper (luaL_Buffer *b, lua_State *L, int arg) {
+#if LUA_VERSION_NUM == 501
+extern "C" int str_format_helper (luaL_Buffer *b, lua_State *L, int arg) {
 	return LuaPlus::str_format_helper(b, L, arg);
 }
+#endif
 
 
 #if LUAPLUS_DUMPOBJECT
 
-LUA_EXTERN_C void luaplus_dumptable(lua_State* L, int index)
+extern "C" void luaplus_dumptable(lua_State* L, int index)
 {
 	LuaPlus::LuaState* state = lua_State_to_LuaState(L);
 	LuaPlus::LuaObject valueObj(state, index);

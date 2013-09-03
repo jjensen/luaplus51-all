@@ -40,7 +40,11 @@ LUAPLUS_INLINE LuaStackObject::LuaStackObject( LuaState* state, int stackIndex )
 **/
 LUAPLUS_INLINE bool LuaStackObject::operator==(const LuaStackObject& right) const
 {
+#if LUA_VERSION_NUM == 501
 	return lua_equal(LuaState_to_lua_State(L), (int)*this, (int)right) != 0;
+#elif LUA_VERSION_NUM >= 502
+	return lua_compare(LuaState_to_lua_State(L), (int)*this, (int)right, LUA_OPEQ) != 0;
+#endif
 }
 
 	
@@ -163,7 +167,13 @@ LUAPLUS_INLINE const char* LuaStackObject::GetString() const
 	luaplus_assert(str);
 	return str;
 }
-LUAPLUS_INLINE size_t LuaStackObject::StrLen() const				{  return lua_strlen( GetCState(), m_stackIndex );  }
+LUAPLUS_INLINE size_t LuaStackObject::StrLen() const {
+#if LUA_VERSION_NUM == 501
+	return lua_objlen( GetCState(), m_stackIndex );
+#elif LUA_VERSION_NUM >= 502
+	return lua_rawlen( GetCState(), m_stackIndex );
+#endif
+}
 LUAPLUS_INLINE lua_CFunction LuaStackObject::GetCFunction() const	{  luaplus_assert( lua_iscfunction( GetCState(), m_stackIndex ) );  return lua_tocfunction( GetCState(), m_stackIndex );  }
 LUAPLUS_INLINE void* LuaStackObject::GetUserdata() const			{  luaplus_assert( lua_isuserdata( GetCState(), m_stackIndex ) );  return lua_touserdata( GetCState(), m_stackIndex );  }
 LUAPLUS_INLINE const void* LuaStackObject::GetLuaPointer() const	{  return lua_topointer( GetCState(), m_stackIndex );  }
@@ -196,7 +206,13 @@ LUAPLUS_INLINE void LuaStackObject::SetMetatable( LuaStackObject value )
 }
 
 LUAPLUS_INLINE void LuaStackObject::SetTable()						{  lua_settable( GetCState(), m_stackIndex );  }
-LUAPLUS_INLINE size_t LuaStackObject::GetCount()					{  return lua_objlen( GetCState(), m_stackIndex );  }
+LUAPLUS_INLINE size_t LuaStackObject::GetCount() {
+#if LUA_VERSION_NUM == 501
+	return lua_objlen( GetCState(), m_stackIndex );
+#elif LUA_VERSION_NUM >= 502
+	return lua_rawlen( GetCState(), m_stackIndex );
+#endif
+}
 
 
 /**

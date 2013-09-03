@@ -2266,7 +2266,8 @@ inline void* lpcd_checkobject(lua_State* L, int index, const char* tname, bool t
 				}
 			}
 			if (throwError) {
-				luaL_typerror(L, index, tname);  /* else error */
+                const char *msg = lua_pushfstring(L, "%s expected, got %s", tname, luaL_typename(L, index));
+                luaL_argerror(L, index, msg);
 			}
 			return NULL;
 		} else {
@@ -2276,7 +2277,8 @@ inline void* lpcd_checkobject(lua_State* L, int index, const char* tname, bool t
 		}
 	} else {
 		if (throwError) {
-			luaL_typerror(L, index, tname);
+			const char *msg = lua_pushfstring(L, "%s expected, got %s", tname, luaL_typename(L, index));
+			luaL_argerror(L, index, msg);
 		} else {
 			if (isTable)
 				lua_pop(L, 1);

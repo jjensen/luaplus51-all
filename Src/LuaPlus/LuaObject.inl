@@ -343,7 +343,11 @@ inline size_t LuaObject::ObjLen() {
 	}
 #endif // !LUA_FASTREF_SUPPORT
 	LUA_FASTREF_PUSH();
+#if LUA_VERSION_NUM == 501
 	return lua_objlen(L, LUA_FASTREF_REF_1);
+#elif LUA_VERSION_NUM >= 502
+	return lua_rawlen(L, LUA_FASTREF_REF_1);
+#endif
 }
 
 
@@ -386,7 +390,11 @@ inline size_t LuaObject::StrLen() const {
 	luaplus_assert(L);
 	luaplus_assert(IsString());
 	LUA_FASTREF_PUSH();
+#if LUA_VERSION_NUM == 501
 	return lua_objlen(L, LUA_FASTREF_REF_1);
+#elif LUA_VERSION_NUM >= 502
+	return lua_rawlen(L, LUA_FASTREF_REF_1);
+#endif
 }
 
 
@@ -526,7 +534,11 @@ inline void LuaObject::Sort() {
 inline size_t LuaObject::GetCount() const {
 	luaplus_assert(L);
 	Push(L);
+#if LUA_VERSION_NUM == 501
 	int count = lua_objlen(L, -1);
+#elif LUA_VERSION_NUM >= 502
+	int count = lua_rawlen(L, -1);
+#endif
 	lua_pop(L, 1);
 	return count;
 }

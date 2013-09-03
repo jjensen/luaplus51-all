@@ -63,78 +63,13 @@
 #endif
 #endif
 
-#ifndef LUAPLUS_DLL
-#ifndef LUAPLUS_LIB
-#define LUAPLUS_LIB
-#endif // LUAPLUS_LIB
-#endif // LUAPLUS_DLL
-
 #ifndef LUAPLUS_INCLUDE_STANDARD_LIBRARY
 #define LUAPLUS_INCLUDE_STANDARD_LIBRARY 1
 #endif // LUAPLUS_INCLUDE_STANDARD_LIBRARY
 
-#undef LUA_API
-#undef LUALIB_API
-
-#ifdef _MSC_VER
-	#ifndef LUAPLUS_LIB
-		#ifdef LUAPLUS_BUILDDLL
-			#define LUA_API __declspec(dllexport)
-			#define LUAPLUS_CLASS __declspec(dllexport)
-			#define LUAPLUS_API	__declspec(dllexport)
-			#define LUAPLUS_CLASS_API __declspec(dllexport)
-		#else
-//			#define LUA_API __declspec(dllimport)
-//			#define LUAPLUS_CLASS __declspec(dllimport)
-//			#define LUAPLUS_API	__declspec(dllimport)
-//			#define LUAPLUS_CLASS_API __declspec(dllimport)
-			#define LUA_API
-			#define LUAPLUS_CLASS
-			#define LUAPLUS_API
-			#define LUAPLUS_CLASS_API
-		#endif
-
-		#ifdef LUAMODULE_BUILDDLL
-			#define LUAMODULE_API __declspec(dllexport)
-		#else
-			#define LUAMODULE_API __declspec(dllimport)
-		#endif
-	#else // LUAPLUS_LIB
-		#define LUA_API
-		#define LUAPLUS_CLASS
-		#define LUAPLUS_CLASS_API
-		#define LUAPLUS_API extern
-		#define LUAMODULE_API
-	#endif
-#else // !_MSC_VER
-	#ifdef __cplusplus
-		#define LUA_API extern "C"
-	#else
-		#define LUA_API extern
-	#endif
-    #define LUAPLUS_CLASS
-    #define LUAPLUS_CLASS_API
-    #define LUAPLUS_API extern
-	#ifdef LUAMODULE_BUILDDLL
-		#define LUAMODULE_API
-	#else
-		#define LUAMODULE_API
-	#endif
-#endif // _MSC_VER
-
 #if defined(PLATFORM_IOS)
 #elif defined(__APPLE__)  ||  defined(macintosh)
 #define LUA_USE_MACOSX
-#endif
-
-#if defined(__cplusplus)
-#define LUA_EXTERN_C extern "C"
-#define LUA_EXTERN_C_BEGIN extern "C" {
-#define LUA_EXTERN_C_END }
-#else
-#define LUA_EXTERN_C
-#define LUA_EXTERN_C_BEGIN
-#define LUA_EXTERN_C_END
 #endif
 
 #endif /* LUAPLUS__LUAPLUS_CONFIG_H */

@@ -18,6 +18,7 @@ local SRCS =
 		TestScript.cpp
 ;
 
+C.Defines TestScript : LUA_BUILD_AS_DLL ;
 C.IncludeDirectories TestScript : $(LUAPLUS_INCLUDE_DIRECTORIES) ;
 C.LinkLibraries TestScript : $(LUA_VERSION) ;
 

@@ -124,7 +124,7 @@ TEST(LuaState_SetTop)
 TEST(LuaState_PushValue)
 {
 	LuaStateOwner state(false);
-	state->PushValue(LUA_GLOBALSINDEX);
+	state->PushGlobalTable();
 	state->PushNumber(5);
 	state->PushNumber(10);
 	state->PushNumber(15);
@@ -560,9 +560,9 @@ TEST(LuaState_GetGlobals)
 {
 	LuaStateOwner state(false);
 	lua_State* L = state->GetCState();
-	lua_pushvalue(L, LUA_GLOBALSINDEX);
+	state->PushGlobalTable();
 	state->GetGlobals().Push(state);
-	CHECK(lua_equal(L, -1, -2));
+	CHECK(state->Equal(-1, -2));
 }
 
 
@@ -571,9 +571,9 @@ TEST(LuaState_GetGlobals_Stack)
 {
 	LuaStateOwner state(false);
 	lua_State* L = state->GetCState();
-	lua_pushvalue(L, LUA_GLOBALSINDEX);
+	state->PushGlobalTable();
 	state->GetGlobals_Stack().Push();
-	CHECK(lua_equal(L, -1, -2));
+	CHECK(state->Equal(-1, -2));
 }
 
 
@@ -593,7 +593,7 @@ TEST(LuaState_GetRegistry)
 	lua_State* L = state->GetCState();
 	lua_pushvalue(L, LUA_REGISTRYINDEX);
 	state->GetRegistry().Push(state);
-	CHECK(lua_equal(L, -1, -2));
+	CHECK(state->Equal(-1, -2));
 }
 
 
@@ -604,7 +604,7 @@ TEST(LuaState_GetRegistry_Stack)
 	lua_State* L = state->GetCState();
 	lua_pushvalue(L, LUA_REGISTRYINDEX);
 	state->GetRegistry_Stack().Push();
-	CHECK(lua_equal(L, -1, -2));
+	CHECK(state->Equal(-1, -2));
 }
 
 
@@ -696,7 +696,7 @@ TEST(LuaState_Load)
 	strcpy(loadInfo.buffer, "MyNumber = 5");
 	loadInfo.size = strlen(loadInfo.buffer);
 
-	int ret = state->Load(LuaState_Load_Helper_Get, &loadInfo, NULL);
+	int ret = state->Load(LuaState_Load_Helper_Get, &loadInfo, NULL, NULL);
 	CHECK_EQUAL(0, ret);
 
 	state->PCall(0, 0, 0);
@@ -979,7 +979,8 @@ TEST(LuaObject_CreationWithLuaStatePointer)
 TEST(LuaObject_CreationWithLuaStatePointerAndStackIndex)
 {
 	LuaStateOwner state;
-	LuaObject obj(state, LUA_GLOBALSINDEX);
+	state->PushGlobalTable();
+	LuaObject obj(state, true);
 	CHECK(obj.IsTable());
 }
 
@@ -1076,7 +1077,7 @@ TEST(LuaObject_Assign)
 	CHECK(obj.Type() == LUA_TNUMBER);
 	CHECK(obj.IsNumber());
 	CHECK(obj.GetNumber() == 5.5);
-	CHECK(obj.GetInteger() == 5);		// Should downcast.
+	CHECK(obj.GetInteger() == 5  ||  obj.GetInteger() == 6);
 	CHECK(strcmp(obj.TypeName(), "number") == 0);
 
 	obj.Assign(state, "Hello");
@@ -1217,7 +1218,7 @@ TEST(LuaObject_SetTable_Array_With_Sort)
 	{
 		LuaObject numObj = obj[i];
 		CHECK(numObj.IsNumber());
-		int num = numObj.GetInteger();
+		lua_Integer num = numObj.GetInteger();
 		CHECK(num == -(502 - i * 2));
 	}
 }

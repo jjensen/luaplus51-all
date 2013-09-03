@@ -25,4 +25,10 @@
 #include "LuaFunction.h"
 #include "LuaPlusCD.h"
 
+extern "C" {
+#define LUA_ALLOC_TEMP 1
+LUAPLUS_API void lua_getdefaultallocfunction(lua_Alloc* allocFunc, void** ud);
+LUAPLUS_API void lua_setdefaultallocfunction(lua_Alloc reallocFunc, void* ud);
+}
+
 #endif // LUAPLUS__LUAPLUS_H

@@ -4,8 +4,11 @@ SubDir LUAPLUS Src LuaPlus ;
 
 local SRCS =
 		$(LUA_VERSION)/src/luac.c
-		$(LUA_SOURCE_DIRECTORY_NAME)/src/print.c
 ;
+
+if $(LUA_VERSION) in lua51 lua51-luaplus {
+    SRCS += $(LUA_SOURCE_DIRECTORY_NAME)/src/print.c ;
+}
 
 rule LuaCApplication TARGET {
 	ActiveTarget $(TARGET) ;

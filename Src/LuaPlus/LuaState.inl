@@ -21,6 +21,12 @@
 namespace LuaPlus
 {
 
+LUAPLUS_INLINE /*static*/ LuaState* LuaState::Create()
+{
+	return lua_State_to_LuaState(luaL_newstate());
+}
+
+
 LUAPLUS_INLINE /*static*/ LuaState* LuaState::Create(bool initStandardLibrary)
 {
 	LuaState* state = LuaState::Create();
@@ -40,6 +46,12 @@ LUAPLUS_INLINE LuaObject LuaState::CreateThread(LuaState* parentState)
 }
 
 
+LUAPLUS_INLINE /*static*/ void LuaState::Destroy(LuaState* state) {
+	lua_State* L = LuaState_to_lua_State(state);
+	lua_close(L);
+}
+
+
 LUAPLUS_INLINE lua_CFunction LuaState::AtPanic(lua_CFunction panicf)
 {
 	return lua_atpanic(LuaState_to_lua_State(this), panicf);
@@ -56,6 +68,16 @@ LUAPLUS_INLINE LuaStackObject LuaState::StackTop()
 }
 
 // Basic stack manipulation.
+LUAPLUS_INLINE int LuaState::AbsIndex(int index)
+{
+#if LUA_VERSION_NUM == 501
+	assert(0);
+	return 0;
+#elif LUA_VERSION_NUM >= 502
+	return lua_absindex(LuaState_to_lua_State(this), index);
+#endif
+}
+
 LUAPLUS_INLINE int LuaState::GetTop()
 {
 	return lua_gettop(LuaState_to_lua_State(this));
@@ -64,6 +86,14 @@ LUAPLUS_INLINE int LuaState::GetTop()
 LUAPLUS_INLINE void LuaState::SetTop(int index)
 {
 	lua_settop(LuaState_to_lua_State(this), index);
+}
+
+LUAPLUS_INLINE void LuaState::PushGlobalTable() {
+#if LUA_VERSION_NUM == 501
+	lua_pushvalue(LuaState_to_lua_State(this), LUA_GLOBALSINDEX);
+#elif LUA_VERSION_NUM >= 502
+	lua_pushglobaltable(LuaState_to_lua_State(this));
+#endif
 }
 
 LUAPLUS_INLINE void LuaState::PushValue(int index)
@@ -91,6 +121,15 @@ LUAPLUS_INLINE void LuaState::Replace(int index)
 	lua_replace(LuaState_to_lua_State(this), index);
 }
 
+LUAPLUS_INLINE void LuaState::Copy(int fromindex, int toindex)
+{
+#if LUA_VERSION_NUM == 501
+	assert(0);
+#elif LUA_VERSION_NUM >= 502
+	lua_copy(LuaState_to_lua_State(this), fromindex, toindex);
+#endif
+}
+
 
 LUAPLUS_INLINE int LuaState::CheckStack(int size)
 {
@@ -101,28 +140,6 @@ LUAPLUS_INLINE int LuaState::CheckStack(int size)
 LUAPLUS_INLINE void LuaState::XMove(LuaState* to, int n)
 {
 	lua_xmove(LuaState_to_lua_State(this), LuaState_to_lua_State(to), n);
-}
-
-
-LUAPLUS_INLINE int LuaState::Equal(const LuaObject& o1, const LuaObject& o2) {
-#if LUA_FASTREF_SUPPORT
-	return lua_equal(o1.L, o1.ref, o2.ref);
-#else
-	LuaFastRefPush _frp1(&o1);
-	LuaFastRefPush _frp2(&o2);
-	return lua_equal(o1.L, -2, -1);
-#endif // LUA_FASTREF_SUPPORT
-}
-
-
-LUAPLUS_INLINE int LuaState::LessThan(const LuaObject& o1, const LuaObject& o2) {
-#if LUA_FASTREF_SUPPORT
-	return lua_lessthan(o1.L, o1.ref, o2.ref);
-#else
-	LuaFastRefPush _frp1(&o1);
-	LuaFastRefPush _frp2(&o2);
-	return lua_lessthan(o1.L, -2, -1);
-#endif // LUA_FASTREF_SUPPORT
 }
 
 
@@ -197,9 +214,22 @@ LUAPLUS_INLINE const char* LuaState::TypeName(int type) {
 }
 
 
+LUAPLUS_INLINE void LuaState::Arith(int op)
+{
+#if LUA_VERSION_NUM == 501
+	assert(0);
+#elif LUA_VERSION_NUM >= 502
+	return lua_arith(LuaState_to_lua_State(this), op);
+#endif
+}
+
 LUAPLUS_INLINE int LuaState::Equal(int index1, int index2)
 {
+#if LUA_VERSION_NUM == 501
 	return lua_equal(LuaState_to_lua_State(this), index1, index2);
+#elif LUA_VERSION_NUM >= 502
+	return lua_compare(LuaState_to_lua_State(this), index1, index2, LUA_OPEQ);
+#endif
 }
 
 LUAPLUS_INLINE int LuaState::RawEqual(int index1, int index2)
@@ -207,9 +237,22 @@ LUAPLUS_INLINE int LuaState::RawEqual(int index1, int index2)
 	return lua_rawequal(LuaState_to_lua_State(this), index1, index2);
 }
 
+LUAPLUS_INLINE int LuaState::Compare(int index1, int index2, int op)
+{
+#if LUA_VERSION_NUM == 501
+	assert(0);
+#elif LUA_VERSION_NUM >= 502
+	return lua_compare(LuaState_to_lua_State(this), index1, index2, op);
+#endif
+}
+
 LUAPLUS_INLINE int LuaState::LessThan(int index1, int index2)
 {
+#if LUA_VERSION_NUM == 501
 	return lua_lessthan(LuaState_to_lua_State(this), index1, index2);
+#elif LUA_VERSION_NUM >= 502
+	return lua_compare(LuaState_to_lua_State(this), index1, index2, LUA_OPLT);
+#endif
 }
 
 
@@ -218,9 +261,58 @@ LUAPLUS_INLINE lua_Number LuaState::ToNumber(int index) {
 }
 
 
+LUAPLUS_INLINE lua_Number LuaState::ToNumberX(int index, int *isnum) {
+#if LUA_VERSION_NUM == 501
+	if (isnum)
+		*isnum = 1;
+	return lua_tonumber(LuaState_to_lua_State(this), index);
+#elif LUA_VERSION_NUM >= 502
+	return lua_tonumberx(LuaState_to_lua_State(this), index, isnum);
+#endif
+}
+
+
 LUAPLUS_INLINE lua_Integer LuaState::ToInteger(int index) {
 	return lua_tointeger(LuaState_to_lua_State(this), index);
 }
+
+
+LUAPLUS_INLINE lua_Integer LuaState::ToIntegerX(int index, int *isnum) {
+#if LUA_VERSION_NUM == 501
+	if (isnum)
+		*isnum = 1;
+	return lua_tointeger(LuaState_to_lua_State(this), index);
+#elif LUA_VERSION_NUM >= 502
+	return lua_tointegerx(LuaState_to_lua_State(this), index, isnum);
+#endif
+}
+
+
+#if LUA_VERSION_NUM == 501
+
+LUAPLUS_INLINE unsigned int LuaState::ToUnsigned(int index) {
+	return (unsigned int)lua_tointeger(LuaState_to_lua_State(this), index);
+}
+
+
+LUAPLUS_INLINE unsigned int LuaState::ToUnsignedX(int index, int *isnum) {
+	if (isnum)
+		*isnum = 1;
+	return (unsigned int)lua_tointeger(LuaState_to_lua_State(this), index);
+}
+
+#elif LUA_VERSION_NUM >= 502
+
+LUAPLUS_INLINE lua_Unsigned LuaState::ToUnsigned(int index) {
+	return lua_tounsigned(LuaState_to_lua_State(this), index);
+}
+
+
+LUAPLUS_INLINE lua_Unsigned LuaState::ToUnsignedX(int index, int *isnum) {
+	return lua_tounsignedx(LuaState_to_lua_State(this), index, isnum);
+}
+
+#endif
 
 
 LUAPLUS_INLINE int LuaState::ToBoolean(int index) {
@@ -238,8 +330,21 @@ LUAPLUS_INLINE const char* LuaState::ToString(int index) {
 }
 
 
-LUAPLUS_INLINE size_t LuaState::ObjLen(int index) {
+LUAPLUS_INLINE size_t LuaState::RawLen(int index) {
+#if LUA_VERSION_NUM == 501
 	return lua_objlen(LuaState_to_lua_State(this), index);
+#elif LUA_VERSION_NUM >= 502
+	return lua_rawlen(LuaState_to_lua_State(this), index);
+#endif
+}
+
+
+LUAPLUS_INLINE size_t LuaState::ObjLen(int index) {
+#if LUA_VERSION_NUM == 501
+	return lua_objlen(LuaState_to_lua_State(this), index);
+#elif LUA_VERSION_NUM >= 502
+	return lua_rawlen(LuaState_to_lua_State(this), index);
+#endif
 }
 
 
@@ -263,6 +368,48 @@ LUAPLUS_INLINE const void* LuaState::ToPointer(int index) {
 }
 
 	
+LUAPLUS_INLINE int LuaState::Equal(const LuaObject& o1, const LuaObject& o2) {
+#if LUA_VERSION_NUM == 501
+#if LUA_FASTREF_SUPPORT
+	return lua_equal(o1.L, o1.ref, o2.ref);
+#else
+	LuaFastRefPush _frp1(&o1);
+	LuaFastRefPush _frp2(&o2);
+	return lua_equal(o1.L, -2, -1);
+#endif // LUA_FASTREF_SUPPORT
+#elif LUA_VERSION_NUM >= 502
+#if LUA_FASTREF_SUPPORT
+	return lua_compare(o1.L, o1.ref, o2.ref, LUA_OPEQ);
+#else
+	LuaFastRefPush _frp1(&o1);
+	LuaFastRefPush _frp2(&o2);
+	return lua_compare(o1.L, -2, -1, LUA_OPEQ);
+#endif // LUA_FASTREF_SUPPORT
+#endif
+}
+
+
+LUAPLUS_INLINE int LuaState::LessThan(const LuaObject& o1, const LuaObject& o2) {
+#if LUA_VERSION_NUM == 501
+#if LUA_FASTREF_SUPPORT
+	return lua_lessthan(o1.L, o1.ref, o2.ref);
+#else
+	LuaFastRefPush _frp1(&o1);
+	LuaFastRefPush _frp2(&o2);
+	return lua_lessthan(o1.L, -2, -1);
+#endif // LUA_FASTREF_SUPPORT
+#elif LUA_VERSION_NUM >= 502
+#if LUA_FASTREF_SUPPORT
+	return lua_compare(o1.L, o1.ref, o2.ref, LUA_OPLT);
+#else
+	LuaFastRefPush _frp1(&o1);
+	LuaFastRefPush _frp2(&o2);
+	return lua_compare(o1.L, -2, -1, LUA_OPLT);
+#endif // LUA_FASTREF_SUPPORT
+#endif
+}
+
+
 // push functions (C -> stack)
 LUAPLUS_INLINE LuaStackObject LuaState::PushNil()
 {
@@ -276,11 +423,29 @@ LUAPLUS_INLINE LuaStackObject LuaState::PushNumber(lua_Number n)
 	return LuaStackObject(this, lua_gettop(LuaState_to_lua_State(this)));
 }
 
-LUAPLUS_INLINE LuaStackObject LuaState::PushInteger(int n)
+LUAPLUS_INLINE LuaStackObject LuaState::PushInteger(lua_Integer n)
 {
-	lua_pushnumber(LuaState_to_lua_State(this), (lua_Number)n);
+	lua_pushinteger(LuaState_to_lua_State(this), n);
 	return LuaStackObject(this, lua_gettop(LuaState_to_lua_State(this)));
 }
+
+#if LUA_VERSION_NUM == 501
+
+LUAPLUS_INLINE LuaStackObject LuaState::PushUnsigned(unsigned int n)
+{
+	lua_pushnumber(LuaState_to_lua_State(this), (unsigned int)n);
+	return LuaStackObject(this, lua_gettop(LuaState_to_lua_State(this)));
+}
+
+#elif LUA_VERSION_NUM >= 502
+
+LUAPLUS_INLINE LuaStackObject LuaState::PushUnsigned(lua_Unsigned n)
+{
+	lua_pushunsigned(LuaState_to_lua_State(this), n);
+	return LuaStackObject(this, lua_gettop(LuaState_to_lua_State(this)));
+}
+
+#endif
 
 LUAPLUS_INLINE LuaStackObject LuaState::PushLString(const char *s, size_t len)
 {
@@ -320,7 +485,7 @@ LUAPLUS_INLINE LuaStackObject LuaState::PushCFunction(lua_CFunction f)
 	return LuaStackObject(this, lua_gettop(LuaState_to_lua_State(this)));
 }
 
-LUAPLUS_INLINE LuaStackObject LuaState::PushBoolean(bool value)
+LUAPLUS_INLINE LuaStackObject LuaState::PushBoolean(int value)
 {
 	lua_pushboolean(LuaState_to_lua_State(this), value);
 	return LuaStackObject(this, lua_gettop(LuaState_to_lua_State(this)));
@@ -366,6 +531,15 @@ LUAPLUS_INLINE void LuaState::RawGetI(int index, int n)
 	lua_rawgeti(LuaState_to_lua_State(this), index, n);
 }
 
+LUAPLUS_INLINE void LuaState::RawGetP(int index, const void* p)
+{
+#if LUA_VERSION_NUM == 501
+	assert(0);
+#elif LUA_VERSION_NUM >= 502
+	lua_rawgetp(LuaState_to_lua_State(this), index, p);
+#endif
+}
+
 LUAPLUS_INLINE LuaStackObject LuaState::CreateTable(int narr, int nrec) {
 	lua_createtable(LuaState_to_lua_State(this), narr, nrec);
 	return LuaStackObject(*this, GetTop());
@@ -377,16 +551,30 @@ LUAPLUS_INLINE LuaStackObject LuaState::NewUserdata(size_t size) {
 	return LuaStackObject(*this, GetTop());
 }
 
+
 LUAPLUS_INLINE LuaStackObject LuaState::GetMetatable(int index)
 {
 	lua_getmetatable(LuaState_to_lua_State(this), index);
 	return LuaStackObject(this, lua_gettop(LuaState_to_lua_State(this)));
 }
 
+
+LUAPLUS_INLINE LuaStackObject LuaState::GetUservalue(int index) {
+#if LUA_VERSION_NUM == 501
+	assert(0);
+	return LuaStackObject(this, lua_gettop(LuaState_to_lua_State(this)));
+#elif LUA_VERSION_NUM >= 502
+	lua_getuservalue(LuaState_to_lua_State(this), index);
+	return LuaStackObject(this, lua_gettop(LuaState_to_lua_State(this)));
+#endif
+}
+
+/*TODO
 LUAPLUS_INLINE LuaStackObject LuaState::GetFEnv(int index) {
 	lua_getfenv(LuaState_to_lua_State(this), index);
 	return LuaStackObject(this, lua_gettop(LuaState_to_lua_State(this)));
 }
+*/
 
 LUAPLUS_INLINE LuaObject LuaState::GetGlobal(const char *name) {
 	lua_State* L = LuaState_to_lua_State(this);
@@ -396,7 +584,12 @@ LUAPLUS_INLINE LuaObject LuaState::GetGlobal(const char *name) {
 
 
 LUAPLUS_INLINE LuaObject LuaState::GetGlobals() throw() {
+#if LUA_VERSION_NUM == 501
 	return LuaObject( this, LUA_GLOBALSINDEX );
+#elif LUA_VERSION_NUM >= 502
+	lua_pushglobaltable(LuaState_to_lua_State(this));
+	return LuaObject(LuaState_to_lua_State(this), true);
+#endif
 }
 
 
@@ -405,9 +598,13 @@ LUAPLUS_INLINE LuaObject LuaState::GetRegistry() {
 }
 
 
-LUAPLUS_INLINE LuaStackObject LuaState::GetGlobals_Stack()
-{
-	return LuaStackObject(*this, LUA_GLOBALSINDEX);
+LUAPLUS_INLINE LuaStackObject LuaState::GetGlobals_Stack() {
+#if LUA_VERSION_NUM == 501
+	return LuaStackObject( this, LUA_GLOBALSINDEX );
+#elif LUA_VERSION_NUM >= 502
+	lua_pushglobaltable(LuaState_to_lua_State(this));
+	return LuaStackObject(*this, GetTop());
+#endif
 }
 
 LUAPLUS_INLINE LuaStackObject LuaState::GetGlobal_Stack(const char *name)
@@ -422,6 +619,10 @@ LUAPLUS_INLINE LuaStackObject LuaState::GetRegistry_Stack()
 
 
 // set functions(stack -> Lua)
+LUAPLUS_INLINE void LuaState::SetGlobal(const char* key) {
+	return lua_setglobal(LuaState_to_lua_State(this), key);
+}
+
 LUAPLUS_INLINE void LuaState::SetTable(int index)
 {
 	lua_settable(LuaState_to_lua_State(this), index);
@@ -441,19 +642,66 @@ LUAPLUS_INLINE void LuaState::RawSetI(int index, int n)
 	lua_rawseti(LuaState_to_lua_State(this), index, n);
 }
 
+LUAPLUS_INLINE void LuaState::RawSetP(int index, const void* p)
+{
+#if LUA_VERSION_NUM == 501
+	assert(0);
+#elif LUA_VERSION_NUM >= 502
+	lua_rawsetp(LuaState_to_lua_State(this), index, p);
+#endif
+}
+
 LUAPLUS_INLINE void LuaState::SetMetatable(int index)
 {
 	lua_setmetatable(LuaState_to_lua_State(this), index);
 }
 
+LUAPLUS_INLINE void LuaState::SetUservalue(int index)
+{
+#if LUA_VERSION_NUM == 501
+	assert(0);
+#elif LUA_VERSION_NUM >= 502
+	lua_setuservalue(LuaState_to_lua_State(this), index);
+#endif
+}
+
+/*TODO
 LUAPLUS_INLINE void LuaState::SetFEnv(int index)
 {
 	lua_setfenv(LuaState_to_lua_State(this), index);
 }
+*/
 
 // `load' and `call' functions (load and run Lua code)
+LUAPLUS_INLINE void LuaState::CallK(int nargs, int nresults, int ctx, lua_CFunction k) {
+#if LUA_VERSION_NUM == 501
+	lua_call(LuaState_to_lua_State(this), nargs, nresults);
+#elif LUA_VERSION_NUM >= 502
+	lua_callk(LuaState_to_lua_State(this), nargs, nresults, ctx, k);
+#endif
+}
+
+
 LUAPLUS_INLINE void LuaState::Call(int nargs, int nresults) {
 	lua_call(LuaState_to_lua_State(this), nargs, nresults);
+}
+
+
+LUAPLUS_INLINE int LuaState::GetCtx(int* ctx) {
+#if LUA_VERSION_NUM == 501
+	return 0;
+#elif LUA_VERSION_NUM >= 502
+	lua_getctx(LuaState_to_lua_State(this), ctx);
+#endif
+}
+
+
+LUAPLUS_INLINE int LuaState::PCallK(int nargs, int nresults, int errfunc, int ctx, lua_CFunction k) {
+#if LUA_VERSION_NUM == 501
+	return lua_pcall(LuaState_to_lua_State(this), nargs, nresults, errfunc);
+#elif LUA_VERSION_NUM >= 502
+	return lua_pcallk(LuaState_to_lua_State(this), nargs, nresults, errfunc, ctx, k);
+#endif
 }
 
 
@@ -464,29 +712,46 @@ LUAPLUS_INLINE int LuaState::PCall(int nargs, int nresults, int errf) {
 
 LUAPLUS_INLINE int LuaState::CPCall(lua_CFunction func, void* ud)
 {
-	return lua_cpcall(LuaState_to_lua_State(this), func, ud);
+	lua_State* L = LuaState_to_lua_State(this);
+	lua_pushcfunction(L, func);
+	lua_pushlightuserdata(L, ud);
+	return lua_pcall(L, 1, 0, 0);
 }
 
-LUAPLUS_INLINE int LuaState::Load(lua_Reader reader, void *dt, const char *chunkname)
+
+LUAPLUS_INLINE int LuaState::Load(lua_Reader reader, void *data, const char *chunkname, const char *mode)
 {
-	return lua_load(LuaState_to_lua_State(this), reader, dt, chunkname);
+#if LUA_VERSION_NUM == 501
+	return lua_load(LuaState_to_lua_State(this), reader, data, chunkname);
+#elif LUA_VERSION_NUM >= 502
+	return lua_load(LuaState_to_lua_State(this), reader, data, chunkname, mode);
+#endif
 }
 
 #if LUA_ENDIAN_SUPPORT
 
-LUAPLUS_INLINE int LuaState::Dump(lua_Chunkwriter writer, void* data, int strip, char endian)
+LUAPLUS_INLINE int LuaState::Dump(lua_Writer writer, void* data, int strip, char endian)
 {
-	return lua_dumpendian(LuaState_to_lua_State(this), writer, data, strip, endian);
+//	return lua_dumpendian(LuaState_to_lua_State(this), writer, data, strip, endian);
+	return lua_dump(LuaState_to_lua_State(this), writer, data);
 }
 
 #else
 
-LUAPLUS_INLINE int LuaState::Dump(lua_Chunkwriter writer, void* data)
+LUAPLUS_INLINE int LuaState::Dump(lua_Writer writer, void* data)
 {
 	return lua_dump(LuaState_to_lua_State(this), writer, data);
 }
 
 #endif /* LUA_ENDIAN_SUPPORT */
+
+LUAPLUS_INLINE int LuaState::LoadFileX(const char* filename, const char* mode) {
+#if LUA_VERSION_NUM == 501
+	return luaL_loadfile(LuaState_to_lua_State(this), filename);
+#elif LUA_VERSION_NUM >= 502
+	return luaL_loadfilex(LuaState_to_lua_State(this), filename, mode);
+#endif
+}
 
 LUAPLUS_INLINE int LuaState::LoadFile(const char* filename)
 {
@@ -503,6 +768,14 @@ LUAPLUS_INLINE int LuaState::DoString(const char *str)
 	return luaL_dostring(LuaState_to_lua_State(this), str);
 }
 
+LUAPLUS_INLINE int LuaState::LoadBufferX(const char* buff, size_t size, const char* name, const char* mode) {
+#if LUA_VERSION_NUM == 501
+	return luaL_loadbuffer(LuaState_to_lua_State(this), buff, size, name);
+#elif LUA_VERSION_NUM >= 502
+	return luaL_loadbufferx(LuaState_to_lua_State(this), buff, size, name, mode);
+#endif
+}
+
 LUAPLUS_INLINE int LuaState::LoadBuffer(const char* buff, size_t size, const char* name)
 {
 	return luaL_loadbuffer(LuaState_to_lua_State(this), buff, size, name);
@@ -513,36 +786,80 @@ LUAPLUS_INLINE int LuaState::DoBuffer(const char *buff, size_t size, const char 
 	return (luaL_loadbuffer(LuaState_to_lua_State(this), buff, size, name) || lua_pcall(LuaState_to_lua_State(this), 0, 0, 0));
 }
 
+LUAPLUS_INLINE lua_Integer LuaState::L_len(int index)
+{
+#if LUA_VERSION_NUM == 501
+	assert(0);
+	return 0;
+#elif LUA_VERSION_NUM >= 502
+	return luaL_len(LuaState_to_lua_State(this), index);
+#endif
+}
+
+LUAPLUS_INLINE void LuaState::SetFuncs(const luaL_Reg *l, int nup) {
+#if LUA_VERSION_NUM == 501
+	luaI_openlib(LuaState_to_lua_State(this), NULL, l, nup);
+#elif LUA_VERSION_NUM >= 502
+	luaL_setfuncs(LuaState_to_lua_State(this), l, nup);
+#endif
+}
+
+
+LUAPLUS_INLINE int LuaState::GetSubTable(int idx, const char *fname) {
+#if LUA_VERSION_NUM == 501
+	assert(0);
+	return 0;
+#elif LUA_VERSION_NUM >= 502
+	return luaL_getsubtable(LuaState_to_lua_State(this), idx, fname);
+#endif
+}
+
+
+LUAPLUS_INLINE void LuaState::Traceback(lua_State *L1, const char *msg, int level) {
+#if LUA_VERSION_NUM == 501
+	assert(0);
+#elif LUA_VERSION_NUM >= 502
+	luaL_traceback(LuaState_to_lua_State(this), L1, msg, level);
+#endif
+}
+
+
+LUAPLUS_INLINE void LuaState::RequireF(const char *modname, lua_CFunction openf, int glb) {
+#if LUA_VERSION_NUM == 501
+	assert(0);
+#elif LUA_VERSION_NUM >= 502
+	luaL_requiref(LuaState_to_lua_State(this), modname, openf, glb);
+#endif
+}
+
+
 /*
 ** coroutine functions
 */
+LUAPLUS_INLINE int LuaState::YieldK(int nresults, int ctx, lua_CFunction k) {
+#if LUA_VERSION_NUM == 501
+	return lua_yield(LuaState_to_lua_State(this), nresults);
+#elif LUA_VERSION_NUM >= 502
+	return lua_yieldk(LuaState_to_lua_State(this), nresults, ctx, k);
+#endif
+}
+
+
 LUAPLUS_INLINE int LuaState::Yield_(int nresults) {
 	return lua_yield(LuaState_to_lua_State(this), nresults);
 }
 
 
-LUAPLUS_INLINE int LuaState::Resume(int narg) {
-	return lua_resume(LuaState_to_lua_State(this), narg);
+LUAPLUS_INLINE int LuaState::Resume(lua_State *from, int nargs) {
+#if LUA_VERSION_NUM == 501
+	return lua_resume(LuaState_to_lua_State(this), nargs);
+#elif LUA_VERSION_NUM >= 502
+	return lua_resume(LuaState_to_lua_State(this), from, nargs);
+#endif
 }
 
 
 LUAPLUS_INLINE int LuaState::Status() {
-	return lua_status(LuaState_to_lua_State(this));
-}
-
-
-LUAPLUS_INLINE int LuaState::CoYield(int nresults)
-{
-	return lua_yield(LuaState_to_lua_State(this), nresults);
-}
-
-LUAPLUS_INLINE int LuaState::CoResume(int narg)
-{
-	return lua_resume(LuaState_to_lua_State(this), narg);
-}
-
-LUAPLUS_INLINE int LuaState::CoStatus()
-{
 	return lua_status(LuaState_to_lua_State(this));
 }
 
@@ -570,9 +887,20 @@ LUAPLUS_INLINE int LuaState::Next(int index)
 	return lua_next(LuaState_to_lua_State(this), index);
 }
 
+
 LUAPLUS_INLINE void LuaState::Concat(int n)
 {
 	lua_concat(LuaState_to_lua_State(this), n);
+}
+
+
+LUAPLUS_INLINE void LuaState::Len(int index)
+{
+#if LUA_VERSION_NUM == 501
+	assert(0);
+#elif LUA_VERSION_NUM >= 502
+	lua_len(LuaState_to_lua_State(this), index);
+#endif
 }
 
 
@@ -607,11 +935,11 @@ LUAPLUS_INLINE void LuaState::Register(const char* key, lua_CFunction f) {
 }
 
 LUAPLUS_INLINE size_t LuaState::StrLen(int index) {
-	return lua_strlen(LuaState_to_lua_State(this), index);
-}
-
-LUAPLUS_INLINE void LuaState::SetGlobal(const char* key) {
-	return lua_setglobal(LuaState_to_lua_State(this), key);
+#if LUA_VERSION_NUM == 501
+	return lua_objlen(LuaState_to_lua_State(this), index);
+#elif LUA_VERSION_NUM >= 502
+	return lua_rawlen(LuaState_to_lua_State(this), index);
+#endif
 }
 
 // Debug functions.
@@ -635,12 +963,29 @@ LUAPLUS_INLINE const char* LuaState::SetLocal(const lua_Debug* ar, int n)
 	return lua_setlocal(LuaState_to_lua_State(this), ar, n);
 }
 
-LUAPLUS_INLINE const char* LuaState::GetUpValue(int funcindex, int n) {
+LUAPLUS_INLINE const char* LuaState::GetUpvalue(int funcindex, int n) {
 	return lua_getupvalue(LuaState_to_lua_State(this), funcindex, n);
 }
 
-LUAPLUS_INLINE const char* LuaState::SetUpValue(int funcindex, int n) {
+LUAPLUS_INLINE const char* LuaState::SetUpvalue(int funcindex, int n) {
 	return lua_setupvalue(LuaState_to_lua_State(this), funcindex, n);
+}
+
+LUAPLUS_INLINE void* LuaState::UpvalueID(int fidx, int n) {
+#if LUA_VERSION_NUM == 501
+	assert(0);
+	return NULL;
+#elif LUA_VERSION_NUM >= 502
+	return lua_upvalueid(LuaState_to_lua_State(this), fidx, n);
+#endif
+}
+
+LUAPLUS_INLINE void LuaState::UpvalueJoin(int fidx1, int n1, int fidx2, int n2) {
+#if LUA_VERSION_NUM == 501
+	return;
+#elif LUA_VERSION_NUM >= 502
+	lua_upvaluejoin(LuaState_to_lua_State(this), fidx1, n1, fidx2, n2);
+#endif
 }
 
 LUAPLUS_INLINE int LuaState::SetHook(lua_Hook func, int mask, int count)
@@ -691,12 +1036,34 @@ LUAPLUS_INLINE void LuaState::GetFastRef(int ref) {
 
 // lauxlib functions.
 LUAPLUS_INLINE void LuaState::OpenLib(const char *libname, const luaL_Reg *l, int nup) {
+#if LUA_VERSION_NUM == 501
 	luaI_openlib(LuaState_to_lua_State(this), libname, l, nup);
+#elif LUA_VERSION_NUM >= 502
+	assert(0);
+#endif
+}
+
+
+LUAPLUS_INLINE void LuaState::NewLib(const luaL_Reg *l, int nup) {
+#if LUA_VERSION_NUM == 501
+	assert(0);
+#elif LUA_VERSION_NUM >= 502
+	lua_State* L = LuaState_to_lua_State(this);
+	lua_createtable(L, 0, 0);
+	luaL_setfuncs(L, l, nup);
+#endif
 }
 
 
 LUAPLUS_INLINE void LuaState::LRegister(const char *libname, const luaL_Reg *l) {
+#if LUA_VERSION_NUM == 501
 	luaL_register(LuaState_to_lua_State(this), libname, l);
+#elif LUA_VERSION_NUM >= 502
+	lua_State* L = LuaState_to_lua_State(this);
+	lua_createtable(L, 0, 0);
+	luaL_setfuncs(L, l, 0);
+	lua_setglobal(L, libname);
+#endif
 }
 
 
@@ -712,7 +1079,10 @@ LUAPLUS_INLINE int LuaState::CallMeta(int obj, const char *e) {
 
 LUAPLUS_INLINE int LuaState::TypeError(int narg, const char* tname)
 {
-	return luaL_typerror(LuaState_to_lua_State(this), narg, tname);
+	lua_State* L = LuaState_to_lua_State(this);
+	const char *msg = lua_pushfstring(L, "%s expected, got %s",
+		tname, luaL_typename(L, narg));
+	return luaL_argerror(L, narg, msg);
 }
 
 
@@ -758,13 +1128,42 @@ LUAPLUS_INLINE lua_Integer LuaState::OptInteger(int nArg, lua_Integer def)
 }
 
 
+#if LUA_VERSION_NUM == 501
+
+LUAPLUS_INLINE unsigned int LuaState::CheckUnsigned(int numArg)
+{
+	return (unsigned int)luaL_checkinteger(LuaState_to_lua_State(this), numArg);
+}
+
+
+LUAPLUS_INLINE unsigned int LuaState::OptUnsigned(int nArg, unsigned int def)
+{
+	return (unsigned int)luaL_optinteger(LuaState_to_lua_State(this), nArg, def);
+}
+
+#elif LUA_VERSION_NUM >= 502
+
+LUAPLUS_INLINE lua_Unsigned LuaState::CheckUnsigned(int numArg)
+{
+	return luaL_checkunsigned(LuaState_to_lua_State(this), numArg);
+}
+
+
+LUAPLUS_INLINE lua_Unsigned LuaState::OptUnsigned(int nArg, lua_Unsigned def)
+{
+	return luaL_optunsigned(LuaState_to_lua_State(this), nArg, def);
+}
+
+#endif
+
+
 LUAPLUS_INLINE lua_Integer LuaState::CheckBoolean(int numArg) {
 	return luaL_checkboolean(LuaState_to_lua_State(this), numArg);
 }
 
 
 LUAPLUS_INLINE lua_Integer LuaState::OptBoolean(int nArg, lua_Integer def) {
-	return luaL_optboolean(LuaState_to_lua_State(this), nArg, def);
+	return luaL_optboolean(LuaState_to_lua_State(this), nArg, (int)def);
 }
 
 
@@ -829,16 +1228,22 @@ LUAPLUS_INLINE LuaObject LuaState::NewMetatable(const char* tname)
 }
 
 
-LUAPLUS_INLINE void* LuaState::CheckUData(int ud, const char* tname)
-{
+LUAPLUS_INLINE void* LuaState::TestUData(int ud, const char* tname) {
+#if LUA_VERSION_NUM == 501
+	assert(0);
+#elif LUA_VERSION_NUM >= 502
+	return luaL_testudata(LuaState_to_lua_State(this), ud, tname);
+#endif
+}
+
+
+LUAPLUS_INLINE void* LuaState::CheckUData(int ud, const char* tname) {
 	return luaL_checkudata(LuaState_to_lua_State(this), ud, tname);
 }
 
 
-LUAPLUS_INLINE int LuaState::Where(int lvl)
-{
+LUAPLUS_INLINE void LuaState::Where(int lvl) {
 	luaL_where(LuaState_to_lua_State(this), lvl);
-	return LuaStackObject(this, GetTop());
 }
 
 
@@ -850,6 +1255,31 @@ LUAPLUS_INLINE int LuaState::Error(const char* fmt, ...) {
 	va_end(argp);
 	lua_concat(LuaState_to_lua_State(this), 2);
 	return lua_error(LuaState_to_lua_State(this));
+}
+
+
+LUAPLUS_INLINE int LuaState::CheckOption(int narg, const char *def, const char *const lst[]) {
+	return luaL_checkoption(LuaState_to_lua_State(this), narg, def, lst);
+}
+
+
+LUAPLUS_INLINE int LuaState::FileResult(int stat, const char *fname) {
+#if LUA_VERSION_NUM == 501
+	assert(0);
+	return 0;
+#elif LUA_VERSION_NUM >= 502
+	return luaL_fileresult(LuaState_to_lua_State(this), stat, fname);
+#endif
+}
+
+
+LUAPLUS_INLINE int LuaState::ExecResult(int stat) {
+#if LUA_VERSION_NUM == 501
+	assert(0);
+	return 0;
+#elif LUA_VERSION_NUM >= 502
+	return luaL_execresult(LuaState_to_lua_State(this), stat);
+#endif
 }
 
 
@@ -877,11 +1307,6 @@ LUAPLUS_INLINE const char* LuaState::GSub(const char *s, const char *p, const ch
 }
 
 
-LUAPLUS_INLINE const char* LuaState::FindTable(int idx, const char *fname, int szhint)
-{
-	return luaL_findtable(LuaState_to_lua_State(this), idx, fname, szhint);
-}
-
 
 LUAPLUS_INLINE LuaStackObject LuaState::PushCClosure(int (*f)(LuaState*), int n)
 {
@@ -904,7 +1329,7 @@ LUAPLUS_INLINE LuaObject LuaState::GetMetatable(const char* metatableName) {
 }
 
 
-LUAPLUS_INLINE int LuaState::UpValueIndex(int i)
+LUAPLUS_INLINE int LuaState::UpvalueIndex(int i)
 {
 	return lua_upvalueindex(i);
 }
@@ -1006,12 +1431,13 @@ inline int pmain (lua_State *L)
 **/
 inline void LuaState::OpenLibs()
 {
-#if LUAPLUS_INCLUDE_STANDARD_LIBRARY
+//#if LUAPLUS_INCLUDE_STANDARD_LIBRARY
 	lua_State* L = LuaState_to_lua_State(this);
 	int top = lua_gettop(L);
-	lua_cpcall(LuaState_to_lua_State(this), &pmain, NULL);
+	lua_pushcfunction(L, &pmain);
+	lua_pcall(L, 0, 0, 0);
 	lua_settop(L, top);
-#endif // LUAPLUS_INCLUDE_STANDARD_LIBRARY
+//#endif // LUAPLUS_INCLUDE_STANDARD_LIBRARY
 }
 
 } // namespace LuaPlus
