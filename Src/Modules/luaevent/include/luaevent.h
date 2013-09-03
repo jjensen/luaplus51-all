@@ -6,7 +6,7 @@
 #include <lua.h>
 
 /* Workarounds for Lua 5.2 */
-#if (LUA_VERSION_NUM == 502)
+#if (LUA_VERSION_NUM >= 502)
 
 #undef lua_equal
 #define lua_equal(L,idx1,idx2) lua_compare(L, (idx1), (idx2), LUA_OPEQ)
