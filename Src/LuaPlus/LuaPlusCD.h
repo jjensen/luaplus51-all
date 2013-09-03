@@ -1717,7 +1717,7 @@ namespace LPCD {
 	}
 
 
-	inline unsigned char* GetFirstUpValueAsUserdata(lua_State* L) {
+	inline unsigned char* GetFirstUpvalueAsUserdata(lua_State* L) {
 		void* buffer;
 
 #ifndef FAST_DISPATCH
@@ -1734,7 +1734,7 @@ namespace LPCD {
 	class DirectCallFunctionDispatchHelper {
 	public:
 		static inline int DirectCallFunctionDispatcher(lua_State* L) {
- 			unsigned char* buffer = GetFirstUpValueAsUserdata(L);
+ 			unsigned char* buffer = GetFirstUpvalueAsUserdata(L);
 			return Call(*(Func*)(buffer), L, 1);
 		}
 	};
@@ -1744,14 +1744,14 @@ namespace LPCD {
 	class DirectCallMemberDispatcherHelper {
 	public:
 		static inline int DirectCallMemberDispatcher(lua_State* L) {
- 			unsigned char* buffer = GetFirstUpValueAsUserdata(L);
+ 			unsigned char* buffer = GetFirstUpvalueAsUserdata(L);
 			return Call(**(Callee**)buffer, *(Func*)(buffer + sizeof(Callee*)), L, 1);
 		}
 	};
 
 	inline int lua_StateFunctionDispatcher(lua_State* L) {
 		typedef int (*Functor)(lua_State*);
- 		unsigned char* buffer = GetFirstUpValueAsUserdata(L);
+ 		unsigned char* buffer = GetFirstUpvalueAsUserdata(L);
 		Functor& func = *(Functor*)(buffer);
 		return (*func)(L);
 	}
@@ -1762,7 +1762,7 @@ namespace LPCD {
 	public:
 		static inline int lua_StateMemberDispatcher(lua_State* L) {
 			typedef int (Callee::*Functor)(lua_State*);
- 			unsigned char* buffer = GetFirstUpValueAsUserdata(L);
+ 			unsigned char* buffer = GetFirstUpvalueAsUserdata(L);
 			Callee& callee = **(Callee**)buffer;
 			Functor& func = *(Functor*)(buffer + sizeof(Callee*));
 			return (callee.*func)(L);
@@ -1870,7 +1870,7 @@ namespace LPCD {
 	public:
 		static inline int Object_MemberDispatcher(lua_State* L) {
 			typedef int (Callee::*Functor)(lua_State*);
- 			unsigned char* buffer = GetFirstUpValueAsUserdata(L);
+ 			unsigned char* buffer = GetFirstUpvalueAsUserdata(L);
 			Functor& func = *(Functor*)(buffer);
 			Callee& callee = *(Callee*)GetObjectUserdata(L);
 			return (callee.*func)(L);
@@ -1881,7 +1881,7 @@ namespace LPCD {
 	class DirectCallObjectMemberDispatcherHelper {
 	public:
 		static inline int DirectCallMemberDispatcher(lua_State* L) {
- 			unsigned char* buffer = GetFirstUpValueAsUserdata(L);
+ 			unsigned char* buffer = GetFirstUpvalueAsUserdata(L);
 			Callee& callee = *(Callee*)GetObjectUserdata(L);
 			return Call(callee, *(Func*)buffer, L, startIndex);
 		}
@@ -1891,7 +1891,7 @@ namespace LPCD {
 	class DirectCallInPlaceObjectMemberDispatcherHelper {
 	public:
 		static inline int DirectCallMemberDispatcher(lua_State* L) {
- 			unsigned char* buffer = GetFirstUpValueAsUserdata(L);
+ 			unsigned char* buffer = GetFirstUpvalueAsUserdata(L);
 			Callee& callee = *(Callee*)GetInPlaceObjectUserdata(L);
 			return Call(callee, *(Func*)buffer, L, startIndex);
 		}

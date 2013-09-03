@@ -25,7 +25,7 @@ namespace LPCD
 
 	inline int LuaStateFunctionDispatcher(lua_State* L) {
 		typedef int (*Functor)(LuaPlus::LuaState*);
-		unsigned char* buffer = LPCD::GetFirstUpValueAsUserdata(L);
+		unsigned char* buffer = LPCD::GetFirstUpvalueAsUserdata(L);
 		Functor& func = *(Functor*)(buffer);
  		return (*func)(lua_State_to_LuaState(L));
 	}
@@ -35,7 +35,7 @@ namespace LPCD
 	public:
 		static inline int LuaStateMemberDispatcher(lua_State* L) {
 			typedef int (Callee::*Functor)(LuaPlus::LuaState*);
- 			unsigned char* buffer = LPCD::GetFirstUpValueAsUserdata(L);
+            unsigned char* buffer = LPCD::GetFirstUpvalueAsUserdata(L);
 			Callee& callee = **(Callee**)buffer;
 			Functor& func = *(Functor*)(buffer + sizeof(Callee*));
 			return (callee.*func)(lua_State_to_LuaState(L));
@@ -47,7 +47,7 @@ namespace LPCD
 	public:
 		static inline int Object_MemberDispatcher_to_LuaState(lua_State* L) {
 			typedef int (Callee::*Functor)(LuaPlus::LuaState*);
- 			unsigned char* buffer = GetFirstUpValueAsUserdata(L);
+            unsigned char* buffer = GetFirstUpvalueAsUserdata(L);
 			Functor& func = *(Functor*)(buffer);
 			Callee& callee = *(Callee*)GetObjectUserdata(L);
 			return (callee.*func)(lua_State_to_LuaState(L));
