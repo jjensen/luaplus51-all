@@ -1,12 +1,23 @@
 # Download instructions
 {
-	actions screenoutput Download:curl {
-		cd "$(SOURCE_DIR:P)"
-		del $(URL:BS)
-		rem curl -s -O $(URL)
-		wget $(URL)
-		unzip $(URL:BS)
-		del $(URL:BS)
+
+	if $(NT) {
+		actions screenoutput Download:curl {
+			cd "$(SOURCE_DIR:P)"
+			del $(URL:BS)
+			rem curl -s -O $(URL)
+			wget $(URL)
+			unzip $(URL:BS)
+			del $(URL:BS)
+		}
+	} else {
+		actions screenoutput Download:curl {
+			cd "$(SOURCE_DIR:P)"
+			rm $(URL:BS)
+			wget $(URL)
+			unzip $(URL:BS)
+			rm $(URL:BS)
+		}
 	}
 
 	rule Download-curl TARGET : URL : ZIP_DIR {
