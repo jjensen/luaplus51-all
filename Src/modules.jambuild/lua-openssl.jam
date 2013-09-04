@@ -1,0 +1,45 @@
+{
+
+local SRCS =
+        src/auxiliar.c
+        src/auxiliar.h
+        src/bio.c
+        src/cipher.c
+        src/conf.c
+        src/crl.c
+        src/csr.c
+        src/digest.c
+        src/ec_lcl.h
+        src/misc.c
+        src/oids.txt
+        src/openssl.c
+        src/openssl.h
+        src/ots.c
+        src/pkcs7.c
+        src/pkcs12.c
+        src/pkey.c
+        src/sk.h
+        src/sk_x509.c
+        src/x509.c
+;
+
+ActiveTarget lua-openssl ;
+
+if $(MSVCNT)  &&  $(PLATFORM) in win32 win64 {
+	if $(PLATFORM) = win32 {
+	    C.Defines : _WIN32 ;
+		C.IncludeDirectories : c:/OpenSSL-Win32/include c:/OpenSSL-Win32/include/openssl ;
+		C.LinkDirectories : c:/OpenSSL-Win32/lib/VC/static ;
+	} else {
+		C.IncludeDirectories : c:/OpenSSL-Win64/include c:/OpenSSL-Win64/include/openssl ;
+		C.LinkDirectories : c:/OpenSSL-Win64/lib/VC/static ;
+	}
+
+	C.LinkPrebuiltLibraries : libeay32MT ssleay32MT advapi32 gdi32 user32 ;
+} else {
+}
+
+Lua.CModule lua-openssl : openssl : $(SRCS) ;
+
+}
+
