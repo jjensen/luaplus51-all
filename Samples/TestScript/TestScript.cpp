@@ -1385,7 +1385,7 @@ void WeakTableTest()
 
 extern "C"
 {
-#include "LuaPlus/src/lualib.h"
+#include "lualib.h"
 }
 
 void MiniTest()

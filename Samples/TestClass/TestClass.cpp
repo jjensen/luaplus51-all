@@ -1,7 +1,7 @@
 #include "LuaPlus/LuaPlus.h"
 using namespace LuaPlus;
 #include <string>
-#include "LuaPlus/src/lstate.h"
+#include "lstate.h"
 
 namespace LPCD
 {

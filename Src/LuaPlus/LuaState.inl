@@ -990,7 +990,7 @@ inline LuaObject LuaState::GetLocalByName( int level, const char* name )
 } // namespace LuaPlus
 
 extern "C" {
-#include "src/lualib.h"
+#include "lualib.h"
 }
 
 namespace LuaPlus {

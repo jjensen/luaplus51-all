@@ -1,7 +1,7 @@
 #include "LuaPlus/LuaPlus.h"
 using namespace LuaPlus;
 extern "C" {
-#include "LuaPlus/src/lualib.h"
+#include "lualib.h"
 }
 //#include <math.h>
 //#include <assert.h>

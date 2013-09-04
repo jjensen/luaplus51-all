@@ -393,7 +393,7 @@ static int luaB_xpcall (lua_State *L) {
 }
 
 #if LUAPLUS_DUMPOBJECT
-LUA_EXTERN_C void luaplus_dumptable(lua_State* L, int index);
+extern void luaplus_dumptable(lua_State* L, int index);
 #endif
 
 

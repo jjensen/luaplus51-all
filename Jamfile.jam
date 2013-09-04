@@ -5,19 +5,22 @@ SubDir LUAPLUS ;
 Workspace LuaPlus :
 		lua
 		luac
-		LuaPlusStatic
+		$(LUA_VERSION)-static
 ;
 
 SubIncludeRelative Src LuaPlus : LuaPlusSharedLib ;
 SubIncludeRelative Src LuaPlus : LuaPlusStaticLib ;
-SubIncludeRelative Tools Lua Lua ;
-SubIncludeRelative Tools Lua LuaC ;
+SubIncludeRelative Src LuaPlus : Lua ;
+SubIncludeRelative Src LuaPlus : LuaC ;
 
 if $(OS) = NT
 {
 	SubInclude LUAPLUS Src ManagedLuaPlus : ManagedLuaPlus ;
 #	SubInclude LUAPLUS Src ManagedLuaPlus : LuaPlusClrPure ;
-	SubInclude LUAPLUS Src Lua51Proxy : Lua51Proxy ;
+
+    if $(LUA_VERSION) in lua51 lua51-luaplus {
+        SubInclude LUAPLUS Src Lua51Proxy : Lua51Proxy ;
+    }
 	SubInclude LUAPLUS Tools LuaPlusDebuggerAddin ;
 
 	Workspace LuaPlus :

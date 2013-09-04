@@ -10,10 +10,10 @@
 #ifndef LUAPLUS__LUAPLUSCD_H
 #define LUAPLUS__LUAPLUSCD_H
 
-LUA_EXTERN_C_BEGIN
-#include "src/lua.h"
-#include "src/lauxlib.h"
-LUA_EXTERN_C_END
+extern "C" {
+#include "lua.h"
+#include "lauxlib.h"
+}
 
 #include <stdlib.h>
 #include <string.h>

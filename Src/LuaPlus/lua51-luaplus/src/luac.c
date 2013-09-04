@@ -1,5 +1,5 @@
 /*
-** $Id: luac.c,v 1.52 2005/11/11 14:03:13 lhf Exp $
+** $Id: luac.c,v 1.54 2006/06/02 17:37:11 lhf Exp $
 ** Lua compiler (saves bytecodes to files; also list bytecodes)
 ** See Copyright Notice in lua.h
 */
@@ -72,6 +72,7 @@ static void usage(const char* message)
 static int doargs(int argc, char* argv[])
 {
  int i;
+ int version=0;
  if (argv[0]!=NULL && *argv[0]!=0) progname=argv[0];
  for (i=1; i<argc; i++)
  {
@@ -80,15 +81,11 @@ static int doargs(int argc, char* argv[])
   else if (IS("--"))			/* end of options; skip it */
   {
    ++i;
+   if (version) ++version;
    break;
   }
   else if (IS("-"))			/* end of options; use stdin */
    break;
-  else if (IS("-e"))			/* endian */
-  {
-   endian=argv[++i][0];
-   if (endian != '=' && endian != '<' && endian != '>') usage("`-e' is not of the correct type");
-  }
   else if (IS("-l"))			/* list */
    ++listing;
   else if (IS("-o"))			/* output file */
@@ -102,10 +99,7 @@ static int doargs(int argc, char* argv[])
   else if (IS("-s"))			/* strip debug information */
    stripping=1;
   else if (IS("-v"))			/* show version */
-  {
-   printf("%s  %s\n",LUA_VERSION,LUA_COPYRIGHT);
-   if (argc==2) exit(EXIT_SUCCESS);
-  }
+   ++version;
   else					/* unknown option */
    usage(argv[i]);
  }
@@ -113,6 +107,11 @@ static int doargs(int argc, char* argv[])
  {
   dumping=0;
   argv[--i]=Output;
+ }
+ if (version)
+ {
+  printf("%s  %s\n",LUA_RELEASE,LUA_COPYRIGHT);
+  if (version==argc-1) exit(EXIT_SUCCESS);
  }
  return i;
 }

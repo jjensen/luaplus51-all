@@ -1,3 +1,5 @@
+LUA_VERSION ?= lua51-luaplus ;
+
 ###############################################################################
 # Set these if the user didn't use jam --workspace.
 #ALL_LOCATE_TARGET ?= [ FSubDirPath LUAPLUS obj $(COMPILER.$(PLATFORM)) temp-$(PLATFORM)-$(CONFIG) ] ;
@@ -8,6 +10,9 @@ DEPCACHE ?= standard ;
 
 #LUAPLUS_OUTPUT_DIRECTORY ?= [ FSubDirPath LUAPLUS bin.$(C.COMPILER).$(PLATFORM) ] ;
 LUAPLUS_OUTPUT_DIRECTORY ?= $(LUAPLUS)/bin.$(C.COMPILER).$(PLATFORM) ;
+
+LUA_SOURCE_DIRECTORY_NAME = $(LUA_VERSION) ;
+LUAPLUS_INCLUDE_DIRECTORIES = $(LUAPLUS)/Src $(LUAPLUS)/Src/LuaPlus/$(LUA_SOURCE_DIRECTORY_NAME)/src ;
 
 IncludeModule copyfile ;
 
@@ -36,7 +41,9 @@ rule LuaPlusFixUpTarget TARGET
 ###############################################################################
 
 if $(OS) = NT {
-	LUA_CDIR = $(LUAPLUS_OUTPUT_DIRECTORY)/modules ;
+	if $(LUA_VERSION) in lua51-luaplus {
+		LUA_CDIR = $(LUAPLUS_OUTPUT_DIRECTORY)/modules ;
+	}
 	LUA_LDIR = $(LUAPLUS_OUTPUT_DIRECTORY)/lua ;
 } else {
 	LUA_CDIR = $(LUAPLUS_OUTPUT_DIRECTORY)/lib/lua/5.1 ;
@@ -51,10 +58,10 @@ rule LuaPlus.CModule TARGET : OUTPUT_NAME : SOURCES : MODULES_SUBDIR {
 	Depends all : $(TARGET) ;
 
 	LuaPlusDefines $(TARGET) ;
-	C.IncludeDirectories $(TARGET) : "$(LUAPLUS)/Src" "$(LUAPLUS)/Src/LuaPlus/src" ;
+	C.IncludeDirectories $(TARGET) : $(LUAPLUS_INCLUDE_DIRECTORIES) ;
 
 	if $(OS) != MACOSX  &&  $(OS) != LINUX {
-		C.LinkLibraries $(TARGET) : lua51 ;
+		C.LinkLibraries $(TARGET) : $(LUA_VERSION) ;
 	}
 
 	OUTPUT_NAME ?= $(TARGET) ;
@@ -94,10 +101,10 @@ rule Lua.CModule TARGET : OUTPUT_NAME : SOURCES : MODULES_SUBDIR {
 	Depends all : $(TARGET) ;
 
 	LuaPlusDefines $(TARGET) ;
-	C.IncludeDirectories $(TARGET) : "$(LUAPLUS)/Src/LuaPlus/src" ;
+	C.IncludeDirectories $(TARGET) : $(LUAPLUS_INCLUDE_DIRECTORIES) ;
 
 	if $(OS) != MACOSX  &&  $(OS) != LINUX {
-		C.LinkLibraries $(TARGET) : lua51 ;
+		C.LinkLibraries $(TARGET) : $(LUA_VERSION) ;
 	}
 
 	OUTPUT_NAME ?= $(TARGET) ;

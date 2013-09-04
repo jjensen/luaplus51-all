@@ -8,8 +8,8 @@
 // acceptable to use Lua.
 ///////////////////////////////////////////////////////////////////////////////
 #include <string.h>
-#include "src/lua.h"
-#include "src/lauxlib.h"
+#include "lua.h"
+#include "lauxlib.h"
 #include <assert.h>
 
 #if LUA_STRING_FORMAT_EXTENSIONS

@@ -13,8 +13,8 @@ local SRCS =
 		TestUnicode.lua
 ;
 
-C.IncludeDirectories MinimalTestLib : $(LUAPLUS)/Src ;
-C.LinkLibraries MinimalTestLib : LuaPlusStatic ;
+C.IncludeDirectories MinimalTestLib : $(LUAPLUS_INCLUDE_DIRECTORIES) ;
+C.LinkLibraries MinimalTestLib : $(LUA_VERSION)-static ;
 
 C.Application MinimalTestLib : $(SRCS) ;
 

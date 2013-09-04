@@ -1,10 +1,10 @@
-SubDir LUAPLUS Tools Lua LuaC ;
+SubDir LUAPLUS Src LuaPlus ;
 
 {
 
 local SRCS =
-		luac.c
-		../../../Src/LuaPlus/src/print.c
+		$(LUA_VERSION)/src/luac.c
+		$(LUA_SOURCE_DIRECTORY_NAME)/src/print.c
 ;
 
 rule LuaCApplication TARGET {
@@ -12,8 +12,8 @@ rule LuaCApplication TARGET {
 
 	SubInclude LUAPLUS Src LuaPlus : LuaPlusStaticLib ;
 
-	C.IncludeDirectories $(TARGET) : $(LUAPLUS)/Src/LuaPlus/src ;
-	C.LinkLibraries $(TARGET) : LuaPlusStatic ;
+	C.IncludeDirectories $(TARGET) : $(LUAPLUS_INCLUDE_DIRECTORIES) ;
+	C.LinkLibraries $(TARGET) : $(LUA_VERSION)-static ;
 	LuaPlusFixUpTarget $(TARGET) ;
 	local exe = [ C.Application $(TARGET) : $(SRCS) ] ;
 	NoWorkspace $(TARGET) ;

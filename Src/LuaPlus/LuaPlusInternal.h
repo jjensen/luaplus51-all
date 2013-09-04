@@ -11,8 +11,8 @@
 #define LUAPLUS__LUAPLUSINTERNAL_H
 
 extern "C" {
-#include "src/lua.h"
-#include "src/lauxlib.h"
+#include "lua.h"
+#include "lauxlib.h"
 }
 
 #define LUAPLUS_INLINE inline

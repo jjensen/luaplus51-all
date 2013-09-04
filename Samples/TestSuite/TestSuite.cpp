@@ -561,7 +561,7 @@ TEST(LuaState_GetGlobals)
 	LuaStateOwner state(false);
 	lua_State* L = state->GetCState();
 	lua_pushvalue(L, LUA_GLOBALSINDEX);
-	state->GetGlobals().Push();
+	state->GetGlobals().Push(state);
 	CHECK(lua_equal(L, -1, -2));
 }
 
@@ -592,7 +592,7 @@ TEST(LuaState_GetRegistry)
 	LuaStateOwner state(false);
 	lua_State* L = state->GetCState();
 	lua_pushvalue(L, LUA_REGISTRYINDEX);
-	state->GetRegistry().Push();
+	state->GetRegistry().Push(state);
 	CHECK(lua_equal(L, -1, -2));
 }
 
@@ -1546,10 +1546,10 @@ TEST(LuaObject_PushStack)
 	LuaStateOwner state;
 	LuaObject stringObj(state);
 	stringObj.Assign(state, "Test");
-	stringObj.Push();
+	stringObj.Push(state);
     LuaStackObject stackObj = state->StackTop();
 	CHECK(state->GetTop() == 1);
-	stringObj.Push();
+	stringObj.Push(state);
     LuaStackObject stack2Obj = state->StackTop();
 	CHECK(state->GetTop() == 2);
 	CHECK(stackObj == stack2Obj);
@@ -1725,7 +1725,7 @@ TEST(LuaObject_DirectFunctionCall)
 	LuaObject addObj = state->GetGlobals()["Add"];
 	LuaFunction<int> addFunction = addObj;
 	LuaObject addPrintObj = state->GetGlobals()["AddPrint"];
-	LuaFunction<void> addPrintFunction = addPrintObj;
+	LuaFunctionVoid addPrintFunction = addPrintObj;
 	LuaObject mulObj = state->GetGlobals()["Mul"];
 	LuaFunction<float> mulFunction = mulObj;
 
@@ -1786,7 +1786,7 @@ TEST(LuaObject_DirectFunctionRegister)
 	LuaObject addObj = state->GetGlobals()["Add"];
 	LuaFunction<int> addFunction = addObj;
 	LuaObject addPrintObj = state->GetGlobals()["AddPrint"];
-	LuaFunction<void> addPrintFunction = addPrintObj;
+	LuaFunctionVoid addPrintFunction = addPrintObj;
 	LuaObject mulObj = state->GetGlobals()["Mul"];
 	LuaFunction<float> mulFunction = mulObj;
 	
