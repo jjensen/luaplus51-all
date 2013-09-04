@@ -1,4 +1,17 @@
+if ! $(LUA_VERSION) {
+    local dirs = [ Glob $(LUAPLUS)/Src/LuaPlus : */ : 1 ] ;
+    dirs = $(dirs:P) ;
+    dirs = $(dirs:B) ;
+    Echo LUA_VERSION needs to be passed in from the command-line. ;
+    Echo ;
+    Echo "    jam LUA_VERSION=lua51-luaplus" ;
+    Echo ;
+    Echo "Available versions:" $(dirs) ;
+    Exit ;
+}
+
 LUA_VERSION ?= lua51-luaplus ;
+
 
 ###############################################################################
 # Set these if the user didn't use jam --workspace.
