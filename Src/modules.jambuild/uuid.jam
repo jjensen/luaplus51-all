@@ -1,22 +1,29 @@
 {
 
-local SRCS =
-		luuid.c
-;
+local foundUuid = 1 ;
+if $(OS) = LINUX {
+	foundUuid = [ Glob /usr/include/uuid : uuid.h ] ;
+}
 
-if $(NT)
-{
-	SRCS +=
-			wuuid.c
-			wuuid.h
+if ! $(foundUuid) {
+	Echo * Not building uuid, because uuid.h is not installed. ;
+} else {
+
+	local SRCS =
+			luuid.c
 	;
-	C.LinkPrebuiltLibraries uuid : rpcrt4 ;
-}
-else if $(OS) = LINUX
-{
-	C.LinkPrebuiltLibraries uuid : uuid ;
-}
 
-Lua.CModule uuid : : $(SRCS) ;
+	if $(NT) {
+		SRCS +=
+				wuuid.c
+				wuuid.h
+		;
+		C.LinkPrebuiltLibraries uuid : rpcrt4 ;
+	} else if $(OS) = LINUX {
+		C.LinkPrebuiltLibraries uuid : uuid ;
+	}
+
+	Lua.CModule uuid : : $(SRCS) ;
+}
 
 }
