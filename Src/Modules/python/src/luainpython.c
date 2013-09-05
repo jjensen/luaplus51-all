@@ -561,17 +561,11 @@ PyMODINIT_FUNC PyInit_lua(void)
 						strcpy(slashptr, buffer);
 
 					len = strlen(filename);
-#ifdef _DEBUG
-					strcpy(filename + len, "luaplus51-1201_debug.dll");
-#else
-					strcpy(filename + len, "luaplus51-1201.dll");
-#endif
-					LoadLibrary(filename);
 
 #ifdef _DEBUG
-					strcpy(filename + len, "lua5.1.debug.dll");
+					strcpy(filename + len, "lua51_debug.dll");
 #else
-					strcpy(filename + len, "lua5.1.dll");
+					strcpy(filename + len, "lua51.dll");
 #endif
 					LoadLibrary(filename);
 				}
