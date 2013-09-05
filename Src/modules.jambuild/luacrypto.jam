@@ -1,4 +1,8 @@
-{
+IncludeModule c/openssl ;
+if ! [ C.UseOpenSSL : test ] {
+	Echo * Not building luacrypto, because OpenSSL is not installed. ;
+
+} else {
 
 local SRCS =
 	src/lcrypto.c
@@ -8,22 +12,11 @@ local SRCS =
 if $(MSVCNT)  &&  $(PLATFORM) in win32 win64 {
 	C.Defines luacrypto : "LUACRYPTO_API=__declspec(dllexport)" ;
 
-	if $(PLATFORM) = win32 {
-		C.IncludeDirectories luacrypto : c:/OpenSSL-Win32/include c:/OpenSSL-Win32/include/openssl ;
-		C.LinkDirectories luacrypto : c:/OpenSSL-Win32/lib/VC/static ;
-	} else {
-		C.IncludeDirectories luacrypto : c:/OpenSSL-Win64/include c:/OpenSSL-Win64/include/openssl ;
-		C.LinkDirectories : luacrypto c:/OpenSSL-Win64/lib/VC/static ;
-	}
-
-	C.LinkPrebuiltLibraries luacrypto : libeay32MT ssleay32MT advapi32 gdi32 user32 ;
-
-	C.LinkPrebuiltLibraries luacrypto : libeay32MD ssleay32MD ;
 } else {
 	C.Defines luacrypto : LUACRYPTO_API= ;
-	C.LinkPrebuiltLibraries luacrypto : crypto ssl ;
 }
 
+C.UseOpenSSL luacrypto : link ;
 Lua.CModule luacrypto : crypto : $(SRCS) ;
 
 }
