@@ -1,19 +1,30 @@
 {
 
-local SRCS =
-		src/lualdap.c
-;
-
-if $(NT)
-{
-	C.Defines lualdap : WIN32 WINLDAP ;
-	C.LinkPrebuiltLibraries lualdap : wldap32 ;
-}
-else if $(OS) = LINUX
-{
-#	C.LinkPrebuiltLibraries lualdap : uuid ;
+local foundLdap = 1 ;
+if $(OS) = LINUX {
+	foundLdap = [ Glob /usr/include : ldap.h ] ;
 }
 
-Lua.CModule lualdap : : $(SRCS) ;
+if ! $(foundLdap) {
+	Echo * Not building lualdap, because ldap.h is not installed. ;
+} else {
+
+	local SRCS =
+			src/lualdap.c
+	;
+
+	if $(NT)
+	{
+		C.Defines lualdap : WIN32 WINLDAP ;
+		C.LinkPrebuiltLibraries lualdap : wldap32 ;
+	}
+	else if $(OS) = LINUX
+	{
+	#	C.LinkPrebuiltLibraries lualdap : uuid ;
+	}
+
+	Lua.CModule lualdap : : $(SRCS) ;
+
+}
 
 }
