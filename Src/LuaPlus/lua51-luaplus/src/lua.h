@@ -420,10 +420,6 @@ LUA_API void lua_getfastref (lua_State *L, int ref);
 * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ******************************************************************************/
 
-#define LUA_ALLOC_TEMP 1
-LUA_API void lua_getdefaultallocfunction(lua_Alloc* allocFunc, void** ud);
-LUA_API void lua_setdefaultallocfunction(lua_Alloc reallocFunc, void* ud);
-
 # define lua_boxpointer(L,u) \
         (*(void **)(lua_newuserdata(L, sizeof(void *))) = (u))
 
