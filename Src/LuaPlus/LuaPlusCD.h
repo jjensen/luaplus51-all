@@ -2247,47 +2247,38 @@ inline void lpcd_propertycreate(lua_State* L, int metatableIndex, const char* va
 
 
 inline void* lpcd_checkobject(lua_State* L, int index, const char* tname, bool throwError = true) {
-	int wrappingType = lua_type(L, index);
-	bool isTable = lua_type(L, index) == LUA_TTABLE;
-	if (isTable) {
-		lua_getfield(L, index, "__object");
-		index = lpcd_abs_index(L, -1);
-	}
-	void *p = lua_touserdata(L, index);
-	if (p != NULL) {  /* value is a userdata? */
-		if (lua_getmetatable(L, index)) {  /* does it have a metatable? */
-			if (tname) {
-				lua_getfield(L, LUA_REGISTRYINDEX, tname);  /* get correct metatable */
-				if (lua_rawequal(L, -1, -2)) {  /* does it have the correct mt? */
-					lua_pop(L, 2);  /* remove both metatables */
-					if (isTable)
-						lua_pop(L, 1);
-					return p;
-				}
-			}
-			if (throwError) {
-                const char *msg = lua_pushfstring(L, "%s expected, got %s", tname, luaL_typename(L, index));
-                luaL_argerror(L, index, msg);
-			}
-			return NULL;
-		} else {
-			if (isTable)
-				lua_pop(L, 1);
-			return p;
-		}
-	} else {
-		if (throwError) {
-			const char *msg = lua_pushfstring(L, "%s expected, got %s", tname, luaL_typename(L, index));
-			luaL_argerror(L, index, msg);
-		} else {
-			if (isTable)
-				lua_pop(L, 1);
-			return NULL;
-		}
-	}
+	assert(tname);
 
-	if (isTable)
+	int type = lua_type(L, index);
+	if (type == LUA_TTABLE) {
+		lua_getfield(L, index, "__object");
+		if (lua_getmetatable(L, -1)) {  /* does it have a metatable? */
+			lua_getfield(L, LUA_REGISTRYINDEX, tname);  /* get correct metatable */
+			int equal = lua_rawequal(L, -1, -2);	/* does it have the correct mt? */
+			lua_pop(L, 2);  /* remove both metatables */
+			if (!equal) {
+				lua_pop(L, 1);
+				goto error;
+			}
+		}
+		void *p = lua_touserdata(L, -1);
 		lua_pop(L, 1);
+		return p;
+	} else if (type == LUA_TUSERDATA) {
+		if (lua_getmetatable(L, index)) {  /* does it have a metatable? */
+			lua_getfield(L, LUA_REGISTRYINDEX, tname);  /* get correct metatable */
+			int equal = lua_rawequal(L, -1, -2);	/* does it have the correct mt? */
+			lua_pop(L, 2);  /* remove both metatables */
+			if (!equal)
+				goto error;
+		}
+		return lua_touserdata(L, index);
+	}
+error:
+	if (throwError) {
+		const char *msg = lua_pushfstring(L, "%s expected, got %s", tname, luaL_typename(L, index));
+		luaL_argerror(L, index, msg);
+	}
 	return NULL;
 }
 
