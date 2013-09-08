@@ -110,7 +110,14 @@ int MONSTER_new(LuaState* state){
 
 
 MONSTER* get_MONSTER(const LuaObject& monsterObj) {
-	return *(MONSTER**)lpcd_checkobject(monsterObj.GetCState(), monsterObj.GetRef(), "MONSTER");
+#if LUA_FASTREF_SUPPORT
+	return (MONSTER*)lpcd_checkobject(monsterObj.GetCState(), monsterObj.GetRef(), "MONSTER");
+#else
+	monsterObj.Push(monsterObj.GetState());
+	MONSTER* monster = (MONSTER*)lpcd_checkobject(monsterObj.GetCState(), -1, "MONSTER");
+	monsterObj.GetState()->Pop();
+	return monster;
+#endif
 }
 
 
