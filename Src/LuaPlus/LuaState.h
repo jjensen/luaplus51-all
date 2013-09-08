@@ -38,6 +38,8 @@ public:
 	///////////////////////////////////////////////////////////////////////////
 	static LuaState* Create();
 	static LuaState* Create(bool initStandardLibrary);
+	static LuaState* Create(lua_Alloc allocFunction, void* userdata);
+	static LuaState* Create(lua_Alloc allocFunction, void* userdata, bool initStandardLibrary);
 	static LuaObject CreateThread(LuaState* parentState);
 	static void Destroy(LuaState* state);
 
@@ -404,6 +406,14 @@ public:
 
     LuaStateOwner(bool initStandardLibrary) {
 		m_state = LuaState::Create(initStandardLibrary);
+	}
+
+    LuaStateOwner(lua_Alloc allocFunction, void* userdata) {
+		m_state = LuaState::Create(allocFunction, userdata);
+	}
+
+    LuaStateOwner(lua_Alloc allocFunction, void* userdata, bool initStandardLibrary) {
+		m_state = LuaState::Create(allocFunction, userdata, initStandardLibrary);
 	}
 
     LuaStateOwner(LuaState* newState) : LuaStateAuto(newState) {}

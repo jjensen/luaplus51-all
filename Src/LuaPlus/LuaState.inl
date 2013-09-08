@@ -29,11 +29,27 @@ LUAPLUS_INLINE /*static*/ LuaState* LuaState::Create()
 
 LUAPLUS_INLINE /*static*/ LuaState* LuaState::Create(bool initStandardLibrary)
 {
-	LuaState* state = LuaState::Create();
+	LuaState* state = lua_State_to_LuaState(luaL_newstate());
 	if (initStandardLibrary)
 		state->OpenLibs();
 	return state;
 }
+
+
+LUAPLUS_INLINE /*static*/ LuaState* LuaState::Create(lua_Alloc allocFunction, void* userdata)
+{
+	return lua_State_to_LuaState(lua_newstate(allocFunction, userdata));
+}
+
+
+LUAPLUS_INLINE /*static*/ LuaState* LuaState::Create(lua_Alloc allocFunction, void* userdata, bool initStandardLibrary)
+{
+	LuaState* state = lua_State_to_LuaState(lua_newstate(allocFunction, userdata));
+	if (initStandardLibrary)
+		state->OpenLibs();
+	return state;
+}
+
 
 LUAPLUS_INLINE LuaObject LuaState::CreateThread(LuaState* parentState)
 {
