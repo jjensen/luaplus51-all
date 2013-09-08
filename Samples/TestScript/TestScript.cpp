@@ -514,9 +514,7 @@ void TestGCObject()
 
 	GetMemLogFile().Create("dump.txt");
 
-	lua_setdefaultallocfunction(ReallocFunction, &mainHeap);
-	LuaStateOwner state(false);
-	lua_setdefaultallocfunction(NULL, NULL);
+	LuaStateOwner state(ReallocFunction, &mainHeap);
 	state->GC(LUA_GCCOLLECT, 0);
 
 	heap->LogStats();
@@ -571,9 +569,7 @@ void SetUserdata()
 	GetMemLogFile().Create("dump.txt");
 
 	{
-		lua_setdefaultallocfunction(ReallocFunction, &mainHeap);
-		LuaStateOwner state(false);
-		lua_setdefaultallocfunction(NULL, NULL);
+		LuaStateOwner state(ReallocFunction, &mainHeap);
 		{
 			LuaObject obj(state);
 			obj.AssignNewTable(state);
@@ -593,9 +589,7 @@ void CloneTest()
 
 	GetMemLogFile().Create("dump.txt");
 
-	lua_setdefaultallocfunction(ReallocFunction, &mainHeap);
-	LuaStateOwner state;
-	lua_setdefaultallocfunction(NULL, NULL);
+	LuaStateOwner state(ReallocFunction, &mainHeap);
 
 	LuaObject valueObj(state);
 	valueObj.Assign(state, true);
@@ -723,7 +717,8 @@ void ReadUnicodeFile()
 
 void IntegerTest()
 {
-	LuaStateOwner state(true);
+	LuaStateOwner state;
+	state->OpenLibs();
 	state->DoString("i1 = 10");
 	state->DoString("i2 = 20; f1 = 15.5; f2 = .5");
 	state->DoString("i3 = -10");
@@ -879,9 +874,7 @@ void MemoryTest()
 	GetMemLogFile().Create("dump.txt");
 
 	{
-		lua_setdefaultallocfunction(ReallocFunction, &mainHeap);
-		LuaStateOwner state(true);
-		lua_setdefaultallocfunction(NULL, NULL);
+		LuaStateOwner state(ReallocFunction, &mainHeap);
 		{
 //			state->DoFile("s:\\svndb\\lua-5.0.1\\test\\sieve.lua");
 			DumpIt();
@@ -1125,7 +1118,8 @@ using namespace LuaPlus;
 
 void VectorMonsterMetatableTest()
 {
-	LuaStateOwner state(true);
+	LuaStateOwner state;
+	state->OpenLibs();
 
 	LuaObject vectorMetatableObj = state->GetRegistry().CreateTable("VECTOR"); 
 	LPCD::Metatable_IntegratePropertySupport(vectorMetatableObj); 
@@ -1251,10 +1245,8 @@ void MemoryKeyTest()
 	heap = &mainHeap;
 
 	{
-		lua_setdefaultallocfunction(ReallocFunction, &mainHeap);
-		LuaStateOwner state(false);
+		LuaStateOwner state(ReallocFunction, &mainHeap);
 		mainHeap.IntegrityCheck();
-		lua_setdefaultallocfunction(NULL, NULL);
 
 		LuaObject string1;
 		LuaObject string2;
@@ -1363,7 +1355,8 @@ void MemoryKeyTest()
 
 void WeakTableTest()
 {
-	LuaStateOwner state(true);
+	LuaStateOwner state;
+	state->OpenLibs();
 
 	LuaObject stuffObj = state->GetGlobals().CreateTable("Stuff");
 	{
@@ -1391,7 +1384,8 @@ extern "C"
 
 void MiniTest()
 {
-	LuaStateOwner state(true);
+	LuaStateOwner state;
+	state->OpenLibs();
 	int ret = state->DoString("a = 5");
 
 	LuaObject obj = state->GetGlobals()["a"];
@@ -1483,14 +1477,6 @@ void TestGC()
     while (state->GC(LUA_GCSTEP, 1) != 1)
     {
     }
-}
-
-
-void TestGC2()
-{
-	LuaStateOwner state(true);
-	state->DoString("require 'vdrive'");
-	state->DoString("drive = vdrive.VirtualDrive()");
 }
 
 
@@ -1969,27 +1955,29 @@ void RCTests()
 
 void SimpleConstructor()
 {
-	LuaStateOwner state(true);
+	LuaStateOwner state;
+	state->OpenLibs();
 	state->DoFile("Progression.blua");
 }
 
 
 void TestCoroutine()
 {
-	LuaStateOwner state(true);
+	LuaStateOwner state;
+	state->OpenLibs();
 	state->DoFile("coroutine.lua");
 
 	LuaObject threadObj = LuaState::CreateThread(state);
 	LuaState* threadState = threadObj.GetState();
 	LuaObject functionObj = threadState->GetGlobal("TestCoroutine");
 	functionObj.Push(threadState);
-	int ret = threadState->Resume(NULL, 0);
-	ret = threadState->Resume(NULL, 0);
-	ret = threadState->Resume(NULL, 0);
-	ret = threadState->Resume(NULL, 0);
-	ret = threadState->Resume(NULL, 0);
-	ret = threadState->Resume(NULL, 0);
-	ret = threadState->Resume(NULL, 0);
+	int ret = threadState->Resume((LuaState*)NULL, 0);
+	ret = threadState->Resume((LuaState*)NULL, 0);
+	ret = threadState->Resume((LuaState*)NULL, 0);
+	ret = threadState->Resume((LuaState*)NULL, 0);
+	ret = threadState->Resume((LuaState*)NULL, 0);
+	ret = threadState->Resume((LuaState*)NULL, 0);
+	ret = threadState->Resume((LuaState*)NULL, 0);
 }
 
 
@@ -2008,14 +1996,16 @@ void TestState()
 
 void TestGCLuaScript()
 {
-	LuaStateOwner state(true);
+	LuaStateOwner state;
+	state->OpenLibs();
 //	state->DoFile("testgc.lua");
 }
 
 
 void RefTest()
 {
-	LuaStateOwner state(true);
+	LuaStateOwner state;
+	state->OpenLibs();
 	lua_State *L = *state;
 
 	for (int loop = 0; loop < 3; ++loop)
@@ -2170,7 +2160,8 @@ void RefTest()
 
 void TestSet()
 {
-	LuaStateOwner state(true);
+	LuaStateOwner state;
+	state->OpenLibs();
 	LuaObject tableObj(state->CreateTable());
 	tableObj.RawSetString(1, "Hello");
 }
@@ -2195,7 +2186,6 @@ int __cdecl main(int argc, char* argv[])
 	SetUserdata();
 	WeakTableTest();
     TestGC();
-	TestGC2();
     TestParser();
     MiniTest();
 	MemoryKeyTest();
@@ -2238,7 +2228,8 @@ int __cdecl main(int argc, char* argv[])
 	MultiObjectTest();
 	IntegerTest();
 
-	LuaState* state = LuaState::Create(true);
+	LuaState* state = LuaState::Create();
+	state->OpenLibs();
 
 	DWORD count = GetTickCount();
 	luaL_dostring(*state, "a = true;  if a then print(\"Hi\") end");
