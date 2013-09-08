@@ -12,11 +12,6 @@
 
 #include "LuaPlusInternal.h"
 
-extern "C" {
-LUALIB_API lua_Integer (luaL_checkboolean) (lua_State *L, int narg);
-LUALIB_API lua_Integer (luaL_optboolean) (lua_State *L, int narg, int def);
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 // namespace LuaPlus
 ///////////////////////////////////////////////////////////////////////////////
@@ -189,6 +184,7 @@ public:
 	int YieldK(int nresults, int ctx, lua_CFunction k);
 	int Yield_(int nresults);
 	int Resume(lua_State *from, int narg);
+	int Resume(LuaState *from, int narg);
 	int Status();
 
 	/*

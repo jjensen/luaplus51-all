@@ -681,12 +681,14 @@ LUAPLUS_INLINE void LuaState::SetUservalue(int index)
 #endif
 }
 
-/*TODO
 LUAPLUS_INLINE void LuaState::SetFEnv(int index)
 {
+#if LUA_VERSION_NUM <= 501
 	lua_setfenv(LuaState_to_lua_State(this), index);
+#else
+	assert(0);
+#endif
 }
-*/
 
 // `load' and `call' functions (load and run Lua code)
 LUAPLUS_INLINE void LuaState::CallK(int nargs, int nresults, int ctx, lua_CFunction k) {
@@ -871,6 +873,15 @@ LUAPLUS_INLINE int LuaState::Resume(lua_State *from, int nargs) {
 	return lua_resume(LuaState_to_lua_State(this), nargs);
 #elif LUA_VERSION_NUM >= 502
 	return lua_resume(LuaState_to_lua_State(this), from, nargs);
+#endif
+}
+
+
+LUAPLUS_INLINE int LuaState::Resume(LuaState *from, int nargs) {
+#if LUA_VERSION_NUM == 501
+	return lua_resume(LuaState_to_lua_State(this), nargs);
+#elif LUA_VERSION_NUM >= 502
+	return lua_resume(LuaState_to_lua_State(this), LuaState_to_lua_State(from), nargs);
 #endif
 }
 
@@ -1173,13 +1184,24 @@ LUAPLUS_INLINE lua_Unsigned LuaState::OptUnsigned(int nArg, lua_Unsigned def)
 #endif
 
 
+LUAPLUS_INLINE lua_Integer luaL_checkboolean (lua_State *L, int narg) {
+	lua_Integer d = lua_toboolean(L, narg);
+	if (d == 0 && !lua_isboolean(L, narg)) {  /* avoid extra test when d is not 0 */
+		const char *msg = lua_pushfstring(L, "%s expected, got %s",
+				luaL_typename(L, narg), lua_typename(L, LUA_TBOOLEAN));
+		return luaL_argerror(L, narg, msg);
+	}
+	return d;
+}
+
+
 LUAPLUS_INLINE lua_Integer LuaState::CheckBoolean(int numArg) {
 	return luaL_checkboolean(LuaState_to_lua_State(this), numArg);
 }
 
 
 LUAPLUS_INLINE lua_Integer LuaState::OptBoolean(int nArg, lua_Integer def) {
-	return luaL_optboolean(LuaState_to_lua_State(this), nArg, (int)def);
+	return luaL_opt(LuaState_to_lua_State(this), luaL_checkboolean, nArg, def);
 }
 
 
