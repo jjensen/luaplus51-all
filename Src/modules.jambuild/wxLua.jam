@@ -95,6 +95,7 @@ local SRCS =
 	modules/wxlua/wxlcallb.h
 	modules/wxlua/wxlconsole.h
 	modules/wxlua/wxldefs.h
+	modules/wxlua/wxllua.h
 	modules/wxlua/wxlobject.h
 	modules/wxlua/wxlstate.h
 	modules/wxlua/wxlua.h
@@ -105,6 +106,7 @@ local SRCS =
 	modules/wxlua/wxlbind.cpp
 	modules/wxlua/wxlcallb.cpp
 	modules/wxlua/wxlconsole.cpp
+	modules/wxlua/wxllua.cpp
 	modules/wxlua/wxlobject.cpp
 	modules/wxlua/wxlstate.cpp
 	modules/wxlua/wxlua_bind.cpp

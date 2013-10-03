@@ -1125,9 +1125,9 @@
 <td align="center" bgcolor=#AAFFAA>X
 <td>&nbsp;
 <tr>
-<td>wxFileDropTarget
+<td><a href="#wxFileDropTarget">wxFileDropTarget</a>
 <td align="center" bgcolor=#AAFFAA>X
-<td bgcolor=#FFAAAA>&nbsp;
+<td align="center" bgcolor=#AAFFAA>X
 <td>&nbsp;
 <tr>
 <td><a href="#wxFileHistory">wxFileHistory</a>
@@ -1990,6 +1990,11 @@
 <td align="center" bgcolor=#AAFFAA>X
 <td>&nbsp;
 <tr>
+<td><a href="#wxLuaFileDropTarget">wxLuaFileDropTarget</a>
+<td bgcolor=#FFAAAA>&nbsp;
+<td align="center" bgcolor=#AAFFAA>X
+<td>&nbsp;
+<tr>
 <td><a href="#wxLuaGridTableBase">wxLuaGridTableBase</a>
 <td bgcolor=#FFAAAA>&nbsp;
 <td align="center" bgcolor=#AAFFAA>X
@@ -2016,6 +2021,11 @@
 <td>&nbsp;
 <tr>
 <td><a href="#wxLuaState">wxLuaState</a>
+<td bgcolor=#FFAAAA>&nbsp;
+<td align="center" bgcolor=#AAFFAA>X
+<td>&nbsp;
+<tr>
+<td><a href="#wxLuaTextDropTarget">wxLuaTextDropTarget</a>
 <td bgcolor=#FFAAAA>&nbsp;
 <td align="center" bgcolor=#AAFFAA>X
 <td>&nbsp;
@@ -3140,9 +3150,9 @@
 <td align="center" bgcolor=#AAFFAA>X
 <td>&nbsp;
 <tr>
-<td>wxTextDropTarget
+<td><a href="#wxTextDropTarget">wxTextDropTarget</a>
 <td align="center" bgcolor=#AAFFAA>X
-<td bgcolor=#FFAAAA>&nbsp;
+<td align="center" bgcolor=#AAFFAA>X
 <td>&nbsp;
 <tr>
 <td><a href="#wxTextEntryDialog">wxTextEntryDialog</a>
@@ -6732,7 +6742,7 @@ bool wxEndsWithPathSeparator(const <a href="#wxString">wxString</a>&amp; pszFile
 <font color=#006666>#define wxDIR_DIRS</font><br>
 <font color=#006666>#define wxDIR_HIDDEN</font><br>
 <font color=#006666>#define wxDIR_DOTDOT</font><br>
-<font color=#006666><i>%wxchkver_2_9_4</i> #define wxDIR_NO_FOLLOW</font><br>
+<font color=#006666><i>%wxchkver_2_9_5</i> #define wxDIR_NO_FOLLOW</font><br>
 <font color=#006666>#define wxDIR_DEFAULT</font><br>
 <br>
 <br>
@@ -7988,25 +7998,65 @@ bool wxIsDragResultOk(<a href="#wxDragResult">wxDragResult</a> res );<br>
 </blockquote>};<br>
 <br>
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
-<font color=#009900>// wxFileDropTarget</font><br>
+<font color=#009900>// <a href="#wxFileDropTarget">wxFileDropTarget</a> - Base class only, use a <a href="#wxLuaFileDropTarget">wxLuaFileDropTarget</a> and override the virtuals</font><br>
 <br>
-<font color=#009900>//class wxFileDropTarget : public <a href="#wxDropTarget">wxDropTarget</a> // FIXME implement virtual</font><br>
-<font color=#009900>//{</font><br>
-<font color=#009900>//    wxFileDropTarget( );</font><br>
-<font color=#009900>//    virtual <a href="#wxDragResult">wxDragResult</a> OnData(wxCoord x, wxCoord y, <a href="#wxDragResult">wxDragResult</a> def );</font><br>
-<font color=#009900>//    virtual bool OnDrop(long x, long y, const void *data, size_t size );</font><br>
-<font color=#009900>//    virtual bool OnDropFiles(wxCoord x, wxCoord y,const <a href="#wxArrayString">wxArrayString</a>&amp; filenames );</font><br>
-<font color=#009900>//};</font><br>
+<b><font size=+1 color=#DD0000>class <a href="#wxFileDropTarget">wxFileDropTarget</a> : public <a name="wxDropTarget">wxDropTarget</a></font></b><br>
+{
+<blockquote>
+    <font color=#009900>//<a href="#wxFileDropTarget">wxFileDropTarget</a>( );</font><br>
+    <font color=#009900>//virtual <a href="#wxDragResult">wxDragResult</a> OnData(wxCoord x, wxCoord y, <a href="#wxDragResult">wxDragResult</a> def);</font><br>
+    <font color=#009900>//virtual bool OnDrop(long x, long y, const void *data, size_t size);</font><br>
+    <font color=#009900>//virtual bool OnDropFiles(wxCoord x, wxCoord y,const <a href="#wxArrayString">wxArrayString</a>&amp; filenames);</font><br>
+</blockquote>};<br>
 <br>
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
-<font color=#009900>// wxTextDropTarget</font><br>
+<font color=#009900>// <a href="#wxLuaFileDropTarget">wxLuaFileDropTarget</a></font><br>
 <br>
-<font color=#009900>//class wxTextDropTarget : public <a href="#wxDropTarget">wxDropTarget</a> // FIXME implement virtual</font><br>
-<font color=#009900>//{</font><br>
-<font color=#009900>//    wxTextDropTarget( );</font><br>
-<font color=#009900>//    virtual bool OnDropText(wxCoord x, wxCoord y, const <a href="#wxString">wxString</a>&amp; text );</font><br>
-<font color=#009900>//    virtual <a href="#wxDragResult">wxDragResult</a> OnData(wxCoord x, wxCoord y, <a href="#wxDragResult">wxDragResult</a> def );</font><br>
-<font color=#009900>//};</font><br>
+<b><font size=+1 color=#DD0000>class <a href="#wxLuaFileDropTarget">wxLuaFileDropTarget</a> : public <a name="wxFileDropTarget">wxFileDropTarget</a></font></b><br>
+{
+<blockquote>
+    <a href="#wxLuaFileDropTarget">wxLuaFileDropTarget</a>( );<br>
+<br>
+    <font color=#009900>// Create a Lua function that returns a <a href="#wxDragResult">wxDragResult</a>.</font><br>
+<font color=#BB0055>    <font color=#009900>// <i>%override</i> <a href="#wxDragResult">wxDragResult</a> wxLuaFileDropTarget::OnData(wxCoord x, wxCoord y, <a href="#wxDragResult">wxDragResult</a> def);</font></font><br>
+    <font color=#009900>// C++ Func: virtual <a href="#wxDragResult">wxDragResult</a> OnData(wxCoord x, wxCoord y, <a href="#wxDragResult">wxDragResult</a> def);</font><br>
+    virtual <a href="#wxDragResult">wxDragResult</a> OnData(wxCoord x, wxCoord y, <a href="#wxDragResult">wxDragResult</a> def);<br>
+<br>
+    <font color=#009900>// Create a Lua function that returns a bool.</font><br>
+<font color=#BB0055>    <font color=#009900>// <i>%override</i> bool OnDropFiles(wxCoord x, wxCoord y,const <a href="#wxArrayString">wxArrayString</a>&amp; filenames);</font></font><br>
+    <font color=#009900>// C++ Func: virtual bool OnDropFiles(wxCoord x, wxCoord y,const <a href="#wxArrayString">wxArrayString</a>&amp; filenames);</font><br>
+    virtual bool OnDropFiles(wxCoord x, wxCoord y,const <a href="#wxArrayString">wxArrayString</a>&amp; filenames);<br>
+</blockquote>};<br>
+<br>
+<font color=#009900>// ---------------------------------------------------------------------------</font><br>
+<font color=#009900>// <a href="#wxTextDropTarget">wxTextDropTarget</a> - Base class only, use a <a href="#wxLuaTextDropTarget">wxLuaTextDropTarget</a> and override the virtuals</font><br>
+<br>
+<b><font size=+1 color=#DD0000>class <a href="#wxTextDropTarget">wxTextDropTarget</a> : public <a name="wxDropTarget">wxDropTarget</a></font></b><br>
+{
+<blockquote>
+    <font color=#009900>//<a href="#wxTextDropTarget">wxTextDropTarget</a>( );</font><br>
+    <font color=#009900>//virtual bool OnDropText(wxCoord x, wxCoord y, const <a href="#wxString">wxString</a>&amp; text);</font><br>
+    <font color=#009900>//virtual <a href="#wxDragResult">wxDragResult</a> OnData(wxCoord x, wxCoord y, <a href="#wxDragResult">wxDragResult</a> def);</font><br>
+</blockquote>};<br>
+<br>
+<font color=#009900>// ---------------------------------------------------------------------------</font><br>
+<font color=#009900>// <a href="#wxLuaTextDropTarget">wxLuaTextDropTarget</a></font><br>
+<br>
+<b><font size=+1 color=#DD0000>class <a href="#wxLuaTextDropTarget">wxLuaTextDropTarget</a> : public <a name="wxTextDropTarget">wxTextDropTarget</a></font></b><br>
+{
+<blockquote>
+    <a href="#wxLuaTextDropTarget">wxLuaTextDropTarget</a>( );<br>
+<br>
+    <font color=#009900>// Create a Lua function that returns a <a href="#wxDragResult">wxDragResult</a>.</font><br>
+<font color=#BB0055>    <font color=#009900>// <i>%override</i> <a href="#wxDragResult">wxDragResult</a> OnData(wxCoord x, wxCoord y, <a href="#wxDragResult">wxDragResult</a> def);</font></font><br>
+    <font color=#009900>// C++ Func: virtual <a href="#wxDragResult">wxDragResult</a> OnData(wxCoord x, wxCoord y, <a href="#wxDragResult">wxDragResult</a> def);</font><br>
+    virtual <a href="#wxDragResult">wxDragResult</a> OnData(wxCoord x, wxCoord y, <a href="#wxDragResult">wxDragResult</a> def );<br>
+<br>
+    <font color=#009900>// Create a Lua function that returns a bool.</font><br>
+<font color=#BB0055>    <font color=#009900>// <i>%override</i> bool OnDropText(wxCoord x, wxCoord y, const <a href="#wxString">wxString</a>&amp; text);</font></font><br>
+    <font color=#009900>// C++ Func: virtual bool OnDropText(wxCoord x, wxCoord y, const <a href="#wxString">wxString</a>&amp; text);</font><br>
+    virtual bool OnDropText(wxCoord x, wxCoord y, const <a href="#wxString">wxString</a>&amp; text);<br>
+</blockquote>};<br>
 <br>
 <font color=#009900>// ---------------------------------------------------------------------------</font><br>
 <font color=#009900>// <a href="#wxDropSource">wxDropSource</a></font><br>
@@ -11042,6 +11092,7 @@ int wxMessageBox(const <a href="#wxString">wxString</a>&amp; message, const <a h
     <a href="#wxEvtHandler">wxEvtHandler</a>* GetNextHandler( );<br>
     <a href="#wxEvtHandler">wxEvtHandler</a>* GetPreviousHandler( );<br>
     virtual bool ProcessEvent(<a href="#wxEvent">wxEvent</a>&amp; event );<br>
+    <i>%wxchkver_2_9</i> virtual void QueueEvent(<i>%ungc</i> <a href="#wxEvent">wxEvent</a> *event);<br>
     <font color=#009900>//virtual bool SearchEventTable(wxEventTable&amp; table, <a href="#wxEvent">wxEvent</a>&amp; event );</font><br>
     void SetClientData(voidptr_long number); <font color=#009900>// C++ is (void *clientData) You can put a number here</font><br>
     void SetClientObject(<a href="#wxClientData">wxClientData</a>* data );<br>
@@ -13463,7 +13514,7 @@ typedef void* WXHANDLE<br>
     bool IsOk( );<br>
     void ResetBoundingBox( );<br>
     void SetAxisOrientation(bool xLeftRight, bool yBottomUp );<br>
-    <i>%wxchkver_2_9_4</i> virtual double GetContentScaleFactor() const;<br>
+    <i>%wxchkver_2_9_5</i> virtual double GetContentScaleFactor() const;<br>
     void SetBackground(const <a href="#wxBrush">wxBrush</a>&amp; brush );<br>
     void SetBackgroundMode(int mode );<br>
     void SetBrush(const <a href="#wxBrush">wxBrush</a>&amp; brush );<br>
@@ -14615,6 +14666,10 @@ enum<br>
     static <a href="#wxString">wxString</a> GetImageExtWildcard( );<br>
     unsigned char GetAlpha(int x, int y) const;<br>
     unsigned char GetBlue(int x, int y) const;<br>
+<br>
+<font color=#BB0055>    <font color=#009900>// <i>%override</i> [Lua string] wxImage::GetAlpha() const;</font></font><br>
+    <font color=#009900>// C++ Func: unsigned char* GetAlpha() const;</font><br>
+<font color=#BB0055>    <i>%override_name</i> wxLua_wxImage_GetAlphaData unsigned char* GetAlpha() const;</font><br>
 <br>
 <font color=#BB0055>    <font color=#009900>// <i>%override</i> [Lua string] wxImage::GetData() const;</font></font><br>
     <font color=#009900>// C++ Func: unsigned char* GetData() const;</font><br>
@@ -17711,7 +17766,7 @@ enum<br>
 <br>
     <a href="#wxSize">wxSize</a> GetVirtualSize() const;<br>
     <i>%wxchkver_2_9_4</i> virtual <a href="#wxSize">wxSize</a> GetBestVirtualSize() const;<br>
-    <i>%wxchkver_2_9_4</i> virtual double GetContentScaleFactor() const;    <br>
+    <i>%wxchkver_2_9_5</i> virtual double GetContentScaleFactor() const;    <br>
     long GetWindowStyleFlag() const;<br>
     <a href="#wxWindowVariant">wxWindowVariant</a> GetWindowVariant() const;<br>
     <i>%wxchkver_2_4</i> bool HasCapture() const;<br>
@@ -17778,7 +17833,7 @@ enum<br>
     void SetOwnBackgroundColour(const <a href="#wxColour">wxColour</a>&amp; colour );<br>
     void SetOwnFont(const <a href="#wxFont">wxFont</a>&amp; font );<br>
     void SetOwnForegroundColour(const <a href="#wxColour">wxColour</a>&amp; colour );<br>
-    void SetDropTarget(<a href="#wxDropTarget">wxDropTarget</a>* target );<br>
+    void SetDropTarget(<i>%ungc</i> <a href="#wxDropTarget">wxDropTarget</a>* target );<br>
     void SetEventHandler(<a href="#wxEvtHandler">wxEvtHandler</a>* handler );<br>
     void SetExtraStyle(long exStyle );<br>
     virtual void SetFocus( );<br>
@@ -28162,7 +28217,7 @@ LuaTable GetBindings( );<br>
     <font color=#009900>//lua_Debug *GetLuaDebug() const;</font><br>
 <br>
     <font color=#009900>// If called from a wxEVT_LUA_DEBUG_HOOK the interpreter will stop</font><br>
-    void DebugHookBreak(bool stop)<br>
+    void DebugHookBreak(bool stop);<br>
 </blockquote>};<br>
 <br>
 <br><HR>

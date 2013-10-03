@@ -31,14 +31,11 @@ extern "C"
         // when building the Lua library.
         // If you get a unresolved symbol luaL_openlib linker error, you need to rebuild your
         // Lua library with LUA_COMPAT_MODULE defined.
-        //#if (LUA_VERSION_NUM == 502) & !defined(LUA_COMPAT_MODULE)
-            //#error wxLua using Lua 5.2 requires LUA_COMPAT_MODULE defined for luaL_openlib().
-        //#endif
+        #if (LUA_VERSION_NUM == 502) & !defined(LUA_COMPAT_MODULE)
+            #error wxLua using Lua 5.2 requires LUA_COMPAT_MODULE defined for luaL_openlib().
+        #endif
 
         // These are #defined with LUA_COMPAT_ALL (but we don't require that)
-        #ifndef luaL_register
-            #define luaL_register(a, b, c) luaL_setfuncs(a, c, 0)
-        #endif
         #ifndef lua_strlen 
             #define lua_strlen(L,i)             lua_rawlen(L, (i))
             #define lua_objlen(L,i)             lua_rawlen(L, (i))

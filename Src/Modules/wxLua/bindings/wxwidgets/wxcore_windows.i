@@ -230,7 +230,7 @@ class wxWindow : public wxEvtHandler
 
     wxSize GetVirtualSize() const;
     %wxchkver_2_9_4 virtual wxSize GetBestVirtualSize() const;
-    %wxchkver_2_9_4 virtual double GetContentScaleFactor() const;    
+    %wxchkver_2_9_5 virtual double GetContentScaleFactor() const;    
     long GetWindowStyleFlag() const;
     wxWindowVariant GetWindowVariant() const;
     %wxchkver_2_4 bool HasCapture() const;
@@ -297,7 +297,7 @@ class wxWindow : public wxEvtHandler
     void SetOwnBackgroundColour(const wxColour& colour );
     void SetOwnFont(const wxFont& font );
     void SetOwnForegroundColour(const wxColour& colour );
-    void SetDropTarget(wxDropTarget* target );
+    void SetDropTarget(%ungc wxDropTarget* target );
     void SetEventHandler(wxEvtHandler* handler );
     void SetExtraStyle(long exStyle );
     virtual void SetFocus( );

@@ -67,9 +67,9 @@ wxLuaBindString* wxLuaGetStringList_wxpropgrid(size_t &count)
 {
     static wxLuaBindString stringList[] =
     {
-#if wxLUA_USE_wxPropertyGrid && wxCHECK_VERSION(2,9,0) && wxUSE_PROPGRID
+#if wxLUA_USE_wxPropertGrid && wxCHECK_VERSION(2,9,0) && wxUSE_PROPGRID
         { "wxPG_LABEL", wxPG_LABEL, NULL },
-#endif // wxLUA_USE_wxPropertyGrid && wxCHECK_VERSION(2,9,0) && wxUSE_PROPGRID
+#endif // wxLUA_USE_wxPropertGrid && wxCHECK_VERSION(2,9,0) && wxUSE_PROPGRID
 
 
         { 0, 0 },
