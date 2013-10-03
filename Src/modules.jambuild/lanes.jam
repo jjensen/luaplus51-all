@@ -7,13 +7,11 @@ local SRCS =
 		src/threading.h
 		src/lanes.c
 		src/lanes.lua
-		src/lanes-keeper.lua
 		src/tools.c
 		src/tools.h
 ;
 
 CopyFiles lanes : $(LUA_LDIR) : $(SUBDIR)/src/lanes.lua ;
-CopyFiles lanes : $(LUA_LDIR) : $(SUBDIR)/src/lanes-keeper.lua ;
 
 if $(PLATFORM) = linux32
 {
