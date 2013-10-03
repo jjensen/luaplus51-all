@@ -27,8 +27,8 @@ inline LuaObject::LuaObject()
 }
 
 
-inline LuaObject::LuaObject(lua_State* _L) throw()
-	: L(_L)
+inline LuaObject::LuaObject(lua_State* inL) throw()
+	: L(inL)
 	, ref(LUA_FASTREFNIL)
 {
 }
@@ -41,8 +41,8 @@ inline LuaObject::LuaObject(LuaState* state) throw()
 }
 
 
-inline LuaObject::LuaObject(lua_State* _L, int stackIndex) throw()
-	: L(_L)
+inline LuaObject::LuaObject(lua_State* inL, int stackIndex) throw()
+	: L(inL)
 {
 	ref = lua_fastrefindex(L, stackIndex);
 }
@@ -55,8 +55,8 @@ inline LuaObject::LuaObject(LuaState* state, int stackIndex) throw()
 }
 
 
-inline LuaObject::LuaObject(lua_State* _L, int _ref, bool directAssign) throw()
-	: L(_L)
+inline LuaObject::LuaObject(lua_State* inL, int _ref, bool directAssign) throw()
+	: L(inL)
 {
 #if LUA_FASTREF_SUPPORT
 	ref = directAssign ? _ref : lua_fastrefindex(L, _ref);
@@ -66,8 +66,8 @@ inline LuaObject::LuaObject(lua_State* _L, int _ref, bool directAssign) throw()
 }
 
 
-inline LuaObject::LuaObject(lua_State* _L, bool popTop) throw()
-	: L(_L)
+inline LuaObject::LuaObject(lua_State* inL, bool popTop) throw()
+	: L(inL)
 {
 	ref = popTop ? lua_fastref(L) : lua_fastrefindex(L, -1);
 }
@@ -1070,10 +1070,10 @@ inline LuaObject& LuaObject::AssignNil() {
 }
 
 
-inline LuaObject& LuaObject::AssignNil(lua_State* _L) {
+inline LuaObject& LuaObject::AssignNil(lua_State* inL) {
 	if (L)
 		lua_fastunref(L, ref);
-	L = _L;
+	L = inL;
 	lua_pushnil(L);
 	ref = lua_fastref(L);
 	return *this;
@@ -1111,11 +1111,11 @@ inline LuaObject& LuaObject::AssignString(LuaState* state, const char* value, in
 
 
 inline LuaObject& LuaObject::AssignUserdata(LuaState* state, void* value) {
-	lua_State* _L = LuaState_to_lua_State(state);
-	luaplus_assert(_L);
+	lua_State* inL = LuaState_to_lua_State(state);
+	luaplus_assert(inL);
 	if (L)
 		lua_fastunref(L, ref);
-	L = _L;
+	L = inL;
 	LPCD::Type<LPCD::LuaUserdata>::Push(L, LPCD::LuaUserdata(value));
 	ref = lua_fastref(L);
 	return *this;
@@ -1123,11 +1123,11 @@ inline LuaObject& LuaObject::AssignUserdata(LuaState* state, void* value) {
 
 
 inline LuaObject& LuaObject::AssignUserdata(LuaState* state, size_t size) {
-	lua_State* _L = LuaState_to_lua_State(state);
-	luaplus_assert(_L);
+	lua_State* inL = LuaState_to_lua_State(state);
+	luaplus_assert(inL);
 	if (L)
 		lua_fastunref(L, ref);
-	L = _L;
+	L = inL;
 	lua_newuserdata(L, size);
 	ref = lua_fastref(L);
 	return *this;
@@ -1154,10 +1154,10 @@ inline LuaObject& LuaObject::AssignNewTable(int narray, int nrec) {
 }
 
 
-inline LuaObject& LuaObject::AssignNewTable(lua_State* _L, int narray, int nrec) {
+inline LuaObject& LuaObject::AssignNewTable(lua_State* inL, int narray, int nrec) {
 	if (L)
 		lua_fastunref(L, ref);
-	L = _L;
+	L = inL;
 	lua_createtable(L, narray, nrec);
 	ref = lua_fastref(L);
 	return *this;
