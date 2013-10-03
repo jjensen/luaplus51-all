@@ -15,14 +15,11 @@ LUA_VERSION ?= lua51-luaplus ;
 
 ###############################################################################
 # Set these if the user didn't use jam --workspace.
-#ALL_LOCATE_TARGET ?= [ FSubDirPath LUAPLUS obj $(COMPILER.$(PLATFORM)) temp-$(PLATFORM)-$(CONFIG) ] ;
-ALL_LOCATE_TARGET ?= $(LUAPLUS)/obj/$(C.COMPILER)/temp-$(PLATFORM)-$(CONFIG) ;
+ALL_LOCATE_TARGET ?= $(LUAPLUS)/.build/obj.$(LUA_VERSION).$(C.COMPILER).$(PLATFORM).$(CONFIG) ;
+LUAPLUS_OUTPUT_DIRECTORY ?= $(LUAPLUS)/.build/bin.$(LUA_VERSION).$(C.COMPILER).$(PLATFORM) ;
 
 DEPCACHE.standard ?= $(ALL_LOCATE_TARGET)/.depcache ;
 DEPCACHE ?= standard ;
-
-#LUAPLUS_OUTPUT_DIRECTORY ?= [ FSubDirPath LUAPLUS bin.$(C.COMPILER).$(PLATFORM) ] ;
-LUAPLUS_OUTPUT_DIRECTORY ?= $(LUAPLUS)/bin.$(LUA_VERSION).$(C.COMPILER).$(PLATFORM) ;
 
 LUA_SOURCE_DIRECTORY_NAME = $(LUA_VERSION) ;
 LUAPLUS_INCLUDE_DIRECTORIES = $(LUAPLUS)/Src $(LUAPLUS)/Src/LuaPlus/$(LUA_SOURCE_DIRECTORY_NAME)/src ;

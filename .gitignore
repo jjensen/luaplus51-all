@@ -1,4 +1,5 @@
 CVS/
+.build/
 bin.*/
 build*/
 obj/
