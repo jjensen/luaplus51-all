@@ -68,6 +68,9 @@ rule LuaApplication TARGET : OPTIONS
 	{
 		C.LinkFlags : -Wl,-rpath,@loader_path/ ;
 	}
+	else if $(OS) = NT {
+		C.LinkPrebuiltLibraries $(TARGET) : wsock32 ;
+	}
 	LuaPlusFixUpTarget $(TARGET) ;
 	C.Application : $(SRCS) : $(OPTIONS) ;
 }
