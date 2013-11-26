@@ -2166,7 +2166,7 @@ static char *   at_eof(
         if (standard) {
             cerror( unterm_if_format, input, ifp->ifline, NULL);
             ifptr = infile->initif;         /* Clear information of */
-            compiling = ifptr->stat;        /*   erroneous grouping */
+            compiling = ifptr->state;        /*   erroneous grouping */
         } else if (mcpp_mode == KR && (warn_level & 1)) {
             cwarn( unterm_if_format, input, ifp->ifline, NULL);
         }

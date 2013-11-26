@@ -253,7 +253,7 @@ typedef struct fileinfo {
  * IFINFO stores information of conditional compilation.
  */
 typedef struct ifinfo {
-        int             stat;       /* State of compilation         */
+        int             state;       /* State of compilation         */
         long            ifline;     /* Line #if started             */
         long            elseline;   /* Line #else started           */
 } IFINFO;
@@ -265,7 +265,7 @@ typedef struct ifinfo {
 #define ELSE_SEEN       2           /* TRUE when #else processed    */
 #define TRUE_SEEN       4           /* TRUE when #if TRUE processed */
 
-#define compiling       ifstack[0].stat
+#define compiling       ifstack[0].state
 
 #define FP2DEST(fp) \
     (fp == fp_out) ? OUT : \

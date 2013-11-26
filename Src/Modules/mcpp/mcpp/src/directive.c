@@ -196,7 +196,7 @@ void    directive( void)
                     && &ifstack[ std_limits.blk_nest + 1] == ifptr)
                 cwarn( many_nesting, NULL, (long) std_limits.blk_nest
                         , in_skipped);
-            ifptr->stat = 0;                /* !WAS_COMPILING       */
+            ifptr->state = 0;                /* !WAS_COMPILING       */
             ifptr->ifline = src_line;       /* Line at section start*/
             goto  skip_line;
         default :                           /* Other directives     */
@@ -219,7 +219,7 @@ void    directive( void)
         if (standard && (warn_level & 4) &&
                 &ifstack[ std_limits.blk_nest + 1] == ifptr)
             cwarn( many_nesting, NULL , (long) std_limits.blk_nest, NULL);
-        ifptr->stat = WAS_COMPILING;
+        ifptr->state = WAS_COMPILING;
         ifptr->ifline = src_line;
         goto  ifdo;
 
@@ -233,9 +233,9 @@ void    directive( void)
         if (ifptr == infile->initif) {
             goto  in_file_nest_err;
         }
-        if (ifptr->stat & ELSE_SEEN)
+        if (ifptr->state & ELSE_SEEN)
             goto  else_seen_err;
-        if ((ifptr->stat & (WAS_COMPILING | TRUE_SEEN)) != WAS_COMPILING) {
+        if ((ifptr->state & (WAS_COMPILING | TRUE_SEEN)) != WAS_COMPILING) {
             compiling = FALSE;              /* Done compiling stuff */
             goto  skip_line;                /* Skip this group      */
         }
@@ -263,17 +263,17 @@ ifdo:
             else if (warn_level & 1)
                 cwarn( not_in_section, NULL, 0L, NULL);
         }
-        if (ifptr->stat & ELSE_SEEN)
+        if (ifptr->state & ELSE_SEEN)
             goto  else_seen_err;
-        ifptr->stat |= ELSE_SEEN;
+        ifptr->state |= ELSE_SEEN;
         ifptr->elseline = src_line;
-        if (ifptr->stat & WAS_COMPILING) {
-            if (compiling || (ifptr->stat & TRUE_SEEN) != 0)
+        if (ifptr->state & WAS_COMPILING) {
+            if (compiling || (ifptr->state & TRUE_SEEN) != 0)
                 compiling = FALSE;
             else
                 compiling = TRUE;
         }
-        if ((mcpp_debug & MACRO_CALL) && (ifptr->stat & WAS_COMPILING)) {
+        if ((mcpp_debug & MACRO_CALL) && (ifptr->state & WAS_COMPILING)) {
             sync_linenum();
             mcpp_fprintf( OUT, "/*else %ld:%c*/\n", src_line
                     , compiling ? 'T' : 'F');   /* Show that #else is seen  */
@@ -289,9 +289,9 @@ ifdo:
             else if (warn_level & 1)
                 cwarn( not_in_section, NULL, 0L, NULL);
         }
-        if (! compiling && (ifptr->stat & WAS_COMPILING))
+        if (! compiling && (ifptr->state & WAS_COMPILING))
             wrong_line = TRUE;
-        compiling = (ifptr->stat & WAS_COMPILING);
+        compiling = (ifptr->state & WAS_COMPILING);
         if ((mcpp_debug & MACRO_CALL) && compiling) {
             sync_linenum();
             mcpp_fprintf( OUT, "/*endif %ld*/\n", src_line);
@@ -461,7 +461,7 @@ static int  do_if( int hash, const char * directive_name)
     }
     if (found == (hash == L_ifdef)) {
         compiling = TRUE;
-        ifptr->stat |= TRUE_SEEN;
+        ifptr->state |= TRUE_SEEN;
     } else {
         compiling = FALSE;
     }

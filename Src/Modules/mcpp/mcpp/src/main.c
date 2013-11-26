@@ -315,7 +315,7 @@ static void     init_main( void)
     insert_sep = NO_SEP;
     mbchar = MBCHAR;
     ifptr = ifstack;
-    ifstack[0].stat = WAS_COMPILING;
+    ifstack[0].state = WAS_COMPILING;
     ifstack[0].ifline = ifstack[0].elseline = 0L;
     std_limits.str_len = NBUFF;
     std_limits.id_len = IDMAX;

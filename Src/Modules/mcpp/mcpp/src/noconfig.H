@@ -15,7 +15,15 @@
  */
 
 /* Define target operating-system.  */
+#if defined(WIN32)
+#if defined(_MSC_VER)
 #define SYSTEM              SYS_WIN32
+#else
+#define SYSTEM              SYS_MINGW
+#endif
+#else
+#define SYSTEM              SYS_FREEBSD
+#endif
 
 /* Define target compiler.          */
 #ifndef COMPILER
@@ -26,11 +34,23 @@
 #define HOST_SYSTEM         SYSTEM
 
 /* Define host compiler.            */
+#if defined(_MSC_VER)
 #define HOST_COMPILER       MSC
+#else
+#if defined(WIN32)
+#define HOST_COMPILER       MINGW
+#else
+#define HOST_COMPILER       GNUC
+#endif
+#endif
 
 /* Version message.                 */
 /* "MCPP V.2.* (200y/mm) compiled by " precedes VERSION_MSG */
-#define VERSION_MSG             "Visual C 2005"
+#if defined(_MSC_VER)
+#define VERSION_MSG         "Visual C 2005"
+#else
+#define VERSION_MSG         "GCC 3.4"
+#endif
 #if     0
     "LCC-Win32 2006-03"
     "Visual C 2005"
