@@ -2,7 +2,7 @@ if $(NT)  &&  [ Glob $(SUBDIR)/pcre-8.30 : pcre.h ]
 {
 
 local PCRE_SRCS = ;
-if $(MSVCNT) {
+if $(OS) = NT {
 	PCRE_SRCS +=
 			pcre-8.30/pcre.h
 			pcre-8.30/pcre_chartables.c
