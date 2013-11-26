@@ -39,7 +39,7 @@ namespace LuaHelper
 		\return Returns the value found or the defaultValue.
 	**/
 	template< typename KeyT >
-	static bool GetBoolean( LuaStackObject& obj, KeyT key, bool require = true, bool defaultValue = false ) {
+	static bool GetBoolean( const LuaStackObject& obj, KeyT key, bool require = true, bool defaultValue = false ) {
 		LuaAutoObject boolObj = obj[ key ];
 		if ( !boolObj.IsBoolean() ) {
 			if ( require ) {
@@ -68,7 +68,7 @@ namespace LuaHelper
 		\return Returns the value found or the defaultValue.
 	**/
 	template< typename KeyT >
-	static int GetInteger( LuaStackObject& obj, KeyT key, bool require = true, int defaultValue = -1 ) {
+	static int GetInteger( const LuaStackObject& obj, KeyT key, bool require = true, int defaultValue = -1 ) {
 		LuaAutoObject intObj = obj[ key ];
 		if ( !intObj.IsInteger() ) {
 			if ( require ) {
@@ -97,7 +97,7 @@ namespace LuaHelper
 		\return Returns the value found or the defaultValue.
 	**/
 	template< typename KeyT >
-	static float GetFloat( LuaStackObject& obj, KeyT key, bool require = true, float defaultValue = -1.0f ) {
+	static float GetFloat( const LuaStackObject& obj, KeyT key, bool require = true, float defaultValue = -1.0f ) {
 		LuaAutoObject floatObj = obj[ key ];
 		if ( !floatObj.IsNumber() ) {
 			if ( require ) {
@@ -126,7 +126,7 @@ namespace LuaHelper
 		\return Returns the value found or the defaultValue.
 	**/
 	template< typename KeyT >
-	static void* GetLightUserdata( LuaStackObject& obj, KeyT key, bool require = true, void* defaultValue = NULL ) {
+	static void* GetLightUserdata( const LuaStackObject& obj, KeyT key, bool require = true, void* defaultValue = NULL ) {
 		LuaAutoObject outObj = obj[ key ];
 		if ( !outObj.IsLightUserdata() ) {
 			if ( require ) {
@@ -155,7 +155,7 @@ namespace LuaHelper
 		\return Returns the value found or the defaultValue.
 	**/
 	template< typename KeyT >
-	static const char* GetString( LuaStackObject& obj, KeyT key, bool require = true, const char* defaultValue = "" ) {
+	static const char* GetString( const LuaStackObject& obj, KeyT key, bool require = true, const char* defaultValue = "" ) {
 		LuaAutoObject stringObj = obj[ key ];
 		if ( !stringObj.IsString() ) {
 			if ( require ) {
@@ -181,7 +181,7 @@ namespace LuaHelper
 		\return Returns the object found.
 	**/
 	template< typename KeyT >
-	static LuaStackObject GetTable( LuaStackObject& obj, KeyT key, bool require = true ) {
+	static LuaStackObject GetTable( const LuaStackObject& obj, KeyT key, bool require = true ) {
 		LuaStackObject tableObj = obj[ key ];
 		if ( !tableObj.IsTable() ) {
 			if ( require ) {

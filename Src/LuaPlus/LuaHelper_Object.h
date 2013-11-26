@@ -38,8 +38,8 @@ namespace LuaHelper
 			of the right type.
 		\return Returns the value found or the defaultValue.
 	**/
-	inline bool GetBoolean( LuaObject& obj, int key, bool require = true, bool defaultValue = false );
-	inline bool GetBoolean( LuaObject& obj, const char* key, bool require = true, bool defaultValue = false );
+	inline bool GetBoolean( const LuaObject& obj, int key, bool require = true, bool defaultValue = false );
+	inline bool GetBoolean( const LuaObject& obj, const char* key, bool require = true, bool defaultValue = false );
 
 
 	/**
@@ -58,8 +58,8 @@ namespace LuaHelper
 			of the right type.
 		\return Returns the value found or the defaultValue.
 	**/
-	inline lua_Integer GetInteger( LuaObject& obj, int key, bool require = true, int defaultValue = -1 );
-	inline lua_Integer GetInteger( LuaObject& obj, const char* key, bool require = true, int defaultValue = -1 );
+	inline lua_Integer GetInteger( const LuaObject& obj, int key, bool require = true, int defaultValue = -1 );
+	inline lua_Integer GetInteger( const LuaObject& obj, const char* key, bool require = true, int defaultValue = -1 );
 
 
 	/**
@@ -78,8 +78,8 @@ namespace LuaHelper
 			of the right type.
 		\return Returns the value found or the defaultValue.
 	**/
-	inline float GetFloat( LuaObject& obj, int key, bool require = true, float defaultValue = -1.0f );
-	inline float GetFloat( LuaObject& obj, const char* key, bool require = true, float defaultValue = -1.0f );
+	inline float GetFloat( const LuaObject& obj, int key, bool require = true, float defaultValue = -1.0f );
+	inline float GetFloat( const LuaObject& obj, const char* key, bool require = true, float defaultValue = -1.0f );
 
 
 	/**
@@ -98,8 +98,8 @@ namespace LuaHelper
 			of the right type.
 		\return Returns the value found or the defaultValue.
 	**/
-	inline void* GetLightUserdata( LuaObject& obj, int key, bool require = true, void* defaultValue = NULL );
-	inline void* GetLightUserdata( LuaObject& obj, const char* key, bool require = true, void* defaultValue = NULL );
+	inline void* GetLightUserdata( const LuaObject& obj, int key, bool require = true, void* defaultValue = NULL );
+	inline void* GetLightUserdata( const LuaObject& obj, const char* key, bool require = true, void* defaultValue = NULL );
 
 
 	/**
@@ -118,8 +118,8 @@ namespace LuaHelper
 			of the right type.
 		\return Returns the value found or the defaultValue.
 	**/
-	inline const char* GetString( LuaObject& obj, int key, bool require = true, const char* defaultValue = "" );
-	inline const char* GetString( LuaObject& obj, const char* key, bool require = true, const char* defaultValue = "" );
+	inline const char* GetString( const LuaObject& obj, int key, bool require = true, const char* defaultValue = "" );
+	inline const char* GetString( const LuaObject& obj, const char* key, bool require = true, const char* defaultValue = "" );
 
 
 	/**
@@ -135,12 +135,12 @@ namespace LuaHelper
 			returned.
 		\return Returns the object found.
 	**/
-	inline LuaObject GetTable( LuaObject& obj, int key, bool require = true );
-	inline LuaObject GetTable( LuaObject& obj, const char* key, bool require = true );
+	inline LuaObject GetTable( const LuaObject& obj, int key, bool require = true );
+	inline LuaObject GetTable( const LuaObject& obj, const char* key, bool require = true );
 
-	inline void MergeObjects( LuaObject& mergeTo, LuaObject& mergeFrom, bool replaceDuplicates );
+	inline void MergeObjects( LuaObject& mergeTo, const LuaObject& mergeFrom, bool replaceDuplicates );
 
-inline bool GetBoolean( LuaObject& obj, int key, bool require, bool defaultValue ) {
+inline bool GetBoolean( const LuaObject& obj, int key, bool require, bool defaultValue ) {
 	LuaObject boolObj = obj[ key ];
 	if ( !boolObj.IsBoolean() ) {
 		if ( require ) {
@@ -152,7 +152,7 @@ inline bool GetBoolean( LuaObject& obj, int key, bool require, bool defaultValue
 }
 
 
-inline bool GetBoolean( LuaObject& obj, const char* key, bool require, bool defaultValue ) {
+inline bool GetBoolean( const LuaObject& obj, const char* key, bool require, bool defaultValue ) {
 	LuaObject boolObj = obj[ key ];
 	if ( !boolObj.IsBoolean() ) {
 		if ( require ) {
@@ -164,7 +164,7 @@ inline bool GetBoolean( LuaObject& obj, const char* key, bool require, bool defa
 }
 
 
-inline lua_Integer GetInteger( LuaObject& obj, int key, bool require, int defaultValue ) {
+inline lua_Integer GetInteger( const LuaObject& obj, int key, bool require, int defaultValue ) {
 	LuaObject intObj = obj[ key ];
 	if ( !intObj.IsInteger() ) {
 		if ( require ) {
@@ -176,7 +176,7 @@ inline lua_Integer GetInteger( LuaObject& obj, int key, bool require, int defaul
 }
 
 
-inline lua_Integer GetInteger( LuaObject& obj, const char* key, bool require, int defaultValue ) {
+inline lua_Integer GetInteger( const LuaObject& obj, const char* key, bool require, int defaultValue ) {
 	LuaObject intObj = obj[ key ];
 	if ( !intObj.IsInteger() ) {
 		if ( require ) {
@@ -188,7 +188,7 @@ inline lua_Integer GetInteger( LuaObject& obj, const char* key, bool require, in
 }
 
 
-inline float GetFloat( LuaObject& obj, int key, bool require, float defaultValue ) {
+inline float GetFloat( const LuaObject& obj, int key, bool require, float defaultValue ) {
 	LuaObject floatObj = obj[ key ];
 	if ( !floatObj.IsNumber() ) {
 		if ( require ) {
@@ -200,7 +200,7 @@ inline float GetFloat( LuaObject& obj, int key, bool require, float defaultValue
 }
 
 
-inline float GetFloat( LuaObject& obj, const char* key, bool require, float defaultValue ) {
+inline float GetFloat( const LuaObject& obj, const char* key, bool require, float defaultValue ) {
 	LuaObject floatObj = obj[ key ];
 	if ( !floatObj.IsNumber() ) {
 		if ( require ) {
@@ -212,7 +212,7 @@ inline float GetFloat( LuaObject& obj, const char* key, bool require, float defa
 }
 
 
-inline void* GetLightUserdata( LuaObject& obj, int key, bool require, void* defaultValue ) {
+inline void* GetLightUserdata( const LuaObject& obj, int key, bool require, void* defaultValue ) {
 	LuaObject outObj = obj[ key ];
 	if ( !outObj.IsLightUserdata() ) {
 		if ( require ) {
@@ -224,7 +224,7 @@ inline void* GetLightUserdata( LuaObject& obj, int key, bool require, void* defa
 }
 
 
-inline void* GetLightUserdata( LuaObject& obj, const char* key, bool require, void* defaultValue ) {
+inline void* GetLightUserdata( const LuaObject& obj, const char* key, bool require, void* defaultValue ) {
 	LuaObject outObj = obj[ key ];
 	if ( !outObj.IsLightUserdata() ) {
 		if ( require ) {
@@ -236,7 +236,7 @@ inline void* GetLightUserdata( LuaObject& obj, const char* key, bool require, vo
 }
 
 
-inline const char* GetString( LuaObject& obj, int key, bool require, const char* defaultValue ) {
+inline const char* GetString( const LuaObject& obj, int key, bool require, const char* defaultValue ) {
 	LuaObject stringObj = obj[ key ];
 	if ( !stringObj.IsString() ) {
 		if ( require ) {
@@ -248,7 +248,7 @@ inline const char* GetString( LuaObject& obj, int key, bool require, const char*
 }
 
 
-inline const char* GetString( LuaObject& obj, const char* key, bool require, const char* defaultValue ) {
+inline const char* GetString( const LuaObject& obj, const char* key, bool require, const char* defaultValue ) {
 	LuaObject stringObj = obj[ key ];
 	if ( !stringObj.IsString() ) {
 		if ( require ) {
@@ -260,7 +260,7 @@ inline const char* GetString( LuaObject& obj, const char* key, bool require, con
 }
 
 
-inline LuaObject GetTable( LuaObject& obj, int key, bool require ) {
+inline LuaObject GetTable( const LuaObject& obj, int key, bool require ) {
 	LuaObject tableObj = obj[ key ];
 	if ( !tableObj.IsTable() ) {
 		if ( require ) {
@@ -271,7 +271,7 @@ inline LuaObject GetTable( LuaObject& obj, int key, bool require ) {
 }
 
 
-inline LuaObject GetTable( LuaObject& obj, const char* key, bool require ) {
+inline LuaObject GetTable( const LuaObject& obj, const char* key, bool require ) {
 	LuaObject tableObj = obj[ key ];
 	if ( !tableObj.IsTable() ) {
 		if ( require ) {
@@ -282,7 +282,7 @@ inline LuaObject GetTable( LuaObject& obj, const char* key, bool require ) {
 }
 
 
-inline void MergeObjects(LuaObject& mergeTo, LuaObject& mergeFrom, bool replaceDuplicates)
+inline void MergeObjects(LuaObject& mergeTo, const LuaObject& mergeFrom, bool replaceDuplicates)
 {
 	if (mergeTo.GetState() == mergeFrom.GetState())
 	{

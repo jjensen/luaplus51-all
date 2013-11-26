@@ -159,9 +159,9 @@ public:
 	LuaObject& SetLightUserdata(const char* key, void* value);
 	LuaObject& SetLightUserdata(int key, void* value);
 	LuaObject& SetLightUserdata(LuaObject& key, void* value);
-	LuaObject& SetObject(const char* key, LuaObject& value);
-	LuaObject& SetObject(int key, LuaObject& value);
-	LuaObject& SetObject(LuaObject& key, LuaObject& value);
+	LuaObject& SetObject(const char* key, const LuaObject& value);
+	LuaObject& SetObject(int key, const LuaObject& value);
+	LuaObject& SetObject(LuaObject& key, const LuaObject& value);
 
 	LuaObject& RawSetBoolean(const char* key, bool value);
 	LuaObject& RawSetBoolean(int key, bool value);

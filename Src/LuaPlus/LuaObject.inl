@@ -843,17 +843,17 @@ inline LuaObject& LuaObject::SetLightUserdata(LuaObject& key, void* value) {
 }
 
 
-inline LuaObject& LuaObject::SetObject(const char* key, LuaObject& value) {
+inline LuaObject& LuaObject::SetObject(const char* key, const LuaObject& value) {
 	return Set(key, value);
 }
 
 
-inline LuaObject& LuaObject::SetObject(int key, LuaObject& value) {
+inline LuaObject& LuaObject::SetObject(int key, const LuaObject& value) {
 	return Set(key, value);
 }
 
 
-inline LuaObject& LuaObject::SetObject(LuaObject& key, LuaObject& value) {
+inline LuaObject& LuaObject::SetObject(LuaObject& key, const LuaObject& value) {
 	return Set(key, value);
 }
 
