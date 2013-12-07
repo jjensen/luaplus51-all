@@ -257,6 +257,7 @@ LUAPLUS_INLINE int LuaState::Compare(int index1, int index2, int op)
 {
 #if LUA_VERSION_NUM == 501
 	assert(0);
+	return 0;
 #elif LUA_VERSION_NUM >= 502
 	return lua_compare(LuaState_to_lua_State(this), index1, index2, op);
 #endif
@@ -1269,6 +1270,7 @@ LUAPLUS_INLINE LuaObject LuaState::NewMetatable(const char* tname)
 LUAPLUS_INLINE void* LuaState::TestUData(int ud, const char* tname) {
 #if LUA_VERSION_NUM == 501
 	assert(0);
+	return 0;
 #elif LUA_VERSION_NUM >= 502
 	return luaL_testudata(LuaState_to_lua_State(this), ud, tname);
 #endif
