@@ -868,7 +868,11 @@ int sock_srv_lookup(const char *service, const char *proto, const char *domain, 
         unsigned char buf[65535];
 	int len;
 	
+#if defined(__APPLE__)
+	if ((len = res_query(fulldomain, ns_c_in, ns_t_srv, buf, 65535)) > 0) {
+#else
 	if ((len = res_query(fulldomain, C_IN, T_SRV, buf, 65535)) > 0) {
+#endif
 	    int offset;
 	    int i;
 	    struct dnsquery_header header;
