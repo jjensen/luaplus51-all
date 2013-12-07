@@ -42,7 +42,9 @@ THE SOFTWARE.
 #include <string.h>
 #include <ctype.h>
 #include <stdlib.h>
+#if defined(MSVCNT)
 #include <malloc.h>
+#endif
 
 // for verbose errors
 bool_t GVerboseErrors = FALSE;
