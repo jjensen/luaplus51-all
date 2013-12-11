@@ -2,7 +2,8 @@ local xls = require 'xls'
 
 -- Load a workbook with one sheet, display its contents and
 -- save into another file.
-local workbook = xls.Workbook(arg[1])
+local workbook = xls.Workbook()
+workbook:Load(arg[1])
 local sheet1 = workbook:GetWorksheet("Sheet1")
 if sheet1 then
     local maxRows = sheet1:GetTotalRows()
