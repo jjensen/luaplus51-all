@@ -36,7 +36,7 @@ extern "C"
     WXDLLIMPEXP_LUAMODULE int luaopen_wx(lua_State *L);
 
 #ifdef __WXMSW__
-    BOOL APIENTRY DllMain( HANDLE hModule, DWORD ul_reason_for_call, LPVOID );
+    BOOL APIENTRY DllMain( HINSTANCE hModule, DWORD ul_reason_for_call, LPVOID );
 #endif //__WXMSW__
 }
 
@@ -58,7 +58,7 @@ WXLUA_DECLARE_BIND_ALL
 
 static HINSTANCE wxLuaModule_hDll = NULL;
 
-BOOL APIENTRY DllMain( HANDLE hModule, DWORD ul_reason_for_call, LPVOID )
+BOOL APIENTRY DllMain( HINSTANCE hModule, DWORD ul_reason_for_call, LPVOID )
 {
    switch (ul_reason_for_call)
    {

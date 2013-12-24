@@ -10,7 +10,7 @@
 // NOTE: This file is mostly copied from wxWidget's include/propgrid/*.h headers
 // to make updating it easier.
 
-#if wxLUA_USE_wxPropertyGrid && %wxchkver_2_9 && wxUSE_PROPGRID
+#if wxLUA_USE_wxPropertGrid && %wxchkver_2_9 && wxUSE_PROPGRID
 
 #include "wx/propgrid/propgrid.h"
 #include "wx/propgrid/manager.h"
@@ -26,4 +26,4 @@
 #define_string wxPG_LABEL
 
 
-#endif //wxLUA_USE_wxPropertyGrid && %wxchkver_2_9 && wxUSE_PROPGRID
+#endif //wxLUA_USE_wxPropertGrid && %wxchkver_2_9 && wxUSE_PROPGRID

@@ -1,4 +1,4 @@
-% wxLua 2.8.12.3 - User Manual
+ï»¿% wxLua 2.8.12.3 - User Manual
 % John Labenski
 % 2013-09-10
 
@@ -563,7 +563,7 @@ reserved words; although "xor" isn't a reserved word, it is consistent.
   `bit32.band(...)`{.lua}                       -   returns the bitwise `and` of the input values
   `bit32.bnot(x)`{.lua}                         -   returns the one's complement of `x`
   `bit32.bor(...)`{.lua}                        -   returns the bitwise `or` of the input values
-  `bit32.btest(···)`{.lua}                      -   returns true if the `and` of the input values is not 0
+  `bit32.btest(Â·Â·Â·)`{.lua}                      -   returns true if the `and` of the input values is not 0
   `bit32.bxor(...)`{.lua}                       -   returns the bitwise exclusive `or` of the input values
   `bit32.extract(n, field [, width])`{.lua}     -   returns the number of bits set in `n` for the given 0-31 starting `field` to optionally `field+width-1`
   `bit32.replace(n, v, field [, width])`{.lua}  -   returns `n` with the bits in `field` to optionally `field+width-1` replaced by the value `v`
