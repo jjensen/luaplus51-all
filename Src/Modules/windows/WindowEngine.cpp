@@ -24,6 +24,7 @@
 **********************************************************************/
 
 #include "WindowEngine.h"
+#include <algorithm>
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -61,9 +62,9 @@ CWindowEngine::CWindowEngine(LPCSTR lpszTitle, LPCSTR lpszClass, LPCSTR lpszText
 	if (!bCaseSensitive)
 	{
 		m_sTitleLower = lpszTitle;
-		m_sTitleLower.MakeLower ();
+		std::transform(m_sTitleLower.begin(), m_sTitleLower.end(), m_sTitleLower.begin(), ::tolower);
 		m_sTextLower = lpszText;
-		m_sTextLower.MakeLower ();
+		std::transform(m_sTextLower.begin(), m_sTextLower.end(), m_sTextLower.begin(), ::tolower);
 	}
 	m_Handles.clear ();
 	FindAllWindows ();
@@ -244,11 +245,11 @@ void CWindowEngine::FindAllWindows()
 	
 	if (m_bExact)
 		lParam |= FIND_EXACT;
-	if (!m_sTitle.IsEmpty ())
+	if (!m_sTitle.empty ())
 		lParam |= FIND_TITLE;
-	if (!m_sClass.IsEmpty ())
+	if (!m_sClass.empty ())
 		lParam |= FIND_CLASSNAME;
-	if (!m_sText.IsEmpty ())
+	if (!m_sText.empty ())
 		lParam |= FIND_TEXT;
 	if (m_bApplyToAll)
 		lParam |= FIND_ALL;
@@ -275,19 +276,19 @@ BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam)
 		if ((lParam & FIND_TITLE))
 		{
 			GetWindowText (hwnd, szTemp, 255);
-			CString sTitle (szTemp);
-			if (!sTitle.IsEmpty ())
+			string sTitle (szTemp);
+			if (!sTitle.empty ())
 			{
 				if ((lParam & FIND_EXACT))
 				{
 					if ((lParam & FIND_CASESENSITIVE))
 					{
-						if (sTitle.Compare (pWndOp->m_sTitle) != 0)
+						if (sTitle.compare (pWndOp->m_sTitle) != 0)
 							found = false;
 					}
 					else
 					{
-						if (sTitle.CompareNoCase (pWndOp->m_sTitle) != 0)
+						if (stricmp(sTitle.c_str(), pWndOp->m_sTitle.c_str()) != 0)
 							found = false;
 					}
 				}
@@ -295,13 +296,13 @@ BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam)
 				{
 					if ((lParam & FIND_CASESENSITIVE))
 					{
-						if ( sTitle.Find (pWndOp->m_sTitle, 0) == -1)
+						if ( sTitle.find (pWndOp->m_sTitle.c_str(), 0) == string::npos)
 							found = false;
 					}
 					else
 					{
-						sTitle.MakeLower ();
-						if ( sTitle.Find (pWndOp->m_sTitleLower, 0) == -1)
+						std::transform(sTitle.begin(), sTitle.end(), sTitle.begin(), ::tolower);
+						if ( sTitle.find (pWndOp->m_sTitleLower.c_str(), 0) == string::npos)
 							found = false;
 					}
 						
@@ -314,17 +315,17 @@ BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam)
 		if (found && (lParam & FIND_CLASSNAME))
 		{
 			GetClassName (hwnd, szTemp, 255);
-			CString sClass (szTemp);
-			if (!sClass.IsEmpty ())
+			string sClass (szTemp);
+			if (!sClass.empty ())
 			{
 				if ((lParam & FIND_CASESENSITIVE))
 				{
-					if (sClass.Compare (pWndOp->m_sClass) != 0)
+					if (sClass.compare (pWndOp->m_sClass) != 0)
 						found = false;
 				}
 				else
 				{
-					if (sClass.CompareNoCase (pWndOp->m_sClass) != 0)
+					if (stricmp(sClass.c_str(), pWndOp->m_sClass.c_str()) != 0)
 						found = false;
 				}
 
@@ -370,17 +371,17 @@ BOOL CALLBACK EnumChildProc(HWND hwnd, LPARAM lParam)
 	
 	if (hwnd)
 	{
-		TCHAR szTemp [1024] = {_T('\0')};
+		TCHAR szTemp [1024] = {'\0'};
 		
 		//GetWindowText (hwnd, szTemp, 255);
 		SendMessage (hwnd, WM_GETTEXT, sizeof(szTemp) / sizeof(TCHAR), (LPARAM)szTemp);
 		
-		CString sText (szTemp);
-		if (!sText.IsEmpty ())
+		string sText (szTemp);
+		if (!sText.empty ())
 		{
 			if (pWndOp->m_bCaseSensitive)
 			{
-				if (sText.Find (pWndOp->m_sText, 0) != -1)
+				if (sText.find (pWndOp->m_sText, 0) != -1)
 				{
 					*((bool*)lParam) = true;
 					return FALSE;
@@ -388,8 +389,8 @@ BOOL CALLBACK EnumChildProc(HWND hwnd, LPARAM lParam)
 			}
 			else
 			{
-				sText.MakeLower ();
-				if (sText.Find (pWndOp->m_sTextLower, 0) != -1)
+				std::transform(sText.begin(), sText.end(), sText.begin(), ::tolower);
+				if (sText.find (pWndOp->m_sTextLower, 0) != -1)
 				{
 					*((bool*)lParam) = true;
 					return FALSE;

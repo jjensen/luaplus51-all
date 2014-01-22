@@ -39,8 +39,6 @@ static int l_GetWindowText(lua_State* L) {
 	HWND hwnd = (HWND)(UINT)lua_tonumber(L, 1);
 
 	// ::GetWindowText does not always seem to work
-	CString sText;
-
 	char buffer[257];
 	buffer[0] = 0;
 	if (hwnd != 0)
@@ -343,7 +341,7 @@ BOOL __stdcall TPKListWindows(HWND hWnd, LPARAM lparam)
 	return true;
 
 }
-#endif 0
+#endif // 0
 #if 0
 //---------------------------------------------------------------------------
 //***************************************************************************
@@ -1561,7 +1559,7 @@ void __PushKeys(const char* src)
 
 
 
-#endif 0
+#endif // 0
 
 
 /*

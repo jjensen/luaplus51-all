@@ -31,16 +31,16 @@
 #endif // _MSC_VER > 1000
 
 #include <windows.h>
-#include <atlstr.h>
 #pragma warning(disable: 4702)
 #include <list>
+#include <string>
 using namespace std;
 
 class CWindowEngine;
 class CKeystrokeEngine  
 {
 public:
-	CKeystrokeEngine (const CString &sKeys);
+	CKeystrokeEngine (const char* sKeys);
     virtual ~CKeystrokeEngine();
 
 	void SetPause (bool bPause, int nPause);
@@ -56,7 +56,7 @@ public:
 	bool SendKeys ();
 protected:	
 	bool	m_bCtrlPressed, m_bAltPressed, m_bShiftPressed;
-	CString m_sKeys;
+	string m_sKeys;
 	LPCSTR  m_lpszWndTitle, m_lpszWndClass;
 	bool	m_bPause, m_bSendToWnd, m_bExact, m_bCaseSensitive, m_bReactivate;
 	int		m_nPause, m_nReActivate;
@@ -107,8 +107,8 @@ protected:
 		int nOptional;
 	}KeyStruct;
 
-	int GetKeyParam (const CString &sSource, CString &sDest, int nStart);
-	KeyType GetNextSpecialKey(CString sKey, KeyStruct &key);
+	int GetKeyParam (const char* sSource, string &sDest, int nStart);
+	KeyType GetNextSpecialKey(const char* sKey, KeyStruct &key);
 	void ParseKeys();
 	bool SendSingleKey(KeyStruct &key, CWindowEngine &wnd, bool bCtrlLocked, bool bAltLocked, bool bShiftLocked);
 

@@ -31,9 +31,9 @@
 #endif // _MSC_VER > 1000
 
 #include <windows.h>
-#include <atlstr.h>
 #pragma warning(disable: 4702)
 #include <list>
+#include <string>
 using namespace std;
 
 class CWindowEngine  
@@ -56,8 +56,8 @@ public:
 	
 	void FindAllWindows();
 	
-	CString m_sTitle, m_sClass, m_sText;
-	CString m_sTitleLower, m_sTextLower;
+	string m_sTitle, m_sClass, m_sText;
+	string m_sTitleLower, m_sTextLower;
 	bool m_bExact, m_bApplyToAll, m_bCaseSensitive;
 	
 	list<HWND> m_Handles;

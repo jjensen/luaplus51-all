@@ -38,7 +38,7 @@ static char THIS_FILE[]=__FILE__;
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-CKeystrokeEngine::CKeystrokeEngine(const CString &sKeys) :
+CKeystrokeEngine::CKeystrokeEngine(const char* sKeys) :
 	m_bCtrlPressed (false), m_bAltPressed (false), m_bShiftPressed (false),
     m_bPause (false), m_bSendToWnd (false), m_bExact (false), m_bCaseSensitive (false),
 	m_bReactivate (false), m_nPause (0), m_nReActivate (0), 
@@ -334,7 +334,7 @@ void CKeystrokeEngine::ParseKeys()
 
 	m_KeyList.clear ();
 	int idx = 0;
-	int nKeyLength = m_sKeys.GetLength ();
+	int nKeyLength = m_sKeys.size ();
 	char c = 0;
 	char szTemp [MAX_SK_LEN];
 	SHORT nTemp;
@@ -344,7 +344,7 @@ void CKeystrokeEngine::ParseKeys()
 
 	while (idx < nKeyLength)
 	{
-		c = m_sKeys.GetAt (idx);
+		c = m_sKeys[idx];
 		// if a normal key
 		if (bNotASpecialKey || 
 			((c != '<') || ((c == '<') && (idx == nKeyLength - 1)))
@@ -394,7 +394,7 @@ void CKeystrokeEngine::ParseKeys()
 			int nOffset = 0;
 			while (nTempIdx < nKeyLength && (nTempIdx < nTempIdx + MAX_SK_LEN - 1))
 			{
-				c = m_sKeys.GetAt (nTempIdx);
+				c = m_sKeys[nTempIdx];
 				// found the first token
 				if (c == ' ' || c == '>')
 				{
@@ -405,8 +405,8 @@ void CKeystrokeEngine::ParseKeys()
 					{
 						if (c == ' ')
 						{
-							CString sDest;
-							int i = GetKeyParam (m_sKeys, sDest, nTempIdx);
+							string sDest;
+							int i = GetKeyParam (m_sKeys.c_str(), sDest, nTempIdx);
 							if (i > 0)
                                 nTempIdx += i;
 							else
@@ -501,9 +501,9 @@ void CKeystrokeEngine::ParseKeys()
 							tempKey.nOptional = 0;
 						else
 						{
-							CString sDest;
-							nTempIdx += GetKeyParam (m_sKeys, sDest, nTempIdx);
-							tempKey.nOptional = atoi (sDest);
+							string sDest;
+							nTempIdx += GetKeyParam (m_sKeys.c_str(), sDest, nTempIdx);
+							tempKey.nOptional = atoi (sDest.c_str());
 							m_KeyList.push_back (tempKey);
 						}
 						bPushShiftRelease = false;
@@ -515,9 +515,9 @@ void CKeystrokeEngine::ParseKeys()
 							tempKey.nOptional = 0;
 						else
 						{
-							CString sDest;
-							nTempIdx += GetKeyParam (m_sKeys, sDest, nTempIdx);
-							tempKey.nOptional = atoi (sDest);
+							string sDest;
+							nTempIdx += GetKeyParam (m_sKeys.c_str(), sDest, nTempIdx);
+							tempKey.nOptional = atoi (sDest.c_str());
 							m_KeyList.push_back (tempKey);
 						}
 						bPushShiftRelease = false;
@@ -544,7 +544,7 @@ void CKeystrokeEngine::ParseKeys()
 }
 
 // Gets next special key form the given String...
-CKeystrokeEngine::KeyType CKeystrokeEngine::GetNextSpecialKey(CString sKey, CKeystrokeEngine::KeyStruct &key)
+CKeystrokeEngine::KeyType CKeystrokeEngine::GetNextSpecialKey(const char* sKey, CKeystrokeEngine::KeyStruct &key)
 {
 	KeyType nType = Key_Normal;
 	key.nSpecial = SK_None;
@@ -748,15 +748,16 @@ CKeystrokeEngine::KeyType CKeystrokeEngine::GetNextSpecialKey(CString sKey, CKey
 
 // xxxxxxx> þeklindeki bir stringde xxxxxx i return eder. eðer sonu > ile
 // bitmiyorsa false return eder
-int CKeystrokeEngine::GetKeyParam (const CString &sSource, CString &sDest, int nStart)
+int CKeystrokeEngine::GetKeyParam (const char* sSource, string &sDest, int nStart)
 {
-	sDest.Empty ();
+	sDest.clear ();
 	int idx = 1;
-	for (int i = nStart; i < sSource.GetLength (); i++)
+	size_t sourceLen = strlen(sSource);
+	for (int i = nStart; i < sourceLen; i++)
 	{
-		if (sSource.GetAt (i) == '>')
+		if (sSource[i] == '>')
 			return idx;
-		sDest += sSource.GetAt (i);
+		sDest += sSource[i];
 		++ idx;
 	}
 	return 0;

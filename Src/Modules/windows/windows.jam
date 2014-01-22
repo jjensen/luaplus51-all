@@ -1,8 +1,7 @@
-if $(OS) = NT  &&  $(COMPILER) != vc6
+if $(OS) = NT
 {
 
-UseModule c/mfc ;
-C.UseMFC windows : link ;
-Lua.CModule windows : : KeystrokeEngine.cpp WindowEngine.cpp windows.cpp ;
+C.LinkPrebuiltLibraries windows : kernel32 user32 ;
+Lua.CModule windows : : KeystrokeEngine.cpp KeystrokeEngine.h WindowEngine.cpp WindowEngine.h windows.cpp ;
 
 }
