@@ -30,6 +30,7 @@ THE SOFTWARE.
 
 #include <stdlib.h>
 #include <string.h>
+#include <algorithm>
 
 #include "lua.h"
 
