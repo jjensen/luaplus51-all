@@ -3,7 +3,7 @@
 ActiveTarget socket ;
 
 local EXTRA_SRCS ;
-if $(MSVCNT)
+if $(OS) = NT
 {
 	EXTRA_SRCS = src/wsocket.c src/wsocket.h ;
 }
@@ -72,6 +72,11 @@ C.Defines : LUASOCKET_EXPORTS ;
 if $(MSVCNT)
 {
 	C.Defines : "LUASOCKET_API=__declspec(dllexport)" ;
+} else {
+	C.Defines : "_WIN32_WINNT=0x501" ;
+}
+
+if $(OS) = NT {
 	C.LinkPrebuiltLibraries : ws2_32 ;
 }
 
