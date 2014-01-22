@@ -818,5 +818,54 @@ assert(d[2] == 1)
 ffi.fill(d, 3)
 assert(d[2] == 0)
 
+-- tests for __new
+ffi.cdef[[
+struct newtest {
+    int a;
+    int b;
+    int c;
+};
+]]
+
+local tp = ffi.metatype("struct newtest", {__new =
+  function(tp, x, y, z)
+    tp = ffi.new(tp)
+    tp.a, tp.b, tp.c = x, y, z
+    return tp
+  end})
+local v = tp(1, 2, 3)
+assert(v.a == 1 and v.b == 2 and v.c == 3)
+
+local tp = ffi.metatype("struct newtest", {__new =
+  function(tp, x, y, z)
+    tp = ffi.new(tp, {a = x, b = y, c = z})
+    return tp
+  end})
+local v = tp(1, 2, 3)
+assert(v.a == 1 and v.b == 2 and v.c == 3)
+
+-- tests for __pairs and __ipairs; not iterating just testing what is returned
+local tp = ffi.metatype("struct newtest",
+  {__pairs = function(tp) return tp.a, tp.b end, __ipairs = function(tp) return tp.b, tp.c end}
+)
+local v = tp(1, 2, 3)
+x, y = pairs(v)
+assert(x == 1 and y == 2)
+x, y = ipairs(v)
+assert(x == 2 and y == 3)
+
+-- test for pointer to struct having same metamethods
+local st = ffi.cdef "struct ptest {int a, b;};"
+local tp = ffi.metatype("struct ptest", {__index = function(s, k) return k end, __len = function(s) return 3 end})
+
+local a = tp(1, 2)
+assert(a.banana == "banana")
+assert(#a == 3)
+local b = ffi.new("int[2]")
+local c = ffi.cast("struct ptest *", b)
+assert(c.banana == "banana") -- should have same methods
+assert(#c == 3)
+
+
 print('Test PASSED')
 
