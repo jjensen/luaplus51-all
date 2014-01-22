@@ -105,7 +105,7 @@ struct FileFindInfo {
 
 static int FileFindNextMatch(struct FileFindInfo* info) {
 	while ((info->dp = readdir(info->dirp)) != NULL) {
-		if (fileglob_WildMatch(info->wildcard, info->dp->d_name, 0)) {
+		if (fileglob_WildMatch(info->wildcard, info->dp->d_name, 0, 0)) {
 			strcpy(info->pathEnd, info->dp->d_name);
 			stat(info->path, &info->attr);
 			if ((info->attr.st_mode & S_IFDIR) != 0) {
