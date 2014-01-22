@@ -37,7 +37,7 @@ bool CompoundFile::Open(const wchar_t* filename, ios_base::openmode mode/*=ios_b
 	else if (mode & ios_base::out)
 		stgm_mode = STGM_WRITE | STGM_SHARE_EXCLUSIVE;
 	else
-		stgm_mode = STGM_READ | STGM_SHARE_EXCLUSIVE;
+		stgm_mode = STGM_DIRECT_SWMR | STGM_READ | STGM_SHARE_DENY_NONE;
 
 	HRESULT hr = StgOpenStorage(filename, NULL, stgm_mode, NULL, 0, &_pStg);
 

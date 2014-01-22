@@ -356,6 +356,8 @@ int lBasicExcel_GetWorksheet(lua_State* L) {
 			luaL_argerror(L, 2, "expected integer or string or xls.wchar");
 		worksheet = xls->GetWorksheet(xwchar->data());
 	}
+	if (!worksheet)
+		return 0;
 	lxls_BasicExcelWorksheet(L, worksheet);
 	return 1;
 }
@@ -378,6 +380,8 @@ int lBasicExcel_AddWorksheet(lua_State* L) {
 		int sheetIndex = luaL_optinteger(L, 3, -1);
 		worksheet = xls->AddWorksheet(xwchar->data(), sheetIndex);
 	}
+	if (!worksheet)
+		return 0;
 	lxls_BasicExcelWorksheet(L, worksheet);
 	return 1;
 }
@@ -574,6 +578,8 @@ int lBasicExcelWorksheet_Cell(lua_State* L) {
 	int row = luaL_checkinteger(L, 2);
 	int col = luaL_checkinteger(L, 3);
 	BasicExcelCell* cell = worksheet->Cell(row, col);
+	if (!cell)
+		return 0;
 	lxls_BasicExcelCell(L, cell);
 	return 1;
 }
