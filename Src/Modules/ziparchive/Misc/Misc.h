@@ -2,20 +2,20 @@
 #define MISC_H
 
 #include <assert.h>
+#include <new>
 
 #if defined(WIN32)
 #define PLATFORM_WINDOWS
 #define MISC_CDECL __cdecl
-#include <new>
+#if defined(_MSC_VER)
 #include "stdint.vc.h"
+#endif
 #elif defined(macintosh)  ||  defined(__APPLE__)
 #define PLATFORM_MAC
 #define MISC_CDECL
-#include <new>
 #elif defined(linux)
 #define PLATFORM_LINUX
 #define MISC_CDECL
-#include <new>
 #endif
 
 typedef unsigned char BYTE;

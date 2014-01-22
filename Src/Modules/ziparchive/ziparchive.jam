@@ -110,7 +110,7 @@ C.IncludeDirectories ziparchive : ../zlib ;
 
 if $(NT)
 {
-	C.LinkPrebuiltLibraries ziparchive : user32 ;
+	C.LinkPrebuiltLibraries ziparchive : user32 winmm ;
 	if $(COMPILER) = mingw {
 		C.LinkPrebuiltLibraries ziparchive : stdc++ ;
 	}
