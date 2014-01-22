@@ -1,4 +1,5 @@
-require 'filefind'
+local filefind = require 'filefind'
+
 require 'ex'
 
 function TestList(expectedList, wildcard)
@@ -29,7 +30,12 @@ function TestList(expectedList, wildcard)
 		missingEntries[#missingEntries + 1] = expectedName
 	end
 	if #missingEntries > 0 then
-		error('These entries are missing:\n\t\t' .. table.concat(missingEntries, '\n\t\t'))
+		print('These entries are missing:\n\t\t' .. table.concat(missingEntries, '\n\t\t'))
+        print('Files on disk:')
+        for entry in filefind.glob(wildcard) do
+            print('', handle.filename)
+        end
+        error("error")
 	end
 end
 
@@ -279,7 +285,7 @@ TestList(
 		'a/filea.txt',
 		'a/filec.txt',
 		'b/filed.txt',
-	}, '**@=*.lua@=*.txt' )
+	}, '**@=*.lua@=**.txt' )
 
 
 -------------------------------------------------------------------------------
@@ -293,7 +299,7 @@ TestList({
 		'b/filed.txt',
 		'b/35/file23.dat',
 		'b/73/file86.dat',
-	}, '**@-.svn/' )
+	}, '**@-**/.svn/' )
 
 
 -------------------------------------------------------------------------------
@@ -304,7 +310,7 @@ TestList({
 		'a/subdira/subdirb/',
 		'b/35/',
 		'b/73/',
-	}, '**/@-.svn/' )
+	}, '**/@-**/.svn/' )
 
 
 -------------------------------------------------------------------------------
@@ -329,7 +335,21 @@ TestList({
 		'b/.svn/',
 		'b/35/',
 		'b/73/',
-	}, '**/@-s*/' )
+	}, '**/@-**/s*/' )
+
+
+-------------------------------------------------------------------------------
+TestList({
+		'a/',
+		'b/',
+		'a/.svn/',
+		'a/subdira/',
+		'a/subdira/.svn/',
+		'a/subdira/subdirb/',
+		'b/.svn/',
+		'b/35/',
+		'b/73/',
+	}, '**/@-*s*/' )
 
 
 -------------------------------------------------------------------------------
@@ -338,9 +358,9 @@ TestList({
 		'b/',
 		'b/35/',
 		'b/73/',
-	}, '**/@-*s*/' )
+	}, '**/@-**s*/' )
 
-	
+
 -------------------------------------------------------------------------------
 TestList(
 	{
@@ -368,7 +388,7 @@ TestList(
 		'b/filed.txt',
 		'b/35/file23.dat',
 		'b/73/file86.dat',
-	}, '**+@-*n/' )
+	}, '**+@-**n/' )
 
 
 -------------------------------------------------------------------------------
@@ -385,7 +405,7 @@ TestList(
 		'a/subdira/subdirb/subfilec.zyx',
 		'b/35/',
 		'b/73/',
-	}, '**+@-*n/@-*d*' )
+	}, '**+@-**n/@-**/*d*' )
 
 
 
@@ -393,6 +413,58 @@ TestList(
 -------------------------------------------------------------------------------
 os.remove('a/')
 os.remove('b/')
+
+
+
+
+-------------------------------------------------------------------------------
+function test(a, b)
+	if a ~= b then
+		print('Actual:', a)
+		print('Expected:', b)
+		assert()
+	end
+end
+
+test(filefind.pattern_match('**b*.zip', 'buildtest.zip'), true)
+test(filefind.pattern_match('**b*.zip', 'subdira/subdirb/file1.zip'), false)
+test(filefind.pattern_match('**/*', 'subdira/subdirb/abcdefg.txt'), true)
+test(filefind.pattern_match('**', 'subdira/subdirb/abcdefg.txt'), true)
+test(filefind.pattern_match('', ''), true)
+test(filefind.pattern_match('*', ''), true)
+test(filefind.pattern_match('*.*', ''), false)
+test(filefind.pattern_match('a*', ''), false)
+test(filefind.pattern_match('a*', 'abcdefg.txt'), true)
+test(filefind.pattern_match('a*b*c?e*', 'abcdefg.txt'), true)
+test(filefind.pattern_match('a*b*c?f*', 'abcdefg.txt'), false)
+test(filefind.pattern_match('*.', 'abcdefg.txt'), false)
+test(filefind.pattern_match('*.t', 'abcdefg.txt'), false)
+test(filefind.pattern_match('*.t*', 'abcdefg.txt'), true)
+test(filefind.pattern_match('*.t', 'abcdefg.txt'), false)
+test(filefind.pattern_match('*.*t', 'abcdefg.txt'), true)
+test(filefind.pattern_match('*.*x', 'abcdefg.txt'), false)
+test(filefind.pattern_match('*.txt', 'abcdefg.txt'), true)
+
+test(filefind.pattern_match('*', 'subdira/abcdefg.txt'), false)
+test(filefind.pattern_match('*/*', 'subdira/abcdefg.txt'), true)
+test(filefind.pattern_match('*/*.dat', 'subdira/abcdefg.txt'), false)
+test(filefind.pattern_match('*/*.txt', 'subdira/abcdefg.txt'), true)
+
+test(filefind.pattern_match('*', 'subdira/subdirb/abcdefg.txt'), false)
+test(filefind.pattern_match('*/*', 'subdira/subdirb/abcdefg.txt'), false)
+test(filefind.pattern_match('*/*/*', 'subdira/subdirb/abcdefg.txt'), true)
+test(filefind.pattern_match('*/*/*.dat', 'subdira/subdirb/abcdefg.txt'), false)
+test(filefind.pattern_match('*/*/*.txt', 'subdira/subdirb/abcdefg.txt'), true)
+test(filefind.pattern_match('**', 'subdira/subdirb/abcdefg.txt'), true)
+test(filefind.pattern_match('**/*', 'subdira/subdirb/abcdefg.txt'), true)
+test(filefind.pattern_match('**/*.dat', 'subdira/subdirb/abcdefg.txt'), false)
+test(filefind.pattern_match('**/*.txt', 'subdira/subdirb/abcdefg.txt'), true)
+test(filefind.pattern_match('s**/*.txt', 'subdira/subdirb/abcdefg.txt'), true)
+test(filefind.pattern_match('*a**/*.txt', 'subdira/subdirb/abcdefg.txt'), true)
+test(filefind.pattern_match('t**/*.txt', 'subdira/subdirb/abcdefg.txt'), false)
+--test(filefind.canonicalize_wild_pattern('**b*.zip'), '**/*b*.zip')
+test(filefind.pattern_match('**/*b*.zip', 'subdira/subdirb/file1.zip'), false)
+
 
 print("* Testing complete!")
 

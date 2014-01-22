@@ -1008,7 +1008,7 @@ static int l_filefind_FILETIME_to_unix_time_UTC(lua_State* L) {
 		signed long long ll;
 #endif
 		ll = (((LONGLONG)(fileTime.dwHighDateTime)) << 32) + fileTime.dwLowDateTime;
-		lua_pushnumber(L, (lua_Number)((ll - 116444736000000000ui64)/10000000ui64));
+		lua_pushnumber(L, (lua_Number)((ll - 116444736000000000ULL)/10000000ULL));
 	}
 
 	return 1;
@@ -1022,7 +1022,7 @@ static int l_filefind_unix_time_to_FILETIME_UTC(lua_State* L) {
 #else
 		signed long long ll;
 #endif
-	ll = Int32x32To64(unixTime, 10000000) + 116444736000000000ui64;
+	ll = Int32x32To64(unixTime, 10000000) + 116444736000000000ULL;
 	lua_pushnumber(L, (DWORD)ll);
 	lua_pushnumber(L, (DWORD)(ll >> 32));
 	return 2;
@@ -1130,6 +1130,16 @@ static int l_filefind_time_t_to_FILETIME(lua_State* L) {
 #endif // WIN32
 
 
+static int l_filefind_pattern_match(lua_State *L) {
+  const char *pattern = luaL_checkstring(L, 1);
+  const char *string = luaL_checkstring(L, 2);
+  int caseSensitive = lua_isboolean(L, 3) ? lua_toboolean(L, 3) : 0;
+
+  lua_pushboolean(L, fileglob_WildMatch(pattern, string, caseSensitive, 1));
+  return 1;
+}
+
+
 static const struct luaL_Reg filefind_lib[] = {
 	{ "attributes", l_filefind_attributes },
 	{ "first", l_filefind_first },
@@ -1141,6 +1151,7 @@ static const struct luaL_Reg filefind_lib[] = {
 	{ "FILETIME_to_time_t", l_filefind_FILETIME_to_time_t },
 	{ "time_t_to_FILETIME",	l_filefind_time_t_to_FILETIME },
 #endif // WIN32
+	{ "pattern_match", l_filefind_pattern_match },
 	{NULL, NULL},
 };
 
