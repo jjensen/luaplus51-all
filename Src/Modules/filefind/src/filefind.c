@@ -293,7 +293,25 @@ static int filefind_index_write_FILETIME(lua_State* L) {
 
 static int filefind_index_size_helper(lua_State* L, struct FileFindInfo* info) {
 #if defined(WIN32)
-	lua_pushnumber(L, (lua_Number)ui64ToDouble((unsigned __int64)info->fd.nFileSizeLow + ((unsigned __int64)info->fd.nFileSizeHigh << 32)));
+	unsigned __int64 fileSize = 0;
+	if (info->fd.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) {
+		HANDLE handle;
+		DWORD fileSizeLow;
+		DWORD fileSizeHigh;
+		char* filename = malloc(strlen(info->path) + strlen(info->fd.cFileName) + 1);
+		strcpy(filename, info->path);
+		strcat(filename, info->fd.cFileName);
+		handle = CreateFile(filename, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
+		if (handle != INVALID_HANDLE_VALUE) {
+			fileSizeLow = GetFileSize(handle, &fileSizeHigh);
+			fileSize = (unsigned __int64)fileSizeLow + ((unsigned __int64)fileSizeHigh << 32);
+			CloseHandle(handle);
+		}
+		free(filename);
+	} else {
+		fileSize = (unsigned __int64)info->fd.nFileSizeLow + ((unsigned __int64)info->fd.nFileSizeHigh << 32);
+	}
+	lua_pushnumber(L, (lua_Number)ui64ToDouble(fileSize));
 #else
 	lua_pushnumber(L, info->attr.st_size);
 #endif
