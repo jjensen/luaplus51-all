@@ -23,6 +23,10 @@ local SRCS =
 
 CopyFile alien.core : $(LUA_LDIR)/alien.lua : $(SUBDIR)/src/alien.lua ;
 
+if $(PLATFORM) in win32 {
+    C.Defines alien.core : WINDOWS ;
+}
+
 C.IncludeDirectories alien.core : $(SUBDIR)/libffi/win32 ;
 Lua.CModule alien.core : alien/core : $(SRCS) ;
 
