@@ -17,6 +17,8 @@ struct spawn_params *spawn_param_init(lua_State *L);
 void spawn_param_filename(struct spawn_params *p);
 void spawn_param_args(struct spawn_params *p);
 void spawn_param_detach(struct spawn_params *p, int detach);
+void spawn_param_suspended(struct spawn_params *p, int suspended);
+void spawn_param_can_terminate(struct spawn_params *p, int can_terminate);
 void spawn_param_env(struct spawn_params *p);
 void spawn_param_show(struct spawn_params *p, int show);
 void spawn_param_useshell(struct spawn_params *p, int shell);
@@ -29,5 +31,9 @@ int spawn_param_execute(struct spawn_params *p);
 int process_wait(lua_State *L);
 int process_tostring(lua_State *L);
 int process_close(lua_State *L);
+int process_terminate(lua_State *L);
+int process_resume(lua_State *L);
+
+int process_getinfo(lua_State *L);
 
 #endif/*SPAWN_H*/

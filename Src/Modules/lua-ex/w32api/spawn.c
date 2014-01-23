@@ -29,6 +29,8 @@ struct spawn_params {
   const char *environment;
   STARTUPINFO si;
   int detach;
+  int suspended;
+  int can_terminate;
   int useshell;
 };
 
@@ -64,6 +66,8 @@ struct spawn_params *spawn_param_init(lua_State *L)
   p->cmdline = p->environment = 0;
   p->si = si;
   p->detach = 0;
+  p->suspended = 0;
+  p->can_terminate = 0;
   p->useshell = 1;
   return p;
 }
@@ -119,6 +123,16 @@ void spawn_param_args(struct spawn_params *p)
 void spawn_param_detach(struct spawn_params *p, int detach)
 {
   p->detach = detach;
+}
+
+void spawn_param_suspended(struct spawn_params *p, int suspended)
+{
+  p->suspended = suspended;
+}
+
+void spawn_param_can_terminate(struct spawn_params *p, int can_terminate)
+{
+  p->can_terminate = can_terminate;
 }
 
 void spawn_param_show(struct spawn_params *p, int show)
@@ -182,8 +196,8 @@ void spawn_param_redirect(struct spawn_params *p, const char *stdname, HANDLE h)
 
 struct process {
   int status;
-  HANDLE hProcess;
-  DWORD dwProcessId;
+  PROCESS_INFORMATION pi;
+  HANDLE jobHandle;
 };
 
 int spawn_param_execute(struct spawn_params *p)
@@ -191,8 +205,8 @@ int spawn_param_execute(struct spawn_params *p)
   lua_State *L = p->L;
   char *c, *e;
   const char* comspec;
-  PROCESS_INFORMATION pi;
   BOOL ret;
+  DWORD flags;
   struct process *proc = lua_newuserdata(L, sizeof *proc);
   luaL_getmetatable(L, PROCESS_HANDLE);
   lua_setmetatable(L, -2);
@@ -216,15 +230,35 @@ int spawn_param_execute(struct spawn_params *p)
 
   e = (char *)p->environment; /* strdup(p->environment); */
   /* XXX does CreateProcess modify its environment argument? */
-  ret = CreateProcess(0, c, 0, 0, p->detach ? FALSE : TRUE, p->detach ? DETACHED_PROCESS : 0, e, 0, &p->si, &pi);
-  if (ret)
-	CloseHandle(pi.hThread);
-  /* if (e) free(e); */
+  flags = 0;
+  if (p->detach)
+	  flags |= DETACHED_PROCESS;
+  if (p->suspended)
+	  flags |= CREATE_SUSPENDED;
+  proc->jobHandle = INVALID_HANDLE_VALUE;
+  if (p->can_terminate) {
+	JOBOBJECT_EXTENDED_LIMIT_INFORMATION info;
+	BOOL ret;
+
+    proc->jobHandle = CreateJobObject(NULL, NULL);
+
+    info.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE | JOB_OBJECT_LIMIT_BREAKAWAY_OK;
+	ret = SetInformationJobObject(proc->jobHandle, JobObjectExtendedLimitInformation, &info, sizeof(info));
+
+	flags |= CREATE_BREAKAWAY_FROM_JOB | CREATE_SUSPENDED;
+	//flags |= CREATE_SUSPENDED;
+  }
+  ret = CreateProcess(0, c, 0, 0, p->detach ? FALSE : TRUE, flags, e, 0, &p->si, &proc->pi);
   free(c);
   if (!ret)
     return windows_pushlasterror(L);
-  proc->hProcess = pi.hProcess;
-  proc->dwProcessId = pi.dwProcessId;
+  if (proc->jobHandle != INVALID_HANDLE_VALUE) {
+	  BOOL ret = AssignProcessToJobObject(proc->jobHandle, proc->pi.hProcess);
+	  DWORD lastError = GetLastError();
+	  if (!p->suspended) {
+		  ResumeThread(proc->pi.hThread);
+	  }
+  }
   return 1;
 }
 
@@ -235,11 +269,11 @@ int process_wait(lua_State *L)
   DWORD timeout = luaL_optinteger(L, 2, INFINITE);
   if (p->status == -1) {
     DWORD exitcode;
-	DWORD result = WaitForSingleObject(p->hProcess, timeout);
+	DWORD result = WaitForSingleObject(p->pi.hProcess, timeout);
 	if (WAIT_TIMEOUT == result)
 		return 0;
     if (WAIT_FAILED == result
-        || !GetExitCodeProcess(p->hProcess, &exitcode))
+        || !GetExitCodeProcess(p->pi.hProcess, &exitcode))
       return windows_pushlasterror(L);
     p->status = exitcode;
   }
@@ -254,8 +288,8 @@ int process_tostring(lua_State *L)
   struct process *p = luaL_checkudata(L, 1, PROCESS_HANDLE);
   char buf[40];
   lua_pushlstring(L, buf,
-    sprintf(buf, "process (%lu, %s)", (unsigned long)p->dwProcessId,
-        p->dwProcessId ? (p->status==-1 ? "running" : "terminated") : "terminated"));
+    sprintf(buf, "process (%lu, %s)", (unsigned long)p->pi.dwProcessId,
+        p->pi.dwProcessId ? (p->status==-1 ? "running" : "terminated") : "terminated"));
   return 1;
 }
 
@@ -263,15 +297,83 @@ int process_tostring(lua_State *L)
 int process_close(lua_State *L)
 {
   struct process *p = luaL_checkudata(L, 1, PROCESS_HANDLE);
-  if (p->hProcess != INVALID_HANDLE_VALUE) {
+  if (p->pi.hProcess != INVALID_HANDLE_VALUE) {
+	if (p->jobHandle != INVALID_HANDLE_VALUE) {
+		TerminateJobObject(p->jobHandle, 1);
+		CloseHandle(p->jobHandle);
+		p->jobHandle = INVALID_HANDLE_VALUE;
+	}
     if (p->status == -1) {
       DWORD exitcode;
-      GetExitCodeProcess(p->hProcess, &exitcode);
+      GetExitCodeProcess(p->pi.hProcess, &exitcode);
       p->status = exitcode;
 	}
 
-    CloseHandle(p->hProcess);
-    p->hProcess = INVALID_HANDLE_VALUE;
+	CloseHandle(p->pi.hThread);
+	p->pi.hThread = INVALID_HANDLE_VALUE;
+    CloseHandle(p->pi.hProcess);
+    p->pi.hProcess = INVALID_HANDLE_VALUE;
+  }
+  return 0;
+}
+
+
+/* proc -- exitcode/nil error */
+int process_resume(lua_State *L)
+{
+  struct process *p = luaL_checkudata(L, 1, PROCESS_HANDLE);
+  if (p->pi.hProcess != INVALID_HANDLE_VALUE) {
+    lua_pushboolean(L, ResumeThread(p->pi.hThread) != FALSE);
+	lua_pushinteger(L, GetLastError());
+	return 2;
+  }
+  return 0;
+}
+
+
+/* proc -- exitcode/nil error */
+int process_getinfo(lua_State *L)
+{
+  struct process *p = luaL_checkudata(L, 1, PROCESS_HANDLE);
+  lua_pushlightuserdata(L, p->pi.hProcess);
+  lua_newtable(L);
+  lua_pushstring(L, "process_handle");
+  lua_pushlightuserdata(L, p->pi.hProcess);
+  lua_rawset(L, -3);
+  lua_pushstring(L, "thread_handle");
+  lua_pushlightuserdata(L, p->pi.hThread);
+  lua_rawset(L, -3);
+  lua_pushstring(L, "process_id");
+  lua_pushinteger(L, p->pi.dwProcessId);
+  lua_rawset(L, -3);
+  lua_pushstring(L, "thread_id");
+  lua_pushinteger(L, p->pi.dwThreadId);
+  lua_rawset(L, -3);
+  lua_pushstring(L, "job");
+  lua_pushlightuserdata(L, p->jobHandle);
+  lua_rawset(L, -3);
+  return 1;
+}
+
+
+int process_terminate(lua_State *L)
+{
+  HANDLE jobHandle = INVALID_HANDLE_VALUE;
+  if (lua_isuserdata(L, 1)) {
+    jobHandle = (HANDLE)lua_touserdata(L, 1);
+  } else if (lua_isnumber(L, 1)) {
+    jobHandle = (HANDLE)(intptr_t)lua_tonumber(L, 1);
+  } else if (lua_isstring(L, 1)) {
+  } else if (lua_istable(L, 1)) {
+    lua_getfield(L, 1, "job");
+	if (lua_isuserdata(L, -1)) {
+      jobHandle = (HANDLE)lua_touserdata(L, -1);
+	}
+	lua_pop(L, 1);
+  }
+  if (jobHandle != INVALID_HANDLE_VALUE) {
+    lua_pushboolean(L, TerminateJobObject(jobHandle, (UINT)luaL_optnumber(L, 2, 1)) != FALSE);
+    return 1;
   }
   return 0;
 }

@@ -336,6 +336,36 @@ static int ex_dir(lua_State *L)
 }
 
 
+static int ex_hardlink(lua_State *L)
+{
+  const char *srcfilename = luaL_checkstring(L, 1);
+  const char *destfilename = luaL_checkstring(L, 2);
+  lua_pushboolean(L, CreateHardLink(destfilename, srcfilename, NULL) != FALSE);
+  return 1;
+}
+
+
+lua_Integer luaL_checkboolean (lua_State *L, int narg) {
+	lua_Integer d = lua_toboolean(L, narg);
+	if (d == 0 && !lua_isboolean(L, narg)) {  /* avoid extra test when d is not 0 */
+		const char *msg = lua_pushfstring(L, "%s expected, got %s",
+				luaL_typename(L, narg), lua_typename(L, LUA_TBOOLEAN));
+		return luaL_argerror(L, narg, msg);
+	}
+	return d;
+}
+
+
+static int ex_symboliclink(lua_State *L)
+{
+  const char *symlinkFilename = luaL_checkstring(L, 1);
+  const char *targetFilename = luaL_checkstring(L, 2);
+  lua_Integer is_directory = luaL_checkboolean(L, 3);
+  lua_pushboolean(L, CreateSymbolicLink(symlinkFilename, targetFilename, is_directory ? SYMBOLIC_LINK_FLAG_DIRECTORY : 0) != FALSE);
+  return 1;
+}
+
+
 static int ex_copyfile(lua_State *L)
 {
   const char *srcfilename = luaL_checkstring(L, 1);
@@ -530,6 +560,12 @@ static int ex_spawn(lua_State *L)
     lua_getfield(L, 2, "detach");          /* cmd opts ... envtab */
     spawn_param_detach(params, lua_type(L, -1) == LUA_TBOOLEAN ? lua_toboolean(L, -1) : 0);
 
+    lua_getfield(L, 2, "suspended");          /* cmd opts ... envtab */
+    spawn_param_suspended(params, lua_type(L, -1) == LUA_TBOOLEAN ? lua_toboolean(L, -1) : 0);
+
+    lua_getfield(L, 2, "can_terminate");          /* cmd opts ... envtab */
+    spawn_param_can_terminate(params, lua_type(L, -1) == LUA_TBOOLEAN ? lua_toboolean(L, -1) : 0);
+
     get_redirect(L, 2, "stdin", params);    /* cmd opts ... */
     get_redirect(L, 2, "stdout", params);   /* cmd opts ... */
     get_redirect(L, 2, "stderr", params);   /* cmd opts ... */
@@ -650,9 +686,12 @@ int luaopen_ex_core(lua_State *L)
     {"remove",     ex_remove},
     {"dir",        ex_dir},
     {"dirent",     ex_dirent},
+    {"hardlink",   ex_hardlink},
+    {"symboliclink", ex_symboliclink},
     {"copyfile",   ex_copyfile},
     {"movefile",   ex_movefile},
     {"touch",   ex_touch},
+    {"terminate",  process_terminate},
     {"stdin_binary", ex_stdin_binary},
     {"stdout_binary", ex_stdout_binary},
     /* process control */
@@ -665,6 +704,8 @@ int luaopen_ex_core(lua_State *L)
   const luaL_Reg ex_process_methods[] = {
     {"__tostring", process_tostring},
 #define ex_process_functions (ex_process_methods + 1)
+    {"getinfo",    process_getinfo},
+    {"resume",     process_resume},
     {"wait",       process_wait},
     {"__gc",       process_close},
     {0,0} };
