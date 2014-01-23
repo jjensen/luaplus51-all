@@ -15,7 +15,7 @@ C.ActiveTarget luaffi ;
 #	C.Defines luaffi : X86_64 ;
 #}
 
-if $(MSVCNT) {
+if $(MSVCNT)  &&  $(C.COMPILER) in vs2008 vs2010 vs2012 {
 	C.IncludeDirectories luaffi : msvc ;
 }
 
@@ -43,7 +43,7 @@ rule DynAsm TARGET : ARCHITECTURE_DEFINE : OUTPUT_HEADER : DASC_FILE {
 C.IncludeDirectories luaffi : $(LOCATE_TARGET) ;
 
 if $(PLATFORM) = win32 {
-    C.Defines luaffi : LUA_FFI_BUILD_AS_DLL ;
+    C.Defines luaffi : _WIN32 LUA_FFI_BUILD_AS_DLL ;
 	C.LinkPrebuiltLibraries luaffi : kernel32 user32 gdi32 ;
 }
 
