@@ -338,9 +338,9 @@ static int ex_dir(lua_State *L)
 
 static int ex_hardlink(lua_State *L)
 {
-  const char *srcfilename = luaL_checkstring(L, 1);
-  const char *destfilename = luaL_checkstring(L, 2);
-  lua_pushboolean(L, CreateHardLink(destfilename, srcfilename, NULL) != FALSE);
+  const char *hardlinkFilename = luaL_checkstring(L, 1);
+  const char *targetFilename = luaL_checkstring(L, 2);
+  lua_pushboolean(L, CreateHardLink(hardlinkFilename, targetFilename, NULL) != FALSE);
   return 1;
 }
 
