@@ -27,6 +27,10 @@ static lua_State *globalL = NULL;
 
 static const char *progname = LUA_PROGNAME;
 
+#ifdef _MSC_VER
+    #pragma comment(lib,"comctl32.lib")
+    #pragma comment(linker,"\"/manifestdependency:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
+#endif // _MSC_VER
 
 
 static void lstop (lua_State *L, lua_Debug *ar) {
