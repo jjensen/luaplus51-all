@@ -35,6 +35,7 @@ int path_create(const char* inPath)
   char path[FILENAME_MAX];
 #endif
   char* pathPtr = path;
+  char* startOfPathPtr = path;
   char ch;
 
   if (*inPath == '/'  ||  *inPath == '\\') {
@@ -57,6 +58,7 @@ int path_create(const char* inPath)
         if (ch == '/'  ||  ch == '\\')
           break;
       }
+      startOfPathPtr = pathPtr;
     }
 #endif
   }
@@ -76,10 +78,10 @@ int path_create(const char* inPath)
 
   /* Determine which directories already exist. */
   --pathPtr;
-  while (pathPtr > path) {
+  while (pathPtr > startOfPathPtr) {
 	struct stat fileInfo;
 	char ch;
-    while (pathPtr > path  &&  *pathPtr != '/'  &&  *pathPtr != '\\')
+    while (pathPtr > startOfPathPtr  &&  *pathPtr != '/'  &&  *pathPtr != '\\')
 	  --pathPtr;
     ch = *pathPtr;
     if (ch == '/'  ||  ch == '\\') {
