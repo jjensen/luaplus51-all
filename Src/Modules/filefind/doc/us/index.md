@@ -5,7 +5,7 @@
 ## Example
 
 <pre>
-    require 'filefind'
+    filefind = require 'filefind'
 
     for entry in filefind.glob('**') do
         print(entry.filename)
@@ -15,7 +15,7 @@
 
 ## Reference Manual
 
-This is a reference of all of the filefind module's methods.
+This is a reference of all of the *filefind* module's methods.
 
 ## Module `filefind`
 
@@ -32,6 +32,16 @@ Begins a new iteration of files and/or directories using *pattern* as the glob w
 **for entry in filefind.match(*pattern*) do**
 
 Begins a new iteration of files and directories using *pattern* as the wildcard.  Simple access to the file system is used.  The more powerful file globbing facilities are not available.
+
+
+**matches = filefind.pattern_match(*pattern*, *string*, *caseSensitive* = false, *recursive* = true) do**
+
+Tests `string` against `pattern` to determine a match.  The syntax for `pattern` follows the wildcard globbing syntax described elsewhere in this document.
+
+Pass `true` for `caseSensitive` to perform a search where case sensitivity matters.  The default is `false`.
+
+Pass `true` for `recursive` to perform a search where directory separators are tested and `**` will work across directory separator boundaries.  Pass `false` to use `*` to search across the entire `string`.
+
 
 
 ### Time Conversion
@@ -290,15 +300,15 @@ This matches all directories under c:/Dir1/ that start with A.  Under all of the
     <td width="450"><b>Description</b></td>
   </tr>
   <tr>
-    <td><code>Src/**/@-.git/@-.svn/</code></td>
+    <td><code>Src/**/@-**/.git/@-**/.svn/</code></td>
     <td>Recursively lists all directories under Src/, but directories called .git/ and .svn/ are filtered.</td>
   </tr>
   <tr>
-    <td><code>Src/**@=*.lua@=README</code></td>
+    <td><code>Src/**@=**.lua@=**/README</code></td>
     <td>Recursively lists all files under Src/ which match *.lua or README. All other files are ignored.</td>
   </tr>
   <tr>
-    <td><code>Src/**/@-.git/@-.svn/@=*.lua@=README</code></td>
+    <td><code>Src/**/@-**/.git/@-**/.svn/@=**.lua@=**/README</code></td>
     <td>Recursively lists all files under Src/ which match *.lua or README. The versions of those files that may exist in .git/ or .svn/ are ignored.</td>
   </tr>
   <tr>
@@ -311,54 +321,23 @@ This matches all directories under c:/Dir1/ that start with A.  Under all of the
 
 ## License
 
-The filefind module is licensed under the terms of the MIT license and can be used unrestricted in any place where Lua could be used.
-
-===============================================================================
-
-Lua License
------------
-
-Lua is licensed under the terms of the MIT license reproduced below.
-This means that Lua is free software and can be used for both academic
-and commercial purposes at absolutely no cost.
-
-For details and rationale, see [http://www.lua.org/license.html].
-
-===============================================================================
-
-Copyright (C) 2003-2004 Tecgraf, PUC-Rio.
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-
-===============================================================================
-
-(end of COPYRIGHT)
+The filefind module is licensed under the terms of the MIT and BSD licenses.
 
 
 ## Credits
 
-The filefind module glob source code is originally based on [Matthias Wandel's MyGlob](http://www.sentex.net/~mwandel/jhead/) code, used in his Exif Jpeg camera setting parser and thumbnail remover application.  It also expands upon the [wildcmp()](http://www.codeproject.com/string/wildcmp.asp) code written by Jack Handy.
+The filefind module glob source code was originally based on [Matthias Wandel's MyGlob](http://www.sentex.net/~mwandel/jhead/) code, used in his Exif Jpeg camera setting parser and thumbnail remover application.  It also expands upon the [wildcmp()](http://www.codeproject.com/string/wildcmp.asp) code written by Jack Handy.
+
+For version 3.0, the MyGlob implementation was replaced with Ruby's faster implementation found in dir.c of the Ruby source code distribution.
 
 Joshua Jensen wrote the rest of the filefind module.
 
 
 ## History
+
+* Version 3.0 (23 Jan 2014)
+    * Updated to Ruby's dir.c glob() implementation.
+    * The @- and @= modifiers use a recursive pattern matching syntax.
 
 * Version 2.0 (9 Dec 2009)
     * Adds a revamped version of the old 'glob' module that handles iterators and has even better performance.  Also adds support for the <tt>+</tt> modifier that will list both files and directories.

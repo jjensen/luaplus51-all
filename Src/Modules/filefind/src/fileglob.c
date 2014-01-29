@@ -1395,6 +1395,9 @@ NextContext:
             goto NextFile;
 		}
 #endif
+        if (self->context->prev) {
+            goto NextContext;
+		}
     }
 
     return 0;

@@ -22,6 +22,10 @@ function TestList(expectedList, wildcard)
 	end
 	if #extraList > 0 then
 		table.sort(extraList)
+        print('Files on disk (' .. wildcard .. '):')
+        for entry in filefind.glob(wildcard) do
+            print('', handle.filename)
+        end
 		error('These entries should not exist:\n\t\t' .. table.concat(extraList, '\n\t\t'))
 	end
 
@@ -31,7 +35,7 @@ function TestList(expectedList, wildcard)
 	end
 	if #missingEntries > 0 then
 		print('These entries are missing:\n\t\t' .. table.concat(missingEntries, '\n\t\t'))
-        print('Files on disk:')
+        print('Files on disk (' .. wildcard .. '):')
         for entry in filefind.glob(wildcard) do
             print('', handle.filename)
         end
@@ -105,8 +109,8 @@ io.writefile('a/subdira/subdirb/subfileb.xyz', 'subfileb')
 io.writefile('a/subdira/subdirb/subfilec.zyx', 'subfilec')
 io.writefile('a/filec.txt', 'filec')
 io.writefile('b/filed.txt', 'filed')
-io.writefile('b/35/file23.dat', 'file23')
-io.writefile('b/73/file86.dat', 'file86')
+io.writefile('b/35/960/file.dat', 'file')
+io.writefile('b/73/12/file.dat', 'file')
 
 
 -------------------------------------------------------------------------------
@@ -150,8 +154,8 @@ TestList(
 		'a/subdira/subdirb/subfilec.zyx',
 		'b/filed.txt',
 		'b/.svn/entries',
-		'b/35/file23.dat',
-		'b/73/file86.dat',
+		'b/35/960/file.dat',
+		'b/73/12/file.dat',
 	}, '**' )
 
 
@@ -159,8 +163,8 @@ TestList(
 TestList(
 	{
 		'a/subdira/fileb.dat',
-		'b/35/file23.dat',
-		'b/73/file86.dat',
+		'b/35/960/file.dat',
+		'b/73/12/file.dat',
 	}, '**.dat' )
 
 
@@ -168,9 +172,17 @@ TestList(
 TestList(
 	{
 		'a/subdira/fileb.dat',
-		'b/35/file23.dat',
-		'b/73/file86.dat',
+		'b/35/960/file.dat',
+		'b/73/12/file.dat',
 	}, '**/*.dat' )
+
+
+-------------------------------------------------------------------------------
+TestList(
+	{
+		'b/35/960/file.dat',
+		'b/73/12/file.dat',
+	}, 'b/*/*/file.dat' )
 
 
 -------------------------------------------------------------------------------
@@ -180,8 +192,8 @@ TestList(
 		'a/filec.txt',
 		'a/subdira/fileb.dat',
 		'b/filed.txt',
-		'b/35/file23.dat',
-		'b/73/file86.dat',
+		'b/35/960/file.dat',
+		'b/73/12/file.dat',
 	}, '**t' )
 
 
@@ -192,8 +204,8 @@ TestList(
 		'a/filec.txt',
 		'a/subdira/fileb.dat',
 		'b/filed.txt',
-		'b/35/file23.dat',
-		'b/73/file86.dat',
+		'b/35/960/file.dat',
+		'b/73/12/file.dat',
 	}, '**/*t' )
 
 
@@ -208,7 +220,9 @@ TestList(
 		'b/',
 		'b/.svn/',
 		'b/35/',
+		'b/35/960/',
 		'b/73/',
+		'b/73/12/',
 	}, '**/' )
 
 
@@ -249,11 +263,13 @@ TestList(
 		'a/subdira/subdirb/subfilec.zyx',
 		'b/.svn/',
 		'b/35/',
+		'b/35/960/',
 		'b/73/',
+		'b/73/12/',
 		'b/filed.txt',
 		'b/.svn/entries',
-		'b/35/file23.dat',
-		'b/73/file86.dat',
+		'b/35/960/file.dat',
+		'b/73/12/file.dat',
 	}, '**+' )
 
 
@@ -297,8 +313,8 @@ TestList({
 		'a/subdira/subdirb/subfileb.xyz',
 		'a/subdira/subdirb/subfilec.zyx',
 		'b/filed.txt',
-		'b/35/file23.dat',
-		'b/73/file86.dat',
+		'b/35/960/file.dat',
+		'b/73/12/file.dat',
 	}, '**@-**/.svn/' )
 
 
@@ -309,7 +325,9 @@ TestList({
 		'a/subdira/',
 		'a/subdira/subdirb/',
 		'b/35/',
+		'b/35/960/',
 		'b/73/',
+		'b/73/12/',
 	}, '**/@-**/.svn/' )
 
 
@@ -323,7 +341,9 @@ TestList({
 		'a/subdira/subdirb/',
 		'b/.svn/',
 		'b/35/',
+		'b/35/960/',
 		'b/73/',
+		'b/73/12/',
 	}, '**/@-.svn' )
 
 
@@ -334,7 +354,9 @@ TestList({
 		'a/.svn/',
 		'b/.svn/',
 		'b/35/',
+		'b/35/960/',
 		'b/73/',
+		'b/73/12/',
 	}, '**/@-**/s*/' )
 
 
@@ -348,7 +370,9 @@ TestList({
 		'a/subdira/subdirb/',
 		'b/.svn/',
 		'b/35/',
+		'b/35/960/',
 		'b/73/',
+		'b/73/12/',
 	}, '**/@-*s*/' )
 
 
@@ -357,7 +381,9 @@ TestList({
 		'a/',
 		'b/',
 		'b/35/',
+		'b/35/960/',
 		'b/73/',
+		'b/73/12/',
 	}, '**/@-**s*/' )
 
 
@@ -384,10 +410,12 @@ TestList(
 		'a/subdira/subdirb/subfileb.xyz',
 		'a/subdira/subdirb/subfilec.zyx',
 		'b/35/',
+		'b/35/960/',
 		'b/73/',
+		'b/73/12/',
 		'b/filed.txt',
-		'b/35/file23.dat',
-		'b/73/file86.dat',
+		'b/35/960/file.dat',
+		'b/73/12/file.dat',
 	}, '**+@-**n/' )
 
 
@@ -404,7 +432,9 @@ TestList(
 		'a/subdira/subdirb/subfileb.xyz',
 		'a/subdira/subdirb/subfilec.zyx',
 		'b/35/',
+		'b/35/960/',
 		'b/73/',
+		'b/73/12/',
 	}, '**+@-**n/@-**/*d*' )
 
 

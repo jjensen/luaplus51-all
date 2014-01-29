@@ -1152,8 +1152,9 @@ static int l_filefind_pattern_match(lua_State *L) {
   const char *pattern = luaL_checkstring(L, 1);
   const char *string = luaL_checkstring(L, 2);
   int caseSensitive = lua_isboolean(L, 3) ? lua_toboolean(L, 3) : 0;
+  int recursive = lua_isboolean(L, 4) ? lua_toboolean(L, 4) : 1;
 
-  lua_pushboolean(L, fileglob_WildMatch(pattern, string, caseSensitive, 1));
+  lua_pushboolean(L, fileglob_WildMatch(pattern, string, caseSensitive, recursive));
   return 1;
 }
 
