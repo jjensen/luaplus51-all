@@ -340,7 +340,9 @@ static int ex_hardlink(lua_State *L)
 {
   const char *hardlinkFilename = luaL_checkstring(L, 1);
   const char *targetFilename = luaL_checkstring(L, 2);
-  lua_pushboolean(L, CreateHardLink(hardlinkFilename, targetFilename, NULL) != FALSE);
+  if (CreateHardLink(hardlinkFilename, targetFilename, NULL) == FALSE)
+    return push_error(L);
+  lua_pushboolean(L, 1);
   return 1;
 }
 
@@ -361,7 +363,9 @@ static int ex_symboliclink(lua_State *L)
   const char *symlinkFilename = luaL_checkstring(L, 1);
   const char *targetFilename = luaL_checkstring(L, 2);
   lua_Integer is_directory = luaL_checkboolean(L, 3);
-  lua_pushboolean(L, CreateSymbolicLink(symlinkFilename, targetFilename, is_directory ? SYMBOLIC_LINK_FLAG_DIRECTORY : 0) != FALSE);
+  if (CreateSymbolicLink(symlinkFilename, targetFilename, is_directory ? SYMBOLIC_LINK_FLAG_DIRECTORY : 0) == FALSE)
+    return push_error(L);
+  lua_pushboolean(L, 1);
   return 1;
 }
 
@@ -370,7 +374,9 @@ static int ex_copyfile(lua_State *L)
 {
   const char *srcfilename = luaL_checkstring(L, 1);
   const char *destfilename = luaL_checkstring(L, 2);
-  lua_pushboolean(L, CopyFile(srcfilename, destfilename, FALSE) != FALSE);
+  if (CopyFile(srcfilename, destfilename, FALSE) == FALSE)
+    return push_error(L);
+  lua_pushboolean(L, 1);
   return 1;
 }
 
@@ -379,7 +385,9 @@ static int ex_movefile(lua_State *L)
 {
   const char *srcfilename = luaL_checkstring(L, 1);
   const char *destfilename = luaL_checkstring(L, 2);
-  lua_pushboolean(L, MoveFile(srcfilename, destfilename) != FALSE);
+  if (MoveFile(srcfilename, destfilename) == FALSE)
+    return push_error(L);
+  lua_pushboolean(L, 1);
   return 1;
 }
 

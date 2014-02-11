@@ -146,6 +146,17 @@ Retrieves the current working directory.
 
 
 
+### os.hardlink(sourceFilename, destinationFilename)
+
+Creates a hardlink named `destinationFilename` that points to `sourceFilename`.
+
+<pre>
+    os.hardlink('a', 'b')               -- Hardlinks new file entry 'b' to existing file entry 'a'
+</pre>
+
+
+
+
 ### os.mkdir(pathname)
 
 Create the directory described by `pathname`.  `pathname` is in the form of `dirA/dirB/dirC/` or `dirA/dirB/dirC/filename`.  All directories up to the final slash (or backslash) are created.  The filename component is ignored.
@@ -174,6 +185,17 @@ Removes the file or directory at `pathname`.  If `pathname` is a directory, all 
 
 
 
+### os.symboliclink(symlinkFilename, targetFilename [, isDirectory = false])
+
+Creates a symbolic link named `symlinkFilename` that points to `targetFilename`.  If `isDirectory` is specified, a directory-level symbolic link is created.
+
+<pre>
+    os.symboliclink('a', 'b')               -- Symbolically links new file entry 'a' to existing file entry 'b'
+</pre>
+
+
+
+
 ### os.copyfile(srcfilename, destfilename)
 
 Copies the file named `srcfilename` to `destfilename` preserving file attributes and timestamp.
@@ -186,21 +208,35 @@ Copies the file named `srcfilename` to `destfilename` preserving file attributes
 
 
 
-### ex.copydirectory(srcdirectory, destdirectory)
+### ex.copydirectory(sourceDirectory, destinationDirectory [, options])
 
-Copies the directory named `srcdirectory` into `destdirectory` preserving file attributes and timestamps.  This function differs from `os.mirrordirectory` in that the `srcdirectory` files and directories are overlayed onto `destdirectory`.  `os.mirrordirectory` removes extra files and directories.
+Copies the directory named `srcdirectory` into `destdirectory` preserving file attributes and timestamps.  This function differs from `ex.mirrordirectory` in that the `srcdirectory` files and directories are overlayed onto `destdirectory`.  `ex.mirrordirectory` removes extra files and directories.
+
+`options` is an optional table containing one or more of the following members:
+
+* `callback` - A function in the following form: `function(operation, filenameA, filenameB)`
+    * `function('copy', sourceFilename, destinationFilename)`
+    * `function('del', destinationFilename)`
+* `noop` - (defaults to `false`) If set to `true`, a directory scan is performed, but no copies or deletes take place.
+* `deleteExtra` - (defaults to `false`) If set to `true`, files existing in the `destinationDirectory` that do not exist in the `sourceDirectory` are removed from the `destinationDirectory`.
+* `hardlink` - (defaults to `false`) If set to `true`, files needing to be copied to the `destinationDirectory` are hardlinked against those in the `sourceDirectory`.
+* `copyfile` - A function in the following form: `function(sourceFilename, destinationFilename)`
 
 <pre>
     ex.copydirectory('/dira', '/dirb')
+    ex.copydirectory('/dira', '/dirb', { callback = print })
+    ex.copydirectory('/dira', '/dirb', { callback = print, noop = true })
 </pre>
 
 
 
 
 
-### ex.mirrordirectory(srcdirectory, destdirectory)
+### ex.mirrordirectory(sourceDirectory, destinationDirectory, options)
 
-Mirrors the directory named `srcdirectory` to `destdirectory` preserving file attributes and timestamps.  `os.mirrordirectory` removes extra files and directories.
+Mirrors the directory named `srcdirectory` to `destdirectory` preserving file attributes and timestamps.  `ex.mirrordirectory` removes extra files and directories.
+
+`ex.mirrordirectory` is identical to `ex.copydirectory` except for `options.deleteExtra = true` being provided automatically.
 
 <pre>
     ex.mirrordirectory('/dira', '/dirb')
@@ -292,6 +328,9 @@ If specified, [args-opts] is one or more of the following keys:
 * `stdin=`, `stdout=`, `stderr=` - io.file objects for standard input, output, and error respectively
 * `shell=` - Set to `true` if this is a shell application.  Set to `false` if this is a GUI application.  Defaults to `true`.
 * `show=` - Set to `true` to show the application.  Set to `false` to hide it.  Defaults to `true`.
+* `detach=` - Set to `true` to detach the application from the parent.  Defaults to `true`.
+* `suspended=` - Set to `true` to start the spawned application as suspended, requiring a call to `os.resume(process)` to resume the application.  Defaults to `false`.
+* `can_terminate=` - Set to `true` to start the application in such a way that it is part of the current process's process tree and can be terminated.  Defaults to `false`.
 
 It is an error if both integer keys and an 'args' key are specified.
 
@@ -347,6 +386,37 @@ The returned 'proc' userdatum has the method `wait()`.
 
 
 
+### os.terminate(process)
+
+Terminates a spawned process, if possible.
+
+If `process` is a number or light userdata, `process` is expected to represent the Windows job the process tree was created under.
+
+Otherwise, `process` should be a table with the entries from `proc:getinfo()`.
+
+
+
+
+### info = proc:getinfo()
+
+Returns information about the spawned process.
+
+On Windows, a table structure is returned with the following members:
+
+* `process_handle` - Light userdata representing the Windows process HANDLE.
+* `thread_handle` - Light userdata representing the Windows thread HANDLE.
+* `process_id` - An integer representing the Windows process ID.
+* `thread_id` - An integer representing the Windows thread ID.
+* `job` - Light userdata representing the Windows job HANDLE if the process was created with `can_terminate = true`.
+
+
+
+### proc:resume()
+
+Resumes a suspended process.
+
+
+
 ### exitcode = proc:wait()
 
 Wait for child process termination; 'exitcode' is the code returned by the child process.
@@ -359,7 +429,7 @@ Wait for child process termination; 'exitcode' is the code returned by the child
 
 Returns a table of all output from the new process's stdout.
 
-See ex.spawn() for additional information.
+See `ex.spawn()` for additional information.
 
 
 

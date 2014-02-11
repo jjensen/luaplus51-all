@@ -204,6 +204,19 @@
 
 
 
+<h3>os.hardlink(sourceFilename, destinationFilename)</h3>
+
+<p>Creates a hardlink named <code>destinationFilename</code> that points to <code>sourceFilename</code>.</p>
+
+
+<pre>
+    os.hardlink('a', 'b')               -- Hardlinks new file entry 'b' to existing file entry 'a'
+</pre>
+
+
+
+
+
 <h3>os.mkdir(pathname)</h3>
 
 <p>Create the directory described by <code>pathname</code>.  <code>pathname</code> is in the form of <code>dirA/dirB/dirC/</code> or <code>dirA/dirB/dirC/filename</code>.  All directories up to the final slash (or backslash) are created.  The filename component is ignored.</p>
@@ -236,6 +249,19 @@
 
 
 
+<h3>os.symboliclink(symlinkFilename, targetFilename [, isDirectory = false])</h3>
+
+<p>Creates a symbolic link named <code>symlinkFilename</code> that points to <code>targetFilename</code>.  If <code>isDirectory</code> is specified, a directory-level symbolic link is created.</p>
+
+
+<pre>
+    os.symboliclink('a', 'b')               -- Symbolically links new file entry 'a' to existing file entry 'b'
+</pre>
+
+
+
+
+
 <h3>os.copyfile(srcfilename, destfilename)</h3>
 
 <p>Copies the file named <code>srcfilename</code> to <code>destfilename</code> preserving file attributes and timestamp.</p>
@@ -250,13 +276,29 @@
 
 
 
-<h3>ex.copydirectory(srcdirectory, destdirectory)</h3>
+<h3>ex.copydirectory(sourceDirectory, destinationDirectory [, options])</h3>
 
-<p>Copies the directory named <code>srcdirectory</code> into <code>destdirectory</code> preserving file attributes and timestamps.  This function differs from <code>os.mirrordirectory</code> in that the <code>srcdirectory</code> files and directories are overlayed onto <code>destdirectory</code>.  <code>os.mirrordirectory</code> removes extra files and directories.</p>
+<p>Copies the directory named <code>srcdirectory</code> into <code>destdirectory</code> preserving file attributes and timestamps.  This function differs from <code>ex.mirrordirectory</code> in that the <code>srcdirectory</code> files and directories are overlayed onto <code>destdirectory</code>.  <code>ex.mirrordirectory</code> removes extra files and directories.</p>
+
+<p><code>options</code> is an optional table containing one or more of the following members:</p>
+
+<ul>
+    <li><code>callback</code> - A function in the following form: <code>function(operation, filenameA, filenameB)</code>
+    <ul>
+        <li><code>function('copy', sourceFilename, destinationFilename)</code></li>
+        <li><code>function('del', destinationFilename)</code></li>
+    </ul></li>
+    <li><code>noop</code> - (defaults to <code>false</code>) If set to <code>true</code>, a directory scan is performed, but no copies or deletes take place.</li>
+    <li><code>deleteExtra</code> - (defaults to <code>false</code>) If set to <code>true</code>, files existing in the <code>destinationDirectory</code> that do not exist in the <code>sourceDirectory</code> are removed from the <code>destinationDirectory</code>.</li>
+    <li><code>hardlink</code> - (defaults to <code>false</code>) If set to <code>true</code>, files needing to be copied to the <code>destinationDirectory</code> are hardlinked against those in the <code>sourceDirectory</code>.</li>
+    <li><code>copyfile</code> - A function in the following form: <code>function(sourceFilename, destinationFilename)</code></li>
+</ul>
 
 
 <pre>
     ex.copydirectory('/dira', '/dirb')
+    ex.copydirectory('/dira', '/dirb', { callback = print })
+    ex.copydirectory('/dira', '/dirb', { callback = print, noop = true })
 </pre>
 
 
@@ -264,9 +306,11 @@
 
 
 
-<h3>ex.mirrordirectory(srcdirectory, destdirectory)</h3>
+<h3>ex.mirrordirectory(sourceDirectory, destinationDirectory, options)</h3>
 
-<p>Mirrors the directory named <code>srcdirectory</code> to <code>destdirectory</code> preserving file attributes and timestamps.  <code>os.mirrordirectory</code> removes extra files and directories.</p>
+<p>Mirrors the directory named <code>srcdirectory</code> to <code>destdirectory</code> preserving file attributes and timestamps.  <code>ex.mirrordirectory</code> removes extra files and directories.</p>
+
+<p><code>ex.mirrordirectory</code> is identical to <code>ex.copydirectory</code> except for <code>options.deleteExtra = true</code> being provided automatically.</p>
 
 
 <pre>
@@ -365,6 +409,9 @@
     <li><code>stdin=</code>, <code>stdout=</code>, <code>stderr=</code> - io.file objects for standard input, output, and error respectively</li>
     <li><code>shell=</code> - Set to <code>true</code> if this is a shell application.  Set to <code>false</code> if this is a GUI application.  Defaults to <code>true</code>.</li>
     <li><code>show=</code> - Set to <code>true</code> to show the application.  Set to <code>false</code> to hide it.  Defaults to <code>true</code>.</li>
+    <li><code>detach=</code> - Set to <code>true</code> to detach the application from the parent.  Defaults to <code>true</code>.</li>
+    <li><code>suspended=</code> - Set to <code>true</code> to start the spawned application as suspended, requiring a call to <code>os.resume(process)</code> to resume the application.  Defaults to <code>false</code>.</li>
+    <li><code>can_terminate=</code> - Set to <code>true</code> to start the application in such a way that it is part of the current process's process tree and can be terminated.  Defaults to <code>false</code>.</li>
 </ul>
 
 <p>It is an error if both integer keys and an 'args' key are specified.</p>
@@ -423,6 +470,39 @@
 
 
 
+<h3>os.terminate(process)</h3>
+
+<p>Terminates a spawned process, if possible.</p>
+
+<p>If <code>process</code> is a number or light userdata, <code>process</code> is expected to represent the Windows job the process tree was created under.</p>
+
+<p>Otherwise, <code>process</code> should be a table with the entries from <code>proc:getinfo()</code>.</p>
+
+
+
+
+<h3>info = proc:getinfo()</h3>
+
+<p>Returns information about the spawned process.</p>
+
+<p>On Windows, a table structure is returned with the following members:</p>
+
+<ul>
+    <li><code>process_handle</code> - Light userdata representing the Windows process HANDLE.</li>
+    <li><code>thread_handle</code> - Light userdata representing the Windows thread HANDLE.</li>
+    <li><code>process_id</code> - An integer representing the Windows process ID.</li>
+    <li><code>thread_id</code> - An integer representing the Windows thread ID.</li>
+    <li><code>job</code> - Light userdata representing the Windows job HANDLE if the process was created with <code>can_terminate = true</code>.</li>
+</ul>
+
+
+
+<h3>proc:resume()</h3>
+
+<p>Resumes a suspended process.</p>
+
+
+
 <h3>exitcode = proc:wait()</h3>
 
 <p>Wait for child process termination; 'exitcode' is the code returned by the child process.</p>
@@ -435,7 +515,7 @@
 
 <p>Returns a table of all output from the new process's stdout.</p>
 
-<p>See ex.spawn() for additional information.</p>
+<p>See <code>ex.spawn()</code> for additional information.</p>
 
 
 
