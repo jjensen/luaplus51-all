@@ -234,6 +234,18 @@ static void setprogdir (lua_State *L) {
       LoadLibrary(buff);
 #endif // _DEBUG
     }
+    {
+      const char* envOverride = getenv("LUA51_ROOT_PATH");
+      if (envOverride) {
+          strcpy(buff, envOverride);
+          if ((lb = strrchr(buff, '\\')) == NULL  &&  (lb = strrchr(buff, '/')) == NULL) {
+            luaL_error(L, "LUA51_ROOT_PATH is missing a closing backslash");
+          }
+          if (lb[1] != 0) {
+            lb = buff + strlen(buff);
+          }
+      }
+    }
 #else
   DWORD n = GetModuleFileNameA(NULL, buff, nsize);
   if (n == 0 || n == nsize || (lb = strrchr(buff, '\\')) == NULL)
