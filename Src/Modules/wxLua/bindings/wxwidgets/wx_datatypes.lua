@@ -3150,6 +3150,15 @@ wx_dataTypeTable =
     Name = "wxLuaHtmlWindow",
     ValueType = "class",
   },
+  wxLuaListCtrl = {
+    BaseClasses = {
+      [1] = "wxListCtrl",
+    },
+    Condition = "wxLUA_USE_wxListCtrl && wxUSE_LISTCTRL",
+    IsNumber = false,
+    Name = "wxLuaListCtrl",
+    ValueType = "class",
+  },
   wxLuaObject = {
     IsNumber = false,
     Name = "wxLuaObject",
@@ -3180,6 +3189,15 @@ wx_dataTypeTable =
     Condition = "wxLUA_USE_wxTreeCtrl && wxUSE_TREECTRL",
     IsNumber = false,
     Name = "wxLuaTreeItemData",
+    ValueType = "class",
+  },
+  wxLuaURLDropTarget = {
+    BaseClasses = {
+      [1] = "wxDropTarget",
+    },
+    Condition = "wxLUA_USE_wxDragDrop && wxUSE_DRAG_AND_DROP",
+    IsNumber = false,
+    Name = "wxLuaURLDropTarget",
     ValueType = "class",
   },
   wxMDIChildFrame = {

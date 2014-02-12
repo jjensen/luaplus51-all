@@ -929,6 +929,7 @@ extern WXDLLIMPEXP_DATA_BINDWXCORE(int) wxluatype_wxWindowUpdateLocker;
     extern WXDLLIMPEXP_DATA_BINDWXCORE(int) wxluatype_wxFileDropTarget;
     extern WXDLLIMPEXP_DATA_BINDWXCORE(int) wxluatype_wxLuaFileDropTarget;
     extern WXDLLIMPEXP_DATA_BINDWXCORE(int) wxluatype_wxLuaTextDropTarget;
+    extern WXDLLIMPEXP_DATA_BINDWXCORE(int) wxluatype_wxLuaURLDropTarget;
     extern WXDLLIMPEXP_DATA_BINDWXCORE(int) wxluatype_wxTextDropTarget;
 #endif // wxLUA_USE_wxDragDrop && wxUSE_DRAG_AND_DROP
 
@@ -1012,6 +1013,7 @@ extern WXDLLIMPEXP_DATA_BINDWXCORE(int) wxluatype_wxWindowUpdateLocker;
     extern WXDLLIMPEXP_DATA_BINDWXCORE(int) wxluatype_wxListItem;
     extern WXDLLIMPEXP_DATA_BINDWXCORE(int) wxluatype_wxListItemAttr;
     extern WXDLLIMPEXP_DATA_BINDWXCORE(int) wxluatype_wxListView;
+    extern WXDLLIMPEXP_DATA_BINDWXCORE(int) wxluatype_wxLuaListCtrl;
 #endif // wxLUA_USE_wxListCtrl && wxUSE_LISTCTRL
 
 #if wxLUA_USE_wxMask

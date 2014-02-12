@@ -62,10 +62,7 @@ class WXDLLIMPEXP_BINDWXCORE wxLuaFileDropTarget : public wxFileDropTarget
 public:
     wxLuaFileDropTarget(const wxLuaState& wxlState);
 
-    // parameters are the number of files and the array of file names
-    virtual bool OnDropFiles(wxCoord x, wxCoord y,
-                             const wxArrayString& filenames);
-
+    virtual bool OnDropFiles(wxCoord x, wxCoord y, const wxArrayString& filenames);
     virtual wxDragResult OnData(wxCoord x, wxCoord y, wxDragResult def);
 
 private:
@@ -86,11 +83,40 @@ class WXDLLIMPEXP_BINDWXCORE wxLuaTextDropTarget : public wxTextDropTarget
 public:
     wxLuaTextDropTarget(const wxLuaState& wxlState);
 
-    // parameters are the number of files and the array of file names
-    virtual bool OnDropText(wxCoord x, wxCoord y,
-                            const wxString& text);
-
+    virtual bool OnDropText(wxCoord x, wxCoord y, const wxString& text);
     virtual wxDragResult OnData(wxCoord x, wxCoord y, wxDragResult def);
+
+private:
+    mutable wxLuaState m_wxlState;
+};
+
+#endif // wxLUA_USE_wxDataObject && wxUSE_DRAG_AND_DROP
+
+// ----------------------------------------------------------------------------
+// wxLuaURLDropTarget - Copied from wxWidgets/samples/dnd/dnd.cpp
+// Unfortunately the wxURLDataObject does not derive from a wxTextDataObject
+// in MSW so we need to create this class.
+// ----------------------------------------------------------------------------
+#if wxLUA_USE_wxDataObject && wxUSE_DRAG_AND_DROP
+
+#include <wx/dnd.h>
+
+class WXDLLIMPEXP_BINDWXCORE wxLuaURLDropTarget : public wxDropTarget
+{
+public:
+    wxLuaURLDropTarget(const wxLuaState& wxlState);
+
+    virtual bool OnDropURL(wxCoord x, wxCoord y, const wxString& text);
+    virtual wxDragResult OnData(wxCoord x, wxCoord y, wxDragResult def);
+
+
+    // URLs can't be moved, only copied
+    virtual wxDragResult OnDragOver(wxCoord WXUNUSED(x), wxCoord WXUNUSED(y),
+                                    wxDragResult WXUNUSED(def))
+    {
+        return wxDragLink; // At least IE 5.x needs wxDragLink, the
+                           // other browsers on MSW seem okay with it too.
+    }
 
 private:
     mutable wxLuaState m_wxlState;
@@ -195,6 +221,47 @@ private:
 };
 
 #endif //wxLUA_USE_wxTreeCtrl && wxUSE_TREECTRL
+
+
+
+// ----------------------------------------------------------------------------
+// wxLuaListCtrl - Allows wxLC_VIRTUAL style
+// ----------------------------------------------------------------------------
+#if wxLUA_USE_wxListCtrl && wxUSE_LISTCTRL
+
+#include <wx/listctrl.h>
+
+class WXDLLIMPEXP_BINDWXCORE wxLuaListCtrl : public wxListCtrl
+{
+public:
+    // Constructors
+    wxLuaListCtrl(const wxLuaState& wxlState);
+    wxLuaListCtrl(const wxLuaState& wxlState,
+                  wxWindow *parent, wxWindowID id,
+                  const wxPoint &pos=wxDefaultPosition,
+                  const wxSize &size=wxDefaultSize, long style=wxLC_ICON,
+                  const wxValidator &validator=wxDefaultValidator,
+                  const wxString &name=wxListCtrlNameStr);
+
+
+    // Virtual functions used with wxLC_VIRTUAL
+    virtual wxListItemAttr * OnGetItemAttr(long item) const;
+
+#if wxCHECK_VERSION(3,0,0) && defined(__WXMSW__)
+    virtual wxListItemAttr * OnGetItemColumnAttr(long item, long column) const;
+#endif // wxCHECK_VERSION(3,0,0) && defined(__WXMSW__)
+
+    virtual int OnGetItemColumnImage(long item, long column) const;
+    virtual int OnGetItemImage (long item) const;
+    virtual wxString OnGetItemText (long item, long column) const;
+
+private:
+    mutable wxLuaState m_wxlState;
+
+    DECLARE_ABSTRACT_CLASS(wxLuaListCtrl)
+};
+
+#endif //wxLUA_USE_wxListCtrl && wxUSE_LISTCTRL
 
 
 #endif //WX_LUA_WXLCORE_H
