@@ -183,7 +183,8 @@ inline bool LuaObject::IsNil() const {
 
 // Mirrors lua_istable().
 inline bool LuaObject::IsTable() const {
-	luaplus_assert(L);
+	if (!L)
+		return false;
 	LUA_FASTREF_PUSH();
 	return lua_istable(L, LUA_FASTREF_REF_1);
 }
@@ -191,7 +192,8 @@ inline bool LuaObject::IsTable() const {
 
 // Mirrors lua_isuserdata().
 inline bool LuaObject::IsUserdata() const {
-	luaplus_assert(L);
+	if (!L)
+		return false;
 	LUA_FASTREF_PUSH();
 	return lua_isuserdata(L, LUA_FASTREF_REF_1) != 0;
 }
@@ -199,7 +201,8 @@ inline bool LuaObject::IsUserdata() const {
 
 // Mirrors lua_iscfunction().
 inline bool LuaObject::IsCFunction() const {
-	luaplus_assert(L);
+	if (!L)
+		return false;
 	LUA_FASTREF_PUSH();
 	return lua_iscfunction(L, LUA_FASTREF_REF_1) != 0;
 }
@@ -208,7 +211,8 @@ inline bool LuaObject::IsCFunction() const {
 // Behaves differently than lua_isinteger().  This function only tests for a value that is
 // a real integer, not something that can be converted to a integer.
 inline bool LuaObject::IsInteger() const {
-	luaplus_assert(L);
+	if (!L)
+		return false;
 	LUA_FASTREF_PUSH();
 	return lua_type(L, LUA_FASTREF_REF_1) == LUA_TNUMBER;
 }
@@ -217,7 +221,8 @@ inline bool LuaObject::IsInteger() const {
 // Behaves differently than lua_isnumber().  This function only tests for a value that is
 // a real number, not something that can be converted to a number.
 inline bool LuaObject::IsNumber() const {
-	luaplus_assert(L);
+	if (!L)
+		return false;
 	LUA_FASTREF_PUSH();
 	return lua_type(L, LUA_FASTREF_REF_1) == LUA_TNUMBER;
 }
@@ -226,7 +231,8 @@ inline bool LuaObject::IsNumber() const {
 // Behaves differently than lua_isstring().  This function only tests for a value that is
 // a real string, not something that can be converted to a string.
 inline bool LuaObject::IsString() const {
-	luaplus_assert(L);
+	if (!L)
+		return false;
 	LUA_FASTREF_PUSH();
 	return lua_type(L, LUA_FASTREF_REF_1) == LUA_TSTRING;
 }
@@ -234,7 +240,8 @@ inline bool LuaObject::IsString() const {
 
 // Mirrors lua_isinteger().
 inline bool LuaObject::IsConvertibleToInteger() const {
-	luaplus_assert(L);
+	if (!L)
+		return false;
 	LUA_FASTREF_PUSH();
 	return lua_isnumber(L, LUA_FASTREF_REF_1) != 0;
 }
@@ -242,7 +249,8 @@ inline bool LuaObject::IsConvertibleToInteger() const {
 
 // Mirrors lua_isnumber().
 inline bool LuaObject::IsConvertibleToNumber() const {
-	luaplus_assert(L);
+	if (!L)
+		return false;
 	LUA_FASTREF_PUSH();
 	return lua_isnumber(L, LUA_FASTREF_REF_1) != 0;
 }
@@ -250,7 +258,8 @@ inline bool LuaObject::IsConvertibleToNumber() const {
 
 // Mirrors lua_isstring().
 inline bool LuaObject::IsConvertibleToString() const {
-	luaplus_assert(L);
+	if (!L)
+		return false;
 	LUA_FASTREF_PUSH();
 	return lua_isstring(L, LUA_FASTREF_REF_1) != 0;
 }
@@ -258,7 +267,8 @@ inline bool LuaObject::IsConvertibleToString() const {
 
 // Mirrors lua_isfunction().
 inline bool LuaObject::IsFunction() const {
-	luaplus_assert(L);
+	if (!L)
+		return false;
 	LUA_FASTREF_PUSH();
 	return lua_isfunction(L, LUA_FASTREF_REF_1);
 }
@@ -266,7 +276,8 @@ inline bool LuaObject::IsFunction() const {
 
 // Mirrors lua_isnone().
 inline bool LuaObject::IsNone() const {
-	luaplus_assert(L);
+	if (!L)
+		return false;
 	LUA_FASTREF_PUSH();
 	return lua_isnone(L, LUA_FASTREF_REF_1);
 }
@@ -274,7 +285,8 @@ inline bool LuaObject::IsNone() const {
 
 // Mirrors lua_islightuserdata().
 inline bool LuaObject::IsLightUserdata() const {
-	luaplus_assert(L);
+	if (!L)
+		return false;
 	LUA_FASTREF_PUSH();
 	return lua_islightuserdata(L, LUA_FASTREF_REF_1);
 }
@@ -282,7 +294,8 @@ inline bool LuaObject::IsLightUserdata() const {
 
 // Mirrors lua_isboolean().
 inline bool LuaObject::IsBoolean() const {
-	luaplus_assert(L);
+	if (!L)
+		return false;
 	LUA_FASTREF_PUSH();
 	return lua_isboolean(L, LUA_FASTREF_REF_1);
 }
