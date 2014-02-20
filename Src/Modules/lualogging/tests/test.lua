@@ -5,10 +5,12 @@ local test = {
 	"testMail.lua",
 	"testSocket.lua",
 	"testSQL.lua",
+	"testRollingFile.lua",
 }
 
 print ("Start of Logging tests")
-table.foreachi (test, function (i, filename)
+for _, filename in ipairs(test) do
 	dofile(filename)
-end)
+end
 print ("End of Logging tests")
+

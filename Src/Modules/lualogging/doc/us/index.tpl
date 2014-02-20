@@ -15,7 +15,7 @@ as Lua 5.1. It is part of the <a href="http://www.keplerproject.org">Kepler Proj
 <h2><a name="status"></a>Status</h2>
 
 <p>
-Current version is 1.2.0. It was developed for Lua 5.1.
+Current version is 1.3.0. It was developed for Lua 5.1 & 5.2.
 </p>
 
 <h2><a name="download"></a>Download</h2>
@@ -55,6 +55,10 @@ LuaLogging can be downloaded from its
 <h2><a name="history"></a>History</h2>
 
 <dl class="history">
+    <dt><strong>1.3.0</strong> [20/Apr/2011]</dt>
+    <dd>Add support for Lua 5.2.</dd>
+    <dd>Log change to log level.</dd>
+
     <dt><strong>1.2.0</strong> [20/Apr/2011]</dt>
     <dd>Improved performance of logging.</dd>
     <dd>Added Rolling File Appender.</dd>

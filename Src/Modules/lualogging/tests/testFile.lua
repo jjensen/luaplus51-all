@@ -7,11 +7,10 @@ local mock = {
 }
 
 io.open = function (file, mode)
-
 	if (not string.find(file, "^__TEST*")) then
 		return GLOBAL_IO_OPEN(file, mode)
 	end
-		
+
 	mock.handle[file] = {}
 	mock.handle[file].lines = {}
 	mock.handle[file].mode = mode
@@ -21,7 +20,7 @@ io.open = function (file, mode)
 		end,
 		write = function (_, s)
 			table.insert(mock.handle[file].lines, s)
-		end,	
+		end,
 	}
 end
 
@@ -29,10 +28,10 @@ os.date = function (...)
 	return mock.date
 end
 
-require "logging.file"
+local log_file = require "logging.file"
 
 mock.date = "2008-01-01"
-local logger = logging.file("__TEST%s.log", "%Y-%m-%d")
+local logger = log_file("__TEST%s.log", "%Y-%m-%d")
 
 assert(mock.handle["__TEST"..mock.date..".log"] == nil)
 
@@ -65,3 +64,6 @@ assert(mock.handle["__TEST"..mock.date..".log"].lines[1] == '2008-01-03 INFO {id
 
 os.date = GLOBAL_OS_DATE
 io.open = GLOBAL_IO_OPEN
+
+print("File Logging OK")
+

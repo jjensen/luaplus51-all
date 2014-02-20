@@ -5,39 +5,42 @@
 -- @author Andre Carregal (info@keplerproject.org)
 -- @author Thiago Costa Ponte (thiago@ideais.com.br)
 --
--- @copyright 2004-2011 Kepler Project
+-- @copyright 2004-2013 Kepler Project
 -------------------------------------------------------------------------------
 
 local type, table, string, _tostring, tonumber = type, table, string, tostring, tonumber
 local select = select
 local error = error
 local format = string.format
+local pairs = pairs
+local ipairs = ipairs
 
-module("logging")
+local logging = {
 
 -- Meta information
-_COPYRIGHT = "Copyright (C) 2004-2011 Kepler Project"
-_DESCRIPTION = "A simple API to use logging features in Lua"
-_VERSION = "LuaLogging 1.1.4"
+_COPYRIGHT = "Copyright (C) 2004-2013 Kepler Project",
+_DESCRIPTION = "A simple API to use logging features in Lua",
+_VERSION = "LuaLogging 1.3.0",
 
 -- The DEBUG Level designates fine-grained instring.formational events that are most
 -- useful to debug an application
-DEBUG = "DEBUG"
+DEBUG = "DEBUG",
 
 -- The INFO level designates instring.formational messages that highlight the
 -- progress of the application at coarse-grained level
-INFO = "INFO"
+INFO = "INFO",
 
 -- The WARN level designates potentially harmful situations
-WARN = "WARN"
+WARN = "WARN",
 
 -- The ERROR level designates error events that might still allow the
 -- application to continue running
-ERROR = "ERROR"
+ERROR = "ERROR",
 
 -- The FATAL level designates very severe error events that will presumably
 -- lead the application to abort
-FATAL = "FATAL"
+FATAL = "FATAL",
+}
 
 local LEVEL = {"DEBUG", "INFO", "WARN", "ERROR", "FATAL"}
 local MAX_LEVELS = #LEVEL
@@ -61,7 +64,7 @@ local function LOG_MSG(self, level, fmt, ...)
 		return self:append(level, fmt(...))
 	end
 	-- fmt is not a string and not a function, just call tostring() on it.
-	return self:append(level, tostring(fmt))
+	return self:append(level, logging.tostring(fmt))
 end
 
 -- create the proxy functions for each log level.
@@ -77,7 +80,7 @@ end
 -- do nothing function for disabled levels.
 local function disable_level() end
 
--- improved assertion funciton.
+-- improved assertion function.
 local function assert(exp, ...)
 	-- if exp is true, we are finished so don't do any processing of the parameters
 	if exp then return exp, ... end
@@ -91,8 +94,7 @@ end
 --	log-level to the log stream.
 -- @return Table representing the new logger object.
 -------------------------------------------------------------------------------
-function new(append)
-
+function logging.new(append)
 	if type(append) ~= "function" then
 		return nil, "Appender must be a function."
 	end
@@ -103,6 +105,9 @@ function new(append)
 	logger.setLevel = function (self, level)
 		local order = LEVEL[level]
 		assert(order, "undefined level `%s'", _tostring(level))
+		if self.level then
+			self:log(logging.WARN, "Logger: changing loglevel from %s to %s", self.level, level)
+		end
 		self.level = level
 		self.level_order = order
 		-- enable/disable levels
@@ -127,7 +132,7 @@ function new(append)
 	end
 
 	-- initialize log level.
-	logger:setLevel(DEBUG)
+	logger:setLevel(logging.DEBUG)
 	return logger
 end
 
@@ -135,14 +140,13 @@ end
 -------------------------------------------------------------------------------
 -- Prepares the log message
 -------------------------------------------------------------------------------
-function prepareLogMsg(pattern, dt, level, message)
-
-    local logMsg = pattern or "%date %level %message\n"
-    message = string.gsub(message, "%%", "%%%%")
-    logMsg = string.gsub(logMsg, "%%date", dt)
-    logMsg = string.gsub(logMsg, "%%level", level)
-    logMsg = string.gsub(logMsg, "%%message", message)
-    return logMsg
+function logging.prepareLogMsg(pattern, dt, level, message)
+	local logMsg = pattern or "%date %level %message\n"
+	message = string.gsub(message, "%%", "%%%%")
+	logMsg = string.gsub(logMsg, "%%date", dt)
+	logMsg = string.gsub(logMsg, "%%level", level)
+	logMsg = string.gsub(logMsg, "%%message", message)
+	return logMsg
 end
 
 
@@ -151,39 +155,47 @@ end
 --
 -- Converts Table fields in alphabetical order
 -------------------------------------------------------------------------------
-function tostring(value)
-  local str = ''
+local function tostring(value)
+	local str = ''
 
-  if (type(value) ~= 'table') then
-    if (type(value) == 'string') then
-      str = string.format("%q", value)
-    else
-      str = _tostring(value)
-    end
-  else
-    local auxTable = {}
-    table.foreach(value, function(i, v)
-      if (tonumber(i) ~= i) then
-        table.insert(auxTable, i)
-      else
-        table.insert(auxTable, tostring(i))
-      end
-    end)
-    table.sort(auxTable)
-
-    str = str..'{'
-    local separator = ""
-    local entry = ""
-    table.foreachi (auxTable, function (i, fieldName)
-      if ((tonumber(fieldName)) and (tonumber(fieldName) > 0)) then
-        entry = tostring(value[tonumber(fieldName)])
-      else
-        entry = fieldName.." = "..tostring(value[fieldName])
-      end
-      str = str..separator..entry
-      separator = ", "
-    end)
-    str = str..'}'
-  end
-  return str
+	if (type(value) ~= 'table') then
+		if (type(value) == 'string') then
+			str = string.format("%q", value)
+		else
+			str = _tostring(value)
+		end
+	else
+		local auxTable = {}
+		for key in pairs(value) do
+			if (tonumber(key) ~= key) then
+				table.insert(auxTable, key)
+			else
+				table.insert(auxTable, tostring(key))
+			end
+		end
+		table.sort(auxTable)
+	
+		str = str..'{'
+		local separator = ""
+		local entry = ""
+		for _, fieldName in ipairs(auxTable) do
+			if ((tonumber(fieldName)) and (tonumber(fieldName) > 0)) then
+				entry = tostring(value[tonumber(fieldName)])
+			else
+				entry = fieldName.." = "..tostring(value[fieldName])
+			end
+			str = str..separator..entry
+			separator = ", "
+		end
+		str = str..'}'
+	end
+	return str
 end
+logging.tostring = tostring
+
+if _VERSION ~= 'Lua 5.2' then
+	-- still create 'logging' global for Lua versions < 5.2
+	_G.logging = logging
+end
+
+return logging
