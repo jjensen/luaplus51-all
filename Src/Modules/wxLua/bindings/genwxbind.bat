@@ -77,7 +77,7 @@ echo Generating wxWidgets wxdatatypes Binding
 
 echo Generating wxLuaCan app Binding
 cd ..\apps\wxluacan\src
-%LUA% -e"rulesFilename=\"wxluacan_rules.lua\"" ../../../bindings/genwxbind.lua
+..\..\%LUA% -e"rulesFilename=\"wxluacan_rules.lua\"" ../../../bindings/genwxbind.lua
 cd ..\..\..\bindings
 
 echo Done.
