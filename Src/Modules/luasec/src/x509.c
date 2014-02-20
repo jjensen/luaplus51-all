@@ -1,6 +1,8 @@
 /*--------------------------------------------------------------------------
- * LuaSec 0.4.1
- * Copyright (C) 2012
+ * LuaSec 0.5
+ *
+ * Copyright (C) 2014 Kim Alvefur, Paul Aurich, Tobias Markmann
+ *                    Matthew Wild, Bruno Silvestre.
  *
  *--------------------------------------------------------------------------*/
 
@@ -32,6 +34,7 @@ void lsec_pushx509(lua_State* L, X509 *cert)
 {
   p_x509 cert_obj = (p_x509)lua_newuserdata(L, sizeof(t_x509));
   cert_obj->cert = cert;
+  cert_obj->encode = LSEC_AI5_STRING;
   luaL_getmetatable(L, "SSL:Certificate");
   lua_setmetatable(L, -2);
 }
@@ -42,6 +45,14 @@ void lsec_pushx509(lua_State* L, X509 *cert)
 X509* lsec_checkx509(lua_State* L, int idx)
 {
   return ((p_x509)luaL_checkudata(L, idx, "SSL:Certificate"))->cert;
+}
+
+/**
+ * Return LuaSec certificate X509 representation.
+ */
+p_x509 lsec_checkp_x509(lua_State* L, int idx)
+{
+  return (p_x509)luaL_checkudata(L, idx, "SSL:Certificate");
 }
 
 /*---------------------------------------------------------------------------*/
@@ -73,13 +84,24 @@ static void push_asn1_objname(lua_State* L, ASN1_OBJECT *object, int no_name)
 /**
  * Push the ASN1 string on the stack.
  */
-static void push_asn1_string(lua_State* L, ASN1_STRING *string)
+static void push_asn1_string(lua_State* L, ASN1_STRING *string, int encode)
 {
-  if (string)
+  size_t len;
+  unsigned char *data;
+  if (!string)
+    lua_pushnil(L);
+  switch (encode) {
+  case LSEC_AI5_STRING:
     lua_pushlstring(L, (char*)ASN1_STRING_data(string),
                        ASN1_STRING_length(string));
-  else
-    lua_pushnil(L);
+    break;
+  case LSEC_UTF8_STRING:
+    len = ASN1_STRING_to_UTF8(&data, string);
+    if (len >= 0) {
+      lua_pushlstring(L, (char*)data, len);
+      OPENSSL_free(data);
+    }
+  }
 }
 
 /**
@@ -120,7 +142,7 @@ static int push_subtable(lua_State* L, int idx)
 /**
  * Retrive the general names from the object.
  */
-static int push_x509_name(lua_State* L, X509_NAME *name)
+static int push_x509_name(lua_State* L, X509_NAME *name, int encode)
 {
   int i;
   int n_entries;
@@ -136,7 +158,7 @@ static int push_x509_name(lua_State* L, X509_NAME *name)
     lua_setfield(L, -2, "oid");
     push_asn1_objname(L, object, 0);
     lua_setfield(L, -2, "name");
-    push_asn1_string(L, X509_NAME_ENTRY_get_data(entry));
+    push_asn1_string(L, X509_NAME_ENTRY_get_data(entry), encode);
     lua_setfield(L, -2, "value");
     lua_rawseti(L, -2, i+1);
   }
@@ -150,7 +172,8 @@ static int push_x509_name(lua_State* L, X509_NAME *name)
  */
 static int meth_subject(lua_State* L)
 {
-  return push_x509_name(L, X509_get_subject_name(lsec_checkx509(L, 1)));
+  p_x509 px = lsec_checkp_x509(L, 1);
+  return push_x509_name(L, X509_get_subject_name(px->cert), px->encode);
 }
 
 /**
@@ -158,7 +181,8 @@ static int meth_subject(lua_State* L)
  */
 static int meth_issuer(lua_State* L)
 {
-  return push_x509_name(L, X509_get_issuer_name(lsec_checkx509(L, 1)));
+  p_x509 px = lsec_checkp_x509(L, 1);
+  return push_x509_name(L, X509_get_issuer_name(px->cert), px->encode);
 }
 
 /**
@@ -173,7 +197,8 @@ int meth_extensions(lua_State* L)
   X509_EXTENSION *extension;
   GENERAL_NAME *general_name;
   STACK_OF(GENERAL_NAME) *values;
-  X509 *peer = lsec_checkx509(L, 1);
+  p_x509 px  = lsec_checkp_x509(L, 1);
+  X509 *peer = px->cert;
 
   /* Return (ret) */
   lua_newtable(L);
@@ -205,35 +230,35 @@ int meth_extensions(lua_State* L)
           push_asn1_objname(L, otherName->type_id, 0);
           lua_setfield(L, -2, "name");
         }
-        push_asn1_string(L, otherName->value->value.asn1_string);
+        push_asn1_string(L, otherName->value->value.asn1_string, px->encode);
         lua_rawseti(L, -2, lua_rawlen(L, -2) + 1);
         lua_pop(L, 1);
         break;
       case GEN_DNS:
         lua_pushstring(L, "dNSName");
 	push_subtable(L, -2);
-        push_asn1_string(L, general_name->d.dNSName);
+        push_asn1_string(L, general_name->d.dNSName, px->encode);
         lua_rawseti(L, -2, lua_rawlen(L, -2) + 1);
         lua_pop(L, 1);
         break;
       case GEN_EMAIL:
         lua_pushstring(L, "rfc822Name");
         push_subtable(L, -2);
-        push_asn1_string(L, general_name->d.rfc822Name);
+        push_asn1_string(L, general_name->d.rfc822Name, px->encode);
         lua_rawseti(L, -2, lua_rawlen(L, -2) + 1);
         lua_pop(L, 1);
         break;
       case GEN_URI:
         lua_pushstring(L, "uniformResourceIdentifier");
         push_subtable(L, -2);
-        push_asn1_string(L, general_name->d.uniformResourceIdentifier);
+        push_asn1_string(L, general_name->d.uniformResourceIdentifier, px->encode);
         lua_rawseti(L, -2, lua_rawlen(L, -2)+1);
         lua_pop(L, 1);
         break;
       case GEN_IPADD:
         lua_pushstring(L, "iPAddress");
         push_subtable(L, -2);
-        push_asn1_string(L, general_name->d.iPAddress);
+        push_asn1_string(L, general_name->d.iPAddress, px->encode);
         lua_rawseti(L, -2, lua_rawlen(L, -2)+1);
         lua_pop(L, 1);
         break;
@@ -306,12 +331,13 @@ static int meth_digest(lua_State* L)
   }
   if (!digest) {
     lua_pushnil(L);
-    lua_pushstring(L, "digest algorithm not supported");
+    lua_pushfstring(L, "digest algorithm not supported (%s)", str);
     return 2;
   }
   if (!X509_digest(cert, digest, buffer, &bytes)) {
     lua_pushnil(L);
-    lua_pushstring(L, "error processing the certificate");
+    lua_pushfstring(L, "error processing the certificate (%s)",
+      ERR_reason_error_string(ERR_get_error()));
     return 2;
   }
   to_hex((char*)buffer, bytes, hex_buffer);
@@ -383,6 +409,25 @@ static int meth_tostring(lua_State *L)
   return 1;
 }
 
+/**
+ * Set the encode for ASN.1 string.
+ */
+static int meth_set_encode(lua_State* L)
+{
+  int succ = 0;
+  p_x509 px = lsec_checkp_x509(L, 1);
+  const char *enc = luaL_checkstring(L, 2);
+  if (strncmp(enc, "ai5", 3) == 0) {
+    succ = 1;
+    px->encode = LSEC_AI5_STRING;
+  } else if (strncmp(enc, "utf8", 4) == 0) {
+    succ = 1;
+    px->encode = LSEC_UTF8_STRING;
+  }
+  lua_pushboolean(L, succ);
+  return 1;
+}
+
 /*---------------------------------------------------------------------------*/
 
 static int load_cert(lua_State* L)
@@ -409,6 +454,7 @@ static int load_cert(lua_State* L)
  */
 static luaL_Reg methods[] = {
   {"digest",     meth_digest},
+  {"setencode",  meth_set_encode},
   {"extensions", meth_extensions},
   {"issuer",     meth_issuer},
   {"notbefore",  meth_notbefore},
