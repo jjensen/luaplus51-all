@@ -1828,6 +1828,7 @@ namespace LPCD {
 			} else if (subType == LUA_TUSERDATA) {
 				ret = *(void **)(lua_touserdata(L, -1));
 			} else {
+				ret = NULL;
 				luaL_error(L, "The table does not have a userdata member called __object.");
 			}
 			lua_pop(L, 1);
@@ -1854,6 +1855,7 @@ namespace LPCD {
 			} else if (subType == LUA_TUSERDATA) {
 				ret = lua_touserdata(L, -1);
 			} else {
+				ret = NULL;
 				luaL_error(L, "The table does not have a userdata member called __object.");
 			}
 			lua_pop(L, 1);
@@ -2030,7 +2032,7 @@ namespace LPCD {
 		static int PropertyGet(lua_State* L) {
 			Object* obj = (Object*)LPCD::GetObjectUserdata(L);
 			void* offset = lua_touserdata(L, 3);
-			LPCD::Type<VarType>::Push(L, *(VarType*)((unsigned char*)obj + (unsigned int)offset));
+			LPCD::Type<VarType>::Push(L, *(VarType*)((unsigned char*)obj + (ptrdiff_t)offset));
 			return 1;
 		}
 
@@ -2041,7 +2043,7 @@ namespace LPCD {
 			if (!LPCD::Type<VarType>::Match(L, 3))
 				luaL_argerror(L, 3, "bad argument");
 
-			*(VarType*)((unsigned char*)obj + (unsigned int)offset) = LPCD::Type<VarType>::Get(L, 3);
+			*(VarType*)((unsigned char*)obj + (ptrdiff_t)offset) = LPCD::Type<VarType>::Get(L, 3);
 			return 0;
 		}
 	};
@@ -2052,7 +2054,7 @@ namespace LPCD {
 		static int PropertyGet(lua_State* L) {
 			Object* obj = (Object*)LPCD::GetInPlaceObjectUserdata(L);
 			void* offset = lua_touserdata(L, 3);
-			LPCD::Type<VarType>::Push(L, *(VarType*)((unsigned char*)obj + (unsigned int)offset));
+			LPCD::Type<VarType>::Push(L, *(VarType*)((unsigned char*)obj + (ptrdiff_t)offset));
 			return 1;
 		}
 
@@ -2063,7 +2065,7 @@ namespace LPCD {
 			if (!Type<VarType>::Match(L, 3))
 				luaL_argerror(L, 3, "bad argument");
 
-			*(VarType*)((unsigned char*)obj + (unsigned int)offset) = Type<VarType>::Get(L, 3);
+			*(VarType*)((unsigned char*)obj + (ptrdiff_t)offset) = Type<VarType>::Get(L, 3);
 			return 0;
 		}
 	};

@@ -548,9 +548,9 @@ inline size_t LuaObject::GetCount() const {
 	luaplus_assert(L);
 	Push(L);
 #if LUA_VERSION_NUM == 501
-	int count = lua_objlen(L, -1);
+	size_t count = lua_objlen(L, -1);
 #elif LUA_VERSION_NUM >= 502
-	int count = lua_rawlen(L, -1);
+	size_t count = lua_rawlen(L, -1);
 #endif
 	lua_pop(L, 1);
 	return count;

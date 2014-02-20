@@ -508,7 +508,7 @@ inline LuaObject& LuaObject::Assign(lua_State* _L, const char* value, int len) {
 	if (L)
 		lua_fastunref(L, ref);
 	L = _L;
-	LPCD::Push(L, value, len == -1 ? strlen(value) : len);
+	LPCD::Push(L, value, len == -1 ? (int)strlen(value) : len);
 	ref = lua_fastref(L);
 	return *this;
 }

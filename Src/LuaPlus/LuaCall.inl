@@ -105,8 +105,9 @@ LUAPLUS_INLINE LuaStackObject LuaCall::operator<<(const LuaRun& run) {
 	int err = lua_pcall(L, numArgs, run.numResults, run.alertStackPos);
 	if (err != 0) {
         if (lua_isstring(L, -1)) {
+			const char *errStr = lua_tostring(L, -1);
             // Does this string persist long enough?
-            luaplus_throw(lua_tostring(L, -1));
+            luaplus_throw(errStr);
         } else {
             char buf[200];
             sprintf(buf, "unknown lua error, code: %d", err);
