@@ -25,6 +25,9 @@ if $(MYSQL_FOUND) {
 	;
 
 #	C.DefFile : src/mysql.def ;
+    if $(NT) {
+        C.Defines : _WIN32 ;
+    }
 
 	C.UseMySQL ;
 
