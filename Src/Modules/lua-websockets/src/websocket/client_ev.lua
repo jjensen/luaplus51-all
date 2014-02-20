@@ -96,14 +96,14 @@ local ev = function(ws)
             on_close(true,code or 1005,reason)
           end,handle_socket_err)
       else
-        on_close(true,code or 1005,reason)
+        on_close(true,1005,'')
       end
     end
   end
   
   self.send = function(_,message,opcode)
     local encoded = frame.encode(message,opcode or frame.TEXT,true)
-    async_send(encoded, nil, handle_socket_error)
+    async_send(encoded, nil, handle_socket_err)
   end
   
   self.connect = function(_,url,ws_protocol)
@@ -142,10 +142,14 @@ local ev = function(ws)
           req,
           function()
             local resp = {}
-            --            assert(sock:getfd() > -1)
             local response = ''
-            
             local read_upgrade = function(loop,read_io)
+              -- this seems to be possible, i don't understand why though :(
+              if not sock then
+                read_io:stop(loop)
+                handshake_io = nil
+                return
+              end
               repeat
                 local byte,err,pp = sock:receive(1)
                 if byte then
@@ -182,7 +186,7 @@ local ev = function(ws)
       end,fd,ev.WRITE)
     local connected,err = sock:connect(host,port)
     if connected then
-      handshake_io:callback(loop,handshake_io)
+      handshake_io:callback()(loop,handshake_io)
     elseif err == 'timeout' then
       handshake_io:start(loop)-- connect
     else
@@ -208,6 +212,10 @@ local ev = function(ws)
   end
   
   self.close = function(_,code,reason,timeout)
+    if handshake_io then
+      handshake_io:stop(loop)
+      handshake_io:clear_pending(loop)
+    end
     if self.state == 'CONNECTING' then
       self.state = 'CLOSING'
       on_close(false,1006,'')
