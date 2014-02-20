@@ -28,9 +28,9 @@
 	Depends download:apr : $(SUBDIR)/.git/config ;
 	Download:apr:clone $(SUBDIR)/.git/config ;
 	CleanTree clean:download:apr : $(SUBDIR) ;
-	Download-apr apr : http://mirror.cogentco.com/pub/apache/apr/apr-1.4.8-win32-src.zip : apr-1.4.8 ;
-	Download-apr apr-iconv : http://mirror.cogentco.com/pub/apache/apr/apr-iconv-1.2.1-win32-src-r2.zip : apr-iconv-1.2.1 ;
-	Download-apr apr-util : http://mirror.cogentco.com/pub/apache/apr/apr-util-1.5.2-win32-src.zip : apr-util-1.5.2 ;
+	Download-apr apr : http://apache.mirrors.pair.com//apr/apr-1.5.0-win32-src.zip : apr-1.5.0 ;
+	Download-apr apr-iconv : http://apache.mirrors.pair.com//apr/apr-iconv-1.2.1-win32-src-r2.zip : apr-iconv-1.2.1 ;
+	Download-apr apr-util : http://apache.mirrors.pair.com//apr/apr-util-1.5.3-win32-src.zip : apr-util-1.5.3 ;
 
 	NotFile download:apr ;
 	Depends download : download:apr ;
