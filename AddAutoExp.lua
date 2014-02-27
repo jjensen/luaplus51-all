@@ -45,6 +45,7 @@ end
 AddVSAutoExp("VS80COMNTOOLS")
 AddVSAutoExp("VS90COMNTOOLS")
 AddVSAutoExp("VS100COMNTOOLS")
+AddVSAutoExp("VS110COMNTOOLS")
 
 local XEDK = os.getenv("XEDK")
 if XEDK then
