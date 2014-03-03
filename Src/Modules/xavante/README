@@ -1,4 +1,4 @@
-Xavante 2.2.1
+Xavante 2.3.0
 http://keplerproject.org/xavante/
 
 Xavante is a Lua HTTP 1.1 Web server that uses a modular architecture based on
@@ -21,18 +21,22 @@ Dependencies
 Xavante dependencies can be separated by the used handlers:
 
 Xavante Core
-* Lua 5.1.4
-* Copas 1.1.6
-* LuaSocket 2.0
+* Lua 5.1 or Lua 5.2
+* Copas 1.2.0
+* LuaSocket 2.1
 
 File Handler (optional)
-* LuaFileSystem 1.5
+* LuaFileSystem 1.6
 
 The portability of Xavante is determined by its binary components
 (LuaSocket and LuaFileSystem) and Lua itself. The other components are written
 in Lua and are as portable as Lua itself.
 
 History
+
+Xavante 2.3.0 [30/Jan/2013]
+        * Lua 5.2 compatibility
+        * bugfixes
 
 Xavante 2.2.1 [21/Oct/2010]
         * allow 0 as a port value, so the OS assigns one dynamically (contributed by Tim Niemueller
@@ -109,12 +113,12 @@ Xavante 1.0 [Feb/2004]
 
 Credits
 
-Xavante 2.0 and 1.3 was implemented by Javier Guerra, André Carregal,
-and Fábio Mascarenhas with the help of Ignacio Burgueño, Zachary P. Landau,
+Xavante 1.3 and up is implemented by Javier Guerra, André Carregal,
+and Fabio Mascarenhas with the help of Ignacio Burgueño, Zachary P. Landau,
 Mauricio Bomfim, Matthew Burke, Thomas Harning and others.
 
 Xavante 1.2 was implemented by Javier Guerra, André Carregal,
-Fábio Mascarenhas and Leonardo Godinho.
+Fabio Mascarenhas and Leonardo Godinho.
 
 Xavante 1.1 was redesigned and implemented by Javier Guerra and André Carregal.
 It merged Javier's work with luahttpd and André's work with Copas and Xavante 1.0.

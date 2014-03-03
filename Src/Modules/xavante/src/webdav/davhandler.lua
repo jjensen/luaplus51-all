@@ -5,6 +5,7 @@
 -----------------------------------------------------------------------------
 local lom = require "lxp.lom"
 require "socket.url"
+local httpd = require "xavante.httpd"
 
 local url = socket.url
 
@@ -273,7 +274,7 @@ local function dav_propfind (req, res, repos_b, props_b)
 
 	local resource_q = repos_b:getResource (req.match, path)
 	if not resource_q then
-		return xavante.httpd.err_404 (req, res)
+		return httpd.err_404 (req, res)
 	end
 
 	local content = {}
@@ -294,7 +295,7 @@ local function dav_propfind (req, res, repos_b, props_b)
 				for _, propname in lomChilds (findtype) do
 					local propval = resource:getProp (propname)
 					if not propval and props_b then
-						propval = props_b:getProp (resource.path, propname)
+						propval = props_b:getProp (req.relpath, propname)
 					end
 					local shortname = reducename (namespace, propname)
 					addProp (propstat, shortname, propval)
@@ -306,7 +307,7 @@ local function dav_propfind (req, res, repos_b, props_b)
 					addProp (propstat, shortname, "")
 				end
 				if props_b then
-					for propname in props_b:getPropNames (resource.path) do
+					for propname in props_b:getPropNames (req.relpath) do
 						local shortname = reducename (namespace, propname)
 						addProp (propstat, shortname, "")
 					end
@@ -319,9 +320,9 @@ local function dav_propfind (req, res, repos_b, props_b)
 					addProp (propstat, shortname, propval)
 				end
 				if props_b then
-					for propname in props_b:getPropNames (resource.path) do
+					for propname in props_b:getPropNames (req.relpath) do
 						local shortname = reducename (namespace, propname)
-						local propval = props_b:getProp (resource.path, propname)
+						local propval = props_b:getProp (req.relpath, propname)
 						addProp (propstat, shortname, propval)
 					end
 				end
@@ -354,7 +355,7 @@ local function dav_proppatch (req, res, repos_b, props_b)
 
 	local resource = repos_b:getResource (req.match, path)
 	if not resource then
-		return xavante.httpd.err_404 (req, res)
+		return httpd.err_404 (req, res)
 	end
 
 	local content = {}
@@ -404,7 +405,7 @@ end
 local function dav_get (req, res, repos_b, props_b)
 	local resource = repos_b:getResource (req.match, req.relpath)
 	if not resource then
-		return xavante.httpd.err_404 (req, res)
+		return httpd.err_404 (req, res)
 	end
 
 	res.headers ["Content-Type"] = resource:getContentType ()
@@ -422,8 +423,8 @@ local function dav_put (req, res, repos_b)
 	local resource = repos_b:getResource (req.match, path)
 		or repos_b:createResource (req.match, path)
 
-	if not resource  or  req.headers["content-range"] then
-		return xavante.httpd.err_405 (req, res)
+	if req.headers["content-range"] then
+		return httpd.err_405 (req, res)
 	end
 
 	local contentlength = assert (req.headers ["content-length"]) + 0
@@ -459,7 +460,7 @@ local function dav_delete (req, res, repos_b, props_b)
 	local path = req.relpath
 	local resource = repos_b:getResource (req.match, path)
 	if not resource then
-		return xavante.httpd.err_404
+		return http.err_404
 	end
 	
 	-- NOTE: this should iterate depth-first
@@ -510,7 +511,7 @@ local dav_cmd_dispatch = {
 	LOCK = dav_lock,
 }
 
-function xavante.davhandler (params)
+return function (params)
 	return function (req, res)
 --		print (req.cmd_mth, req.parsed_url.path)
 --		for k,v in pairs (req.headers) do print (k,v) end

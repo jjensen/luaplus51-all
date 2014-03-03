@@ -8,19 +8,19 @@
 -----------------------------------------------------------------------------
 
 local function indexhandler (req, res, indexname)
-	local indexUrl = string.gsub (req.cmd_url, "/[^/]*$", indexname)
-	indexUrl = string.format ("http://%s%s", req.headers.host or "", indexUrl)
-	
-	res:add_header ("Location", indexUrl)
-	res.statusline = "HTTP/1.1 302 Found"
-	res.content = "redirect"
+        local indexUrl = string.gsub (req.cmd_url, "/[^/]*$", indexname)
+        indexUrl = string.format ("http://%s%s", req.headers.host or "", indexUrl)
 
-	res:send_headers()
-	return res
+        res:add_header ("Location", indexUrl)
+        res.statusline = "HTTP/1.1 302 Found"
+        res.content = "redirect"
+
+        res:send_headers()
+        return res
 end
 
-function xavante.indexhandler (indexname)
-	return function (req, res)
-		return indexhandler (req, res, indexname)
-	end
-end
+return function (indexname)
+         return function (req, res)
+                  return indexhandler (req, res, indexname)
+                end
+       end

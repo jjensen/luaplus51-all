@@ -7,35 +7,37 @@
 -- $Id: cgiluahandler.lua,v 1.46 2009/05/20 22:28:42 mascarenhas Exp $
 -----------------------------------------------------------------------------
 
-require "wsapi.xavante"
-require "wsapi.common"
+local xavante = require "wsapi.xavante"
+local common = require "wsapi.common"
 
-module ("xavante.cgiluahandler", package.seeall)
+local _M = {}
 
 local bootstrap = [[
   function print(...)
     remotedostring("print(...)", ...)
   end
-    
+
   io.stdout = {
      write = function (...)
-	       remotedostring("io.write(...)", ...)
-	     end
+               remotedostring("io.write(...)", ...)
+             end
    }
 
   io.stderr = {
     write = function (...)
-	      remotedostring("io.stderr(...)", ...)
-	    end
+              remotedostring("io.stderr(...)", ...)
+            end
   }
 ]]
 
 -------------------------------------------------------------------------------
 -- Returns the CGILua handler
 -------------------------------------------------------------------------------
-function makeHandler (diskpath, params)
+function _M.makeHandler (diskpath, params)
    params = setmetatable(params or {}, { __index = { modname = "wsapi.sapi",
       bootstrap = bootstrap } })
-   local sapi_loader = wsapi.common.make_isolated_launcher(params)
-   return wsapi.xavante.makeHandler(sapi_loader, nil, diskpath)
+   local sapi_loader = common.make_isolated_launcher(params)
+   return xavante.makeHandler(sapi_loader, nil, diskpath)
 end
+
+return _M

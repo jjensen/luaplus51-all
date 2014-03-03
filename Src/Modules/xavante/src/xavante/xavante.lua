@@ -11,18 +11,19 @@
 --
 -- $Id: xavante.lua,v 1.13 2009/03/06 23:44:23 carregal Exp $
 -------------------------------------------------------------------------------
-module ("xavante", package.seeall)
 
-require "copas"
-require "xavante.httpd"
-require "string"
-require "xavante.patternhandler"
-require "xavante.vhostshandler"
+local _M = {}
+
+local copas = require "copas"
+local httpd = require "xavante.httpd"
+local string = require "string"
+local phandler = require "xavante.patternhandler"
+local vhosts = require "xavante.vhostshandler"
 
 -- Meta information is public even begining with an "_"
-_COPYRIGHT   = "Copyright (C) 2004-2010 Kepler Project"
-_DESCRIPTION = "A Copas based Lua Web server with WSAPI support"
-_VERSION     = "Xavante 2.2.0"
+_M._COPYRIGHT   = "Copyright (C) 2004-2010 Kepler Project"
+_M._DESCRIPTION = "A Copas based Lua Web server with WSAPI support"
+_M._VERSION     = "Xavante 2.3.0"
 
 local _startmessage = function (ports)
   print(string.format("Xavante started on port(s) %s", table.concat(ports, ", ")))
@@ -33,11 +34,11 @@ local function _buildRules(rules)
     for rule_n, rule in ipairs(rules) do
         local handler
         if type (rule.with) == "function" then
-	    if rule.params then
-	      handler = rule.with(rule.params)
-	    else
-	      handler = rule.with
-	    end
+            if rule.params then
+              handler = rule.with(rule.params)
+            else
+              handler = rule.with
+            end
         elseif type (rule.with) == "table" then
             handler = rule.with.makeHandler(rule.params)
         else
@@ -58,38 +59,38 @@ end
 -------------------------------------------------------------------------------
 -- Sets startup message
 -------------------------------------------------------------------------------
-function start_message(msg)
-	_startmessage = msg
+function _M.start_message(msg)
+        _startmessage = msg
 end
 
 -------------------------------------------------------------------------------
 -- Register the server configuration
 -------------------------------------------------------------------------------
-function HTTP(config)
+function _M.HTTP(config)
     -- normalizes the configuration
     config.server = config.server or {host = "*", port = 80}
-    
+
     local vhosts_table = {}
 
     if config.defaultHost then
-        vhosts_table[""] = xavante.patternhandler(_buildRules(config.defaultHost.rules))
+        vhosts_table[""] = phandler(_buildRules(config.defaultHost.rules))
     end
 
     if type(config.virtualhosts) == "table" then
         for hostname, host in pairs(config.virtualhosts) do
-	    vhosts_table[hostname] = xavante.patternhandler(_buildRules(host.rules))
+            vhosts_table[hostname] = phandler(_buildRules(host.rules))
         end
     end
 
-    xavante.httpd.handle_request = xavante.vhostshandler(vhosts_table)
-    xavante.httpd.register(config.server.host, config.server.port, _VERSION)
+    httpd.handle_request = vhosts(vhosts_table)
+    httpd.register(config.server.host, config.server.port, _M._VERSION)
 end
 
 -------------------------------------------------------------------------------
 -- Starts the server
 -------------------------------------------------------------------------------
-function start(isFinished, timeout)
-    _startmessage(xavante.httpd.get_ports())
+function _M.start(isFinished, timeout)
+    _startmessage(httpd.get_ports())
     while true do
       if isFinished and isFinished() then break end
       copas.step(timeout)
@@ -100,10 +101,12 @@ end
 -- Methods to define and return Xavante directory structure
 -------------------------------------------------------------------------------
 
-function webdir()
-  return _webdir
+function _M.webdir()
+  return _M._webdir
 end
 
-function setwebdir(dir)
-  _webdir = dir
+function _M.setwebdir(dir)
+  _M._webdir = dir
 end
+
+return _M

@@ -7,6 +7,10 @@
 -- $Id: encoding.lua,v 1.2 2007/01/12 17:50:03 carregal Exp $
 -----------------------------------------------------------------------------
 
+local xavante = require "xavante"
+
 xavante.encodings = {
   svgz = "x-gzip",
 }
+
+return xavante.encodings

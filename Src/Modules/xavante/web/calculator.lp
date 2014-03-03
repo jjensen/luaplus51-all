@@ -1,5 +1,5 @@
 <%
-	require "sajax"
+	local sajax = require "sajax"
 	
 	function multiply(x, y)
 		return x * y

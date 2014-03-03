@@ -4,21 +4,21 @@ require "xavante.davhandler"
 local davFileRepository = require "xavante.davFileRepository"
 local davFileProps = require "xavante.davFileProps"
 
-webDir = arg[1] or "."
+webDir = "."
 
 local simplerules = {
-    {
+    { 
       match = ".",
       with = xavante.davhandler,
       params = {
-      	  repos_b = davFileRepository.makeSource{ rootDir = webDir },
+      	  repos_b = davFileRepository.makeSource(),
       	  props_b = davFileProps.makeProps(),
     	},
     },
 }
 
 xavante.HTTP{
-	server = { host = "*", port = arg[2] or 8080, },
+	server = { host = "*", port = 8080, },
 	defaultHost = {
 		rules = simplerules,
 	},

@@ -8,21 +8,21 @@
 -- $Id: config.lua,v 1.1 2007/10/31 17:50:13 carregal Exp $
 ------------------------------------------------------------------------------
 
-require "xavante.httpd"
+local xavante = require "xavante.httpd"
 
-require "xavante.vhostshandler"
-require "xavante.urlhandler"
-require "xavante.indexhandler"
-require "xavante.filehandler"
-require "xavante.cgiluahandler"
+local hvhost = require "xavante.vhostshandler"
+local hurl = require "xavante.urlhandler"
+local hindex = require "xavante.indexhandler"
+local hfile = require "xavante.filehandler"
+local hcgilua = require "xavante.cgiluahandler"
 
 
-xavante.httpd.handle_request = xavante.vhostshandler {
-	[""] = xavante.urlhandler {
-		["/"] = xavante.indexhandler ("/cgi/index.lp"),
-		["/cgi/"] = xavante.cgiluahandler.makeHandler (XAVANTE_WEB),
-		["/img/"] = xavante.filehandler (XAVANTE_WEB.."/img"),
+xavante.handle_request = hvhost {
+	[""] = hurl {
+		["/"] = hindex ("/cgi/index.lp"),
+		["/cgi/"] = hcgilua.makeHandler (XAVANTE_WEB),
+		["/img/"] = hfile (XAVANTE_WEB.."/img"),
 	}
 }
 
-xavante.httpd.register ("*", 8080, "Xavante 1.3")
+xavante.register ("*", 8080, "Xavante 1.3")

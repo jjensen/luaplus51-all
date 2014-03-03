@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
     <title>The Xavante Lua Web Server Manual</title>
-    <link rel="stylesheet" href="http://www.keplerproject.org/doc.css" type="text/css"/>
+    <link rel="stylesheet" href="doc.css" type="text/css"/>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 </head>
 
@@ -88,13 +88,15 @@ a <strong>CGILua handler</strong> for general files, URL
 remapping and CGILua scripts respectively.
 </p>
 
-<p>A typical use would be (assuming the Xavante module is already loaded):</p>
+<p>A typical use would be:</p>
 
 <pre class="example">
-require "xavante.filehandler"
-require "xavante.cgiluahandler"
-require "xavante.redirecthandler"
+local hfile = require "xavante.filehandler"
+local hcgi = require "xavante.cgiluahandler"
+local hredir = require "xavante.redirecthandler"
 
+local xavante = require "xavante"
+  
 -- Define here where Xavante HTTP documents scripts are located
 local webDir = XAVANTE_WEB
 
@@ -102,18 +104,18 @@ local simplerules = {
 
     { -- URI remapping example
       match = "^[^%./]*/$",
-      with = xavante.redirecthandler,
+      with = hredir,
       params = {"index.lp"}
     }, 
 
     { -- cgiluahandler example
       match = {"%.lp$", "%.lp/.*$", "%.lua$", "%.lua/.*$" },
-      with = xavante.cgiluahandler.makeHandler (webDir)
+      with = hcgi.makeHandler (webDir)
     },
     
     { -- filehandler example
       match = ".",
-      with = xavante.filehandler,
+      with = hfile,
       params = {baseDir = webDir}
     },
 } 

@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 	<title>The Xavante Lua Web Server</title>
-	<link rel="stylesheet" href="http://www.keplerproject.org/doc.css" type="text/css"/>
+	<link rel="stylesheet" href="doc.css" type="text/css"/>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 </head>
 
@@ -71,7 +71,7 @@ as Lua.
 
 <h2><a name="status"></a>Status</h2>
 
-<p>Current version is 2.2.1 and works with Lua 5.1.</p>
+<p>Current version is 2.3.0 and works with Lua 5.1 and Lua 5.2.</p>
 
 <h2><a name="download"></a>Download</h2>
 
@@ -101,16 +101,16 @@ luarocks install wsapi-xavante
     <dt><strong>Xavante Core</strong></dt>
     <dd>
         <ul>
-          <li><a href="http://www.lua.org">Lua 5.1.4</a></li>
-          <li><a href="http://www.keplerproject.org/copas">Copas 1.1.6</a></li>
-          <li><a href="http://www.cs.princeton.edu/~diego/professional/luasocket">LuaSocket 2.0</a></li>
+          <li><a href="http://www.lua.org">Lua 5.1 or Lua 5.2</a></li>
+          <li><a href="http://www.keplerproject.org/copas">Copas 1.2.0</a></li>
+          <li><a href="http://github.com/diegonehab/luasocket">LuaSocket 2.1</a></li>
         </ul>
     </dd>
 
     <dt><strong>File Handler</strong> (optional)</dt>
     <dd>
         <ul>
-          <li><a href="http://www.keplerproject.org/luafilesystem">LuaFileSystem 1.5.0</a></li>
+          <li><a href="http://www.keplerproject.org/luafilesystem">LuaFileSystem 1.6.0</a></li>
         </ul>
     </dd>
 </dl>
@@ -122,9 +122,15 @@ and Lua itself. The other components are written in Lua and are as portable as L
 
 <h2><a name="history"></a>History</h2>
 <dl>
-    <dt><strong>Xavante 2.2.1</strong> [21/Oct/2010]</dt>
+    <dt><strong>Xavante 2.3.0</strong> [30/Jan/2013]</dt>
         <dd><ul>
-        <li>allow 0 as a port value, so the OS assigns one dynamically (contribut$</li>
+        <li>support for Lua 5.2</li>
+        <li>bugfixes</li>
+        </ul></dd>
+
+  <dt><strong>Xavante 2.2.1</strong> [21/Oct/2010]</dt>
+        <dd><ul>
+        <li>allow 0 as a port value, so the OS assigns one dynamically</li>
         <li>bugfixes in CGILua handler</li>
         </ul></dd>
 

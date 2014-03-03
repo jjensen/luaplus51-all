@@ -7,6 +7,8 @@
 -- $Id: mime.lua,v 1.7 2007/08/20 22:20:44 carregal Exp $
 -----------------------------------------------------------------------------
 
+local xavante = require "xavante"
+
 -- Extracted from Apache's mime.types
 -- This file controls what Internet media types are sent to the client for
 -- given file extension(s).  Sending the correct media type to the client
@@ -172,3 +174,5 @@ xavante.mimetypes = {
   movie = "video/x-sgi-movie",
   ice = "x-conference/x-cooltalk",
 }
+
+return xavante.mimetypes

@@ -21,21 +21,18 @@ end
 
 function source:getResource (rootUrl, path)
 	local diskpath = self.rootDir .. path
-	local attr = lfs.attributes (diskpath)
-	if not attr then
-		if diskpath:sub(-1) == '/' then
-			diskpath = diskpath:sub(1, -2)
-			attr = lfs.attributes (diskpath)
-		end
-		if not attr then return end
+	if diskpath:sub(-1) == '/' then
+		diskpath = diskpath:sub(1, -2)
 	end
+	local attr = lfs.attributes (diskpath)
+	if not attr then return end
 
 	local _,_,pfx = string.find (rootUrl, "^(.*/)[^/]-$")
 
 	if attr.mode == "directory" and string.sub (path, -1) ~= "/" then
 		path = path .."/"
 	end
-
+	
 	return setmetatable ({
 		source = self,
 		path = path,
@@ -47,20 +44,15 @@ end
 
 function source:createResource (rootUrl, path)
 	local diskpath = self.rootDir .. path
+	if diskpath:sub(-1) == '/' then
+		diskpath = diskpath:sub(1, -2)
+	end
 	local attr = lfs.attributes (diskpath)
 	if not attr then
-		if diskpath:sub(-1) == '/' then
-			diskpath = diskpath:sub(1, -2)
-			attr = lfs.attributes (diskpath)
-		end
-	end
-	if not attr then
-		local file = io.open (diskpath, "wb")
-		if file then file:close () end
+		io.open (diskpath, "wb"):close ()
 		attr = lfs.attributes (diskpath)
-		if not attr then return end
 	end
-
+	
 	local _,_,pfx = string.find (rootUrl, "^(.*/)[^/]-$")
 
 	return setmetatable ({
@@ -223,12 +215,12 @@ function resource:getItems (depth)
 						recur (p.."/"..entry)
 					end
 				end
-			end
 			coroutine.yield (self.source:getResource (self.pfx, p))
+			end
 		end
 		gen = function () recur (path) end
 	end
-
+	
 	if gen then return coroutine.wrap (gen) end
 end
 
