@@ -304,7 +304,7 @@ C.Defines apr : XML_STATIC ;
 
 if $(PLATFORM) in win32 win64 {
 	C.ExcludeFromBuild apr : apr/misc/win32/apr_app.c ;
-	C.Defines apr : COMPILED_FROM_DSP HAVE_MEMMOVE HAVE_SQL_H ;
+	C.Defines apr : WIN32 COMPILED_FROM_DSP HAVE_MEMMOVE HAVE_SQL_H ;
 	C.IncludeDirectories apr : apr/include/arch/win32 ;
 	C.LinkPrebuiltLibraries apr : advapi32 ws2_32 mswsock rpcrt4 wldap32 odbc32 ;
 }
