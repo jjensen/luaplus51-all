@@ -2,7 +2,7 @@
 #include <lauxlib.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-#if defined(WIN32)
+#if defined(_WIN32)
 #define WIN32_LEAN_AND_MEAN
 #define NOGDI
 #include <windows.h>
@@ -22,14 +22,14 @@
 #include <ctype.h>
 
 extern int push_error(lua_State *L);
-#endif /* WIN32 */
+#endif /* _WIN32 */
 
 /*
  * "os.path" API implementation
  */
 int path_create(const char* inPath)
 {
-#if defined(WIN32)
+#if defined(_WIN32)
   char path[MAX_PATH];
 #else
   char path[FILENAME_MAX];
@@ -41,7 +41,7 @@ int path_create(const char* inPath)
   if (*inPath == '/'  ||  *inPath == '\\') {
     *pathPtr++ = *inPath;
     inPath++;			// Skip the initial /
-#if defined(WIN32)
+#if defined(_WIN32)
     if (*inPath == '/'  ||  *inPath == '\\') {
       // UNC share
       *pathPtr++ = *inPath;
@@ -66,11 +66,11 @@ int path_create(const char* inPath)
   /* Copy the rest of the path into a buffer we can modify. */
   while ((ch = *inPath++)) {
     if (ch == '/'  ||  ch == '\\') {
-#if defined(WIN32)
+#if defined(_WIN32)
       *pathPtr++ = '\\';
 #else
       *pathPtr++ = '/';
-#endif /* WIN32 */
+#endif /* _WIN32 */
     } else
       *pathPtr++ = ch;
   }
@@ -86,20 +86,20 @@ int path_create(const char* inPath)
     ch = *pathPtr;
     if (ch == '/'  ||  ch == '\\') {
       *pathPtr = 0;
-#if defined(WIN32)
+#if defined(_WIN32)
       if (pathPtr > path + 1) {
         if (pathPtr[-1] == ':') {
             *pathPtr = ch;
 			break;
         }
 	  }
-#endif /* WIN32 */
+#endif /* _WIN32 */
 	  if (stat(path, &fileInfo) == 0) {
-#if defined(WIN32)
+#if defined(_WIN32)
         if (fileInfo.st_mode & _S_IFDIR) {
 #else
         if (S_ISDIR(fileInfo.st_mode)) {
-#endif // defined(WIN32)
+#endif // defined(_WIN32)
           *pathPtr = ch;
           break;
 	    } else {
@@ -117,7 +117,7 @@ int path_create(const char* inPath)
   while ((ch = *pathPtr)) {
     if (ch == '/'  ||  ch == '\\') {
       *pathPtr = 0;
-#if defined(WIN32)
+#if defined(_WIN32)
       if (!CreateDirectory(path, NULL)  &&  GetLastError() != ERROR_ALREADY_EXISTS)
         return 0;
       *pathPtr++ = '\\';
@@ -138,7 +138,7 @@ int path_create(const char* inPath)
 int path_destroy(const char* inDirName)
 {
   int ret = 1;
-#if defined(WIN32)
+#if defined(_WIN32)
   char dirName[MAX_PATH];
   char* dirNamePtr = dirName;
   char ch;
@@ -357,13 +357,13 @@ static int path_simplify_helper(lua_State *L, int index) {
         if ( file > filestart  &&  ( file[-1] == '/'  ||  file[-1] == '\\' ) ) {
           ptr++;
         } else {
-#if defined(WIN32)
+#if defined(_WIN32)
           /* is it a unc path? */
           if ( file == filestart  &&  (file[0] == '\\'  ||  file[0] == '/')  &&  (file[1] == '\\'  ||  file[1] == '/')) {
             file += 2;
             ptr += 2;
           } else 
-#endif /* WIN32 */
+#endif /* _WIN32 */
 		  {
             *file++ = '/';
             ptr++;
@@ -498,7 +498,7 @@ static int ex_path_escape(lua_State *L) {
   const char *path = luaL_checkstring(L, 1);
   const char *ptr = path;
 
-#if defined(WIN32)
+#if defined(_WIN32)
   while (*ptr  &&  *ptr != ' '  &&  *ptr != '/')
     ++ptr;
 
@@ -603,7 +603,7 @@ static int ex_path_is_directory(lua_State *L) {
   trimmedPath[pathEnd - path] = 0;
 
   if (trimmedPath[0]  &&  stat(trimmedPath, &sbuff) == 0)
-#if defined(WIN32)
+#if defined(_WIN32)
     lua_pushboolean(L, (sbuff.st_mode & _S_IFDIR) > 0);
 #else
     lua_pushboolean(L, S_ISDIR(sbuff.st_mode));
@@ -624,7 +624,7 @@ static int ex_path_is_file(lua_State *L) {
   if (*(pathEnd - 1) == '/'  ||  *(pathEnd - 1) == '\\')
     lua_pushnil(L);
   else if (path[0]  &&  stat(path, &sbuff) == 0)
-#if defined(WIN32)
+#if defined(_WIN32)
     lua_pushboolean(L, (sbuff.st_mode & _S_IFDIR) == 0);
 #else
     lua_pushboolean(L, !S_ISDIR(sbuff.st_mode));
@@ -683,7 +683,7 @@ static int ex_path_is_writable(lua_State *L) {
   struct stat sbuff;
   const char *path = luaL_checkstring(L, 1);
   if (path[0]  &&  stat(path, &sbuff) == 0)
-#if defined(WIN32)
+#if defined(_WIN32)
     lua_pushboolean(L, (sbuff.st_mode & _S_IWRITE) == _S_IWRITE);
 #else
     lua_pushboolean(L, (sbuff.st_mode & S_IWRITE) == S_IWRITE);
@@ -762,7 +762,7 @@ static int ex_path_make_slash(lua_State *L) {
 static int ex_path_make_writable(lua_State *L) {
   const char *path = luaL_checkstring(L, 1);
 
-#if defined(WIN32)
+#if defined(_WIN32)
   const char *pathname = luaL_checkstring(L, 1);
   int pmode = _S_IWRITE;
   if (-1 == _chmod(pathname, pmode))
@@ -894,7 +894,7 @@ static int ex_path_trim(lua_State *L) {
 static int ex_path_unescape(lua_State *L) {
   const char *path = luaL_checkstring(L, 1);
 
-#if defined(WIN32)
+#if defined(_WIN32)
   if (path[0] == '"') {
     const char* lastquote = path + 1;
     while (*lastquote  &&  *lastquote != '"')
