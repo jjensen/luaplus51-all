@@ -17,7 +17,7 @@
 #include "zlib.h"
 #include <assert.h>
 #include <stdio.h>
-#if defined(WIN32)
+#if defined(_WIN32)
 #include <windows.h>
 #include <io.h>
 #elif defined(__GNUC__)
@@ -49,7 +49,7 @@ namespace Misc {
  */
 int PathCreate(const char* inPath)
 {
-#if defined(WIN32)
+#if defined(_WIN32)
   char path[MAX_PATH];
 #else
   char path[FILENAME_MAX];
@@ -60,7 +60,7 @@ int PathCreate(const char* inPath)
   if (*inPath == '/'  ||  *inPath == '\\') {
     *pathPtr++ = *inPath;
     inPath++;			// Skip the initial /
-#if defined(WIN32)
+#if defined(_WIN32)
     if (*inPath == '/'  ||  *inPath == '\\') {
       // UNC share
       *pathPtr++ = *inPath;
@@ -87,7 +87,7 @@ int PathCreate(const char* inPath)
       int isDriveLetter;
 
       *pathPtr = 0;
-#if defined(WIN32)
+#if defined(_WIN32)
       /* Create the directory if it's not a drive letter. */
       colonPtr = pathPtr - 1;
       isDriveLetter = colonPtr == (path + 1)  &&  *colonPtr == ':';
@@ -434,7 +434,7 @@ bool ZipEntryFileHandle::IsValid() const
 #if 0
 static int entropy_fun(unsigned char buf[], unsigned int len)
 {
-#if defined(WIN32)
+#if defined(_WIN32)
 	unsigned __int64    pentium_tsc[1];
 	unsigned int        i;
 
@@ -2721,7 +2721,7 @@ bool ZipArchive::Pack(PackOptions* packOptions)
 } // Pack()
 
 
-#if defined(WIN32)
+#if defined(_WIN32)
 
 BOOL (WINAPI *fnSystemTimeToTzSpecificLocalTime)(LPTIME_ZONE_INFORMATION lpTimeZone, LPSYSTEMTIME lpUniversalTime, LPSYSTEMTIME lpLocalTime);
 
@@ -2912,7 +2912,7 @@ bool ZipArchive::ProcessFileList(ZipArchive::FileOrderList& fileOrderList, Proce
 
 			fileNameMap[fileOrderInfo.entryName.Lower()] = &fileOrderInfo;
 		} else {
-#ifdef WIN32
+#if defined(_WIN32)
 			WIN32_FIND_DATA fd;
 
 			// If the file time was already provided by the file order entry, then assign it
@@ -2956,7 +2956,7 @@ bool ZipArchive::ProcessFileList(ZipArchive::FileOrderList& fileOrderList, Proce
 				this->errorString = "Unable to open file [" + fileOrderInfo.srcPath + "].";
 				return false;
 			}
-#endif // WIN32
+#endif // _WIN32
 		}
 	}
 
@@ -3213,7 +3213,7 @@ bool ZipArchive::ProcessFileList(ZipArchive::FileOrderList& fileOrderList, Proce
 		HeapString oldPassword = this->defaultPassword;
 		if (!newArchive->Create(newArchiveFileName, m_flags, oldPassword)) {
 			delete newArchive;
-#ifdef WIN32
+#if defined(_WIN32)
 			_unlink(newArchiveFileName);
 #else
 			unlink(newArchiveFileName);
@@ -3223,7 +3223,7 @@ bool ZipArchive::ProcessFileList(ZipArchive::FileOrderList& fileOrderList, Proce
 #else
 		if (!newArchive->Create(newArchiveFileName, 0, m_flags)) {
 			delete newArchive;
-#ifdef WIN32
+#if defined(_WIN32)
 			_unlink(newArchiveFileName);
 #else
 			unlink(newArchiveFileName);
@@ -3505,7 +3505,7 @@ bool ZipArchive::ProcessFileList(ZipArchive::FileOrderList& fileOrderList, Proce
 		m_needsPack = false;
 		Close();
 
-#if defined(WIN32)
+#if defined(_WIN32)
 		// Copy the packed drive.
 		unlink(oldArchiveFileName);
 		if (!::MoveFile(newArchiveFileName, oldArchiveFileName))

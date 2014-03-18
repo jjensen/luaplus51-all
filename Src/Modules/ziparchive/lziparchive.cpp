@@ -4,7 +4,7 @@
 // The lziparchive module is licensed under the MIT license.
 ///////////////////////////////////////////////////////////////////////////////
 #include <stdlib.h>
-#if _MSC_VER  ||  defined(__MINGW32__)
+#if defined(WIN32)  ||  defined(_WIN64)  ||  defined(__MINGW32__)
 #include <windows.h>
 #include <shlwapi.h>
 #include <io.h>

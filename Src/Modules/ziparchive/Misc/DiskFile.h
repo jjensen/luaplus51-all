@@ -30,7 +30,7 @@ public:
 
 private:
     char* m_fileName;
-#if defined(WIN32)
+#if defined(_WIN32)
     void* m_fileHandle;
 #else
 	int m_fileHandle;

@@ -164,7 +164,7 @@ public:
 	int Compare(const char* right) const			{ return strcmp(m_string, right); }
 	int CompareNoCase(const char* right) const
 	{
-#if defined(WIN32)
+#if defined(_MSC_VER)
 		return _stricmp(m_string, right);
 #elif defined(__GNUC__)
 		return strcasecmp(m_string, right);

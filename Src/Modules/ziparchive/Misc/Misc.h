@@ -4,7 +4,7 @@
 #include <assert.h>
 #include <new>
 
-#if defined(WIN32)
+#if defined(_WIN32)
 #define PLATFORM_WINDOWS
 #define MISC_CDECL __cdecl
 #if defined(_MSC_VER)

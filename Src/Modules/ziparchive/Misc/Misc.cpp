@@ -1,12 +1,12 @@
 #include "Misc_InternalPch.h"
 
-#if defined(WIN32)
+#if defined(_WIN32)
 #include <windows.h>
 #pragma comment(lib, "winmm.lib")
 #elif defined(__APPLE__)
 #include <CoreServices/CoreServices.h>
 #include <unistd.h>
-#endif // WIN32
+#endif // _WIN32
 
 #include <stdio.h>
 #include <assert.h>
@@ -20,25 +20,26 @@ bool gInAssert = false;
 
 DWORD GetMilliseconds()
 {
-#if defined(WIN32)
+#if defined(_WIN32)
 	return ::timeGetTime();
 #endif
 #if defined(PLATFORM_MAC)
 	Duration duration = AbsoluteToDuration(UpTime());
 	return duration < 0 ? duration / -1000 : duration;
-#endif // WIN32
+#endif // _WIN32
 }
 
 
 void SleepMilliseconds(unsigned int milliseconds)
 {
-#if defined(WIN32)
+#if defined(_WIN32)
 	::Sleep(milliseconds);
 #elif defined(PLATFORM_MAC)
 	usleep(milliseconds * 1000);
 #endif
 }
-#if defined(WIN32)
+
+#if defined(_WIN32)
 
 bool CheckFor98Mill()
 {
@@ -107,6 +108,6 @@ bool CheckForTabletPC()
 }
 
 
-#endif // WIN32
+#endif // _WIN32
 
 } // namespace Misc
