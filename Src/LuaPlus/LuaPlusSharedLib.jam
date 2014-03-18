@@ -17,9 +17,11 @@ rule LuaSharedLibrary TARGET : LUA_SOURCES : OUTPUT_NAME {
 	}
 
 	if $(MSVCNT) {
-		C.CFlags : /arch:SSE2 ;
-		C.C++Flags : /arch:SSE2 ;
-		C.Defines : __SSE2__ ;
+	    if $(PLATFORM) = win32 {
+            C.CFlags : /arch:SSE2 ;
+            C.C++Flags : /arch:SSE2 ;
+            C.Defines : __SSE2__ ;
+        }
 		C.OutputName : $(OUTPUT_NAME) ;
 	} else if $(UNIX) {
 		C.LinkPrebuiltLibraries : dl ;
