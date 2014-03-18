@@ -80,6 +80,7 @@ C.IncludeDirectories : libevent libevent/compat libevent/include ;
 C.IncludeDirectories : libevent/WIN32-Code ;
 
 if $(MSVCNT)  &&  $(PLATFORM) in win32 win64 {
+	C.Defines : WIN32 ;
 	if $(PLATFORM) = win32 {
 		C.IncludeDirectories : c:/OpenSSL-Win32/include c:/OpenSSL-Win32/include/openssl ;
 		C.LinkDirectories : c:/OpenSSL-Win32/lib/VC/static ;
