@@ -23,6 +23,10 @@ local SRCS =
 
 C.Defines mcpp : MCPP_LIB ;
 
+if $(PLATFORM) in win32 win64 {
+    C.Defines mcpp : WIN32 ;
+}
+
 Lua.CModule mcpp : : $(SRCS) ;
 
 }
