@@ -20,7 +20,7 @@ if $(MSVCNT)  &&  $(C.COMPILER) in vs2008 vs2010 vs2012 {
 }
 
 actions _DynAsm {
-	$(LUA_EXE:CT) $(DYNASM.LUA:C) -D $(ARCHITECTURE_DEFINE) -LNE -o $(1) $(2)
+	$(LUA_EXE:CT) $(DYNASM.LUA:C) $(ARCHITECTURE_DEFINE) -LNE -o $(1) $(2)
 }
 
 rule DynAsm TARGET : ARCHITECTURE_DEFINE : OUTPUT_HEADER : DASC_FILE {
@@ -34,7 +34,7 @@ rule DynAsm TARGET : ARCHITECTURE_DEFINE : OUTPUT_HEADER : DASC_FILE {
 	UseCommandLine $(OUTPUT_HEADER) : $(ARCHITECTURE_DEFINE) v2 ;
 	ForceCare $(OUTPUT_HEADER) ;
 
-	ARCHITECTURE_DEFINE on $(OUTPUT_HEADER) = $(ARCHITECTURE_DEFINE) ;
+	ARCHITECTURE_DEFINE on $(OUTPUT_HEADER) = "-D $(ARCHITECTURE_DEFINE)" ;
 	DYNASM.LUA on $(OUTPUT_HEADER) = $(SUBDIR)/dynasm/dynasm.lua ;
 	_DynAsm $(OUTPUT_HEADER) : $(DASC_FILE) ;
 	Clean clean:$(TARGET) : $(OUTPUT_HEADER) ;
@@ -51,6 +51,8 @@ Lua.CModule luaffi : ffi : $(SRCS) ;
 
 if $(PLATFORM) = win32 {
     DynAsm luaffi : X32WIN : call_x86.h : call_x86.dasc ;
+} else if $(PLATFORM) = win64 {
+    DynAsm luaffi : X64 X64WIN : call_x64win.h : call_x86.dasc ;
 } else {
     DynAsm luaffi : X32 : call_x86.h : call_x86.dasc ;
 }
