@@ -10,7 +10,7 @@ char *wd_strdup_url_encoded(const char *string);
 char *wd_strdup_url_decoded(const char *string);
 char *wd_strdup_base64(const char *string);
 
-#ifdef WIN32
+#if defined(_WIN32)
 #define strcasecmp	_stricmp
 #define strncasecmp _strnicmp
 #endif

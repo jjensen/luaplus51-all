@@ -1,6 +1,6 @@
-#ifdef  WIN32
+#if defined(_WIN32)
 #include <winsock.h>
-#endif // WIN32
+#endif // _WIN32
 #include <string.h>
 #include "lua.h"
 #include "lauxlib.h"
@@ -861,11 +861,11 @@ static const struct luaL_Reg ezdav_lib[] = {
 
 
 int luaopen_ezdav(lua_State* L) {
-#if defined(WIN32)
+#if defined(_WIN32)
 	// Initialize Winsock.
 	WSADATA wsaData;
 	int iResult = WSAStartup( MAKEWORD(2,2), &wsaData );
-#endif // WIN32
+#endif // _WIN32
 
 	ezdav_dir_create_metatable(L);
 	ezdav_connection_create_metatable(L);

@@ -489,7 +489,7 @@ void davglob_AddExclusivePattern(davglob* self, const char* pattern) {
 
 	if (pattern[strlen(pattern) - 1] == '/') {
 		for (node = self->exclusiveDirectoryPatternsHead; node; node = node->next) {
-#if defined(WIN32)
+#if defined(_WIN32)
 			if (stricmp(node->buffer, pattern) == 0)
 #else
 			if (strcasecmp(node->buffer, pattern) == 0)
@@ -500,7 +500,7 @@ void davglob_AddExclusivePattern(davglob* self, const char* pattern) {
 		_davglob_list_append(self, &self->exclusiveDirectoryPatternsHead, &self->exclusiveDirectoryPatternsTail, pattern);
 	} else {
 		for (node = self->exclusiveFilePatternsHead; node; node = node->next) {
-#if defined(WIN32)
+#if defined(_WIN32)
 			if (stricmp(node->buffer, pattern) == 0)
 #else
 			if (strcasecmp(node->buffer, pattern) == 0)
@@ -526,7 +526,7 @@ void davglob_AddIgnorePattern(davglob* self, const char* pattern) {
 
 	if (pattern[strlen(pattern) - 1] == '/') {
 		for (node = self->ignoreDirectoryPatternsHead; node; node = node->next) {
-#if defined(WIN32)
+#if defined(_WIN32)
 			if (stricmp(node->buffer, pattern) == 0)
 #else
 			if (strcasecmp(node->buffer, pattern) == 0)
@@ -537,7 +537,7 @@ void davglob_AddIgnorePattern(davglob* self, const char* pattern) {
 		_davglob_list_append(self, &self->ignoreDirectoryPatternsHead, &self->ignoreDirectoryPatternsTail, pattern);
 	} else {
 		for (node = self->ignoreFilePatternsHead; node; node = node->next) {
-#if defined(WIN32)
+#if defined(_WIN32)
 			if (stricmp(node->buffer, pattern) == 0)
 #else
 			if (strcasecmp(node->buffer, pattern) == 0)

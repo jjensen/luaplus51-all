@@ -5,9 +5,9 @@
 #include <time.h>
 #include <assert.h>
 #include <ctype.h>
-#if !defined(WIN32)
+#if !defined(_WIN32)
 #include <sys/select.h>
-#endif /* WIN32 */
+#endif /* _WIN32 */
 #ifdef  LINUX
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -19,7 +19,7 @@ typedef int SOCKET;
 #define INVALID_SOCKET				-1
 #endif
 
-#ifdef  WIN32
+#if defined(_WIN32)
 #include <winsock.h>
 #include <limits.h>
 #define close	closesocket
@@ -64,7 +64,7 @@ struct http_connection {
 	void *connect_userData;
 };
 
-#if defined(WIN32)
+#if defined(_WIN32)
 #define SOCKET_EWOULDBLOCK			WSAEWOULDBLOCK
 #define socket_errno				WSAGetLastError()
 #else
@@ -85,7 +85,7 @@ enum {
 /*-------------------------------------------------------------------------*\
 * Wait for readable/writable/connected socket with timeout
 \*-------------------------------------------------------------------------*/
-#if defined(WIN32)
+#if defined(_WIN32)
 
 #define WAITFD_R        1
 #define WAITFD_W        2
@@ -442,9 +442,9 @@ http_reconnect(HTTP_CONNECTION *connection)
 			if (connection->connect_callback)
 				if (connection->connect_callback(connection->connect_userData) == 0)
 					return HT_HOST_UNAVAILABLE;
-#if defined(WIN32)
+#if defined(_WIN32)
 			Sleep(100);
-#endif // WIN32
+#endif // _WIN32
 		}
 	}
 	else
