@@ -1,3 +1,4 @@
+if $(PLATFORM) in win32
 {
 
 local EXTRA_SRCS ;
