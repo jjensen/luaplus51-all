@@ -11,7 +11,7 @@
 #define LUAPLUS__LUAPLUS_CONFIG_H
 
 #ifndef LUA_TILDE_DEBUGGER
-#if defined(WIN32)  ||  defined(WIN64)
+#if defined(_WIN32)
 #define LUA_TILDE_DEBUGGER 1
 #endif
 #endif /* LUA_TILDE_DEBUGGER */

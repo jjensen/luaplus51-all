@@ -81,7 +81,7 @@
 ** hierarchy or if you want to install your libraries in
 ** non-conventional directories.
 */
-#if defined(WIN32)
+#if defined(_WIN32)
 #define LUA_CSUFFIX_PLATFORM ".dll"
 #elif defined(macintosh)  ||  defined(__APPLE__)
 #define LUA_CSUFFIX_PLATFORM ".dylib"

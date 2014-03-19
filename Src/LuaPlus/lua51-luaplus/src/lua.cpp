@@ -289,6 +289,10 @@ static void DebugLineHook( lua_State* inState, lua_Debug* ar )
 #define notail(x)	{if ((x)[2] != '\0') return -1;}
 
 
+#if defined(_WIN32)
+#include <windows.h>
+#endif
+
 static int collectargs (char **argv, int *pi, int *pv, int *pe) {
   int i;
   for (i = 1; argv[i] != NULL; i++) {
@@ -417,15 +421,11 @@ static int pmain (lua_State *L) {
   return 0;
 }
 
-#if defined(WIN32)
-#include <windows.h>
-#endif
-
 int main (int argc, char **argv) {
   int status;
   struct Smain s;
   lua_State *L;
-#if defined(WIN32)
+#if defined(_WIN32)
   {
     FILE* file;
     char filename[_MAX_PATH];
