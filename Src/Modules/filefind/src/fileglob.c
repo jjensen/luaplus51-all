@@ -27,7 +27,7 @@
     SUCH DAMAGE.
 **/
 
-#if defined(WIN32)  &&  !defined(MINGW)
+#if defined(_WIN32)  &&  !defined(MINGW)
 #include <windows.h>
 #else
 #include <ctype.h>
@@ -65,7 +65,7 @@ typedef void* (*fileglob_Alloc)(void* userData, void* ptr, unsigned int size);
 
 enum answer {UNKNOWN = -1, NO, YES};
 
-#if !defined(WIN32)  ||  defined(MINGW)
+#if !defined(_WIN32)  ||  defined(MINGW)
 #ifndef S_ISDIR
 #define S_ISDIR(m) (((m) & S_IFMT) == S_IFDIR)
 #endif
@@ -89,7 +89,7 @@ typedef struct fileglob_context {
 	int plain, magical, recursive, match_files, match_dir;
     int goto_top_continue;
 
-#if defined(WIN32)  &&  !defined(MINGW)
+#if defined(_WIN32)  &&  !defined(MINGW)
 	WIN32_FIND_DATA fd;
 	HANDLE handle;
 #else
@@ -125,7 +125,7 @@ typedef struct fileglob {
 
 	int filesAndFolders;
 
-#if defined(WIN32)  &&  !defined(MINGW)
+#if defined(_WIN32)  &&  !defined(MINGW)
     WIN32_FIND_DATA* curfd;
 #else
     struct stat* curattr;
@@ -144,7 +144,7 @@ typedef struct fileglob {
 
 #define FILEGLOB_BUILD_IMPLEMENTATION
 
-#if defined(WIN32)  &&  !defined(MINGW)
+#if defined(_WIN32)  &&  !defined(MINGW)
 
 time_t fileglob_ConvertToTime_t(const FILETIME* fileTime) {
 	FILETIME localTime;
@@ -415,7 +415,7 @@ static void glob_free_pattern(fileglob *self, struct glob_pattern *list);
 static void _fileglob_FreeContextLevel(fileglob* self) {
 	if (self->context) {
 		fileglob_context* oldContext = self->context;
-#if defined(WIN32)  &&  !defined(MINGW)
+#if defined(_WIN32)  &&  !defined(MINGW)
         self->curfd = NULL;
 #else
         self->curattr = NULL;
@@ -426,7 +426,7 @@ static void _fileglob_FreeContextLevel(fileglob* self) {
         if (oldContext->savepath)
             GLOB_FREE(oldContext->path);
 		self->context = oldContext->prev;
-#if defined(WIN32)  &&  !defined(MINGW)
+#if defined(_WIN32)  &&  !defined(MINGW)
 		if (oldContext->handle != INVALID_HANDLE_VALUE) {
 			FindClose(oldContext->handle);
 		}
@@ -445,7 +445,7 @@ static void _fileglob_FreeContextLevel(fileglob* self) {
 static fileglob_context* _fileglob_AllocateContextLevel(fileglob* self) {
 	fileglob_context* context = self->allocFunction(self->userData, 0, sizeof(fileglob_context));
     context->prev = self->context;
-#if defined(WIN32)  &&  !defined(MINGW)
+#if defined(_WIN32)  &&  !defined(MINGW)
     context->handle = INVALID_HANDLE_VALUE;
 #else
     context->dirp = NULL;
@@ -488,7 +488,7 @@ void fileglob_AddExclusivePattern(fileglob* self, const char* pattern) {
 
 	if (pattern[strlen(pattern) - 1] == '/') {
 		for (node = self->exclusiveDirectoryPatternsHead; node; node = node->next) {
-#if defined(WIN32)
+#if defined(_WIN32)
 			if (stricmp(node->buffer, pattern) == 0) {
 #else
 			if (strcasecmp(node->buffer, pattern) == 0) {
@@ -500,7 +500,7 @@ void fileglob_AddExclusivePattern(fileglob* self, const char* pattern) {
 		_fileglob_list_append(self, &self->exclusiveDirectoryPatternsHead, &self->exclusiveDirectoryPatternsTail, pattern);
 	} else {
 		for (node = self->exclusiveFilePatternsHead; node; node = node->next) {
-#if defined(WIN32)
+#if defined(_WIN32)
 			if (stricmp(node->buffer, pattern) == 0) {
 #else
 			if (strcasecmp(node->buffer, pattern) == 0) {
@@ -527,7 +527,7 @@ void fileglob_AddIgnorePattern(fileglob* self, const char* pattern) {
 
 	if (pattern[strlen(pattern) - 1] == '/') {
 		for (node = self->ignoreDirectoryPatternsHead; node; node = node->next) {
-#if defined(WIN32)
+#if defined(_WIN32)
 			if (stricmp(node->buffer, pattern) == 0) {
 #else
 			if (strcasecmp(node->buffer, pattern) == 0) {
@@ -539,7 +539,7 @@ void fileglob_AddIgnorePattern(fileglob* self, const char* pattern) {
 		_fileglob_list_append(self, &self->ignoreDirectoryPatternsHead, &self->ignoreDirectoryPatternsTail, pattern);
 	} else {
 		for (node = self->ignoreFilePatternsHead; node; node = node->next) {
-#if defined(WIN32)
+#if defined(_WIN32)
 			if (stricmp(node->buffer, pattern) == 0) {
 #else
 			if (strcasecmp(node->buffer, pattern) == 0) {
@@ -1107,7 +1107,7 @@ Top:
 
 	if (*context->path) {
 		if (context->match_files && context->exist == UNKNOWN) {
-#if defined(WIN32)  &&  !defined(MINGW)
+#if defined(_WIN32)  &&  !defined(MINGW)
             HANDLE handle = FindFirstFile(context->path, &context->fd);
             if (handle != INVALID_HANDLE_VALUE) {
                 FindClose(handle);
@@ -1131,7 +1131,7 @@ Top:
 #endif
 		}
 		if (context->match_dir && context->isdir == UNKNOWN) {
-#if defined(WIN32)  &&  !defined(MINGW)
+#if defined(_WIN32)  &&  !defined(MINGW)
             HANDLE handle = FindFirstFile(context->path, &context->fd);
             if (handle != INVALID_HANDLE_VALUE) {
                 FindClose(handle);
@@ -1172,7 +1172,7 @@ TopContinue:
 
 	if (context->magical || context->recursive) {
         const char* path = *context->path ? context->path : ".";
-#if defined(WIN32)  &&  !defined(MINGW)
+#if defined(_WIN32)  &&  !defined(MINGW)
         BUFFER wildcardBuff;
         buffer_init(&wildcardBuff);
         buffer_addstring(&wildcardBuff, path, strlen(path));
@@ -1195,7 +1195,7 @@ TopContinue:
 			size_t namlen;
 
             // Knock out "." or ".."
-#if defined(WIN32)  &&  !defined(MINGW)
+#if defined(_WIN32)  &&  !defined(MINGW)
 			name = context->fd.cFileName;
             new_isdir = (context->fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) ? YES : NO;
 			if (new_isdir  &&  (name[0] == '.'  &&  (name[1] == 0  ||  (name[1] == '.'  &&  name[2] == 0)))) {
@@ -1215,7 +1215,7 @@ TopContinue:
 			}
 			name = buf + context->pathlen + (context->dirsep != 0);
 
-#if !defined(WIN32)  ||  defined(MINGW)
+#if !defined(_WIN32)  ||  defined(MINGW)
             memset(&context->attr, 0, sizeof(context->attr));
 			if (stat(buf, &context->attr) == 0) {
 				new_isdir = S_ISDIR(context->attr.st_mode) ? YES : NO;
@@ -1289,7 +1289,7 @@ TopContinue:
 			context->end = new_end;
             context->new_beg = new_beg;
             context->copy_beg = NULL;
-#if defined(WIN32)  &&  !defined(MINGW)
+#if defined(_WIN32)  &&  !defined(MINGW)
             self->curfd = &self->context->fd;
 #else
             self->curattr = &self->context->attr;
@@ -1299,7 +1299,7 @@ TopContinue:
 			goto Top;
 
 NextFile:
-#if defined(WIN32)  &&  !defined(MINGW)
+#if defined(_WIN32)  &&  !defined(MINGW)
 			if (!FindNextFile(context->handle, &context->fd))
 				break;
 #else
@@ -1309,7 +1309,7 @@ NextFile:
 #endif
 		}
 
-#if defined(WIN32)  &&  !defined(MINGW)
+#if defined(_WIN32)  &&  !defined(MINGW)
 		FindClose(context->handle);
         context->handle = INVALID_HANDLE_VALUE;
 #else
@@ -1370,7 +1370,7 @@ NextFile:
 				context->end = new_end;
                 context->new_beg = new_beg;
                 context->copy_beg = copy_beg;
-#if defined(WIN32)  &&  !defined(MINGW)
+#if defined(_WIN32)  &&  !defined(MINGW)
                 self->curfd = NULL;
 #else
                 self->curattr = NULL;
@@ -1386,7 +1386,7 @@ NextContext:
     if (self->context->prev) {
         _fileglob_FreeContextLevel(self);
         context = self->context;
-#if defined(WIN32)  &&  !defined(MINGW)
+#if defined(_WIN32)  &&  !defined(MINGW)
         if (context->handle != INVALID_HANDLE_VALUE) {
             goto NextFile;
 		}
@@ -1415,7 +1415,7 @@ void fileglob_Destroy(fileglob* self) {
 
 
 const char* fileglob_FileName(fileglob* self) {
-#if defined(WIN32)  &&  !defined(MINGW)
+#if defined(_WIN32)  &&  !defined(MINGW)
 	//if (self->context->handle != INVALID_HANDLE_VALUE) {
         return self->context->path;
 		//SplicePath(&self->combinedName, buffer_ptr(&self->context->basePath), self->context->fd.cFileName);
@@ -1436,7 +1436,7 @@ const char* fileglob_FileName(fileglob* self) {
 
 
 fileglob_uint64 fileglob_CreationTime(fileglob* self) {
-#if defined(WIN32)  &&  !defined(MINGW)
+#if defined(_WIN32)  &&  !defined(MINGW)
 	if (self->curfd) {
 		return fileglob_ConvertToTime_t(&self->curfd->ftCreationTime);
 	}
@@ -1451,7 +1451,7 @@ fileglob_uint64 fileglob_CreationTime(fileglob* self) {
 
 
 fileglob_uint64 fileglob_AccessTime(fileglob* self) {
-#if defined(WIN32)  &&  !defined(MINGW)
+#if defined(_WIN32)  &&  !defined(MINGW)
 	if (self->curfd) {
 		return fileglob_ConvertToTime_t(&self->curfd->ftLastAccessTime);
 	}
@@ -1466,7 +1466,7 @@ fileglob_uint64 fileglob_AccessTime(fileglob* self) {
 
 
 fileglob_uint64 fileglob_WriteTime(fileglob* self) {
-#if defined(WIN32)  &&  !defined(MINGW)
+#if defined(_WIN32)  &&  !defined(MINGW)
 	if (self->curfd) {
 		return fileglob_ConvertToTime_t(&self->curfd->ftLastWriteTime);
 	}
@@ -1481,7 +1481,7 @@ fileglob_uint64 fileglob_WriteTime(fileglob* self) {
 
 
 fileglob_uint64 fileglob_CreationFILETIME(fileglob* self) {
-#if defined(WIN32)  &&  !defined(MINGW)
+#if defined(_WIN32)  &&  !defined(MINGW)
 	if (self->curfd) {
 		return ((fileglob_uint64)self->curfd->ftCreationTime.dwHighDateTime << 32) |
 				(fileglob_uint64)self->curfd->ftCreationTime.dwLowDateTime;
@@ -1496,7 +1496,7 @@ fileglob_uint64 fileglob_CreationFILETIME(fileglob* self) {
 
 
 fileglob_uint64 fileglob_AccessFILETIME(fileglob* self) {
-#if defined(WIN32)  &&  !defined(MINGW)
+#if defined(_WIN32)  &&  !defined(MINGW)
 	if (self->context->handle != INVALID_HANDLE_VALUE) {
 		return ((fileglob_uint64)self->context->fd.ftLastAccessTime.dwHighDateTime << 32) |
 				(fileglob_uint64)self->context->fd.ftLastAccessTime.dwLowDateTime;
@@ -1511,7 +1511,7 @@ fileglob_uint64 fileglob_AccessFILETIME(fileglob* self) {
 
 
 fileglob_uint64 fileglob_WriteFILETIME(fileglob* self) {
-#if defined(WIN32)  &&  !defined(MINGW)
+#if defined(_WIN32)  &&  !defined(MINGW)
 	if (self->curfd) {
 		return ((fileglob_uint64)self->curfd->ftLastWriteTime.dwHighDateTime << 32) |
 				(fileglob_uint64)self->curfd->ftLastWriteTime.dwLowDateTime;
@@ -1526,7 +1526,7 @@ fileglob_uint64 fileglob_WriteFILETIME(fileglob* self) {
 
 
 fileglob_uint64 fileglob_FileSize(fileglob* self) {
-#if defined(WIN32)  &&  !defined(MINGW)
+#if defined(_WIN32)  &&  !defined(MINGW)
 	if (self->curfd) {
 		return ((fileglob_uint64)self->curfd->nFileSizeLow + ((fileglob_uint64)self->curfd->nFileSizeHigh << 32));
 	}
@@ -1541,7 +1541,7 @@ fileglob_uint64 fileglob_FileSize(fileglob* self) {
 
 
 int fileglob_IsDirectory(fileglob* self) {
-#if defined(WIN32)  &&  !defined(MINGW)
+#if defined(_WIN32)  &&  !defined(MINGW)
 	if (self->curfd) {
 		return (self->curfd->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
 	}
@@ -1556,7 +1556,7 @@ int fileglob_IsDirectory(fileglob* self) {
 
 
 int fileglob_IsLink(fileglob* self) {
-#if defined(WIN32)  &&  !defined(MINGW)
+#if defined(_WIN32)  &&  !defined(MINGW)
 	if (self->curfd) {
 		return (self->curfd->dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) != 0;
 	}
@@ -1571,7 +1571,7 @@ int fileglob_IsLink(fileglob* self) {
 
 
 int fileglob_IsReadOnly(fileglob* self) {
-#if defined(WIN32)  &&  !defined(MINGW)
+#if defined(_WIN32)  &&  !defined(MINGW)
 	if (self->curfd) {
 		return (self->curfd->dwFileAttributes & FILE_ATTRIBUTE_READONLY) != 0;
 	}
@@ -1588,7 +1588,7 @@ int fileglob_IsReadOnly(fileglob* self) {
 const char* fileglob_Permissions(fileglob* self) {
     memset(self->permissions, '-', 9);
     self->permissions[9] = 0;
-#if defined(WIN32)  &&  !defined(MINGW)
+#if defined(_WIN32)  &&  !defined(MINGW)
 	if (self->curfd) {
 	    const char* p;
 		if (self->curfd->dwFileAttributes & FILE_ATTRIBUTE_READONLY) {
@@ -1643,7 +1643,7 @@ const char* fileglob_Permissions(fileglob* self) {
 
 
 fileglob_uint64 fileglob_NumberOfLinks(fileglob* self) {
-#if defined(WIN32)  &&  !defined(MINGW)
+#if defined(_WIN32)  &&  !defined(MINGW)
 	if (self->curfd) {
 		HANDLE handle;
 		BY_HANDLE_FILE_INFORMATION fileInformation;

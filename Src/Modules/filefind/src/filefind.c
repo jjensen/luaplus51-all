@@ -1,13 +1,13 @@
 #include "lua.h"
 #include "lauxlib.h"
-#if defined(WIN32)
+#if defined(_WIN32)
 #include <windows.h>
 #else
 #include <dirent.h>
 #include <sys/stat.h>
 #include <stdlib.h>
 #include <string.h>
-#endif /* WIN32 */
+#endif /* _WIN32 */
 #include <time.h>
 #include <ctype.h>
 #define FILEGLOB_NEED_FILETIME_TO_TIME_T_CONVERSION
@@ -35,7 +35,7 @@ double ui64ToDouble(unsigned long long ui64)
 #endif
 
 
-#if defined(WIN32)
+#if defined(_WIN32)
 
 static int _filefind_push_FILETIME(lua_State* L, FILETIME* filetime) {
 	lua_newtable(L);
@@ -62,7 +62,7 @@ static int _filefind_push_FILETIME(lua_State* L, fileglob_uint64 filetime) {
 
 #define FILEFIND_METATABLE "FileFindMetaTable"
 
-#if defined(WIN32)
+#if defined(_WIN32)
 
 struct FileFindInfo {
 	int first;			/* default true */
@@ -121,7 +121,7 @@ static int FileFindNextMatch(struct FileFindInfo* info) {
 	return 0;
 }
 
-#endif // WIN32
+#endif // _WIN32
 
 static struct FileFindInfo* filefind_checkmetatable(lua_State *L, int index) {
   void *ud = luaL_checkudata(L, index, FILEFIND_METATABLE);
@@ -141,7 +141,7 @@ static int filefind_next(lua_State *L) {
 
 
 static int filefind_close_helper(lua_State *L, struct FileFindInfo* info) {
-#if defined(WIN32)
+#if defined(_WIN32)
 	if (info->handle) {
 		FindClose(info->handle);
 		info->handle = NULL;
@@ -185,7 +185,7 @@ static const struct luaL_Reg filefind_index_functions[] = {
 
 
 static int filefind_index_filename_helper(lua_State* L, struct FileFindInfo* info) {
-#if defined(WIN32)
+#if defined(_WIN32)
 	lua_pushstring(L, info->fd.cFileName);
 #else
 	lua_pushstring(L, info->dp->d_name);
@@ -200,8 +200,8 @@ static int filefind_index_filename(lua_State* L) {
 
 
 static int filefind_index_creation_time_helper(lua_State* L, struct FileFindInfo* info) {
-#if defined(WIN32)
 	lua_pushnumber(L, (lua_Number)fileglob_ConvertToTime_t(&info->fd.ftCreationTime));
+#if defined(_WIN32)
 #else
 	lua_pushnumber(L, info->attr.st_ctime);
 #endif
@@ -215,8 +215,8 @@ static int filefind_index_creation_time(lua_State* L) {
 
 
 static int filefind_index_access_time_helper(lua_State* L, struct FileFindInfo* info) {
-#if defined(WIN32)
 	lua_pushnumber(L, (lua_Number)fileglob_ConvertToTime_t(&info->fd.ftLastAccessTime));
+#if defined(_WIN32)
 #else
 	lua_pushnumber(L, info->attr.st_atime);
 #endif
@@ -230,8 +230,8 @@ static int filefind_index_access_time(lua_State* L) {
 
 
 static int filefind_index_write_time_helper(lua_State* L, struct FileFindInfo* info) {
-#if defined(WIN32)
 	lua_pushnumber(L, (lua_Number)fileglob_ConvertToTime_t(&info->fd.ftLastWriteTime));
+#if defined(_WIN32)
 #else
 	lua_pushnumber(L, info->attr.st_mtime);
 #endif
@@ -244,13 +244,13 @@ static int filefind_index_write_time(lua_State* L) {
 }
 
 
-#if !defined(WIN32)
+#if !defined(_WIN32)
 #define Int32x32To64(a, b) ((long long)((long)(a)) * (long long)((long)(b)))
 #endif
 
 
 static int filefind_index_creation_FILETIME_helper(lua_State* L, struct FileFindInfo* info) {
-#if defined(WIN32)
+#if defined(_WIN32)
 	return _filefind_push_FILETIME(L, &info->fd.ftCreationTime);
 #else
 	return _filefind_push_FILETIME(L, Int32x32To64(info->attr.st_ctime, 10000000) + 116444736000000000);
@@ -264,7 +264,7 @@ static int filefind_index_creation_FILETIME(lua_State* L) {
 
 
 static int filefind_index_access_FILETIME_helper(lua_State* L, struct FileFindInfo* info) {
-#if defined(WIN32)
+#if defined(_WIN32)
 	return _filefind_push_FILETIME(L, &info->fd.ftLastAccessTime);
 #else
 	return _filefind_push_FILETIME(L, Int32x32To64(info->attr.st_atime, 10000000) + 116444736000000000);
@@ -278,7 +278,7 @@ static int filefind_index_access_FILETIME(lua_State* L) {
 
 
 static int filefind_index_write_FILETIME_helper(lua_State* L, struct FileFindInfo* info) {
-#if defined(WIN32)
+#if defined(_WIN32)
 	return _filefind_push_FILETIME(L, &info->fd.ftLastWriteTime);
 #else
 	return _filefind_push_FILETIME(L, Int32x32To64(info->attr.st_mtime, 10000000) + 116444736000000000);
@@ -292,7 +292,7 @@ static int filefind_index_write_FILETIME(lua_State* L) {
 
 
 static int filefind_index_size_helper(lua_State* L, struct FileFindInfo* info) {
-#if defined(WIN32)
+#if defined(_WIN32)
 	unsigned __int64 fileSize = 0;
 	if (info->fd.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) {
 		HANDLE handle;
@@ -325,7 +325,7 @@ static int filefind_index_size(lua_State* L) {
 
 
 static int filefind_index_is_directory_helper(lua_State* L, struct FileFindInfo* info) {
-#if defined(WIN32)
+#if defined(_WIN32)
 	lua_pushboolean(L, (info->fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0);
 #else
 	lua_pushboolean(L, (info->attr.st_mode & S_IFDIR) != 0);
@@ -340,7 +340,7 @@ static int filefind_index_is_directory(lua_State* L) {
 
 
 static int filefind_index_is_link_helper(lua_State* L, struct FileFindInfo* info) {
-#if defined(WIN32)
+#if defined(_WIN32)
 	lua_pushboolean(L, (info->fd.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) != 0);
 #else
 	lua_pushboolean(L, 0);
@@ -355,7 +355,7 @@ static int filefind_index_is_link(lua_State* L) {
 
 
 static int filefind_index_is_readonly_helper(lua_State* L, struct FileFindInfo* info) {
-#if defined(WIN32)
+#if defined(_WIN32)
 	lua_pushboolean(L, (info->fd.dwFileAttributes & FILE_ATTRIBUTE_READONLY) != 0);
 #else
 	lua_pushboolean(L, (info->attr.st_mode & S_IWUSR) != 0);
@@ -370,7 +370,7 @@ static int filefind_index_is_readonly(lua_State* L) {
 
 
 static int filefind_index_number_of_links_helper(lua_State* L, struct FileFindInfo* info) {
-#if defined(WIN32)
+#if defined(_WIN32)
 	HANDLE handle;
 	BY_HANDLE_FILE_INFORMATION fileInformation;
 
@@ -484,7 +484,7 @@ static int filefind_tostring(lua_State *L) {
 	struct FileFindInfo* info = filefind_checkmetatable(L, 1);
 	char buffer[100];
 	int top;
-#if defined(WIN32)
+#if defined(_WIN32)
 	if (info->handle == INVALID_HANDLE_VALUE) {
 		lua_pushstring(L, "[filefind object]: empty");
 		return 1;
@@ -576,7 +576,7 @@ static int l_filefind_first(lua_State *L) {
 	info->pathEnd = info->path + strlen(info->path);
 
 	info->first = 1;
-#if defined(WIN32)
+#if defined(_WIN32)
 	whichWildcard = (char*)origWildcard;
 	if (whichWildcard[strlen(whichWildcard) - 1] == '/') {
 		whichWildcard = info->path;
@@ -611,7 +611,7 @@ static int l_filefind_first(lua_State *L) {
 static int LS_filefind_matchiter(lua_State* L) {
 	struct FileFindInfo* info = (struct FileFindInfo*)(lua_touserdata(L, lua_upvalueindex(1)));
 
-#if defined(WIN32)
+#if defined(_WIN32)
 	if (info->handle == INVALID_HANDLE_VALUE) {
 		info->handle = NULL;
 		return 0;
@@ -647,7 +647,7 @@ static int l_filefind_attributes(lua_State* L) {
 	struct FileFindInfo* info;
 	l_filefind_first(L);
 	info = filefind_checkmetatable(L, -1);
-#if defined(WIN32)
+#if defined(_WIN32)
 	if (info->handle == INVALID_HANDLE_VALUE) {
 		info->handle = NULL;
 		return 0;
@@ -996,7 +996,7 @@ static int l_fileglob_glob(lua_State* L) {
 }
 
 
-#ifdef WIN32
+#ifdef _WIN32
 
 static int l_filefind_FILETIME_to_unix_time_UTC(lua_State* L) {
 	FILETIME fileTime;
@@ -1145,7 +1145,7 @@ static int l_filefind_time_t_to_FILETIME(lua_State* L) {
 }
 
 
-#endif // WIN32
+#endif // _WIN32
 
 
 static int l_filefind_pattern_match(lua_State *L) {
@@ -1164,12 +1164,12 @@ static const struct luaL_Reg filefind_lib[] = {
 	{ "first", l_filefind_first },
 	{ "match", l_filefind_match },
 	{ "glob", l_fileglob_glob },
-#ifdef WIN32
+#ifdef _WIN32
 	{ "unix_time_to_FILETIME_UTC", l_filefind_unix_time_to_FILETIME_UTC },
 	{ "FILETIME_to_unix_time_UTC", l_filefind_FILETIME_to_unix_time_UTC },
 	{ "FILETIME_to_time_t", l_filefind_FILETIME_to_time_t },
 	{ "time_t_to_FILETIME",	l_filefind_time_t_to_FILETIME },
-#endif // WIN32
+#endif // _WIN32
 	{ "pattern_match", l_filefind_pattern_match },
 	{NULL, NULL},
 };
