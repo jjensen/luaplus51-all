@@ -20,7 +20,7 @@ extern "C" {
 }
 
 #if LUA_TILDE_DEBUGGER
-#include "tilde/LuaHostWindows.h"
+#include "tilde/LuaTilde.h"
 #endif /* LUA_TILDE_DEBUGGER */
 
 static lua_State *globalL = NULL;
@@ -322,9 +322,28 @@ static int collectargs (char **argv, int *pi, int *pv, int *pe) {
       case 'd': {
 #if LUA_TILDE_DEBUGGER
         if (strcmp(argv[i], "-debug") == 0) {
-          tilde::LuaHostWindows* host = new tilde::LuaHostWindows();
-          host->RegisterState("State", globalL);
-          host->WaitForDebuggerConnection();
+#if defined(_WIN32)
+          char filename[_MAX_PATH];
+          char* slashptr;
+          GetModuleFileName(NULL, filename, _MAX_PATH);
+          slashptr = strrchr(filename, '\\');
+          if (slashptr) {
+            HMODULE luaTildeModule;
+            LuaTildeHost* (*LuaTilde_Command)(LuaTildeHost*, const char*, void*, void*);
+            LuaTildeHost* host;
+            slashptr++;
+#ifdef _DEBUG
+            strcpy(slashptr, "lua-tilde.debug.dll");
+#else
+            strcpy(slashptr, "lua-tilde.dll");
+#endif
+            luaTildeModule = LoadLibrary(filename);
+		    LuaTilde_Command = (LuaTildeHost* (*)(LuaTildeHost*, const char*, void*, void*))GetProcAddress(luaTildeModule, "LuaTilde_Command");
+#endif // _WIN32
+            host = LuaTilde_Command(NULL, "create", (void*)10000, NULL);
+            LuaTilde_Command(host, "registerstate", "State", globalL);
+            LuaTilde_Command(host, "waitfordebuggerconnection", NULL, NULL);
+		  } 
         } else
 #endif /* LUA_TILDE_DEBUGGER */
         if (strcmp(argv[i], "-dl") == 0) {

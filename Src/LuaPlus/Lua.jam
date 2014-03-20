@@ -12,18 +12,28 @@ local TILDE_SRCS =
 		../tilde/LuaDebuggerProtocol.h
 		../tilde/LuaHostWindows.cpp
 		../tilde/LuaHostWindows.h
+		../tilde/LuaTilde.cpp
+		../tilde/LuaTilde.h
 		../tilde/ReceiveMessageBuffer.h
 ;
+
+Depends all : lua-tilde ;
+C.Defines lua-tilde : LUA_TILDE_DEBUGGER=1 ;
+C.IncludeDirectories lua-tilde : $(LUAPLUS_INCLUDE_DIRECTORIES) ;
+C.LinkLibraries lua-tilde : $(LUA_VERSION) ;
+LuaPlusFixUpTarget lua-tilde ;
+C.Library lua-tilde : $(TILDE_SRCS) : shared ;
+Workspace LuaPlus : lua-tilde ;
 
 local SRCS ;
 
 if $(LUA_VERSION) in lua51-luaplus {
 	SRCS += lua51-luaplus/src/lua.cpp ;
 
-	if $(NT)  &&  $(COMPILER) != vc6
-	{
-		SRCS += $(TILDE_SRCS) ;
-	}
+	#if $(NT)  &&  $(COMPILER) != vc6
+	#{
+		#SRCS += $(TILDE_SRCS) ;
+	#}
 } else {
 	SRCS += $(LUA_VERSION)/src/lua.c ;
 }

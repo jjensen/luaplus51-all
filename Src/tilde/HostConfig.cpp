@@ -29,7 +29,7 @@ THE SOFTWARE.
 
 #include <stdio.h>
 #include <string.h>
-#if defined(WIN32)
+#if defined(_WIN32)
 	#include <windows.h>
 #endif
 
@@ -50,7 +50,7 @@ namespace tilde
 
 	void assert_exp(const char *exp, const char *file, unsigned line)
 	{
-#if defined(WIN32)
+#if defined(_WIN32)
 		_snprintf(s_printBuffer, sizeof(s_printBuffer), "Assertion failed at %s:%d; %s\n", file, line, exp);
 
 		OutputDebugString(s_printBuffer);
@@ -59,12 +59,12 @@ namespace tilde
 		exit(1);
 #else
 		assert(0);
-#endif // defined(WIN32)
+#endif // defined(_WIN32)
 	}
 
 	void assert_msg(const char *file, unsigned line, const char *fmt, ...)
 	{
-#if defined(WIN32)
+#if defined(_WIN32)
 		va_list	ap;
 
 		_snprintf(s_printBuffer, sizeof(s_printBuffer), "Assertion failed at %s:%d; ", file, line);
@@ -82,12 +82,12 @@ namespace tilde
 		exit(1);
 #else
 		assert(0);
-#endif // defined(WIN32)
+#endif // defined(_WIN32)
 	}
 
 	void print(const char * fmt, ...)
 	{
-#if defined(WIN32)
+#if defined(_WIN32)
 		va_list	ap;
 
 		va_start(ap, fmt);
@@ -96,6 +96,6 @@ namespace tilde
 
 		OutputDebugString(s_printBuffer);
 		printf(s_printBuffer);
-#endif // defined(WIN32)
+#endif // defined(_WIN32)
 	}
 }

@@ -29,7 +29,7 @@ THE SOFTWARE.
 
 #include <stdio.h>
 
-#if defined(WIN32)
+#if defined(_WIN32)
 	#include <winsock2.h>
 
 	#pragma comment(lib, "wsock32.lib")
@@ -72,9 +72,9 @@ void print(const char * format, ...)
 	vsnprintf(s_printBuffer, 1024, format, ap);
 	va_end(ap);
 
-#if defined(WIN32)
+#if defined(_WIN32)
 	OutputDebugString(s_printBuffer);
-#endif // WIN32
+#endif // _WIN32
 	puts(s_printBuffer);
 }
 
@@ -90,9 +90,9 @@ void warn(const char * format, ...)
 	vsnprintf(s_printBuffer, 1024, format, ap);
 	va_end(ap);
 
-#if defined(WIN32)
+#if defined(_WIN32)
 	OutputDebugString(s_printBuffer);
-#endif // defined(WIN32)
+#endif // defined(_WIN32)
 	puts(s_printBuffer);
 
 	puts("\n");
@@ -110,17 +110,17 @@ void error(const char * format, ...)
 	vsnprintf(s_printBuffer, 1024, format, ap);
 	va_end(ap);
 
-#if defined(WIN32)
+#if defined(_WIN32)
 	OutputDebugString(s_printBuffer);
-#endif // defined(WIN32)
+#endif // defined(_WIN32)
 	puts(s_printBuffer);
 
 	puts("\n");
 
-#if defined(WIN32)
+#if defined(_WIN32)
 	DebugBreak();
 	exit(1);
-#endif // defined(WIN32)
+#endif // defined(_WIN32)
 }
 
 
@@ -128,11 +128,11 @@ namespace tilde {
 
 void OsSleep(unsigned int millisecs)
 {
-#if defined(WIN32)
+#if defined(_WIN32)
 	Sleep(millisecs);
 #elif defined(__CELLOS_LV2__)
 	sys_timer_usleep( (millisecs) * 1000 );
-#endif // defined(WIN32)
+#endif // defined(_WIN32)
 }
 
 
@@ -189,22 +189,22 @@ LuaHostWindows::Detail::~Detail()
 	
 void LuaHostWindows::Detail::InitialiseServerSocket()
 {
-#if defined(WIN32)
+#if defined(_WIN32)
 	// Initialize Winsock.
 	WSADATA wsaData;
 	int iResult = WSAStartup( MAKEWORD(2,2), &wsaData );
 	if(iResult != NO_ERROR)
 		error("WSAStartup() failed (error %d)", WSAGetLastError());
-#endif // defined(WIN32)
+#endif // defined(_WIN32)
 
 	// Create a socket.
 	m_serverSocket = socket( AF_INET, SOCK_STREAM, IPPROTO_TCP );
 	if(m_serverSocket == INVALID_SOCKET) 
 	{
 		error("socket() failed (error %d)", SocketError);
-#if defined(WIN32)
+#if defined(_WIN32)
 		WSACleanup();
-#endif // defined(WIN32)
+#endif // defined(_WIN32)
 		return;
 	}
 
@@ -238,7 +238,7 @@ void LuaHostWindows::Detail::DestroyServerSocket()
 		m_serverSocket = SOCKET_ERROR;
 	}
 
-#if defined(WIN32)
+#if defined(_WIN32)
 	WSACleanup();
 #endif
 }
@@ -268,7 +268,7 @@ void LuaHostWindows::Detail::Poll()
 	timeval timeout;
 	timeout.tv_sec = 0;
 	timeout.tv_usec = 0;
-#if defined(WIN32)
+#if defined(_WIN32)
 	int count = select(0, &readfds, NULL, NULL, &timeout);
 #else
 	int count = select(m_serverSocket > m_debuggerSocket ? m_serverSocket + 1 : m_debuggerSocket + 1, &readfds, NULL, NULL, &timeout);
@@ -415,7 +415,7 @@ const char * LuaHostWindows::GetFunctionName( lua_State * lvm, int funcIndex, lu
 			functionName.append(" ");
 
 		CClosure * closure = (CClosure *) lua_topointer(lvm, funcIndex);
-		char buf[16];
+		char buf[32];
 		sprintf(buf, "%p", closure->f);
 		functionName.append("(C function ");
 		functionName.append(buf);
