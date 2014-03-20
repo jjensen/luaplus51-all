@@ -5,6 +5,10 @@
 
 using namespace tilde;
 
+#if !defined(_MSC_VER)
+#define stricmp strcasecmp
+#endif
+
 LuaTildeHost* LuaTilde_Command(LuaTildeHost* host, const char* command, void* param1, void* param2) {
     if (!command)
         return NULL;

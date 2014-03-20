@@ -2,32 +2,34 @@ SubDir LUAPLUS Src LuaPlus ;
 
 {
 
-local TILDE_SRCS =
-		../tilde/HostConfig.cpp
-		../tilde/HostConfig.h
-		../tilde/LuaDebugger.cpp
-		../tilde/LuaDebugger.h
-		../tilde/LuaDebuggerComms.cpp
-		../tilde/LuaDebuggerComms.h
-		../tilde/LuaDebuggerProtocol.h
-		../tilde/LuaHostWindows.cpp
-		../tilde/LuaHostWindows.h
-		../tilde/LuaTilde.cpp
-		../tilde/LuaTilde.h
-		../tilde/ReceiveMessageBuffer.h
-;
-
-Depends all : lua-tilde ;
-C.Defines lua-tilde : LUA_TILDE_DEBUGGER=1 ;
-C.IncludeDirectories lua-tilde : $(LUAPLUS_INCLUDE_DIRECTORIES) ;
-C.LinkLibraries lua-tilde : $(LUA_VERSION) ;
-LuaPlusFixUpTarget lua-tilde ;
-C.Library lua-tilde : $(TILDE_SRCS) : shared ;
-Workspace LuaPlus : lua-tilde ;
-
 local SRCS ;
 
 if $(LUA_VERSION) in lua51-luaplus {
+	if $(NT) {
+		local TILDE_SRCS =
+				../tilde/HostConfig.cpp
+				../tilde/HostConfig.h
+				../tilde/LuaDebugger.cpp
+				../tilde/LuaDebugger.h
+				../tilde/LuaDebuggerComms.cpp
+				../tilde/LuaDebuggerComms.h
+				../tilde/LuaDebuggerProtocol.h
+				../tilde/LuaHostWindows.cpp
+				../tilde/LuaHostWindows.h
+				../tilde/LuaTilde.cpp
+				../tilde/LuaTilde.h
+				../tilde/ReceiveMessageBuffer.h
+		;
+
+		Depends all : lua-tilde ;
+		C.Defines lua-tilde : LUA_TILDE_DEBUGGER=1 ;
+		C.IncludeDirectories lua-tilde : $(LUAPLUS_INCLUDE_DIRECTORIES) ;
+		C.LinkLibraries lua-tilde : $(LUA_VERSION) ;
+		LuaPlusFixUpTarget lua-tilde ;
+		C.Library lua-tilde : $(TILDE_SRCS) : shared ;
+		Workspace LuaPlus : lua-tilde ;
+	}
+
 	SRCS += lua51-luaplus/src/lua.cpp ;
 
 	#if $(NT)  &&  $(COMPILER) != vc6

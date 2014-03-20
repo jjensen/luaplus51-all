@@ -37,6 +37,18 @@ THE SOFTWARE.
 	#define SocketError					WSAGetLastError()
 
 	typedef int socklen_t;
+#else
+#include <unistd.h>
+#include <errno.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+
+typedef int SOCKET;
+#define closesocket close
+#define SOCKET_ERROR -1
+#define INVALID_SOCKET -1
+#define SocketError errno
 #endif
 
 #include "LuaHostWindows.h"
