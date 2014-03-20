@@ -200,8 +200,8 @@ static int filefind_index_filename(lua_State* L) {
 
 
 static int filefind_index_creation_time_helper(lua_State* L, struct FileFindInfo* info) {
-	lua_pushnumber(L, (lua_Number)fileglob_ConvertToTime_t(&info->fd.ftCreationTime));
 #if defined(_WIN32)
+	lua_pushnumber(L, (lua_Number)fileglob_ConvertToTime_t(&info->fd.ftCreationTime));
 #else
 	lua_pushnumber(L, info->attr.st_ctime);
 #endif
@@ -215,8 +215,8 @@ static int filefind_index_creation_time(lua_State* L) {
 
 
 static int filefind_index_access_time_helper(lua_State* L, struct FileFindInfo* info) {
-	lua_pushnumber(L, (lua_Number)fileglob_ConvertToTime_t(&info->fd.ftLastAccessTime));
 #if defined(_WIN32)
+	lua_pushnumber(L, (lua_Number)fileglob_ConvertToTime_t(&info->fd.ftLastAccessTime));
 #else
 	lua_pushnumber(L, info->attr.st_atime);
 #endif
@@ -230,8 +230,8 @@ static int filefind_index_access_time(lua_State* L) {
 
 
 static int filefind_index_write_time_helper(lua_State* L, struct FileFindInfo* info) {
-	lua_pushnumber(L, (lua_Number)fileglob_ConvertToTime_t(&info->fd.ftLastWriteTime));
 #if defined(_WIN32)
+	lua_pushnumber(L, (lua_Number)fileglob_ConvertToTime_t(&info->fd.ftLastWriteTime));
 #else
 	lua_pushnumber(L, info->attr.st_mtime);
 #endif
