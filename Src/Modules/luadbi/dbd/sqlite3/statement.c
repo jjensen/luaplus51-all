@@ -1,5 +1,9 @@
 #include "dbd_sqlite3.h"
 
+#if LUA_VERSION_NUM >= 502
+#define luaL_register(a, b, c) luaL_setfuncs(a, c, 0)
+#endif
+
 extern int try_begin_transaction(connection_t *conn);
 extern int try_end_transaction(connection_t *conn);
 
