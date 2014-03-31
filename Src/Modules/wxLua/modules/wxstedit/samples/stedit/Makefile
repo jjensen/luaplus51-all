@@ -74,8 +74,7 @@ PROGRAM = wxstedit
 
 OBJECTS = \
     wxstedit.o \
-    stedoc.o \
-    link.o
+    stedoc.o
 
 DEPFILES := $(OBJECTS:.o=.d)
 

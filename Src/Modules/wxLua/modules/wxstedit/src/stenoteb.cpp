@@ -557,8 +557,6 @@ void wxSTEditorNotebook::OnMiddleUp(wxMouseEvent &event)
     long flags = 0;
     int page = HitTest(pos, &flags);
 
-    wxPrintf(wxT("page %d %d\n"), page, (int)flags);
-
     if ((page != wxNOT_FOUND) && ((flags & wxBK_HITTEST_NOWHERE) == 0))
     {
         ClosePage(page, true);

@@ -125,6 +125,6 @@ clean:
 		$(TARGET_LIB_SHARED) \
 		$(WXSTEDIT_LIBDIR)/$(TARGET_LIB_LINK1) \
 		$(WXSTEDIT_LIBDIR)/$(TARGET_LIB_LINK2) \
-		precomp.h.gch
+		precomp.h.gch precomp.h.d
 
 -include $(DEPFILES)
