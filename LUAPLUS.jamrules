@@ -51,15 +51,23 @@ rule LuaPlusFixUpTarget TARGET
 ###############################################################################
 
 if $(OS) = NT {
-	if $(LUA_VERSION) in lua51-luaplus {
+	if $(LUA_VERSION) in lua51-luaplus lua52-luaplus {
 		LUA_CDIR = $(LUAPLUS_OUTPUT_DIRECTORY)/modules ;
 	} else {
 		LUA_CDIR = $(LUAPLUS_OUTPUT_DIRECTORY) ;
 	}
 	LUA_LDIR = $(LUAPLUS_OUTPUT_DIRECTORY)/lua ;
 } else {
-	LUA_CDIR = $(LUAPLUS_OUTPUT_DIRECTORY)/lib/lua/5.1 ;
-	LUA_LDIR = $(LUAPLUS_OUTPUT_DIRECTORY)/share/lua/5.1 ;
+	if $(LUA_VERSION) in lua51 lua51-luaplus {
+		LUA_CDIR = $(LUAPLUS_OUTPUT_DIRECTORY)/lib/lua/5.1 ;
+		LUA_LDIR = $(LUAPLUS_OUTPUT_DIRECTORY)/share/lua/5.1 ;
+	} else if $(LUA_VERSION) in lua52 lua52-luaplus {
+		LUA_CDIR = $(LUAPLUS_OUTPUT_DIRECTORY)/lib/lua/5.2 ;
+		LUA_LDIR = $(LUAPLUS_OUTPUT_DIRECTORY)/share/lua/5.2 ;
+	} else if $(LUA_VERSION) in lua53 lua53-luaplus {
+		LUA_CDIR = $(LUAPLUS_OUTPUT_DIRECTORY)/lib/lua/5.3 ;
+		LUA_LDIR = $(LUAPLUS_OUTPUT_DIRECTORY)/share/lua/5.3 ;
+	}
 }
 
 rule LuaPlus.CModule TARGET : OUTPUT_NAME : SOURCES : MODULES_SUBDIR {
