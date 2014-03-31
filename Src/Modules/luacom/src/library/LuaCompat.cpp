@@ -105,7 +105,11 @@ int luaCompat_isOfType(lua_State* L, const char* module, const char* type)
   luaCompat_getType(L, -1);
   luaCompat_pushTypeByName(L, module, type);
 
+#if LUA_VERSION_NUM <= 501
   result = (lua_equal(L, -1, -2) ? 1 : 0);
+#else
+  result = (lua_compare(L, -1, -2, LUA_OPEQ) ? 1 : 0);
+#endif
 
   lua_pop(L, 2);
 

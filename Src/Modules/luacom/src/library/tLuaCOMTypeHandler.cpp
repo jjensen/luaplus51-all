@@ -34,6 +34,11 @@ extern "C"
 
 #include "luacom_internal.h"
 
+#if LUA_VERSION_NUM >= 502
+#define lua_objlen lua_rawlen
+#endif
+
+
 #define LUA_NOOBJECT 0
 
 static const VARTYPE com_types[] = {
@@ -470,7 +475,7 @@ void tLuaCOMTypeHandler::lua2com(lua_State* L, stkIndex luaval, VARIANTARG& varg
   case LUA_TSTRING:
     {
       tStringBuffer str;
-      size_t l_len = lua_strlen(L, luaval);
+      size_t l_len = lua_objlen(L, luaval);
       str.copyToBuffer(lua_tostring(L, luaval), l_len);
       varg.vt = VT_BSTR;
       varg.bstrVal = tUtil::string2bstr(str, l_len);
@@ -1416,7 +1421,7 @@ void tLuaCOMTypeHandler::safearray_lua2com(lua_State* L,
     {
       string2safearray(
         lua_tostring(L, luaval),
-        lua_strlen(L, luaval),
+        lua_objlen(L, luaval),
         varg
         );
       return;
