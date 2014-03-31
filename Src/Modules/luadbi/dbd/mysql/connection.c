@@ -26,7 +26,11 @@ static int connection_new(lua_State *L) {
 	    port = luaL_checkint(L, 5);
     case 4: 
 	if (lua_isnil(L, 4) == 0) 
-	    host = luaL_checkstring(L, 4);
+        host = luaL_checkstring(L, 4);
+        if (host[0] == '/') {
+            unix_socket = host;
+            host        = NULL;
+        };
     case 3:
 	if (lua_isnil(L, 3) == 0) 
 	    password = luaL_checkstring(L, 3);
@@ -59,6 +63,7 @@ static int connection_new(lua_State *L) {
     lua_setmetatable(L, -2);
 
     return 1;
+        
 }
 
 /*
