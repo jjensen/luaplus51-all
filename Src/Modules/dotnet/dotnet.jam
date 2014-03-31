@@ -9,6 +9,7 @@ local SRCS =
 IncludeModule c/dotnet ;
 C.UseDotNet luanet ;
 
+C.Defines luanet : LUA_COMPAT_MODULE ;
 C.LinkPrebuiltLibraries luanet : mscoree ;
 Lua.CModule luanet : : $(SRCS) ;
 

@@ -33,7 +33,7 @@ static int GCHandle_gc(LuaState* state)
 
 using namespace mscorlib;
 
-static struct luaL_reg luanet_funcs[] = { { NULL, NULL} };
+static struct luaL_Reg luanet_funcs[] = { { NULL, NULL} };
 
 int collect_runtime(lua_State *L)
 {
