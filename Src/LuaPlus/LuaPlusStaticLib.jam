@@ -255,6 +255,84 @@ C.OutputName : lua52-static ;
 C.Library : $(LUA52_SRCS) $(LUAPLUS_SRCS) ;
 
 ##################################################################
+local LUA52_LUAPLUS_SRCS =
+		lua52-luaplus/src/lapi.c
+		lua52-luaplus/src/lapi.h
+		lua52-luaplus/src/lauxlib.c
+		lua52-luaplus/src/lauxlib.h
+		lua52-luaplus/src/lbaselib.c
+		lua52-luaplus/src/lbitlib.c
+		lua52-luaplus/src/lcode.c
+		lua52-luaplus/src/lcode.h
+		lua52-luaplus/src/lcorolib.c
+		lua52-luaplus/src/lctype.c
+		lua52-luaplus/src/lctype.h
+		lua52-luaplus/src/ldblib.c
+		lua52-luaplus/src/ldebug.c
+		lua52-luaplus/src/ldebug.h
+		lua52-luaplus/src/ldo.c
+		lua52-luaplus/src/ldo.h
+		lua52-luaplus/src/ldump.c
+		lua52-luaplus/src/lfunc.c
+		lua52-luaplus/src/lfunc.h
+		lua52-luaplus/src/lgc.c
+		lua52-luaplus/src/lgc.h
+		lua52-luaplus/src/linit.c
+		lua52-luaplus/src/liolib.c
+		lua52-luaplus/src/llex.c
+		lua52-luaplus/src/llex.h
+		lua52-luaplus/src/llimits.h
+		lua52-luaplus/src/lmathlib.c
+		lua52-luaplus/src/lmem.c
+		lua52-luaplus/src/lmem.h
+		lua52-luaplus/src/loadlib.c
+		lua52-luaplus/src/lobject.c
+		lua52-luaplus/src/lobject.h
+		lua52-luaplus/src/lopcodes.c
+		lua52-luaplus/src/lopcodes.h
+		lua52-luaplus/src/loslib.c
+		lua52-luaplus/src/lparser.c
+		lua52-luaplus/src/lparser.h
+		lua52-luaplus/src/lstate.c
+		lua52-luaplus/src/lstate.h
+		lua52-luaplus/src/lstring.c
+		lua52-luaplus/src/lstring.h
+		lua52-luaplus/src/lstrlib.c
+		lua52-luaplus/src/ltable.c
+		lua52-luaplus/src/ltable.h
+		lua52-luaplus/src/ltablib.c
+		lua52-luaplus/src/ltm.c
+		lua52-luaplus/src/ltm.h
+		#lua52-luaplus/src/lua.c
+		lua52-luaplus/src/lua.h
+		lua52-luaplus/src/lua.hpp
+		#lua52-luaplus/src/luac.c
+		lua52-luaplus/src/luaconf.h
+		lua52-luaplus/src/lualib.h
+		lua52-luaplus/src/lundump.c
+		lua52-luaplus/src/lundump.h
+		lua52-luaplus/src/lvm.c
+		lua52-luaplus/src/lvm.h
+		lua52-luaplus/src/lzio.c
+		lua52-luaplus/src/lzio.h
+;
+
+ActiveTarget lua52-luaplus-static ;
+
+SourceGroup : lua52 : $(LUA52_LUAPLUS_SRCS) ;
+SourceGroup : LuaPlus : $(LUAPLUS_SRCS) ;
+
+C.IncludeDirectories : lua52-luaplus/src ;
+
+C.Defines : LUA_OPNAMES ;
+
+LuaPlusDefines lua52-luaplus-static ;
+
+C.OutputName : lua52-luaplus-static ;
+
+C.Library : $(LUA52_SRCS) $(LUAPLUS_SRCS) ;
+
+##################################################################
 local LUA53_SRCS =
 		lua53/src/lapi.c
 		lua53/src/lapi.h
