@@ -64,6 +64,9 @@ Lua.Bin2C luacom : $(luacom5.loh) : $(luacom5.lo) ;
 
 CopyFile luacom : $(LUA_LDIR)/luacom5.lua : $(SUBDIR)/src/library/luacom5.lua ;
 
+if $(LUA_VERSION) in lua52 lua52-luaplus {
+	C.Defines : LUA_COMPAT_MODULE ;
+}
 C.Defines luacom : LUA5 "LUACOM_DLL=\\\"luacom.dll\\\"" ;
 C.IncludeDirectories luacom : include src/library ;
 C.IncludeDirectories luacom : $(LOCATE_SOURCE) ;
