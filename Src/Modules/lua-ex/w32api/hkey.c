@@ -16,11 +16,42 @@ k1:delete("Sample")
 
 #include <assert.h>
 #include <stdlib.h>
+#include <string.h>
 #include <lua.h>
 #include <lauxlib.h>
 #if LUA_VERSION_NUM < 501
 #include "compat-5.1.h"
 #define luaL_register(L,name,libs) luaL_module(L,name,libs,0)
+#endif
+
+#if LUA_VERSION_NUM >= 502
+#define luaL_register(a, b, c) luaL_setfuncs(a, c, 0)
+#define lua_objlen lua_rawlen
+
+static int luaL_argerror (lua_State *L, int narg, const char *extramsg) {
+  lua_Debug ar;
+  if (!lua_getstack(L, 0, &ar))  /* no stack frame? */
+    return luaL_error(L, "bad argument #%d (%s)", narg, extramsg);
+  lua_getinfo(L, "n", &ar);
+  if (strcmp(ar.namewhat, "method") == 0) {
+    narg--;  /* do not count `self' */
+    if (narg == 0)  /* error is in the self argument itself? */
+      return luaL_error(L, "calling " LUA_QS " on bad self (%s)",
+                           ar.name, extramsg);
+  }
+  if (ar.name == NULL)
+    ar.name = "?";
+  return luaL_error(L, "bad argument #%d to " LUA_QS " (%s)",
+                        narg, ar.name, extramsg);
+}
+
+
+static int luaL_typerror (lua_State *L, int narg, const char *tname) {
+  const char *msg = lua_pushfstring(L, "%s expected, got %s",
+                                    tname, luaL_typename(L, narg));
+  return luaL_argerror(L, narg, msg);
+}
+
 #endif
 
 #define WIN32_LEAN_AND_MEAN
@@ -334,8 +365,8 @@ hkey_tostring(lua_State *L)
 
 int luaopen_windows_hkey(lua_State *L)
 {
-	const luaL_reg hkey_lib[] = { {0,0} };
-	const luaL_reg hkey_methods[] = {
+	const luaL_Reg hkey_lib[] = { {0,0} };
+	const luaL_Reg hkey_methods[] = {
 		{ "open",           hkey_open },
 		{ "create",         hkey_create },
 		{ "close",          hkey_close },

@@ -31,6 +31,36 @@
 #include "pusherror.h"
 #define push_error(L) windows_pushlasterror(L)
 
+#if LUA_VERSION_NUM >= 502
+#define luaL_register(a, b, c) luaL_setfuncs(a, c, 0)
+#define lua_objlen lua_rawlen
+
+static int luaL_argerror (lua_State *L, int narg, const char *extramsg) {
+  lua_Debug ar;
+  if (!lua_getstack(L, 0, &ar))  /* no stack frame? */
+    return luaL_error(L, "bad argument #%d (%s)", narg, extramsg);
+  lua_getinfo(L, "n", &ar);
+  if (strcmp(ar.namewhat, "method") == 0) {
+    narg--;  /* do not count `self' */
+    if (narg == 0)  /* error is in the self argument itself? */
+      return luaL_error(L, "calling " LUA_QS " on bad self (%s)",
+                           ar.name, extramsg);
+  }
+  if (ar.name == NULL)
+    ar.name = "?";
+  return luaL_error(L, "bad argument #%d to " LUA_QS " (%s)",
+                        narg, ar.name, extramsg);
+}
+
+
+static int luaL_typerror (lua_State *L, int narg, const char *tname) {
+  const char *msg = lua_pushfstring(L, "%s expected, got %s",
+                                    tname, luaL_typename(L, narg));
+  return luaL_argerror(L, narg, msg);
+}
+
+#endif
+
 /* name -- value/nil */
 static int ex_getenv(lua_State *L)
 {
@@ -145,6 +175,7 @@ static int ex_remove(lua_State *L)
 
 static FILE *check_file(lua_State *L, int idx, const char *argname)
 {
+#if LUA_VERSION_NUM <= 501
   FILE **pf;
   if (idx > 0) pf = luaL_checkudata(L, idx, LUA_FILEHANDLE);
   else {
@@ -158,16 +189,32 @@ static FILE *check_file(lua_State *L, int idx, const char *argname)
   }
   if (!*pf) return luaL_error(L, "attempt to use a closed file"), NULL;
   return *pf;
+#else
+  luaL_Stream* p;
+  idx = absindex(L, idx);
+  p = (luaL_Stream *)luaL_checkudata(L, idx, LUA_FILEHANDLE);
+  if (!p || !p->f) return luaL_error(L, "attempt to use a closed file"), NULL;
+  return p->f;
+#endif
 }
 
-static FILE **new_file(lua_State *L, HANDLE h, int dmode, const char *mode)
+static int pipe_close (lua_State *L);
+
+static void new_file(lua_State *L, HANDLE h, int dmode, const char *mode)
 {
+#if LUA_VERSION_NUM <= 501
   FILE **pf = lua_newuserdata(L, sizeof *pf);
   *pf = 0;
   luaL_getmetatable(L, LUA_FILEHANDLE);
   lua_setmetatable(L, -2);
   *pf = _fdopen(_open_osfhandle((long)h, dmode), mode);
-  return pf;
+#else
+  luaL_Stream *p = (luaL_Stream *)lua_newuserdata(L, sizeof(luaL_Stream));
+  p->f = NULL;
+  p->closef = pipe_close;  /* mark file handle as 'closed' */
+  luaL_setmetatable(L, LUA_FILEHANDLE);
+  p->f = _fdopen(_open_osfhandle((long)h, dmode), mode);
+#endif
 }
 
 #define file_handle(fp) (HANDLE)_get_osfhandle(_fileno(fp))
@@ -739,11 +786,12 @@ int luaopen_ex_core(lua_State *L)
   lua_getglobal(L, "io");                     /* . io */
   if (lua_isnil(L, -1)) return luaL_error(L, "io not loaded");
   copyfields(L, ex_iolib, ex, -1);
-//  copyfields(L, ex_iolib, ex, -1);
+#if LUA_VERSION_NUM <= 501
   lua_getfield(L, ex, "pipe");                /* . io ex_pipe */
   newfenv(L, pipe_close);  /* create environment for 'popen' */
   lua_setfenv(L, -2);  /* set fenv for 'popen' */
   lua_pop(L, 1);  /* pop 'popen' */
+#endif
   /* extend the io.file metatable */
   luaL_getmetatable(L, LUA_FILEHANDLE);       /* . F */
   if (lua_isnil(L, -1)) return luaL_error(L, "can't find FILE* metatable");
