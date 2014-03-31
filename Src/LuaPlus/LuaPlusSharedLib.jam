@@ -375,6 +375,7 @@ local LUA53_SRCS =
 		lua53/src/lualib.h
 		lua53/src/lundump.c
 		lua53/src/lundump.h
+		lua53/src/lutf8lib.c
 		lua53/src/lvm.c
 		lua53/src/lvm.h
 		lua53/src/lzio.c
