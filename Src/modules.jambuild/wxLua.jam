@@ -80,6 +80,10 @@ local SRCS =
 	modules/wxbind/include/wxstc_bind.h
 	modules/wxbind/src/wxstc_bind.cpp
 
+	# wxbindwebview
+	modules/wxbind/include/wxwebview_bind.h
+	modules/wxbind/src/wxwebview_bind.cpp
+
 	# wxbindxml
 	modules/wxbind/include/wxxml_bind.h
 	modules/wxbind/src/wxxml_bind.cpp
@@ -138,7 +142,7 @@ local SRCS =
 IncludeModule c/wxwidgets ;
 
 if $(wxWidgets_FOUND) {
-	C.UseWxWidgets : xrc xml net media propgrid richtext aui scintilla stc html adv core base gl : linklibs ;
+	C.UseWxWidgets : xrc xml net media propgrid richtext aui scintilla stc webview html adv core base gl : linklibs ;
 
 	C.Defines : WXMAKINGDLL_LUAMODULE ISOLATION_AWARE_ENABLED ;
 
