@@ -757,9 +757,13 @@ LUAPLUS_INLINE int LuaState::Dump(lua_Writer writer, void* data, int strip, char
 
 #else
 
-LUAPLUS_INLINE int LuaState::Dump(lua_Writer writer, void* data)
+LUAPLUS_INLINE int LuaState::Dump(lua_Writer writer, void* data, int strip)
 {
+#if LUA_VERSION_NUM <= 502
 	return lua_dump(LuaState_to_lua_State(this), writer, data);
+#else
+	return lua_dump(LuaState_to_lua_State(this), writer, data, strip);
+#endif
 }
 
 #endif /* LUA_ENDIAN_SUPPORT */
@@ -932,6 +936,15 @@ LUAPLUS_INLINE void LuaState::Len(int index)
 }
 
 
+LUAPLUS_INLINE int LuaState::StrToNum(const char *s, size_t len)
+{
+#if LUA_VERSION_NUM >= 503
+    return lua_strtonum(LuaState_to_lua_State(this), s, len);
+#else
+    assert(0);
+#endif
+}
+
 LUAPLUS_INLINE lua_Alloc LuaState::GetAllocF(void **ud)
 {
 	return lua_getallocf(LuaState_to_lua_State(this), ud);
@@ -1016,9 +1029,9 @@ LUAPLUS_INLINE void LuaState::UpvalueJoin(int fidx1, int n1, int fidx2, int n2) 
 #endif
 }
 
-LUAPLUS_INLINE int LuaState::SetHook(lua_Hook func, int mask, int count)
+LUAPLUS_INLINE void LuaState::SetHook(lua_Hook func, int mask, int count)
 {
-	return lua_sethook(LuaState_to_lua_State(this), func, mask, count);
+	lua_sethook(LuaState_to_lua_State(this), func, mask, count);
 }
 
 LUAPLUS_INLINE lua_Hook LuaState::GetHook()

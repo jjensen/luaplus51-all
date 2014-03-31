@@ -175,7 +175,7 @@ public:
 #if LUA_ENDIAN_SUPPORT
 	int Dump(lua_Writer writer, void* data, int strip, char endian);
 #else
-	int Dump(lua_Writer writer, void* data);
+	int Dump(lua_Writer writer, void* data, int strip = 0);
 #endif /* LUA_ENDIAN_SUPPORT */
 
 	/*
@@ -203,6 +203,8 @@ public:
 
 	void Len(int index);
 
+    int StrToNum(const char *s, size_t len);
+
 	lua_Alloc GetAllocF(void **ud);
 	void SetAllocF(lua_Alloc f, void *ud);
 
@@ -225,7 +227,7 @@ public:
 	void *UpvalueID(int fidx, int n);
 	void UpvalueJoin(int fidx1, int n1, int fidx2, int n2);
 
-	int SetHook(lua_Hook func, int mask, int count);
+	void SetHook(lua_Hook func, int mask, int count);
 	lua_Hook GetHook();
 	int GetHookMask();
 	int GetHookCount();
@@ -242,6 +244,7 @@ public:
 	void OpenLib(const char *libname, const luaL_Reg *l, int nup);
 	void NewLib(const luaL_Reg *l, int nup);
 	void LRegister(const char *libname, const luaL_Reg *l);
+
 	int GetMetaField(int obj, const char *e);
 	int CallMeta(int obj, const char *e);
 	int TypeError(int narg, const char* tname);
