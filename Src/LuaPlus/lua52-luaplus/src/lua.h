@@ -13,13 +13,13 @@
 #include <stddef.h>
 
 
-#include "luaconf.h"
-
-
 #define LUA_VERSION_MAJOR	"5"
 #define LUA_VERSION_MINOR	"2"
 #define LUA_VERSION_NUM		502
 #define LUA_VERSION_RELEASE	"3"
+
+#include "luaconf.h"
+
 
 #define LUA_VERSION	"Lua " LUA_VERSION_MAJOR "." LUA_VERSION_MINOR
 #define LUA_RELEASE	LUA_VERSION "." LUA_VERSION_RELEASE
