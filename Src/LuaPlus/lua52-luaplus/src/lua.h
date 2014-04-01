@@ -362,6 +362,9 @@ LUA_API void      (lua_setallocf) (lua_State *L, lua_Alloc f, void *ud);
 #define LUA_HOOKLINE	2
 #define LUA_HOOKCOUNT	3
 #define LUA_HOOKTAILCALL 4
+#if LUA_TILDE_DEBUGGER
+#define LUA_HOOKERROR	5
+#endif /* LUA_TILDE_DEBUGGER */
 
 
 /*
@@ -371,6 +374,9 @@ LUA_API void      (lua_setallocf) (lua_State *L, lua_Alloc f, void *ud);
 #define LUA_MASKRET	(1 << LUA_HOOKRET)
 #define LUA_MASKLINE	(1 << LUA_HOOKLINE)
 #define LUA_MASKCOUNT	(1 << LUA_HOOKCOUNT)
+#if LUA_TILDE_DEBUGGER
+#define LUA_MASKERROR	(1 << LUA_HOOKERROR)
+#endif /* LUA_TILDE_DEBUGGER */
 
 typedef struct lua_Debug lua_Debug;  /* activation record */
 
@@ -385,6 +391,9 @@ LUA_API const char *(lua_getlocal) (lua_State *L, const lua_Debug *ar, int n);
 LUA_API const char *(lua_setlocal) (lua_State *L, const lua_Debug *ar, int n);
 LUA_API const char *(lua_getupvalue) (lua_State *L, int funcindex, int n);
 LUA_API const char *(lua_setupvalue) (lua_State *L, int funcindex, int n);
+#if LUA_TILDE_DEBUGGER
+LUA_API int lua_getvararg (lua_State *L, const lua_Debug *ar, int n);
+#endif /* LUA_TILDE_DEBUGGER */
 
 LUA_API void *(lua_upvalueid) (lua_State *L, int fidx, int n);
 LUA_API void  (lua_upvaluejoin) (lua_State *L, int fidx1, int n1,
@@ -416,6 +425,31 @@ struct lua_Debug {
 
 /* }====================================================================== */
 
+#if LUA_FASTREF_SUPPORT
+
+#define LUA_RIDX_FASTREF_FREELIST	1
+
+#define LUA_FASTREFNIL	(-1999999)
+
+LUA_API int lua_fastref (lua_State *L);
+LUA_API int lua_fastrefindex (lua_State *L, int idx);
+LUA_API void lua_fastunref (lua_State *L, int ref);
+LUA_API void lua_getfastref (lua_State *L, int ref);
+
+#else
+
+#include "lauxlib.h"
+
+#define LUA_FASTREFNIL LUA_REFNIL
+
+#define lua_fastref(L) luaL_ref(L, LUA_REGISTRYINDEX)
+#define lua_fastrefindex(L, idx) (lua_pushvalue(L, idx), luaL_ref(L, LUA_REGISTRYINDEX))
+#define lua_fastunref(L, ref) luaL_unref(L, LUA_REGISTRYINDEX, ref)
+#define lua_getfastref(L, ref) lua_rawgeti(L, LUA_REGISTRYINDEX, ref)
+
+#endif /* LUA_FASTREF_SUPPORT */
+
+/* ====================================================================== */
 
 /******************************************************************************
 * Copyright (C) 1994-2013 Lua.org, PUC-Rio.

@@ -175,6 +175,29 @@ LUA_API const char *lua_setlocal (lua_State *L, const lua_Debug *ar, int n) {
 }
 
 
+#if LUA_TILDE_DEBUGGER
+LUA_API int lua_getvararg (lua_State *L, const lua_Debug *ar, int n) {
+#if 0
+  CallInfo *ci = L->base_ci + ar->i_ci;
+  if(isLfunction(ci->func))
+  {
+    Closure *cl = (Closure *) clvalue(ci->func);
+    StkId firstVarArg = ci->func + cl->l.p->numparams + 1;
+    int numVarArg = (int) (ci->base - firstVarArg);
+    if(n <= numVarArg)
+    {
+      lua_lock(L);
+      luaA_pushobject(L, firstVarArg + n - 1);
+      lua_unlock(L);
+      return n;
+    }
+  }
+#endif
+  return 0;
+}
+#endif /* LUA_TILDE_DEBUGGER */
+
+
 static void funcinfo (lua_Debug *ar, Closure *cl) {
   if (noLuaClosure(cl)) {
     ar->source = "=[C]";
@@ -579,6 +602,10 @@ l_noret luaG_errormsg (lua_State *L) {
     L->top++;
     luaD_call(L, L->top - 2, 1, 0);  /* call it */
   }
+#if LUA_TILDE_DEBUGGER
+  if (L->hookmask & LUA_MASKERROR)
+    luaD_hook(L, LUA_HOOKERROR, -1);
+#endif /* LUA_TILDE_DEBUGGER */
   luaD_throw(L, LUA_ERRRUN);
 }
 
@@ -588,6 +615,10 @@ l_noret luaG_runerror (lua_State *L, const char *fmt, ...) {
   va_start(argp, fmt);
   addinfo(L, luaO_pushvfstring(L, fmt, argp));
   va_end(argp);
+#if LUA_TILDE_DEBUGGER
+  if (L->hookmask & LUA_MASKERROR)
+    luaD_hook(L, LUA_HOOKERROR, -1);
+#endif /* LUA_TILDE_DEBUGGER */
   luaG_errormsg(L);
 }
 
