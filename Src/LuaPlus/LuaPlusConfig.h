@@ -17,7 +17,11 @@
 #endif /* LUA_TILDE_DEBUGGER */
 
 #ifndef LUA_FASTREF_SUPPORT
+#if LUA_VERSION_NUM <= 501
 #define LUA_FASTREF_SUPPORT 1
+#else
+#define LUA_FASTREF_SUPPORT 0
+#endif
 #endif /* LUA_FASTREF_SUPPORT */
 
 #ifndef LUA_EXT_HEXADECIMAL
