@@ -24,6 +24,7 @@ if $(LUA_VERSION) in lua51-luaplus {
         C.IncludeDirectories lua-tilde : $(LUAPLUS_INCLUDE_DIRECTORIES) ;
         C.LinkLibraries lua-tilde : $(LUA_VERSION) ;
         LuaPlusFixUpTarget lua-tilde ;
+        C.LinkFlags lua-tilde : /EXPORT:LuaTilde_Command ;
         C.Library lua-tilde : $(TILDE_SRCS) : shared ;
         Workspace LuaPlus : lua-tilde ;
     }
