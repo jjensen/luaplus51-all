@@ -108,6 +108,6 @@ value = function (v, outf, ind, pre)
 end
 
 ----------------------------------------------------------------------------
-cgilua.serialize = tabledump
-
-return tabledump
+return {
+	serialize = tabledump,
+}

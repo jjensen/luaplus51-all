@@ -1,23 +1,18 @@
+#!/usr/bin/env cgilua.cgi
 <html>
 <head><title>Embeded Lua Test</title></head>
 
 <body>
-cgi = {
+cgilua.QUERY =
 <?lua
-for i,v in pairs (cgi) do
-	if type(v) == "table" then
-		local vv = "{"
-		for a,b in pairs(v) do
-			vv = string.format ("%s%s = %s<br>\n", vv, a, tostring(b))
-		end
-		v = vv.."}"
-	end
+cgilua.serialize = require"cgilua.serialize".serialize
+cgilua.serialize (cgilua.QUERY, cgilua.put)
 ?>
-<%= i %> = <%= tostring(v) %> <br>
-<%
-end
-%>
-}
+<br>
+cgilua.POST =
+<?lua
+cgilua.serialize (cgilua.POST, cgilua.put)
+?>
 <br>
 Remote address: <%= cgilua.servervariable"REMOTE_ADDR" %>
 <br>

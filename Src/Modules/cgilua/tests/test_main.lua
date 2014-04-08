@@ -1,24 +1,23 @@
+#!/usr/bin/env cgilua.cgi
 -- $Id: test_main.lua,v 1.11 2006/01/06 16:33:57 tomas Exp $
+
+cgilua.serialize = require"cgilua.serialize".serialize
+
 cgilua.htmlheader()
 cgilua.put[[
 <html>
 <head><title>Script Lua Test</title></head>
 
 <body>
-cgi = {
+cgilua.QUERY =
 ]]
-
-for i,v in pairs (cgi) do
-	if type(v) == "table" then
-		local vv = "{"
-		for a,b in pairs(v) do
-			vv = string.format ("%s%s = %s<br>\n", vv, a, tostring(b))
-		end
-		v = vv.."}"
-	end
-	cgilua.put (string.format ("%s = %s<br>\n", i, tostring(v)))
-end
-cgilua.put "}<br>\n"
+cgilua.serialize (cgilua.QUERY, cgilua.put)
+cgilua.put[[
+<br>
+cgilua.POST =
+]]
+cgilua.serialize (cgilua.POST, cgilua.put)
+cgilua.put "<br>\n"
 cgilua.put ("Remote address: "..cgilua.servervariable"REMOTE_ADDR")
 cgilua.put "<br>\n"
 cgilua.put ("Is persistent = "..tostring (SAPI.Info.ispersistent).."<br>\n")
@@ -37,12 +36,12 @@ assert (status == true, err)
 -- Checking require
 local status, err = pcall (function () require"unknown_module" end)
 assert (status == false, "<tt>unknown_module</tt> loaded!")
-assert (package == nil, "Access to <tt>package</tt> table allowed!")
+--assert (package == nil, "Access to <tt>package</tt> table allowed!")
 
 cgilua.put[[
 <p>
-</body>
 <small>$Id: test_main.lua,v 1.11 2006/01/06 16:33:57 tomas Exp $</small>
+</body>
 </html>
 ]]
 cgilua = nil

@@ -1,14 +1,18 @@
+#!/usr/bin/env cgilua.cgi
 <?lua
 -- Tries to load known libraries
 for _, t in ipairs { "lxp", "luasql.postgres", "luasql.mysql", "luasql.oci8", "luasql.sqlite", "luasql.odbc", "socket", "xmlrpc", "soap", "lualdap", "logging", "md5", "zip", "stable", "copas", } do
-	pcall (require, t)
+	local ok, m = pcall (require, t)
+	if ok then
+		_G[t] = m
+	end
 end
 
 libraries = { "lxp", "luasql", "socket", "xmlrpc", "soap", "lualdap", "logging", "md5", "zip", "stable", "copas", }
 
 local colors = { "#999999", "#CCCCCC", "#FFFFFF", }
 local i = 0
-function color () i = math.mod (i + 1, 3) return colors[i + 1] end
+function color () i = math.fmod (i + 1, 3) return colors[i + 1] end
 
 function pack_name (p) return string.gsub (p, "^([^.]+).-", "%1") end
 
@@ -29,7 +33,7 @@ function idx (t, f) return _G[t][f] or _G[t]["_"..f] or "" end
 <?lua
 local support = {
 	{ "Lua", "_VERSION" },
-	{ "compat-5.1", "_COMPAT51" },
+	--{ "compat-5.1", "_COMPAT51" },
 }
 for _, l in ipairs (support) do bg = color()
 ?>

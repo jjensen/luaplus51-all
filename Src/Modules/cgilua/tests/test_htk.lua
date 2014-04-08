@@ -1,3 +1,4 @@
+#!/usr/bin/env cgilua.cgi
 require"htk"
 
 local a_table = {}

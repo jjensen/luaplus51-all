@@ -1,3 +1,4 @@
+#!/usr/bin/env cgilua.cgi
 -- This file should be executed before any script in this directory
 -- according to the configuration (cgilua/conf.lua).
 

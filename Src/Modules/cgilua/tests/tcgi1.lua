@@ -1,3 +1,4 @@
+#!/usr/bin/env cgilua.cgi
 -- $Id: tcgi1.lua,v 1.1 2004/03/25 19:31:05 tomas Exp $
 
 io.stdout:write"Content-type: text/html\n\n"

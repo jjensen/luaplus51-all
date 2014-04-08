@@ -4,12 +4,12 @@
 -- @release $Id: lp.lua,v 1.15 2008/12/11 17:40:24 mascarenhas Exp $
 ----------------------------------------------------------------------------
 
-local assert, error, getfenv, loadstring, setfenv = assert, error, getfenv, loadstring, setfenv
+local assert, error, loadstring = assert, error, loadstring
 local find, format, gsub, strsub, char = string.find, string.format, string.gsub, string.sub, string.char
 local concat, tinsert = table.concat, table.insert
 local open = io.open
 
-module (...)
+local M = {}
 
 ----------------------------------------------------------------------------
 -- function to do output
@@ -40,8 +40,8 @@ end
 -- @param s String to translate.
 -- @return String with translated code.
 ----------------------------------------------------------------------------
-function translate (s)
-        s = gsub(s, "^#![^\n]+\n", "")
+function M.translate (s)
+	s = gsub(s, "^#![^\n]+\n", "")
 	if compatmode then
 		s = gsub(s, "$|(.-)|%$", "<?lua = %1 ?>")
 		s = gsub(s, "<!%-%-$$(.-)$$%-%->", "<?lua %1 ?>")
@@ -74,7 +74,7 @@ end
 -- Defines the name of the output function.
 -- @param f String with the name of the function which produces output.
 
-function setoutfunc (f)
+function M.setoutfunc (f)
 	outfunc = f
 end
 
@@ -82,7 +82,7 @@ end
 -- Turns on or off the compatibility with old CGILua 3.X behavior.
 -- @param c Boolean indicating if the compatibility mode should be used.
 
-function setcompatmode (c)
+function M.setcompatmode (c)
 	compatmode = c
 end
 
@@ -97,14 +97,17 @@ local cache = {}
 -- Uses a cache of templates.
 -- @param string String with the template to be translated.
 -- @param chunkname String with the name of the chunk, for debugging purposes.
+-- @param env Table with the environment of the resulting function (optional).
 -- @return Function with the resulting translation.
 
-function compile (string, chunkname)
-	local f, err = cache[string]
-	if f then return f end
-	f, err = loadstring (translate (string), chunkname)
+function M.compile (string, chunkname, env)
+	local s, err = cache[string]
+	if not s then
+		s = M.translate (string)
+		cache[string] = s
+	end
+	f, err = load (s, chunkname, "bt", env)
 	if not f then error (err, 3) end
-	cache[string] = f
 	return f
 end
 
@@ -116,18 +119,16 @@ end
 -- @param env Table with the environment to run the resulting function.
 local BOM = char(239) .. char(187) .. char(191)
 
-function include (filename, env)
+function M.include (filename, env)
 	-- read the whole contents of the file
 	local fh = assert (open (filename))
 	local src = fh:read("*a")
 	fh:close()
+
 	if src:sub(1,3) == BOM then src = src:sub(4) end
 	-- translates the file into a function
-	local prog = compile (src, '@'..filename)
-	local _env
-	if env then
-		_env = getfenv (prog)
-		setfenv (prog, env)
-	end
+	local prog = M.compile (src, '@'..filename, env)
 	prog ()
 end
+
+return M

@@ -1,7 +1,6 @@
 -- CGILua dispatcher module
 -- @release $Id: dispatcher.lua,v 1.8 2007/12/07 18:49:49 carregal Exp $
 
-module(..., package.seeall)
 
 -- Checks if an URL matches a route pattern
 local function route_match(url, pattern) 
@@ -33,7 +32,7 @@ end
 -- @param map_name Name associated with the map in the routed URL table.
 -- @param params Table of named parameters used in the URL map
 -- @param queryargs Optional table of named parameters used for the QUERY part of the URL
-function route_url(map_name, params, queryargs)
+local function route_url(map_name, params, queryargs)
 	local queryparams = ""
 	if queryargs then
 		queryparams = "?"..cgilua.urlcode.encodetable(queryargs)
@@ -53,7 +52,7 @@ end
 -- a function to be called with the extracted parameters and
 -- a name for the map when used with route_url
 -- @param table of maps or a single map
-function route(URLs)
+local function route(URLs)
 	URLs = URLs or {}
 	if type(URLs[1]) == "string" then
 		-- accepts a single map as the only entry in a map table
@@ -68,3 +67,8 @@ function route(URLs)
         error("Missing page parameters")
     end
 end
+
+return {
+	route_url = route_url,
+	route = route,
+}

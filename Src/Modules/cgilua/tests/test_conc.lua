@@ -1,3 +1,4 @@
+#!/usr/bin/env cgilua.cgi
 cgilua.htmlheader()
 if ap then
 	local pid, ppid = ap.pid ()

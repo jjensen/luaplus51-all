@@ -1,4 +1,7 @@
-cgilua.enablesession ()
+#!/usr/bin/env cgilua.cgi
+cgilua.session = require"cgilua.session"
+cgilua.session.setdir"/tmp/"
+cgilua.session.enable ()
 
 function pt (tab)
 	for i, v in pairs (tab) do
@@ -15,16 +18,16 @@ function pt (tab)
 end
 
 
-if cgi.field then
+if cgilua.POST.field then
 	if not cgilua.session.data.field then
 		cgilua.session.data.field = {}
 	end
-	table.insert (cgilua.session.data.field, cgi.field)
+	table.insert (cgilua.session.data.field, cgilua.POST.field)
 end
 cgilua.htmlheader()
 if cgilua.session then
-	cgilua.put "cgi = {<br>\n"
-	pt (cgi)
+	cgilua.put "cgilua.POST = {<br>\n"
+	pt (cgilua.POST)
 	cgilua.put "}<br>\n"
 	cgilua.put "cgilua.session.data = {<br>\n"
 	pt (cgilua.session.data)
@@ -34,7 +37,7 @@ if cgilua.session then
 	cgilua.put (cgilua.mkurlpath"test_session.lua")
 	cgilua.put [[" method="POST">
   field: <input type="text" name="field" value="]]
-	cgilua.put (cgi.field or "")
+	cgilua.put (cgilua.POST.field or "")
 	cgilua.put [["><br>
   <input type="submit"><br>
 </form>]]

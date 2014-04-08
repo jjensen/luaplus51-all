@@ -1,3 +1,4 @@
+#!/usr/bin/env cgilua.cgi
 <?lua
 local cookies = require"cgilua.cookies"
 CL_COOKIE = "cgilua_cookie"

@@ -1,3 +1,4 @@
+#!/usr/bin/env cgilua.cgi
 require"postgres"
 
 local env = assert (luasql.postgres ())

@@ -17,16 +17,17 @@
 -- @release $Id: post.lua,v 1.17 2008/04/03 21:55:28 mascarenhas Exp $
 ----------------------------------------------------------------------------
 
-require"cgilua.readuntil"
-require"cgilua.urlcode"
+local iterate = require"cgilua.readuntil".iterate
+local urlcode = require"cgilua.urlcode"
+local tmpfile = require"cgilua".tmpfile
 
 local assert, error, pairs, tonumber, tostring, type = assert, error, pairs, tonumber, tostring, type
 local getn, tinsert = table.getn, table.insert
 local format, gsub, strfind, strlower, strlen = string.format, string.gsub, string.find, string.lower, string.len
 local min = math.min
-local iterate = cgilua.readuntil.iterate
-local urlcode = cgilua.urlcode
-local tmpfile = cgilua.tmpfile
+--local iterate = cgilua.readuntil.iterate
+--local urlcode = cgilua.urlcode
+--local tmpfile = cgilua.tmpfile
 
 -- environment for processing multipart/form-data input
 local boundary = nil      -- boundary string that separates each 'part' of input
@@ -40,7 +41,6 @@ local discardinput = nil  -- discard all remaining input
 local readuntil = nil     -- read until delimiter
 local read = nil          -- basic read function
 
-module ("cgilua.post")
 
 --
 -- Extract the boundary string from CONTENT_TYPE metavariable
@@ -263,31 +263,33 @@ end
 --   (defined by the metavariable CONTENT_LENGTH) exceeds the
 --   maximum input size allowed
 ----------------------------------------------------------------------------
-function parsedata (defs)
-	assert (type(defs.args) == "table", "field `args' must be a table")
-	init (defs)
-	-- get the "total" size of the incoming data
-	local inputsize = tonumber(defs.content_length) or 0
-	if inputsize > maxinput then
-		-- some Web Servers (like IIS) require that all the incoming data is read 
-		bytesleft = inputsize
-		discardinput(inputsize)
-		error(format("Total size of incoming data (%d KB) exceeds configured maximum (%d KB)",
-			inputsize /1024, maxinput / 1024))
-	end
+return {
+	parsedata = function (defs)
+		assert (type(defs.args) == "table", "field `args' must be a table")
+		init (defs)
+		-- get the "total" size of the incoming data
+		local inputsize = tonumber(defs.content_length) or 0
+		if inputsize > maxinput then
+			-- some Web Servers (like IIS) require that all the incoming data is read 
+			bytesleft = inputsize
+			discardinput(inputsize)
+			error(format("Total size of incoming data (%d KB) exceeds configured maximum (%d KB)",
+				inputsize /1024, maxinput / 1024))
+		end
 
-	-- process the incoming data according to its content type
-	local contenttype = content_type
-	if not contenttype then
-		error("Undefined Media Type") 
-	end
-	if strfind(contenttype, "x-www-form-urlencoded", 1, true) then
-		urlcode.parsequery (read (inputsize), defs.args)
-	elseif strfind(contenttype, "multipart/form-data", 1, true) then
-		Main (inputsize, defs.args)
-	elseif strfind (contenttype, "application/xml", 1, true) or strfind (contenttype, "text/xml", 1, true) or strfind (contenttype, "text/plain", 1, true) then
-		tinsert (defs.args, read (inputsize))
-	else
-		error("Unsupported Media Type: "..contenttype)
-	end
-end
+		-- process the incoming data according to its content type
+		local contenttype = content_type
+		if not contenttype then
+			error("Undefined Media Type") 
+		end
+		if strfind(contenttype, "x-www-form-urlencoded", 1, true) then
+			urlcode.parsequery (read (inputsize), defs.args)
+		elseif strfind(contenttype, "multipart/form-data", 1, true) then
+			Main (inputsize, defs.args)
+		elseif strfind (contenttype, "application/xml", 1, true) or strfind (contenttype, "text/xml", 1, true) or strfind (contenttype, "text/plain", 1, true) then
+			tinsert (defs.args, read (inputsize))
+		else
+			error("Unsupported Media Type: "..contenttype)
+		end
+	end,
+}
