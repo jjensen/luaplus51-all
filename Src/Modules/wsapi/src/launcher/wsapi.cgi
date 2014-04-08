@@ -4,8 +4,7 @@
 -- either from the command line (use #!wsapi in the script)
 -- or from SCRIPT_FILENAME/PATH_TRANSLATED
 
-pcall(require, "luarocks.require")
-
+local wsapi = require "wsapi"
 local common = require "wsapi.common"
 local cgi = require "wsapi.cgi"
 

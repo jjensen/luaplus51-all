@@ -1,15 +1,15 @@
 
-require "wsapi.response"
+local response = require "wsapi.response"
 
-module(..., package.seeall)
+local _M = {}
 
-function run(wsapi_env)
+function _M.run(wsapi_env)
   _G.CGILUA_APPS = _G.CGILUA_APPS or wsapi_env.DOCUMENT_ROOT .. "/cgilua"
   _G.CGILUA_CONF = _G.CGILUA_CONF or wsapi_env.DOCUMENT_ROOT .. "/cgilua"
   _G.CGILUA_TMP = _G.CGILUA_TMP or os.getenv("TMP") or os.getenv("TEMP") or "/tmp"
   _G.CGILUA_ISDIRECT = true
 
-  local res = wsapi.response.new()
+  local res = response.new()
 
   _G.SAPI = {
     Info =  {
@@ -49,7 +49,9 @@ function run(wsapi_env)
       end,
     },
   }
-  require"cgilua"
+  local cgilua = require "cgilua"
   cgilua.main()
   return res:finish()
 end
+
+return _M

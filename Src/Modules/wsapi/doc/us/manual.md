@@ -10,7 +10,7 @@ The WSAPI rock copies samples, docs and support files to its path inside your
 local Rocks repository.
 
 There is an all-in-one installer script that installs Lua, LuaRocks, and `wsapi-xavante` in
-a single step. Download the [tarball](http://github.com/downloads/keplerproject/wsapi/wsapi-install-1.3.0.tar.gz),
+a single step. Download the [tarball](http://www.keplerproject.org/files/wsapi-install-1.6.0.tar.gz),
 unpack it, then run the provided `wsapi-install` script in its path. Run `wsapi-install --help` for
 installation options.
 
@@ -57,9 +57,9 @@ This is how the above example would look packaged this way (for example, in a *h
 <pre class="example">
 #!/usr/bin/env wsapi.cgi
 
-module(..., package.seeall)
+local _M = {}
 
-function run(wsapi_env)
+function _M.run(wsapi_env)
   local headers = { ["Content-type"] = "text/html" }
 
   local function hello_text()
@@ -72,6 +72,8 @@ function run(wsapi_env)
 
   return 200, headers, coroutine.wrap(hello_text)
 end
+
+return _M
 </pre>
 
 The first line tells the UNIX-based web servers such as Apache to run WSAPI's
@@ -115,9 +117,9 @@ script is very similar for both connectors. For CGI it can be this one (*hello.c
 <pre class="example">
 #!/usr/bin/env lua
 
-require "wsapi.cgi"
-require "hello"
-wsapi.cgi.run(hello.run)
+local cgi = require "wsapi.cgi"
+local hello = require "hello"
+cgi.run(hello.run)
 </pre>
 
 For FastCGI (*hello.fcgi*):
@@ -125,9 +127,9 @@ For FastCGI (*hello.fcgi*):
 <pre class="example">
 #!/usr/bin/env lua
 
-require "wsapi.fastcgi"
-require "hello"
-wsapi.fastcgi.run(hello.run)
+local fastcgi = require "wsapi.fastcgi"
+local hello = require "hello"
+fastcgi.run(hello.run)
 </pre>
 
 You may need to change *lua* to the name or your Lua interpreter executable.

@@ -19,7 +19,7 @@ tries to follow standard Lua idioms.
 WSAPI is free software and uses the same license as Lua 5.1
 
 Status
-Current version is 1.5. It was developed for Lua 5.1.
+Current version is 1.6.1. It supports both Lua 5.1 and Lua 5.2.
 
 Download
 WSAPI can be downloaded from its LuaForge page. You can also get WSAPI using
@@ -31,6 +31,16 @@ Latest Sources and Bug Tracker
 WSAPI CVS and bug tracker are available at its Github page.
 
 History
+
+WSAPI 1.6.1 [21/Mar/2014]
+    * Restores Lua 5.1 compatibility (incorrect usage of coxpcall)
+    * Improvements to wsapi.mock
+    * wsapi.request.qs_encode produces proper querystrings
+    * FastCGI fixes
+    * Additional options for cookies such as httponly and max age.
+
+WSAPI 1.6 [30/Jan/2013]
+    * Lua 5.2 compatibility
 
 WSAPI 1.5 [21/Apr/2011]
     * Add lfcgi.finish() to lfcgi, to close the current FastCGI request
@@ -79,7 +89,7 @@ WSAPI 1.3 [18/Mar/2010]
     * Added an `extra_vars` paremeter to wsapi.xavante.makeHandler and wsapi.xavante.makeGenericHandler, to
       let you pass extra variables in the WSAPI environment
     * Added `overwrite` option to wsapi.request that tells the parameter parser to overwrite repeated parameters
-      instead of collecting them in a list    
+      instead of collecting them in a list
     * Added a parameter `isolated` to the persistent generic loaders that controls whether you isolate
       each script in a Lua state or not
     * Added parameters to the persistent generic loaders that let the user control the life cycle of Lua
@@ -94,7 +104,7 @@ WSAPI 1.2 [27/Oct/2009]
     * Adds "wsapi" laucher script, to start a Xavante WSAPI server
     * Fixed "undefined media type" error
     * Added is_empty utility function to check if a string is nil or ''
-    * Fixed bug with empty bodies in wsapi.xavante, and added full http status codes to responses 
+    * Fixed bug with empty bodies in wsapi.xavante, and added full http status codes to responses
     * Changing order of evaluating PATH_TRANSLATED and SCRIPT_FILENAME, to make non-wrapped launchers work in OSX Apache
     * Reload support for load_isolated_launcher
 

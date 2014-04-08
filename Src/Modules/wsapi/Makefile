@@ -3,7 +3,8 @@
 include config
 
 DESTDIR := /
-LDIR := $(DESTDIR)/$(LUA_DIR)/wsapi
+LDIR := $(DESTDIR)/$(LUA_DIR)
+WDIR := $(DESTDIR)/$(LUA_DIR)/wsapi
 CDIR := $(DESTDIR)/$(LUA_LIBDIR)
 BDIR := $(DESTDIR)/$(BIN_DIR)
 
@@ -22,8 +23,9 @@ src/fastcgi/lfcgi.so: src/fastcgi/lfcgi.h
 	$(CC) $(CFLAGS) $(LDFLAGS) $(LIB_OPTION) -o src/fastcgi/lfcgi.so src/fastcgi/lfcgi.c -lfcgi $(INC)
 
 install:
-	@mkdir -p $(LDIR) $(BDIR)
-	@cp src/wsapi/*.lua $(LDIR)
+	@mkdir -p $(LDIR) $(WDIR) $(BDIR)
+	@cp src/*.lua $(LDIR)
+	@cp src/wsapi/*.lua $(WDIR)
 	@cp src/launcher/wsapi.cgi $(BDIR)
 	@cp src/launcher/wsapi.fcgi $(BDIR)
 	@echo "Installing of Lua WSAPI part is done!"

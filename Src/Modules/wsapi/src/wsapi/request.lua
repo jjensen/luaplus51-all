@@ -1,6 +1,6 @@
 local util = require"wsapi.util"
 
-module("wsapi.request", package.seeall)
+local _M = {}
 
 local function split_filename(path)
   local name_patt = "[/\\]?([^/\\]+)$"
@@ -132,7 +132,9 @@ local function parse_post_data(wsapi_env, tab, overwrite)
   return tab
 end
 
-methods = {}
+_M.methods = {}
+
+local methods = _M.methods
 
 function methods.__index(tab, name)
   local func
@@ -150,15 +152,15 @@ function methods.__index(tab, name)
   return func
 end
 
-function methods:qs_encode(query)
+function methods:qs_encode(query, url)
   local parts = {}
   for k, v in pairs(query or {}) do
-    parts[#parts+1] = k .. "=" .. wsapi.util.url_encode(v)
+    parts[#parts+1] = k .. "=" .. util.url_encode(v)
   end
   if #parts > 0 then
-    return "?" .. table.concat(parts, "&")
+    return (url and (url .. "?") or "") .. table.concat(parts, "&")
   else
-    return ""
+    return (url and url or "")
   end
 end
 
@@ -166,7 +168,8 @@ function methods:route_link(route, query, ...)
   local builder = self.mk_app["link_" .. route]
   if builder then
     local uri = builder(self.mk_app, self.env, ...)
-    return uri .. self:qs_encode(query)
+    local qs = self:qs_encode(query)
+    return uri .. (qs ~= "" and ("?"..qs) or "")
   else
     error("there is no route named " .. route)
   end
@@ -175,11 +178,13 @@ end
 function methods:link(url, query)
   local prefix = (self.mk_app and self.mk_app.prefix) or self.script_name
   local uri = prefix .. url
-  return prefix .. url .. self:qs_encode(query)
+  local qs = self:qs_encode(query)
+  return prefix .. url .. (qs ~= "" and ("?"..qs) or "")
 end
 
 function methods:absolute_link(url, query)
-  return url .. self:qs_encode(query)
+  local qs = self:qs_encode(query)
+  return url .. (qs ~= "" and ("?"..qs) or "")
 end
 
 function methods:static_link(url)
@@ -198,7 +203,7 @@ function methods:empty_param(param)
   return self:empty(self.params[param])
 end
 
-function new(wsapi_env, options)
+function _M.new(wsapi_env, options)
   options = options or {}
   local req = {
     GET          = {},
@@ -243,3 +248,5 @@ function new(wsapi_env, options)
   end})
   return setmetatable(req, methods)
 end
+
+return _M

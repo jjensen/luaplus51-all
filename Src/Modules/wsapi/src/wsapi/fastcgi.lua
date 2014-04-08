@@ -12,7 +12,7 @@ local io = require"io"
 local common = require"wsapi.common"
 local ipairs = ipairs
 
-module(...)
+local _M = {}
 
 io.stdout = lfcgi.stdout
 io.stderr = lfcgi.stderr
@@ -20,7 +20,7 @@ io.stdin = lfcgi.stdin
 
 -- Runs an WSAPI application for each FastCGI request that comes
 -- from the FastCGI pipeline
-function run(app_run)
+function _M.run(app_run)
    while lfcgi.accept() >= 0 do
      local headers
      local function getenv(n)
@@ -43,3 +43,5 @@ function run(app_run)
                            env = getenv })
    end
 end
+
+return _M

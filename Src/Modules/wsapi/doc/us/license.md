@@ -13,7 +13,7 @@ Its licenses are compatible with
 WSAPI is not in the public domain and the
 <a href="http://www.keplerproject.org">Kepler Project</a>
 keep its copyright.
-The legal details are below. 
+The legal details are below.
 </p>
 
 <p>The spirit of the license is that you are free to use
@@ -27,7 +27,7 @@ Andr&eacute; Carregal.
 The implementation is not derived from licensed software.</p>
 
 <hr/>
-<p>Copyright &copy; 2007-2010 Kepler Project.</p>
+<p>Copyright &copy; 2007-2014 Kepler Project.</p>
 
 <p>Permission is hereby granted, free of charge, to any person
 obtaining a copy of this software and associated documentation

@@ -74,7 +74,8 @@ is 200
 or a table with fields *value*, *expires* (expiration date), *domain*, *path*, and *secure*. All fields
 except *value* are optional
 
-**res:delete\_cookie(*name*, *path*)** - tells the browser to erase a cookie, with an optional *path*
+**res:delete\_cookie(*name*, *path*, *domain*)** - tells the browser to erase a cookie, with an optional *path* and
+*domain*
 
 **res:redirect(*url*)** - sets status and headers for a redirect response to *url*, and returns a WSAPI response
 that does the redirect

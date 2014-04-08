@@ -36,6 +36,7 @@ fcgi: src\fastcgi\lfcgi.dll src\launcher\wsapi-fcgi.exe
 
 install:
 	IF NOT EXIST $(LUA_DIR)\wsapi mkdir $(LUA_DIR)\wsapi
+	copy src\*.lua $(LUA_DIR)
 	copy src\wsapi\*.lua $(LUA_DIR)\wsapi
 
 install-rocks:

@@ -12,8 +12,9 @@ local SRCS =
 		src/wsapi/xavante.lua
 ;
 
-Lua.Module wsapi : $(SRCS) ;
+Lua.Module wsapi : src/wsapi.lua $(SRCS) ;
 
 CopyFiles wsapi : $(LUA_LDIR)/wsapi : $(SUBDIR)/$(SRCS) ;
+CopyFiles wsapi : $(LUA_LDIR) : $(SUBDIR)/src/wsapi.lua ;
 
 }

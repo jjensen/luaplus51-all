@@ -1,8 +1,8 @@
 #!/usr/bin/env wsapi.cgi
 
-module("hello", package.seeall)
+local _M = {}
 
-function run(wsapi_env)
+function _M.run(wsapi_env)
   local headers = { ["Content-type"] = "text/html" }
 
   local function hello_text()

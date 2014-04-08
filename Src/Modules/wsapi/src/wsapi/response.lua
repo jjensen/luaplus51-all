@@ -3,10 +3,14 @@ local util = require "wsapi.util"
 local date = os.date
 local format = string.format
 
-module("wsapi.response", package.seeall)
+local _M = {}
 
-methods = {}
+local methods = {}
 methods.__index = methods
+
+_M.methods = methods
+
+local unpack = table.unpack or unpack
 
 function methods:write(...)
   for _, s in ipairs{ ... } do
@@ -42,20 +46,33 @@ local function optional (what, name)
   end
 end
 
+local function optional_flag(what, isset)
+  if isset then
+    return format("; %s", what)
+  end
+  return ""
+end
+
 local function make_cookie(name, value)
   local options = {}
+  local t
   if type(value) == "table" then
     options = value
     value = value.value
   end
   local cookie = name .. "=" .. util.url_encode(value)
   if options.expires then
-    local t = date("!%A, %d-%b-%Y %H:%M:%S GMT", options.expires)
+    t = date("!%A, %d-%b-%Y %H:%M:%S GMT", options.expires)
     cookie = cookie .. optional("expires", t)
+  end
+  if options.max_age then
+    t = date("!%A, %d-%b-%Y %H:%M:%S GMT", options.max_age)
+    cookie = cookie .. optional("Max-Age", t)
   end
   cookie = cookie .. optional("path", options.path)
   cookie = cookie .. optional("domain", options.domain)
-  cookie = cookie .. optional("secure", options.secure)
+  cookie = cookie .. optional_flag("secure", options.secure)
+  cookie = cookie .. optional_flag("HttpOnly", options.httponly)
   return cookie
 end
 
@@ -70,8 +87,8 @@ function methods:set_cookie(name, value)
   end
 end
 
-function methods:delete_cookie(name, path)
-  self:set_cookie(name, { value =  "xxx", expires = 1, path = path })
+function methods:delete_cookie(name, path, domain)
+  self:set_cookie(name, { value =  "xxx", expires = 1, path = path, domain = domain })
 end
 
 function methods:redirect(url)
@@ -85,7 +102,7 @@ function methods:content_type(type)
   self.headers["Content-Type"] = type
 end
 
-function new(status, headers)
+function _M.new(status, headers)
   status = status or 200
   headers = headers or {}
   if not headers["Content-Type"] then
@@ -93,3 +110,5 @@ function new(status, headers)
   end
   return setmetatable({ status = status, headers = headers, body = {}, length = 0 }, methods)
 end
+
+return _M

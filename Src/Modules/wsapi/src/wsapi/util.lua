@@ -1,9 +1,10 @@
-module("wsapi.util", package.seeall)
+
+local _M = {}
 
 ----------------------------------------------------------------------------
 -- Decode an URL-encoded string (see RFC 2396)
 ----------------------------------------------------------------------------
-function url_decode(str)
+function _M.url_decode(str)
   if not str then return nil end
   str = string.gsub (str, "+", " ")
   str = string.gsub (str, "%%(%x%x)", function(h) return string.char(tonumber(h,16)) end)
@@ -14,7 +15,7 @@ end
 ----------------------------------------------------------------------------
 -- URL-encode a string (see RFC 2396)
 ----------------------------------------------------------------------------
-function url_encode(str)
+function _M.url_encode(str)
   if not str then return nil end
   str = string.gsub (str, "\n", "\r\n")
   str = string.gsub (str, "([^%w ])",
@@ -26,14 +27,14 @@ end
 ----------------------------------------------------------------------------
 -- Sanitizes all HTML tags
 ----------------------------------------------------------------------------
-function sanitize(text)
+function _M.sanitize(text)
    return text:gsub(">", "&gt;"):gsub("<", "&lt;")
 end
 
 ----------------------------------------------------------------------------
 -- Checks whether s is not nil or the empty string
 ----------------------------------------------------------------------------
-function not_empty(s)
+function _M.not_empty(s)
   if s and s ~= "" then return s else return nil end
 end
 
@@ -41,7 +42,7 @@ end
 -- Wraps the WSAPI environment to make the input rewindable, so you
 -- can parse postdata more than once, call wsapi_env.input:rewind()
 ----------------------------------------------------------------------------
-function make_rewindable(wsapi_env)
+function _M.make_rewindable(wsapi_env)
    local new_env = { input = { position = 1, contents = "" } }
    function new_env.input:read(size)
       local left = #self.contents - self.position + 1
@@ -76,7 +77,7 @@ end
 -- note POSIX demands the parser ends at the first non option
 --      this behavior isn't implemented.
 ----------------------------------------------------------------------------
-function getopt( arg, options )
+function _M.getopt( arg, options )
   local tab, args = {}, {}
   local k = 1
   while k <= #arg do
@@ -120,7 +121,7 @@ end
 -- Makes a mock WSAPI environment with GET method and the provided
 -- query string
 ----------------------------------------------------------------------------
-function make_env_get(qs)
+function _M.make_env_get(qs)
   return {
     REQUEST_METHOD = "GET",
     QUERY_STRING = qs or "",
@@ -144,7 +145,7 @@ end
 -- Makes a mock WSAPI environment with POST method and the provided
 -- postdata, type (x-www-form-urlenconded default) and query string
 ----------------------------------------------------------------------------
-function make_env_post(pd, type, qs)
+function _M.make_env_post(pd, type, qs)
   pd = pd or ""
   return {
     REQUEST_METHOD = "POST",
@@ -171,3 +172,18 @@ function make_env_post(pd, type, qs)
     }
   }
 end
+
+function _M.loadfile(filename, env)
+  if _VERSION == "Lua 5.2" then
+    return loadfile(filename, "bt", env)
+  else
+    local f, err = loadfile(filename)
+    if not f then
+      return nil, err
+    end
+    setfenv(f, env)
+    return f
+  end
+end
+
+return _M

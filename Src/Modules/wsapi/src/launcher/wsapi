@@ -1,13 +1,11 @@
 #!/usr/bin/env lua
 
-pcall(require, "luarocks.require")
-
-require "lfs"
-require "wsapi.util"
-require "wsapi.xavante"
-require "xavante"
-require "xavante.filehandler"
-require "xavante.redirecthandler"
+local lfs = require "lfs"
+local util = require "wsapi.util"
+local wsx = require "wsapi.xavante"
+local xavante = require "xavante"
+local filehandler = require "xavante.filehandler"
+local redirecthandler = require "xavante.redirecthandler"
 
 local usage = [[
 Usage: wsapi [options] [document root]
@@ -25,7 +23,7 @@ Options:
 -l<file>, --log=<file>      Logs all output to the file (default stdout
                             and stderr)
 -p<port>, --port=<port>     Binds to the specified port (default 8080)
---cgilua                    Adds .lp and .cgi rules for CGILua pages and 
+--cgilua                    Adds .lp and .cgi rules for CGILua pages and
                             scripts
 --op                        Adds an .op rule that for Orbit pages
 -r, --reload                Reloads applications on every request
@@ -35,7 +33,7 @@ Options:
 
 local config = {}
 
-local opts, args = wsapi.util.getopt({ ... }, "clp")
+local opts, args = util.getopt({ ... }, "clp")
 
 if opts.h or opts.help then
   print(usage)
@@ -47,10 +45,10 @@ local config = {
   logfile = opts.l or opts.log,
   port = tonumber(opts.p or opts.port) or 8080,
   start_message = function (ports)
-		     local date = os.date("[%Y-%m-%d %H:%M:%S]")
-		     print(string.format("%s Xavante started on port(s) %s",
-					 date, table.concat(ports, ", ")))
-		  end,
+                     local date = os.date("[%Y-%m-%d %H:%M:%S]")
+                     print(string.format("%s Xavante started on port(s) %s",
+                                         date, table.concat(ports, ", ")))
+                  end,
   rules = {},
   is_finished = function() return false end,
   reload = opts.r or opts.reload,
@@ -60,12 +58,11 @@ local config = {
 local config_file = opts.c or opts.config
 
 if config_file then
-  local f, err = loadfile(config_file)
+  local f, err = util.loadfile(config_file, setmetatable(config, { __index = _G }))
   if not f then
     io.stderr:write("Cannot load config file " .. config_file .. ":\n\n" .. err .. "\n")
     os.exit()
   end
-  setfenv(f, setmetatable(config, { __index = _G }))
   local res, err = pcall(f)
   if not res then
     io.stderr:write("Error in config file:\n\n" .. err .. "\n")
@@ -111,38 +108,38 @@ end
 
 addrule{ -- URI remapping example
   match = "^/$",
-  with = xavante.redirecthandler,
+  with = redirecthandler,
   params = {"index.html"}
 }
 
 addrule{ -- wsapihandler example
   match = {"%.lua$", "%.lua/" },
-  with = wsapi.xavante.makeGenericHandler (config.docroot, launcher_params)
+  with = wsx.makeGenericHandler (config.docroot, launcher_params)
 }
 
 addrule{ -- wsapihandler example
   match = {"%.ws$", "%.ws/" },
-  with = wsapi.xavante.makeGenericHandler (config.docroot, launcher_params)
+  with = wsx.makeGenericHandler (config.docroot, launcher_params)
 }
 
 if opts.cgilua then
-  require "xavante.cgiluahandler"
+  local hcgi = require "xavante.cgiluahandler"
   addrule{
     match = {"%.lp$", "%.lp/.*$", "%.cgi$", "%.cgi/.*$" },
-    with = xavante.cgiluahandler.makeHandler (config.docroot, launcher_params)
+    with = hcgi.makeHandler (config.docroot, launcher_params)
   }
 end
 if opts.op then
-  require "orbit.ophandler"
+  local hop = require "orbit.ophandler"
   addrule{
     match = {"%.op$", "%.op/.*$" },
-    with = orbit.ophandler.makeHandler (config.docroot, launcher_params)
+    with = hop.makeHandler (config.docroot, launcher_params)
   }
 end
 
 addrule{ -- filehandler example
   match = ".",
-  with = xavante.filehandler,
+  with = filehandler,
   params = { baseDir = config.docroot }
 }
 
@@ -153,17 +150,17 @@ io.stdout:write("[Xavante launcher] Starting Xavante...\n")
 
 xavante.HTTP{
     server = {host = "*", port = config.port},
-    
+
     defaultHost = {
-    	rules = config.rules
+        rules = config.rules
     },
 }
 
 res, err = pcall(xavante.start, function (...)
-				   io.stdout:flush()
-				   io.stderr:flush()
-				   return config.is_finished(...)
-				end, config.timeout)
+                                   io.stdout:flush()
+                                   io.stderr:flush()
+                                   return config.is_finished(...)
+                                end, config.timeout)
 if not res then
    io.stderr:write(err .. "\n")
 else

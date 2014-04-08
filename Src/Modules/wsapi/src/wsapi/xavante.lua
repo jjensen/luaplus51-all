@@ -6,14 +6,11 @@
 --
 -----------------------------------------------------------------------------
 
-require "coxpcall"
-
-pcall = copcall
-xpcall = coxpcall
+local coxpcall = require "coxpcall"
 
 local common = require"wsapi.common"
 
-module (..., package.seeall)
+local _M = {}
 
 -------------------------------------------------------------------------------
 -- Implements WSAPI
@@ -106,7 +103,7 @@ local function wsapihandler (req, res, wsapi_run, app_prefix, docroot, app_path,
 end
 
 -- Makes a WSAPI handler for a single WSAPI application
-function makeHandler (app_func, app_prefix, docroot, app_path, extra_vars)
+function _M.makeHandler (app_func, app_prefix, docroot, app_path, extra_vars)
   return function (req, res)
     return wsapihandler(req, res, app_func, app_prefix, docroot, app_path, extra_vars)
   end
@@ -114,9 +111,11 @@ end
 
 -- Makes a generic WSAPI handler, that launches WSAPI application scripts
 -- See the wsapi script for the possible values of the "params" table
-function makeGenericHandler(docroot, params, extra_vars)
+function _M.makeGenericHandler(docroot, params, extra_vars)
   params = params or { isolated = true }
   return function (req, res)
     return wsapihandler(req, res, common.make_loader(params), nil, docroot, nil, extra_vars)
   end
 end
+
+return _M

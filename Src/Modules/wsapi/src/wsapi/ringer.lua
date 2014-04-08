@@ -1,8 +1,8 @@
 -- Rings application for WSAPI
 
-require "rings"
+local rings = require "rings"
 
-module("wsapi.ringer", package.seeall)
+local _M = {}
 
 local init = [==[
   local app_name, bootstrap_code, is_file = ...
@@ -23,9 +23,10 @@ local init = [==[
     _, package.cpath = remotedostring("return package.cpath")
   end
   local common = require"wsapi.common"
-  require"coxpcall"
-  pcall = copcall
-  xpcall = coxpcall
+  local coxpcall = require "coxpcall"
+  pcall = coxpcall.pcall
+  xpcall = coxpcall.xpcall
+  
   local wsapi_error = {
        write = function (self, err)
          remotedostring("env.error:write(...)", err)
@@ -109,7 +110,7 @@ local init = [==[
 
 -- Returns a WSAPI application that runs the provided WSAPI application
 -- in an isolated Lua environment
-function new(app_name, bootstrap, is_file)
+function _M.new(app_name, bootstrap, is_file)
   local data = { created_at = os.time() }
   setmetatable(data, { __index = _G })
   local state = rings.new(data)
@@ -180,3 +181,5 @@ function new(app_name, bootstrap, is_file)
     return data.status, data.headers, res
   end, data
 end
+
+return _M

@@ -5,8 +5,6 @@
 -- by its script entry point) gets an isolated Lua VM; sequential
 -- requests to the same application go to the same VM
 
-pcall(require,"luarocks.require")
-
 local common = require "wsapi.common"
 local fastcgi = require "wsapi.fastcgi"
 

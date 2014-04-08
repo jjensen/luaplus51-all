@@ -1,4 +1,4 @@
-#!/usr/bin/env lua51
+#!/usr/bin/env lua
 
 -- Example of script that uses the fastcgi launcher to launch an Orbit application
 
