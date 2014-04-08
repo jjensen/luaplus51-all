@@ -49,6 +49,10 @@ extern "C"
 
 #include <wchar.h> // for MINGW/Wine
 
+#if LUA_VERSION_NUM >= 502
+#define luaL_register(a, b, c) luaL_setfuncs(a, c, 0)
+#endif
+
 // some string constants
 
 #define GET_PREFIX "get"
