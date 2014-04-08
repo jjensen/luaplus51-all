@@ -36,10 +36,10 @@
 			<li><a href="index.html#contact">Contact us</a></li>
 		</ul>
 		</li>
-		<li><a href="http://luaforge.net/projects/coxpcall/">Project</a>
+		<li><a href="http://keplerproject.github.io/coxpcall/">Project</a>
 		<ul>
-			<li><a href="http://luaforge.net/tracker/?group_id=101">Bug Tracker</a></li>
-			<li><a href="http://luaforge.net/scm/?group_id=101">CVS</a></li>
+			<li><a href="https://github.com/keplerproject/coxpcall/issues">Bug Tracker</a></li>
+			<li><a href="https://github.com/keplerproject/coxpcall">Source code</a></li>
 		</ul>
 		</li>
 		<li><a href="license.html">License</a></li>
@@ -56,21 +56,25 @@ issues with coroutines.
 </p>
 
 <p>Using Coxpcall usually consists in simply loading the module and then
-replacing Lua <code>pcall</code> and <code>xpcall</code> by <code>copcall</code> and <code>coxpcall</code>.</p>
+replacing Lua <code>pcall</code>, <code>xpcall</code> and <code>coroutine.running</code> 
+by <code>copcall</code>, <code>coxpcall</code>, and <code>running</code>.</p>
 
 <p>Coxpcall is free software and uses the same
-<a href="license.html">license</a> as Lua 5.1.
+<a href="license.html">license</a> as Lua 5.1 and 5.2.
 </p>
 
 <h2><a name="status"></a>Status</h2>
 
-<p>Current version is 1.13. It was developed for Lua 5.1.</p>
+<p>Current version is 1.14. It supports Lua 5.1 and Lua 5.2. Lua 5.2 was extended with the Coxpcall 
+functionality and hence coxpcall is no longer required. The
+5.2 compatibility by coxpcall means that it maintains backward compatibility while using the build
+in 5.2 implementation.</p>
 
 <h2><a name="download"></a>Download</h2>
 
 <p>
 Coxpcall can be downloaded from its
-<a href="http://luaforge.net/frs/?group_id=101">LuaForge</a> page.
+<a href="https://github.com/keplerproject/coxpcall/releases">GitHub</a> page.
 You can also get Coxpcall using <a href="http://luarocks.org">LuaRocks</a>:
 </p>
 
@@ -81,9 +85,20 @@ luarocks install coxpcall
 <h2><a name="history"></a>History</h2>
 
 <dl>
-	<dt><strong>Coxpcall 1.13</strong> [19/May/2008]</dt>
+	<dt><strong>Coxpcall 1.15</strong> [xx/xxx/xxxx]</dt>
 	<dd><ul>
-		<li>Fixed bug <a href="http://luaforge.net/tracker/?func=detail&amp;group_id=101&amp;aid=5275&amp;atid=496">[#5275]</a>, found by Gary NG</li>
+		<li><a href="https://github.com/keplerproject/coxpcall/pull/7">Added <code>running</code> function</a> as <code>coroutine.running</code> replacement</li>
+	</ul></dd>
+
+	<dt><strong>Coxpcall 1.14</strong> [30/Jan/2013]</dt>
+	<dd><ul>
+		<li>Support for Lua 5.2</li>
+		<li>Fixed bug, <a href="https://github.com/keplerproject/coxpcall/pull/1">handling nil parameters</a>, found by Thijs Schreijer</li>
+	</ul></dd>
+
+        <dt><strong>Coxpcall 1.13</strong> [19/May/2008]</dt>
+	<dd><ul>
+		<li>Fixed bug [#5275] (old tracker), found by Gary NG</li>
 	</ul></dd>
 	
 	<dt><strong>Coxpcall 1.12</strong> [09/May/2008]</dt>
@@ -103,8 +118,8 @@ luarocks install coxpcall
 
 <h2><a name="reference"></a>Reference</h2>
 
-<p>Coxpcall offers two functions that reproduce the behaviour of
-<code>pcall</code> and <code>xpcall</code>:</p>
+<p>Coxpcall offers three functions that reproduce the behaviour of
+<code>pcall</code>, <code>xpcall</code>, and  <code>coroutine.running</code>:</p>
 
 <dl>
 	<dt><strong><code>coxpcall(f, err)</code></strong></dt>
@@ -112,6 +127,14 @@ luarocks install coxpcall
 	
 	<dt><strong><code>copcall(f, ...)</code></strong></dt>
 	<dd>Offers the same functionality as Lua <code>pcall(f, ...)</code>.</dd>
+
+	<dt><strong><code>running([coro])</code></strong></dt>
+        <dd>Because <code>coxpcall</code> and <code>copcall</code> run the function to protect 
+        inside a new coroutine, <code>coroutine.running()</code> will return an unexpected
+        coroutine when used inside the protected function. If the coroutine <code>coro</code> was 
+        created by the coxpcall module, then <code>running(coro)</code> will return the original 
+        coroutine that created it. If <code>coro</code> is not provided, it will default to the
+        currently running coroutine.</dd>
 </dl>
 
 <h2><a name="credits"></a>Credits</h2>
@@ -133,7 +156,7 @@ Comments are welcome!
 
 <p>
 You can also reach other Coxpcall developers and users on the Kepler
-Project <a href="http://luaforge.net/mail/?group_id=104">mailing list</a>.
+Project <a href="https://groups.google.com/forum/#!forum/kepler-project">mailing list</a>.
 </p>
 
 </div> <!-- id="content" -->
@@ -142,7 +165,6 @@ Project <a href="http://luaforge.net/mail/?group_id=104">mailing list</a>.
 
 <div id="about">
 	<p><a href="http://validator.w3.org/check?uri=referer">Valid XHTML 1.0!</a></p>
-	<p><small>$Id: index.html,v 1.4 2008/05/19 20:32:33 carregal Exp $</small></p>
 </div> <!-- id="about" -->
 
 </div> <!-- id="container" -->
