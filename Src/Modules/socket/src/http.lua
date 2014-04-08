@@ -218,7 +218,7 @@ local function adjustheaders(reqt)
     -- if we have authentication information, pass it along
     if reqt.user and reqt.password then
         lower["authorization"] = 
-            "Basic " ..  (mime.b64(reqt.user .. ":" .. reqt.password))
+            "Basic " ..  (mime.b64(url.unescape(reqt.user) .. ":" .. url.unescape(reqt.password)))
     end
     -- override with user headers
     for i,v in base.pairs(reqt.headers or lower) do
