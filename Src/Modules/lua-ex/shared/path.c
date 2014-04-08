@@ -24,6 +24,10 @@
 extern int push_error(lua_State *L);
 #endif /* _WIN32 */
 
+#if LUA_VERSION_NUM >= 502
+#define luaL_register(a, b, c) luaL_setfuncs(a, c, 0)
+#endif
+
 /*
  * "os.path" API implementation
  */
@@ -955,6 +959,6 @@ int luaopen_os_path(lua_State *L) {
     {"unescape",          ex_path_unescape},
     {0,0} };
 
-  luaL_openlib(L, "os.path", ex_os_pathlib, 0);
+  luaL_register(L, "os.path", ex_os_pathlib);
   return 1;
 }
