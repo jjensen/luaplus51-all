@@ -133,6 +133,7 @@ local function copy_directory_helper(srcPath, destPath, options)
 	local copyfile
 	if not noop  and  srcFiles[1] then
 		-- Create the destination directory.
+		if callback then callback('mkdir', destPath) end
 		os.mkdir(destPath)
 		copyfile = options.copyfile  or  os.copyfile
 	end
@@ -143,6 +144,7 @@ local function copy_directory_helper(srcPath, destPath, options)
 		if callback then callback('copy', srcFileName, destFileName) end
 		if not noop then
 			os.chmod(destFileName, 'w')				-- Make sure we can overwrite the file
+			os.remove(destFileName)                 -- Break any hardlinks/symlinks...
 			copyfile(srcFileName, destFileName)
 		end
 	end
@@ -211,7 +213,7 @@ function ex.removeemptydirectories(path)
 	local dirs = {}
 	local remove = true
 
-	for handle in filefind.match(path .. "*") do
+	for handle in filefind.match(os.path.combine(path, "*")) do
 		if handle.is_directory then
 			dirs[#dirs + 1] = handle.filename
 		else
@@ -220,7 +222,7 @@ function ex.removeemptydirectories(path)
 	end
 
 	for _, dirName in ipairs(dirs) do
-		if not ex.removeemptydirectories(path .. dirName .. '/') then
+		if not ex.removeemptydirectories(os.path.combine(path, dirName)) then
 			remove = false
 		end
 	end
