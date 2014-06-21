@@ -68,11 +68,14 @@ int l_easy_post(lua_State *L) {
     /* got {name = {file="/tmp/test.txt",
                     type="text/plain"}}
        or  {name = {file="dummy.html",
-                    data="<html><bold>bold</bold></html>,
+                    data="<html><bold>bold</bold></html>",
+                    type="text/html"}}
+       or  {name = {file="dummy.html",
+                    stream_length="200",
                     type="text/html"}}
     */
     if (lua_istable(L, -1)) {
-      const char* type, *file, *data;
+      const char* type, *file, *data, *stream_length;
       CURLFORMcode rc = CURLE_OK;
       int datalen;
 
@@ -85,8 +88,11 @@ int l_easy_post(lua_State *L) {
       /* check for data option */
       data = luaL_getlstrfield(L, "data", &datalen);
 
+      /* check for stream_length option */
+      stream_length = luaL_getstrfield(L, "stream_length");
+
       /* file upload */
-      if ((file != NULL) && (data == NULL)) {
+      if ((file != NULL) && (data == NULL) && (stream_length == NULL)) {
  	rc = (type == NULL)?
  	  curl_formadd(&post, &last, CURLFORM_COPYNAME, key,
  		       CURLFORM_FILE, file, CURLFORM_END):
@@ -94,6 +100,25 @@ int l_easy_post(lua_State *L) {
  		       CURLFORM_FILE, file,
  		       CURLFORM_CONTENTTYPE, type, CURLFORM_END);
       }
+    else if((file != NULL) && (data == NULL) && (stream_length != NULL)) {
+        unsigned long length = atol(stream_length);
+        rc = (type == NULL)?
+             curl_formadd(&post,
+                          &last,
+                          CURLFORM_COPYNAME, "filename",
+                          CURLFORM_FILENAME, file,
+                          CURLFORM_STREAM, L,
+                          CURLFORM_CONTENTSLENGTH, length,
+                          CURLFORM_END):
+             curl_formadd(&post,
+                          &last,
+                          CURLFORM_COPYNAME, "filenmae",
+                          CURLFORM_FILENAME, file,
+                          CURLFORM_STREAM, L,
+                          CURLFORM_CONTENTSLENGTH, length,
+                          CURLFORM_CONTENTTYPE, type,
+                          CURLFORM_END);
+	  }
       /* data field */
       else if ((file != NULL) && (data != NULL)) {
 	/* Add a buffer to upload */

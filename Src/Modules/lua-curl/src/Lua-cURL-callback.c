@@ -22,6 +22,7 @@
 ******************************************************************************/
 
 #include <string.h>		/* memcpy */
+#include <stdio.h>  /* stdin, stdout */
 
 #include "Lua-cURL.h"
 #include "Lua-utility.h"
@@ -95,6 +96,8 @@ int l_easy_clear_headerfunction(lua_State *L, CURL* curl) {
   l_easy_private *privatep = luaL_checkudata(L, 1, LUACURL_EASYMETATABLE);
   if (curl_easy_setopt(curl, CURLOPT_HEADERFUNCTION, NULL) != CURLE_OK)
     luaL_error(L, "%s", privatep->error);
+  if (curl_easy_setopt(curl, CURLOPT_WRITEHEADER, NULL) != CURLE_OK)
+    luaL_error(L, "%s", privatep->error);
   return 0;
 }
 
@@ -102,12 +105,16 @@ int l_easy_clear_writefunction(lua_State *L, CURL* curl) {
   l_easy_private *privatep = luaL_checkudata(L, 1, LUACURL_EASYMETATABLE);
   if (curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, NULL) != CURLE_OK)
     luaL_error(L, "%s", privatep->error);
+  if (curl_easy_setopt(curl, CURLOPT_WRITEDATA, stdout) != CURLE_OK)
+    luaL_error(L, "%s", privatep->error);
   return 0;
 }
 
 int l_easy_clear_readfunction(lua_State *L, CURL* curl) {
   l_easy_private *privatep = luaL_checkudata(L, 1, LUACURL_EASYMETATABLE);
   if (curl_easy_setopt(curl, CURLOPT_READFUNCTION, NULL) != CURLE_OK)
+    luaL_error(L, "%s", privatep->error);
+  if (curl_easy_setopt(curl, CURLOPT_READDATA, stdin) != CURLE_OK)
     luaL_error(L, "%s", privatep->error);
   return 0;
 }

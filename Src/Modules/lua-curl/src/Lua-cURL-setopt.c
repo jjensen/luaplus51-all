@@ -251,6 +251,8 @@ static struct {
   {P"timevalue ", CURLOPT_TIMEVALUE , l_easy_setopt_long},
   /* network options */
   {P"url", CURLOPT_URL, l_easy_setopt_string},
+  {P"protocols", CURLOPT_PROTOCOLS, l_easy_setopt_long},
+  {P"redir_protocols", CURLOPT_REDIR_PROTOCOLS, l_easy_setopt_long},
   {P"proxy", CURLOPT_PROXY, l_easy_setopt_string},
   {P"userpwd", CURLOPT_USERPWD, l_easy_setopt_string},
   {P"proxyuserpwd", CURLOPT_PROXYUSERPWD, l_easy_setopt_string},

@@ -31,6 +31,7 @@
   #define luaL_newlibtable(L,l) lua_createtable(L,0,sizeof(l)/sizeof((l)[0]))
   #define luaL_newlib(L,l) (luaL_newlibtable(L,l),luaL_register(L,NULL,l))
   #define luaL_setfuncs(L,l,nups) luaL_register(L,NULL,l)
+  #define lua_pushunsigned(L,val) lua_pushinteger(L,val)
 #endif
 
 /* methods assigned to easy table */
@@ -71,6 +72,41 @@ static const struct luaL_Reg luacurl_m[] = {
 
   {NULL, NULL}};
 
+/* (key,value) items in the cURL.protocols table */
+static const struct {
+    char *name;             /* human readable name: used as table index */
+    unsigned long value;    /* CURLPROTO_* value */
+} luacurl_protos[] = {
+    {"HTTP", CURLPROTO_HTTP},
+    {"HTTPS", CURLPROTO_HTTPS},
+    {"FTP", CURLPROTO_FTP},
+    {"FTPS", CURLPROTO_FTPS},
+    {"SCP", CURLPROTO_SCP},
+    {"SFTP", CURLPROTO_SFTP},
+    {"TELNET", CURLPROTO_TELNET},
+    {"LDAP", CURLPROTO_LDAP},
+    {"LDAPS", CURLPROTO_LDAPS},
+    {"DICT", CURLPROTO_DICT},
+    {"FILE", CURLPROTO_FILE},
+    {"TFTP", CURLPROTO_TFTP},
+    {"IMAP", CURLPROTO_IMAP},
+    {"IMAPS", CURLPROTO_IMAPS},
+    {"POP3", CURLPROTO_POP3},
+    {"POP3S", CURLPROTO_POP3S},
+    {"SMTP", CURLPROTO_SMTP},
+    {"SMTPS", CURLPROTO_SMTPS},
+    {"RTSP", CURLPROTO_RTSP},
+    {"RTMP", CURLPROTO_RTMP},
+    {"RTMPT", CURLPROTO_RTMPT},
+    {"RTMPE", CURLPROTO_RTMPE},
+    {"RTMPTE", CURLPROTO_RTMPTE},
+    {"RTMPS", CURLPROTO_RTMPS},
+    {"RTMPTS", CURLPROTO_RTMPTS},
+    {"GOPHER", CURLPROTO_GOPHER},
+    {"ALL", CURLPROTO_ALL},
+    {NULL, 0}
+};
+
 int l_easy_escape(lua_State *L) {
   size_t length = 0;
   l_easy_private *privatep = luaL_checkudata(L, 1, LUACURL_EASYMETATABLE);
@@ -92,6 +128,8 @@ int l_easy_perform(lua_State *L) {
   int headerfunction;
   /* do readcallback */
   int readfunction;
+  /* curl_easy_perform return code*/
+  CURLcode perform_status;
 
   /* check optional callback table */
   luaL_opt(L, luaL_checktable, 2, lua_newtable(L));
@@ -119,8 +157,7 @@ int l_easy_perform(lua_State *L) {
 
 
   /* callback table is on top on stack */
-  if (curl_easy_perform(curl) != CURLE_OK)
-    luaL_error(L, "%s", privatep->error);
+  perform_status = curl_easy_perform(curl);
 
   /* unset callback functions */
   if (headerfunction)
@@ -129,6 +166,10 @@ int l_easy_perform(lua_State *L) {
     l_easy_clear_writefunction(L, privatep->curl);
   if (readfunction)
     l_easy_clear_readfunction(L, privatep->curl);
+
+  if (perform_status != CURLE_OK)
+    return luaL_error(L, "%s", privatep->error);
+
   return 0;
 }
 
@@ -297,6 +338,25 @@ int l_easy_gc(lua_State *L) {
   return 0;
 }
 
+/*
+ * Registers a table named "protocols" in the table on top of the stack.
+ *
+ * This function is meant for local use only. It's main use is for keeping the
+ * module registration function clean
+ */
+static void l_protocols_register(lua_State *L) {
+    size_t i;
+
+    lua_createtable(L, 0, sizeof luacurl_protos / sizeof luacurl_protos[0]);
+
+    for(i = 0; luacurl_protos[i].name != NULL; i++) {
+        lua_pushunsigned(L, luacurl_protos[i].value);
+        lua_setfield(L, -2, luacurl_protos[i].name);
+    }
+
+    lua_setfield(L, -2, "protocols");
+}
+
 /* registration hook function */
 LUACURL_API int luaopen_cURL(lua_State* L) {
   CURLcode  rc;
@@ -352,6 +412,9 @@ LUACURL_API int luaopen_cURL(lua_State* L) {
   luaL_newlib(L, luacurl_f);
   lua_pushvalue(L,-1);
   lua_setglobal(L,LUACURL_LIBNAME);
+
+  /* set protocols table */
+  l_protocols_register(L);
 
   /* initialize curl once */
   if ((rc = curl_global_init(CURL_GLOBAL_ALL)) != CURLE_OK)

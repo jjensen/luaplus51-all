@@ -1,9 +1,9 @@
 project(Lua-cURL C)
 
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 2.8)
 
 option(USE_LUA "Use Lua (also called 'C' Lua) version 5.1 includes (default)" ON)
-#option(USE_LUA52 "Use Lua (also called 'C' Lua) version 5.2 includes (currelty unsupported)")
+option(USE_LUA52 "Use Lua (also called 'C' Lua) version 5.2 includes (currelty unsupported)")
 option(USE_LUAJIT "Use LuaJIT includes instead of 'C' Lua ones (recommended, if you're using LuaJIT, but disabled by default)")
 
 
@@ -31,21 +31,23 @@ if(USE_LUAJIT)
 	find_package(LuaJIT REQUIRED)
 	set(USE_LUA52 OFF)
 	set(USE_LUA OFF)
-endif()
-
-#if(USE_LUA52)
-##TODO
-#	find_package(Lua52 REQUIRED)
-#	unset(USE_LUA)
-#endif()
-
-if(USE_LUA)
+elseif(USE_LUA52)
+	find_package(Lua52 REQUIRED)
+	set(USE_LUA OFF)
+	set(USE_LUAJIT OFF)
+elseif(USE_LUA)
 	find_package(Lua51 REQUIRED)
+	set(USE_LUA52 OFF)
+	set(USE_LUAJIT OFF)
 endif()
 
 
 find_package(CURL REQUIRED)
-include_directories(${LUA_INCLUDE_DIR})
+
+include_directories(
+	${LUA_INCLUDE_DIR}
+	${CURL_INCLUDE_DIRS}
+)
 
 set(_MODULE_LINK "${CURL_LIBRARY}")
 get_filename_component(_lua_lib_dir ${LUA_LIBRARY} PATH)
@@ -62,7 +64,11 @@ if(WIN32)
     # Windows sprintf()/strtod() handle NaN/inf differently. Not supported.
     add_definitions(-DDISABLE_INVALID_NUMBERS)
 else()
-    set(_lua_module_dir "${_lua_lib_dir}/lua/5.1")
+    if (USE_LUA52)
+        set(_lua_module_dir "${_lua_lib_dir}/lua/5.2")
+    else ()
+	set(_lua_module_dir "${_lua_lib_dir}/lua/5.1")
+    endif ()
 endif()
 
 

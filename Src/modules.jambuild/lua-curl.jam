@@ -1,8 +1,10 @@
 {
 
+local CURL_ROOT = $(SUBDIR)/src/curl-7.37.0 ;
+
 local foundCurl ;
 if $(NT) {
-	foundCurl = [ Glob $(SUBDIR)/src/curl-7.21.6/include/curl : curl.h ] ;
+	foundCurl = [ Glob $(CURL_ROOT)/include/curl : curl.h ] ;
 } else {
 	foundCurl = [ Glob /usr/include/curl : curl.h ] ;
 }
@@ -24,246 +26,13 @@ local ZLIB_SRCS ;
 
 if $(NT) {
 	CURL_LIB_SRCS =
-			amigaos.c
-			amigaos.h
-			arpa_telnet.h
-			axtls.c
-			axtls.h
-			base64.c
-			CMakeLists.txt
-			config-amigaos.h
-			config-dos.h
-			config-mac.h
-			config-os400.h
-			config-riscos.h
-			config-symbian.h
-			config-tpf.h
-			config-vms.h
-			config-vxworks.h
-			config-win32.h
-			config-win32ce.h
-			connect.c
-			connect.h
-			content_encoding.c
-			content_encoding.h
-			cookie.c
-			cookie.h
-			curlx.h
-			curl_addrinfo.c
-			curl_addrinfo.h
-			curl_base64.h
-			curl_config.h.cmake
-			curl_config.h.in
-			curl_fnmatch.c
-			curl_fnmatch.h
-			curl_gethostname.c
-			curl_gethostname.h
-			curl_hmac.h
-			curl_ldap.h
-			curl_md4.h
-			curl_md5.h
-			curl_memory.h
-			curl_memrchr.c
-			curl_memrchr.h
-			curl_rand.c
-			curl_rand.h
-			curl_rtmp.c
-			curl_rtmp.h
-			curl_sspi.c
-			curl_sspi.h
-			curl_threads.c
-			curl_threads.h
-			cyassl.c
-			cyassl.h
-			dict.c
-			dict.h
-			easy.c
-			easyif.h
-			escape.c
-			escape.h
-			file.c
-			file.h
-			fileinfo.c
-			fileinfo.h
-			firefox-db2pem.sh
-			formdata.c
-			formdata.h
-			ftp.c
-			ftp.h
-			ftplistparser.c
-			ftplistparser.h
-			getenv.c
-			getinfo.c
-			getinfo.h
-			gopher.c
-			gopher.h
-			gtls.c
-			gtls.h
-			hash.c
-			hash.h
-			hmac.c
-			hostares.c
-			hostasyn.c
-			hostip.c
-			hostip.h
-			hostip4.c
-			hostip6.c
-			hostsyn.c
-			hostthre.c
-			http.c
-			http.h
-			http_chunks.c
-			http_chunks.h
-			http_digest.c
-			http_digest.h
-			http_negotiate.c
-			http_negotiate.h
-			http_negotiate_sspi
-			http_ntlm.c
-			http_ntlm.h
-			http_proxy.c
-			http_proxy.h
-			idn_win32.c
-			if2ip.c
-			if2ip.h
-			imap.c
-			imap.h
-			inet_ntop.c
-			inet_ntop.h
-			inet_pton.c
-			inet_pton.h
-			krb4.c
-			krb4.h
-			krb5.c
-			#ldap.c
-			libcurl.imp
-			libcurl.plist
-			libcurl.rc
-			libcurl.vcproj
-			llist.c
-			llist.h
-			Makefile.am
-			makefile.amiga
-			Makefile.b32
-			makefile.dj
-			Makefile.in
-			Makefile.inc
-			Makefile.m32
-			Makefile.netware
-			Makefile.vc6
-			Makefile.vc8
-			Makefile.vc9
-			Makefile.vc10
-			Makefile.vxworks
-			Makefile.Watcom
-			md4.c
-			md5.c
-			memdebug.c
-			memdebug.h
-			mk-ca-bundle.pl
-			mk-ca-bundle.vbs
-			mprintf.c
-			msvcproj.foot
-			msvcproj.head
-			multi.c
-			multiif.h
-			netrc.c
-			netrc.h
-			non-ascii.c
-			non-ascii.h
-			nonblock.c
-			nonblock.h
-			nss.c
-			nssg.h
-			nwlib.c
-			nwos.c
-			openldap.c
-			parsedate.c
-			parsedate.h
-			pingpong.c
-			pingpong.h
-			polarssl.c
-			polarssl.h
-			pop3.c
-			pop3.h
-			progress.c
-			progress.h
-			qssl.c
-			qssl.h
-			rawstr.c
-			rawstr.h
-			README.ares
-			README.curlx
-			README.curl_off_t
-			README.encoding
-			README.hostip
-			README.httpauth
-			README.memoryleak
-			README.multi_socket
-			README.pingpong
-			README.pipelining
-			rtsp.c
-			rtsp.h
-			security.c
-			select.c
-			select.h
-			sendf.c
-			sendf.h
-			setup-os400.h
-			setup.h
-			setup_once.h
-			share.c
-			share.h
-			slist.c
-			slist.h
-			smtp.c
-			smtp.h
-			sockaddr.h
-			socks.c
-			socks.h
-			socks_gssapi.c
-			socks_sspi.c
-			speedcheck.c
-			speedcheck.h
-			splay.c
-			splay.h
-			ssh.c
-			ssh.h
-			sslgen.c
-			sslgen.h
-			ssluse.c
-			ssluse.h
-			strdup.c
-			strdup.h
-			strequal.c
-			strequal.h
-			strerror.c
-			strerror.h
-			strtok.c
-			strtok.h
-			strtoofft.c
-			strtoofft.h
-			telnet.c
-			telnet.h
-			tftp.c
-			tftp.h
-			timeval.c
-			timeval.h
-			transfer.c
-			transfer.h
-			url.c
-			url.h
-			urldata.h
-			vc6libcurl.dsp
-			vc6libcurl.dsw
-			version.c
-			warnless.c
-			warnless.h
-			wildcard.c
-			wildcard.h
+			*.c
+			*.h
+			vtls/*.c
+			vtls/*.h
 	;
 
-	CURL_LIB_SRCS = src/curl-7.21.6/lib/$(CURL_LIB_SRCS) ;
+	CURL_LIB_SRCS = $(CURL_ROOT)/lib/$(CURL_LIB_SRCS) ;
 
 	ZLIB_SRCS =
 			../zlib/adler32.c
@@ -311,14 +80,15 @@ SourceGroup : libcurl : $(CURL_LIB_SRCS) ;
 SourceGroup : zlib : $(ZLIB_SRCS) ;
 
 C.UseOpenSSL : link ;
-C.Defines : CURL_STATICLIB CURL_DISABLE_LDAP ;
-C.Defines : HAVE_ZLIB_H HAVE_ZLIB HAVE_LIBZ ;
+C.Defines : BUILDING_LIBCURL CURL_STATICLIB ;
+#C.Defines : HAVE_ZLIB_H HAVE_ZLIB HAVE_LIBZ ;
 
 if $(NT) {
 	C.Defines : __WIN32__ ;
 	C.IncludeDirectories : ../zlib ;
 
-	C.IncludeDirectories : src/curl-7.21.6/include ;
+	C.IncludeDirectories : $(CURL_ROOT)/lib $(CURL_ROOT)/include ;
+	C.LinkPrebuiltLibraries : Wldap32 ;
 } else {
 	C.LinkPrebuiltLibraries : curl ;
 }
