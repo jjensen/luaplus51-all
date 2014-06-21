@@ -20,17 +20,22 @@ local __cellMetatable = {
     STRING = 3,
     WSTRING = 4,
     FORMULA = 5,
+	BOOLEAN = 6,
 
     Get = function(self)
         return self.value
     end,
 
+    GetBoolean = function(self)
+        return self.value
+    end,
+
     GetInteger = function(self)
-        return tonumber(self.value)
+        return self.value
     end,
 
     GetDouble = function(self)
-        return tonumber(self.value)
+        return self.value
     end,
 
     GetString = function(self)
@@ -41,17 +46,23 @@ local __cellMetatable = {
 __cellMetatable.__index = __cellMetatable
 
 function __cellMetatable:Type()
-    return __cellMetatable.UNDEFINED
+    return self.type
 end
 
-local function Cell(rowNum, colNum, value, formula)
+local function Cell(rowNum, colNum, value, type, formula)
     return setmetatable({
         row = tonumber(rowNum),
         column = colNum,
         value = value,
+        type = type  or  __cellMetatable.UNDEFINED,
         formula = formula,
     }, __cellMetatable)
 end
+
+local __colTypeTranslator = {
+    b = __cellMetatable.BOOLEAN,
+    s = __cellMetatable.STRING,
+}
 
 local __sheetMetatable = {
     __load = function(self)
@@ -67,9 +78,6 @@ local __sheetMetatable = {
                 end
                 if rowNode['#'].c then
                     for _, columnNode in ipairs(rowNode['#'].c) do
-                        local colType = columnNode['@'].t or 'n'
-                        local cellS = columnNode['@'].s
-
                         -- Generate the proper column index.
                         local cellId = columnNode['@'].r
                         local colLetters = cellId:match(colRowPattern)
@@ -83,10 +91,31 @@ local __sheetMetatable = {
                             until index > #colLetters
                         end
 
+                        local colType = columnNode['@'].t
+
+                        local data
                         if columnNode['#'].v then
-                            local data = columnNode['#'].v[1]['#']
+                            data = columnNode['#'].v[1]['#']
                             if colType == 's' then
+                                colType = __cellMetatable.STRING
                                 data = self.workbook.sharedStrings[tonumber(data) + 1]
+                            elseif colType == 'str' then
+                                colType = __cellMetatable.STRING
+                            elseif colType == 'b' then
+                                colType = __cellMetatable.BOOLEAN
+                                data = data == '1'
+                            else
+                                local cellS = tonumber(columnNode['@'].s)
+                                local numberStyle = self.workbook.styles.cellXfs[cellS - 1].numFmtId
+                                if not numberStyle then
+                                    numberStyle = 0
+                                end
+                                if numberStyle == 0  or  numberStyle == 1 then
+                                    colType = __cellMetatable.INT
+                                else
+                                    colType = __cellMetatable.DOUBLE
+                                end
+                                data = tonumber(data)
                             end
 
                             --local formula
@@ -94,14 +123,17 @@ local __sheetMetatable = {
                                 --assert()
                             --end
 
-                            if not columns[colNum] then
-                                columns[colNum] = {}
-                            end
-                            local cell = Cell(rowNum, colNum, data, formula)
-                            table.insert(rows[rowNum], cell)
-                            table.insert(columns[colNum], cell)
-                            self.__cells[cellId] = cell
+                        else
+                            colType = __colTypeTranslator[colType]
                         end
+
+                        if not columns[colNum] then
+                            columns[colNum] = {}
+                        end
+                        local cell = Cell(rowNum, colNum, data, colType, formula)
+                        table.insert(rows[rowNum], cell)
+                        table.insert(columns[colNum], cell)
+                        self.__cells[cellId] = cell
                     end
                 end
             end
@@ -238,16 +270,31 @@ function M.Workbook(filename)
             if str['#'].r then
                 local concatenatedString = {}
                 for _, rstr in ipairs(str['#'].r) do
-					local t = rstr['#'].t[1]['#']
-					if type(t) == 'string' then
-						concatenatedString[#concatenatedString + 1] = rstr['#'].t[1]['#']
-					end
+                    local t = rstr['#'].t[1]['#']
+                    if type(t) == 'string' then
+                        concatenatedString[#concatenatedString + 1] = rstr['#'].t[1]['#']
+                    end
                 end
                 concatenatedString = table.concat(concatenatedString)
                 self.sharedStrings[#self.sharedStrings + 1] = concatenatedString
             else
                 self.sharedStrings[#self.sharedStrings + 1] = str['#'].t[1]['#']
             end
+        end
+    end
+
+    local stylesXml = _xlsx_readdocument(self, 'xl/styles.xml')
+    self.styles = {}
+    local cellXfs = {}
+    self.styles.cellXfs = cellXfs
+    if stylesXml then
+        for _, xfXml in ipairs(stylesXml.styleSheet[1]['#'].cellXfs[1]['#'].xf) do
+            local xf = {}
+            local numFmtId = xfXml['@'].numFmtId
+            if numFmtId then
+                xf.numFmtId = tonumber(numFmtId)
+            end
+            cellXfs[#cellXfs + 1] = xf
         end
     end
 
