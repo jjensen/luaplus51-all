@@ -1,6 +1,10 @@
 {
 
 local SRCS =
+		src/compat.c
+		src/compat.h
+		src/deep.c
+		src/deep.h
 		src/keeper.c
 		src/keeper.h
 		src/threading.c
