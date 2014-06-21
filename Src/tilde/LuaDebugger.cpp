@@ -115,6 +115,34 @@ namespace tilde
 			debugger->Shutdown();
 	}
 
+	void LuaDebugger::RegisterState(lua_State* lvm)
+	{
+		lua_pushcclosure(lvm, Tilde, 0);
+		lua_setfield(lvm, LUA_GLOBALSINDEX, "Tilde");
+	}
+
+	int LuaDebugger::Tilde(lua_State * lvm)
+	{
+		LuaDebugger * debugger = (LuaDebugger *) LuaDebugger::GetRegistryEntry(lvm, "instance");
+
+		if(!debugger)
+			return 0;
+
+		if(lua_type(lvm, 1) == LUA_TSTRING)
+		{
+			if(strcmp(lua_tostring(lvm, 1), "enable") == 0)
+			{
+				debugger->m_listener->GetHost()->AttachLuaHook(lvm, &LuaDebugger::HookCallback, LUA_MASKCALL | LUA_MASKRET | LUA_MASKLINE | LUA_MASKERROR, 0);
+			}
+			else if(strcmp(lua_tostring(lvm, 1), "disable") == 0)
+			{
+				debugger->m_listener->GetHost()->DetachLuaHook(lvm, &LuaDebugger::HookCallback);
+			}
+		}
+
+		return 0;
+	}
+
 	bool LuaDebugger::Connect(lua_State * lvm)
 	{
 		TILDE_ASSERT(m_mainlvm == NULL);

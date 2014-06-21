@@ -596,6 +596,7 @@ namespace tilde
 		void Disconnect();
 		void Shutdown();
 		void EnableHook(bool enabled)		{ m_enabled = enabled; }
+		void RegisterState(lua_State* lvm);
 
 		bool	IsShutdown() const			{ return m_shutdown; }
 		bool	IsConnected() const			{ return m_mainlvm != NULL; }
@@ -671,6 +672,8 @@ namespace tilde
 		void OnLuaCallback_HookError();
 
 		void MainHook(lua_Debug & debugInfo);
+
+		static int Tilde(lua_State * lvm);
 
 		bool					GetTableRecursive(VariableInfo * rootvar, lua_State * lvm, int tableIndex);
 		void					GetUpvalues(VariableInfo * rootvar, lua_State * lvm, int functionIndex);

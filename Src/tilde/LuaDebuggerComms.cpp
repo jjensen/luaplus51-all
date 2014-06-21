@@ -145,6 +145,8 @@ namespace tilde
 		m_nameToLuaStateMap[name] = lvm;
 //		m_mainLVM = lvm;
 		InitialiseThreadTable(lvm);
+
+		m_debugger->RegisterState(lvm);
 	}
 
 	bool LuaDebuggerComms::Open()
