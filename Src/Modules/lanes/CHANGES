@@ -1,5 +1,36 @@
 CHANGES:
 
+CHANGE 113: BGe 17-Jun-14
+   * bumped version to 3.9.6
+   * separate deep userdata code in a dedicated file to allow external modules to implement Lanes-compatible deep userdata without requiring a binary dependency against the Lanes module
+     because of this linda_id function(eDO_metatable) must push 2 values on the stack: a metatable and a deep version string obtained from luaG_pushdeepversion()
+
+CHANGE 112 BGe 16-May-14
+   * bumped version to 3.9.5
+   * fix linda.__towatch to return non-nil when the linda is empty
+   * lanes.gen() error reporting improvements
+
+CHANGE 111 BGe 24-Apr-14
+   * fixed linda:send() possibly returning an undefined value
+
+CHANGE 110 Stepets 20-Apr-14
+   * fix LuaJIT detection issues
+
+CHANGE 109 BGe 03-Apr-14
+   * moved some Lua-version compatibility code in separate source files
+
+CHANGE 108: BGe 20-Mar-14
+   * bumped version to 3.9.4
+   * set_finalizer throws an error if provided finalizer isn't a function
+   * fix error handling when the error doesn't generate an error handler call (IOW, all errors but LUA_ERRRUN)
+   * provide callstack if LUA_ERRRUN occurs inside a finalizer
+
+CHANGE 107: BGe 19-Mar-14
+   * Make sure we don't mutex-wrap require() more than once, just in case
+
+CHANGE 106: BGe 17-Mar-14
+   * Fixed crash when using protect_allocator option
+
 CHANGE 105: BGe 27-Feb-14
    * Bumped version to 3.9.3
    * new exposed variable linda.null that exposes the internal NIL_SENTINEL marker
