@@ -1,3 +1,5 @@
+require 'dotnetinterface'
+
 load_assembly("System.Windows.Forms")
 load_assembly("System.Drawing")
 
