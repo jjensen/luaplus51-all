@@ -3,9 +3,9 @@ local socket = require'socket'
 local client = require'websocket.client'
 local ev = require'ev'
 local frame = require'websocket.frame'
-local port = os.getenv('LUAWS_WSTEST_PORT') or 8081
+local port = os.getenv('LUAWS_WSTEST_PORT') or 11000
 local req_ws = ' (requires external websocket server @port '..port..')'
-local url = 'ws://localhost:'..port
+local url = 'ws://127.0.0.1:'..port
 
 setloop('ev')
 
@@ -58,7 +58,7 @@ describe(
               ws:on_error()
               done()
           end))
-        wsc:connect('ws2://localhost:'..port,'echo-protocol')
+        wsc:connect('ws2://127.0.0.1:'..port,'echo-protocol')
       end)
     
     it(
@@ -87,7 +87,7 @@ describe(
         wsc:on_open(async(function()
               assert.is_nil('should never happen')
           end))
-        wsc:connect('ws://localhost:'..(port+20),'chat')
+        wsc:connect('ws://127.0.0.1:'..(port+20),'chat')
         http_con = http_serv:accept()
         local i = 1
         ev.Timer.new(function(loop,timer)
@@ -123,7 +123,7 @@ describe(
         wsc:on_open(async(function()
               assert.is_nil('should never happen')
           end))
-        wsc:connect('ws://localhost:'..(port+20),'chat')
+        wsc:connect('ws://127.0.0.1:'..(port+20),'chat')
         http_con = http_serv:accept()
         local i = 1
         ev.Timer.new(function(loop,timer)
@@ -154,16 +154,17 @@ describe(
       end)
     
     it(
-      'socket err gets forwarded to on_error'..req_ws,
+      'socket err gets forwarded to on_error',
       function(done)
+        settimeout(6.0)
         wsc:on_error(async(function(ws,err)
               assert.is_same(ws,wsc)
               if socket.tcp6 then
-                assert.is_equal(err,'host or service not provided, or not known')
+                assert.is_equal(err, 'host or service not provided, or not known')
               else
                 assert.is_equal(err,'host not found')
               end
-              wsc:close()
+              --              wsc:close()
               done()
           end))
         wsc:on_close(async(function()
@@ -176,6 +177,7 @@ describe(
     it(
       'can send and receive data'..req_ws,
       function(done)
+        settimeout(6.0)
         assert.is_function(wsc.send)
         wsc:on_message(
           async(
@@ -202,6 +204,7 @@ describe(
     it(
       'can send and receive data 127 byte messages'..req_ws,
       function(done)
+        settimeout(6.0)
         local msg = random_text(127)
         wsc:on_message(
           async(
@@ -217,7 +220,7 @@ describe(
     it(
       'can send and receive data 0xffff-1 byte messages'..req_ws,
       function(done)
-        settimeout(3.0)
+        settimeout(10.0)
         local msg = random_text(0xffff-1)
         wsc:on_message(
           async(
@@ -233,7 +236,7 @@ describe(
     it(
       'can send and receive data 0xffff+1 byte messages'..req_ws,
       function(done)
-        settimeout(3.0)
+        settimeout(10.0)
         local msg = random_text(0xffff+1)
         wsc:on_message(
           async(
@@ -249,6 +252,7 @@ describe(
     it(
       'closes cleanly'..req_ws,
       function(done)
+        settimeout(6.0)
         wsc:on_close(async(function(_,was_clean,code,reason)
               assert.is_true(was_clean)
               assert.is_true(code >= 1000)

@@ -4,7 +4,7 @@ local socket = require'socket'
 local ev = require'ev'
 local loop = ev.Loop.default
 local port = os.getenv('LUAWS_SERVER_EV_PORT') or 8083
-local url = 'ws://localhost:'..port
+local url = 'ws://127.0.0.1:'..port
 
 setloop('ev')
 
@@ -30,6 +30,19 @@ describe(
         }
         s:close()
       end)
+    
+    it(
+      's:sock() provides access to the listening socket',
+      function()
+        local s = server.ev.listen
+        {
+          default = function() end,
+          port = port
+        }
+        assert.is_truthy(tostring(s:sock()):match('tcp'))
+        s:close()
+      end)
+    
     
     it(
       'call listen with protocol handlers',
@@ -88,13 +101,13 @@ describe(
                   done()
               end))
             sock:settimeout(0)
-            local connected,err = sock:connect('localhost',port)
+            local connected,err = sock:connect('127.0.0.1',port)
             local connect_io = ev.IO.new(async(function(loop,io)
                   io:stop(loop)
                   sock:close()
               end),sock:getfd(),ev.WRITE)
             if connected then
-              connect_io:callback(loop,connect_io)
+              connect_io:callback()(loop,connect_io)
             else
               connect_io:start(loop)
             end
