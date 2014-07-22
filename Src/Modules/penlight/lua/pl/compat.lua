@@ -21,15 +21,16 @@ function compat.execute (cmd)
     if compat.lua51 then
         return res1==0,res1
     else
-        return res1,res2
+        return not not res1,res2
     end
 end
 
 ----------------
+-- Load Lua code as a text or binary chunk.
 -- @param ld code string or loader
--- @param [opt] source name of chunk for errors
--- @param [opt] mode 'b', 't' or 'bt'
--- @param [opt] env environment to load the chunk in
+-- @param[opt] source name of chunk for errors
+-- @param[opt] mode 'b', 't' or 'bt'
+-- @param[opt] env environment to load the chunk in
 -- @function compat.load
 
 ---------------
@@ -101,7 +102,7 @@ else
     end
 end
 
---- Lua 5.2 Functions Available for Lua 5.1
+--- Lua 5.2 Functions Available for 5.1
 -- @section lua52
 
 --- pack an argument list into a table.

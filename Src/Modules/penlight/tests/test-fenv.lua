@@ -11,14 +11,17 @@ local setfenv,getfenv = utils.setfenv, utils.getfenv
 local ok,code = utils.execute(lua..' -v')
 asserteq(ok,true)
 asserteq(code,0)
+-- does it return false when it fails ?
+asserteq(utils.execute('most-likely-nonexistent-command'),false)
 
 -- table.pack is defined for 5.1
 local t = table.pack(1,nil,'hello')
 asserteq(t.n,3)
 assert(t[1] == 1 and t[3] == 'hello')
 
--- unpack is globally available for 5.2
-local a,b = unpack{10,'wow'}
+-- unpack is not globally available for 5.2 unless in compat mode.
+-- But utils.unpack is always defined.
+local a,b = utils.unpack{10,'wow'}
 assert(a == 10 and b == 'wow')
 
 -- utils.load() is Lua 5.2 style

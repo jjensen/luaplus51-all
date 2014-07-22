@@ -23,7 +23,6 @@ local loadstring = rawget(_G,'loadstring') or load
 local unpack = rawget(_G,'unpack') or rawget(table,'unpack')
 
 local append,concat = table.insert,table.concat
-local concat = table.concat
 local ipairs,loadstring,type,unpack = ipairs,loadstring,type,unpack
 local io,_G = io,_G
 local print,rawget = print,rawget
@@ -301,8 +300,8 @@ function sip.fields (spec,f)
 end
 
 --- register a match which will be used in the read function.
--- @param spec a SIP pattern
--- @param fun a function to be called with the results of the match
+-- @string spec a SIP pattern
+-- @func fun a function to be called with the results of the match
 -- @see read
 function sip.pattern (spec,fun)
     assert_arg(1,spec,'string')
