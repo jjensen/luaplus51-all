@@ -36,6 +36,7 @@ local SRCS =
 		template.lua
 		test.lua
 		text.lua
+		types.lua
 		utils.lua
 		xml.lua
 		#platf/luajava.lua
