@@ -1,0 +1,328 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<title>ex.process API</title>
+    <link rel="stylesheet" href="doc.css" type="text/css"/>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+</head>
+
+<body>
+
+<div id="container">
+
+<div id="product">
+
+	<div id="product_name"><big><strong>ex.process API</strong></big></div>
+	<div id="product_description">Lua module for process spawning and manipulation</div>
+</div> <!-- id="product" -->
+
+<div id="main">
+	
+<div id="navigation">
+<h1>ex.process API</h1>
+	<ul>
+
+		<li><strong>Home</strong>
+			<ul> 
+                            
+			</ul>
+		</li>
+
+	</ul>
+</div> <!-- id="navigation" -->
+
+<div id="content">
+
+
+<h1>Introduction</h1>
+
+
+
+
+<h1>Credits</h1>
+
+<p>The primary contents of this document and source come from <a href="http://lua-users.org/wiki/ExtensionProposal">http://lua-users.org/wiki/ExtensionProposal</a>.</p>
+
+
+
+
+
+<h1>ex.process API</h1>
+
+<p>Note that all these functions return the standard (nil,"error message") on failure and that, unless otherwise specified, they return (true) on success.</p>
+
+
+
+
+
+
+<h2>Environment</h2>
+
+<h3>process.getenv(varname)</h3>
+
+<p>Returns the value of the process environment variable <code>varname</code> or <code>nil</code> if the variable is not defined.</p>
+
+
+<pre>
+    print(process.getenv("PATH"))
+</pre>
+
+
+
+
+<h3>process.setenv(varname, value)</h3>
+
+<p>Sets the environment variable <code>varname</code> to be <code>value</code>.  If <code>value</code> is <code>nil</code>, the environment variable is removed.  Note: The change occurs only within the currently running process.</p>
+
+
+<pre>
+    print(process.getenv("foo"))          -- Prints: nil
+    print(process.setenv("foo", "bar"))
+    print(process.getenv("foo"))          -- Prints: bar
+    print(process.setenv("foo", nil))
+    print(process.getenv("foo"))          -- Prints: nil
+</pre>
+
+
+
+
+
+<h3>env = process.environ()</h3>
+
+<p>Returns a copy of the environment as a Lua table of key-value pairs.</p>
+
+
+<pre>
+    env = process.environ()
+    print(env.HOME)
+</pre>
+
+
+
+
+<hr/>
+
+
+
+<h3>rd, wr = process.pipe()</h3>
+
+<p>Create a pipe; 'rd' and 'wr' are Lua file objects.</p>
+
+
+
+
+<hr/>
+
+
+<h2>Process control</h2>
+
+<h3>process.sleep(seconds)</h3>
+<h3>process.sleep(interval, unit)</h3>
+
+<p>Suspends program execution for interval/unit seconds; 'unit' defaults to 1 and either argument can be floating point. The particular sub-second precision is implementation-defined.</p>
+
+
+<pre>
+    process.sleep(3.8) -- sleep for 3.8 seconds
+    local microseconds = 1e6
+    process.sleep(3800000, microseconds) -- sleep for 3800000 µs
+    local ticks = 100
+    process.sleep(380, ticks) -- sleep for 380 ticks
+</pre>
+
+
+
+
+
+
+<h3>proc = process.spawn(filename)</h3>
+<h3>proc = process.spawn{filename, [args-opts]}</h3>
+<h3>proc = process.spawn{command=filename, [args-opts]}</h3>
+
+<p>Creates a child process.</p>
+
+<p><code>filename</code> names a program. If the (implementation-defined) pathname is not absolute, the program is found through an implementation-defined search method (the PATH environment variable on most systems).</p>
+
+<p>If specified, [args-opts] is one or more of the following keys:</p>
+
+<ul>
+    <li><code>[1]..[n]=</code> - the command line arguments</li>
+    <li><code>args=</code> - an array of command line arguments</li>
+    <li><code>env=</code> - a table of environment variables</li>
+    <li><code>stdin=</code>, <code>stdout=</code>, <code>stderr=</code> - io.file objects for standard input, output, and error respectively</li>
+    <li><code>shell=</code> - Set to <code>true</code> if this is a shell application.  Set to <code>false</code> if this is a GUI application.  Defaults to <code>true</code>.</li>
+    <li><code>show=</code> - Set to <code>true</code> to show the application.  Set to <code>false</code> to hide it.  Defaults to <code>true</code>.</li>
+    <li><code>detach=</code> - Set to <code>true</code> to detach the application from the parent.  Defaults to <code>true</code>.</li>
+    <li><code>suspended=</code> - Set to <code>true</code> to start the spawned application as suspended, requiring a call to <code>os.resume(process)</code> to resume the application.  Defaults to <code>false</code>.</li>
+    <li><code>can_terminate=</code> - Set to <code>true</code> to start the application in such a way that it is part of the current process's process tree and can be terminated.  Defaults to <code>false</code>.</li>
+</ul>
+
+<p>It is an error if both integer keys and an 'args' key are specified.</p>
+
+<p>An implementation may provide special behavior if a zeroth argument (options.args[0] or options[0]) is provided.</p>
+
+<p>The returned 'proc' userdatum has the method <code>wait()</code>.</p>
+
+
+<pre>
+    -- run the echo command
+    proc = process.spawn"/bin/echo"
+    proc = process.spawn{"/bin/echo", "hello", "world"}
+    proc = process.spawn{command="/bin/echo", "hello", "world"}
+
+    -- run the id command
+    vars = { LANG="fr_FR" }
+    proc = process.spawn{"/bin/id", "-un", env=vars}
+    proc = process.spawn{command="/bin/id", "-un", env=vars)
+
+    -- Useless use of cat
+    local rd, wr = assert(process.pipe())
+    local proc = assert(process.spawn("/bin/cat", {stdin=rd}))
+    rd:close()
+    wr:write("Hello world\n")
+    wr:close()
+    proc:wait()
+
+    -- Run a program with a modified environment
+    local env = process.environ()
+    env.LUA_PATH = "/usr/share/lib/lua/?.lua"
+    env.LUA_CPATH = "/usr/share/lib/lua/?.so"
+    local proc = assert(process.spawn("lua", {args = {"-e", 'print"Hello world\n"'}, env=env }))
+    proc:wait()
+
+    -- popen2()
+    function popen2(...)
+        local in_rd, in_wr = process.pipe()
+        local out_rd, out_wr = process.pipe()
+        local proc, err = process.spawn{stdin = in_rd, stdout = out_wr, ...}
+        in_rd:close(); out_wr:close()
+        if not proc then
+            in_wr:close(); out_rd:close()
+            return proc, err
+        end
+        return proc, out_rd, in_wr
+    end
+
+    -- usage:
+    local p, i, o = assert(popen2("wc", "-w"))
+    o:write("Hello world"); o:close()
+    print(i:read"*l"); i:close()
+    p:wait()
+</pre>
+
+
+
+
+<h3>process.terminate(process)</h3>
+
+<p>Terminates a spawned process, if possible.</p>
+
+<p>If <code>process</code> is a number or light userdata, <code>process</code> is expected to represent the Windows job the process tree was created under.</p>
+
+<p>Otherwise, <code>process</code> should be a table with the entries from <code>proc:getinfo()</code>.</p>
+
+
+
+
+<h3>info = proc:getinfo()</h3>
+
+<p>Returns information about the spawned process.</p>
+
+<p>On Windows, a table structure is returned with the following members:</p>
+
+<ul>
+    <li><code>process_handle</code> - Light userdata representing the Windows process HANDLE.</li>
+    <li><code>thread_handle</code> - Light userdata representing the Windows thread HANDLE.</li>
+    <li><code>process_id</code> - An integer representing the Windows process ID.</li>
+    <li><code>thread_id</code> - An integer representing the Windows thread ID.</li>
+    <li><code>job</code> - Light userdata representing the Windows job HANDLE if the process was created with <code>can_terminate = true</code>.</li>
+</ul>
+
+
+
+<h3>proc:resume()</h3>
+
+<p>Resumes a suspended process.</p>
+
+
+
+<h3>exitcode = proc:wait()</h3>
+
+<p>Wait for child process termination; 'exitcode' is the code returned by the child process.</p>
+
+
+
+
+<h3>process.collectlines{filename, [args-opts]}</h3>
+<h3>process.collectlines{command=filename, [args-opts]}</h3>
+
+<p>Returns a table of all output from the new process's stdout.</p>
+
+<p>See <code>process.spawn()</code> for additional information.</p>
+
+
+
+
+
+<h3>process.lines{filename, [args-opts]}</h3>
+<h3>process.lines{command=filename, [args-opts]}</h3>
+
+<p>Returns an iterator that reads the new process's stdout line by line.</p>
+
+<p>See <code>process.spawn()</code> for additional information.</p>
+
+
+
+
+
+<h3>proc, input = process.popen{filename, [args-opts]}</h3>
+<h3>proc, input = process.popen{command=filename, [args-opts]}</h3>
+
+<p>Creates a child process with the process's stdout redirected to be read from <code>input</code>.</p>
+
+<p>See <code>process.spawn()</code> for additional information.</p>
+
+
+
+
+
+<h3>proc, input, output = process.popen2{filename, [args-opts]}</h3>
+<h3>proc, input, output = process.popen2{command=filename, [args-opts]}</h3>
+
+<p>Creates a child process with the process's stdout redirected to be read from <code>input</code> and the process's stdin redirected to be written to through <code>output</code>.</p>
+
+<p>See <code>process.spawn()</code> for additional information.</p>
+
+
+
+
+
+<h3>args = process.parsecommandline(commandline)</h3>
+
+<p>Parses a single string command line into a table of arguments suitable for passing to <code>process.spawn</code>.</p>
+
+
+<pre>
+    args = process.parsecommandline('dir "c:\\Program Files\\"')
+</pre>
+
+
+
+
+
+
+</div> <!-- id="content" -->
+
+</div> <!-- id="main" -->
+
+<div id="about">
+	<p><a href="http://validator.w3.org/check?uri=referer">Valid XHTML 1.0!</a></p>
+</div> <!-- id="about" -->
+
+</div> <!-- id="container" -->
+
+</body>
+</html>
+
