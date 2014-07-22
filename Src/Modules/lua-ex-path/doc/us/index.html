@@ -1,0 +1,949 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<title>ex.path API</title>
+    <link rel="stylesheet" href="doc.css" type="text/css"/>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+</head>
+
+<body>
+
+<div id="container">
+
+<div id="product">
+
+	<div id="product_name"><big><strong>ex.path API</strong></big></div>
+	<div id="product_description">Lua module to manipulate files and paths</div>
+</div> <!-- id="product" -->
+
+<div id="main">
+	
+<div id="navigation">
+<h1>ex.path API</h1>
+	<ul>
+
+		<li><strong>Home</strong>
+			<ul> 
+                            
+			</ul>
+		</li>
+
+	</ul>
+</div> <!-- id="navigation" -->
+
+<div id="content">
+
+
+<h1>Introduction</h1>
+
+
+
+
+
+<h1>Credits</h1>
+
+<p>Portions of this module come from <a href="http://lua-users.org/wiki/ExtensionProposal">http://lua-users.org/wiki/ExtensionProposal</a>.</p>
+
+
+
+
+
+<h1>ex.path API</h1>
+
+<p>Note that all these functions return the standard (nil,"error message") on failure and that, unless otherwise specified, they return (true) on success.</p>
+
+
+
+
+
+
+<hr/>
+
+
+
+<h2>File system (mostly borrowing from LuaFilesystem?)</h2>
+
+<h3>path.access(path [ , mode ])</h3>
+
+<p>Determines if the file specified by <code>path</code> is read-only or not.  Returns</p>
+
+<p><code>mode</code> is optional or can be one of the following:</p>
+
+<ul>
+    <li>If not specified, the file is checked for existence only.</li>
+    <li><code>w</code> - Checks whether the file is write-only.</li>
+    <li><code>r</code> - Checks whether the file is read-only.</li>
+    <li><code>rw</code> - Checks whether the file is readable and writeable.</li>
+</ul>
+
+<p>Returns true if the file matches the mode, false otherwise.</p>
+
+
+<pre>
+    print(path.access('myfile.txt'))      -- Prints true if myfile.txt exists.
+    print(path.access('myfile.txt', 'w')  -- Prints true if myfile.txt is write-only.
+    print(path.access('myfile.txt', 'r')  -- Prints true if myfile.txt is read-only.
+    print(path.access('myfile.txt', 'rw') -- Prints true if myfile.txt is readable and writeable.
+</pre>
+
+
+
+
+
+<h3>path.chdir(pathname)</h3>
+
+<p>Change the working directory to <code>pathname</code>.</p>
+
+
+<pre>
+    path.chdir(os.getenv("HOME"))
+</pre>
+
+
+
+
+
+<h3>path.chmod(pathname, mode)</h3>
+
+<p>Changes the file <code>mode</code> of <code>pathname</code>.</p>
+
+<p><code>mode</code> may be one of the following bitfields:</p>
+
+<ul>
+    <li><code>400</code> - Allow read by owner.</li>
+    <li><code>200</code> - Allow write by owner.</li>
+    <li><code>100</code> - Allow execution by owner.</li>
+    <li><code>040</code> - Allow read by group members.</li>
+    <li><code>020</code> - Allow write by group members.</li>
+    <li><code>010</code> - Allow execution by group members.</li>
+    <li><code>004</code> - Allow read by others.</li>
+    <li><code>002</code> - Allow write by others.</li>
+    <li><code>001</code> - Allow execution by others.</li>
+</ul>
+
+<p><code>mode</code> may also be symbolic:</p>
+
+<ul>
+    <li><code>w</code> - Writable.</li>
+    <li><code>r</code> - Readable.</li>
+    <li><code>rw</code> - Both read and writable.</li>
+</ul>
+
+
+<pre>
+    path.chmod('script', 777)
+
+    path.chmod('writablefile', 'w')
+</pre>
+
+
+
+
+
+<h3>cwd = path.getcwd()</h3>
+
+<p>Retrieves the current working directory.</p>
+
+
+<pre>
+    cwd = path.getcwd()
+</pre>
+
+
+
+
+
+<h3>path.hardlink(sourceFilename, destinationFilename)</h3>
+
+<p>Creates a hardlink named <code>destinationFilename</code> that points to <code>sourceFilename</code>.</p>
+
+
+<pre>
+    path.hardlink('a', 'b')               -- Hardlinks new file entry 'b' to existing file entry 'a'
+</pre>
+
+
+
+
+
+<h3>path.mkdir(pathname)</h3>
+
+<p>Create the directory described by <code>pathname</code>.  <code>pathname</code> is in the form of <code>dirA/dirB/dirC/</code> or <code>dirA/dirB/dirC/filename</code>.  All directories up to the final slash (or backslash) are created.  The filename component is ignored.</p>
+
+
+<pre>
+    dirName = 'dirA/dirB/dirC'
+    path.mkdir(dirName)                    -- Creates dirA/dirB/
+    dirName = 'dirA/dirB/dirC/'
+    path.mkdir(dirName)                    -- Creates dirA/dirB/dirC/
+    filename = 'dirA/dirB/dirC/filename'
+    path.mkdir(filename)                   -- Creates dirA/dirB/dirC/
+</pre>
+
+
+
+
+
+<h3>path.remove(pathname)</h3>
+
+<p>Removes the file or directory at <code>pathname</code>.  If <code>pathname</code> is a directory, all child directories and files within those directories are destroyed.</p>
+
+
+<pre>
+    path.remove('dirA/dirB/')              -- Remove dirB/ recursively
+    path.remove('dirA/file.txt')           -- Remove file.txt from dirA/
+</pre>
+
+
+
+
+
+<h3>path.symboliclink(symlinkFilename, targetFilename [, isDirectory = false])</h3>
+
+<p>Creates a symbolic link named <code>symlinkFilename</code> that points to <code>targetFilename</code>.  If <code>isDirectory</code> is specified, a directory-level symbolic link is created.</p>
+
+
+<pre>
+    path.symboliclink('a', 'b')               -- Symbolically links new file entry 'a' to existing file entry 'b'
+</pre>
+
+
+
+
+
+<h3>path.copyfile(srcfilename, destfilename)</h3>
+
+<p>Copies the file named <code>srcfilename</code> to <code>destfilename</code> preserving file attributes and timestamp.</p>
+
+
+<pre>
+    path.copyfile('filea.txt', 'fileb.txt')    -- Copy filea.txt to fileb.txt
+</pre>
+
+
+
+
+
+
+<h3>path.copydirectory(sourceDirectory, destinationDirectory [, options])</h3>
+
+<p>Copies the directory named <code>srcdirectory</code> into <code>destdirectory</code> preserving file attributes and timestamps.  This function differs from <code>path.mirrordirectory</code> in that the <code>srcdirectory</code> files and directories are overlayed onto <code>destdirectory</code>.  <code>path.mirrordirectory</code> removes extra files and directories.</p>
+
+<p><code>options</code> is an optional table containing one or more of the following members:</p>
+
+<ul>
+    <li><code>callback</code> - A function in the following form: <code>function(operation, filenameA, filenameB)</code>
+    <ul>
+        <li><code>function('copy', sourceFilename, destinationFilename)</code></li>
+        <li><code>function('del', destinationFilename)</code></li>
+    </ul></li>
+    <li><code>noop</code> - (defaults to <code>false</code>) If set to <code>true</code>, a directory scan is performed, but no copies or deletes take place.</li>
+    <li><code>deleteExtra</code> - (defaults to <code>false</code>) If set to <code>true</code>, files existing in the <code>destinationDirectory</code> that do not exist in the <code>sourceDirectory</code> are removed from the <code>destinationDirectory</code>.</li>
+    <li><code>hardlink</code> - (defaults to <code>false</code>) If set to <code>true</code>, files needing to be copied to the <code>destinationDirectory</code> are hardlinked against those in the <code>sourceDirectory</code>.</li>
+    <li><code>copyfile</code> - A function in the following form: <code>function(sourceFilename, destinationFilename)</code></li>
+</ul>
+
+
+<pre>
+    path.copydirectory('/dira', '/dirb')
+    path.copydirectory('/dira', '/dirb', { callback = print })
+    path.copydirectory('/dira', '/dirb', { callback = print, noop = true })
+</pre>
+
+
+
+
+
+
+<h3>path.mirrordirectory(sourceDirectory, destinationDirectory, options)</h3>
+
+<p>Mirrors the directory named <code>srcdirectory</code> to <code>destdirectory</code> preserving file attributes and timestamps.  <code>path.mirrordirectory</code> removes extra files and directories.</p>
+
+<p><code>path.mirrordirectory</code> is identical to <code>ex.copydirectory</code> except for <code>options.deleteExtra = true</code> being provided automatically.</p>
+
+
+<pre>
+    path.mirrordirectory('/dira', '/dirb')
+</pre>
+
+
+
+
+
+
+<h3>path.movefile(srcfilename, destfilename)</h3>
+
+<p>Moves the file named <code>srcfilename</code> to <code>destfilename</code>.</p>
+
+
+<pre>
+    path.movefile('filea.txt', 'fileb.txt')    -- Move filea.txt to fileb.txt
+</pre>
+
+
+
+
+
+
+
+
+<hr/>
+
+<h2>I/O (locking and pipes)</h2>
+
+<h3>path.lock(file, mode, offset, length)</h3>
+
+<p>Lock or unlock a file or a portion of a file; 'mode' is either "r" or "w" or "u"; 'offset' and 'length' are optional.  A mode of "r" requests a read lock, "w" requests a write lock, and "u" releases the lock. Note that the locks may be either advisory or mandatory.</p>
+
+
+
+
+
+<h3>path.unlock(file, offset, length)</h3>
+
+<p>Equivalent to <code>path.lock(file, "u", offset, length)</code>.</p>
+
+
+
+
+
+
+<h2>Path Manipulation</h2>
+
+<h3>path.add_extension(path, extension)</h3>
+
+<p>Adds <code>extension</code> to the end of <code>path</code> even if one already exists.</p>
+
+<p>Returns the new path.</p>
+
+
+<pre>
+    assert(path.add_extension('', 'ext') == '.ext')
+    assert(path.add_extension(' ', ' ext') == ' . ext')
+    assert(path.add_extension('', '.ext') == '.ext')
+    assert(path.add_extension('hello', 'ext') == 'hello.ext')
+    assert(path.add_extension('hello', '.ext') == 'hello.ext')
+    assert(path.add_extension('hello.txt', 'ext') == 'hello.txt.ext')
+    assert(path.add_extension('hello.txt', '.ext') == 'hello.txt.ext')
+</pre>
+
+
+
+
+
+
+<h3>path.add_slash(path)</h3>
+
+<p>Adds a slash to the end of <code>path</code> if it doesn't already exist.</p>
+
+<p>Returns the new path.</p>
+
+
+<pre>
+    assert(path.add_slash('') == '/')
+    assert(path.add_slash(' ') == ' /')
+    assert(path.add_slash('hello') == 'hello/')
+    assert(path.add_slash(' hello') == ' hello/')
+    assert(path.add_slash(' hello ') == ' hello /')
+    assert(path.add_slash('hello/') == 'hello/')
+</pre>
+
+
+
+
+
+
+<h3>path.append(leftPath, rightPath)</h3>
+
+<p>Appends <code>leftPath</code> and <code>rightPath</code> together, adding a slash between the two path components.  If <code>rightPath</code> is an absolute path, it is not appended to <code>leftPath</code> and is returned directly.</p>
+
+<p>Returns the new path.</p>
+
+
+<pre>
+    assert(path.append('', 'filename.txt') == 'filename.txt')
+    assert(path.append('', 'dir', 'filename.txt') == 'dir/filename.txt')
+    assert(path.append('', 'dirA', '', 'dirB', 'filename.txt') == 'dirA/dirB/filename.txt')
+    assert(path.append('..', 'filename.txt') == '../filename.txt')
+    assert(path.append('root', 'filename.txt') == 'root/filename.txt')
+    assert(path.append('root', 'dir', 'filename.txt') == 'root/dir/filename.txt')
+    assert(path.append('root', 'dirA', '', 'dirB', 'filename.txt') == 'root/dirA/dirB/filename.txt')
+    assert(path.append('root', 'dirA', '', 'dirB', '..', 'filename.txt') == 'root/dirA/dirB/../filename.txt')
+    assert(path.append('root', 'dirA', '', '/dirB', '..', 'filename.txt') == '/dirB/../filename.txt')
+</pre>
+
+
+
+
+
+
+<h3>path.combine(leftPath, rightPath)</h3>
+<h3>path.join(leftPath, rightPath)</h3>
+
+<p>Combines <code>leftPath</code> and <code>rightPath</code>, adding a slash between the two path components and simplifying the path by collapsing <code>.</code> and <code>..</code> directories.  If <code>rightPath</code> is an absolute path, it is not appended to <code>leftPath</code> and is returned directly.</p>
+
+<p>Returns the new path.</p>
+
+
+<pre>
+    assert(path.combine('', 'filename.txt') == 'filename.txt')
+    assert(path.combine('', 'dir', 'filename.txt') == 'dir/filename.txt')
+    assert(path.combine('', 'dirA', '', 'dirB', 'filename.txt') == 'dirA/dirB/filename.txt')
+    assert(path.combine('..', 'filename.txt') == '../filename.txt')
+    assert(path.combine('root', 'filename.txt') == 'root/filename.txt')
+    assert(path.combine('root', 'dir', 'filename.txt') == 'root/dir/filename.txt')
+    assert(path.combine('root', 'dirA', '', 'dirB', 'filename.txt') == 'root/dirA/dirB/filename.txt')
+    assert(path.combine('root', 'dirA', '', 'dirB', '..', 'filename.txt') == 'root/dirA/filename.txt')
+</pre>
+
+
+
+
+
+
+<h3>path.escape(path)</h3>
+
+<p>Properly escapes and quotes <code>path</code>, if needed.</p>
+
+<p>Returns the new path.</p>
+
+
+<pre>
+    assert(path.escape('') == '')
+    assert(path.escape(' ') == '" "')
+    assert(path.escape('filename.txt') == 'filename.txt')
+    assert(path.escape('file name.txt') == '"file name.txt"')
+</pre>
+
+
+
+
+
+
+<h3>path.exists(path)</h3>
+
+<p>Returns <em>true</em> if <code>path</code> exists, <em>false</em> otherwise.</p>
+
+
+<pre>
+    assert(path.exists('filename.txt') == true)
+</pre>
+
+
+
+
+
+
+<h3>path.find_extension(path)</h3>
+
+<p>For the given <code>path</code>, return the index of the extension.  Returns <code>nil</code> if the <code>path</code> has no extension.</p>
+
+
+<pre>
+    assert(path.find_extension('') == nil)
+    assert(path.find_extension('filename') == nil)
+    assert(path.find_extension('.lua') == 1)
+    assert(path.find_extension('pathtests.lua') == 10)
+    assert(path.find_extension('pathtests') == nil)
+</pre>
+
+
+
+
+
+
+
+<h3>path.find_filename(path)</h3>
+
+<p>For the given <code>path</code>, return the index of the filename.</p>
+
+
+<pre>
+    assert(path.find_filename('pathtests.lua') == 1)
+    assert(path.find_filename('/pathtests') == 2)
+    assert(path.find_filename('c:/pathtests') == 4)
+    assert(path.find_filename('c:pathtests') == 3)
+</pre>
+
+
+
+
+
+
+<h3>path.get_extension(path)</h3>
+
+<p>For the given <code>path</code>, return the extension.</p>
+
+
+<pre>
+    assert(path.get_extension('') == '')
+    assert(path.get_extension('filename') == '')
+    assert(path.get_extension('filename.ext') == '.ext')
+    assert(path.get_extension('filename.txt.ext') == '.ext')
+</pre>
+
+
+
+
+
+
+<h3>path.get_filename(path)</h3>
+
+<p>For the given <code>path</code>, return just the filename without the directory.</p>
+
+
+<pre>
+    assert(path.get_filename(''), '')
+    assert(path.get_filename('filename'), 'filename')
+    assert(path.get_filename('filename.ext'), 'filename.ext')
+    assert(path.get_filename('c:/directory/filename.ext'), 'filename.ext')
+    assert(path.get_filename('c:/directory/'), '')
+</pre>
+
+
+
+
+
+
+<h3>path.is_directory(path)</h3>
+
+<p>Returns <em>true</em> if <code>path</code> is a directory, <em>false</em> otherwise.</p>
+
+
+<pre>
+    assert(path.is_directory('') == false)
+    assert(path.is_directory(scriptPath .. 'pathtests.lua') == false)
+    assert(path.is_directory('.') == true)
+    assert(path.is_directory('..') == true)
+    assert(path.is_directory(scriptPath .. '../tests') == true)
+    assert(path.is_directory(scriptPath .. '../tests/') == true)
+</pre>
+
+
+
+
+
+
+<h3>path.is_file(path)</h3>
+
+<p>Returns <em>true</em> if <code>path</code> is a file, <em>false</em> otherwise.</p>
+
+
+<pre>
+    assert(path.is_file('') == nil)
+    assert(path.is_file(scriptPath .. 'pathtests.lua') == true)
+    assert(path.is_file('.') == false)
+    assert(path.is_file('..') == false)
+    assert(path.is_file(scriptPath .. '../tests') == false)
+    assert(path.is_file(scriptPath .. '../tests/') == nil)
+</pre>
+
+
+
+
+
+
+<h3>path.is_relative(path)</h3>
+
+<p>Returns <em>true</em> if <code>path</code> is relative, <em>false</em> otherwise.</p>
+
+
+<pre>
+    assert(path.is_relative('') == true)
+    assert(path.is_relative('filename.ext') == true)
+    assert(path.is_relative('/filename.ext') == false)
+    assert(path.is_relative('c:/filename.ext') == false)
+</pre>
+
+
+
+
+
+
+
+<h3>path.is_root(path)</h3>
+
+<p>Returns <em>true</em> if <code>path</code> is a root path, <em>false</em> otherwise.</p>
+
+
+<pre>
+    assert(path.is_root('') == false)
+    assert(path.is_root('filename.ext') == false)
+    assert(path.is_root('/filename.ext') == true)
+    assert(path.is_root('c:/filename.ext') == true)
+</pre>
+
+
+
+
+
+
+
+<h3>path.is_unc(path)</h3>
+
+<p>Returns <em>true</em> if <code>path</code> is a UNC path, <em>false</em> otherwise.</p>
+
+
+<pre>
+    assert(path.is_unc('') == false)
+    assert(path.is_unc('filename.ext') == false)
+    assert(path.is_unc('/filename.ext') == false)
+    assert(path.is_unc('c:/filename.ext') == false)
+    assert(path.is_unc('\\\\share') == true)
+    assert(path.is_unc('//share') == true)
+</pre>
+
+
+
+
+
+
+
+<h3>path.is_writable(path)</h3>
+
+<p>Returns <em>true</em> if <code>path</code> is writable, <em>false</em> if read-only.</p>
+
+
+<pre>
+    local writable = path.is_writable('filename.dat')
+</pre>
+
+
+
+
+
+
+<h3>path.make_absolute(path)</h3>
+
+<p>Converts <code>path</code> into an absolute path, simplifying the path as necessary.</p>
+
+<p>Returns the new path.</p>
+
+
+<pre>
+    local cwd = os.getcwd():gsub('\\', '/')
+    assert(path.make_absolute('') == cwd)
+    assert(path.make_absolute('.') == cwd .. '/')
+    assert(path.make_absolute('..') == cwd:match('(.+)/') .. '/')
+    assert(path.make_absolute('abc') == cwd .. '/abc')
+</pre>
+
+
+
+
+
+
+
+<h3>path.make_backslash(path)</h3>
+
+<p>Convert any forward slashes in <code>path</code> to backslashes.</p>
+
+<p>Returns the new path.</p>
+
+
+<pre>
+    assert(path.make_backslash('') == '')
+    assert(path.make_backslash(' ') == ' ')
+    assert(path.make_backslash('\\\\abc') == '\\\\abc')
+    assert(path.make_backslash('//abc') == '\\\\abc')
+    assert(path.make_backslash('c:/abc/def/') == 'c:\\abc\\def\\')
+</pre>
+
+
+
+
+
+
+
+<h3>path.make_slash(path)</h3>
+
+<p>Convert any backslashes in <code>path</code> to slashes.</p>
+
+<p>Returns the new path.</p>
+
+
+<pre>
+    assert(path.make_slash('') == '')
+    assert(path.make_slash(' ') == ' ')
+    assert(path.make_slash('\\\\abc') == '//abc')
+    assert(path.make_slash('//abc') == '//abc')
+    assert(path.make_slash('c:\\abc\\def\\') == 'c:/abc/def/')
+</pre>
+
+
+
+
+
+
+
+<h3>path.make_writable(path)</h3>
+
+<p>Make the file <em>path</em> writable that is read-only.</p>
+
+<p>Returns <em>true</em> if the process succeeded.</p>
+
+
+<pre>
+    path.make_writable('filename.dat')
+</pre>
+
+
+
+
+
+
+
+<h3>path.match(path, wildcard)</h3>
+
+<p>Returns <em>true</em> if the <code>wildcard</code> matches <code>path</code>, <em>false</em> otherwise.</p>
+
+
+<pre>
+    assert(path.match('', '') == true)
+    assert(path.match('', '*') == true)
+    assert(path.match('', '*.*') == false)
+    assert(path.match('', 'a*') == false)
+    assert(path.match('abcdefg.txt', 'a*') == true)
+    assert(path.match('abcdefg.txt', 'a*b*c?e*') == true)
+    assert(path.match('abcdefg.txt', 'a*b*c?f*') == false)
+    assert(path.match('abcdefg.txt', '*.') == false)
+    assert(path.match('abcdefg.txt', '*.t') == false)
+    assert(path.match('abcdefg.txt', '*.t*') == true)
+    assert(path.match('abcdefg.txt', '*.t') == false)
+    assert(path.match('abcdefg.txt', '*.*t') == true)
+    assert(path.match('abcdefg.txt', '*.*x') == false)
+    assert(path.match('abcdefg.txt', '*.txt') == true)
+</pre>
+
+
+
+
+
+
+
+<h3>path.remove_directory(path)</h3>
+
+<p>Removes the directory component from <code>path</code>.</p>
+
+<p>Returns the new path.</p>
+
+
+<pre>
+    assert(path.remove_directory('') == '')
+    assert(path.remove_directory(' \t') == ' \t')
+    assert(path.remove_directory('abc') == 'abc')
+    assert(path.remove_directory('/abc.') == 'abc.')
+    assert(path.remove_directory('/dir/abc.') == 'abc.')
+    assert(path.remove_directory('c:/abc.') == 'abc.')
+    assert(path.remove_directory('c:/dir/abc') == 'abc')
+</pre>
+
+
+
+
+
+
+
+<h3>path.remove_extension(path)</h3>
+
+<p>Removes the extension component from <code>path</code>.</p>
+
+<p>Returns the new path.</p>
+
+
+<pre>
+    assert(path.remove_extension('') == '')
+    assert(path.remove_extension(' \t') == ' \t')
+    assert(path.remove_extension('abc') == 'abc')
+    assert(path.remove_extension('abc.') == 'abc')
+    assert(path.remove_extension('abc.txt') == 'abc')
+    assert(path.remove_extension('abc.txt.dat') == 'abc.txt')
+</pre>
+
+
+
+
+
+
+
+<h3>path.remove_filename(path)</h3>
+
+<p>Removes the filename component from <code>path</code>.</p>
+
+<p>Returns the new path.</p>
+
+
+<pre>
+    assert(path.remove_filename('') == '')
+    assert(path.remove_filename(' \t') == '')
+    assert(path.remove_filename('abc') == '')
+    assert(path.remove_filename('/abc.') == '/')
+    assert(path.remove_filename('/dir/abc.') == '/dir/')
+    assert(path.remove_filename('c:/abc.') == 'c:/')
+    assert(path.remove_filename('c:/dir/abc') == 'c:/dir/')
+</pre>
+
+
+
+
+
+
+
+<h3>path.remove_slash(path)</h3>
+
+<p>Removes the trailing slash from <code>path</code>.</p>
+
+<p>Returns the new path.</p>
+
+
+<pre>
+    assert(path.remove_slash('abc') == 'abc')
+    assert(path.remove_slash('abc/') == 'abc')
+</pre>
+
+
+
+
+
+
+
+<h3>path.replace_extension(path, extension)</h3>
+
+<p>Replaces the extension of <code>path</code> with the new one specified in <code>extension</code>.</p>
+
+<p>Returns the new path.</p>
+
+
+<pre>
+    assert(path.replace_extension('', 'ext') == '.ext')
+    assert(path.replace_extension('', '.ext') == '.ext')
+    assert(path.replace_extension('hello', 'ext') == 'hello.ext')
+    assert(path.replace_extension('hello', '.ext') == 'hello.ext')
+    assert(path.replace_extension('hello.txt', 'ext') == 'hello.ext')
+    assert(path.replace_extension('hello.txt', '.ext') == 'hello.ext')
+    assert(path.replace_extension('hello.txt.dat', 'ext') == 'hello.txt.ext')
+    assert(path.replace_extension('hello.txt.dat', '.ext') == 'hello.txt.ext')
+</pre>
+
+
+
+
+
+
+
+<h3>path.simplify(path)</h3>
+
+<p>Simplifies <code>path</code> by collapsing <code>.</code> and <code>..</code> directories and removing multiple directory slashes.</p>
+
+<p>Returns the new path.</p>
+
+
+<pre>
+    assert(path.simplify('') == '')
+    assert(path.simplify('abc') == 'abc')
+    assert(path.simplify('.abc') == '.abc')
+    assert(path.simplify('./abc') == 'abc')
+    assert(path.simplify('..abc') == '..abc')
+    assert(path.simplify('../abc') == '../abc')
+    assert(path.simplify('abc/////def') == 'abc/def')
+    assert(path.simplify('abc/././././def') == 'abc/def')
+    assert(path.simplify('c:/somedir/.././././def') == 'c:/def')
+    assert(path.simplify('abc/.././././def') == 'def')
+    assert(path.simplify('abc/ABC/../../../../def') == 'def')
+    assert(path.simplify('c:\\abc\\ABC\\../..\\../..\\def') == 'c:/def')
+    assert(path.simplify('\\\\uncserver\\pathA\\file.txt') == '\\\\uncserver/pathA/file.txt')
+</pre>
+
+
+
+
+
+
+
+<h3>path.split(path)</h3>
+
+<p>Splits <code>path</code> into directory and filename components.  Returns both the directory and filename.</p>
+
+
+<pre>
+    function compare_split(path, expectedDirname, expectedFilename)
+        local actualDirname, actualFilename = path.split(path)
+        return actualDirname == expectedDirname  and  actualFilename == expectedFilename
+    end
+
+    assert(compare_split('', '', '') == true)
+    assert(compare_split('abc.txt', '', 'abc.txt') == true)
+    assert(compare_split('/', '/', '') == true)
+    assert(compare_split('/abc', '/', 'abc') == true)
+    assert(compare_split('/abc/', '/abc/', '') == true)
+    assert(compare_split('c:/', 'c:/', '') == true)
+    assert(compare_split('c:/abc', 'c:/', 'abc') == true)
+    assert(compare_split('c:/abc/', 'c:/abc/', '') == true)
+</pre>
+
+
+
+
+
+
+
+<h3>path.trim(path)</h3>
+
+<p>Trims whitespace from the beginning and end of <code>path</code>.</p>
+
+<p>Returns the new path.</p>
+
+
+<pre>
+    assert(path.trim('abc.txt') == 'abc.txt')
+    assert(path.trim(' abc.txt') == 'abc.txt')
+    assert(path.trim('abc.txt ') == 'abc.txt')
+    assert(path.trim('  \t  abc.txt \t \t \t ') == 'abc.txt')
+</pre>
+
+
+
+
+
+
+
+<h3>path.unescape(path)</h3>
+
+<p>Unescapes <code>path</code>.</p>
+
+<p>Returns the new path.</p>
+
+
+<pre>
+    assert(path.unescape('') == '')
+    assert(path.unescape('"') == '')
+    assert(path.unescape('""') == '')
+    assert(path.unescape('" "') == ' ')
+    assert(path.unescape('"file with spaces') == 'file with spaces')
+    assert(path.unescape('"file with spaces"') == 'file with spaces')
+</pre>
+
+
+
+
+
+
+
+
+
+
+</div> <!-- id="content" -->
+
+</div> <!-- id="main" -->
+
+<div id="about">
+	<p><a href="http://validator.w3.org/check?uri=referer">Valid XHTML 1.0!</a></p>
+</div> <!-- id="about" -->
+
+</div> <!-- id="container" -->
+
+</body>
+</html>
+
