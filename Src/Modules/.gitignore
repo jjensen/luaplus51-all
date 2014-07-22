@@ -1,5 +1,5 @@
 /lua-apr/
-/lua-curl/src/curl-7.21.6/
+/lua-curl/src/curl-*/
 /lrexlib/pcre-8.*/
 
 
