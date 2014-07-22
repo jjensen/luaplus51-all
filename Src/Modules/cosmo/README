@@ -3,14 +3,13 @@ templates, providing many of the advantages of Turing-complete
 template engines, without without the downside of allowing arbitrary
 code in the templates.
 
-The current version of Cosmo is 10.04.06. This release fixes a bug
-in the previous release, 10.03.31, that raised errors when a selector
-had embedded quotes.
+The current version of Cosmo is 14.03.04. This release fixes a bug with the latest version of LPEG.
 
-The previous version, 10.03.31, added, expressions to selectors $(<exp>),
-allowed nested [[ ]] in templates, made commas between subtemplates
-optional, and added a second parameter to cosmo.yield that tells Cosmo
-the first parameter is a literal to be included in the expansion instead
+The previous version, 13.01.30, added support for Lua 5.2. Version 10.04.06 added
+expressions to selectors $(\<exp\>), 
+allowed nested \[\[ \]\] in templates, made commas between subtemplates 
+optional, and added a second parameter to cosmo.yield that tells Cosmo 
+the first parameter is a literal to be included in the expansion instead 
 of an environment.
  
 Cosmo is installed as a rock. To install the most recent release

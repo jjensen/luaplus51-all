@@ -2,7 +2,12 @@
 local lpeg = require "lpeg"
 local re = require "re"
 
-module(..., package.seeall)
+if _VERSION == "Lua 5.2" then
+  _ENV = setmetatable({}, { __index = _G })
+else
+  module(..., package.seeall)
+  _ENV = _M
+end
 
 local function parse_selector(selector, env)
   env = env or "env"
@@ -32,26 +37,24 @@ local longstring1 = lpeg.P{
   longstring = lpeg.P"[[" * (lpeg.V"longstring" + (lpeg.P(1) - lpeg.P"]]"))^0 * lpeg.P"]]"
 }
 
-local longstring2 = lpeg.P(function (s, i)
-  local l = lpeg.match(start, s, i)
-  if not l then return nil end
-  local p = lpeg.P("]" .. string.rep("=", l - i - 2) .. "]")
-  p = (1 - p)^0 * p
-  return lpeg.match(p, s, l)
+local longstring2 = lpeg.Cmt(start, function (s, i, start)
+  local p = string.gsub(start, "%[", "]")
+  local _, e = string.find(s, p, i)
+  return (e and e + 1)
 end)
 
 local longstring = #("[" * lpeg.S"[=") * (longstring1 + longstring2)
 
 local function parse_longstring(s)
   local start = s:match("^(%[=*%[)")
-  if start then 
+  if start then
     return string.format("%q", s:sub(#start + 1, #s - #start))
   else
     return s
   end
 end
 
-local alpha =  lpeg.R('__','az','AZ','\127\255') 
+local alpha =  lpeg.R('__','az','AZ','\127\255')
 
 local n = lpeg.R'09'
 
@@ -66,31 +69,31 @@ local shortstring = (lpeg.P'"' * ( (lpeg.P'\\' * 1) + (1 - (lpeg.S'"\n\r\f')) )^
   (lpeg.P"'" * ( (lpeg.P'\\' * 1) + (1 - (lpeg.S"'\n\r\f")) )^0 * lpeg.P"'")
 
 local space = (lpeg.S'\n \t\r\f')^0
- 
+
 local function syntax(lbra, rbra)
   return [[
       template <- (<item>* -> {} !.) -> compiletemplate
       item <- <text> / <templateappl> / (. => error)
       text <- ({~ (!<selector> ('$$' -> '$' / .))+ ~}) -> compiletext
-      selector <- ('$]] .. lbra .. [[' %s {~ <exp> ~} %s ']] .. rbra .. [[') -> parseexp / 
+      selector <- ('$]] .. lbra .. [[' %s {~ <exp> ~} %s ']] .. rbra .. [[') -> parseexp /
          ('$' %alphanum+ ('|' %alphanum+)*) -> parseselector
-      templateappl <- ({~ <selector> ~} {~ <args>? ~} !'{' 
-	 ({%longstring} -> compilesubtemplate)? (%s ','? %s ({%longstring} -> compilesubtemplate))* -> {} !(','? %s %start)) 
-	 -> compileapplication
+      templateappl <- ({~ <selector> ~} {~ <args>? ~} !'{'
+         ({%longstring} -> compilesubtemplate)? (%s ','? %s ({%longstring} -> compilesubtemplate))* -> {} !(','? %s %start))
+         -> compileapplication
       args <- '{' %s '}' / '{' %s <arg> %s (',' %s <arg> %s)* ','? %s '}'
       arg <- <attr> / <exp>
       attr <- <symbol> %s '=' !'=' %s <exp> / '[' !'[' !'=' %s <exp> %s ']' %s '=' %s <exp>
       symbol <- %alpha %alphanum*
       explist <- <exp> (%s ',' %s <exp>)* (%s ',')?
       exp <- <simpleexp> (%s <binop> %s <simpleexp>)*
-      simpleexp <- <args> / %string / %longstring -> parsels / %number / 'true' / 'false' / 
+      simpleexp <- <args> / %string / %longstring -> parsels / %number / 'true' / 'false' /
          'nil' / <unop> %s <exp> / <prefixexp> / (. => error)
-      unop <- '-' / 'not' / '#' 
+      unop <- '-' / 'not' / '#'
       binop <- '+' / '-' / '*' / '/' / '^' / '%' / '..' / '<=' / '<' / '>=' / '>' / '==' / '~=' /
           'and' / 'or'
-      prefixexp <- ( <selector> / {%name} -> addenv / '(' %s <exp> %s ')' ) 
-          ( %s <args> / '.' %name / ':' %name %s ('(' %s ')' / '(' %s <explist> %s ')') / 
-          '[' %s <exp> %s ']' / '(' %s ')' / '(' %s <explist> %s ')' / 
+      prefixexp <- ( <selector> / {%name} -> addenv / '(' %s <exp> %s ')' )
+          ( %s <args> / '.' %name / ':' %name %s ('(' %s ')' / '(' %s <explist> %s ')') /
+          '[' %s <exp> %s ']' / '(' %s ')' / '(' %s <explist> %s ')' /
           %string / %longstring -> parsels %s )*
   ]]
 end
@@ -126,7 +129,7 @@ end
 local function ast_subtemplate(text)
   local start = text:match("^(%[=*%[)")
   if start then text = text:sub(#start + 1, #text - #start) end
-  return _M.ast:match(text)
+  return ast:match(text)
 end
 
 local syntax_defs = {
@@ -143,9 +146,9 @@ local syntax_defs = {
   parsels = parse_longstring,
   addenv = function (s) return "env['" .. s .. "']" end,
   error = function (tmpl, pos)
-    	        local line, pos = pos_to_line(tmpl, pos)
-		error("syntax error in template at line " .. line .. " position " .. pos)
-	      end,
+                local line, pos = pos_to_line(tmpl, pos)
+                error("syntax error in template at line " .. line .. " position " .. pos)
+              end,
   compiletemplate = ast_template,
   compiletext = ast_text,
   compileapplication = ast_template_application,
@@ -159,3 +162,5 @@ function new(lbra, rbra)
 end
 
 default = new()
+
+return _ENV

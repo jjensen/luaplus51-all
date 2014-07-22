@@ -12,11 +12,11 @@ $(config_file):
 all:
 
 install: $(config_file)
-	mkdir -p $(LUA_DIR)
-	mkdir -p $(LUA_DIR)/cosmo
-	cp src/cosmo.lua $(LUA_DIR)/
-	cp src/cosmo/grammar.lua $(LUA_DIR)/cosmo
-	cp src/cosmo/fill.lua $(LUA_DIR)/cosmo
+	mkdir -p $(DESTDIR)$(LUA_DIR)
+	mkdir -p $(DESTDIR)$(LUA_DIR)/cosmo
+	cp src/cosmo.lua $(DESTDIR)$(LUA_DIR)/
+	cp src/cosmo/grammar.lua $(DESTDIR)$(LUA_DIR)/cosmo
+	cp src/cosmo/fill.lua $(DESTDIR)$(LUA_DIR)/cosmo
 
 install-rocks: install
 	mkdir -p $(PREFIX)/samples

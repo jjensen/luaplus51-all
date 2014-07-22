@@ -42,11 +42,10 @@ code in the templates.
 <a name="Overview"></a>Installation
 =================================================
 
-The current version of Cosmo is 10.04.06. This release fixes a bug
-in the previous release, 10.03.31, that raised errors when a selector
-had embedded quotes.
+The current version of Cosmo is 14.03.04. This release fixes a bug with the latest version of LPEG.
 
-The previous version, 10.03.31, added, expressions to selectors $(\<exp\>), 
+The previous version, 13.01.30, added support for Lua 5.2. Version 10.04.06 added
+expressions to selectors $(\<exp\>), 
 allowed nested \[\[ \]\] in templates, made commas between subtemplates 
 optional, and added a second parameter to cosmo.yield that tells Cosmo 
 the first parameter is a literal to be included in the expansion instead 
@@ -456,7 +455,7 @@ much feedback and inspiration by André Carregal. This version is a reimplementa
 by Fabio Mascarenhas, with aditional features. The implementations
 are not derived from licensed software.
 
-Copyright © 2008-2010 Fabio Mascarenhas.
+Copyright © 2008-2014 Fabio Mascarenhas.
 Copyright © 2007-2008 Yuri Takhteyev.
 
 ---------------------------------

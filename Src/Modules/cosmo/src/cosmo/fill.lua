@@ -1,7 +1,12 @@
 
 local grammar = require "cosmo.grammar"
 
-module(..., package.seeall)
+if _VERSION == "Lua 5.2" then
+  _ENV = setmetatable({}, { __index = _G })
+else
+  module(..., package.seeall)
+  _ENV = _M
+end
 
 local function is_callable(f)
   if type(f) == "function" then return true end
@@ -15,15 +20,15 @@ local concat = table.concat
 
 local function prepare_env(env, parent)
   local __index = function (t, k)
-		    local v = env[k]
-		    if not v then
-		      v = parent[k]
-		    end
-		    return v
-		  end
+                    local v = env[k]
+                    if not v then
+                      v = parent[k]
+                    end
+                    return v
+                  end
   local __newindex = function (t, k, v)
-		       env[k] = v
-		     end
+                       env[k] = v
+                     end
   return setmetatable({ self = env }, { __index = __index, __newindex = __newindex })
 end
 
@@ -63,12 +68,12 @@ function interpreter.appl(state, appl)
       insert(out, tostring(selector))
     else
       if is_callable(selector) then
-	insert(out, tostring(selector()))
+        insert(out, tostring(selector()))
       else
-	if not selector and opts.passthrough then
-	  selector = selector_name
-	end
-	insert(out, tostring(selector or ""))
+        if not selector and opts.passthrough then
+          selector = selector_name
+        end
+        insert(out, tostring(selector or ""))
       end
     end
   else
@@ -76,41 +81,41 @@ function interpreter.appl(state, appl)
       check_selector(selector_name, selector)
       args = loadstring("local env = (...); return " .. args)(env)
       for e, literal in coroutine.wrap(selector), args, true do
-	if literal then
-	  insert(out, tostring(e))
-	else
-	  if type(e) ~= "table" then
-	    e = prepare_env({ it = tostring(e) }, env)
-	  else
-	    e = prepare_env(e, env)
-	  end
-	  interpreter.template({ env = e, out = out, opts = opts }, subtemplates[e.self._template or 1] or default)
-	end
+        if literal then
+          insert(out, tostring(e))
+        else
+          if type(e) ~= "table" then
+            e = prepare_env({ it = tostring(e) }, env)
+          else
+            e = prepare_env(e, env)
+          end
+          interpreter.template({ env = e, out = out, opts = opts }, subtemplates[e.self._template or 1] or default)
+        end
       end
     else
       if type(selector) == 'table' then
-	for _, e in ipairs(selector) do
-	  if type(e) ~= "table" then
-	    e = prepare_env({ it = tostring(e) }, env)
-	  else
-	    e = prepare_env(e, env) 
-	  end
-	  interpreter.template({ env = e, out = out, opts = opts }, subtemplates[e.self._template or 1] or default)
-	end
+        for _, e in ipairs(selector) do
+          if type(e) ~= "table" then
+            e = prepare_env({ it = tostring(e) }, env)
+          else
+            e = prepare_env(e, env)
+          end
+          interpreter.template({ env = e, out = out, opts = opts }, subtemplates[e.self._template or 1] or default)
+        end
       else
-	check_selector(selector_name, selector)
-	for e, literal in coroutine.wrap(selector), nil, true do
-	  if literal then
-	    insert(out, tostring(e))
-	  else
-	    if type(e) ~= "table" then
-	      e = prepare_env({ it = tostring(e) }, env)
-	    else
-	      e = prepare_env(e, env)
-	    end
-	    interpreter.template({ env = e, out = out, opts = opts }, subtemplates[e.self._template or 1] or default)
-	  end
-	end
+        check_selector(selector_name, selector)
+        for e, literal in coroutine.wrap(selector), nil, true do
+          if literal then
+            insert(out, tostring(e))
+          else
+            if type(e) ~= "table" then
+              e = prepare_env({ it = tostring(e) }, env)
+            else
+              e = prepare_env(e, env)
+            end
+            interpreter.template({ env = e, out = out, opts = opts }, subtemplates[e.self._template or 1] or default)
+          end
+        end
       end
     end
   end
@@ -133,3 +138,5 @@ function fill(template, env, opts)
    interpreter.template({ env = env, out = out, opts = opts }, grammar.ast:match(template))
    return concat(out, opts.delim)
 end
+
+return _ENV

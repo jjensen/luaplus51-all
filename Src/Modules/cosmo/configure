@@ -25,10 +25,11 @@ if [ $lua_root != "" ]; then
   lua_share=$lua_root/share/lua/5.1
   lua_lib=$lua_root/lib/lua/5.1
   bin_dir=$lua_root/bin
-  echo "LUA_BIN= $lua_bin" > config
-  echo "LUA_DIR= $lua_share" >> config
-  echo "BIN_DIR= $bin_dir" >> config
-  echo "LUA_LIBDIR= $lua_lib" >> config
+  echo "LUA_BIN ?= $lua_bin" > config
+  echo "LUA_DIR ?= $lua_share" >> config
+  echo "BIN_DIR ?= $bin_dir" >> config
+  echo "LUA_LIBDIR ?= $lua_lib" >> config
+  echo "DESTDIR ?= /" >> config
   echo "Now run 'make && sudo make install'"
 else
   echo "Lua not found, please install Lua 5.1 (and put in your PATH)"
