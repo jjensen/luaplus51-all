@@ -1,4 +1,4 @@
-module(..., package.seeall)
+local M = {}
 
 -- Loosely based on a PHP implementation.
 local lom = require "lxp.lom"
@@ -37,7 +37,7 @@ local function xml_depth(vals)
 end
 
 
-function luaize(data)
+function M.luaize(data)
 	data = data:gsub('<%?xml.-%?>(.+)', "%1")
 	data = '<root>' .. data .. '</root>'
 
@@ -213,7 +213,7 @@ local function xmlsave_recurse(indent, luaTable, xmlTable, maxIndentLevel)
 end
 
 
-function xmlize(outFilename, luaTable, indent, maxIndentLevel)
+function M.xmlize(outFilename, luaTable, indent, maxIndentLevel)
 	local xmlTable = {}
 	xmlsave_recurse(indent, luaTable, xmlTable, maxIndentLevel)
 	local outText = table.concat(xmlTable)
@@ -225,4 +225,6 @@ function xmlize(outFilename, luaTable, indent, maxIndentLevel)
 		file:close()
 	end
 end
+
+return M
 
