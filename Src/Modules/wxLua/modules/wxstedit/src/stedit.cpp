@@ -2901,8 +2901,8 @@ bool wxSTEditor::StartAutoCompleteWord(bool onlyOneWord, bool add_keywords) {
 
         // wordsNear contains a list of words separated by single spaces and with a space
         // at the start and end. This makes it easy to search for words.
-        //wxArrayString wordsNear; //(autoCompleteIgnoreCase ? wxSTE_StringSortNoCase : wxSTE_StringSort);
-        wxSortedArrayString wordsNear; //(autoCompleteIgnoreCase ? wxSTE_StringSortNoCase : wxSTE_StringSort);
+        wxArrayString wordsNear; //(autoCompleteIgnoreCase ? wxSTE_StringSortNoCase : wxSTE_StringSort);
+        //wxSortedArrayString wordsNear; //(autoCompleteIgnoreCase ? wxSTE_StringSortNoCase : wxSTE_StringSort);
 
         if (add_keywords)
         {

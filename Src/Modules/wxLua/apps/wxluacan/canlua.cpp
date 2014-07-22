@@ -23,6 +23,7 @@
 #include <wx/listimpl.cpp>
 WX_DEFINE_LIST(wxlCanObjList);
 
+
 //------------------------------------------------------------------
 //-------- wxlCanObj
 //------------------------------------------------------------------
@@ -70,9 +71,9 @@ void wxlCanObj::Update( double absx, double absy )
     DoUpdate( absx, absy );
 
     // iterate over the child list
-    for ( wxlCanObjList::Node *node = m_objects.GetFirst(); node; node = node->GetNext() )
+    for ( wxlCanObjList::iterator node = m_objects.begin(); node != m_objects.end(); node++ )
     {
-        wxlCanObj *obj = node->GetData();
+        wxlCanObj *obj = *node;
         obj->Update( absx, absy );
     }
 }
@@ -93,9 +94,9 @@ void wxlCanObj::Draw( wxDC& dc, double absx, double absy )
     DoDraw( dc, absx, absy );
 
     // iterate over the child list
-    for ( wxlCanObjList::Node *node = m_objects.GetFirst(); node; node = node->GetNext() )
+    for ( wxlCanObjList::iterator node = m_objects.begin(); node != m_objects.end(); node++ )
     {
-        wxlCanObj *drawobj = node->GetData();
+        wxlCanObj *drawobj = *node;
         // restore brush and pen
         dc.SetBrush( currentBrush );
         dc.SetPen( currentPen );
@@ -106,9 +107,9 @@ void wxlCanObj::Draw( wxDC& dc, double absx, double absy )
 wxlCanObj* wxlCanObj::WhichIsHit( double x, double y )
 {
     // iterate over the child list
-    for ( wxlCanObjList::Node *node = m_objects.GetLast(); node; node = node->GetPrevious() )
+    for ( wxlCanObjList::reverse_iterator node = m_objects.rbegin(); node != m_objects.rend(); node++ )
     {
-        wxlCanObj *drawobj = node->GetData();
+        wxlCanObj *drawobj = *node;
         if ( drawobj->IsHit( x, y ) )
             return drawobj;
     }
@@ -124,9 +125,9 @@ bool wxlCanObj::IsHit( double x, double y, double absx, double absy )
         return true;
 
     // iterate over the child list
-    for ( wxlCanObjList::Node *node = m_objects.GetFirst(); node; node = node->GetNext() )
+    for ( wxlCanObjList::iterator node = m_objects.begin(); node != m_objects.end(); node++ )
     {
-        wxlCanObj *drawobj = node->GetData();
+        wxlCanObj *drawobj = *node;
         if ( drawobj->IsHit( x, y, absx, absy ) )
             return true;
     }
@@ -564,7 +565,7 @@ void wxlCan::OnScroll(wxScrollWinEvent& event)
     int dx,dy;
     GetClientSize(&dx,&dy);
 
-    wxScrolledWindow::OnScroll( event );
+    wxScrolledWindow::HandleOnScroll( event );
 
     m_pendingObjects = true;
 }

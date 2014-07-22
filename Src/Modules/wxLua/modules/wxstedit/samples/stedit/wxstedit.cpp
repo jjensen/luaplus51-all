@@ -92,22 +92,23 @@ enum wxCmdLineEntries_Type
     CMDLINE_PARAM__COUNT
 };
 
+
 static const wxCmdLineEntryDesc cmdLineDesc[] =
 {
-    { wxCMD_LINE_SWITCH, wxT_2("1"), wxT_2("single"), _("Single file mode"),
+    { wxCMD_LINE_SWITCH, wxT_2("1"), wxT_2("single"), wxT_2("Single file mode"),
         wxCMD_LINE_VAL_NONE, wxCMD_LINE_PARAM_OPTIONAL },
 
-    { wxCMD_LINE_SWITCH, wxT_2("r"), wxT_2("recurse"), _("Recursively open the given file patterns, quote wildcards \"*.txt\""),
+    { wxCMD_LINE_SWITCH, wxT_2("r"), wxT_2("recurse"), wxT_2("Recursively open the given file patterns, quote wildcards \"*.txt\""),
         wxCMD_LINE_VAL_NONE, wxCMD_LINE_PARAM_OPTIONAL },
 
-    { wxCMD_LINE_OPTION, wxT_2("c"), wxT_2("config"), _("Use the wxStEdit configuration file"),
+    { wxCMD_LINE_OPTION, wxT_2("c"), wxT_2("config"), wxT_2("Use the wxStEdit configuration file"),
         wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL|wxCMD_LINE_NEEDS_SEPARATOR },
 
-    { wxCMD_LINE_PARAM,  wxT_2(""),  wxT_2(""),       _("Input filename(s)"),
+    { wxCMD_LINE_PARAM,  wxT_2(""),  wxT_2(""),       wxT_2("Input filename(s)"),
         wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL|wxCMD_LINE_PARAM_MULTIPLE },
 
-    { wxCMD_LINE_OPTION, wxT_2("l"), wxT_2("lang"),      _("Specify language"), wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL },
-    { wxCMD_LINE_SWITCH, NULL,       wxT_2("langdialog"), _("Language dialog"), wxCMD_LINE_VAL_NONE,   wxCMD_LINE_PARAM_OPTIONAL },
+    { wxCMD_LINE_OPTION, wxT_2("l"), wxT_2("lang"),      wxT_2("Specify language"), wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL },
+    { wxCMD_LINE_SWITCH, NULL,       wxT_2("langdialog"), wxT_2("Language dialog"), wxCMD_LINE_VAL_NONE,   wxCMD_LINE_PARAM_OPTIONAL },
 
     { wxCMD_LINE_NONE, NULL, NULL, NULL, wxCMD_LINE_VAL_NONE, 0 },
 };

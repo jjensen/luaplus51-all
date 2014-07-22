@@ -60,11 +60,13 @@ int* p_wxluatype_wxPoint             = &wxluatype_TUNKNOWN;
 // wxlua_tableErrorHandler
 // ----------------------------------------------------------------------------
 
+/*
 static int LUACALL wxlua_tableErrorHandler(lua_State *L)
 {
     wxlua_error(L, "Cannot modify read-only wxLua table");
     return 0;
 }
+*/
 
 // ----------------------------------------------------------------------------
 // Generic delete function for bindings
@@ -138,7 +140,7 @@ int LUACALL wxlua_wxLuaBindClass__index(lua_State *L)
     {
         // name is NULL if it's not a string
         wxlua_error(L, wxString::Format(_("wxLua: Attempt to call a class method using '%s' on a '%s' wxLua type."),
-            wxlua_luaL_typename(L, 2).c_str(), lua2wx(wxlClass->name).c_str()));
+            wxlua_luaL_typename(L, 2).c_str(), lua2wx(wxlClass->name).c_str()).c_str());
     }
     else if (wxluaT_type(L, 1) == *wxlClass->wxluatype)
     {
@@ -228,7 +230,7 @@ int LUACALL wxlua_wxLuaBindClass__index(lua_State *L)
     if (!found)
     {
         wxlua_error(L, wxString::Format(_("wxLua: Unable to call an unknown method '%s' on a '%s' type."),
-            lua2wx(name).c_str(), lua2wx(wxlClass ? wxlClass->name : "").c_str()));
+            lua2wx(name).c_str(), lua2wx(wxlClass ? wxlClass->name : "").c_str()).c_str());
     }
 
     return result;
@@ -252,7 +254,7 @@ int LUACALL wxlua_wxLuaBindClass__newindex(lua_State *L)
     {
         // name is NULL if it's not a string
         wxlua_error(L, wxString::Format(_("wxLua: Attempt to call or add a class method using '%s' on a '%s' type."),
-            wxlua_luaL_typename(L, 2).c_str(), lua2wx(wxlClass->name).c_str()));
+            wxlua_luaL_typename(L, 2).c_str(), lua2wx(wxlClass->name).c_str()).c_str());
     }
     else if (wxluaT_type(L, 1) == *wxlClass->wxluatype)
     {
@@ -303,7 +305,7 @@ int LUACALL wxlua_wxLuaBindClass__newindex(lua_State *L)
     if (!found)
     {
         wxlua_error(L, wxString::Format(_("wxLua: Unable to call or add an unknown method '%s' on a '%s' type."),
-            lua2wx(name).c_str(), lua2wx(wxlClass ? wxlClass->name : "").c_str()));
+            lua2wx(name).c_str(), lua2wx(wxlClass ? wxlClass->name : "").c_str()).c_str());
     }
 
     return 0;
@@ -364,7 +366,7 @@ int LUACALL wxlua_wxLuaBindMethod_table__index(lua_State *L)
     {
         // name is NULL if it's not a string
         wxlua_error(L, wxString::Format(_("wxLua: Attempt to call a static class method using '%s' on a '%s' type."),
-            wxlua_luaL_typename(L, 2).c_str(), lua2wx(wxlClass->name).c_str()));
+            wxlua_luaL_typename(L, 2).c_str(), lua2wx(wxlClass->name).c_str()).c_str());
         return 0;
     }
 
@@ -397,7 +399,7 @@ int LUACALL wxlua_wxLuaBindMethod_table__newindex(lua_State *L)
     {
         // name is NULL if it's not a string
         wxlua_error(L, wxString::Format(_("wxLua: Attempt to call a static class method using '%s' on a '%s' type."),
-            wxlua_luaL_typename(L, 2).c_str(), lua2wx(wxlClass->name).c_str()));
+            wxlua_luaL_typename(L, 2).c_str(), lua2wx(wxlClass->name).c_str()).c_str());
         return 0;
     }
 
@@ -562,7 +564,7 @@ int LUACALL wxlua_callOverloadedFunction(lua_State* L, struct wxLuaBindMethod* w
 
     errmsg += wxT("\n") + fnOverloadList;
 
-    wxlua_error(L, errmsg);
+    wxlua_error(L, errmsg.c_str());
 
     return 0;
 }
