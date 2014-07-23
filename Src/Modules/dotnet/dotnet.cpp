@@ -3,6 +3,11 @@
 #include <assert.h>
 #include "mscoree.h"
 
+#if LUA_VERSION_NUM >= 502
+#undef luaL_register
+#define luaL_register(L, n, f) luaL_setfuncs(L, f, 0)
+#endif
+
 /*
 using namespace System;
 using namespace System::IO;
