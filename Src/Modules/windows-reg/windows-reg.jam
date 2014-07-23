@@ -1,0 +1,17 @@
+if $(NT)
+{
+
+local SRCS =
+        src/hkey.c
+        src/pusherror.c
+        src/pusherror.h
+        src/reg.lua
+;
+
+CopyFile windows-reg : $(LUA_LDIR)/windows/reg.lua : $(SUBDIR)/src/reg.lua ;
+
+C.LinkPrebuiltLibraries windows-reg : advapi32 ;
+
+Lua.CModule windows-reg : windows/hkey : $(SRCS) ;
+
+}
