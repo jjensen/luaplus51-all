@@ -2063,6 +2063,84 @@ int wxLuaState::lua_GetHookCount()
 // ----------------------------------------------------------------------------
 // Raw Lua auxlib functions, lauxlib.h
 
+#if LUA_VERSION_NUM >= 502
+
+static const char *luaL_findtable (lua_State *L, int idx,
+                                   const char *fname, int szhint) {
+  const char *e;
+  if (idx) lua_pushvalue(L, idx);
+  do {
+    e = strchr(fname, '.');
+    if (e == NULL) e = fname + strlen(fname);
+    lua_pushlstring(L, fname, e - fname);
+    lua_rawget(L, -2);
+    if (lua_isnil(L, -1)) {  /* no such field? */
+      lua_pop(L, 1);  /* remove this nil */
+      lua_createtable(L, 0, (*e == '.' ? 1 : szhint)); /* new table for field */
+      lua_pushlstring(L, fname, e - fname);
+      lua_pushvalue(L, -2);
+      lua_settable(L, -4);  /* set new table into field */
+    }
+    else if (!lua_istable(L, -1)) {  /* field has a non-table value? */
+      lua_pop(L, 2);  /* remove table and value */
+      return fname;  /* return problematic part of the name */
+    }
+    lua_remove(L, -2);  /* remove previous table */
+    fname = e + 1;
+  } while (*e == '.');
+  return NULL;
+}
+
+
+/*
+** Count number of elements in a luaL_Reg list.
+*/
+static int libsize (const luaL_Reg *l) {
+  int size = 0;
+  for (; l && l->name; l++) size++;
+  return size;
+}
+
+
+/*
+** Find or create a module table with a given name. The function
+** first looks at the _LOADED table and, if that fails, try a
+** global variable with that name. In any case, leaves on the stack
+** the module table.
+*/
+LUALIB_API void luaL_pushmodule (lua_State *L, const char *modname,
+                                 int sizehint) {
+  luaL_findtable(L, LUA_REGISTRYINDEX, "_LOADED", 1);  /* get _LOADED table */
+  lua_getfield(L, -1, modname);  /* get _LOADED[modname] */
+  if (!lua_istable(L, -1)) {  /* not found? */
+    lua_pop(L, 1);  /* remove previous result */
+    /* try global variable (and create one if it does not exist) */
+    lua_pushglobaltable(L);
+    if (luaL_findtable(L, 0, modname, sizehint) != NULL)
+      luaL_error(L, "name conflict for module " LUA_QS, modname);
+    lua_pushvalue(L, -1);
+    lua_setfield(L, -3, modname);  /* _LOADED[modname] = new table */
+  }
+  lua_remove(L, -2);  /* remove _LOADED table */
+}
+
+
+LUALIB_API void luaL_openlib (lua_State *L, const char *libname,
+                               const luaL_Reg *l, int nup) {
+  luaL_checkversion(L);
+  if (libname) {
+    luaL_pushmodule(L, libname, libsize(l));  /* get/create library table */
+    lua_insert(L, -(nup + 1));  /* move library table to below upvalues */
+  }
+  if (l)
+    luaL_setfuncs(L, l, nup);
+  else
+    lua_pop(L, nup);  /* remove upvalues */
+}
+
+#define luaL_register(L,n,l)	(luaL_openlib(L,(n),(l),0))
+#endif
+
 void wxLuaState::luaL_Register(const char *libname, const luaL_Reg *l)
 {
     wxCHECK_RET(Ok(), wxT("Invalid wxLuaState"));
