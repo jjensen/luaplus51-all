@@ -1,16 +1,14 @@
-module(..., package.seeall)
-
-require 'ex.core'
+local M = require 'ex.core'
 
 -- ex.parsecommandline
-function ex.parsecommandline(commandline)
+function M.parsecommandline(commandline)
 	require 'lpeg'
 	local field = lpeg.C('\"' * (lpeg.P(1) - '\"')^0 * '\"' + (1 - lpeg.P' ')^0)
 	return lpeg.Ct(field * (lpeg.P(' ')^1 * field)^0 * -1):match(commandline)
 end
 
 -- ex.popen
-function ex.popen(args, binary)
+function M.popen(args, binary)
 	local out_rd, out_wr = io.pipe(not binary)
 	args.stdout = out_wr
 	if args.stderr_to_stdout then
@@ -26,7 +24,7 @@ function ex.popen(args, binary)
 end
 
 -- ex.lines
-function ex.lines(args, binary)
+function M.lines(args, binary)
 	local proc, input = popen(args, not binary)
 	return function()
 		local line = input:read("*l")
@@ -37,7 +35,7 @@ function ex.lines(args, binary)
 end
 
 -- ex.rawlines
-function ex.rawlines(args, binary)
+function M.rawlines(args, binary)
 	local proc, input = popen(args, not binary)
 	return function()
 		local line = input:read(100)
@@ -48,7 +46,7 @@ function ex.rawlines(args, binary)
 end
 
 -- ex.popen2()
-function ex.popen2(args, binary)
+function M.popen2(args, binary)
 	local in_rd, in_wr = io.pipe(not binary)
 	local out_rd, out_wr = io.pipe(not binary)
 	args.stdin = in_rd
@@ -66,7 +64,7 @@ function ex.popen2(args, binary)
 end
 
 -- ex.collectlines
-function ex.collectlines(args)
+function M.collectlines(args)
 	local lines = {}
 	for line in ex.lines(args) do
 		lines[#lines + 1] = line
@@ -169,7 +167,7 @@ local function copy_directory_helper(srcPath, destPath, options)
 end
 
 
-function ex.copydirectory(srcPath, destPath, options)
+function M.copydirectory(srcPath, destPath, options)
 	if not filefind then
 		filefind = require 'filefind'
 	end
@@ -186,7 +184,7 @@ function ex.copydirectory(srcPath, destPath, options)
 end
 
 
-function ex.mirrordirectory(srcPath, destPath, options)
+function M.mirrordirectory(srcPath, destPath, options)
 	if not filefind then
 		filefind = require 'filefind'
 	end
@@ -204,11 +202,10 @@ function ex.mirrordirectory(srcPath, destPath, options)
 end
 
 
-function ex.removeemptydirectories(path)
+function M.removeemptydirectories(path)
 	if not filefind then
 		filefind = require 'filefind'
 	end
-	require 'ex'
 
 	local dirs = {}
 	local remove = true
@@ -234,7 +231,7 @@ function ex.removeemptydirectories(path)
 	return remove
 end
 
-function io.readall(filename)
+function M.readall(filename)
 	local file, err = io.open(filename, 'rb')
 	if not file then return nil, err end
 	local buffer = file:read('*a')
@@ -242,10 +239,13 @@ function io.readall(filename)
 	return buffer
 end
 
-function io.writeall(filename, buffer)
+function M.writeall(filename, buffer)
 	local file, err = io.open(filename, 'wb')
 	if not file then return nil, err end
 	local result, err = file:write(buffer)
 	if not result then return result, err end
 	file:close()	
 end
+
+return M
+

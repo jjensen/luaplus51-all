@@ -715,8 +715,6 @@ static int ex_stdout_binary(lua_State *L) {
   return 0;
 }
 
-extern int luaopen_windows_hkey(lua_State *L);
-
 int luaopen_ex_core(lua_State *L)
 {
   const char *name = lua_tostring(L, 1);
@@ -796,6 +794,5 @@ int luaopen_ex_core(lua_State *L)
   luaL_getmetatable(L, LUA_FILEHANDLE);       /* . F */
   if (lua_isnil(L, -1)) return luaL_error(L, "can't find FILE* metatable");
   copyfields(L, ex_iofile_methods, ex, -1);
-  luaopen_windows_hkey(L);
   return 1;
 }
