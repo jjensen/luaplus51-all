@@ -95,7 +95,11 @@ namespace tilde
 			break;
 
 		case LUA_HOOKRET:
+#if LUA_VERSION_NUM <= 501
 		case LUA_HOOKTAILRET:
+#else
+		case LUA_HOOKTAILCALL:
+#endif
 			debugger->OnLuaCallback_HookReturn();
 			break;
 
@@ -117,8 +121,15 @@ namespace tilde
 
 	void LuaDebugger::RegisterState(lua_State* lvm)
 	{
+#if LUA_VERSION_NUM <= 501
 		lua_pushcclosure(lvm, Tilde, 0);
 		lua_setfield(lvm, LUA_GLOBALSINDEX, "Tilde");
+#else
+		lua_pushglobaltable(lvm);
+		lua_pushcclosure(lvm, Tilde, 0);
+		lua_setfield(lvm, -2, "Tilde");
+		lua_pop(lvm, 1);
+#endif
 	}
 
 	int LuaDebugger::Tilde(lua_State * lvm)
@@ -541,10 +552,17 @@ namespace tilde
 			if(lua_getstack(lvm, stackDepth, &debugInfo) == 1 && lua_getinfo(lvm, "f", &debugInfo))
 			{
 				int runningFuncIndex = lua_gettop(lvm);
+#if LUA_VERSION_NUM <= 501
 				while(lua_getvararg(lvm, &debugInfo, varArgs + 1))
 				{
 					++varArgs;
 				}
+#else
+				while(lua_getlocal(lvm, &debugInfo, (-varArgs - 1)))
+				{
+					++varArgs;
+				}
+#endif
 				lua_xmove(lvm, m_mainlvm, varArgs);
 				lua_remove(lvm, runningFuncIndex);
 			}
@@ -682,7 +700,11 @@ namespace tilde
 
 			// Get all the varargs
 			int index = 1;
+#if LUA_VERSION_NUM <= 501
 			while(lua_getvararg(lvm, &debugInfo, index))
+#else
+			while(lua_getlocal(lvm, &debugInfo, -index))
+#endif
 			{
 				int valueIndex = lua_gettop(lvm);
 
@@ -773,8 +795,38 @@ namespace tilde
 			}
 		}
 
-		if(objectType == LuaType_USERDATA || objectType == LuaType_FUNCTION)
+		if(objectType == LuaType_USERDATA)
 		{
+#if LUA_VERSION_NUM <= 501
+			lua_getfenv(lvm, objectIndex);
+#else
+			lua_getuservalue(lvm, objectIndex);
+#endif
+			int valueIndex = lua_gettop(lvm);
+
+#if LUA_VERSION_NUM <= 501
+			lua_pushvalue(lvm, LUA_GLOBALSINDEX);
+			if(!lua_equal(lvm, -1, -2))
+#else
+			lua_pushglobaltable(lvm);
+			if(!lua_compare(lvm, -1, -2, LUA_OPEQ))
+#endif
+			{
+				rootvar->m_hasMetadata = true;
+				if(rootvar->m_expanded)
+				{
+					LuaDebuggerValue key = LuaDebuggerValue(LuaType_TILDE_ENVIRONMENT);
+					LuaDebuggerValue value = LookupValue(lvm, valueIndex);
+					VariableInfo * varInfo = rootvar->UpdateValue(key, value, VariableClass_TableEntry);
+					UpdateExpansions(varInfo, lvm, valueIndex);
+				}
+			}
+			lua_pop(lvm, 2);
+		}
+
+		if(objectType == LuaType_FUNCTION)
+		{
+#if LUA_VERSION_NUM <= 501
 			lua_getfenv(lvm, objectIndex);
 			int valueIndex = lua_gettop(lvm);
 
@@ -791,10 +843,8 @@ namespace tilde
 				}
 			}
 			lua_pop(lvm, 2);
-		}
+#endif
 
-		if(objectType == LuaType_FUNCTION)
-		{
 			lua_Debug debugInfo;
 			memset(&debugInfo, 0, sizeof(lua_Debug));
 			lua_pushvalue(lvm, objectIndex);
@@ -1131,7 +1181,11 @@ namespace tilde
 		if(lua_getstack(lvm, stackDepth, &debugInfo) == 1 && lua_getinfo(lvm, "f", &debugInfo))			//     +1
 		{
 			int funcIndex = lua_gettop(lvm);
+#if LUA_VERSION_NUM <= 501
 			lua_getfenv(lvm, funcIndex);																//     +1
+#else
+			lua_getuservalue(lvm, funcIndex);		   													//     +1
+#endif
 			lua_xmove(lvm, m_mainlvm, 1);										//     +1				// -1
 			lua_remove(lvm, funcIndex);																	// -1
 		}
@@ -1139,7 +1193,11 @@ namespace tilde
 		{
 			// If there's nothing running (ie. we're evaluating 'live' on the main thread)
 			// fall back on the globals table.
+#if LUA_VERSION_NUM <= 501
 			lua_pushvalue(m_mainlvm, LUA_GLOBALSINDEX);							//     +1
+#else
+			lua_pushglobaltable(m_mainlvm);
+#endif
 		}
 		int parentEnvIndex = lua_gettop(m_mainlvm);
 		TILDE_ASSERT_MSG(lua_istable(m_mainlvm, parentEnvIndex), "The chunk environment's 'env' field was expected to be a table; got %s", lua_typename(m_mainlvm, lua_type(m_mainlvm, parentEnvIndex)));
@@ -1149,7 +1207,11 @@ namespace tilde
 		lua_setmetatable(m_mainlvm, envIndex);									// -1
 
 		// Set our environment for the function
+#if LUA_VERSION_NUM <= 501
 		lua_setfenv(m_mainlvm, functionIndex);									// -1
+#else
+		lua_setuservalue(m_mainlvm, functionIndex);		   						// -1
+#endif
 	}
 
 	int LuaDebugger::ChunkErrorFunction(lua_State * lvm)
@@ -1172,8 +1234,15 @@ namespace tilde
 			lua_pushstring(lvm, ">>\n");
 
 			// push "debug.traceback"
+#if LUA_VERSION_NUM <= 501
 			lua_pushliteral(lvm, "debug");
 			lua_gettable(lvm, LUA_GLOBALSINDEX);
+#else
+			lua_pushglobaltable(lvm);
+			lua_pushliteral(lvm, "debug");
+			lua_gettable(lvm, -2);
+			lua_remove(lvm, -2);
+#endif
 			lua_pushliteral(lvm, "traceback");
 			lua_gettable(lvm, -2);
 			lua_remove(lvm, -2);
@@ -1220,7 +1289,11 @@ namespace tilde
 			{
 				int funcIndex = lua_gettop(lvm);
 				lua_pushvalue(lvm, envIndex);
+#if LUA_VERSION_NUM <= 501
 				lua_setfenv(lvm, funcIndex);
+#else
+				lua_setuservalue(lvm, funcIndex);
+#endif
 				lua_pop(lvm, 1);
 			}
 
@@ -1347,7 +1420,11 @@ namespace tilde
 			{
 				int funcIndex = lua_gettop(lvm);
 				lua_pushvalue(lvm, envIndex);
+#if LUA_VERSION_NUM <= 501
 				lua_setfenv(lvm, funcIndex);
+#else
+				lua_setuservalue(lvm, funcIndex);
+#endif
 				lua_pop(lvm, 1);
 			}
 
@@ -1444,9 +1521,17 @@ namespace tilde
 		{
 			// There's no lua function running, so just look in the globals
 			// This might trigger an error
+#if LUA_VERSION_NUM >= 502
+			lua_pushglobaltable(lvm);
+#endif
 			lua_pushvalue(lvm, 2);
 			lua_pushvalue(lvm, 3);
+#if LUA_VERSION_NUM <= 501
 			lua_settable(lvm, LUA_GLOBALSINDEX);
+#else
+			lua_settable(lvm, -3);
+			lua_pop(lvm, 1);
+#endif
 		}
 
 

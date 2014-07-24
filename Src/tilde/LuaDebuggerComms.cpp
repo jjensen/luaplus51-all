@@ -131,9 +131,17 @@ namespace tilde
 		lua_settable(lvm, LUA_REGISTRYINDEX);
 
 		// Put the ThreadTable into the globals as well
+#if LUA_VERSION_NUM >= 502
+		lua_pushglobaltable(lvm);
+#endif
 		lua_pushstring(lvm, "ThreadTable");
 		lua_pushvalue(lvm, cacheIndex);
+#if LUA_VERSION_NUM <= 501
 		lua_settable(lvm, LUA_GLOBALSINDEX);
+#else
+		lua_settable(lvm, -3);
+		lua_pop(lvm, 1);
+#endif
 
 		// Pop the cache and metatable from the stack
 		lua_pop(lvm, 1);
@@ -1103,8 +1111,16 @@ namespace tilde
 		{
 			lua_State* profilelvm = m_nameToLuaStateMap.begin()->second;
 			lua_State * lvm = profilelvm;
+#if LUA_VERSION_NUM >= 502
+			lua_pushglobaltable(lvm);
+#endif
 			lua_pushstring(lvm, varname);
+#if LUA_VERSION_NUM <= 501
 			lua_rawget(lvm, LUA_GLOBALSINDEX);
+#else
+			lua_rawget(lvm, -2);
+			lua_remove(lvm, -2);
+#endif
 
 			if(lua_istable(lvm, -1))
 			{
