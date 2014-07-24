@@ -23,6 +23,9 @@
 #include "lauxlib.h"
 #include "lualib.h"
 
+#if LUA_TILDE_DEBUGGER
+#include "tilde/LuaTilde.h"
+#endif /* LUA_TILDE_DEBUGGER */
 
 #if !defined(LUA_PROMPT)
 #define LUA_PROMPT		"> "
@@ -95,6 +98,22 @@ static lua_State *globalL = NULL;
 
 static const char *progname = LUA_PROGNAME;
 
+
+
+static void DebugLineHook( lua_State* inState, lua_Debug* ar )
+{
+  if ( ar->event == LUA_HOOKLINE )
+  {
+    lua_Debug debugInfo;
+    lua_getstack( inState, 0, &debugInfo );
+    lua_getinfo( inState, "Sl", &debugInfo );
+
+    if ( debugInfo.source[0] == '@' )
+      debugInfo.source++;
+
+    printf("%s[%d]\n", debugInfo.source, debugInfo.currentline - 1);
+  }
+}
 
 
 static void lstop (lua_State *L, lua_Debug *ar) {
@@ -337,6 +356,13 @@ static int handle_script (lua_State *L, char **argv, int n) {
   fname = argv[n];
   if (strcmp(fname, "-") == 0 && strcmp(argv[n-1], "--") != 0)
     fname = NULL;  /* stdin */
+#if LUA_TILDE_DEBUGGER  &&  _MSC_VER
+  char buffer[4096];
+  if (fname) {
+    _fullpath(buffer, fname, 4096);
+    fname = buffer;
+  }
+#endif // LUA_TILDE_DEBUGGER  && _MSC_VER
   status = luaL_loadfile(L, fname);
   lua_insert(L, -(narg+1));
   if (status == LUA_OK)
@@ -390,6 +416,38 @@ static int collectargs (char **argv, int *args) {
             return -(i - 1);  /* no next argument or it is another option */
         }
         break;
+      case 'd': {
+#if LUA_TILDE_DEBUGGER
+        if (strcmp(argv[i], "-debug") == 0) {
+#if defined(_WIN32)
+          char filename[_MAX_PATH];
+          char* slashptr;
+          GetModuleFileName(NULL, filename, _MAX_PATH);
+          slashptr = strrchr(filename, '\\');
+          if (slashptr) {
+            HMODULE luaTildeModule;
+            LuaTildeHost* (*LuaTilde_Command)(LuaTildeHost*, const char*, void*, void*);
+            LuaTildeHost* host;
+            slashptr++;
+#ifdef _DEBUG
+            strcpy(slashptr, "lua-tilde.debug.dll");
+#else
+            strcpy(slashptr, "lua-tilde.dll");
+#endif
+            luaTildeModule = LoadLibrary(filename);
+            LuaTilde_Command = (LuaTildeHost* (*)(LuaTildeHost*, const char*, void*, void*))GetProcAddress(luaTildeModule, "LuaTilde_Command");
+#endif // _WIN32
+            host = LuaTilde_Command(NULL, "create", (void*)10000, NULL);
+            LuaTilde_Command(host, "registerstate", "State", globalL);
+            LuaTilde_Command(host, "waitfordebuggerconnection", NULL, NULL);
+          }
+        } else
+#endif /* LUA_TILDE_DEBUGGER */
+        if (strcmp(argv[i], "-dl") == 0) {
+          lua_sethook(globalL, DebugLineHook, LUA_MASKLINE, 0);
+        }
+        break;
+      }
       default:  /* invalid option; return its index... */
         return -i;  /* ...as a negative value */
     }
@@ -485,11 +543,13 @@ static int pmain (lua_State *L) {
 
 int main (int argc, char **argv) {
   int status, result;
-  lua_State *L = luaL_newstate();  /* create state */
+  lua_State *L;
+  L = luaL_newstate();  /* create state */
   if (L == NULL) {
     l_message(argv[0], "cannot create state: not enough memory");
     return EXIT_FAILURE;
   }
+  globalL  = L;
   /* call 'pmain' in protected mode */
   lua_pushcfunction(L, &pmain);
   lua_pushinteger(L, argc);  /* 1st argument */
