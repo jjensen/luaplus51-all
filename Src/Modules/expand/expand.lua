@@ -8,16 +8,30 @@ local strsub  = string.sub
 local push    = table.insert
 local pop     = table.remove
 local concat  = table.concat
+local unpack  = table.unpack or unpack
 
-local statements = {}
-for w in string.gfind('do if for while repeat', '%a+') do
-  statements[w] = true
+local function loadchunk(s, env)
+    if load then
+        local chunk, err = load(s, nil, nil, env)
+        return chunk
+    end
+    local chunk = loadstring(s)
+    setfenv(chunk, env)
+    return chunk
 end
+
+local statements = {
+  ["do"] = true,
+  ["if"] = true,
+  ["for"] = true,
+  ["while"] = true,
+  ["repeat"] = true,
+}
 
 local function expand(str, ...)
   assert(type(str)=='string', 'expecting string')
-  local searchlist = arg
-  if not arg[1] then
+  local searchlist = { ... }
+  if not searchlist[1] then
     searchlist = { _G }
   end
   local estring,evar
@@ -159,10 +173,9 @@ local function expand(str, ...)
       else  -- expression
         var = 'return '.. var
       end
-      local f = assert(loadstring(var))
       local t = searchlist[1]
       assert(type(t)=='table' or type(t)=='userdata', 'expecting table')
-      setfenv(f, setmetatable({}, {__index=get, __newindex=t}))
+      local f = assert(loadchunk(var, setmetatable({}, {__index=get, __newindex=t})))
       return estring(tostring(f()))
     end
   end
