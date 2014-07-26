@@ -153,19 +153,19 @@ Creates a symbolic link named `symlinkFilename` that points to `targetFilename`.
 
 
 
-### path.copyfile(srcfilename, destfilename)
+### path.copy_file(srcfilename, destfilename)
 
 Copies the file named `srcfilename` to `destfilename` preserving file attributes and timestamp.
 
 <pre>
-    path.copyfile('filea.txt', 'fileb.txt')    -- Copy filea.txt to fileb.txt
+    path.copy_file('filea.txt', 'fileb.txt')    -- Copy filea.txt to fileb.txt
 </pre>
 
 
 
 
 
-### path.copydirectory(sourceDirectory, destinationDirectory [, options])
+### path.copy_directory(sourceDirectory, destinationDirectory [, options])
 
 Copies the directory named `srcdirectory` into `destdirectory` preserving file attributes and timestamps.  This function differs from `path.mirrordirectory` in that the `srcdirectory` files and directories are overlayed onto `destdirectory`.  `path.mirrordirectory` removes extra files and directories.
 
@@ -180,35 +180,35 @@ Copies the directory named `srcdirectory` into `destdirectory` preserving file a
 * `copyfile` - A function in the following form: `function(sourceFilename, destinationFilename)`
 
 <pre>
-    path.copydirectory('/dira', '/dirb')
-    path.copydirectory('/dira', '/dirb', { callback = print })
-    path.copydirectory('/dira', '/dirb', { callback = print, noop = true })
+    path.copy_directory('/dira', '/dirb')
+    path.copy_directory('/dira', '/dirb', { callback = print })
+    path.copy_directory('/dira', '/dirb', { callback = print, noop = true })
 </pre>
 
 
 
 
 
-### path.mirrordirectory(sourceDirectory, destinationDirectory, options)
+### path.mirror_directory(sourceDirectory, destinationDirectory, options)
 
-Mirrors the directory named `srcdirectory` to `destdirectory` preserving file attributes and timestamps.  `path.mirrordirectory` removes extra files and directories.
+Mirrors the directory named `srcdirectory` to `destdirectory` preserving file attributes and timestamps.  `path.mirror_directory` removes extra files and directories.
 
-`path.mirrordirectory` is identical to `ex.copydirectory` except for `options.deleteExtra = true` being provided automatically.
+`path.mirror_directory` is identical to `path.copy_directory` except for `options.deleteExtra = true` being provided automatically.
 
 <pre>
-    path.mirrordirectory('/dira', '/dirb')
+    path.mirror_directory('/dira', '/dirb')
 </pre>
 
 
 
 
 
-### path.movefile(srcfilename, destfilename)
+### path.move_file(srcfilename, destfilename)
 
 Moves the file named `srcfilename` to `destfilename`.
 
 <pre>
-    path.movefile('filea.txt', 'fileb.txt')    -- Move filea.txt to fileb.txt
+    path.move_file('filea.txt', 'fileb.txt')    -- Move filea.txt to fileb.txt
 </pre>
 
 

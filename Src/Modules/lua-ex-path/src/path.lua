@@ -1,5 +1,10 @@
 local M = {}
 
+local core = require 'ex.path.core'
+for key, value in pairs(core) do
+    M[key] = value
+end
+
 local filefind
 
 local function copy_directory_helper(srcPath, destPath, options)
@@ -7,7 +12,7 @@ local function copy_directory_helper(srcPath, destPath, options)
     local noop = options.noop
     if not noop then
         -- Create the destination directory.
-        os.mkdir(destPath)
+        M.mkdir(destPath)
     end
 
     -- Grab the destination directory contents.
@@ -57,7 +62,7 @@ local function copy_directory_helper(srcPath, destPath, options)
             local destFullPath = destPath .. fileName
             if callback then callback('del', destFullPath) end
             if not noop then
-                os.remove(destFullPath)
+                M.remove(destFullPath)
             end
         end
     end
@@ -69,8 +74,8 @@ local function copy_directory_helper(srcPath, destPath, options)
         local destFileName = destPath .. fileName
         if callback then callback('copy', srcFileName, destFileName) end
         if not noop then
-            os.chmod(destFileName, 'w')                -- Make sure we can overwrite the file
-            os.copyfile(srcFileName, destFileName)
+            M.chmod(destFileName, 'w')                -- Make sure we can overwrite the file
+            M.copy_file(srcFileName, destFileName)
         end
     end
 
@@ -81,7 +86,7 @@ local function copy_directory_helper(srcPath, destPath, options)
             local destFullPath = destPath .. dirName .. '/'
             if callback then callback('del', destFullPath) end
             if not noop then
-                os.remove(destFullPath)
+                M.remove(destFullPath)
             end
         end
     end
@@ -99,22 +104,27 @@ function M.copy_directory(srcPath, destPath, options)
         filefind = require 'filefind'
     end
 
-    srcPath = os.path.add_slash(os.path.make_slash(srcPath))
-    destPath = os.path.add_slash(os.path.make_slash(destPath))
+    srcPath = M.add_slash(M.make_slash(srcPath))
+    destPath = M.add_slash(M.make_slash(destPath))
 
     copy_directory_helper(srcPath, destPath, options)
 end
 
 
-function M.mirror_directory(srcPath, destPath, callback)
+function M.mirror_directory(srcPath, destPath, options)
     if not filefind then
         filefind = require 'filefind'
     end
 
-    srcPath = os.path.add_slash(os.path.make_slash(srcPath))
-    destPath = os.path.add_slash(os.path.make_slash(destPath))
+    srcPath = M.add_slash(M.make_slash(srcPath))
+    destPath = M.add_slash(M.make_slash(destPath))
 
-    copy_directory_helper(srcPath, destPath, callback, { deleteExtra = true })
+    if not options then
+    	options = {}
+	end
+	options.deleteExtra = true
+
+    copy_directory_helper(srcPath, destPath, callback, options)
 end
 
 
@@ -139,13 +149,13 @@ function M.remove_empty_directories(path)
     end
 
     for _, dirName in ipairs(dirs) do
-        if not ex.removeemptydirectories(path .. dirName .. '\\') then
+        if not M.remove_empty_directories(path .. dirName .. '\\') then
             remove = false
         end
     end
 
     if remove then
-        os.remove(path)
+        M.remove(path)
     end
 
     return remove
@@ -165,11 +175,6 @@ function M.write_file(filename, buffer)
     local result, err = file:write(buffer)
     if not result then return result, err end
     file:close()
-end
-
-local core = require 'ex.path.core'
-for key, value in pairs(core) do
-    M[key] = value
 end
 
 return M
