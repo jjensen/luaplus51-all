@@ -60,11 +60,11 @@ function interpreter.appl(state, appl)
   if opts.fallback then
     default = subtemplates[1]
   end
-  selector = loadstring("local env = (...); return " .. selector)(env)
+  selector = (load or loadstring)("local env = (...); return " .. selector)(env)
   if #subtemplates == 0 then
     if args and args ~= "" and args ~= "{}" then
       check_selector(selector_name, selector)
-      selector = selector(loadstring("local env = (...); return " .. args)(env), false)
+      selector = selector((load or loadstring)("local env = (...); return " .. args)(env), false)
       insert(out, tostring(selector))
     else
       if is_callable(selector) then
@@ -79,7 +79,7 @@ function interpreter.appl(state, appl)
   else
     if args and args ~= "" and args ~= "{}" then
       check_selector(selector_name, selector)
-      args = loadstring("local env = (...); return " .. args)(env)
+      args = (load or loadstring)("local env = (...); return " .. args)(env)
       for e, literal in coroutine.wrap(selector), args, true do
         if literal then
           insert(out, tostring(e))

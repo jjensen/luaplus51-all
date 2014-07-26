@@ -118,7 +118,7 @@ local function ast_template_application(selector, args, ast_first_subtemplate, a
   if not ast_subtemplates then
     ast_first_subtemplate = nil
   end
-  local subtemplates = { ast_first_subtemplate, unpack(ast_subtemplates or {}) }
+  local subtemplates = { ast_first_subtemplate, (table.unpack or unpack)(ast_subtemplates or {}) }
   return { tag = "appl", selector = selector, args = args, subtemplates = subtemplates }
 end
 
