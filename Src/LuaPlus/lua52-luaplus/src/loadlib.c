@@ -155,6 +155,42 @@ static lua_CFunction ll_sym (lua_State *L, void *lib, const char *sym) {
 ** =======================================================================
 */
 
+#if LUAPLUS_EXTENSIONS
+#include <io.h>
+static void lp_loadlocalconfig(lua_State *L) {
+  char buff[MAX_PATH + 1];
+  char *lb;
+  DWORD nsize = sizeof(buff)/sizeof(char);
+#ifndef NDEBUG
+  const char* luaplusdllName = "lua52_debug.dll";
+#else // _DEBUG
+  const char* luaplusdllName = "lua52.dll";
+#endif // _DEBUG
+
+  DWORD n = GetModuleFileNameA(GetModuleHandle(luaplusdllName), buff, nsize);
+  if (n == 0 || n == nsize || (lb = strrchr(buff, '\\')) == NULL)
+    luaL_error(L, "unable to get ModuleFileName");
+  else {
+    *lb = 0;
+    lua_pushstring(L, buff);
+    lua_setglobal(L, "__LUA_BINARY_PATH");
+
+    lua_pushstring(L, LUA_CSUFFIX);
+    lua_setglobal(L, "__LUA_CSUFFIX");
+
+    strcpy(lb, "\\lua52.config.lua");
+    if (access(buff, 0) != -1) {
+      int top = lua_gettop(L);
+      int ret = luaL_dofile(L, buff);
+      if (ret != 0)
+        luaL_error(L, "unable to load %s", buff);
+      lua_settop(L, top);
+    }
+  }
+}
+#endif
+
+
 #undef setprogdir
 
 /*
