@@ -169,10 +169,33 @@ static void setprogdir (lua_State *L) {
   char buff[MAX_PATH + 1];
   char *lb;
   DWORD nsize = sizeof(buff)/sizeof(char);
+#if LUAPLUS_EXTENSIONS
+#ifndef NDEBUG
+  const char* luaplusdllName = "lua52_debug.dll";
+#else // _DEBUG
+  const char* luaplusdllName = "lua52.dll";
+#endif // _DEBUG
+
+  DWORD n = GetModuleFileNameA(GetModuleHandle(luaplusdllName), buff, nsize);
+  if (n == 0 || n == nsize || (lb = strrchr(buff, '\\')) == NULL)
+    luaL_error(L, "unable to get ModuleFileName");
+  else {
+    const char* envOverride = getenv("LUA52_ROOT_PATH");
+    if (envOverride) {
+      strcpy(buff, envOverride);
+      if ((lb = strrchr(buff, '\\')) == NULL  &&  (lb = strrchr(buff, '/')) == NULL) {
+        luaL_error(L, "LUA52_ROOT_PATH is missing a closing backslash");
+      }
+      if (lb[1] != 0) {
+        lb = buff + strlen(buff);
+      }
+    }
+#else
   DWORD n = GetModuleFileNameA(NULL, buff, nsize);
   if (n == 0 || n == nsize || (lb = strrchr(buff, '\\')) == NULL)
     luaL_error(L, "unable to get ModuleFileName");
   else {
+#endif /* LUAPLUS_EXTENSIONS */
     *lb = '\0';
     luaL_gsub(L, lua_tostring(L, -1), LUA_EXEC_DIR, buff);
     lua_remove(L, -2);  /* remove original string */
