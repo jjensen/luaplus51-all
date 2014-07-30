@@ -1,0 +1,949 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<title>ospath API</title>
+    <link rel="stylesheet" href="doc.css" type="text/css"/>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+</head>
+
+<body>
+
+<div id="container">
+
+<div id="product">
+
+	<div id="product_name"><big><strong>ospath API</strong></big></div>
+	<div id="product_description">Lua module to manipulate files and paths</div>
+</div> <!-- id="product" -->
+
+<div id="main">
+	
+<div id="navigation">
+<h1>ospath API</h1>
+	<ul>
+
+		<li><strong>Home</strong>
+			<ul> 
+                            
+			</ul>
+		</li>
+
+	</ul>
+</div> <!-- id="navigation" -->
+
+<div id="content">
+
+
+<h1>Introduction</h1>
+
+
+
+
+
+<h1>Credits</h1>
+
+<p>Portions of this module come from <a href="http://lua-users.org/wiki/ExtensionProposal">http://lua-users.org/wiki/ExtensionProposal</a>.</p>
+
+
+
+
+
+<h1>ospath API</h1>
+
+<p>Note that all these functions return the standard (nil,"error message") on failure and that, unless otherwise specified, they return (true) on success.</p>
+
+
+
+
+
+
+<hr/>
+
+
+
+<h2>File System</h2>
+
+<h3>ospath.access(path [ , mode ])</h3>
+
+<p>Determines if the file specified by <code>path</code> is read-only or not.  Returns</p>
+
+<p><code>mode</code> is optional or can be one of the following:</p>
+
+<ul>
+    <li>If not specified, the file is checked for existence only.</li>
+    <li><code>w</code> - Checks whether the file is write-only.</li>
+    <li><code>r</code> - Checks whether the file is read-only.</li>
+    <li><code>rw</code> - Checks whether the file is readable and writeable.</li>
+</ul>
+
+<p>Returns true if the file matches the mode, false otherwise.</p>
+
+
+<pre>
+    print(ospath.access('myfile.txt'))      -- Prints true if myfile.txt exists.
+    print(ospath.access('myfile.txt', 'w')  -- Prints true if myfile.txt is write-only.
+    print(ospath.access('myfile.txt', 'r')  -- Prints true if myfile.txt is read-only.
+    print(ospath.access('myfile.txt', 'rw') -- Prints true if myfile.txt is readable and writeable.
+</pre>
+
+
+
+
+
+<h3>ospath.chdir(pathname)</h3>
+
+<p>Change the working directory to <code>pathname</code>.</p>
+
+
+<pre>
+    ospath.chdir(os.getenv("HOME"))
+</pre>
+
+
+
+
+
+<h3>ospath.chmod(pathname, mode)</h3>
+
+<p>Changes the file <code>mode</code> of <code>pathname</code>.</p>
+
+<p><code>mode</code> may be one of the following bitfields:</p>
+
+<ul>
+    <li><code>400</code> - Allow read by owner.</li>
+    <li><code>200</code> - Allow write by owner.</li>
+    <li><code>100</code> - Allow execution by owner.</li>
+    <li><code>040</code> - Allow read by group members.</li>
+    <li><code>020</code> - Allow write by group members.</li>
+    <li><code>010</code> - Allow execution by group members.</li>
+    <li><code>004</code> - Allow read by others.</li>
+    <li><code>002</code> - Allow write by others.</li>
+    <li><code>001</code> - Allow execution by others.</li>
+</ul>
+
+<p><code>mode</code> may also be symbolic:</p>
+
+<ul>
+    <li><code>w</code> - Writable.</li>
+    <li><code>r</code> - Readable.</li>
+    <li><code>rw</code> - Both read and writable.</li>
+</ul>
+
+
+<pre>
+    ospath.chmod('script', 777)
+
+    ospath.chmod('writablefile', 'w')
+</pre>
+
+
+
+
+
+<h3>cwd = ospath.getcwd()</h3>
+
+<p>Retrieves the current working directory.</p>
+
+
+<pre>
+    cwd = ospath.getcwd()
+</pre>
+
+
+
+
+
+<h3>ospath.hardlink(sourceFilename, destinationFilename)</h3>
+
+<p>Creates a hardlink named <code>destinationFilename</code> that points to <code>sourceFilename</code>.</p>
+
+
+<pre>
+    ospath.hardlink('a', 'b')               -- Hardlinks new file entry 'b' to existing file entry 'a'
+</pre>
+
+
+
+
+
+<h3>ospath.mkdir(pathname)</h3>
+
+<p>Create the directory described by <code>pathname</code>.  <code>pathname</code> is in the form of <code>dirA/dirB/dirC/</code> or <code>dirA/dirB/dirC/filename</code>.  All directories up to the final slash (or backslash) are created.  The filename component is ignored.</p>
+
+
+<pre>
+    dirName = 'dirA/dirB/dirC'
+    ospath.mkdir(dirName)                    -- Creates dirA/dirB/
+    dirName = 'dirA/dirB/dirC/'
+    ospath.mkdir(dirName)                    -- Creates dirA/dirB/dirC/
+    filename = 'dirA/dirB/dirC/filename'
+    ospath.mkdir(filename)                   -- Creates dirA/dirB/dirC/
+</pre>
+
+
+
+
+
+<h3>ospath.remove(pathname)</h3>
+
+<p>Removes the file or directory at <code>pathname</code>.  If <code>pathname</code> is a directory, all child directories and files within those directories are destroyed.</p>
+
+
+<pre>
+    ospath.remove('dirA/dirB/')              -- Remove dirB/ recursively
+    ospath.remove('dirA/file.txt')           -- Remove file.txt from dirA/
+</pre>
+
+
+
+
+
+<h3>ospath.symboliclink(symlinkFilename, targetFilename [, isDirectory = false])</h3>
+
+<p>Creates a symbolic link named <code>symlinkFilename</code> that points to <code>targetFilename</code>.  If <code>isDirectory</code> is specified, a directory-level symbolic link is created.</p>
+
+
+<pre>
+    ospath.symboliclink('a', 'b')               -- Symbolically links new file entry 'a' to existing file entry 'b'
+</pre>
+
+
+
+
+
+<h3>ospath.copy_file(srcfilename, destfilename)</h3>
+
+<p>Copies the file named <code>srcfilename</code> to <code>destfilename</code> preserving file attributes and timestamp.</p>
+
+
+<pre>
+    ospath.copy_file('filea.txt', 'fileb.txt')    -- Copy filea.txt to fileb.txt
+</pre>
+
+
+
+
+
+
+<h3>ospath.copy_directory(sourceDirectory, destinationDirectory [, options])</h3>
+
+<p>Copies the directory named <code>srcdirectory</code> into <code>destdirectory</code> preserving file attributes and timestamps.  This function differs from <code>ospath.mirrordirectory</code> in that the <code>srcdirectory</code> files and directories are overlayed onto <code>destdirectory</code>.  <code>ospath.mirrordirectory</code> removes extra files and directories.</p>
+
+<p><code>options</code> is an optional table containing one or more of the following members:</p>
+
+<ul>
+    <li><code>callback</code> - A function in the following form: <code>function(operation, filenameA, filenameB)</code>
+    <ul>
+        <li><code>function('copy', sourceFilename, destinationFilename)</code></li>
+        <li><code>function('del', destinationFilename)</code></li>
+    </ul></li>
+    <li><code>noop</code> - (defaults to <code>false</code>) If set to <code>true</code>, a directory scan is performed, but no copies or deletes take place.</li>
+    <li><code>deleteExtra</code> - (defaults to <code>false</code>) If set to <code>true</code>, files existing in the <code>destinationDirectory</code> that do not exist in the <code>sourceDirectory</code> are removed from the <code>destinationDirectory</code>.</li>
+    <li><code>hardlink</code> - (defaults to <code>false</code>) If set to <code>true</code>, files needing to be copied to the <code>destinationDirectory</code> are hardlinked against those in the <code>sourceDirectory</code>.</li>
+    <li><code>copyfile</code> - A function in the following form: <code>function(sourceFilename, destinationFilename)</code></li>
+</ul>
+
+
+<pre>
+    ospath.copy_directory('/dira', '/dirb')
+    ospath.copy_directory('/dira', '/dirb', { callback = print })
+    ospath.copy_directory('/dira', '/dirb', { callback = print, noop = true })
+</pre>
+
+
+
+
+
+
+<h3>ospath.mirror_directory(sourceDirectory, destinationDirectory, options)</h3>
+
+<p>Mirrors the directory named <code>srcdirectory</code> to <code>destdirectory</code> preserving file attributes and timestamps.  <code>ospath.mirror_directory</code> removes extra files and directories.</p>
+
+<p><code>ospath.mirror_directory</code> is identical to <code>ospath.copy_directory</code> except for <code>options.deleteExtra = true</code> being provided automatically.</p>
+
+
+<pre>
+    ospath.mirror_directory('/dira', '/dirb')
+</pre>
+
+
+
+
+
+
+<h3>ospath.move_file(srcfilename, destfilename)</h3>
+
+<p>Moves the file named <code>srcfilename</code> to <code>destfilename</code>.</p>
+
+
+<pre>
+    ospath.move_file('filea.txt', 'fileb.txt')    -- Move filea.txt to fileb.txt
+</pre>
+
+
+
+
+
+
+
+
+<hr/>
+
+<h2>I/O (locking and pipes)</h2>
+
+<h3>ospath.lock(file, mode, offset, length)</h3>
+
+<p>Lock or unlock a file or a portion of a file; 'mode' is either "r" or "w" or "u"; 'offset' and 'length' are optional.  A mode of "r" requests a read lock, "w" requests a write lock, and "u" releases the lock. Note that the locks may be either advisory or mandatory.</p>
+
+
+
+
+
+<h3>ospath.unlock(file, offset, length)</h3>
+
+<p>Equivalent to <code>ospath.lock(file, "u", offset, length)</code>.</p>
+
+
+
+
+
+
+<h2>Path Manipulation</h2>
+
+<h3>ospath.add_extension(path, extension)</h3>
+
+<p>Adds <code>extension</code> to the end of <code>path</code> even if one already exists.</p>
+
+<p>Returns the new ospath.</p>
+
+
+<pre>
+    assert(ospath.add_extension('', 'ext') == '.ext')
+    assert(ospath.add_extension(' ', ' ext') == ' . ext')
+    assert(ospath.add_extension('', '.ext') == '.ext')
+    assert(ospath.add_extension('hello', 'ext') == 'hello.ext')
+    assert(ospath.add_extension('hello', '.ext') == 'hello.ext')
+    assert(ospath.add_extension('hello.txt', 'ext') == 'hello.txt.ext')
+    assert(ospath.add_extension('hello.txt', '.ext') == 'hello.txt.ext')
+</pre>
+
+
+
+
+
+
+<h3>ospath.add_slash(path)</h3>
+
+<p>Adds a slash to the end of <code>path</code> if it doesn't already exist.</p>
+
+<p>Returns the new ospath.</p>
+
+
+<pre>
+    assert(ospath.add_slash('') == '/')
+    assert(ospath.add_slash(' ') == ' /')
+    assert(ospath.add_slash('hello') == 'hello/')
+    assert(ospath.add_slash(' hello') == ' hello/')
+    assert(ospath.add_slash(' hello ') == ' hello /')
+    assert(ospath.add_slash('hello/') == 'hello/')
+</pre>
+
+
+
+
+
+
+<h3>ospath.append(leftPath, rightPath)</h3>
+
+<p>Appends <code>leftPath</code> and <code>rightPath</code> together, adding a slash between the two path components.  If <code>rightPath</code> is an absolute path, it is not appended to <code>leftPath</code> and is returned directly.</p>
+
+<p>Returns the new ospath.</p>
+
+
+<pre>
+    assert(ospath.append('', 'filename.txt') == 'filename.txt')
+    assert(ospath.append('', 'dir', 'filename.txt') == 'dir/filename.txt')
+    assert(ospath.append('', 'dirA', '', 'dirB', 'filename.txt') == 'dirA/dirB/filename.txt')
+    assert(ospath.append('..', 'filename.txt') == '../filename.txt')
+    assert(ospath.append('root', 'filename.txt') == 'root/filename.txt')
+    assert(ospath.append('root', 'dir', 'filename.txt') == 'root/dir/filename.txt')
+    assert(ospath.append('root', 'dirA', '', 'dirB', 'filename.txt') == 'root/dirA/dirB/filename.txt')
+    assert(ospath.append('root', 'dirA', '', 'dirB', '..', 'filename.txt') == 'root/dirA/dirB/../filename.txt')
+    assert(ospath.append('root', 'dirA', '', '/dirB', '..', 'filename.txt') == '/dirB/../filename.txt')
+</pre>
+
+
+
+
+
+
+<h3>ospath.combine(leftPath, rightPath)</h3>
+<h3>ospath.join(leftPath, rightPath)</h3>
+
+<p>Combines <code>leftPath</code> and <code>rightPath</code>, adding a slash between the two path components and simplifying the path by collapsing <code>.</code> and <code>..</code> directories.  If <code>rightPath</code> is an absolute path, it is not appended to <code>leftPath</code> and is returned directly.</p>
+
+<p>Returns the new ospath.</p>
+
+
+<pre>
+    assert(ospath.combine('', 'filename.txt') == 'filename.txt')
+    assert(ospath.combine('', 'dir', 'filename.txt') == 'dir/filename.txt')
+    assert(ospath.combine('', 'dirA', '', 'dirB', 'filename.txt') == 'dirA/dirB/filename.txt')
+    assert(ospath.combine('..', 'filename.txt') == '../filename.txt')
+    assert(ospath.combine('root', 'filename.txt') == 'root/filename.txt')
+    assert(ospath.combine('root', 'dir', 'filename.txt') == 'root/dir/filename.txt')
+    assert(ospath.combine('root', 'dirA', '', 'dirB', 'filename.txt') == 'root/dirA/dirB/filename.txt')
+    assert(ospath.combine('root', 'dirA', '', 'dirB', '..', 'filename.txt') == 'root/dirA/filename.txt')
+</pre>
+
+
+
+
+
+
+<h3>ospath.escape(path)</h3>
+
+<p>Properly escapes and quotes <code>path</code>, if needed.</p>
+
+<p>Returns the new ospath.</p>
+
+
+<pre>
+    assert(ospath.escape('') == '')
+    assert(ospath.escape(' ') == '" "')
+    assert(ospath.escape('filename.txt') == 'filename.txt')
+    assert(ospath.escape('file name.txt') == '"file name.txt"')
+</pre>
+
+
+
+
+
+
+<h3>ospath.exists(path)</h3>
+
+<p>Returns <em>true</em> if <code>path</code> exists, <em>false</em> otherwise.</p>
+
+
+<pre>
+    assert(ospath.exists('filename.txt') == true)
+</pre>
+
+
+
+
+
+
+<h3>ospath.find_extension(path)</h3>
+
+<p>For the given <code>path</code>, return the index of the extension.  Returns <code>nil</code> if the <code>path</code> has no extension.</p>
+
+
+<pre>
+    assert(ospath.find_extension('') == nil)
+    assert(ospath.find_extension('filename') == nil)
+    assert(ospath.find_extension('.lua') == 1)
+    assert(ospath.find_extension('pathtests.lua') == 10)
+    assert(ospath.find_extension('pathtests') == nil)
+</pre>
+
+
+
+
+
+
+
+<h3>ospath.find_filename(path)</h3>
+
+<p>For the given <code>path</code>, return the index of the filename.</p>
+
+
+<pre>
+    assert(ospath.find_filename('pathtests.lua') == 1)
+    assert(ospath.find_filename('/pathtests') == 2)
+    assert(ospath.find_filename('c:/pathtests') == 4)
+    assert(ospath.find_filename('c:pathtests') == 3)
+</pre>
+
+
+
+
+
+
+<h3>ospath.get_extension(path)</h3>
+
+<p>For the given <code>path</code>, return the extension.</p>
+
+
+<pre>
+    assert(ospath.get_extension('') == '')
+    assert(ospath.get_extension('filename') == '')
+    assert(ospath.get_extension('filename.ext') == '.ext')
+    assert(ospath.get_extension('filename.txt.ext') == '.ext')
+</pre>
+
+
+
+
+
+
+<h3>ospath.get_filename(path)</h3>
+
+<p>For the given <code>path</code>, return just the filename without the directory.</p>
+
+
+<pre>
+    assert(ospath.get_filename(''), '')
+    assert(ospath.get_filename('filename'), 'filename')
+    assert(ospath.get_filename('filename.ext'), 'filename.ext')
+    assert(ospath.get_filename('c:/directory/filename.ext'), 'filename.ext')
+    assert(ospath.get_filename('c:/directory/'), '')
+</pre>
+
+
+
+
+
+
+<h3>ospath.is_directory(path)</h3>
+
+<p>Returns <em>true</em> if <code>path</code> is a directory, <em>false</em> otherwise.</p>
+
+
+<pre>
+    assert(ospath.is_directory('') == false)
+    assert(ospath.is_directory(scriptPath .. 'pathtests.lua') == false)
+    assert(ospath.is_directory('.') == true)
+    assert(ospath.is_directory('..') == true)
+    assert(ospath.is_directory(scriptPath .. '../tests') == true)
+    assert(ospath.is_directory(scriptPath .. '../tests/') == true)
+</pre>
+
+
+
+
+
+
+<h3>ospath.is_file(path)</h3>
+
+<p>Returns <em>true</em> if <code>path</code> is a file, <em>false</em> otherwise.</p>
+
+
+<pre>
+    assert(ospath.is_file('') == nil)
+    assert(ospath.is_file(scriptPath .. 'pathtests.lua') == true)
+    assert(ospath.is_file('.') == false)
+    assert(ospath.is_file('..') == false)
+    assert(ospath.is_file(scriptPath .. '../tests') == false)
+    assert(ospath.is_file(scriptPath .. '../tests/') == nil)
+</pre>
+
+
+
+
+
+
+<h3>ospath.is_relative(path)</h3>
+
+<p>Returns <em>true</em> if <code>path</code> is relative, <em>false</em> otherwise.</p>
+
+
+<pre>
+    assert(ospath.is_relative('') == true)
+    assert(ospath.is_relative('filename.ext') == true)
+    assert(ospath.is_relative('/filename.ext') == false)
+    assert(ospath.is_relative('c:/filename.ext') == false)
+</pre>
+
+
+
+
+
+
+
+<h3>ospath.is_root(path)</h3>
+
+<p>Returns <em>true</em> if <code>path</code> is a root path, <em>false</em> otherwise.</p>
+
+
+<pre>
+    assert(ospath.is_root('') == false)
+    assert(ospath.is_root('filename.ext') == false)
+    assert(ospath.is_root('/filename.ext') == true)
+    assert(ospath.is_root('c:/filename.ext') == true)
+</pre>
+
+
+
+
+
+
+
+<h3>ospath.is_unc(path)</h3>
+
+<p>Returns <em>true</em> if <code>path</code> is a UNC path, <em>false</em> otherwise.</p>
+
+
+<pre>
+    assert(ospath.is_unc('') == false)
+    assert(ospath.is_unc('filename.ext') == false)
+    assert(ospath.is_unc('/filename.ext') == false)
+    assert(ospath.is_unc('c:/filename.ext') == false)
+    assert(ospath.is_unc('\\\\share') == true)
+    assert(ospath.is_unc('//share') == true)
+</pre>
+
+
+
+
+
+
+
+<h3>ospath.is_writable(path)</h3>
+
+<p>Returns <em>true</em> if <code>path</code> is writable, <em>false</em> if read-only.</p>
+
+
+<pre>
+    local writable = ospath.is_writable('filename.dat')
+</pre>
+
+
+
+
+
+
+<h3>ospath.make_absolute(path)</h3>
+
+<p>Converts <code>path</code> into an absolute path, simplifying the path as necessary.</p>
+
+<p>Returns the new ospath.</p>
+
+
+<pre>
+    local cwd = os.getcwd():gsub('\\', '/')
+    assert(ospath.make_absolute('') == cwd)
+    assert(ospath.make_absolute('.') == cwd .. '/')
+    assert(ospath.make_absolute('..') == cwd:match('(.+)/') .. '/')
+    assert(ospath.make_absolute('abc') == cwd .. '/abc')
+</pre>
+
+
+
+
+
+
+
+<h3>ospath.make_backslash(path)</h3>
+
+<p>Convert any forward slashes in <code>path</code> to backslashes.</p>
+
+<p>Returns the new ospath.</p>
+
+
+<pre>
+    assert(ospath.make_backslash('') == '')
+    assert(ospath.make_backslash(' ') == ' ')
+    assert(ospath.make_backslash('\\\\abc') == '\\\\abc')
+    assert(ospath.make_backslash('//abc') == '\\\\abc')
+    assert(ospath.make_backslash('c:/abc/def/') == 'c:\\abc\\def\\')
+</pre>
+
+
+
+
+
+
+
+<h3>ospath.make_slash(path)</h3>
+
+<p>Convert any backslashes in <code>path</code> to slashes.</p>
+
+<p>Returns the new ospath.</p>
+
+
+<pre>
+    assert(ospath.make_slash('') == '')
+    assert(ospath.make_slash(' ') == ' ')
+    assert(ospath.make_slash('\\\\abc') == '//abc')
+    assert(ospath.make_slash('//abc') == '//abc')
+    assert(ospath.make_slash('c:\\abc\\def\\') == 'c:/abc/def/')
+</pre>
+
+
+
+
+
+
+
+<h3>ospath.make_writable(path)</h3>
+
+<p>Make the file <em>path</em> writable that is read-only.</p>
+
+<p>Returns <em>true</em> if the process succeeded.</p>
+
+
+<pre>
+    ospath.make_writable('filename.dat')
+</pre>
+
+
+
+
+
+
+
+<h3>ospath.match(path, wildcard)</h3>
+
+<p>Returns <em>true</em> if the <code>wildcard</code> matches <code>path</code>, <em>false</em> otherwise.</p>
+
+
+<pre>
+    assert(ospath.match('', '') == true)
+    assert(ospath.match('', '*') == true)
+    assert(ospath.match('', '*.*') == false)
+    assert(ospath.match('', 'a*') == false)
+    assert(ospath.match('abcdefg.txt', 'a*') == true)
+    assert(ospath.match('abcdefg.txt', 'a*b*c?e*') == true)
+    assert(ospath.match('abcdefg.txt', 'a*b*c?f*') == false)
+    assert(ospath.match('abcdefg.txt', '*.') == false)
+    assert(ospath.match('abcdefg.txt', '*.t') == false)
+    assert(ospath.match('abcdefg.txt', '*.t*') == true)
+    assert(ospath.match('abcdefg.txt', '*.t') == false)
+    assert(ospath.match('abcdefg.txt', '*.*t') == true)
+    assert(ospath.match('abcdefg.txt', '*.*x') == false)
+    assert(ospath.match('abcdefg.txt', '*.txt') == true)
+</pre>
+
+
+
+
+
+
+
+<h3>ospath.remove_directory(path)</h3>
+
+<p>Removes the directory component from <code>path</code>.</p>
+
+<p>Returns the new ospath.</p>
+
+
+<pre>
+    assert(ospath.remove_directory('') == '')
+    assert(ospath.remove_directory(' \t') == ' \t')
+    assert(ospath.remove_directory('abc') == 'abc')
+    assert(ospath.remove_directory('/abc.') == 'abc.')
+    assert(ospath.remove_directory('/dir/abc.') == 'abc.')
+    assert(ospath.remove_directory('c:/abc.') == 'abc.')
+    assert(ospath.remove_directory('c:/dir/abc') == 'abc')
+</pre>
+
+
+
+
+
+
+
+<h3>ospath.remove_extension(path)</h3>
+
+<p>Removes the extension component from <code>path</code>.</p>
+
+<p>Returns the new ospath.</p>
+
+
+<pre>
+    assert(ospath.remove_extension('') == '')
+    assert(ospath.remove_extension(' \t') == ' \t')
+    assert(ospath.remove_extension('abc') == 'abc')
+    assert(ospath.remove_extension('abc.') == 'abc')
+    assert(ospath.remove_extension('abc.txt') == 'abc')
+    assert(ospath.remove_extension('abc.txt.dat') == 'abc.txt')
+</pre>
+
+
+
+
+
+
+
+<h3>ospath.remove_filename(path)</h3>
+
+<p>Removes the filename component from <code>path</code>.</p>
+
+<p>Returns the new ospath.</p>
+
+
+<pre>
+    assert(ospath.remove_filename('') == '')
+    assert(ospath.remove_filename(' \t') == '')
+    assert(ospath.remove_filename('abc') == '')
+    assert(ospath.remove_filename('/abc.') == '/')
+    assert(ospath.remove_filename('/dir/abc.') == '/dir/')
+    assert(ospath.remove_filename('c:/abc.') == 'c:/')
+    assert(ospath.remove_filename('c:/dir/abc') == 'c:/dir/')
+</pre>
+
+
+
+
+
+
+
+<h3>ospath.remove_slash(path)</h3>
+
+<p>Removes the trailing slash from <code>path</code>.</p>
+
+<p>Returns the new ospath.</p>
+
+
+<pre>
+    assert(ospath.remove_slash('abc') == 'abc')
+    assert(ospath.remove_slash('abc/') == 'abc')
+</pre>
+
+
+
+
+
+
+
+<h3>ospath.replace_extension(path, extension)</h3>
+
+<p>Replaces the extension of <code>path</code> with the new one specified in <code>extension</code>.</p>
+
+<p>Returns the new ospath.</p>
+
+
+<pre>
+    assert(ospath.replace_extension('', 'ext') == '.ext')
+    assert(ospath.replace_extension('', '.ext') == '.ext')
+    assert(ospath.replace_extension('hello', 'ext') == 'hello.ext')
+    assert(ospath.replace_extension('hello', '.ext') == 'hello.ext')
+    assert(ospath.replace_extension('hello.txt', 'ext') == 'hello.ext')
+    assert(ospath.replace_extension('hello.txt', '.ext') == 'hello.ext')
+    assert(ospath.replace_extension('hello.txt.dat', 'ext') == 'hello.txt.ext')
+    assert(ospath.replace_extension('hello.txt.dat', '.ext') == 'hello.txt.ext')
+</pre>
+
+
+
+
+
+
+
+<h3>ospath.simplify(path)</h3>
+
+<p>Simplifies <code>path</code> by collapsing <code>.</code> and <code>..</code> directories and removing multiple directory slashes.</p>
+
+<p>Returns the new ospath.</p>
+
+
+<pre>
+    assert(ospath.simplify('') == '')
+    assert(ospath.simplify('abc') == 'abc')
+    assert(ospath.simplify('.abc') == '.abc')
+    assert(ospath.simplify('./abc') == 'abc')
+    assert(ospath.simplify('..abc') == '..abc')
+    assert(ospath.simplify('../abc') == '../abc')
+    assert(ospath.simplify('abc/////def') == 'abc/def')
+    assert(ospath.simplify('abc/././././def') == 'abc/def')
+    assert(ospath.simplify('c:/somedir/.././././def') == 'c:/def')
+    assert(ospath.simplify('abc/.././././def') == 'def')
+    assert(ospath.simplify('abc/ABC/../../../../def') == 'def')
+    assert(ospath.simplify('c:\\abc\\ABC\\../..\\../..\\def') == 'c:/def')
+    assert(ospath.simplify('\\\\uncserver\\pathA\\file.txt') == '\\\\uncserver/pathA/file.txt')
+</pre>
+
+
+
+
+
+
+
+<h3>ospath.split(path)</h3>
+
+<p>Splits <code>path</code> into directory and filename components.  Returns both the directory and filename.</p>
+
+
+<pre>
+    function compare_split(path, expectedDirname, expectedFilename)
+        local actualDirname, actualFilename = ospath.split(path)
+        return actualDirname == expectedDirname  and  actualFilename == expectedFilename
+    end
+
+    assert(compare_split('', '', '') == true)
+    assert(compare_split('abc.txt', '', 'abc.txt') == true)
+    assert(compare_split('/', '/', '') == true)
+    assert(compare_split('/abc', '/', 'abc') == true)
+    assert(compare_split('/abc/', '/abc/', '') == true)
+    assert(compare_split('c:/', 'c:/', '') == true)
+    assert(compare_split('c:/abc', 'c:/', 'abc') == true)
+    assert(compare_split('c:/abc/', 'c:/abc/', '') == true)
+</pre>
+
+
+
+
+
+
+
+<h3>ospath.trim(path)</h3>
+
+<p>Trims whitespace from the beginning and end of <code>path</code>.</p>
+
+<p>Returns the new ospath.</p>
+
+
+<pre>
+    assert(ospath.trim('abc.txt') == 'abc.txt')
+    assert(ospath.trim(' abc.txt') == 'abc.txt')
+    assert(ospath.trim('abc.txt ') == 'abc.txt')
+    assert(ospath.trim('  \t  abc.txt \t \t \t ') == 'abc.txt')
+</pre>
+
+
+
+
+
+
+
+<h3>ospath.unescape(path)</h3>
+
+<p>Unescapes <code>path</code>.</p>
+
+<p>Returns the new ospath.</p>
+
+
+<pre>
+    assert(ospath.unescape('') == '')
+    assert(ospath.unescape('"') == '')
+    assert(ospath.unescape('""') == '')
+    assert(ospath.unescape('" "') == ' ')
+    assert(ospath.unescape('"file with spaces') == 'file with spaces')
+    assert(ospath.unescape('"file with spaces"') == 'file with spaces')
+</pre>
+
+
+
+
+
+
+
+
+
+
+</div> <!-- id="content" -->
+
+</div> <!-- id="main" -->
+
+<div id="about">
+	<p><a href="http://validator.w3.org/check?uri=referer">Valid XHTML 1.0!</a></p>
+</div> <!-- id="about" -->
+
+</div> <!-- id="container" -->
+
+</body>
+</html>
+

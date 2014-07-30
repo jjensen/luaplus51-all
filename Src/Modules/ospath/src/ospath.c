@@ -254,7 +254,7 @@ int path_destroy(const char* inDirName)
 
 
 /* pathname access */
-int ex_path_access(lua_State *L)
+int ospath_access(lua_State *L)
 {
   const char *pathname = luaL_checkstring(L, 1);
   const char *type = luaL_optstring(L, 2, "");
@@ -273,7 +273,7 @@ int ex_path_access(lua_State *L)
 
 
 /* -- pathname/nil error */
-static int ex_path_getcwd(lua_State *L)
+static int ospath_getcwd(lua_State *L)
 {
 #if defined(_WIN32)
   char pathname[MAX_PATH + 1];
@@ -291,7 +291,7 @@ static int ex_path_getcwd(lua_State *L)
 }
 
 /* pathname -- true/nil error */
-static int ex_path_chdir(lua_State *L)
+static int ospath_chdir(lua_State *L)
 {
   const char *pathname = luaL_checkstring(L, 1);
 #if defined(_WIN32)
@@ -306,7 +306,7 @@ static int ex_path_chdir(lua_State *L)
 }
 
 /* pathname -- true/nil error */
-static int ex_path_chmod(lua_State *L)
+static int ospath_chmod(lua_State *L)
 {
   const char *pathname = luaL_checkstring(L, 1);
 #if defined(_WIN32)
@@ -337,7 +337,7 @@ static int ex_path_chmod(lua_State *L)
 }
 
 /* pathname -- true/nil error */
-static int ex_path_remove(lua_State *L)
+static int ospath_remove(lua_State *L)
 {
   const char *pathname = luaL_checkstring(L, 1);
 #if defined(_WIN32)  ||  defined(_WIN64)
@@ -377,7 +377,7 @@ static int ex_path_remove(lua_State *L)
 }
 
 
-static int ex_path_copyfile(lua_State *L)
+static int ospath_copyfile(lua_State *L)
 {
 #if defined(_WIN32)  ||  defined(_WIN64)
   const char *srcfilename = luaL_checkstring(L, 1);
@@ -442,7 +442,7 @@ static int ex_path_copyfile(lua_State *L)
 }
 
 
-static int ex_path_movefile(lua_State *L)
+static int ospath_movefile(lua_State *L)
 {
   const char *srcfilename = luaL_checkstring(L, 1);
   const char *destfilename = luaL_checkstring(L, 2);
@@ -458,7 +458,7 @@ static int ex_path_movefile(lua_State *L)
 /*
 ** Set access time and modification values for file
 */
-static int ex_path_touch(lua_State *L)
+static int ospath_touch(lua_State *L)
 {
   const char *file = luaL_checkstring(L, 1);
   struct utimbuf utb, *buf;
@@ -482,7 +482,7 @@ static int ex_path_touch(lua_State *L)
 }
 
 /* pathname -- true/nil error */
-int ex_path_mkdir(lua_State *L)
+int ospath_mkdir(lua_State *L)
 {
   const char *pathname = luaL_checkstring(L, 1);
   if (!path_create(pathname))
@@ -492,7 +492,7 @@ int ex_path_mkdir(lua_State *L)
 }
 
 
-static int ex_path_hardlink(lua_State *L)
+static int ospath_hardlink(lua_State *L)
 {
   const char *hardlinkFilename = luaL_checkstring(L, 1);
   const char *targetFilename = luaL_checkstring(L, 2);
@@ -518,7 +518,7 @@ static lua_Integer luaL_checkboolean (lua_State *L, int narg) {
 }
 
 
-static int ex_path_symboliclink(lua_State *L)
+static int ospath_symboliclink(lua_State *L)
 {
   const char *symlinkFilename = luaL_checkstring(L, 1);
   const char *targetFilename = luaL_checkstring(L, 2);
@@ -613,14 +613,11 @@ static int path_simplify_helper(lua_State *L, int index) {
         if ( file > filestart  &&  ( file[-1] == '/'  ||  file[-1] == '\\' ) ) {
           ptr++;
         } else {
-#if defined(_WIN32)
           /* is it a unc path? */
           if ( file == filestart  &&  (file[0] == '\\'  ||  file[0] == '/')  &&  (file[1] == '\\'  ||  file[1] == '/')) {
             file += 2;
             ptr += 2;
-          } else 
-#endif /* _WIN32 */
-          {
+          } else {
             *file++ = '/';
             ptr++;
           }
@@ -709,7 +706,7 @@ int WildMatch( const char* pattern, const char *string, int caseSensitive )
 }
 
 
-static int ex_path_add_slash(lua_State *L) {
+static int ospath_add_slash(lua_State *L) {
   const char *path = luaL_checkstring(L, 1);
   const char *pathEnd = path + strlen(path);
   if (path[0] == 0) {
@@ -726,7 +723,7 @@ static int ex_path_add_slash(lua_State *L) {
 }
 
 
-static int ex_path_add_extension(lua_State *L) {
+static int ospath_add_extension(lua_State *L) {
   const char *path = luaL_checkstring(L, 1);
   const char *ext = luaL_checkstring(L, 2);
   (void)path; /* avoid warning about unused parameter */
@@ -739,18 +736,12 @@ static int ex_path_add_extension(lua_State *L) {
 }
 
 
-static int ex_path_append(lua_State *L) {
+static int ospath_append(lua_State *L) {
   return path_append_helper(L, 1, lua_gettop(L));
 }
 
 
-static int ex_path_combine(lua_State *L) {
-  ex_path_append(L);
-  return path_simplify_helper(L, -1);
-}
-
-
-static int ex_path_escape(lua_State *L) {
+static int ospath_escape(lua_State *L) {
   const char *path = luaL_checkstring(L, 1);
   const char *ptr = path;
 
@@ -782,14 +773,14 @@ static int ex_path_escape(lua_State *L) {
 }
 
 
-static int ex_path_exists(lua_State *L) {
+static int ospath_exists(lua_State *L) {
   const char *path = luaL_checkstring(L, 1);
   lua_pushboolean(L, access(path, 0) != -1);
   return 1;
 }
 
 
-static int ex_path_find_extension(lua_State *L) {
+static int ospath_find_extension(lua_State *L) {
   const char *path = luaL_checkstring(L, 1);
   const char *pathEnd = path + strlen(path);
 
@@ -805,7 +796,7 @@ static int ex_path_find_extension(lua_State *L) {
 }
 
 
-static int ex_path_find_filename(lua_State *L) {
+static int ospath_find_filename(lua_State *L) {
   const char *path = luaL_checkstring(L, 1);
   const char *pathEnd = path + strlen(path);
 
@@ -817,7 +808,7 @@ static int ex_path_find_filename(lua_State *L) {
 }
 
 
-static int ex_path_get_extension(lua_State *L) {
+static int ospath_get_extension(lua_State *L) {
   const char *path = luaL_checkstring(L, 1);
   const char *pathEnd = path + strlen(path);
 
@@ -833,7 +824,7 @@ static int ex_path_get_extension(lua_State *L) {
 }
 
 
-static int ex_path_get_filename(lua_State *L) {
+static int ospath_get_filename(lua_State *L) {
   const char *path = luaL_checkstring(L, 1);
   const char *pathEnd = path + strlen(path);
 
@@ -845,7 +836,7 @@ static int ex_path_get_filename(lua_State *L) {
 }
 
 
-static int ex_path_is_directory(lua_State *L) {
+static int ospath_is_directory(lua_State *L) {
   char *trimmedPath;
   struct stat sbuff;
   const char *path = luaL_checkstring(L, 1);
@@ -873,7 +864,7 @@ static int ex_path_is_directory(lua_State *L) {
 }
 
 
-static int ex_path_is_file(lua_State *L) {
+static int ospath_is_file(lua_State *L) {
   struct stat sbuff;
   const char *path = luaL_checkstring(L, 1);
   const char *pathEnd = path + strlen(path);
@@ -891,7 +882,7 @@ static int ex_path_is_file(lua_State *L) {
 }
 
 
-static int ex_path_is_relative(lua_State *L) {
+static int ospath_is_relative(lua_State *L) {
   const char *path = luaL_checkstring(L, 1);
   if (*path == 0)
     lua_pushboolean(L, 1);
@@ -905,7 +896,7 @@ static int ex_path_is_relative(lua_State *L) {
 }
 
 
-static int ex_path_is_root(lua_State *L) {
+static int ospath_is_root(lua_State *L) {
   const char *path = luaL_checkstring(L, 1);
   if (*path == 0)
     lua_pushboolean(L, 0);
@@ -919,7 +910,7 @@ static int ex_path_is_root(lua_State *L) {
 }
 
 
-static int ex_path_is_unc(lua_State *L) {
+static int ospath_is_unc(lua_State *L) {
   const char *path = luaL_checkstring(L, 1);
 
   if (*path == 0)
@@ -935,7 +926,7 @@ static int ex_path_is_unc(lua_State *L) {
 }
 
 
-static int ex_path_is_writable(lua_State *L) {
+static int ospath_is_writable(lua_State *L) {
   struct stat sbuff;
   const char *path = luaL_checkstring(L, 1);
   if (path[0]  &&  stat(path, &sbuff) == 0)
@@ -950,7 +941,13 @@ static int ex_path_is_writable(lua_State *L) {
 }
 
 
-static int ex_path_match(lua_State *L) {
+static int ospath_join(lua_State *L) {
+  ospath_append(L);
+  return path_simplify_helper(L, -1);
+}
+
+
+static int ospath_match(lua_State *L) {
   const char *path = luaL_checkstring(L, 1);
   const char *spec = luaL_checkstring(L, 2);
   int caseSensitive = lua_isboolean(L, 3) ? lua_toboolean(L, 3) : 0;
@@ -960,7 +957,7 @@ static int ex_path_match(lua_State *L) {
 }
 
 
-static int ex_path_make_absolute(lua_State *L) {
+static int ospath_make_absolute(lua_State *L) {
   const char *path = luaL_checkstring(L, 1);
   const char *cwd = getcwd(NULL, 0);
   int start = lua_gettop(L);
@@ -973,7 +970,7 @@ static int ex_path_make_absolute(lua_State *L) {
 }
 
 
-static int ex_path_make_backslash(lua_State *L) {
+static int ospath_make_backslash(lua_State *L) {
   const char *path = luaL_checkstring(L, 1);
   const char *pathEnd = path + strlen(path);
 
@@ -994,7 +991,7 @@ static int ex_path_make_backslash(lua_State *L) {
 }
 
 
-static int ex_path_make_slash(lua_State *L) {
+static int ospath_make_slash(lua_State *L) {
   const char *path = luaL_checkstring(L, 1);
   const char *pathEnd = path + strlen(path);
 
@@ -1015,7 +1012,7 @@ static int ex_path_make_slash(lua_State *L) {
 }
 
 
-static int ex_path_make_writable(lua_State *L) {
+static int ospath_make_writable(lua_State *L) {
   const char *path = luaL_checkstring(L, 1);
 
 #if defined(_WIN32)
@@ -1035,7 +1032,7 @@ static int ex_path_make_writable(lua_State *L) {
 }
 
 
-static int ex_path_replace_extension(lua_State *L) {
+static int ospath_replace_extension(lua_State *L) {
   const char *path = luaL_checkstring(L, 1);
   const char *pathEnd = path + strlen(path);
   const char *ext = luaL_checkstring(L, 2);
@@ -1056,7 +1053,7 @@ static int ex_path_replace_extension(lua_State *L) {
 }
 
 
-static int ex_path_remove_directory(lua_State *L) {
+static int ospath_remove_directory(lua_State *L) {
   const char *path = luaL_checkstring(L, 1);
   const char *pathEnd = path + strlen(path);
 
@@ -1071,7 +1068,7 @@ static int ex_path_remove_directory(lua_State *L) {
 }
 
 
-static int ex_path_remove_extension(lua_State *L) {
+static int ospath_remove_extension(lua_State *L) {
   const char *path = luaL_checkstring(L, 1);
   const char *pathEnd = path + strlen(path);
 
@@ -1087,7 +1084,7 @@ static int ex_path_remove_extension(lua_State *L) {
 }
 
 
-static int ex_path_remove_filename(lua_State *L) {
+static int ospath_remove_filename(lua_State *L) {
   const char *path = luaL_checkstring(L, 1);
   const char *pathEnd = path + strlen(path);
 
@@ -1099,7 +1096,7 @@ static int ex_path_remove_filename(lua_State *L) {
 }
 
 
-static int ex_path_remove_slash(lua_State *L) {
+static int ospath_remove_slash(lua_State *L) {
   const char *path = luaL_checkstring(L, 1);
   const char *pathEnd = path + strlen(path);
 
@@ -1111,12 +1108,12 @@ static int ex_path_remove_slash(lua_State *L) {
 }
 
 
-static int ex_path_simplify(lua_State *L) {
+static int ospath_simplify(lua_State *L) {
   return path_simplify_helper(L, 1);
 }
 
 
-static int ex_path_split(lua_State *L) {
+static int ospath_split(lua_State *L) {
   const char *path = luaL_checkstring(L, 1);
   const char *pathEnd = path + strlen(path);
 
@@ -1129,7 +1126,7 @@ static int ex_path_split(lua_State *L) {
 }
 
 
-static int ex_path_trim(lua_State *L) {
+static int ospath_trim(lua_State *L) {
   const char *pathStart = luaL_checkstring(L, 1);
   const char *pathEnd;
 
@@ -1147,7 +1144,7 @@ static int ex_path_trim(lua_State *L) {
 }
 
 
-static int ex_path_unescape(lua_State *L) {
+static int ospath_unescape(lua_State *L) {
   const char *path = luaL_checkstring(L, 1);
 
 #if defined(_WIN32)
@@ -1265,7 +1262,7 @@ static const char *opt_mode(lua_State *L, int *pidx)
 
 
 /* file [mode] [offset [length]] -- file/nil error */
-static int ex_path_lock(lua_State *L)
+static int ospath_lock(lua_State *L)
 {
   FILE *f = check_file(L, 1, NULL);
   int argi = 2;
@@ -1276,55 +1273,55 @@ static int ex_path_lock(lua_State *L)
 }
 
 
-int luaopen_ex_path_core(lua_State *L) {
-  const luaL_Reg ex_path_lib[] = {
-    {"access",            ex_path_access},
-    {"getcwd",            ex_path_getcwd},
-    {"chdir",             ex_path_chdir},
-    {"chmod",             ex_path_chmod},
-    {"mkdir",             ex_path_mkdir},
-    {"remove",            ex_path_remove},
-    {"copy_file",         ex_path_copyfile},
-    {"move_file",         ex_path_movefile},
-    {"touch",             ex_path_touch},
-    {"hardlink",          ex_path_hardlink},
-    {"symboliclink",      ex_path_symboliclink},
-    {"lock",              ex_path_lock},
+int luaopen_ospath_core(lua_State *L) {
+  const luaL_Reg ospath_lib[] = {
+    {"access",            ospath_access},
+    {"getcwd",            ospath_getcwd},
+    {"chdir",             ospath_chdir},
+    {"chmod",             ospath_chmod},
+    {"mkdir",             ospath_mkdir},
+    {"remove",            ospath_remove},
+    {"copy_file",         ospath_copyfile},
+    {"move_file",         ospath_movefile},
+    {"touch",             ospath_touch},
+    {"hardlink",          ospath_hardlink},
+    {"symboliclink",      ospath_symboliclink},
+    {"lock",              ospath_lock},
+    {"unlock",            ospath_lock},
 
-    {"add_slash",         ex_path_add_slash},
-    {"add_extension",     ex_path_add_extension},
-    {"append",            ex_path_append},
-    {"combine",           ex_path_combine},
-    {"escape",            ex_path_escape},
-    {"exists",            ex_path_exists},
-    {"find_extension",    ex_path_find_extension},
-    {"find_filename",     ex_path_find_filename},
-    {"get_extension",     ex_path_get_extension},
-    {"get_filename",      ex_path_get_filename},
-    {"is_directory",      ex_path_is_directory},
-    {"is_file",           ex_path_is_file},
-    {"is_relative",       ex_path_is_relative},
-    {"is_root",           ex_path_is_root},
-    {"is_unc",            ex_path_is_unc},
-    {"is_writable",       ex_path_is_writable},
-    {"join",              ex_path_combine},
-    {"make_absolute",     ex_path_make_absolute},
-    {"make_backslash",    ex_path_make_backslash},
-    {"make_slash",        ex_path_make_slash},
-    {"make_writable",     ex_path_make_writable},
-    {"match",             ex_path_match},
-    {"remove_directory",  ex_path_remove_directory},
-    {"remove_extension",  ex_path_remove_extension},
-    {"remove_filename",   ex_path_remove_filename},
-    {"remove_slash",      ex_path_remove_slash},
-    {"replace_extension", ex_path_replace_extension},
-    {"simplify",          ex_path_simplify},
-    {"split",             ex_path_split},
-    {"trim",              ex_path_trim},
-    {"unescape",          ex_path_unescape},
+    {"add_slash",         ospath_add_slash},
+    {"add_extension",     ospath_add_extension},
+    {"append",            ospath_append},
+    {"escape",            ospath_escape},
+    {"exists",            ospath_exists},
+    {"find_extension",    ospath_find_extension},
+    {"find_filename",     ospath_find_filename},
+    {"get_extension",     ospath_get_extension},
+    {"get_filename",      ospath_get_filename},
+    {"is_directory",      ospath_is_directory},
+    {"is_file",           ospath_is_file},
+    {"is_relative",       ospath_is_relative},
+    {"is_root",           ospath_is_root},
+    {"is_unc",            ospath_is_unc},
+    {"is_writable",       ospath_is_writable},
+    {"join",              ospath_join},
+    {"make_absolute",     ospath_make_absolute},
+    {"make_backslash",    ospath_make_backslash},
+    {"make_slash",        ospath_make_slash},
+    {"make_writable",     ospath_make_writable},
+    {"match",             ospath_match},
+    {"remove_directory",  ospath_remove_directory},
+    {"remove_extension",  ospath_remove_extension},
+    {"remove_filename",   ospath_remove_filename},
+    {"remove_slash",      ospath_remove_slash},
+    {"replace_extension", ospath_replace_extension},
+    {"simplify",          ospath_simplify},
+    {"split",             ospath_split},
+    {"trim",              ospath_trim},
+    {"unescape",          ospath_unescape},
     {0,0} };
 
   lua_newtable(L);
-  luaL_register(L, NULL, ex_path_lib);
+  luaL_register(L, NULL, ospath_lib);
   return 1;
 }

@@ -1,6 +1,6 @@
 local M = {}
 
-local core = require 'ex.path.core'
+local core = require 'ospath.core'
 for key, value in pairs(core) do
     M[key] = value
 end
@@ -120,9 +120,9 @@ function M.mirror_directory(srcPath, destPath, options)
     destPath = M.add_slash(M.make_slash(destPath))
 
     if not options then
-    	options = {}
-	end
-	options.deleteExtra = true
+        options = {}
+    end
+    options.deleteExtra = true
 
     copy_directory_helper(srcPath, destPath, callback, options)
 end

@@ -1,0 +1,14 @@
+{
+
+local SRCS =
+        src/ospath.lua
+        src/ospath.c
+        src/pusherror.c
+        src/pusherror.h
+;
+
+CopyFile ospath : $(LUA_LDIR)/ospath.lua : $(SUBDIR)/src/ospath.lua ;
+
+Lua.CModule ospath : ospath ospath_core : $(SRCS) ;
+
+}

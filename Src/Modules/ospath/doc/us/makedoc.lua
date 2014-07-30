@@ -6,7 +6,7 @@ local pages = {
 }
 
 local project = {
-  name = "ex.path API",
+  name = "ospath API",
   blurb = "Lua module to manipulate files and paths",
 --  logo = "orbit.png",
 }

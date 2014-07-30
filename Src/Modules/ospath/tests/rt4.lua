@@ -1,9 +1,11 @@
 #!/usr/bin/env lua
-require "ex"
+local ospath = require 'ospath'
 local f = assert(io.open("hullo.test", "w+"))
-f:lock("w")
+ospath.lock(f, "w")
 f:write("Hello\n")
-f:unlock()
+ospath.unlock(f)
 f:seek("set")
 print(f:read())
 f:close()
+os.remove("hullo.test")
+
