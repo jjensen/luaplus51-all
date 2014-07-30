@@ -27,6 +27,18 @@ ENVIRON_DECL
 #include "lauxlib.h"
 #include "../shared/path.h"
 
+#if LUA_VERSION_NUM >= 502
+#define luaL_register(L, n, f) luaL_setfuncs(L, f, 0)
+#define lua_objlen lua_rawlen
+
+static int luaL_typerror (lua_State *L, int narg, const char *tname) {
+  const char *msg = lua_pushfstring(L, "%s expected, got %s",
+                                    tname, luaL_typename(L, narg));
+  return luaL_argerror(L, narg, msg);
+}
+
+#endif
+
 #define absindex(L,i) ((i)>0?(i):lua_gettop(L)+(i)+1)
 
 #include "spawn.h"
@@ -540,7 +552,7 @@ static int ex_touch(lua_State *L)
 
 /* register functions from 'lib' in table 'to' by copying existing
  * closures from table 'from' or by creating new closures */
-static void copyfields(lua_State *L, const luaL_reg *l, int from, int to)
+static void copyfields(lua_State *L, const luaL_Reg *l, int from, int to)
 {
   for (to = absindex(L, to); l->name; l++) {
     lua_getfield(L, from, l->name);
@@ -594,13 +606,13 @@ int luaopen_ex_core(lua_State *L)
 {
   const char *name = lua_tostring(L, 1);
   int ex;
-  const luaL_reg ex_iolib[] = {
+  const luaL_Reg ex_iolib[] = {
     {"pipe",       ex_pipe},
 #define ex_iofile_methods (ex_iolib + 1)
     {"lock",       ex_lock},
     {"unlock",     ex_lock},
     {0,0} };
-  const luaL_reg ex_oslib[] = {
+  const luaL_Reg ex_oslib[] = {
     /* environment */
     {"getenv",     ex_getenv},
     {"setenv",     ex_setenv},
@@ -621,10 +633,10 @@ int luaopen_ex_core(lua_State *L)
     {"sleep",      ex_sleep},
     {"spawn",      ex_spawn},
     {0,0} };
-  const luaL_reg ex_diriter_methods[] = {
+  const luaL_Reg ex_diriter_methods[] = {
     {"__gc",       diriter_close},
     {0,0} };
-  const luaL_reg ex_process_methods[] = {
+  const luaL_Reg ex_process_methods[] = {
     {"__tostring", process_tostring},
 #define ex_process_functions (ex_process_methods + 1)
     {"wait",       process_wait},
