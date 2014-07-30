@@ -1,8 +1,8 @@
 #!/usr/bin/env lua
-local process = require "ex.process"
+local osprocess = require "osprocess"
 
 print"process.environ"
-local e = assert(process.environ())
+local e = assert(osprocess.environ())
 for nam, val in pairs(e) do
     print(string.format("%s=%s", nam, val))
 end

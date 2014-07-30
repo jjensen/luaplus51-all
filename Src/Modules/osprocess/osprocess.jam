@@ -1,0 +1,40 @@
+{
+
+local SRCS ;
+
+if $(NT)
+{
+    SRCS =
+            w32api/ex.c
+            w32api/pusherror.c
+            w32api/pusherror.h
+            w32api/spawn.c
+            w32api/spawn.h
+    ;
+
+    C.IncludeDirectories osprocess : w32api ;
+    C.LinkPrebuiltLibraries osprocess : advapi32 ;
+
+}
+else
+{
+    SRCS =
+            posix/ex.c
+            posix/posix_spawn.c
+            posix/posix_spawn.h
+            posix/spawn.c
+            posix/spawn.h
+    ;
+
+    C.Defines osprocess : "ENVIRON_DECL=\"extern char **environ;\"" ;
+}
+
+SRCS +=
+        osprocess.lua
+;
+
+CopyFile osprocess : $(LUA_LDIR)/osprocess.lua : $(SUBDIR)/osprocess.lua ;
+
+Lua.CModule osprocess : osprocess osprocess_core : $(SRCS) ;
+
+}

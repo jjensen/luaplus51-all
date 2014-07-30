@@ -6,7 +6,7 @@ local pages = {
 }
 
 local project = {
-  name = "ex.process API",
+  name = "osprocess API",
   blurb = "Lua module for process spawning and manipulation",
 --  logo = "orbit.png",
 }

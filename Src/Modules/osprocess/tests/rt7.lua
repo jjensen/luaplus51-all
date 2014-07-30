@@ -1,13 +1,13 @@
 #!/usr/bin/env lua
-local process = require "ex.process"
+local osprocess = require "osprocess"
 assert(arg[1], "need a command name")
-print"process.pipe()"
-local i, o = assert(process.pipe())
+print"osprocess.pipe()"
+local i, o = assert(osprocess.pipe())
 print("got", i, o)
-print"process.spawn()"
+print"osprocess.spawn()"
 local t = {command = arg[1], stdin = i}
 print(t.stdin)
-local proc = assert(process.spawn(t))
+local proc = assert(osprocess.spawn(t))
 print"i:close()"
 i:close()
 print"o:write()"

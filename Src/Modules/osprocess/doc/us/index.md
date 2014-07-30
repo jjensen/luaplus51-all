@@ -11,7 +11,7 @@ The primary contents of this document and source come from <http://lua-users.org
 
 
 
-# ex.process API
+# osprocess API
 
 Note that all these functions return the standard (nil,"error message") on failure and that, unless otherwise specified, they return (true) on success.
 
@@ -22,37 +22,37 @@ Note that all these functions return the standard (nil,"error message") on failu
 
 ## Environment
 
-### process.getenv(varname)
+### osprocess.getenv(varname)
 
 Returns the value of the process environment variable `varname` or `nil` if the variable is not defined.
 
 <pre>
-    print(process.getenv("PATH"))
+    print(osprocess.getenv("PATH"))
 </pre>
 
 
 
-### process.setenv(varname, value)
+### osprocess.setenv(varname, value)
 
-Sets the environment variable `varname` to be `value`.  If `value` is `nil`, the environment variable is removed.  Note: The change occurs only within the currently running process.
+Sets the environment variable `varname` to be `value`.  If `value` is `nil`, the environment variable is removed.  Note: The change occurs only within the currently running osprocess.
 
 <pre>
-	print(process.getenv("foo"))          -- Prints: nil
-    print(process.setenv("foo", "bar"))
-	print(process.getenv("foo"))          -- Prints: bar
-    print(process.setenv("foo", nil))
-	print(process.getenv("foo"))          -- Prints: nil
+	print(osprocess.getenv("foo"))          -- Prints: nil
+    print(osprocess.setenv("foo", "bar"))
+	print(osprocess.getenv("foo"))          -- Prints: bar
+    print(osprocess.setenv("foo", nil))
+	print(osprocess.getenv("foo"))          -- Prints: nil
 </pre>
 
 
 
 
-### env = process.environ()
+### env = osprocess.environ()
 
 Returns a copy of the environment as a Lua table of key-value pairs.
 
 <pre>
-    env = process.environ()
+    env = osprocess.environ()
     print(env.HOME)
 </pre>
 
@@ -62,7 +62,7 @@ Returns a copy of the environment as a Lua table of key-value pairs.
 
 
 
-### rd, wr = process.pipe()
+### rd, wr = osprocess.pipe()
 
 Create a pipe; 'rd' and 'wr' are Lua file objects.
 
@@ -74,28 +74,28 @@ Create a pipe; 'rd' and 'wr' are Lua file objects.
 
 ## Process control
 
-### process.sleep(seconds)
-### process.sleep(interval, unit)
+### osprocess.sleep(seconds)
+### osprocess.sleep(interval, unit)
 
 Suspends program execution for interval/unit seconds; 'unit' defaults to 1 and either argument can be floating point. The particular sub-second precision is implementation-defined.
 
 <pre>
-    process.sleep(3.8) -- sleep for 3.8 seconds
+    osprocess.sleep(3.8) -- sleep for 3.8 seconds
     local microseconds = 1e6
-    process.sleep(3800000, microseconds) -- sleep for 3800000 µs
+    osprocess.sleep(3800000, microseconds) -- sleep for 3800000 µs
     local ticks = 100
-    process.sleep(380, ticks) -- sleep for 380 ticks
+    osprocess.sleep(380, ticks) -- sleep for 380 ticks
 </pre>
 
 
 
 
 
-### proc = process.spawn(filename)
-### proc = process.spawn{filename, [args-opts]}
-### proc = process.spawn{command=filename, [args-opts]}
+### proc = osprocess.spawn(filename)
+### proc = osprocess.spawn{filename, [args-opts]}
+### proc = osprocess.spawn{command=filename, [args-opts]}
 
-Creates a child process.
+Creates a child osprocess.
 
 `filename` names a program. If the (implementation-defined) pathname is not absolute, the program is found through an implementation-defined search method (the PATH environment variable on most systems).
 
@@ -119,35 +119,35 @@ The returned 'proc' userdatum has the method `wait()`.
 
 <pre>
     -- run the echo command
-    proc = process.spawn"/bin/echo"
-    proc = process.spawn{"/bin/echo", "hello", "world"}
-    proc = process.spawn{command="/bin/echo", "hello", "world"}
+    proc = osprocess.spawn"/bin/echo"
+    proc = osprocess.spawn{"/bin/echo", "hello", "world"}
+    proc = osprocess.spawn{command="/bin/echo", "hello", "world"}
 
     -- run the id command
     vars = { LANG="fr_FR" }
-    proc = process.spawn{"/bin/id", "-un", env=vars}
-    proc = process.spawn{command="/bin/id", "-un", env=vars)
+    proc = osprocess.spawn{"/bin/id", "-un", env=vars}
+    proc = osprocess.spawn{command="/bin/id", "-un", env=vars)
 
     -- Useless use of cat
-    local rd, wr = assert(process.pipe())
-    local proc = assert(process.spawn("/bin/cat", {stdin=rd}))
+    local rd, wr = assert(osprocess.pipe())
+    local proc = assert(osprocess.spawn("/bin/cat", {stdin=rd}))
     rd:close()
     wr:write("Hello world\n")
     wr:close()
     proc:wait()
 
     -- Run a program with a modified environment
-    local env = process.environ()
+    local env = osprocess.environ()
     env.LUA_PATH = "/usr/share/lib/lua/?.lua"
     env.LUA_CPATH = "/usr/share/lib/lua/?.so"
-    local proc = assert(process.spawn("lua", {args = {"-e", 'print"Hello world\n"'}, env=env }))
+    local proc = assert(osprocess.spawn("lua", {args = {"-e", 'print"Hello world\n"'}, env=env }))
     proc:wait()
 
     -- popen2()
     function popen2(...)
-        local in_rd, in_wr = process.pipe()
-        local out_rd, out_wr = process.pipe()
-        local proc, err = process.spawn{stdin = in_rd, stdout = out_wr, ...}
+        local in_rd, in_wr = osprocess.pipe()
+        local out_rd, out_wr = osprocess.pipe()
+        local proc, err = osprocess.spawn{stdin = in_rd, stdout = out_wr, ...}
         in_rd:close(); out_wr:close()
         if not proc then
             in_wr:close(); out_rd:close()
@@ -165,7 +165,7 @@ The returned 'proc' userdatum has the method `wait()`.
 
 
 
-### process.terminate(process)
+### osprocess.terminate(process)
 
 Terminates a spawned process, if possible.
 
@@ -178,7 +178,7 @@ Otherwise, `process` should be a table with the entries from `proc:getinfo()`.
 
 ### info = proc:getinfo()
 
-Returns information about the spawned process.
+Returns information about the spawned osprocess.
 
 On Windows, a table structure is returned with the following members:
 
@@ -192,67 +192,67 @@ On Windows, a table structure is returned with the following members:
 
 ### proc:resume()
 
-Resumes a suspended process.
+Resumes a suspended osprocess.
 
 
 
 ### exitcode = proc:wait()
 
-Wait for child process termination; 'exitcode' is the code returned by the child process.
+Wait for child process termination; 'exitcode' is the code returned by the child osprocess.
 
 
 
 
-### process.collectlines{filename, [args-opts]}
-### process.collectlines{command=filename, [args-opts]}
+### osprocess.collectlines{filename, [args-opts]}
+### osprocess.collectlines{command=filename, [args-opts]}
 
 Returns a table of all output from the new process's stdout.
 
-See `process.spawn()` for additional information.
+See `osprocess.spawn()` for additional information.
 
 
 
 
 
-### process.lines{filename, [args-opts]}
-### process.lines{command=filename, [args-opts]}
+### osprocess.lines{filename, [args-opts]}
+### osprocess.lines{command=filename, [args-opts]}
 
 Returns an iterator that reads the new process's stdout line by line.
 
-See `process.spawn()` for additional information.
+See `osprocess.spawn()` for additional information.
 
 
 
 
 
-### proc, input = process.popen{filename, [args-opts]}
-### proc, input = process.popen{command=filename, [args-opts]}
+### proc, input = osprocess.popen{filename, [args-opts]}
+### proc, input = osprocess.popen{command=filename, [args-opts]}
 
 Creates a child process with the process's stdout redirected to be read from `input`.
 
-See `process.spawn()` for additional information.
+See `osprocess.spawn()` for additional information.
 
 
 
 
 
-### proc, input, output = process.popen2{filename, [args-opts]}
-### proc, input, output = process.popen2{command=filename, [args-opts]}
+### proc, input, output = osprocess.popen2{filename, [args-opts]}
+### proc, input, output = osprocess.popen2{command=filename, [args-opts]}
 
 Creates a child process with the process's stdout redirected to be read from `input` and the process's stdin redirected to be written to through `output`.
 
-See `process.spawn()` for additional information.
+See `osprocess.spawn()` for additional information.
 
 
 
 
 
-### args = process.parsecommandline(commandline)
+### args = osprocess.parsecommandline(commandline)
 
-Parses a single string command line into a table of arguments suitable for passing to `process.spawn`.
+Parses a single string command line into a table of arguments suitable for passing to `osprocess.spawn`.
 
 <pre>
-    args = process.parsecommandline('dir "c:\\Program Files\\"')
+    args = osprocess.parsecommandline('dir "c:\\Program Files\\"')
 </pre>
 
 

@@ -1,4 +1,4 @@
-local M = require 'ex.process.core'
+local M = require 'osprocess.core'
 
 -- ex.parsecommandline
 function M.parsecommandline(commandline)

@@ -26,6 +26,18 @@ ENVIRON_DECL
 #include "lualib.h"
 #include "lauxlib.h"
 
+#if LUA_VERSION_NUM >= 502
+#define luaL_register(a, b, c) luaL_setfuncs(a, c, 0)
+#define lua_objlen lua_rawlen
+
+static int luaL_typerror (lua_State *L, int narg, const char *tname) {
+  const char *msg = lua_pushfstring(L, "%s expected, got %s",
+                                    tname, luaL_typename(L, narg));
+  return luaL_argerror(L, narg, msg);
+}
+
+#endif
+
 #define absindex(L,i) ((i)>0?(i):lua_gettop(L)+(i)+1)
 
 #include "spawn.h"
@@ -77,20 +89,9 @@ static int ex_environ(lua_State *L)
 }
 
 
-/* -- pathname/nil error */
-static int ex_getcwd(lua_State *L)
-{
-  char pathname[PATH_MAX + 1];
-  if (!getcwd(pathname, sizeof pathname))
-    return push_error(L);
-  lua_pushstring(L, pathname);
-  return 1;
-}
-
-
-
 static FILE *check_file(lua_State *L, int idx, const char *argname)
 {
+#if LUA_VERSION_NUM <= 501
   FILE **pf;
   if (idx > 0) pf = luaL_checkudata(L, idx, LUA_FILEHANDLE);
   else {
@@ -104,16 +105,34 @@ static FILE *check_file(lua_State *L, int idx, const char *argname)
   }
   if (!*pf) return luaL_error(L, "attempt to use a closed file"), NULL;
   return *pf;
+#else
+  luaL_Stream* p;
+  idx = absindex(L, idx);
+  p = (luaL_Stream *)luaL_checkudata(L, idx, LUA_FILEHANDLE);
+  if (!p || !p->f) return luaL_error(L, "attempt to use a closed file"), NULL;
+  return p->f;
+#endif
 }
+
+static int pipe_close (lua_State *L);
 
 static FILE **new_file(lua_State *L, int fd, const char *mode)
 {
+#if LUA_VERSION_NUM <= 501
   FILE **pf = lua_newuserdata(L, sizeof *pf);
   *pf = 0;
   luaL_getmetatable(L, LUA_FILEHANDLE);
   lua_setmetatable(L, -2);
   *pf = fdopen(fd, mode);
   return pf;
+#else
+  luaL_Stream *p = (luaL_Stream *)lua_newuserdata(L, sizeof(luaL_Stream));
+  p->f = NULL;
+  p->closef = pipe_close;  /* mark file handle as 'closed' */
+  luaL_setmetatable(L, LUA_FILEHANDLE);
+  p->f = fdopen(fd, mode);
+  return &p->f;
+#endif
 }
 
 
@@ -282,14 +301,12 @@ static void newfenv (lua_State *L, lua_CFunction cls) {
 }
 
 
-int luaopen_ex_process_core(lua_State *L)
+int luaopen_osprocess_core(lua_State *L)
 {
   const char *name = lua_tostring(L, 1);
   int ex;
-  const luaL_reg ex_iolib[] = {
+  const luaL_Reg osprocess_lib[] = {
     {"pipe",       ex_pipe},
-    {0,0} };
-  const luaL_reg ex_oslib[] = {
     /* environment */
     {"getenv",     ex_getenv},
     {"setenv",     ex_setenv},
@@ -298,7 +315,7 @@ int luaopen_ex_process_core(lua_State *L)
     {"sleep",      ex_sleep},
     {"spawn",      ex_spawn},
     {0,0} };
-  const luaL_reg ex_process_methods[] = {
+  const luaL_Reg ex_process_methods[] = {
     {"__tostring", process_tostring},
 #define ex_process_functions (ex_process_methods + 1)
     {"wait",       process_wait},
@@ -310,8 +327,7 @@ int luaopen_ex_process_core(lua_State *L)
   lua_setfield(L, -2, "__index");             /* . P */
   /* make all functions available via ex.process namespace */
   lua_newtable(L);
-  luaL_register(L, 0, ex_oslib);              /* . P ex */
-  luaL_register(L, 0, ex_iolib);
+  luaL_register(L, 0, osprocess_lib);         /* . P ex */
   ex = lua_gettop(L);
 #if LUA_VERSION_NUM <= 501
   lua_getfield(L, ex, "pipe");                /* . io ex_pipe */

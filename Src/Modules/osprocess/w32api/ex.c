@@ -331,14 +331,12 @@ static int ex_stdout_binary(lua_State *L) {
   return 0;
 }
 
-int luaopen_ex_process_core(lua_State *L)
+int luaopen_osprocess_core(lua_State *L)
 {
   const char *name = lua_tostring(L, 1);
   int ex;
-  const luaL_Reg ex_iolib[] = {
+  const luaL_Reg osprocess_lib[] = {
     {"pipe",       ex_pipe},
-    {0,0} };
-  const luaL_Reg ex_oslib[] = {
     /* environment */
     {"getenv",     ex_getenv},
     {"setenv",     ex_setenv},
@@ -365,10 +363,8 @@ int luaopen_ex_process_core(lua_State *L)
   lua_setfield(L, -2, "__index");             /* . P */
   /* make all functions available via ex.process namespace */
   lua_newtable(L);
-  luaL_register(L, 0, ex_oslib);              /* . P ex */
-  luaL_register(L, 0, ex_iolib);
+  luaL_register(L, 0, osprocess_lib);         /* . P ex */
   ex = lua_gettop(L);
-  /* extend the os table */
 #if LUA_VERSION_NUM <= 501
   lua_getfield(L, ex, "pipe");                /* . io ex_pipe */
   newfenv(L, pipe_close);  /* create environment for 'popen' */
