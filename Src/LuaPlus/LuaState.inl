@@ -710,7 +710,7 @@ LUAPLUS_INLINE int LuaState::GetCtx(int* ctx) {
 #if LUA_VERSION_NUM == 501
 	return 0;
 #elif LUA_VERSION_NUM >= 502
-	lua_getctx(LuaState_to_lua_State(this), ctx);
+	return lua_getctx(LuaState_to_lua_State(this), ctx);
 #endif
 }
 
@@ -942,6 +942,7 @@ LUAPLUS_INLINE int LuaState::StrToNum(const char *s, size_t len)
     return lua_strtonum(LuaState_to_lua_State(this), s, len);
 #else
     assert(0);
+	return 0;
 #endif
 }
 
