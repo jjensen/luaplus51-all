@@ -13,40 +13,10 @@
 
 using namespace LuaPlus;
 
-#if LUA_VERSION_NUM >= 502
-#define luaL_register(a, b, c) luaL_setfuncs(a, c, 0)
-#define lua_objlen lua_rawlen
-
-static int luaL_argerror (lua_State *L, int narg, const char *extramsg) {
-  lua_Debug ar;
-  if (!lua_getstack(L, 0, &ar))  /* no stack frame? */
-    return luaL_error(L, "bad argument #%d (%s)", narg, extramsg);
-  lua_getinfo(L, "n", &ar);
-  if (strcmp(ar.namewhat, "method") == 0) {
-    narg--;  /* do not count `self' */
-    if (narg == 0)  /* error is in the self argument itself? */
-      return luaL_error(L, "calling " LUA_QS " on bad self (%s)",
-                           ar.name, extramsg);
-  }
-  if (ar.name == NULL)
-    ar.name = "?";
-  return luaL_error(L, "bad argument #%d to " LUA_QS " (%s)",
-                        narg, ar.name, extramsg);
-}
-
-
-static int luaL_typerror (lua_State *L, int narg, const char *tname) {
-  const char *msg = lua_pushfstring(L, "%s expected, got %s",
-                                    tname, luaL_typename(L, narg));
-  return luaL_argerror(L, narg, msg);
-}
-
-#endif
-
 /* macro to `unsign' a character */
 #define uchar(c)        ((unsigned char)(c))
 
-extern "C" int str_format_helper (luaL_Buffer* b, lua_State *L, int arg);
+static int str_format_helper (luaL_Buffer* b, lua_State *L, int arg);
 
 static void luaI_addquotednonwidebinary (LuaPlus::LuaStateOutFile& file, const char* s, size_t l) {
 	file.Print("%c", '"');
