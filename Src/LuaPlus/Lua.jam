@@ -82,6 +82,7 @@ rule LuaApplication TARGET : OPTIONS
 	else if $(OS) in MACOS MACOSX
 	{
 		C.LinkFlags : -Wl,-rpath,@loader_path/ ;
+		C.LinkPrebuiltLibraries : readline ;
 	}
 	else if $(OS) = NT {
 		C.LinkPrebuiltLibraries $(TARGET) : wsock32 ;
