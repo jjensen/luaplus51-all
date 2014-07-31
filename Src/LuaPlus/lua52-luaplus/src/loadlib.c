@@ -124,7 +124,75 @@ static lua_CFunction ll_sym (lua_State *L, void *lib, const char *sym);
 ** =========================================================================
 */
 
+#if LUAPLUS_EXTENSIONS
+#define __USE_GNU
 #include <dlfcn.h>
+#include <sys/param.h>
+#include <unistd.h>
+
+#if LUAPLUS_EXTENSIONS
+static void lp_loadlocalconfig(lua_State *L) {
+  char *buff;
+  char *lb;
+#ifndef NDEBUG
+  const char* luaplusdllName = "lua52_debug.so";
+#else // _DEBUG
+  const char* luaplusdllName = "lua52.so";
+#endif // _DEBUG
+
+  Dl_info info;
+  dladdr(lp_loadlocalconfig, &info);
+  buff = malloc(MAXPATHLEN + 1);
+  strcpy(buff, info.dli_fname);
+  lb = strrchr(buff, '/');
+
+  {
+    *lb = 0;
+    lua_pushstring(L, buff);
+    lua_setglobal(L, "__LUA_BINARY_PATH");
+
+    lua_pushstring(L, LUA_CSUFFIX);
+    lua_setglobal(L, "__LUA_CSUFFIX");
+
+    strcpy(lb, "/lua52.config.lua");
+    if (access(buff, 0) != -1) {
+      int top = lua_gettop(L);
+      int ret = luaL_dofile(L, buff);
+      if (ret != 0)
+        luaL_error(L, "unable to load %s", buff);
+      lua_settop(L, top);
+    }
+  }
+  free(buff);
+}
+#endif
+
+
+#undef setprogdir
+
+static void setprogdir (lua_State *L) {
+  char* buff;
+  char *lb;
+  unsigned int path_len = sizeof(buff)/sizeof(char);
+#ifdef _DEBUG
+  const char* luaplusdllName = "lua52_debug.so";
+#else // _DEBUG
+  const char* luaplusdllName = "lua52.so";
+#endif // _DEBUG
+  Dl_info info;
+  dladdr(setprogdir, &info);
+  buff = malloc(MAXPATHLEN + 1);
+  strcpy(buff, info.dli_fname);
+  lb = strrchr(buff, '/');
+  *lb = '\0';
+  luaL_gsub(L, lua_tostring(L, -1), LUA_EXEC_DIR, buff);
+  lua_remove(L, -2);  /* remove original string */
+  free(buff);
+}
+#else
+#include <dlfcn.h>
+#endif
+
 
 static void ll_unloadlib (void *lib) {
   dlclose(lib);
