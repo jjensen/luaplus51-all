@@ -22,6 +22,10 @@ ENVIRON_DECL
 
 #include "spawn.h"
 
+#if LUA_VERSION_NUM >= 502
+#define lua_objlen lua_rawlen
+#endif
+
 struct spawn_params {
   lua_State *L;
   const char *command, **argv, **envp;
