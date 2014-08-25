@@ -461,30 +461,61 @@ static bool _lziparchive_collectfilelist(lua_State* L, ZipArchive::FileOrderList
 	if (!lua_istable(L, tableIndex))
 		return false;
 
+	int top = lua_gettop(L);
+	lua_pushstring(L, "EntryName");
+	int entryNameIndex = lua_gettop(L);
+	lua_pushstring(L, "SourcePath");
+	int sourcePathIndex = lua_gettop(L);
+	lua_pushstring(L, "SourceEntryName");
+	int sourceEntryNameIndex = lua_gettop(L);
+	lua_pushstring(L, "CompressionMethod");
+	int compressionMethodIndex = lua_gettop(L);
+	lua_pushstring(L, "CompressionLevel");
+	int compressionLevelIndex = lua_gettop(L);
+	lua_pushstring(L, "Timestamp");
+	int timestampIndex = lua_gettop(L);
+	lua_pushstring(L, "Size");
+	int sizeIndex = lua_gettop(L);
+	lua_pushstring(L, "CRC");
+	int crcIndex = lua_gettop(L);
+	lua_pushstring(L, "MD5");
+	int md5Index = lua_gettop(L);
+
     int index = 1;
 	while (true) {
 		ZipArchive::FileOrderInfo info;
 
 		lua_rawgeti(L, tableIndex, index++);						// 1-archive entryName
 		if (lua_type(L, -1) == LUA_TTABLE) {
-			lua_getfield(L, -1, "EntryName");
+			lua_pushvalue(L, entryNameIndex);
+			lua_gettable(L, -2);
 			if (lua_type(L, -1) != LUA_TSTRING)
 				break;
 			info.entryName = lua_tostring(L, -1);
 			lua_pop(L, 1);
 
-			lua_getfield(L, -1, "SourcePath");
+			lua_pushvalue(L, sourcePathIndex);
+			lua_gettable(L, -2);
 			if (lua_type(L, -1) != LUA_TSTRING)
 				break;
 			info.srcPath = lua_tostring(L, -1);
 			lua_pop(L, 1);
 
-			lua_getfield(L, -1, "CompressionMethod");
+			lua_pushvalue(L, sourceEntryNameIndex);
+			lua_gettable(L, -2);
+			if (lua_type(L, -1) == LUA_TSTRING) {
+				info.sourceEntryName = lua_tostring(L, -1);
+			}
+			lua_pop(L, 1);
+
+			lua_pushvalue(L, compressionMethodIndex);
+			lua_gettable(L, -2);
 			if (lua_type(L, -1) == LUA_TNUMBER)
 				info.compressionMethod = (int)lua_tonumber(L, -1);
 			lua_pop(L, 1);
 
-			lua_getfield(L, -1, "CompressionLevel");
+			lua_pushvalue(L, compressionLevelIndex);
+			lua_gettable(L, -2);
 			if (lua_type(L, -1) == LUA_TNUMBER)
 			{
 				info.compressionLevel = (int)lua_tonumber(L, -1);
@@ -495,22 +526,26 @@ static bool _lziparchive_collectfilelist(lua_State* L, ZipArchive::FileOrderList
 			}
 			lua_pop(L, 1);
 
-			lua_getfield(L, -1, "Timestamp");
+			lua_pushvalue(L, timestampIndex);
+			lua_gettable(L, -2);
 			if (lua_type(L, -1) == LUA_TNUMBER)
 				info.fileTime = (time_t)lua_tonumber(L, -1);
 			lua_pop(L, 1);
 
-			lua_getfield(L, -1, "Size");
+			lua_pushvalue(L, sizeIndex);
+			lua_gettable(L, -2);
 			if (lua_type(L, -1) == LUA_TNUMBER)
 				info.size = (uint32_t)lua_tonumber(L, -1);
 			lua_pop(L, 1);
 
-			lua_getfield(L, -1, "CRC");
+			lua_pushvalue(L, crcIndex);
+			lua_gettable(L, -2);
 			if (lua_type(L, -1) == LUA_TNUMBER)
 				info.crc = (uint32_t)lua_tonumber(L, -1);
 			lua_pop(L, 1);
 
-			lua_getfield(L, -1, "MD5");
+			lua_pushvalue(L, md5Index);
+			lua_gettable(L, -2);
 			if (lua_type(L, -1) == LUA_TSTRING  &&  lua_objlen(L, -1) == 16)
 				memcpy(info.md5, lua_tostring(L, -1), 16);
 			lua_pop(L, 1);
@@ -539,6 +574,7 @@ static bool _lziparchive_collectfilelist(lua_State* L, ZipArchive::FileOrderList
         fileOrder.InsertAfterTail(info);
 	}
 
+	lua_settop(L, top);
 	return true;
 }
 
@@ -1359,6 +1395,7 @@ int LS_Help(lua_State* L)
 "\n"
 "    ziparchive.UNCOMPRESSED\n"
 "    ziparchive.DEFLATED\n"
+"    ziparchive.LZMA\n"
 "\n"
 "CompressionLevel Enumerations:\n"
 "\n"
@@ -1526,6 +1563,8 @@ extern "C" int luaopen_ziparchive(lua_State* L)
 	lua_setfield(L, -2, "UNCOMPRESSED");
 	lua_pushnumber(L, ZipArchive::DEFLATED);
 	lua_setfield(L, -2, "DEFLATED");
+	lua_pushnumber(L, ZipArchive::LZMA);
+	lua_setfield(L, -2, "LZMA");
 
 	lua_pushnumber(L, Z_NO_COMPRESSION);
 	lua_setfield(L, -2, "NO_COMPRESSION");

@@ -102,7 +102,18 @@ bool DiskFile::Open(const char* fileName, UINT openFlags)
     else
         dwCreationDisposition |= OPEN_EXISTING;
 
-    m_fileHandle = ::CreateFile(fileName, dwDesiredAccess, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, dwCreationDisposition, FILE_ATTRIBUTE_NORMAL | FILE_FLAG_SEQUENTIAL_SCAN, 0);
+	// map share mode
+	unsigned long dwShareMode = 0;
+	if (openFlags & SHARE_DENY_WRITE)
+	{
+		dwShareMode = FILE_SHARE_READ;
+	}
+	if (openFlags & SHARE_DENY_READ)
+	{
+		dwShareMode = FILE_SHARE_WRITE;
+	}
+
+    m_fileHandle = ::CreateFile(fileName, dwDesiredAccess, dwShareMode, NULL, dwCreationDisposition, FILE_ATTRIBUTE_NORMAL | FILE_FLAG_SEQUENTIAL_SCAN, 0);
     if (m_fileHandle == INVALID_HANDLE_VALUE)
         return FALSE;
 #else

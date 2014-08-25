@@ -46,6 +46,83 @@ local AES_SRCS =
 		aes/sha2.h
 ;
 
+local LZMA_SRCS =
+		lzma/7zVersion.h
+		lzma/Lzma2Dec.c
+		lzma/Lzma2Dec.h
+		lzma/Lzma2Enc.c
+		lzma/Lzma2Enc.h
+		lzma/LzmaDec.c
+		lzma/LzmaDec.h
+		lzma/LzmaEnc.c
+		lzma/LzmaEnc.h
+		lzma/LzFind.c
+		lzma/LzFind.h
+		lzma/LzFindMt.c
+		lzma/LzFindMt.h
+		lzma/LzHash.h
+		lzma/MtCoder.c
+		lzma/MtCoder.h
+		lzma/Threads.c
+		lzma/Threads.h
+		lzma/Types.h
+;
+
+local LIBLZMA_SRCS =
+        liblzma/liblzma/api/lzma.h
+        liblzma/liblzma/api/lzma/base.h
+        liblzma/liblzma/api/lzma/bcj.h
+        liblzma/liblzma/api/lzma/block.h
+        liblzma/liblzma/api/lzma/check.h
+        liblzma/liblzma/api/lzma/container.h
+        liblzma/liblzma/api/lzma/delta.h
+        liblzma/liblzma/api/lzma/filter.h
+        liblzma/liblzma/api/lzma/hardware.h
+        liblzma/liblzma/api/lzma/index.h
+        liblzma/liblzma/api/lzma/index_hash.h
+        liblzma/liblzma/api/lzma/lzma12.h
+        liblzma/liblzma/api/lzma/stream_flags.h
+        liblzma/liblzma/api/lzma/version.h
+        liblzma/liblzma/api/lzma/vli.h
+        liblzma/liblzma/check/crc_macros.h
+        liblzma/liblzma/check/crc32_table.c
+        liblzma/liblzma/check/crc32_table_le.h
+        liblzma/liblzma/check/crc32_table_be.h
+        liblzma/liblzma/common/alone_decoder.c
+        liblzma/liblzma/common/alone_decoder.h
+        liblzma/liblzma/common/alone_encoder.c
+        liblzma/liblzma/common/alone_zip_decoder.c
+        liblzma/liblzma/common/alone_zip_decoder.h
+        liblzma/liblzma/common/alone_zip_encoder.c
+        liblzma/liblzma/common/common.c
+        liblzma/liblzma/common/common.h
+        liblzma/liblzma/lz/lz_decoder.c
+        liblzma/liblzma/lz/lz_decoder.h
+        liblzma/liblzma/lz/lz_encoder.c
+        liblzma/liblzma/lz/lz_encoder.h
+        liblzma/liblzma/lz/lz_encoder_hash.h
+        liblzma/liblzma/lz/lz_encoder_hash_table.h
+        liblzma/liblzma/lz/lz_encoder_mf.c
+        liblzma/liblzma/lzma/lzma_common.h
+        liblzma/liblzma/lzma/fastpos.h
+        liblzma/liblzma/lzma/lzma_encoder.h
+        liblzma/liblzma/lzma/lzma_encoder.c
+        liblzma/liblzma/lzma/lzma_encoder_presets.c
+        liblzma/liblzma/lzma/lzma_encoder_private.h
+        liblzma/liblzma/lzma/lzma_encoder_optimum_fast.c
+        liblzma/liblzma/lzma/lzma_encoder_optimum_normal.c
+        liblzma/liblzma/lzma/fastpos_table.c
+        liblzma/liblzma/lzma/lzma_decoder.c
+        liblzma/liblzma/lzma/lzma_decoder.h
+        liblzma/liblzma/rangecoder/range_encoder.h
+        liblzma/liblzma/rangecoder/price.h
+        liblzma/liblzma/rangecoder/price_table.c
+;
+
+if $(NT) {
+	LIBLZMA_SRCS += liblzma/windows/config.h ;
+}
+
 local MD5_SRCS =
 		md5/md5.h
 		md5/md5c.c
@@ -89,6 +166,8 @@ local ZLIB_SRCS =
 
 PCH_SRCS = Misc/$(PCH_SRCS) ;
 AES_SRCS = Misc/$(AES_SRCS) ;
+LZMA_SRCS = Misc/$(LZMA_SRCS) ;
+LIBLZMA_SRCS = Misc/$(LIBLZMA_SRCS) ;
 MD5_SRCS = Misc/$(MD5_SRCS) ;
 TRIO_SRCS = Misc/$(TRIO_SRCS) ;
 #ZLIB_SRCS = Misc/$(ZLIB_SRCS) ;
@@ -96,17 +175,48 @@ TRIO_SRCS = Misc/$(TRIO_SRCS) ;
 local MISC_SRCS =
 		$(PCH_SRCS)
 		$(AES_SRCS)
+		$(LZMA_SRCS)
+		$(LIBLZMA_SRCS)
 		$(MD5_SRCS)
 		$(TRIO_SRCS)
 		$(ZLIB_SRCS)
 ;
 
 SourceGroup ziparchive : aes : $(AES_SRCS) ;
+SourceGroup ziparchive : lzma : $(LZMA_SRCS) ;
+SourceGroup ziparchive : liblzma : $(LIBLZMA_SRCS) ;
 SourceGroup ziparchive : md5 : $(MD5_SRCS) ;
 SourceGroup ziparchive : trio : $(TRIO_SRCS) ;
 SourceGroup ziparchive : zlib : $(ZLIB_SRCS) ;
 
 C.IncludeDirectories ziparchive : ../zlib ;
+
+C.IncludeDirectories ziparchive :
+        Misc/liblzma/liblzma/api
+;
+
+C.ObjectIncludeDirectories ziparchive : $(LIBLZMA_SRCS) : 
+        Misc/liblzma/liblzma/common
+;
+
+if $(NT) {
+	C.ObjectIncludeDirectories ziparchive : $(LIBLZMA_SRCS) :
+			Misc/liblzma/windows
+	;
+}
+
+C.ObjectIncludeDirectories ziparchive : $(LIBLZMA_SRCS) : 
+        Misc/liblzma/common
+        Misc/liblzma/liblzma/check
+        Misc/liblzma/liblzma/delta
+        Misc/liblzma/liblzma/lzma
+        Misc/liblzma/liblzma/lz
+        Misc/liblzma/liblzma/rangecoder
+        Misc/liblzma/liblzma/simple
+;
+
+C.Defines ziparchive : LZMA_API_STATIC ;
+C.ObjectDefines ziparchive : $(LIBLZMA_SRCS) : HAVE_CONFIG_H ;
 
 if $(NT)
 {

@@ -28,12 +28,18 @@
 #if defined(macintosh)  ||  defined(__APPLE__)
 #include <copyfile.h>
 #endif
-#include "List.h"
 #include "Map.h"
 #if ZIPARCHIVE_ENCRYPTION
 #include "aes/fileenc.h"
 #include "aes/prng.h"
 #endif // ZIPARCHIVE_ENCRYPTION
+
+//#define ZIPARCHIVE_USE_7ZIP_LZMA 1
+#if ZIPARCHIVE_USE_7ZIP_LZMA
+#include "lzma/LzmaDec.h"
+#include "lzma/LzmaEnc.h"
+#include "lzma/7zVersion.h"
+#endif // ZIPARCHIVE_USE_7ZIP_LZMA
 
 extern "C"
 {
@@ -41,6 +47,11 @@ extern "C"
 	#include "md5/md5global.h"
 	#include "md5/md5.h"
 }
+
+#define ZIPARCHIVE_USE_LIBLZMA 1
+#if ZIPARCHIVE_USE_LIBLZMA
+#include <lzma.h>
+#endif // ZIPARCHIVE_USE_LIBLZMA
 
 namespace Misc {
 
@@ -215,6 +226,18 @@ struct ZipExtraHeader
 	unsigned short dataSize;
 };
 
+
+struct LzmaPropertiesHeader {
+	uint8_t majorVersion;
+	uint8_t minorVersion;
+	uint16_t propertiesSize;
+#if defined(__GNUC__)  ||  defined(__CWCC__)  ||  defined(__MWERKS__)
+} __attribute__((packed));
+#else
+};
+#endif
+
+
 #if ZIPARCHIVE_MD5_SUPPORT
 
 struct FWKCS_MD5
@@ -260,6 +283,20 @@ static void zlib_free_func(voidpf opaque, voidpf address)
 	delete[] (unsigned char*)address;
 }
 
+
+#if ZIPARCHIVE_USE_7ZIP_LZMA
+
+static void* lzma_alloc_func(void* /*p*/, size_t size) {
+	return new unsigned char[size];
+}
+
+static void lzma_free_func(void* /*p*/, void *address) {
+	delete[] (unsigned char*)address;
+}
+
+static ISzAlloc lzma_memory_funcs = { lzma_alloc_func, lzma_free_func };
+
+#endif // ZIPARCHIVE_USE_7ZIP_LZMA
 
 static uint32_t ConvertTime_tToDosTime(time_t time)
 {
@@ -379,6 +416,10 @@ public:
 		: fileEntryIndex(ZipArchive::INVALID_FILE_ENTRY)
 		, bufferedData(NULL)
 		, curUncompressedFilePosition(0)
+#if ZIPARCHIVE_USE_7ZIP_LZMA
+		, lzmaDecodeState(NULL)
+		, lzmaEncodeState(NULL)
+#endif // ZIPARCHIVE_USE_7ZIP_LZMA
 	{
 	}
 
@@ -386,6 +427,7 @@ public:
     size_t headerSize;
     z_stream stream;
     uint8_t* bufferedData;
+	uint32_t bufferedDataSize;
 	uint32_t posInBufferedData;
 	uint64_t curCompressedFilePosition;
 	uint64_t curUncompressedFilePosition;
@@ -395,6 +437,13 @@ public:
 #if ZIPARCHIVE_MD5_SUPPORT
 	MD5_CTX md5writecontext;
 #endif // ZIPARCHIVE_MD5_SUPPORT
+#if ZIPARCHIVE_USE_7ZIP_LZMA
+	CLzmaDec* lzmaDecodeState;
+	CLzmaEncHandle lzmaEncodeState;
+#endif // ZIPARCHIVE_USE_7ZIP_LZMA
+#if ZIPARCHIVE_USE_LIBLZMA
+	lzma_stream lzmaStream;
+#endif // ZIPARCHIVE_USE_LIBLZMA
 };
 
 
@@ -684,7 +733,10 @@ bool ZipArchive::Open(File& parentFile, const char* filename, bool readOnly, uin
 	// See if it is a .zip file.
 	ZipDirHeader zipDirHeader;
 	m_parentFile->Seek(-(int)sizeof(ZipDirHeader), File::SEEKFLAG_END);
-	m_parentFile->Read(&zipDirHeader, sizeof(ZipDirHeader));
+	if (m_parentFile->Read(&zipDirHeader, sizeof(ZipDirHeader)) != sizeof(ZipDirHeader)) {
+		Close();
+		return false;
+	}
 #if ZIPARCHIVE_ENCRYPTION
 	if (this->defaultPassword.Length() > 0) {
 		zcx[0] = this->defaultzcx[0];
@@ -694,6 +746,7 @@ bool ZipArchive::Open(File& parentFile, const char* filename, bool readOnly, uin
 
 	// Test the zip signature.
 	if (zipDirHeader.signatureBytes[0] != 0x50  ||  zipDirHeader.signatureBytes[1] != 0x4b  ||  zipDirHeader.signatureBytes[2] != 0x05  ||  zipDirHeader.signatureBytes[3] != 0x06) {
+		Close();
 		return false;
 	}
 
@@ -715,7 +768,11 @@ bool ZipArchive::Open(File& parentFile, const char* filename, bool readOnly, uin
 	// TODO: Allocate this up top so it doesn't fragment.
 	uint8_t* zipDirBuffer = new uint8_t[zipDirHeader.size_central_dir];
 	m_parentFile->Seek(zipDirHeader.offset_central_dir);
-	m_parentFile->Read(zipDirBuffer, zipDirHeader.size_central_dir);
+	if (m_parentFile->Read(zipDirBuffer, zipDirHeader.size_central_dir) != zipDirHeader.size_central_dir) {
+		delete[] zipDirBuffer;
+		Close();
+		return false;
+	}
 
 #if ZIPARCHIVE_ENCRYPTION
 	if (this->defaultPassword.Length() > 0) {
@@ -1249,6 +1306,11 @@ bool ZipArchive::FileCreateInternal(const char* fileName, ZipEntryFileHandle& fi
 
 	if (compressionMethod == DEFLATED) {
 		fileHandle.detail->bufferedData = NULL;
+		fileHandle.detail->bufferedDataSize = 0;
+		fileHandle.detail->posInBufferedData = 0;
+	} else if (compressionMethod == LZMA) {
+		fileHandle.detail->bufferedData = NULL;
+		fileHandle.detail->bufferedDataSize = 0;
 		fileHandle.detail->posInBufferedData = 0;
 	}
 
@@ -1294,6 +1356,7 @@ bool ZipArchive::FileCreate(const char* fileName, ZipEntryFileHandle& fileHandle
 
 	if (compressionMethod == DEFLATED) {
 		fileHandle.detail->bufferedData = new uint8_t[Z_BUFSIZE];
+		fileHandle.detail->bufferedDataSize = 0;
 		fileHandle.detail->posInBufferedData = 0;
 
 		fileHandle.detail->stream.avail_in = 0;
@@ -1306,6 +1369,81 @@ bool ZipArchive::FileCreate(const char* fileName, ZipEntryFileHandle& fileHandle
 		fileHandle.detail->stream.zfree = zlib_free_func;
 
 		deflateInit2(&fileHandle.detail->stream, compressionLevel, compressionMethod == UNCOMPRESSED ? 0 : Z_DEFLATED, -MAX_WBITS, MAX_MEM_LEVEL, 0);
+	} else if (compressionMethod == LZMA) {
+		fileHandle.detail->bufferedData = new uint8_t[Z_BUFSIZE];
+		fileHandle.detail->bufferedDataSize = 0;
+		fileHandle.detail->posInBufferedData = 0;
+
+#if ZIPARCHIVE_USE_7ZIP_LZMA
+ 		fileHandle.detail->lzmaEncodeState = LzmaEnc_Create(&lzma_memory_funcs);
+
+		CLzmaEncProps props;
+		LzmaEncProps_Init(&props);
+		props.dictSize = 64 * 1024;
+		//props.reduceSize = 24434731;
+		props.numThreads = 0;
+		SRes res = LzmaEnc_SetProps(fileHandle.detail->lzmaEncodeState, &props);
+
+		uint8_t header[LZMA_PROPS_SIZE];
+		size_t headerSize = LZMA_PROPS_SIZE;
+		res = LzmaEnc_WriteProperties(fileHandle.detail->lzmaEncodeState, header, &headerSize);
+
+		LzmaPropertiesHeader lzmaPropertiesHeader;
+		lzmaPropertiesHeader.majorVersion = MY_VER_MAJOR;
+		lzmaPropertiesHeader.minorVersion = MY_VER_MINOR;
+		lzmaPropertiesHeader.propertiesSize = LZMA_PROPS_SIZE;
+
+		ZipEntryInfo* fileEntry = GetFileEntry(fileHandle.detail->fileEntryIndex);
+		if (m_parentFile->Seek(fileEntry->m_offset + fileHandle.detail->headerSize + fileHandle.detail->curCompressedFilePosition) !=
+				fileEntry->m_offset + fileHandle.detail->headerSize + fileHandle.detail->curCompressedFilePosition) {
+			return false;
+		}
+
+		if (m_parentFile->Write(&lzmaPropertiesHeader, sizeof(lzmaPropertiesHeader)) != sizeof(lzmaPropertiesHeader)) {
+			return false;
+		}
+
+		if (m_parentFile->Write(header, headerSize) != headerSize) {
+			return false;
+		}
+
+		fileHandle.detail->curCompressedFilePosition = sizeof(LzmaPropertiesHeader) + headerSize;
+#endif // ZIPARCHIVE_USE_7ZIP_LZMA
+
+#if ZIPARCHIVE_USE_LIBLZMA
+		LzmaPropertiesHeader lzmaPropertiesHeader;
+		lzmaPropertiesHeader.majorVersion = LZMA_VERSION_MAJOR;
+		lzmaPropertiesHeader.minorVersion = LZMA_VERSION_MINOR;
+		lzmaPropertiesHeader.propertiesSize = 5;
+
+		ZipEntryInfo* fileEntry = GetFileEntry(fileHandle.detail->fileEntryIndex);
+		if (m_parentFile->Seek(fileEntry->m_offset + fileHandle.detail->headerSize + fileHandle.detail->curCompressedFilePosition) !=
+				fileEntry->m_offset + fileHandle.detail->headerSize + fileHandle.detail->curCompressedFilePosition) {
+			return false;
+		}
+
+		if (m_parentFile->Write(&lzmaPropertiesHeader, sizeof(lzmaPropertiesHeader)) != sizeof(lzmaPropertiesHeader)) {
+			return false;
+		}
+
+		fileHandle.detail->curCompressedFilePosition = sizeof(LzmaPropertiesHeader);
+
+		lzma_options_lzma opt_lzma;
+		lzma_bool retbool;
+		lzma_filter filters[] = {
+			{ LZMA_FILTER_LZMA1, &opt_lzma },
+			{ LZMA_VLI_UNKNOWN, NULL },
+		};
+		memset(&fileHandle.detail->lzmaStream, 0, sizeof(fileHandle.detail->lzmaStream));
+
+		retbool = lzma_lzma_preset(&opt_lzma, LZMA_PRESET_DEFAULT);
+		opt_lzma.dict_size = 64 * 1024;
+
+		lzma_ret ret = lzma_alone_zip_encoder(&fileHandle.detail->lzmaStream, &opt_lzma);
+
+		fileHandle.detail->lzmaStream.avail_out = Z_BUFSIZE;
+		fileHandle.detail->lzmaStream.next_out = fileHandle.detail->bufferedData;
+#endif // ZIPARCHIVE_USE_LIBLZMA
 	}
 
 #if ZIPARCHIVE_ENCRYPTION
@@ -1342,6 +1480,7 @@ bool ZipArchive::FileOpenIndexInternal(size_t index, ZipEntryFileHandle& fileHan
     fileHandle.detail->curCompressedFilePosition = 0;
 
 	fileHandle.detail->bufferedData = NULL;
+	fileHandle.detail->bufferedDataSize = 0;
 
 	// Add this file entry to the open files list.
 	fileHandle.nextOpenFile = m_headOpenFile;
@@ -1432,7 +1571,7 @@ bool ZipArchive::FileOpenIndex(size_t index, ZipEntryFileHandle& fileHandle)
 
 	fileHandle.detail->headerSize = sizeof(ZipLocalHeader) + localHeader.size_filename + localHeader.size_file_extra;
 
-	if (fileEntry.m_compressionMethod != 0)
+	if (fileEntry.m_compressionMethod == DEFLATED)
 	{
 
 		fileHandle.detail->stream.avail_in = 0;
@@ -1440,11 +1579,51 @@ bool ZipArchive::FileOpenIndex(size_t index, ZipEntryFileHandle& fileHandle)
 
 	    fileHandle.detail->stream.opaque = 0;
         fileHandle.detail->bufferedData = new uint8_t[Z_BUFSIZE];
+		fileHandle.detail->bufferedDataSize = 0;
+		fileHandle.detail->posInBufferedData = 0;
 		fileHandle.detail->stream.zalloc = zlib_alloc_func;
         fileHandle.detail->stream.zfree = zlib_free_func;
 
 		inflateInit2(&fileHandle.detail->stream, -MAX_WBITS);
     }
+	else if (fileEntry.m_compressionMethod == LZMA) {
+		LzmaPropertiesHeader lzmaPropertiesHeader;
+
+		if (m_parentFile->Seek(fileEntry.m_offset + fileHandle.detail->headerSize + fileHandle.detail->curCompressedFilePosition)
+				!= fileEntry.m_offset + fileHandle.detail->headerSize + fileHandle.detail->curCompressedFilePosition)
+			return false;
+
+		if (m_parentFile->Read(&lzmaPropertiesHeader, sizeof(lzmaPropertiesHeader)) != sizeof(lzmaPropertiesHeader))
+			return false;
+
+		fileHandle.detail->curCompressedFilePosition += sizeof(lzmaPropertiesHeader);
+
+#if ZIPARCHIVE_USE_7ZIP_LZMA
+		uint8_t* header = (uint8_t*)alloca(lzmaPropertiesHeader.propertiesSize);
+		if (m_parentFile->Seek(fileEntry.m_offset + fileHandle.detail->headerSize + fileHandle.detail->curCompressedFilePosition)
+				!= fileEntry.m_offset + fileHandle.detail->headerSize + fileHandle.detail->curCompressedFilePosition)
+			return false;
+
+		if (m_parentFile->Read(header, lzmaPropertiesHeader.propertiesSize) != lzmaPropertiesHeader.propertiesSize)
+			return false;
+
+		fileHandle.detail->curCompressedFilePosition += lzmaPropertiesHeader.propertiesSize;
+
+		fileHandle.detail->lzmaDecodeState = new CLzmaDec;
+		LzmaDec_Construct(fileHandle.detail->lzmaDecodeState);
+		LzmaDec_Allocate(fileHandle.detail->lzmaDecodeState, header, lzmaPropertiesHeader.propertiesSize, &lzma_memory_funcs);
+		LzmaDec_Init(fileHandle.detail->lzmaDecodeState);
+#endif // ZIPARCHIVE_USE_7ZIP_LZMA
+
+#if ZIPARCHIVE_USE_LIBLZMA
+		memset(&fileHandle.detail->lzmaStream, 0, sizeof(fileHandle.detail->lzmaStream));
+		lzma_bool ret = lzma_alone_zip_decoder(&fileHandle.detail->lzmaStream, fileEntry.GetUncompressedSize(), 128 * 1024);
+#endif // ZIPARCHIVE_USE_LIBLZMA
+
+		fileHandle.detail->bufferedData = new uint8_t[Z_BUFSIZE];
+		fileHandle.detail->bufferedDataSize = 0;
+		fileHandle.detail->posInBufferedData = 0;
+	}
 
 #if ZIPARCHIVE_ENCRYPTION
 	if (this->defaultPassword.Length() > 0)
@@ -1518,6 +1697,51 @@ bool ZipArchive::FileClose(ZipEntryFileHandle& fileHandle)
 
 			fileEntry->m_uncompressedSize = fileHandle.detail->stream.total_in;
 			fileEntry->m_compressedSize = (uint32_t)fileHandle.detail->curCompressedFilePosition;  //stream.total_out;
+		}
+		else if (fileEntry->m_compressionMethod == LZMA)
+		{
+#if ZIPARCHIVE_USE_7ZIP_LZMA
+			fileEntry->m_compressedSize = (uint32_t)fileHandle.detail->curCompressedFilePosition;
+			fileEntry->m_uncompressedSize = (uint32_t)fileHandle.detail->curUncompressedFilePosition;
+#endif // ZIPARCHIVE_USE_7ZIP_LZMA
+
+#if ZIPARCHIVE_USE_LIBLZMA
+			lzma_ret ret;
+			do
+			{
+				uint64_t uTotalOutBefore;
+				if (fileHandle.detail->lzmaStream.avail_out == 0)
+				{
+					m_parentFile->Seek(fileHandle.detail->curCompressedFilePosition + fileEntry->m_offset + fileHandle.detail->headerSize);
+#if ZIPARCHIVE_ENCRYPTION
+					if (this->defaultPassword.Length() > 0)
+						fcrypt_encrypt_offset(fileHandle.detail->bufferedData, fileHandle.detail->posInBufferedData, fileHandle.detail->zcx, (unsigned long)fileHandle.detail->curCompressedFilePosition);
+#endif // ZIPARCHIVE_ENCRYPTION
+					m_parentFile->Write(fileHandle.detail->bufferedData, fileHandle.detail->posInBufferedData);
+					fileHandle.detail->curCompressedFilePosition += fileHandle.detail->posInBufferedData;
+					fileHandle.detail->posInBufferedData = 0;
+					fileHandle.detail->lzmaStream.avail_out = (unsigned int)Z_BUFSIZE;
+					fileHandle.detail->lzmaStream.next_out = fileHandle.detail->bufferedData;
+				}
+				uTotalOutBefore = fileHandle.detail->lzmaStream.total_out;
+				ret = lzma_code(&fileHandle.detail->lzmaStream, LZMA_FINISH);
+				fileHandle.detail->posInBufferedData += (unsigned int)(fileHandle.detail->lzmaStream.total_out - uTotalOutBefore);
+			} while (ret == LZMA_OK);
+
+			if (fileHandle.detail->posInBufferedData > 0  &&  (ret == LZMA_OK  ||  ret == LZMA_STREAM_END))
+			{
+				m_parentFile->Seek(fileHandle.detail->curCompressedFilePosition + fileEntry->m_offset + fileHandle.detail->headerSize);
+#if ZIPARCHIVE_ENCRYPTION
+				if (this->defaultPassword.Length() > 0)
+					fcrypt_encrypt_offset(fileHandle.detail->bufferedData, fileHandle.detail->posInBufferedData, fileHandle.detail->zcx, (unsigned long)fileHandle.detail->curCompressedFilePosition);
+#endif // ZIPARCHIVE_ENCRYPTION
+				m_parentFile->Write(fileHandle.detail->bufferedData, fileHandle.detail->posInBufferedData);
+				fileHandle.detail->curCompressedFilePosition += fileHandle.detail->posInBufferedData;
+			}
+
+			fileEntry->m_uncompressedSize = (uint32_t)fileHandle.detail->lzmaStream.total_in;
+			fileEntry->m_compressedSize = (uint32_t)fileHandle.detail->curCompressedFilePosition;  //stream.total_out;
+#endif // ZIPARCHIVE_USE_LIBLZMA
 		}
 		else
 		{
@@ -1607,17 +1831,38 @@ void ZipArchive::FileCloseInternal(ZipEntryFileHandle& fileHandle)
 		// Turn off the current write file.
 		m_curWriteFile = NULL;
 
-    	if (fileEntry->m_compressionMethod == DEFLATED  &&  fileHandle.detail->bufferedData)
-			deflateEnd(&fileHandle.detail->stream);
+		if (fileHandle.detail->bufferedData) {
+			if (fileEntry->m_compressionMethod == DEFLATED) {
+				deflateEnd(&fileHandle.detail->stream);
+			} else if (fileEntry->m_compressionMethod == LZMA) {
+#if ZIPARCHIVE_USE_7ZIP_LZMA
+				LzmaEnc_Destroy(fileHandle.detail->lzmaEncodeState, &lzma_memory_funcs, &lzma_memory_funcs);
+#endif // ZIPARCHIVE_USE_7ZIP_LZMA
+#if ZIPARCHIVE_USE_LIBLZMA
+				lzma_end(&fileHandle.detail->lzmaStream);
+			}
+#endif // ZIPARCHIVE_USE_LIBLZMA
+		}
 	}
     else
     {
-    	if (fileEntry->m_compressionMethod == DEFLATED  &&  fileHandle.detail->bufferedData)
-    		inflateEnd(&fileHandle.detail->stream);
+		if (fileHandle.detail->bufferedData) {
+			if (fileEntry->m_compressionMethod == DEFLATED) {
+				inflateEnd(&fileHandle.detail->stream);
+			} else if (fileEntry->m_compressionMethod == LZMA) {
+#if ZIPARCHIVE_USE_7ZIP_LZMA
+				LzmaDec_Free(fileHandle.detail->lzmaDecodeState, &lzma_memory_funcs);
+#endif // ZIPARCHIVE_USE_7ZIP_LZMA
+#if ZIPARCHIVE_USE_LIBLZMA
+				lzma_end(&fileHandle.detail->lzmaStream);
+			}
+#endif // ZIPARCHIVE_USE_LIBLZMA
+		}
     }
 
     delete[] fileHandle.detail->bufferedData;
     fileHandle.detail->bufferedData = NULL;
+	fileHandle.detail->bufferedDataSize = 0;
 	fileHandle.detail->fileEntryIndex = ZipArchive::INVALID_FILE_ENTRY;
 
 	// Remove the file from the open files list.
@@ -1782,54 +2027,213 @@ uint64_t ZipArchive::FileRead(ZipEntryFileHandle& fileHandle, void* buffer, uint
 		return count;
 	}
 
-    z_stream& stream = fileHandle.detail->stream;
-	stream.next_out = (uint8_t*)buffer;
-	stream.avail_out = (unsigned int)count;
+	uint64_t numRead = 0;
+	if (fileEntry->GetCompressionMethod() == DEFLATED) {
+		z_stream& stream = fileHandle.detail->stream;
+		stream.next_out = (uint8_t*)buffer;
+		stream.avail_out = (unsigned int)count;
 
-	uint64_t rest_read_compressed = fileEntry->m_compressedSize - fileHandle.detail->curCompressedFilePosition;
-    uint64_t numRead = 0;
+		uint64_t rest_read_compressed = fileEntry->m_compressedSize - fileHandle.detail->curCompressedFilePosition;
 
-	while (stream.avail_out > 0)
-	{
-		if (stream.avail_in == 0  &&  rest_read_compressed > 0)
+		while (stream.avail_out > 0)
 		{
-			unsigned int uReadThis = Z_BUFSIZE;
-			if (rest_read_compressed < uReadThis)
-				uReadThis = (unsigned int)rest_read_compressed;
-			if (uReadThis == 0)
+			if (stream.avail_in == 0  &&  rest_read_compressed > 0)
+			{
+				unsigned int uReadThis = Z_BUFSIZE;
+				if (rest_read_compressed < uReadThis)
+					uReadThis = (unsigned int)rest_read_compressed;
+				if (uReadThis == 0)
+					break;
+
+				m_parentFile->Seek(fileHandle.detail->curCompressedFilePosition + fileEntry->m_offset + fileHandle.detail->headerSize);
+				if (m_parentFile->Read(fileHandle.detail->bufferedData, uReadThis) != uReadThis)
+					return numRead;
+
+	#if ZIPARCHIVE_ENCRYPTION
+				if (this->defaultPassword.Length() > 0)
+					fcrypt_decrypt_offset((unsigned char*)fileHandle.detail->bufferedData, (unsigned int)uReadThis, fileHandle.detail->zcx, (unsigned long)fileHandle.detail->curCompressedFilePosition);
+	#endif // ZIPARCHIVE_ENCRYPTION
+
+				fileHandle.detail->curCompressedFilePosition += uReadThis;
+
+				rest_read_compressed -= uReadThis;
+
+				stream.next_in = (uint8_t*)fileHandle.detail->bufferedData;
+				stream.avail_in = (unsigned int)uReadThis;
+			}
+
+			ULONG uTotalOutBefore = stream.total_out;
+
+			int err = inflate(&stream, Z_SYNC_FLUSH);
+
+			size_t bytesInflated = stream.total_out - uTotalOutBefore;
+			fileHandle.detail->curUncompressedFilePosition += bytesInflated;
+			numRead += bytesInflated;
+
+			if (err != Z_OK)
 				break;
-
-			m_parentFile->Seek(fileHandle.detail->curCompressedFilePosition + fileEntry->m_offset + fileHandle.detail->headerSize);
-			if (m_parentFile->Read(fileHandle.detail->bufferedData, uReadThis) != uReadThis)
-				return numRead;
-
-#if ZIPARCHIVE_ENCRYPTION
-			if (this->defaultPassword.Length() > 0)
-				fcrypt_decrypt_offset((unsigned char*)fileHandle.detail->bufferedData, (unsigned int)uReadThis, fileHandle.detail->zcx, (unsigned long)fileHandle.detail->curCompressedFilePosition);
-#endif // ZIPARCHIVE_ENCRYPTION
-
-			fileHandle.detail->curCompressedFilePosition += uReadThis;
-
-			rest_read_compressed -= uReadThis;
-
-			stream.next_in = (uint8_t*)fileHandle.detail->bufferedData;
-			stream.avail_in = (unsigned int)uReadThis;
 		}
+	} else if (fileEntry->GetCompressionMethod() == LZMA) {
+#if ZIPARCHIVE_USE_7ZIP_LZMA
+		CLzmaDec* state = fileHandle.detail->lzmaDecodeState;
 
-		ULONG uTotalOutBefore = stream.total_out;
+		uint64_t rest_read_compressed = fileEntry->m_compressedSize - fileHandle.detail->curCompressedFilePosition;
 
-		int err = inflate(&stream, Z_SYNC_FLUSH);
+		while (numRead != count) {
+			if (fileHandle.detail->bufferedDataSize == 0  &&  rest_read_compressed > 0) {
+				unsigned int uReadThis = Z_BUFSIZE;
+				if (rest_read_compressed < uReadThis)
+					uReadThis = (unsigned int)rest_read_compressed;
+				if (uReadThis == 0)
+					break;
 
-		size_t bytesInflated = stream.total_out - uTotalOutBefore;
-        fileHandle.detail->curUncompressedFilePosition += bytesInflated;
-		numRead += bytesInflated;
+				m_parentFile->Seek(fileHandle.detail->curCompressedFilePosition + fileEntry->m_offset + fileHandle.detail->headerSize);
+				if (m_parentFile->Read(fileHandle.detail->bufferedData, uReadThis) != uReadThis)
+					return numRead;
 
-		if (err != Z_OK)
-			break;
+	#if ZIPARCHIVE_ENCRYPTION
+				if (this->defaultPassword.Length() > 0)
+					fcrypt_decrypt_offset((unsigned char*)fileHandle.detail->bufferedData, (unsigned int)uReadThis, fileHandle.detail->zcx, (unsigned long)fileHandle.detail->curCompressedFilePosition);
+	#endif // ZIPARCHIVE_ENCRYPTION
+
+				fileHandle.detail->curCompressedFilePosition += uReadThis;
+
+				rest_read_compressed -= uReadThis;
+
+				fileHandle.detail->bufferedDataSize = uReadThis;
+				fileHandle.detail->posInBufferedData = 0;
+			}
+
+			ELzmaFinishMode finishMode = LZMA_FINISH_ANY;
+
+			SizeT inProcessed = fileHandle.detail->bufferedDataSize - fileHandle.detail->posInBufferedData;
+			SizeT outProcessed = (SizeT)count - (SizeT)numRead;
+			if (fileHandle.detail->curUncompressedFilePosition + outProcessed >= fileEntry->m_uncompressedSize)
+			{
+				outProcessed = (SizeT)(fileEntry->m_uncompressedSize - fileHandle.detail->curUncompressedFilePosition);
+				finishMode = LZMA_FINISH_END;
+			}
+			ELzmaStatus status;
+			SRes res = LzmaDec_DecodeToBuf(state, (Byte*)buffer + numRead, &outProcessed,
+				fileHandle.detail->bufferedData + fileHandle.detail->posInBufferedData, &inProcessed, finishMode, &status );
+			if (res != SZ_OK)
+				break;
+			numRead += outProcessed;
+			fileHandle.detail->curUncompressedFilePosition += outProcessed;
+			fileHandle.detail->posInBufferedData += inProcessed;
+
+			if (inProcessed == 0  &&  outProcessed == 0)
+			{
+				if (status != LZMA_STATUS_FINISHED_WITH_MARK)
+					break;
+			}
+		}
+#endif // ZIPARCHIVE_USE_7ZIP_LZMA
+
+#if ZIPARCHIVE_USE_LIBLZMA
+		lzma_stream& stream = fileHandle.detail->lzmaStream;
+		stream.next_out = (uint8_t*)buffer;
+		stream.avail_out = (unsigned int)count;
+
+		uint64_t rest_read_compressed = fileEntry->m_compressedSize - fileHandle.detail->curCompressedFilePosition;
+
+		while (stream.avail_out > 0)
+		{
+			if (stream.avail_in == 0  &&  rest_read_compressed > 0)
+			{
+				unsigned int uReadThis = Z_BUFSIZE;
+				if (rest_read_compressed < uReadThis)
+					uReadThis = (unsigned int)rest_read_compressed;
+				if (uReadThis == 0)
+					break;
+
+				m_parentFile->Seek(fileHandle.detail->curCompressedFilePosition + fileEntry->m_offset + fileHandle.detail->headerSize);
+				if (m_parentFile->Read(fileHandle.detail->bufferedData, uReadThis) != uReadThis)
+					return numRead;
+
+	#if ZIPARCHIVE_ENCRYPTION
+				if (this->defaultPassword.Length() > 0)
+					fcrypt_decrypt_offset((unsigned char*)fileHandle.detail->bufferedData, (unsigned int)uReadThis, fileHandle.detail->zcx, (unsigned long)fileHandle.detail->curCompressedFilePosition);
+	#endif // ZIPARCHIVE_ENCRYPTION
+
+				fileHandle.detail->curCompressedFilePosition += uReadThis;
+
+				rest_read_compressed -= uReadThis;
+
+				stream.next_in = (uint8_t*)fileHandle.detail->bufferedData;
+				stream.avail_in = (unsigned int)uReadThis;
+			}
+
+			uint64_t uTotalOutBefore = stream.total_out;
+
+			lzma_ret ret = lzma_code(&stream, LZMA_RUN);
+
+			uint64_t bytesInflated = stream.total_out - uTotalOutBefore;
+			fileHandle.detail->curUncompressedFilePosition += bytesInflated;
+			numRead += bytesInflated;
+
+			if (ret != LZMA_OK)
+				break;
+		}
+#endif // ZIPARCHIVE_USE_LIBLZMA
 	}
 
 	return numRead;
 }
+
+
+#if ZIPARCHIVE_USE_7ZIP_LZMA
+
+struct lzma_FileOutStream
+{
+	ISeqOutStream funcTable;
+	File* file;
+	ZipEntryFileHandle* fileHandle;
+	ZipEntryInfo* fileEntry;
+};
+
+static size_t lzma_FileOutStream_Write(void *pp, const void *data, size_t size)
+{
+	lzma_FileOutStream* stream = (lzma_FileOutStream*)pp;
+	stream->file->Seek(stream->fileHandle->detail->curCompressedFilePosition + stream->fileEntry->GetOffset() + stream->fileHandle->detail->headerSize);
+	if (stream->file->Write(data, size) != size) {
+		return 0;
+	}
+	stream->fileHandle->detail->curCompressedFilePosition += size;
+	return size;
+}
+
+static void lzma_FileOutStream_CreateVTable(lzma_FileOutStream* p)
+{
+	p->funcTable.Write = lzma_FileOutStream_Write;
+}
+
+struct lzma_MemoryInputStream
+{
+	ISeqInStream funcTable;
+	uint8_t* buffer;
+	uint8_t* bufferEnd;
+};
+
+static SRes lzma_MemoryInputStream_Read(void* pp, void* buf, size_t* size)
+{
+	lzma_MemoryInputStream* stream = (lzma_MemoryInputStream*)pp;
+	size_t left = stream->bufferEnd - stream->buffer;
+	if (left < *size)
+		*size = left;
+	if (*size == 0)
+		return SZ_OK;
+	memcpy(buf, stream->buffer, *size);
+	stream->buffer += *size;
+	return SZ_OK;
+}
+
+static void lzma_MemoryInputStream_CreateVTable(lzma_MemoryInputStream* stream)
+{
+	stream->funcTable.Read = lzma_MemoryInputStream_Read;
+}
+
+#endif // ZIPARCHIVE_USE_7ZIP_LZMA
 
 
 uint64_t ZipArchive::FileWrite(ZipEntryFileHandle& fileHandle, const void* buffer, uint64_t count)
@@ -1881,35 +2285,88 @@ uint64_t ZipArchive::FileWrite(ZipEntryFileHandle& fileHandle, const void* buffe
 			fileEntry->m_uncompressedSize = (uint32_t)fileHandle.detail->curUncompressedFilePosition;
 		return count;
 	}
-
-	int err = Z_OK;
-
-    z_stream& stream = fileHandle.detail->stream;
-	stream.next_in = (uint8_t*)buffer;
-	stream.avail_in = (uInt)count;
-
-	while (err == Z_OK  &&  stream.avail_in > 0)
+	else if (fileEntry->m_compressionMethod == DEFLATED)
 	{
-		if (stream.avail_out == 0)
+		int err = Z_OK;
+
+		z_stream& stream = fileHandle.detail->stream;
+		stream.next_in = (uint8_t*)buffer;
+		stream.avail_in = (uInt)count;
+
+		while (err == Z_OK  &&  stream.avail_in > 0)
 		{
-			m_parentFile->Seek(fileHandle.detail->curCompressedFilePosition + fileEntry->m_offset + fileHandle.detail->headerSize);
+			if (stream.avail_out == 0)
+			{
+				m_parentFile->Seek(fileHandle.detail->curCompressedFilePosition + fileEntry->m_offset + fileHandle.detail->headerSize);
 #if ZIPARCHIVE_ENCRYPTION
-			if (this->defaultPassword.Length() > 0)
-				fcrypt_encrypt_offset(fileHandle.detail->bufferedData, fileHandle.detail->posInBufferedData, fileHandle.detail->zcx, (unsigned long)fileHandle.detail->curCompressedFilePosition);
+				if (this->defaultPassword.Length() > 0)
+					fcrypt_encrypt_offset(fileHandle.detail->bufferedData, fileHandle.detail->posInBufferedData, fileHandle.detail->zcx, (unsigned long)fileHandle.detail->curCompressedFilePosition);
 #endif // ZIPARCHIVE_ENCRYPTION
-			m_parentFile->Write(fileHandle.detail->bufferedData, fileHandle.detail->posInBufferedData);
-			fileHandle.detail->curCompressedFilePosition += fileHandle.detail->posInBufferedData;
-			fileHandle.detail->posInBufferedData = 0;
-			stream.avail_out = (unsigned int)Z_BUFSIZE;
-			stream.next_out = fileHandle.detail->bufferedData;
+				m_parentFile->Write(fileHandle.detail->bufferedData, fileHandle.detail->posInBufferedData);
+				fileHandle.detail->curCompressedFilePosition += fileHandle.detail->posInBufferedData;
+				fileHandle.detail->posInBufferedData = 0;
+				stream.avail_out = (unsigned int)Z_BUFSIZE;
+				stream.next_out = fileHandle.detail->bufferedData;
+			}
+
+			ULONG uTotalOutBefore = stream.total_out;
+			err = deflate(&stream, Z_NO_FLUSH);
+			fileHandle.detail->posInBufferedData += (unsigned int)(stream.total_out - uTotalOutBefore);
 		}
 
-		ULONG uTotalOutBefore = stream.total_out;
-		err = deflate(&stream, Z_NO_FLUSH);
-		fileHandle.detail->posInBufferedData += (unsigned int)(stream.total_out - uTotalOutBefore);
+		fileHandle.detail->curUncompressedFilePosition += count;
+	}
+	else if (fileEntry->m_compressionMethod == LZMA)
+	{
+#if ZIPARCHIVE_USE_7ZIP_LZMA
+		lzma_FileOutStream outStream;
+		lzma_FileOutStream_CreateVTable(&outStream);
+		outStream.file = m_parentFile;
+		outStream.fileHandle = &fileHandle;
+		outStream.fileEntry = fileEntry;
+
+		lzma_MemoryInputStream inStream;
+		lzma_MemoryInputStream_CreateVTable(&inStream);
+		inStream.buffer = (uint8_t*)buffer;
+		inStream.bufferEnd = (uint8_t*)buffer + count;
+
+		SRes res = LzmaEnc_Encode(fileHandle.detail->lzmaEncodeState, &outStream.funcTable, &inStream.funcTable, NULL, &lzma_memory_funcs, &lzma_memory_funcs);
+
+		fileHandle.detail->curUncompressedFilePosition += count;
+#endif // ZIPARCHIVE_USE_7ZIP_LZMA
+
+#if ZIPARCHIVE_USE_LIBLZMA
+		lzma_ret ret = LZMA_OK;
+
+		lzma_stream& stream = fileHandle.detail->lzmaStream;
+		stream.next_in = (uint8_t*)buffer;
+		stream.avail_in = (uInt)count;
+
+		while (ret == LZMA_OK  &&  stream.avail_in > 0)
+		{
+			if (stream.avail_out == 0)
+			{
+				m_parentFile->Seek(fileHandle.detail->curCompressedFilePosition + fileEntry->m_offset + fileHandle.detail->headerSize);
+#if ZIPARCHIVE_ENCRYPTION
+				if (this->defaultPassword.Length() > 0)
+					fcrypt_encrypt_offset(fileHandle.detail->bufferedData, fileHandle.detail->posInBufferedData, fileHandle.detail->zcx, (unsigned long)fileHandle.detail->curCompressedFilePosition);
+#endif // ZIPARCHIVE_ENCRYPTION
+				m_parentFile->Write(fileHandle.detail->bufferedData, fileHandle.detail->posInBufferedData);
+				fileHandle.detail->curCompressedFilePosition += fileHandle.detail->posInBufferedData;
+				fileHandle.detail->posInBufferedData = 0;
+				stream.avail_out = (unsigned int)Z_BUFSIZE;
+				stream.next_out = fileHandle.detail->bufferedData;
+			}
+
+			uint64_t uTotalOutBefore = stream.total_out;
+			ret = lzma_code(&stream, LZMA_RUN);
+			fileHandle.detail->posInBufferedData += (unsigned int)(stream.total_out - uTotalOutBefore);
+		}
+
+		fileHandle.detail->curUncompressedFilePosition += count;
+#endif // ZIPARCHIVE_USE_LIBLZMA
 	}
 
-    fileHandle.detail->curUncompressedFilePosition += count;
     return count;
 }
 
@@ -2309,7 +2766,7 @@ bool ZipArchive::BufferCopy(const void* buffer, uint64_t size, ZipEntryFileHandl
 
 /**
 **/
-bool ZipArchive::BufferCopy(const void* buffer, uint64_t size, const char* destFilename, int compressionMethod, int compressionLevel, const time_t* inFileTime)
+bool ZipArchive::BufferCopy(const void* buffer, uint64_t size, const char* destFilename, int _compressionMethod, int compressionLevel, const time_t* inFileTime)
 {
 	HeapString cacheFileName;
 
@@ -2357,6 +2814,14 @@ bool ZipArchive::BufferCopy(const void* buffer, uint64_t size, const char* destF
 		MD5Update(&c, (unsigned char*)buffer, (unsigned int)size);
 		MD5Final(digest, &c);
 
+		MD5Init(&c);
+		MD5Update(&c, (unsigned char*)digest, 16);
+
+		uint8_t compressionMethod = (uint8_t)_compressionMethod;
+		MD5Update(&c, (unsigned char*)&compressionMethod, sizeof(compressionMethod));
+
+		MD5Final(digest, &c);
+
 		char hexBuffer[2*16+1];
 		int i;
 		for (i=0; i<16; i++) sprintf(hexBuffer+2*i,"%02x",digest[i]);
@@ -2387,7 +2852,7 @@ bool ZipArchive::BufferCopy(const void* buffer, uint64_t size, const char* destF
 	}
 
 	ZipEntryFileHandle fileHandle;
-	if (!FileCreate(destFilename, fileHandle, DEFLATED, compressionLevel, &fileTime))
+	if (!FileCreate(destFilename, fileHandle, _compressionMethod, compressionLevel, &fileTime))
 		return false;
 
 	if (FileWrite(fileHandle, buffer, size) != size)
@@ -2471,6 +2936,15 @@ size_t ZipArchive::FindFileEntryIndex(const char* fileName)
 	if (!node)
 		return INVALID_FILE_ENTRY;
 	return this->fileNameMap.Value(node);
+/*
+	for (size_t index = 0; index < m_fileEntryCount; ++index) {
+		ZipEntryInfo* entryInfo = (ZipEntryInfo*)(m_fileEntries + m_fileEntryOffsets[index]);
+		if (strcmp(entryInfo->GetFilename(), fileName) == 0) {
+			return index;
+		}
+	}
+	return INVALID_FILE_ENTRY;
+*/
 } // FindFileEntryIndex
 
 
@@ -2866,17 +3340,24 @@ bool ZipArchive::ProcessFileList(ZipArchive::FileOrderList& fileOrderList, Proce
 		// with a pipe symbol.  The zip archive path precedes the pipe symbol.  The zip entry
 		// filename follows the pipe.
 		int pipePos = fileOrderInfo.srcPath.ReverseFind('|');
-		if (pipePos != -1) {
-			HeapString archiveFileName = fileOrderInfo.srcPath.Sub(0, pipePos);
-			HeapString entryName = fileOrderInfo.srcPath.Sub(pipePos + 1);
+		if (pipePos != -1  ||  fileOrderInfo.sourceEntryName.IsNotEmpty()) {
+			HeapString archiveFileName;
+			HeapString entryName;
+			if (fileOrderInfo.sourceEntryName.IsNotEmpty()) {
+				archiveFileName = fileOrderInfo.srcPath;
+				entryName = fileOrderInfo.sourceEntryName;
+			} else {
+				archiveFileName = fileOrderInfo.srcPath.Sub(0, pipePos);
+				entryName = fileOrderInfo.srcPath.Sub(pipePos + 1);
+			}
 			ZipEntryInfo* openArchiveFileEntry = NULL;
 
-			if (fileOrderInfo.fileTime == 0  ||  fileOrderInfo.size == 0  ||  fileOrderInfo.crc == 0
+			if (fileOrderInfo.fileTime == 0  ||  fileOrderInfo.size == (size_t)-1  //  ||  fileOrderInfo.crc == 0
 #if ZIPARCHIVE_MD5_SUPPORT
 					|| memcmp(fileOrderInfo.md5, emptyMD5, sizeof(emptyMD5)) == 0
 #endif // ZIPARCHIVE_MD5_SUPPORT
 				) {
-				ZipArchive* openArchive = fileOrderInfo.sourceArchive ? fileOrderInfo.sourceArchive : PFL_OpenArchive(archiveFileName, openArchives, m_flags);
+				ZipArchive* openArchive = fileOrderInfo.sourceArchive ? fileOrderInfo.sourceArchive : PFL_OpenArchive(archiveFileName, openArchives, SUPPORT_MD5);
 				openArchiveFileEntry = openArchive->FindFileEntry(entryName);
 			}
 
@@ -2888,7 +3369,7 @@ bool ZipArchive::ProcessFileList(ZipArchive::FileOrderList& fileOrderList, Proce
 			} else
 				fileOrderInfo.lastWriteTime = fileOrderInfo.fileTime;
 
-			if (fileOrderInfo.size == 0) {
+			if (fileOrderInfo.size == (size_t)-1) {
 				if (openArchiveFileEntry) {
 					fileOrderInfo.size = openArchiveFileEntry->GetUncompressedSize();
 				}
@@ -3307,10 +3788,17 @@ bool ZipArchive::ProcessFileList(ZipArchive::FileOrderList& fileOrderList, Proce
 
 		// Is this file being copied from another zip archive?
 		int pipePos = info.srcPath.ReverseFind('|');
-		if (pipePos != -1) {
-			HeapString archiveFileName = info.srcPath.Sub(0, pipePos);
-			HeapString entryName = info.srcPath.Sub(pipePos + 1);
-			ZipArchive* cacheDrive = info.sourceArchive ? info.sourceArchive : PFL_OpenArchive(archiveFileName, openArchives, m_flags);
+		if (pipePos != -1  ||  info.sourceEntryName.IsNotEmpty()) {
+			HeapString archiveFileName;
+			HeapString entryName;
+			if (info.sourceEntryName.IsNotEmpty()) {
+				archiveFileName = info.srcPath;
+				entryName = info.sourceEntryName;
+			} else {
+				archiveFileName = info.srcPath.Sub(0, pipePos);
+				entryName = info.srcPath.Sub(pipePos + 1);
+			}
+			ZipArchive* cacheDrive = info.sourceArchive ? info.sourceArchive : PFL_OpenArchive(archiveFileName, openArchives, SUPPORT_MD5);
 			if (cacheDrive) {
 				size_t cacheFileEntryIndex = cacheDrive->FindFileEntryIndex(entryName);
 				if (cacheFileEntryIndex == INVALID_FILE_ENTRY)
@@ -3339,6 +3827,103 @@ bool ZipArchive::ProcessFileList(ZipArchive::FileOrderList& fileOrderList, Proce
 						}
 					}
 				} else {
+					// We're processing a standard file from the disk.  In order to get into this special case
+					// processing block, the following criteria must be met:
+					//
+					// * The file order list wants the file compressed.
+					// * There is a network cache.
+					// * The size is within the network cache minimum size threshold as provided by the options.
+					if (info.compressionMethod != UNCOMPRESSED  &&  networkCache.IsNotEmpty()  &&
+								(info.size == (size_t)-1  ||  info.size >= options->fileCacheSizeThreshold)) {
+						// Do we need a CRC and MD5 update?  If the file order list doesn't provide the CRC
+						// or MD5, we have to calculate it.
+						if (info.lastWriteTime != info.fileTime  ||  info.crc == 0
+#if ZIPARCHIVE_MD5_SUPPORT
+									||  memcmp(info.md5, emptyMD5, sizeof(emptyMD5)) == 0
+#endif // ZIPARCHIVE_MD5_SUPPORT
+								) {
+							info.fileTime = info.lastWriteTime;
+
+							// Did the caller provide a callback to retrieve the checksum?  If so, call it.
+							int found = 0;
+							if (options->retrieveChecksumCallback) {
+								found = options->retrieveChecksumCallback(info.srcPath, &info.crc,
+#if ZIPARCHIVE_MD5_SUPPORT
+										(unsigned char*)&info.md5,
+#else
+										NULL,
+#endif // ZIPARCHIVE_MD5_SUPPORT
+										options->retrieveChecksumUserData);
+							}
+
+#if 0
+							// We still don't have a checksum.  Calculate it ourselves.
+							if (!found) {
+								FILE* file = fopen(info.srcPath, "rb");
+								if (file) {
+									info.crc = ZipArchive_GetFileCRC(file, 0, info.md5);
+									fclose(file);
+								}
+							}
+#endif
+						}
+
+						if (info.crc != 0
+#if ZIPARCHIVE_MD5_SUPPORT
+									&&  memcmp(info.md5, emptyMD5, sizeof(emptyMD5)) != 0
+#endif // ZIPARCHIVE_MD5_SUPPORT
+								) {
+							// Determine if the compressed file is in the provided network cache.
+							//
+							// First, build up the MD5 string.
+							MD5_CTX c;
+							MD5Init(&c);
+							MD5Update(&c, (unsigned char*)info.md5, 16);
+
+							uint8_t compressionMethod = (uint8_t)info.compressionMethod;
+							MD5Update(&c, (unsigned char*)&compressionMethod, sizeof(compressionMethod));
+
+							unsigned char digest[16];
+							MD5Final(digest, &c);
+
+							HeapString hex;
+							char* hexBuffer = hex.GetBuffer(2 * 16 + 1);
+							for (int i = 0; i < 16; ++i) sprintf(hexBuffer + 2 * i, "%02x", digest[i]);
+							hex.ReleaseBuffer(2 * 16);
+
+							// Now build the cache name in the form: abc/abcdef0123456789987654321fedcba
+							cacheFileName = networkCache + hex.Sub(0, 3) + "/" + hex;
+
+							// Does the compressed exist in the network cache?
+							if (access(cacheFileName, 0) != -1) {
+								// It appears so.  Try and open it.  Compressed network cache entries are
+								// stored as single file entry zips.
+								ZipArchive cacheDrive;
+								if (cacheDrive.Open(cacheFileName, true, SUPPORT_MD5)) {
+									// The zip archive opened successfully.  Now try the file entry itself.
+									ZipEntryFileHandle cacheFileHandle;
+									if (cacheDrive.FileOpen(info.entryName, cacheFileHandle)) {
+										// So far so good.  Inform the caller we are updating the zip.
+										if (!filenameShown) {
+											if (options->statusUpdateCallback)
+												options->statusUpdateCallback(UPDATING_ARCHIVE, m_filename, options->statusUpdateUserData);
+											filenameShown = true;
+										}
+										if (options->statusUpdateCallback)
+											options->statusUpdateCallback(COPYING_ENTRY_FROM_CACHE, info.entryName, options->statusUpdateUserData);
+
+										// Perform a raw file copy from the network cache zip to the current zip.
+										if (activeArchive->FileCopy(cacheFileHandle, NULL, &info.lastWriteTime)) {
+											// The transfer was successful.  Move on to the next file.
+											continue;
+										}
+										// The transfer failed... move on to the non-network cache version.
+									} // if (cacheDrive.FileOpen(info.entryName, cacheFileHandle))
+								} // if (cacheDrive.Open(cacheFileName))
+							} // if (access(cacheFileName, 0) != -1)
+						} // if networkcache
+					}
+
 					ZipEntryFile cacheFile;
 					if (cacheFile.Open(*cacheDrive, entryName)) {
 						if (!filenameShown) {
@@ -3351,6 +3936,55 @@ bool ZipArchive::ProcessFileList(ZipArchive::FileOrderList& fileOrderList, Proce
 
 						if (activeArchive->FileCopy(cacheFile, info.entryName, info.compressionMethod, info.compressionLevel, &info.lastWriteTime)) {
 //BROKEN						FileRename(entryName, info.entryName);
+							if (!networkCache.IsEmpty()) {
+								// First, build up the MD5 string.
+								MD5_CTX c;
+								MD5Init(&c);
+								MD5Update(&c, (unsigned char*)info.md5, 16);
+
+								uint8_t compressionMethod = (uint8_t)info.compressionMethod;
+								MD5Update(&c, (unsigned char*)&compressionMethod, sizeof(compressionMethod));
+
+								unsigned char digest[16];
+								MD5Final(digest, &c);
+
+								HeapString hex;
+								char* hexBuffer = hex.GetBuffer(2 * 16 + 1);
+								for (int i = 0; i < 16; ++i) sprintf(hexBuffer + 2 * i, "%02x", digest[i]);
+								hex.ReleaseBuffer(2 * 16);
+
+								// Now build the cache name in the form: abc/abcdef0123456789987654321fedcba
+								cacheFileName = networkCache + hex.Sub(0, 3) + "/" + hex;
+							}
+
+							// If we're using a network cache and we just compressed the file, we need to transfer the
+							// compressed file into the cache.
+							if (cacheFileName.IsNotEmpty()  &&  info.compressionMethod != 0) {
+								// Create all directories leading up to the network cache location the compressed file
+								// is to be put at.
+								PathCreate(cacheFileName);
+
+								// Create a single file zip archive at the network cache location.
+								ZipArchive cacheDrive;
+								if (cacheDrive.Create(cacheFileName, SUPPORT_MD5)) {
+									// Open the zip entry we just compressed.
+									ZipEntryFileHandle srcFileHandle;
+									if (activeArchive->FileOpen(info.entryName, srcFileHandle)) {
+										// Perform a raw transfer of the file straight into the network cache.
+										cacheDrive.FileCopy(srcFileHandle);
+
+										// Inform the caller of our update.
+										if (!filenameShown) {
+											if (options->statusUpdateCallback)
+												options->statusUpdateCallback(UPDATING_ARCHIVE, m_filename, options->statusUpdateUserData);
+											filenameShown = true;
+										}
+										if (options->statusUpdateCallback)
+											options->statusUpdateCallback(COPYING_ENTRY_TO_CACHE, info.entryName, options->statusUpdateUserData);
+									} // if (FileOpen(info.entryName, srcFileHandle))
+								} // if (cacheDrive.Create(cacheFileName, 0, m_flags))
+							} // if (cacheFileName.IsNotEmpty()  &&  info.compressionMethod != 0)
+
 							continue;
 						} else {
 							return false;
@@ -3367,7 +4001,7 @@ bool ZipArchive::ProcessFileList(ZipArchive::FileOrderList& fileOrderList, Proce
 		// * There is a network cache.
 		// * The size is within the network cache minimum size threshold as provided by the options.
 		else if (info.compressionMethod != UNCOMPRESSED  &&  networkCache.IsNotEmpty()  &&
-					(info.size == 0  ||  info.size >= options->fileCacheSizeThreshold)) {
+					(info.size == (size_t)-1  ||  info.size >= options->fileCacheSizeThreshold)) {
 			// Do we need a CRC and MD5 update?  If the file order list doesn't provide the CRC
 			// or MD5, we have to calculate it.
 			if (info.lastWriteTime != info.fileTime  ||  info.crc == 0
@@ -3402,9 +4036,19 @@ bool ZipArchive::ProcessFileList(ZipArchive::FileOrderList& fileOrderList, Proce
 			// Determine if the compressed file is in the provided network cache.
 			//
 			// First, build up the MD5 string.
+			MD5_CTX c;
+			MD5Init(&c);
+			MD5Update(&c, (unsigned char*)info.md5, 16);
+
+			uint8_t compressionMethod = (uint8_t)info.compressionMethod;
+			MD5Update(&c, (unsigned char*)&compressionMethod, sizeof(compressionMethod));
+
+			unsigned char digest[16];
+			MD5Final(digest, &c);
+
 			HeapString hex;
 			char* hexBuffer = hex.GetBuffer(2 * 16 + 1);
-			for (int i = 0; i < 16; ++i) sprintf(hexBuffer + 2 * i, "%02x", info.md5[i]);
+			for (int i = 0; i < 16; ++i) sprintf(hexBuffer + 2 * i, "%02x", digest[i]);
 			hex.ReleaseBuffer(2 * 16);
 
 			// Now build the cache name in the form: abc/abcdef0123456789987654321fedcba
@@ -3415,7 +4059,7 @@ bool ZipArchive::ProcessFileList(ZipArchive::FileOrderList& fileOrderList, Proce
 				// It appears so.  Try and open it.  Compressed network cache entries are
 				// stored as single file entry zips.
 				ZipArchive cacheDrive;
-				if (cacheDrive.Open(cacheFileName)) {
+				if (cacheDrive.Open(cacheFileName, true, SUPPORT_MD5)) {
 					// The zip archive opened successfully.  Now try the file entry itself.
 					ZipEntryFileHandle cacheFileHandle;
 					if (cacheDrive.FileOpen(info.entryName, cacheFileHandle)) {
@@ -3469,7 +4113,7 @@ bool ZipArchive::ProcessFileList(ZipArchive::FileOrderList& fileOrderList, Proce
 
 			// Create a single file zip archive at the network cache location.
 			ZipArchive cacheDrive;
-			if (cacheDrive.Create(cacheFileName, m_flags)) {
+			if (cacheDrive.Create(cacheFileName, SUPPORT_MD5)) {
 				// Open the zip entry we just compressed.
 				ZipEntryFileHandle srcFileHandle;
 				if (activeArchive->FileOpen(info.entryName, srcFileHandle)) {
