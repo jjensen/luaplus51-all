@@ -5,7 +5,7 @@
 -----------------------------------------------------------------------------
 
 local lfs = require "lfs"
-require "xavante.mime"
+local mimetypes = require "xavante.mime"
 local url = require "socket.url"
 
 local source_mt = { __index = {} }
@@ -125,7 +125,7 @@ function resource:getContentType ()
 	end
 	local _,_,exten = string.find (self.path, "%.([^.]*)$")
 	exten = exten or ""
-	return xavante.mimetypes [exten] or ""
+	return mimetypes [exten] or ""
 end
 
 function resource:getContentSize ()

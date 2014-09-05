@@ -1,6 +1,6 @@
-require "xavante"
+local xavante = require "xavante"
 
-require "xavante.davhandler"
+local davHandler = require "xavante.davhandler"
 local davFileRepository = require "xavante.davFileRepository"
 local davFileProps = require "xavante.davFileProps"
 
@@ -9,7 +9,7 @@ webDir = "."
 local simplerules = {
     { 
       match = ".",
-      with = xavante.davhandler,
+      with = davHandler,
       params = {
       	  repos_b = davFileRepository.makeSource(),
       	  props_b = davFileProps.makeProps(),

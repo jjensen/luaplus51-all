@@ -402,17 +402,97 @@ local function dav_options (req, res, repos_b, props_b)
 	return res
 end
 
+-- Largely taken from filehandler.lua
+local function getranges (rangeString)
+	local out = {}
+	for range in rangeString:gmatch('([^,]+)') do
+		local s,e, r_A, r_B = string.find (range, "(%d*)%s*-%s*(%d*)")
+		if s and e then
+			r_A = tonumber (r_A)
+			r_B = tonumber (r_B)
+
+			if r_A then
+				if r_B then
+					out[#out + 1] = { r_A, r_B + 1 - r_A }
+				else
+					return nil
+				end
+			else
+				if r_B then
+					out[#out + 1] = { -r_B, r_B }
+				else
+					return nil
+				end
+			end
+		end
+	end
+
+	if out[1] then
+		return out
+	end
+
+	return nil
+end
+
+
 local function dav_get (req, res, repos_b, props_b)
 	local resource = repos_b:getResource (req.match, req.relpath)
 	if not resource then
 		return httpd.err_404 (req, res)
 	end
 
-	res.headers ["Content-Type"] = resource:getContentType ()
-	res.headers ["Content-Length"] = resource:getContentSize () or 0
+	local ranges
+	local range = req.headers["range"]
+	if range then
+		ranges = getranges (range)
+		if ranges then
+			res.statusline = "HTTP/1.1 206 Partial Content"
+			--res.headers["Content-Length"] = range_len
+			ranges.boundary = "4ca13f2b1b3fe5"
+			res.headers ["Content-Type"] = "multipart/byteranges; boundary=" .. ranges.boundary
+		else
+			range = nil
+		end
+	end
+--	if res.chunked or ((res.headers ["Content-Length"]) and req.headers ["connection"] == "Keep-Alive")
+--	then
+--		res.headers ["Connection"] = "Keep-Alive"
+--		res.keep_alive = true
+--	else
+--		res.keep_alive = nil
+--	end
+	if not range then
+		res.headers ["Content-Type"] = resource:getContentType ()
+		res.headers ["Content-Length"] = resource:getContentSize () or 0
 
-	res:send_headers ()
-	for block in resource:getContentData () do
+		res:send_headers ()
+		for block in resource:getContentData (ranges) do
+			res:send_data (block)
+		end
+	else
+		res:send_headers ()
+
+		local range_size = 0
+		local which_range_index = 0
+		for block, range_start in resource:getContentData (ranges) do
+			if range_size == 0 then
+				which_range_index = which_range_index + 1
+				local range = ranges[which_range_index]
+				local range_start = range[1]
+				range_size = range[2]
+				local block = "\r\n--" .. ranges.boundary .. "\r\n"
+				block = block .. "Content-Type: " .. resource:getContentType() .. "\r\n"
+				block = block .. "Content-Range: bytes " .. range_start .. "-" .. range_start + range_size - 1 .. "/" .. resource:getContentSize() .. "\r\n"
+				block = block .. "\r\n"
+				res:send_data(block)
+			end
+
+			res:send_data (block)
+
+			range_size = range_size - #block
+		end
+
+		local block = "\r\n--" .. ranges.boundary .. "--\r\n"
 		res:send_data (block)
 	end
 	return res
@@ -520,6 +600,7 @@ return function (params)
 		req.parsed_url.path = '/'
 		req.match = socket.url.build(req.parsed_url)
 		req.parsed_url.path = savePath
+		print(req.cmd_mth .. ' ' .. req.parsed_url.path); io.stdout:flush()
 		local dav_handler = dav_cmd_dispatch [req.cmd_mth]
 		if dav_handler then
 			return dav_handler (req, res, params.repos_b, params.props_b)

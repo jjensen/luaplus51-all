@@ -101,6 +101,16 @@ function _M.read_method (req)
         if not req.cmdline then return nil end
         req.cmd_mth, req.cmd_url, req.cmd_version = unpack (_M.strsplit (req.cmdline))
         req.cmd_mth = string.upper (req.cmd_mth or 'GET')
+
+        -- Account for requests that assume we can handle a proxy.
+        -- Just strip off the URL.
+        local new_cmd_url = req.cmd_url:match('http://.-(/.+)')
+        if not new_cmd_url then
+                new_cmd_url = req.cmd_url:match('https://.-(/.+)')
+        end
+        if new_cmd_url then
+                req.cmd_url = new_cmd_url
+        end
         req.cmd_url = req.cmd_url or '/'
 
         return true
