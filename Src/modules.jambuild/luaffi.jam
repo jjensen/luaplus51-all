@@ -1,4 +1,4 @@
-if $(PLATFORM) in * win32 win64 macosx32  # For now
+if $(C.PLATFORM) in * win32 win64 macosx32 macosx64 # For now
 {
 
 local SRCS =
@@ -11,7 +11,7 @@ local SRCS =
 
 C.ActiveTarget luaffi ;
 
-#if $(PLATFORM) = win64 {
+#if $(C.PLATFORM) = win64 {
 #	C.Defines luaffi : X86_64 ;
 #}
 
@@ -42,17 +42,19 @@ rule DynAsm TARGET : ARCHITECTURE_DEFINE : OUTPUT_HEADER : DASC_FILE {
 
 C.IncludeDirectories luaffi : $(LOCATE_TARGET) ;
 
-if $(PLATFORM) = win32 {
+if $(C.PLATFORM) = win32 {
     C.Defines luaffi : _WIN32 LUA_FFI_BUILD_AS_DLL ;
 	C.LinkPrebuiltLibraries luaffi : kernel32 user32 gdi32 ;
 }
 
 Lua.CModule luaffi : ffi : $(SRCS) ;
 
-if $(PLATFORM) = win32 {
+if $(C.PLATFORM) = win32 {
     DynAsm luaffi : X32WIN : call_x86.h : call_x86.dasc ;
-} else if $(PLATFORM) = win64 {
+} else if $(C.PLATFORM) = win64 {
     DynAsm luaffi : X64 X64WIN : call_x64win.h : call_x86.dasc ;
+} else if $(C.PLATFORM) in macosx64 {
+    DynAsm luaffi : X64 : call_x64.h : call_x86.dasc ;
 } else {
     DynAsm luaffi : X32 : call_x86.h : call_x86.dasc ;
 }
