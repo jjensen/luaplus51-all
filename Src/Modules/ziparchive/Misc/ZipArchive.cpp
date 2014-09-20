@@ -48,7 +48,7 @@ extern "C"
 	#include "md5/md5.h"
 }
 
-#define ZIPARCHIVE_USE_LIBLZMA 1
+//#define ZIPARCHIVE_USE_LIBLZMA 1
 #if ZIPARCHIVE_USE_LIBLZMA
 #include <lzma.h>
 #endif // ZIPARCHIVE_USE_LIBLZMA
@@ -1840,8 +1840,8 @@ void ZipArchive::FileCloseInternal(ZipEntryFileHandle& fileHandle)
 #endif // ZIPARCHIVE_USE_7ZIP_LZMA
 #if ZIPARCHIVE_USE_LIBLZMA
 				lzma_end(&fileHandle.detail->lzmaStream);
-			}
 #endif // ZIPARCHIVE_USE_LIBLZMA
+			}
 		}
 	}
     else
@@ -1855,8 +1855,8 @@ void ZipArchive::FileCloseInternal(ZipEntryFileHandle& fileHandle)
 #endif // ZIPARCHIVE_USE_7ZIP_LZMA
 #if ZIPARCHIVE_USE_LIBLZMA
 				lzma_end(&fileHandle.detail->lzmaStream);
-			}
 #endif // ZIPARCHIVE_USE_LIBLZMA
+			}
 		}
     }
 

@@ -175,8 +175,8 @@ TRIO_SRCS = Misc/$(TRIO_SRCS) ;
 local MISC_SRCS =
 		$(PCH_SRCS)
 		$(AES_SRCS)
-		$(LZMA_SRCS)
-		$(LIBLZMA_SRCS)
+		#$(LZMA_SRCS)
+		#$(LIBLZMA_SRCS)
 		$(MD5_SRCS)
 		$(TRIO_SRCS)
 		$(ZLIB_SRCS)
