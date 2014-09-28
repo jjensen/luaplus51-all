@@ -1207,7 +1207,8 @@ TopContinue:
 			if (name[0] == '.'  &&  (name[1] == 0  ||  (name[1] == '.'  &&  name[2] == 0))) {
                 goto NextFile;
 			}
-			namlen = context->dp->d_namlen;
+			/*namlen = context->dp->d_namlen;*/
+			namlen = strlen(name);
 #endif
 			buf = join_path(self, context->path, context->pathlen, context->dirsep, name, namlen);
 			if (!buf) {
