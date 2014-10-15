@@ -101,6 +101,9 @@ if $(NT)  &&  $(LUA_VERSION) in lua51-luaplus
 	NoWorkspace "luaw" ;
 }
 
-on @(lua:G=$(C.ACTIVE_TOOLCHAIN)) LUA_EXE = $(LINK_TARGET) ;
+on @(lua:G=$(C.ACTIVE_TOOLCHAIN_GRIST)) LUA_EXE = $(LINK_TARGET) ;
+if ! $(LUA_EXE) {
+	on @(lua:G=$(C.ACTIVE_TOOLCHAIN)) LUA_EXE = $(LINK_TARGET) ;
+}
 
 }
