@@ -12,11 +12,11 @@
 #include <uuid/uuid.h>
 #endif
 
-#if 0	/* use these if you get link errors (unlikely) */
+//#if 0	/* use these if you get link errors (unlikely) */
 #define	uuid_generate_random	uuid_generate
 #define	uuid_generate_time	uuid_generate
 #define	uuid_time(c,p)		(-1)
-#endif
+//#endif
 
 #include "lua.h"
 #include "lauxlib.h"
