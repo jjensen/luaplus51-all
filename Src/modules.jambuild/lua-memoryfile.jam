@@ -1,0 +1,5 @@
+{
+
+Lua.CModule lua-memoryfile : memoryfile : memoryfile.c memoryfile.h ;
+
+}

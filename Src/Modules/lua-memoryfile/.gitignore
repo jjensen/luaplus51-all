@@ -1,0 +1,17 @@
+*.lo
+*.o
+.libs
+app
+app.c
+app.c.conf
+app.c.conf.in
+install.in-stamp.memoryfile.liblua5.1-memoryfile-dev
+install.in-stamp.memoryfile.liblua5.1-memoryfile0
+liblua-memoryfile.la
+liblua5.1-memoryfile.la
+lua-memoryfile-*.tar.bz2
+lua-memoryfile-*.tar.gz
+lua5.1-memoryfile.pc
+memoryfile.so
+pkg-config.pc.in
+static-stamp.memoryfile

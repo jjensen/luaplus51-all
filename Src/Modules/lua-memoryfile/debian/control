@@ -1,0 +1,26 @@
+Source: lua-memoryfile
+Section: interpreters
+Priority: optional
+Maintainer: Geoff Richards <geoff@geoffrichards.co.uk>
+Build-Depends: cdbs (>= 0.4.23-1.1), debhelper (>= 5), dpatch, lua5.1-policy-dev (>= 22)
+Standards-Version: 3.7.2
+
+Package: liblua5.1-memoryfile0
+Architecture: any
+Depends: ${shlibs:Depends}
+Description: in-memory file handles for Lua
+ Lua-memoryfile allows you to manipulate strings in memory as if they were
+ files.  It can be used to create strings from many parts (like a
+ stringbuffer), or to read strings a line at a time, or to simulate real files.
+ .
+ The latest source code and documentation is always available from the
+ module's website: <http://www.geoffrichards.co.uk/lua/memoryfile/>
+
+Package: liblua5.1-memoryfile-dev
+Architecture: any
+Depends: liblua5.1-memoryfile0 (= ${binary:Version})
+Description: documentation for the Lua memoryfile module
+ This package contains documentation for the liblua5.1-memoryfile package,
+ in the lua-memoryfile(3) man page.  This describes the complete API of the
+ Lua module.  A more attractive version of the same thing is available on
+ the module's website: <http://www.geoffrichards.co.uk/lua/memoryfile/doc/>

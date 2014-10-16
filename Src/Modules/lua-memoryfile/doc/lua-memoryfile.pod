@@ -1,0 +1,298 @@
+=head1 Name
+
+Lua-MemoryFile - Lua 5.1 module for in-memory simulated file I/O
+
+=head1 Description
+
+The module allows Lua programs to open strings like files for reading
+and writing.  This can be useful for various reasons:
+
+=over
+
+=item *
+
+Treat a memoryfile object like a stringbuffer, writing things on to the end
+of it rather than concatenating lots of strings (which can be slow in Lua).
+
+=item *
+
+Read text from a string a line at a time.
+
+=item *
+
+Use this instead of temporary files for testing, or for when another module
+requires a file handle to operate on but you'd rather give it a string
+
+=back
+
+=head1 Loading the module
+
+The MemoryFile module doesn't install itself into any global tables, so you can
+decide what name you want to use to access it.  You will probably want to
+load it like this:
+
+=for syntax-highlight lua
+
+    local MemFile = require "memoryfile"
+
+You can use a variable called something other than C<MemFile> if you'd like,
+or you could assign the table returned by C<require> to a global variable.
+In this documentation we'll assume you're using a variable called C<MemFile>.
+
+=head1 Simulating a mutable string
+
+This is probably the most useful way of using the MemoryFile module.  You
+want to create a string from lots of individual pieces (perhaps you're
+adding values from an array, or serializing a tree structure like a set
+of nested tables or an XML DOM).
+
+Here's an example which turns a table of strings into a single string of
+Lua source code:
+
+=for syntax-highlight lua
+
+    local code = MemFile.open(nil, "w")
+    local strings = { "foo", "bar", "quux" }
+
+    code:write("values = {\n")
+    for _, value in ipairs(strings) do
+        code:write("    ", string.format("%q", value), ",\n")
+    end
+    code:write("}\n")
+
+    local code_string = tostring(code)
+    code:close()
+
+Of course this would only be useful if the C<strings> table in the example
+was a lot larger, but in that case it would be much faster to write all
+the individual strings to a MemoryFile handle than to concatenate them all
+onto a Lua string.
+
+At the end of the example above we use C<tostring> to get the content of the
+memory file as a normal Lua string.  The example also uses the C<close> method
+to clear out the data from the file handle, which is a good idea after you're
+finished with it, because it frees up memory immediately rather than waiting
+for the Lua garbage collector to get around to doing it for you.
+
+=head1 Creating file handles
+
+The table returned by C<require> contains a single function, C<open>.
+This takes up to two arguments.  The first (what would be the filename for
+C<io.open>) is a string used to initialize the file handle.  If it is nil
+or the empty string then the memory file will be empty to start with, otherwise
+it will contain some data which can be read with the C<read> method.
+
+Note that since Lua strings are immutable, MemoryFile always makes a copy of
+the string data you initialize it with, so the original string will not be
+affected by changes to the file's data.
+
+The second argument to C<open> is a mode string.  The first character should
+be C<r>, C<w>, or C<a>.  The default is C<r>.  The read and write modes are
+actually the same.  Whichever you use, you can read or write with the file
+handle.  In append mode reading and writing will also work the same as normal,
+except that anything you write on to the file will go at the end of the file,
+regardless of where you have positioned the file with C<seek>.
+
+Any extra characters in the mode string will be ignored, so the C<+> and
+C<b> flags will have no affect.
+
+=head1 File handle methods
+
+Most of these methods behave basically the same way as the ones provided
+by Lua's real file handles.  See the Lua reference manual for details:
+
+L<http://www.lua.org/manual/5.1/manual.html#5.7>
+
+=over
+
+=item close
+
+This frees up any resources associated with the file handle, and resets it
+to contain zero bytes of data.  This is identical to calling C<size(0)> on
+a memoryfile handle.  Unlike real file handles, you can continue to use
+a memoryfile after it has been reset in this way.
+
+Always returns C<true>.
+
+=item flush
+
+=item setvbuf
+
+These two functions do nothing, and are merely provided for compatibility
+with real Lua file handles.  They always return C<true>.
+
+=item lines
+
+Returns an iterator for looping over the lines in the buffer, starting
+from the current position seeked to.  This example counts the lines in
+the string by iterating over them:
+
+=for syntax-highlight lua
+
+    local f = MemFile.open("foo\nbar\nbaz\n")
+    local count = 0
+    for line in f:lines() do count = count + 1 end
+    print("number of lines in string:", count)
+
+Each line will be read as if by C<read("*l")>, so the strings will not
+include the newline character.
+
+=item read
+
+Read some data from the file handle's buffer.  Does everything the standard
+version does.  Can be used to read fixed-size pieces of data from the
+buffer:
+
+=for syntax-highlight lua
+
+    local f = MemFile.open("foobarbaz")
+    local foo, barbaz = f:read(3, 6)
+
+or to get a number value from a string:
+
+=for syntax-highlight lua
+
+    local f = MemFile.open("23.25")
+    local num = f:read("*n")
+
+or to read lines, or the whole of the rest of the file:
+
+=for syntax-highlight lua
+
+    local f = MemFile.open("foo\nbar\netc...")
+    local line1, line2 = f:read("*l", "*l")
+    local everything_else = f:read("*a")
+
+=item seek
+
+Same as the version for normal Lua file handles.  You give it a string
+indicating where to start from (C<set>, C<cur>, or C<end>), and
+a number indicating how many bytes to move relative to that.  It moves
+the position for the next read or write operation to that point, and
+returns the new position as the number of bytes from the start of the buffer.
+
+Note that the position you seek to will be ignored for writing when the
+file handle was opened in C<a> (for append) mode.  In that case all
+writes will go at the end of the file, but you can still use C<seek> to
+read from other places.
+
+The arguments default to C<cur> and zero, so if you call C<seek> without
+any arguments it will leave the buffer position unchanged.  You can use
+that if you just want to find out where in the buffer you are:
+
+=for syntax-highlight lua
+
+    -- Get a byte from a certain position, then restore
+    -- the original seek position.
+    function get_byte (f, position)
+        local old_position = f:seek()
+        f:seek("set", position)
+        local byte = f:read(1)
+        f:seek("set", old_position)
+        return byte
+    end
+
+To jump right to the end of a file so that you can write some more data
+after what already exists in the buffer:
+
+=for syntax-highlight lua
+
+    f:seek("end")
+
+C<seek> returns nil and an error message if you try to seek to a position
+after the end or before the start of the current buffer.
+
+=item size
+
+Returns the number of bytes which are currently stored in the buffer.  This
+is the same as the length of the string which will be returned by passing
+the file handle to C<tostring>.
+
+Giving C<size> an argument will cause it to I<set> the size as well as return
+the previous size.  It can be used to truncate the file handle's buffer to a
+certain number of bytes long, or to extend a file without having to write
+any data into it.  Any new data which appears after C<size> makes a buffer
+bigger will be initialized to have all null (zero) bytes.
+
+Calling C<size(0)> will free up the buffer and reset the handle to the empty
+string.  This can be used when work with a file handle is finished, so that
+a potentially large memory buffer isn't left on the heap until the garbage
+collector gets round to freeing it.  This is exactly the same as calling the
+C<close()> method.
+
+=item write
+
+Copies the data from its arguments, which must be strings or numbers, into
+the buffer for a MemoryFile handle.  The values are added one after another,
+with nothing in between.
+
+After calling C<write> the seek position will be moved to the end of the
+newly written data, except in append mode, when it will be left where it is.
+
+If you use C<seek>, or open a file with some initial data, you can use write
+to overwrite data already in the buffer.  It will still make the buffer bigger
+if it needs more room, and it will never shrink the buffer.  Also, if the
+MemoryFile handle was opened in append mode then C<write> will ignore the
+position you seeked to and write all new data onto the end of the buffer.
+
+=item __tostring
+
+You can use the Lua C<tostring> function to get a string copy of the current
+data in a MemoryFile handle.  For example, this will produce 512 C<foo>s
+by repeatedly getting the contents of the memory file as a string and then
+doubling the length of the memoryfile's data by writing that string back
+onto the end of the buffer:
+
+=for syntax-highlight lua
+
+    local f = MemFile.open("foo")
+    for i = 1, 10 do f:write(tostring(f)) end
+    print(f)
+
+=back
+
+=head1 Differences from real file handles
+
+The userdata objects returned from MemoryFile's C<open> function are
+intended to be fairly compatible with the file handles returned by Lua's
+standard C<io.open> function.  There are some differences in how they
+behave though.
+
+=over
+
+=item *
+
+Opening a file in C<w> or C<a> mode doesn't truncate it.  If you want to
+start with an empty file, just be sure to pass nil or the empty string to
+C<open> as the initial data.
+
+=item *
+
+Reading and writing both work regardless of what mode was given to C<open>.
+
+=item *
+
+The C<size> method provided by this module is not provided by standard Lua
+file handles, which don't offer any facility for reducing the size of an
+existing file (other than writing over it with a new one).
+
+=item *
+
+Some filesystems will allow you to create a large file by seeking past the
+end of the data that already exists and then writing data where you want
+the file to end.  The memoryfile C<seek> method however will refuse to seek
+past the end of the existing data.  You can use the C<size> method instead
+to create a file of a certain size.
+
+=back
+
+=head1 Copyright
+
+This software and documentation is Copyright E<copy> 2007E<ndash>2012 Geoff Richards
+E<lt>geoff@geoffrichards.co.ukE<gt>.  It is free software; you can redistribute it
+and/or modify it under the terms of the S<Lua 5.0> license.  The full terms
+are given in the file F<COPYRIGHT> supplied with the source code package,
+and are also available here: L<http://www.lua.org/license.html>
+
+=for comment
+vi:ts=4 sw=4 expandtab

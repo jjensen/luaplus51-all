@@ -1,0 +1,31 @@
+1.2     2012-07-13
+
+ * Fix build problem with libtool (requires compiler to be called 'gcc',
+   not 'cc').
+ * Remove support for building Windows DLL.
+ * Upgrade included version of Lunit test system to version 0.5.
+
+1.1     2008-04-19
+
+ * Warning: this release changes the behaviour of the 'close' and 'size'
+   methods in a way which is not backwards compatible with version 1.0,
+   although these small changes are unlikely to affect real code.
+ * The 'close' method now does the same as 'size(0)', so it can be used
+   to free the buffer associated with a memoryfile object.  This is so that
+   code which relies on 'close' freeing up resources can be used with
+   memoryfile objects as well as real file handles.
+ * The 'size' method now returns the old size, before the method began,
+   rather than the new size after it has been changed.  This will only
+   affect code which uses a single call to 'size' to both get and set the
+   size.  The change is to bring this method into line with accessors in
+   my other libraries.
+ * Impose minimum size on buffer to avoid excessive reallocation.
+ * The version number is no longer included in the userdata metatable
+   name in the Lua registry, so for all future versions the file handles
+   will have the same metatable name.  This makes it possible, although not
+   necessarily recommended, for C code to directly manipulate these objects.
+ * Switch test suite from Lunit 0.3 to Lunit 0.4alpha.
+
+1.0     2007-09-21
+
+ * Initial release.

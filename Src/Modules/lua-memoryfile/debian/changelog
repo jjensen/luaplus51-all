@@ -1,0 +1,17 @@
+lua-memoryfile (1.2-1) unstable; urgency=low
+
+  * New source release.  Only packaging and documentation tweaks.
+
+ -- Geoff Richards <geoff@geoffrichards.co.uk>  Fri, 13 Jul 2012 17:24:42 +0100
+
+lua-memoryfile (1.1-1) unstable; urgency=low
+
+  * New source release.  Minor incompatibilities with version 1.0.
+
+ -- Geoff Richards <geoff@geoffrichards.co.uk>  Sat, 19 Apr 2008 20:55:27 +0100
+
+lua-memoryfile (1.0-1) unstable; urgency=low
+
+  * Initial release.
+
+ -- Geoff Richards <geoff@geoffrichards.co.uk>  Fri, 21 Sep 2007 06:35:15 +0100
