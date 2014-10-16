@@ -30,7 +30,7 @@ local function copy_directory_helper(srcPath, destPath, options)
     end
 
     -- Scan the source directory.
-    local check_timestamp = options.check_timestamp
+    local check_timestamp = type(options.check_timestamp) == 'boolean'  or  true
     local srcDirs = {}
     local srcFiles = {}
     for srcHandle in filefind.match(srcPath .. "*.*") do
