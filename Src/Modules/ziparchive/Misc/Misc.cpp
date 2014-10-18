@@ -6,6 +6,7 @@
 #elif defined(__APPLE__)
 #include <CoreServices/CoreServices.h>
 #include <unistd.h>
+#include <sys/time.h>
 #endif // _WIN32
 
 #include <stdio.h>
@@ -24,8 +25,9 @@ DWORD GetMilliseconds()
 	return ::timeGetTime();
 #endif
 #if defined(PLATFORM_MAC)
-	Duration duration = AbsoluteToDuration(UpTime());
-	return duration < 0 ? duration / -1000 : duration;
+	timeval time;
+	gettimeofday(&time, NULL);
+	return (time.tv_sec * 1000) + (time.tv_usec / 1000);
 #endif // _WIN32
 }
 
