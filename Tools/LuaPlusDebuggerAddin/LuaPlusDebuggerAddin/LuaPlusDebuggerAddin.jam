@@ -1,9 +1,6 @@
 if $(NOT_BROKEN)
 {
 
-IncludeModule c/mfc ;
-IncludeModule c/midl ;
-
 SubDir LUAPLUS Tools LuaPlusDebuggerAddin LuaPlusDebuggerAddin ;
 
 local HEADER_FILES_SRCS =
@@ -35,14 +32,14 @@ SourceGroup LuaPlusDebuggerAddin : "Header Files" : $(HEADER_FILES_SRCS) ;
 SourceGroup LuaPlusDebuggerAddin : "Resource Files" : $(RESOURCE_FILES_SRCS) ;
 SourceGroup LuaPlusDebuggerAddin : "Source Files" : $(SOURCE_FILES_SRCS) ;
 
-C.UseMFC LuaPlusDebuggerAddin : link ;
+C.MFC LuaPlusDebuggerAddin : link ;
 
-local MIDL_SRCS = [ C.MidlCompiler LuaPlusDebuggerAddin : AddIn.idl ] ;
+local MIDL_SRCS = [ C.Midl.Compiler LuaPlusDebuggerAddin : AddIn.idl ] ;
 Includes <LuaPlusDebuggerAddin>AddIn.cpp <LuaPlusDebuggerAddin>AddIn.rc : $(MIDL_SRCS) ;
 GENERATED_HEADERS += $(MIDL_SRCS) ;
 
 C.RcIncludeDirectories LuaPlusDebuggerAddin : AddIn.rc : $(LOCATE_SOURCE) ;
-local RES_SRCS = [ C.ResourceCompiler LuaPlusDebuggerAddin : AddIn.rc ] ;
+local RES_SRCS = [ C.Rc LuaPlusDebuggerAddin : AddIn.rc ] ;
 
 C.IncludeDirectories LuaPlusDebuggerAddin : $(LOCATE_SOURCE) ;
 

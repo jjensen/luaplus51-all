@@ -12,9 +12,7 @@ CopyFile luasql.ado : $(LUA_LDIR)/luasql/ado.lua : $(SUBDIR)/src/ado/ado.lua ;
 
 ###############################################################################
 ###############################################################################
-IncludeModule c/mysql ;
-
-if $(MYSQL_FOUND) {
+if [ C.MySQL : test ] {
 
 	ActiveTarget luasql.mysql ;
 
@@ -29,7 +27,7 @@ if $(MYSQL_FOUND) {
         C.Defines : _WIN32 ;
     }
 
-	C.UseMySQL ;
+	C.MySQL ;
 
 	Lua.CModule : luasql/mysql : $(SRCS) ;
 

@@ -139,10 +139,8 @@ local SRCS =
 #	modules/luamodule/wxLua_InternalPch.cpp
 ;
 
-IncludeModule c/wxwidgets ;
-
-if $(wxWidgets_FOUND) {
-	C.UseWxWidgets : xrc xml net media propgrid richtext aui scintilla stc webview html adv core base gl : linklibs ;
+if [ C.WxWidgets : : test ] {
+	C.WxWidgets : xrc xml net media propgrid richtext aui scintilla stc webview html adv core base gl : linklibs ;
 
 	if $(LUA_VERSION) in lua52 lua52-luaplus {
 		C.Defines : LUA_COMPAT_MODULE ;

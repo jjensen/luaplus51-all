@@ -6,8 +6,7 @@ local SRCS =
 		luastdcall.h
 ;
 
-IncludeModule c/dotnet ;
-C.UseDotNet luanet ;
+C.DotNet luanet ;
 
 C.Defines luanet : LUA_COMPAT_MODULE ;
 C.LinkPrebuiltLibraries luanet : mscoree ;

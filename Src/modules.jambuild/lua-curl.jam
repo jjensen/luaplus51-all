@@ -14,9 +14,7 @@ if ! $(foundCurl) {
 	return ;
 }
 
-IncludeModule c/openssl ;
-
-if ! [ C.UseOpenSSL : test ] {
+if ! [ C.OpenSSL : test ] {
 	Echo * Not building cURL, because OpenSSL is not found. ;
 	return ;
 }
@@ -79,7 +77,7 @@ C.ActiveTarget cURL ;
 SourceGroup : libcurl : $(CURL_LIB_SRCS) ;
 SourceGroup : zlib : $(ZLIB_SRCS) ;
 
-C.UseOpenSSL : link ;
+C.OpenSSL : link ;
 C.Defines : BUILDING_LIBCURL CURL_STATICLIB ;
 #C.Defines : HAVE_ZLIB_H HAVE_ZLIB HAVE_LIBZ ;
 

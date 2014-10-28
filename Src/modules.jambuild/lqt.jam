@@ -1,8 +1,6 @@
 {
 
-IncludeModule c/qt ;
-
-if $(QT_FOUND) {
+if [ C.Qt.Found ] {
 
 SubDir LUAPLUS Src Modules lqt cpptoxml ;
 
@@ -32,7 +30,7 @@ local SRCS =
 		parser/rpp/preprocessor.cpp
 ;
 
-C.UseQt cpptoxml : core : link ;
+C.Qt.Use cpptoxml : core : link ;
 CPPTOXML_EXE = [ C.Application cpptoxml : $(SRCS) ] ;
 
 ###############################################################################
@@ -119,7 +117,7 @@ rule build_qt_lib_binding BINDING_HEADER : DEPENDENCIES {
 	Depends $(targets) : $(GEN_XML) : $(CPPTOXML_EXE) ;
 	NotFile $(BINDING_NAME) ;
 
-	C.UseQt $(BINDING_NAME) : core gui network opengl script sql svg uitools xml xmlpatterns webkit : link ;
+	C.Qt.Use $(BINDING_NAME) : core gui network opengl script sql svg uitools xml xmlpatterns webkit : link ;
 
     C.Defines $(BINDING_NAME) : MODULE_$(BINDING_NAME) ;
 	C.IncludeDirectories $(BINDING_NAME) : $(SUBDIR)/common ;

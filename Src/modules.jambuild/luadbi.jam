@@ -7,9 +7,7 @@ NotFile luadbi-dbi.lua ;
 
 ###############################################################################
 ###############################################################################
-IncludeModule c/mysql ;
-
-if $(MYSQL_FOUND) {
+if [ C.MySQL : test ] {
 
 	ActiveTarget dbdmysql ;
 
@@ -22,7 +20,7 @@ if $(MYSQL_FOUND) {
 			DBI.lua
 	;
 
-	C.UseMySQL ;
+	C.MySQL ;
 
     Depends luadbi : dbdmysql : luadbi-dbi.lua ;
 	Depends clean:luadbi : clean:dbdmysql : clean:luadbi-dbi.lua ;

@@ -1,5 +1,3 @@
-IncludeModule c/qt ;
-
 SubDir LUAPLUS Src Modules lqt cpptoxml ;
 
 C.IncludeDirectories cpptoxml : parser parser/rpp ;

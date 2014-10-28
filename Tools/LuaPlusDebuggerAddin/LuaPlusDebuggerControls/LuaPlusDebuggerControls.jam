@@ -42,7 +42,7 @@ C.Defines LuaPlusDebuggerControls : _ATL_ATTRIBUTES UNICODE _USRDLL _WINDLL ATL_
 C.IncludeDirectories LuaPlusDebuggerControls : ../../WTL/include ;
 C.PrecompiledHeader LuaPlusDebuggerControls : stdafx : $(SOURCE_FILES_SRCS) ;
 
-local RES_SRCS = [ C.ResourceCompiler LuaPlusDebuggerControls : LuaPlusDebuggerControls.rc ] ;
+local RES_SRCS = [ C.Rc LuaPlusDebuggerControls : LuaPlusDebuggerControls.rc ] ;
 
 local midltargets = [ C.MidlFlags LuaPlusDebuggerControls : _LuaPlusDebuggerControls : postmidl proxy ] ;
 #local midlflags ;

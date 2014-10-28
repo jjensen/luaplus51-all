@@ -167,8 +167,6 @@ if $(MSVCNT) {
 		C.Library $(TARGET) : : shared nomanifest nodefaults ;
 	}
 } else {
-	IncludeModule hardsoftlink ;
-
 	rule LuaProxySharedLibrary TARGET
 	{
 		SubDir LUAPLUS Src Lua51Proxy : $(TARGET) ;

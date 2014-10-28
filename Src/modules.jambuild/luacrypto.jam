@@ -1,5 +1,4 @@
-IncludeModule c/openssl ;
-if ! [ C.UseOpenSSL : test ] {
+if ! [ C.OpenSSL : test ] {
 	Echo * Not building luacrypto, because OpenSSL is not installed. ;
 
 } else {
@@ -16,7 +15,7 @@ if $(MSVCNT)  &&  $(PLATFORM) in win32 win64 {
 	C.Defines luacrypto : LUACRYPTO_API= ;
 }
 
-C.UseOpenSSL luacrypto : link ;
+C.OpenSSL luacrypto : link ;
 Lua.CModule luacrypto : crypto : $(SRCS) ;
 
 }

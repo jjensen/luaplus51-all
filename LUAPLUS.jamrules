@@ -24,8 +24,6 @@ DEPCACHE ?= standard ;
 LUA_SOURCE_DIRECTORY_NAME = $(LUA_VERSION) ;
 LUAPLUS_INCLUDE_DIRECTORIES = $(LUAPLUS)/Src $(LUAPLUS)/Src/LuaPlus/$(LUA_SOURCE_DIRECTORY_NAME)/src ;
 
-IncludeModule copyfile ;
-
 NotFile download ;
 
 C.CompileOptions outputastree ;

@@ -10,8 +10,6 @@ local SRCS =
 		StdAfx.h
 ;
 
-IncludeModule c/dotnet ;
-
 C.IncludeDirectories ManagedLuaPlus : .. ;
 
 C.OutputPostfix ManagedLuaPlus : : debug ;
@@ -24,7 +22,7 @@ C.LinkFlags ManagedLuaPlus : /DELAYLOAD:luaplus51-1200_debug.dll : debug ;
 C.LinkFlags ManagedLuaPlus : /DELAYLOAD:luaplus51-1200.dll : release ;
 C.LinkFlags ManagedLuaPlus : /KEYFILE:\"$(SEARCH_SOURCE)/ManagedLuaPlus.snk\" ;
 
-C.UseDotNet ManagedLuaPlus ;
+C.DotNet ManagedLuaPlus ;
 C.LinkLibraries ManagedLuaPlus : LuaPlusShared ;
 
 # Cheat until there is a way to do this.
@@ -34,7 +32,7 @@ C.ObjectC++Flags ManagedLuaPlus : AssemblyInfo.cpp ManagedLuaPlus.cpp : /clr:old
 
 C.OutputName ManagedLuaPlus : ManagedLuaPlus_1100 ;
 C.Library ManagedLuaPlus : $(SRCS) : shared noexportlib ;
-C.StrongName ManagedLuaPlus : $(SEARCH_SOURCE)/ManagedLuaPlus.snk ;
+C.DotNet.StrongName ManagedLuaPlus : $(SEARCH_SOURCE)/ManagedLuaPlus.snk ;
 
 C++FLAGS.win32.$(CONFIG) on * = $(oldC++FLAGS) ;
 

@@ -1,5 +1,4 @@
-IncludeModule c/openssl ;
-if ! [ C.UseOpenSSL : test ] {
+if ! [ C.OpenSSL : test ] {
 	Echo * Not building luasec, because OpenSSL is not installed. ;
 } else {
 
@@ -51,7 +50,7 @@ if $(MSVCNT)  &&  $(PLATFORM) in win32 win64 {
 	C.Defines luasec : LUASEC_API ;
 }
 
-C.UseOpenSSL luasec : link ;
+C.OpenSSL luasec : link ;
 
 Lua.CModule luasec : ssl ssl_core : $(SRCS) $(LUASOCKET_SRCS) ;
 
