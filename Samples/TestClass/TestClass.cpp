@@ -209,15 +209,14 @@ void Vector4MonsterMetatableTest() {
 
 	// ENTITY
 	LPCD::Class(L, "ENTITY")
-		.Property("position", &MONSTER::position)
-		.Property("name", &MONSTER::name)
+		.Property("name", &ENTITY::name)
 		.ObjectDirect("printName", (ENTITY*)0, &ENTITY::printName)
 		.MetatableFunction("__gc", &ENTITY___gc)
 	;
 
 	// POSITION_ENTITY
 	LPCD::Class(L, "POSITION_ENTITY", "ENTITY")
-		.Property("position", &MONSTER::position)
+		.Property("position", &POSITION_ENTITY::position)
 		.MetatableFunction("__gc", &ENTITY___gc)
 	;
 
