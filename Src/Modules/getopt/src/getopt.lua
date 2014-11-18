@@ -26,6 +26,8 @@
 -- @param t table
 -- @param nometa if non-nil don't copy metatable
 -- @return copy of table
+local unpack = unpack or table.unpack
+
 local function clone (t, nometa)
   local u = {}
   if not nometa then
