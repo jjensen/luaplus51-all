@@ -21,6 +21,8 @@ local socket = require "socket"
 local gettime = socket.gettime
 local coxpcall = require "coxpcall"
 
+local ssl = nil
+
 local WATCH_DOG_TIMEOUT = 120
 local UDP_DATAGRAM_MAX = 8192
 
@@ -177,6 +179,7 @@ local _sleeping = {
 } --_sleeping
 
 local _servers = newset() -- servers being handled
+local _ssl         = {}
 local _reading_log = {}
 local _writing_log = {}
 
@@ -356,6 +359,76 @@ local _skt_mt_udp = {__index = {
                                 end,
                }}
 
+local socketWrapper = {
+	 setoption   = function(self, ...) return self.socket:setoption(...)   end
+	,getsockname = function(self, ...) return self.socket:getsockname(...) end
+	,getpeername = function(self, ...) return self.socket:getpeername(...) end
+	,settimeout  = function(self, ...) return self.socket:settimeout(...)  end
+	,close       = function(self, ...) return self.socket:close(...)       end
+	,flush       = function(self, ...) return self.socket:flush(...)       end
+	,getfd       = function(self, ...) return self.socket:getfd(...)       end
+	,dirty       = function(self, ...) return self.socket:dirty(...)       end
+	,want        = function(self, ...) return self.socket:want(...)        end
+	,receive     = function(self, ...) return self.socket:receive(...)     end
+	,send        = function(self, ...) return self.socket:send(...)        end
+	}
+--
+local socketWrapperMT = {__index = socketWrapper}
+--
+socketWrapper.new = function(socket, parent)
+	local result = {socket = socket
+	               ,parent = parent
+	               }
+	setmetatable(result, socketWrapperMT)
+	socket:settimeout(0)
+	return result
+	end
+
+local socketWrapperSsl = {
+	 setoption   = function(self, ...) return true end
+	,getsockname = function(self, ...) return self.peeraddr, self.peerport end
+	,getpeername = function(self, ...) return self.peername end
+	--
+	,receive     = function(self, ...)
+		local res, err, part = self.socket:receive(...)
+		err = ((err == "wantread") or (err == "wantwrite")) and "timeout" or err
+		return res, err, part
+		end
+	--
+	,send        = function(self, ...)
+		local res, err, part = self.socket:send(...)
+		err = ((err == "wantwrite") or (err == "wantread")) and "timeout" or err
+		return res, err, part
+		end
+	}
+
+setmetatable(socketWrapperSsl, socketWrapperMT)
+
+local socketWrapperSslMT = {__index = socketWrapperSsl}
+
+socketWrapperSsl.new = function(socket, parent)
+	local result = socketWrapper.new(socket, parent)
+
+	result:setoption("tcp-nodelay", true)
+	result.peername = result:getpeername()
+	result.peeraddr, result.peerport = result:getsockname()
+
+	result.socket = assert(ssl.wrap(result.socket, _ssl[result.parent]))
+
+	if not result.socket:dohandshake() then
+		return nil
+	end
+
+	setmetatable(result, socketWrapperSslMT)
+	return result
+	end
+
+function superclient(client, input)
+	if(not client) then return nil end
+
+	return _ssl[input] and socketWrapperSsl.new(client, input) or socketWrapper.new(client, input)
+end
+
 function copas.wrap (skt)
   if string.sub(tostring(skt),1,3) == "udp" then
     return  setmetatable ({socket = skt}, _skt_mt_udp)
@@ -402,12 +475,12 @@ end
 
 -- accepts a connection on socket input
 local function _accept(input, handler)
-  local client = input:accept()
+  local client = superclient(input:accept(), input)
   if client then
     client:settimeout(0)
     local co = coroutine.create(handler)
     _doTick (co, client)
-    --_reading:insert(client)
+    --_reading:insert(client.socket)
   end
   return client
 end
@@ -437,11 +510,15 @@ local function addUDPserver(server, handler, timeout)
     _doTick (co, server)
 end
 
-function copas.addserver(server, handler, timeout)
+function copas.addserver(server, handler, timeout, ssl_params)
+    if (ssl_params) then
+        ssl = require("ssl")
+    end
+    _ssl[server]     = ssl_params
     if string.sub(tostring(server),1,3) == "udp" then
-        addUDPserver(server, handler, timeout)
+        addUDPserver(server, handler, timeout, ssl_params)
     else
-        addTCPserver(server, handler, timeout)
+        addTCPserver(server, handler, timeout, ssl_params)
     end
 end
 -------------------------------------------------------------------------------
