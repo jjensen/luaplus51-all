@@ -82,8 +82,7 @@ function _M.HTTP(config)
         end
     end
 
-    httpd.handle_request = vhosts(vhosts_table)
-    httpd.register(config.server.host, config.server.port, _M._VERSION)
+    httpd.register(config.server.host, config.server.port, _M._VERSION, config.server.ssl, vhosts(vhosts_table))
 end
 
 -------------------------------------------------------------------------------

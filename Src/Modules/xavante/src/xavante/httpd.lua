@@ -22,6 +22,8 @@ local _serversoftware = ""
 
 local _serverports = {}
 
+local handle_request = {}
+
 function _M.strsplit (str)
         local words = {}
 
@@ -59,7 +61,7 @@ function _M.connection (skt)
                         req.params = nil
                         _M.parse_url (req)
                         res = _M.make_response (req)
-                until _M.handle_request (req, res) ~= "reparse"
+                until handle_request[skt.parent] (req, res) ~= "reparse"
                 _M.send_response (req, res)
 
                 req.socket:flush ()
@@ -99,7 +101,7 @@ function _M.read_method (req)
         req.cmdline, err = req.socket:receive ()
 
         if not req.cmdline then return nil end
-        req.cmd_mth, req.cmd_url, req.cmd_version = unpack (_M.strsplit (req.cmdline))
+        req.cmd_mth, req.cmd_url, req.cmd_version = (unpack or table.unpack) (_M.strsplit (req.cmdline))
         req.cmd_mth = string.upper (req.cmd_mth or 'GET')
 
         -- Account for requests that assume we can handle a proxy.
@@ -380,12 +382,13 @@ function _M.redirect (res, d)
         res.content = "redirect"
 end
 
-function _M.register (host, port, serversoftware)
+function _M.register (host, port, serversoftware, ssl_params, func)
         local _server = assert(socket.bind(host, port))
         _serversoftware = serversoftware
         local _ip, _port = _server:getsockname()
         _serverports[_port] = true
-        copas.addserver(_server, _M.connection)
+        handle_request[_server] = func
+        copas.addserver(_server, _M.connection, nil, ssl_params)
 end
 
 function _M.get_ports()
