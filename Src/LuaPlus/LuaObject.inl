@@ -1233,6 +1233,7 @@ inline LuaObject& LuaObject::RegisterHelper(const char* funcName, lua_CFunction 
 
 		memcpy(buffer + pos, func, sizeofFunc);
 
+		lua_insert(L, -1 - (int)nupvalues);
 		nupvalues++;
 	}
 
