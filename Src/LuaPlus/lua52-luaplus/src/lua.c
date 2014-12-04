@@ -355,13 +355,15 @@ static void dotty (lua_State *L) {
 static int handle_script (lua_State *L, char **argv, int n) {
   int status;
   const char *fname;
+#if LUA_TILDE_DEBUGGER  &&  _MSC_VER
+  char buffer[4096];
+#endif // LUA_TILDE_DEBUGGER  && _MSC_VER
   int narg = getargs(L, argv, n);  /* collect arguments */
   lua_setglobal(L, "arg");
   fname = argv[n];
   if (strcmp(fname, "-") == 0 && strcmp(argv[n-1], "--") != 0)
     fname = NULL;  /* stdin */
 #if LUA_TILDE_DEBUGGER  &&  _MSC_VER
-  char buffer[4096];
   if (fname) {
     _fullpath(buffer, fname, 4096);
     fname = buffer;
