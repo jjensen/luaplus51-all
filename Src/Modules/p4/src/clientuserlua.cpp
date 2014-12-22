@@ -256,8 +256,6 @@ void ClientUserLua::OutputText( const char *data, int length )
 		ProcessOutput("outputText", lua_gettop( L ));
 		lua_pop( L, 1 );
 	}
-
-	results.AddOutput( data );
 }
 
 void ClientUserLua::OutputInfo( char level, const char *data )
