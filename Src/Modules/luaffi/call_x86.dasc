@@ -484,7 +484,11 @@ static void get_int(Dst_DECL, const struct ctype* ct, struct reg_alloc* reg, int
         reg->off += 8;
     } else {
         | mov ecx, [rbp + reg->off]
+#ifdef _WIN64
+        reg->off += 8;
+#else
         reg->off += 4;
+#endif
     }
 }
 
@@ -517,7 +521,11 @@ static void add_int(Dst_DECL, const struct ctype* ct, struct reg_alloc* reg, int
         reg->off += 8;
     } else {
         | mov [rsp+reg->off], eax
+#ifdef _WIN64
+        reg->off += 8;
+#else
         reg->off += 4;
+#endif
     }
 }
 
@@ -548,7 +556,7 @@ static void get_float(Dst_DECL, const struct ctype* ct, struct reg_alloc* reg, i
 #endif
     else {
         off = reg->off;
-        reg->off += is_double ? 8 : 4;
+        reg->off += is_double ? 8 : 8;
     }
 
     if (is_double) {
@@ -600,7 +608,7 @@ static void add_float(Dst_DECL, const struct ctype* ct, struct reg_alloc* reg, i
     } else {
         | cvtsd2ss xmm0, xmm0
         | movd dword [rsp + reg->off], xmm0
-        reg->off += 4;
+        reg->off += 8;
     }
 #endif
 }
