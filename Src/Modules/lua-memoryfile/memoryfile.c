@@ -226,7 +226,7 @@ memfile_seek (lua_State *L) {
     static const char *const modenames[] = { "set", "cur", "end", 0 };
     MemoryFile *f = luaL_checkudata(L, 1, MEMORYFILE_MT_NAME);
     int op = luaL_checkoption(L, 2, "cur", modenames);
-    long new_pos = luaL_optlong(L, 3, 0);
+    long new_pos = (long)luaL_optinteger(L, 3, 0);
 
     if (op == 1)            /* SEEK_CUR */
         new_pos = (long) f->buf_pos + new_pos;
