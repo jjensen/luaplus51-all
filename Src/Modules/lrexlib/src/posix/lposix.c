@@ -69,7 +69,7 @@
   (ALG_PUSHSTART(L,ud,offs,n), ALG_PUSHEND(L,ud,offs,n))
 
 #define ALG_BASE(st)                  (st)
-#define ALG_GETCFLAGS(L,pos)          luaL_optint(L, pos, ALG_CFLAGS_DFLT)
+#define ALG_GETCFLAGS(L,pos)          (int)luaL_optint(L, pos, ALG_CFLAGS_DFLT)
 
 typedef struct {
   regex_t      r;

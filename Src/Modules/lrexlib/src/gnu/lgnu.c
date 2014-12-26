@@ -33,7 +33,7 @@
 #define ALG_CFLAGS_DFLT RE_SYNTAX_POSIX_EXTENDED
 #define ALG_EFLAGS_DFLT 0
 
-#define ALG_GETCFLAGS(L,pos)  luaL_optint(L, pos, ALG_CFLAGS_DFLT)
+#define ALG_GETCFLAGS(L,pos)  (int)luaL_optinteger(L, pos, ALG_CFLAGS_DFLT)
 
 static const unsigned char *gettranslate (lua_State *L, int pos);
 #define ALG_GETCARGS(L,pos,argC)  argC->translate = gettranslate (L, pos)

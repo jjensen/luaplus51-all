@@ -46,7 +46,7 @@ extern void add_wide_lib (lua_State *L);
   (ALG_PUSHSTART(L,ud,offs,n), ALG_PUSHEND(L,ud,offs,n))
 
 #define ALG_BASE(st)                  (st)
-#define ALG_GETCFLAGS(L,pos)          luaL_optint(L, pos, ALG_CFLAGS_DFLT)
+#define ALG_GETCFLAGS(L,pos)          (int)luaL_optint(L, pos, ALG_CFLAGS_DFLT)
 
 typedef struct {
   regex_t      r;
@@ -85,7 +85,7 @@ static void checkarg_atfind (lua_State *L, TArgExec *argE, TPosix **ud,
   argE->text = luaL_checklstring (L, 2, &argE->textlen);
   checkarg_regaparams (L, 3, argP);
   argE->startoffset = get_startoffset (L, 4, argE->textlen);
-  argE->eflags = luaL_optint (L, 5, ALG_EFLAGS_DFLT);
+  argE->eflags = (int)luaL_optint (L, 5, ALG_EFLAGS_DFLT);
 }
 
 static int generate_error (lua_State *L, const TPosix *ud, int errcode) {

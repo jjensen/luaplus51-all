@@ -132,9 +132,9 @@ static void checkarg_dfa_exec (lua_State *L, TArgExec *argE, TPcre **ud) {
   *ud = check_ud (L);
   argE->text = luaL_checklstring (L, 2, &argE->textlen);
   argE->startoffset = get_startoffset (L, 3, argE->textlen);
-  argE->eflags = luaL_optint (L, 4, ALG_EFLAGS_DFLT);
-  argE->ovecsize = luaL_optint (L, 5, 100);
-  argE->wscount = luaL_optint (L, 6, 50);
+  argE->eflags = (int)luaL_optinteger (L, 4, ALG_EFLAGS_DFLT);
+  argE->ovecsize = (int)luaL_optinteger (L, 5, 100);
+  argE->wscount = (int)luaL_optinteger (L, 6, 50);
 }
 #endif
 

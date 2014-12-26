@@ -81,7 +81,7 @@ static int OptLimit (lua_State *L, int pos) {
 
 
 static int get_startoffset(lua_State *L, int stackpos, size_t len) {
-  int startoffset = luaL_optint(L, stackpos, 1);
+  int startoffset = (int)luaL_optinteger(L, stackpos, 1);
   if(startoffset > 0)
     startoffset--;
   else if(startoffset < 0) {
@@ -181,7 +181,7 @@ static void checkarg_gsub (lua_State *L, TArgComp *argC, TArgExec *argE) {
   argE->funcpos2 = 4;
   argE->maxmatch = OptLimit (L, 4);
   argC->cflags = ALG_GETCFLAGS (L, 5);
-  argE->eflags = luaL_optint (L, 6, ALG_EFLAGS_DFLT);
+  argE->eflags = (int)luaL_optinteger (L, 6, ALG_EFLAGS_DFLT);
   ALG_GETCARGS (L, 7, argC);
 }
 
@@ -193,7 +193,7 @@ static void checkarg_find_func (lua_State *L, TArgComp *argC, TArgExec *argE) {
   check_pattern (L, 2, argC);
   argE->startoffset = get_startoffset (L, 3, argE->textlen);
   argC->cflags = ALG_GETCFLAGS (L, 4);
-  argE->eflags = luaL_optint (L, 5, ALG_EFLAGS_DFLT);
+  argE->eflags = (int)luaL_optinteger (L, 5, ALG_EFLAGS_DFLT);
   ALG_GETCARGS (L, 6, argC);
 }
 
@@ -204,7 +204,7 @@ static void checkarg_gmatch_split (lua_State *L, TArgComp *argC, TArgExec *argE)
   check_subject (L, 1, argE);
   check_pattern (L, 2, argC);
   argC->cflags = ALG_GETCFLAGS (L, 3);
-  argE->eflags = luaL_optint (L, 4, ALG_EFLAGS_DFLT);
+  argE->eflags = (int)luaL_optinteger (L, 4, ALG_EFLAGS_DFLT);
   ALG_GETCARGS (L, 5, argC);
 }
 
@@ -217,7 +217,7 @@ static void checkarg_find_method (lua_State *L, TArgExec *argE, TUserdata **ud) 
   *ud = check_ud (L);
   check_subject (L, 2, argE);
   argE->startoffset = get_startoffset (L, 3, argE->textlen);
-  argE->eflags = luaL_optint (L, 4, ALG_EFLAGS_DFLT);
+  argE->eflags = (int)luaL_optinteger (L, 4, ALG_EFLAGS_DFLT);
 }
 
 
