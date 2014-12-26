@@ -47,8 +47,8 @@ static size_t real_offset(int offset, size_t len) {
 
 static size_t real_range(lua_State *L, int narg, size_t *plen) {
     if (lua_gettop(L) >= narg) {
-        size_t i = real_offset(luaL_optint(L, narg, 1), *plen);
-        int sj = luaL_optint(L, narg + 1, -1);
+        size_t i = real_offset((int)luaL_optinteger(L, narg, 1), *plen);
+        int sj = (int)luaL_optinteger(L, narg + 1, -1);
         size_t j = real_offset(sj, *plen);
         *plen = i <= j ? j - i + (sj != 0 && j != *plen) : 0;
         return i;
@@ -140,7 +140,7 @@ static int lbE_quote(lua_State *L) {
 
 static int lbE_topointer(lua_State *L) {
     buffer *b = lb_checkbuffer(L, 1);
-    size_t offset = real_offset(luaL_optint(L, 2, 1), b->len);
+    size_t offset = real_offset((int)luaL_optinteger(L, 2, 1), b->len);
     lua_pushlightuserdata(L, offset == b->len ? NULL : &b->str[offset]);
     return 1;
 }
@@ -179,7 +179,7 @@ static int lbE_upper(lua_State *L) { return lb_map(L, toupper); }
 
 static int auxipairs(lua_State *L) {
     buffer *b = lb_checkbuffer(L, 1);
-    int key = luaL_checkint(L, 2) + 1;
+    int key = (int)luaL_checkinteger(L, 2) + 1;
     if (key <= 0 || (size_t)key > b->len) return 0;
     lua_pushinteger(L, key);
     lua_pushinteger(L, uchar(b->str[key - 1]));
@@ -188,7 +188,7 @@ static int auxipairs(lua_State *L) {
 
 static int lbE_ipairs(lua_State *L) {
     buffer *b = lb_checkbuffer(L, 1);
-    int pos = real_offset(luaL_optint(L, 2, 0), b->len);
+    int pos = real_offset((int)luaL_optinteger(L, 2, 0), b->len);
     lua_pushcfunction(L, auxipairs);
     lua_insert(L, 1);
     lua_pushinteger(L, pos);
@@ -203,7 +203,7 @@ static int lbE_len(lua_State *L) {
             !lua_isnoneornil(L, 2)) {
         buffer *b = lb_checkbuffer(L, 1);
         size_t oldlen = b->len;
-        int newlen = luaL_checkint(L, 2);
+        int newlen = (int)luaL_checkinteger(L, 2);
         if (newlen < 0) newlen += b->len;
         if (newlen < 0) newlen = 0;
         if (lb_realloc(L, b, newlen) && (size_t)newlen > oldlen)
@@ -220,7 +220,7 @@ static int lbE_len(lua_State *L) {
 
 static int lbE_alloc(lua_State *L) {
     buffer *b = lb_checkbuffer(L, 1);
-    if (lb_realloc(L, b, luaL_checkint(L, 2))) {
+    if (lb_realloc(L, b, (int)luaL_checkinteger(L, 2))) {
         size_t len = 0;
         const char *str = lb_optlstring(L, 3, NULL, &len);
         size_t pos = real_range(L, 4, &len);
@@ -259,7 +259,7 @@ static int lbE_char(lua_State *L) {
     }
     if (lb_realloc(L, b, n - 1)) {
         for (i = 2; i <= n; ++i) {
-            int c = luaL_checkint(L, i);
+            int c = (int)luaL_checkinteger(L, i);
             b->str[i - 2] = uchar(c);
             if (c != uchar(c) && !invalid)
                 invalid = i - 1;
@@ -357,7 +357,7 @@ static int do_cmd(lua_State *L, buffer *b, int narg, enum cmd c) {
     case cmd_append:
         pos = b->len; break;
     case cmd_insert: case cmd_set:
-        pos = real_offset(luaL_checkint(L, narg++), b->len); break;
+        pos = real_offset((int)luaL_checkinteger(L, narg++), b->len); break;
     default:
         pos = 0; break;
     }
@@ -458,7 +458,7 @@ static int lbE_rep(lua_State *L) {
     if (lua_type(L, 2) == LUA_TNUMBER)
         rep = lua_tointeger(L, 2);
     else if ((str = lb_tolstring(L, 2, &len)) != NULL)
-        rep = luaL_checkint(L, 3);
+        rep = (int)luaL_checkinteger(L, 3);
     else luaL_typeerror(L, 2, "number/buffer/string");
     if (lb_realloc(L, b, len * (rep >= 0 ? rep : 0)))
         fill_str(b, 0, b->len, str != NULL ? str : b->str, len);
@@ -483,7 +483,7 @@ static int lbE_copy(lua_State *L) {
 
 static int lbE_move(lua_State *L) {
     buffer *b = lb_checkbuffer(L, 1);
-    int dst = luaL_checkint(L, 2);
+    int dst = (int)luaL_checkinteger(L, 2);
     size_t len = b->len, pos = real_range(L, 3, &len);
     size_t oldlen = b->len;
 
@@ -544,7 +544,7 @@ static int lbE_swap(lua_State *L) {
     size_t p1, l1, p2, l2;
     buffer *b = lb_checkbuffer(L, 1);
     if (lua_isnoneornil(L, 3)) {
-        p2 = real_offset(luaL_checkint(L, 2), b->len);
+        p2 = real_offset((int)luaL_checkinteger(L, 2), b->len);
         l2 = b->len - p2;
         p1 = 0, l1 = p2;
     }
@@ -1209,8 +1209,8 @@ static int lbE_unpack(lua_State *L) {
 }
 
 static size_t check_giargs(lua_State *L, int narg, size_t len, size_t *wide, int *bigendian) {
-    size_t pos = real_offset(luaL_optint(L, narg, 1), len);
-    *wide = luaL_optint(L, narg + 1, 4);
+    size_t pos = real_offset((int)luaL_optinteger(L, narg, 1), len);
+    *wide = (int)luaL_optinteger(L, narg + 1, 4);
     if (*wide < 1 || *wide > 8)
         luaL_argerror(L, narg + 1, "only 1 to 8 wide support");
     switch (*luaL_optlstring(L, narg + 2, "native", NULL)) {
@@ -1320,7 +1320,7 @@ static int lbM_index(lua_State *L) {
         break;
     case LUA_TNUMBER:
         if (!lb_isinvalidsub(b)
-                && (pos = check_offset(luaL_checkint(L, 2), b->len, 0)) >= 0)
+                && (pos = check_offset((int)luaL_checkinteger(L, 2), b->len, 0)) >= 0)
             lua_pushinteger(L, uchar(b->str[pos]));
         else
             lua_pushnil(L);
@@ -1336,7 +1336,7 @@ static int lbM_index(lua_State *L) {
 static int lbM_newindex(lua_State *L) {
     buffer *b = lb_checkbuffer(L, 1);
     int pos;
-    if ((pos = check_offset(luaL_checkint(L, 2), b->len, 1)) < 0)
+    if ((pos = check_offset((int)luaL_checkinteger(L, 2), b->len, 1)) < 0)
         return 0;
 
     if (pos == b->len && !grow_buffer(L, b, b->len + 1))
