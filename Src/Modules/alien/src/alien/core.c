@@ -993,7 +993,7 @@ static int alien_buffer_new(lua_State *L) {
     return 1;
   } else {
     s = NULL;
-    size = luaL_optint(L, 1, BUFSIZ);
+    size = (int)luaL_optinteger(L, 1, BUFSIZ);
   }
   b = (char *)lua_newuserdata(L, size);
   if(b) {
@@ -1023,7 +1023,7 @@ static int alien_buffer_tostring(lua_State *L) {
     offset = 0;
   } else {
     size = luaL_checkinteger(L, 2);
-    offset = luaL_optint(L, 3, 1) - 1;
+    offset = (int)luaL_optinteger(L, 3, 1) - 1;
   }
   lua_pushlstring(L, b + offset, size);
   return 1;
@@ -1037,7 +1037,7 @@ static int alien_buffer_len(lua_State *L) {
 
 static int alien_buffer_topointer(lua_State *L) {
   char *b = alien_checkbuffer(L, 1);
-  int offset = luaL_optint(L, 2, 1) - 1;
+  int offset = (int)luaL_optinteger(L, 2, 1) - 1;
   lua_pushlightuserdata(L, b + offset);
   return 1;
 }
@@ -1424,8 +1424,8 @@ static int alien_isnull(lua_State *L) {
 
 static int alien_table_new(lua_State *L) {
   int narray, nhash;
-  narray = luaL_optint(L, 1, 0);
-  nhash = luaL_optint(L, 2, 0);
+  narray = (int)luaL_optinteger(L, 1, 0);
+  nhash = (int)luaL_optinteger(L, 2, 0);
   lua_createtable(L, narray, nhash);
   return 1;
 }
@@ -1441,10 +1441,10 @@ static int alien_memcpy(lua_State *L) {
     luaL_typerror(L, 2, "string, userdata, or light userdata");
   if (lua_isuserdata(L, 2)) {
     src = lua_touserdata(L, 2);
-    size = luaL_checkint(L, 3);
+    size = (int)luaL_checkinteger(L, 3);
   } else {
     src = (void*)lua_tolstring(L, 2, &size);
-    size = luaL_optint(L, 3, size);
+    size = (int)luaL_optinteger(L, 3, size);
   }
   if (size > 0)
     memcpy(dst, src, size);
