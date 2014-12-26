@@ -365,7 +365,7 @@ static int str_format_helper (luaL_Buffer* b, lua_State *L, int arg) {
       strfrmt = scanformat(L, strfrmt, form);
       switch (*strfrmt++) {
         case 'c': {
-          nb = sprintf(buff, form, luaL_checkint(L, arg));
+          nb = sprintf(buff, form, luaL_checkinteger(L, arg));
           break;
         }
         case 'd': case 'i': {
