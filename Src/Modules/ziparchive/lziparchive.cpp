@@ -124,7 +124,7 @@ static int lziparchive_index(lua_State* L) {
 	const char* key;
 	ZipArchive* archive = lziparchive_check(L, 1);
 	if (lua_type(L, 2) == LUA_TNUMBER) {
-		size_t index = lua_tointeger(L, 2);
+		size_t index = (size_t)lua_tointeger(L, 2);
 		luaL_argcheck(L, index >= 1  &&  index <= archive->GetFileEntryCount(), 2, "index not in range of 1..#archive");
 		ZipEntryInfo* fileEntry = archive->GetFileEntry(index - 1);
 		_lziparchive_buildfileentry(L, 1, archive, index - 1);
@@ -242,7 +242,7 @@ int lziparchive_fileopen(lua_State* L)
 	if (lua_type(L, 2) == LUA_TSTRING)
 		fileName = lua_tostring(L, 2);
 	else if (lua_type(L, 2) == LUA_TNUMBER)
-		entryIndex = lua_tointeger(L, 2);
+		entryIndex = (int)lua_tointeger(L, 2);
 	else
 		luaL_typerror(L, 2, "string or integer");
 
@@ -298,7 +298,7 @@ int lziparchive_filegetposition(lua_State* L) {
 int lziparchive_filesetlength(lua_State* L) {
 	ZipArchive* archive = lziparchive_check(L, 1);
 	ZipEntryFileHandle* fileHandle = filehandle_check(L, 2);
-	long len = luaL_checklong(L, 3);
+	uint64_t len = luaL_checkinteger(L, 3);
 	archive->FileSetLength(*fileHandle, len);
 	return 0;
 }
@@ -315,11 +315,11 @@ int lziparchive_filegetlength(lua_State* L) {
 int lziparchive_fileread(lua_State* L) {
 	ZipArchive* archive = lziparchive_check(L, 1);
 	ZipEntryFileHandle* fileHandle = filehandle_check(L, 2);
-	long len = luaL_optlong(L, 3, 0);
+	uint64_t len = luaL_optinteger(L, 3, 0);
 	if (len == 0)
-		len = (long)archive->FileGetLength(*fileHandle);
+		len = archive->FileGetLength(*fileHandle);
 
-	char* buffer = new char[len];
+	char* buffer = new char[(size_t)len];
 	UINT nr = (UINT)archive->FileRead(*fileHandle, buffer, len);
 	lua_pushlstring(L, buffer, nr);
 	delete[] buffer;
@@ -332,7 +332,7 @@ int lziparchive_filewrite(lua_State* L) {
 	ZipEntryFileHandle* fileHandle = filehandle_check(L, 2);
 	size_t len;
     const char* buffer = luaL_checklstring(L, 3, &len);
-	len = luaL_optlong(L, 4, len);
+	len = (size_t)luaL_optinteger(L, 4, len);
 	lua_pushnumber(L, (lua_Number)ui64ToDouble(archive->FileWrite(*fileHandle, buffer, len)));
 	return 1;
 }
@@ -564,7 +564,7 @@ static bool _lziparchive_collectfilelist(lua_State* L, ZipArchive::FileOrderList
 			info.compressionMethod = 8;
 			lua_rawgeti(L, tableIndex, index);
 			if (lua_type(L, -1) == LUA_TNUMBER) {
-				info.compressionMethod = lua_tointeger(L, -1);
+				info.compressionMethod = (int)lua_tointeger(L, -1);
 				index++;
 			}
 
@@ -1429,7 +1429,7 @@ int LS_crc32(lua_State* L)
 	}
 
 	if (lua_type(L, 1) == LUA_TNUMBER  &&  lua_type(L, 2) == LUA_TSTRING) {
-		lua_pushnumber(L, crc32(lua_tointeger(L, 1), (BYTE*)lua_tostring(L, 2), lua_objlen(L, 2)));
+		lua_pushnumber(L, crc32((uLong)lua_tointeger(L, 1), (BYTE*)lua_tostring(L, 2), lua_objlen(L, 2)));
 		return 1;
 	}
 
