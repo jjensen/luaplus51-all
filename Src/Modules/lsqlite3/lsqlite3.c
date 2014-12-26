@@ -332,7 +332,7 @@ static int dbvm_columns(lua_State *L) {
 
 static int dbvm_get_value(lua_State *L) {
     sdb_vm *svm = lsqlite_checkvm(L, 1);
-    int index = luaL_checkint(L, 2);
+    int index = (int)luaL_checkinteger(L, 2);
     dbvm_check_contents(L, svm);
     dbvm_check_index(L, svm, index);
     vm_push_column(L, svm->vm, index);
@@ -507,7 +507,7 @@ static int dbvm_bind_parameter_name(lua_State *L) {
 static int dbvm_bind(lua_State *L) {
     sdb_vm *svm = lsqlite_checkvm(L, 1);
     sqlite3_stmt *vm = svm->vm;
-    int index = luaL_checkint(L, 2);
+    int index = (int)luaL_checkinteger(L, 2);
     int result;
 
     dbvm_check_bind_index(L, svm, index);
@@ -519,7 +519,7 @@ static int dbvm_bind(lua_State *L) {
 
 static int dbvm_bind_blob(lua_State *L) {
     sdb_vm *svm = lsqlite_checkvm(L, 1);
-    int index = luaL_checkint(L, 2);
+    int index = (int)luaL_checkinteger(L, 2);
     const char *value = luaL_checkstring(L, 3);
     int len = lua_strlen(L, 3);
 
@@ -835,7 +835,7 @@ static int lcontext_result_error(lua_State *L) {
 
 static int lcontext_result_int(lua_State *L) {
     lcontext *ctx = lsqlite_checkcontext(L, 1);
-    int i = luaL_checkint(L, 2);
+    int i = (int)luaL_checkinteger(L, 2);
     sqlite3_result_int(ctx->ctx, i);
     return 0;
 }
@@ -1081,7 +1081,7 @@ static int db_register_function(lua_State *L, int aggregate) {
     if (aggregate) aggregate = 1;
 
     name = luaL_checkstring(L, 2);
-    args = luaL_checkint(L, 3);
+    args = (int)luaL_checkinteger(L, 3);
     luaL_checktype(L, 4, LUA_TFUNCTION);
     if (aggregate) luaL_checktype(L, 5, LUA_TFUNCTION);
 
@@ -1472,7 +1472,7 @@ static int db_progress_handler(lua_State *L) {
         sqlite3_progress_handler(db->db, 0, NULL, NULL);
     }
     else {
-        int nop = luaL_checkint(L, 2);  /* number of opcodes */
+        int nop = (int)luaL_checkinteger(L, 2);  /* number of opcodes */
         luaL_checktype(L, 3, LUA_TFUNCTION);
 
         /* make sure we have an userdata field (even if nil) */
@@ -1560,7 +1560,7 @@ static int db_busy_handler(lua_State *L) {
 
 static int db_busy_timeout(lua_State *L) {
     sdb *db = lsqlite_checkdb(L, 1);
-    int timeout = luaL_checkint(L, 2);
+    int timeout = (int)luaL_checkinteger(L, 2);
     sqlite3_busy_timeout(db->db, timeout);
 
     /* if there was a timeout callback registered, it is now
