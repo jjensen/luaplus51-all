@@ -664,6 +664,47 @@ static int pmain (lua_State *L) {
 int main (int argc, char **argv) {
   int status, result;
   lua_State *L = luaL_newstate();  /* create state */
+#if defined(_WIN32)
+  {
+    FILE* file;
+    char filename[_MAX_PATH];
+    char* slashptr;
+    GetModuleFileName(NULL, filename, _MAX_PATH);
+    slashptr = strrchr(filename, '\\');
+    if (slashptr) {
+      slashptr++;
+      strcpy(slashptr, "lua.link");
+      file = fopen(filename, "r");
+      if (file) {
+        char buffer[ MAX_PATH ];
+        if (fgets(buffer, sizeof(buffer), file) != NULL) {
+          char *ptr = buffer + strlen(buffer) - 1;
+          while (ptr != buffer  &&  (*ptr == '\n'  ||  *ptr == '\r'))
+            *ptr-- = 0;
+          ++ptr;
+          if (*ptr != '/'  ||  *ptr != '\\') {
+            *ptr++ = '/';
+            *ptr = 0;
+          }
+
+          if (buffer[0] == '/'  ||  (buffer[1]  &&  buffer[1] == ':'))
+            strcpy(filename, buffer);
+          else
+            strcpy(slashptr, buffer);
+
+#ifdef _DEBUG
+          strcat(filename, "lua53_debug.dll");
+#else
+          strcat(filename, "lua53.dll");
+#endif
+          LoadLibrary(filename);
+        }
+        fclose(file);
+      }
+    }
+  }
+#endif
+  L = luaL_newstate();  /* create state */
   if (L == NULL) {
     l_message(argv[0], "cannot create state: not enough memory");
     return EXIT_FAILURE;
