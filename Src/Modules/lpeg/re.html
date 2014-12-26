@@ -10,7 +10,7 @@
 </head>
 <body>
 
-<!-- $Id: re.html,v 1.15 2010/11/05 12:53:43 roberto Exp $ -->
+<!-- $Id: re.html,v 1.21 2013/03/28 20:43:30 roberto Exp $ -->
 
 <div id="container">
 	
@@ -75,6 +75,7 @@ Constructions are listed in order of decreasing precedence.
 <tr><td><code>{: p :}</code></td> <td>anonymous group capture</td></tr>
 <tr><td><code>{:name: p :}</code></td> <td>named group capture</td></tr>
 <tr><td><code>{~ p ~}</code></td> <td>substitution capture</td></tr>
+<tr><td><code>{| p |}</code></td> <td>table capture</td></tr>
 <tr><td><code>=name</code></td> <td>back reference
 </td></tr>
 <tr><td><code>p ?</code></td> <td>optional match</td></tr>
@@ -87,7 +88,7 @@ Constructions are listed in order of decreasing precedence.
       <td>at most <code>n</code> repetitions</td></tr>
 <tr><td><code>p -&gt; 'string'</code></td> <td>string capture</td></tr>
 <tr><td><code>p -&gt; "string"</code></td> <td>string capture</td></tr>
-<tr><td><code>p -&gt; {}</code></td> <td>table capture</td></tr>
+<tr><td><code>p -&gt; num</code></td> <td>numbered capture</td></tr>
 <tr><td><code>p -&gt; name</code></td> <td>function/query/string capture
 equivalent to <code>p / defs[name]</code></td></tr>
 <tr><td><code>p =&gt; name</code></td> <td>match-time capture
@@ -149,8 +150,8 @@ to be used by the pattern.
 <p>
 Searches the given pattern in the given subject.
 If it finds a match,
-returns the index where this occurrence starts,
-plus the captures made by the pattern (if any).
+returns the index where this occurrence starts and
+the index where it ends.
 Otherwise, returns nil.
 </p>
 
@@ -161,9 +162,16 @@ As usual in Lua libraries,
 a negative value counts from the end.
 </p>
 
+<h3><code>re.gsub (subject, pattern, replacement)</code></h3>
+<p>
+Does a <em>global substitution</em>,
+replacing all occurrences of <code>pattern</code>
+in the given <code>subject</code> by <code>replacement</code>.
+
 <h3><code>re.match (subject, pattern)</code></h3>
 <p>
-Matches the given pattern against the given subject.
+Matches the given pattern against the given subject,
+returning all captures.
 </p>
 
 <h3><code>re.updatelocale ()</code></h3>
@@ -182,15 +190,19 @@ the <code>re</code> module:
 <pre class="example">
 local re = require"re"
 
--- find the position of the first number in a string
-print(re.find("the number 423 is odd", "[0-9]+"))  --&gt; 12
-
--- similar, but also captures (and returns) the number
-print(re.find("the number 423 is odd", "{[0-9]+}"))  --&gt; 12    423
+-- find the position of the first numeral in a string
+print(re.find("the number 423 is odd", "[0-9]+"))  --&gt; 12    14
 
 -- returns all words in a string
 print(re.match("the number 423 is odd", "({%a+} / .)*"))
 --&gt; the    number    is    odd
+
+-- returns the first numeral in a string
+print(re.match("the number 423 is odd", "s <- {%d+} / . s"))
+--&gt; 423
+
+print(re.gsub("hello World", "[aeiou]", "."))
+--&gt; h.ll. W.rld
 </pre>
 
 
@@ -219,7 +231,7 @@ The next example replicates the <a href="lpeg.html#CSV">CSV decoder</a>:
 </p>
 <pre class="example">
 record = re.compile[[
-  record &lt;- ( field (',' field)* ) -&gt; {} (%nl / !.)
+  record &lt;- {| field (',' field)* |} (%nl / !.)
   field &lt;- escaped / nonescaped
   nonescaped &lt;- { [^,"%nl]* }
   escaped &lt;- '"' {~ ([^"] / '""' -&gt; '"')* ~} '"'
@@ -232,12 +244,80 @@ The next example matches Lua long strings:
 </p>
 <pre class="example">
 c = re.compile([[
-  longstring &lt;- ('[' {:eq: '='* :} '[' close) -&gt; void
+  longstring &lt;- ('[' {:eq: '='* :} '[' close)
   close &lt;- ']' =eq ']' / . close
-]], {void = function () end})
+]])
 
 print(c:match'[==[]]===]]]]==]===[]')   --&gt; 17
 </pre>
+
+<h3>Abstract Syntax Trees</h3>
+<p>
+This example shows a simple way to build an
+abstract syntax tree (AST) for a given grammar.
+To keep our example simple,
+let us consider the following grammar
+for lists of names:
+</p>
+<pre class="example">
+p = re.compile[[
+      listname &lt;- (name s)*
+      name &lt;- [a-z][a-z]*
+      s &lt;- %s*
+]]
+</pre>
+<p>
+Now, we will add captures to build a corresponding AST.
+As a first step, the pattern will build a table to
+represent each non terminal;
+terminals will be represented by their corresponding strings:
+</p>
+<pre class="example">
+c = re.compile[[
+      listname &lt;- {| (name s)* |}
+      name &lt;- {| {[a-z][a-z]*} |}
+      s &lt;- %s*
+]]
+</pre>
+<p>
+Now, a match against <code>"hi hello bye"</code>
+results in the table
+<code>{{"hi"}, {"hello"}, {"bye"}}</code>.
+</p>
+<p>
+For such a simple grammar,
+this AST is more than enough;
+actually, the tables around each single name
+are already overkilling.
+More complex grammars,
+however, may need some more structure.
+Specifically,
+it would be useful if each table had
+a <code>tag</code> field telling what non terminal
+that table represents.
+We can add such a tag using
+<a href="lpeg.html/#cap-g">named group captures</a>:
+</p>
+<pre class="example">
+x = re.compile[[
+      listname <- {| {:tag: '' -> 'list':} (name s)* |}
+      name <- {| {:tag: '' -> 'id':} {[a-z][a-z]*} |}
+      s <- ' '*
+]]
+</pre>
+<p>
+With these group captures,
+a match against <code>"hi hello bye"</code>
+results in the following table:
+</p>
+<pre class="example">
+{tag="list",
+  {tag="id", "hi"},
+  {tag="id", "hello"},
+  {tag="id", "bye"}
+}
+</pre>
+
 
 <h3>Indented blocks</h3>
 <p>
@@ -246,8 +326,8 @@ respecting the indentation:
 </p>
 <pre class="example">
 p = re.compile[[
-  block &lt;- ({:ident:' '*:} line
-           ((=ident !' ' line) / &(=ident ' ') block)*) -&gt; {}
+  block &lt;- {| {:ident:' '*:} line
+           ((=ident !' ' line) / &(=ident ' ') block)* |}
   line &lt;- {[^%nl]*} %nl
 ]]
 </pre>
@@ -408,7 +488,7 @@ THE SOFTWARE.
 
 <div id="about">
 <p><small>
-$Id: re.html,v 1.15 2010/11/05 12:53:43 roberto Exp $
+$Id: re.html,v 1.21 2013/03/28 20:43:30 roberto Exp $
 </small></p>
 </div> <!-- id="about" -->
 

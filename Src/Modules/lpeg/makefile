@@ -1,42 +1,55 @@
 LIBNAME = lpeg
-LUADIR = /usr/include/lua5.1/
+LUADIR = ../lua/
 
-COPT = -O2 -DNDEBUG
+COPT = -O2
+# COPT = -DLPEG_DEBUG -g
 
 CWARNS = -Wall -Wextra -pedantic \
-        -Waggregate-return \
-	-Wbad-function-cast \
-        -Wcast-align \
-        -Wcast-qual \
-	-Wdeclaration-after-statement \
+	-Waggregate-return \
+	-Wcast-align \
+	-Wcast-qual \
 	-Wdisabled-optimization \
-        -Wmissing-prototypes \
-        -Wnested-externs \
-        -Wpointer-arith \
-        -Wshadow \
+	-Wpointer-arith \
+	-Wshadow \
 	-Wsign-compare \
-	-Wstrict-prototypes \
 	-Wundef \
-        -Wwrite-strings \
-	#  -Wunreachable-code \
+	-Wwrite-strings \
+	-Wbad-function-cast \
+	-Wdeclaration-after-statement \
+	-Wmissing-prototypes \
+	-Wnested-externs \
+	-Wstrict-prototypes \
+# -Wunreachable-code \
 
 
-CFLAGS = $(CWARNS) $(COPT) -ansi -I$(LUADIR)
+CFLAGS = $(CWARNS) $(COPT) -std=c99 -I$(LUADIR) -fPIC
 CC = gcc
 
+FILES = lpvm.o lpcap.o lptree.o lpcode.o lpprint.o
+
 # For Linux
-DLLFLAGS = -shared -fpic
-ENV = 
+linux:
+	make lpeg.so "DLLFLAGS = -shared -fPIC"
 
 # For Mac OS
-# ENV = MACOSX_DEPLOYMENT_TARGET=10.4
-# DLLFLAGS = -bundle -undefined dynamic_lookup
+macosx:
+	make lpeg.so "DLLFLAGS = -bundle -undefined dynamic_lookup"
 
-lpeg.so: lpeg.o
-	env $(ENV) $(CC) $(DLLFLAGS) lpeg.o -o lpeg.so
+lpeg.so: $(FILES)
+	env $(CC) $(DLLFLAGS) $(FILES) -o lpeg.so
 
-lpeg.o:		makefile lpeg.c lpeg.h
+$(FILES): makefile
 
 test: test.lua re.lua lpeg.so
-	test.lua
+	./test.lua
+
+clean:
+	rm -f $(FILES) lpeg.so
+
+
+lpcap.o: lpcap.c lpcap.h lptypes.h
+lpcode.o: lpcode.c lptypes.h lpcode.h lptree.h lpvm.h lpcap.h
+lpprint.o: lpprint.c lptypes.h lpprint.h lptree.h lpvm.h lpcap.h
+lptree.o: lptree.c lptypes.h lpcap.h lpcode.h lptree.h lpvm.h lpprint.h
+lpvm.o: lpvm.c lpcap.h lptypes.h lpvm.h lpprint.h lptree.h
 
