@@ -137,8 +137,31 @@ int new_VECTOR2(lua_State* L) {
 
 
 int ENTITY___gc(lua_State* L) {
-	ENTITY* entity = (ENTITY*)*(void**)lua_touserdata(L, 1);
-	delete entity;
+	void** ud = (void**)lua_touserdata(L, 1);
+	if (ud) {
+		ENTITY* entity = (ENTITY*)(*ud);
+		delete entity;
+	}
+	return 0;
+}
+
+
+int POSITION_ENTITY___gc(lua_State* L) {
+	void** ud = (void**)lua_touserdata(L, 1);
+	if (ud) {
+		POSITION_ENTITY* entity = (POSITION_ENTITY*)(*ud);
+		delete entity;
+	}
+	return 0;
+}
+
+
+int MONSTER___gc(lua_State* L) {
+	void** ud = (void**)lua_touserdata(L, 1);
+	if (ud) {
+		MONSTER* entity = (MONSTER*)(*ud);
+		delete entity;
+	}
 	return 0;
 }
 
@@ -217,14 +240,14 @@ void Vector4MonsterMetatableTest() {
 	// POSITION_ENTITY
 	LPCD::Class(L, "POSITION_ENTITY", "ENTITY")
 		.Property("position", &POSITION_ENTITY::position)
-		.MetatableFunction("__gc", &ENTITY___gc)
+		.MetatableFunction("__gc", &POSITION_ENTITY___gc)
 	;
 
 	// MONSTER
 	LPCD::Class(L, "MONSTER", "POSITION_ENTITY")
 		.ObjectDirect("printMe", (MONSTER*)0, &MONSTER::printMe)
 		.Property("alive", &MONSTER::alive)
-		.MetatableFunction("__gc", &ENTITY___gc)
+		.MetatableFunction("__gc", &MONSTER___gc)
 	;
 
 

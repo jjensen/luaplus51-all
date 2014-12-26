@@ -122,6 +122,13 @@ LUAPLUS_INLINE void LuaState::PushValue(LuaStackObject& object)
 	lua_pushvalue(LuaState_to_lua_State(this), object);
 }
 
+#if LUA_VERSION_NUM >= 503
+LUAPLUS_INLINE void LuaState::Rotate(int index, int n)
+{
+	lua_rotate(LuaState_to_lua_State(this), index, n);
+}
+#endif
+
 LUAPLUS_INLINE void LuaState::Remove(int index)
 {
 	lua_remove(LuaState_to_lua_State(this), index);
@@ -172,6 +179,11 @@ LUAPLUS_INLINE int LuaState::IsString(int index) const {
 
 LUAPLUS_INLINE int LuaState::IsCFunction(int index) const {
 	return lua_iscfunction(LuaState_to_lua_State(this), index);
+}
+
+
+LUAPLUS_INLINE int LuaState::IsInteger(int index) const {
+	return lua_isinteger(LuaState_to_lua_State(this), index);
 }
 
 
@@ -318,7 +330,7 @@ LUAPLUS_INLINE unsigned int LuaState::ToUnsignedX(int index, int *isnum) {
 	return (unsigned int)lua_tointeger(LuaState_to_lua_State(this), index);
 }
 
-#elif LUA_VERSION_NUM >= 502
+#elif LUA_VERSION_NUM == 502
 
 LUAPLUS_INLINE lua_Unsigned LuaState::ToUnsigned(int index) {
 	return lua_tounsigned(LuaState_to_lua_State(this), index);
@@ -327,6 +339,17 @@ LUAPLUS_INLINE lua_Unsigned LuaState::ToUnsigned(int index) {
 
 LUAPLUS_INLINE lua_Unsigned LuaState::ToUnsignedX(int index, int *isnum) {
 	return lua_tounsignedx(LuaState_to_lua_State(this), index, isnum);
+}
+
+#elif LUA_VERSION_NUM == 503
+
+LUAPLUS_INLINE lua_Unsigned LuaState::ToUnsigned(int index) {
+	return lua_tointegerx(LuaState_to_lua_State(this), index, NULL);
+}
+
+
+LUAPLUS_INLINE lua_Unsigned LuaState::ToUnsignedX(int index, int *isnum) {
+	return lua_tointegerx(LuaState_to_lua_State(this), index, isnum);
 }
 
 #endif
@@ -454,11 +477,19 @@ LUAPLUS_INLINE LuaStackObject LuaState::PushUnsigned(unsigned int n)
 	return LuaStackObject(this, lua_gettop(LuaState_to_lua_State(this)));
 }
 
-#elif LUA_VERSION_NUM >= 502
+#elif LUA_VERSION_NUM == 502
 
 LUAPLUS_INLINE LuaStackObject LuaState::PushUnsigned(lua_Unsigned n)
 {
 	lua_pushunsigned(LuaState_to_lua_State(this), n);
+	return LuaStackObject(this, lua_gettop(LuaState_to_lua_State(this)));
+}
+
+#elif LUA_VERSION_NUM >= 503
+
+LUAPLUS_INLINE LuaStackObject LuaState::PushUnsigned(lua_Unsigned n)
+{
+	lua_pushinteger(LuaState_to_lua_State(this), n);
 	return LuaStackObject(this, lua_gettop(LuaState_to_lua_State(this)));
 }
 
@@ -537,13 +568,24 @@ LUAPLUS_INLINE void LuaState::GetField(int index, const char* key) {
 	lua_getfield(LuaState_to_lua_State(this), index, key);
 }
 
-	
+
+LUAPLUS_INLINE void LuaState::GetI(int index, lua_Integer key) {
+#if LUA_VERSION_NUM >= 503
+	lua_geti(LuaState_to_lua_State(this), index, key);
+#else
+	int index = AbsIndex(index);
+	lua_pushinteger(LuaState_to_lua_State(this), key);
+	lua_gettable(LuaState_to_lua_State, index);
+#endif
+}
+
+
 LUAPLUS_INLINE void LuaState::RawGet(int index)
 {
 	lua_rawget(LuaState_to_lua_State(this), index);
 }
 
-LUAPLUS_INLINE void LuaState::RawGetI(int index, int n)
+LUAPLUS_INLINE void LuaState::RawGetI(int index, lua_Integer n)
 {
 	lua_rawgeti(LuaState_to_lua_State(this), index, n);
 }
@@ -649,12 +691,25 @@ LUAPLUS_INLINE void LuaState::SetField(int index, const char* key) {
 	lua_setfield(LuaState_to_lua_State(this), index, key);
 }
 
+
+LUAPLUS_INLINE void LuaState::SetI(int index, lua_Integer key) {
+#if LUA_VERSION_NUM >= 503
+	lua_seti(LuaState_to_lua_State(this), index, key);
+#else
+	int index = AbsIndex(index);
+	lua_pushinteger(LuaState_to_lua_State(this), key);
+	lua_insert(LuaState_to_lua_State(this), -2);
+	lua_settable(LuaState_to_lua_State, index);
+#endif
+}
+
+
 LUAPLUS_INLINE void LuaState::RawSet(int index)
 {
 	lua_rawset(LuaState_to_lua_State(this), index);
 }
 
-LUAPLUS_INLINE void LuaState::RawSetI(int index, int n)
+LUAPLUS_INLINE void LuaState::RawSetI(int index, lua_Integer n)
 {
 	lua_rawseti(LuaState_to_lua_State(this), index, n);
 }
@@ -692,13 +747,19 @@ LUAPLUS_INLINE void LuaState::SetFEnv(int index)
 }
 
 // `load' and `call' functions (load and run Lua code)
+#if LUA_VERSION_NUM == 501  ||  LUA_VERSION_NUM == 502
 LUAPLUS_INLINE void LuaState::CallK(int nargs, int nresults, int ctx, lua_CFunction k) {
-#if LUA_VERSION_NUM == 501
 	lua_call(LuaState_to_lua_State(this), nargs, nresults);
-#elif LUA_VERSION_NUM >= 502
-	lua_callk(LuaState_to_lua_State(this), nargs, nresults, ctx, k);
-#endif
 }
+#elif LUA_VERSION_NUM == 502
+LUAPLUS_INLINE void LuaState::CallK(int nargs, int nresults, int ctx, lua_CFunction k) {
+	lua_callk(LuaState_to_lua_State(this), nargs, nresults, ctx, k);
+}
+#else
+LUAPLUS_INLINE void LuaState::CallK(int nargs, int nresults, lua_KContext ctx, lua_KFunction k) {
+	lua_callk(LuaState_to_lua_State(this), nargs, nresults, ctx, k);
+}
+#endif
 
 
 LUAPLUS_INLINE void LuaState::Call(int nargs, int nresults) {
@@ -706,6 +767,7 @@ LUAPLUS_INLINE void LuaState::Call(int nargs, int nresults) {
 }
 
 
+#if LUA_VERSION_NUM == 501  ||  LUA_VERSION_NUM == 502
 LUAPLUS_INLINE int LuaState::GetCtx(int* ctx) {
 #if LUA_VERSION_NUM == 501
 	return 0;
@@ -713,15 +775,22 @@ LUAPLUS_INLINE int LuaState::GetCtx(int* ctx) {
 	return lua_getctx(LuaState_to_lua_State(this), ctx);
 #endif
 }
-
-
-LUAPLUS_INLINE int LuaState::PCallK(int nargs, int nresults, int errfunc, int ctx, lua_CFunction k) {
-#if LUA_VERSION_NUM == 501
-	return lua_pcall(LuaState_to_lua_State(this), nargs, nresults, errfunc);
-#elif LUA_VERSION_NUM >= 502
-	return lua_pcallk(LuaState_to_lua_State(this), nargs, nresults, errfunc, ctx, k);
 #endif
+
+
+#if LUA_VERSION_NUM == 501
+LUAPLUS_INLINE int LuaState::PCallK(int nargs, int nresults, int errfunc, int ctx, lua_CFunction k) {
+	return lua_pcall(LuaState_to_lua_State(this), nargs, nresults, errfunc);
 }
+#elif LUA_VERSION_NUM == 502
+LUAPLUS_INLINE int LuaState::PCallK(int nargs, int nresults, int errfunc, int ctx, lua_CFunction k) {
+	return lua_pcallk(LuaState_to_lua_State(this), nargs, nresults, errfunc, ctx, k);
+}
+#else
+LUAPLUS_INLINE int LuaState::PCallK(int nargs, int nresults, int errfunc, lua_KContext ctx, lua_KFunction k) {
+	return lua_pcallk(LuaState_to_lua_State(this), nargs, nresults, errfunc, ctx, k);
+}
+#endif
 
 
 LUAPLUS_INLINE int LuaState::PCall(int nargs, int nresults, int errf) {
@@ -752,7 +821,11 @@ LUAPLUS_INLINE int LuaState::Load(lua_Reader reader, void *data, const char *chu
 LUAPLUS_INLINE int LuaState::Dump(lua_Writer writer, void* data, int strip, char endian)
 {
 //	return lua_dumpendian(LuaState_to_lua_State(this), writer, data, strip, endian);
+#if LUA_VERSION_NUM <= 502
 	return lua_dump(LuaState_to_lua_State(this), writer, data);
+#else
+	return lua_dump(LuaState_to_lua_State(this), writer, data, strip);
+#endif
 }
 
 #else
@@ -859,13 +932,19 @@ LUAPLUS_INLINE void LuaState::RequireF(const char *modname, lua_CFunction openf,
 /*
 ** coroutine functions
 */
-LUAPLUS_INLINE int LuaState::YieldK(int nresults, int ctx, lua_CFunction k) {
 #if LUA_VERSION_NUM == 501
+LUAPLUS_INLINE int LuaState::YieldK(int nresults, int ctx, lua_CFunction k) {
 	return lua_yield(LuaState_to_lua_State(this), nresults);
-#elif LUA_VERSION_NUM >= 502
-	return lua_yieldk(LuaState_to_lua_State(this), nresults, ctx, k);
-#endif
 }
+#elif LUA_VERSION_NUM == 502
+LUAPLUS_INLINE int LuaState::YieldK(int nresults, int ctx, lua_CFunction k) {
+	return lua_yieldk(LuaState_to_lua_State(this), nresults, ctx, k);
+}
+#else
+LUAPLUS_INLINE int LuaState::YieldK(int nresults, lua_KContext ctx, lua_KFunction k) {
+	return lua_yieldk(LuaState_to_lua_State(this), nresults, ctx, k);
+}
+#endif
 
 
 LUAPLUS_INLINE int LuaState::Yield_(int nresults) {
@@ -894,6 +973,13 @@ LUAPLUS_INLINE int LuaState::Resume(LuaState *from, int nargs) {
 LUAPLUS_INLINE int LuaState::Status() {
 	return lua_status(LuaState_to_lua_State(this));
 }
+
+
+#if LUA_VERSION_NUM >= 503
+LUAPLUS_INLINE int LuaState::IsYieldable() {
+	return lua_isyieldable(LuaState_to_lua_State(this));
+}
+#endif
 
 
 /*
@@ -936,10 +1022,10 @@ LUAPLUS_INLINE void LuaState::Len(int index)
 }
 
 
-LUAPLUS_INLINE int LuaState::StrToNum(const char *s, size_t len)
+LUAPLUS_INLINE int LuaState::StringToNumber(const char *s)
 {
 #if LUA_VERSION_NUM >= 503
-    return lua_strtonum(LuaState_to_lua_State(this), s, len);
+    return lua_stringtonumber(LuaState_to_lua_State(this), s);
 #else
     assert(0);
 	return 0;
@@ -1183,7 +1269,7 @@ LUAPLUS_INLINE unsigned int LuaState::OptUnsigned(int nArg, unsigned int def)
 	return (unsigned int)luaL_optinteger(LuaState_to_lua_State(this), nArg, def);
 }
 
-#elif LUA_VERSION_NUM >= 502
+#elif LUA_VERSION_NUM == 502
 
 LUAPLUS_INLINE lua_Unsigned LuaState::CheckUnsigned(int numArg)
 {
@@ -1194,6 +1280,19 @@ LUAPLUS_INLINE lua_Unsigned LuaState::CheckUnsigned(int numArg)
 LUAPLUS_INLINE lua_Unsigned LuaState::OptUnsigned(int nArg, lua_Unsigned def)
 {
 	return luaL_optunsigned(LuaState_to_lua_State(this), nArg, def);
+}
+
+#else
+
+LUAPLUS_INLINE lua_Unsigned LuaState::CheckUnsigned(int numArg)
+{
+	return (lua_Unsigned)luaL_checkinteger(LuaState_to_lua_State(this), numArg);
+}
+
+
+LUAPLUS_INLINE lua_Unsigned LuaState::OptUnsigned(int nArg, lua_Unsigned def)
+{
+	return (lua_Unsigned)luaL_optinteger(LuaState_to_lua_State(this), nArg, (lua_Integer)def);
 }
 
 #endif
@@ -1234,25 +1333,41 @@ LUAPLUS_INLINE const char* LuaState::OptString(int numArg, const char* def)
 
 LUAPLUS_INLINE int LuaState::CheckInt(int numArg)
 {
+#if LUA_VERSION_NUM >= 503
+	return (int)luaL_checkinteger(LuaState_to_lua_State(this), numArg);
+#else
 	return (int)luaL_checkint(LuaState_to_lua_State(this), numArg);
+#endif
 }
 
 
 LUAPLUS_INLINE long LuaState::CheckLong(int numArg)
 {
+#if LUA_VERSION_NUM >= 503
+	return (long)luaL_checkinteger(LuaState_to_lua_State(this), numArg);
+#else
 	return (long)luaL_checklong(LuaState_to_lua_State(this), numArg);
+#endif
 }
 
 
 LUAPLUS_INLINE int LuaState::OptInt(int numArg, int def)
 {
+#if LUA_VERSION_NUM >= 503
+	return (int)luaL_optinteger(LuaState_to_lua_State(this), numArg, def);
+#else
 	return (int)luaL_optint(LuaState_to_lua_State(this), numArg, def);
+#endif
 }
 
 
 LUAPLUS_INLINE long LuaState::OptLong(int numArg, int def)
 {
+#if LUA_VERSION_NUM >= 503
+	return (long)luaL_optinteger(LuaState_to_lua_State(this), numArg, def);
+#else
 	return (long)luaL_optlong(LuaState_to_lua_State(this), numArg, def);
+#endif
 }
 
 

@@ -52,6 +52,9 @@ public:
 	void PushGlobalTable();
 	void PushValue(int index);
 	void PushValue(LuaStackObject& object);
+#if LUA_VERSION_NUM >= 503
+	void Rotate(int index, int n);
+#endif
 	void Remove(int index);
 	void Insert(int index);
 	void Replace(int index);
@@ -64,6 +67,7 @@ public:
 	int IsNumber(int index) const;
 	int IsString(int index) const;
 	int IsCFunction(int index) const;
+	int IsInteger(int index) const;
 	int IsUserdata(int index) const;
 	int IsFunction(int index) const;
 	int IsTable(int index) const;
@@ -134,8 +138,9 @@ public:
 	// get functions (Lua -> stack)
 	void GetTable(int index);
 	void GetField(int index, const char* key);
+	void GetI(int index, lua_Integer key);
 	void RawGet(int index);
-	void RawGetI(int index, int n);
+	void RawGetI(int index, lua_Integer n);
 	void RawGetP(int index, const void* p);
 	LuaStackObject CreateTable(int narr = 0, int nrec = 0);
 	LuaStackObject NewUserdata(size_t size);
@@ -156,18 +161,29 @@ public:
 	void SetGlobal(const char* key);
 	void SetTable(int index);
 	void SetField(int index, const char* key);
+	void SetI(int index, lua_Integer key);
 	void RawSet(int index);
-	void RawSetI(int index, int n);
+	void RawSetI(int index, lua_Integer n);
 	void RawSetP(int index, const void* p);
 	void SetMetatable(int index);
 	void SetUservalue(int index);
 	void SetFEnv(int index);
 
 	// `load' and `call' functions (load and run Lua code)
+#if LUA_VERSION_NUM == 501  ||  LUA_VERSION_NUM == 502
 	void CallK(int nargs, int nresults, int ctx, lua_CFunction k);
+#else
+	void CallK(int nargs, int nresults, lua_KContext ctx, lua_KFunction k);
+#endif
 	void Call(int nargs, int nresults);
+#if LUA_VERSION_NUM == 501  ||  LUA_VERSION_NUM == 502
 	int GetCtx(int *ctx);
+#endif
+#if LUA_VERSION_NUM == 501  ||  LUA_VERSION_NUM == 502
 	int PCallK(int nargs, int nresults, int errfunc, int ctx, lua_CFunction k);
+#else
+	int PCallK(int nargs, int nresults, int errfunc, lua_KContext ctx, lua_KFunction k);
+#endif
 	int PCall(int nargs, int nresults, int errfunc);
 	int CPCall(lua_CFunction func, void* ud);
 	int Load(lua_Reader reader, void* data, const char* chunkname, const char* mode);
@@ -181,11 +197,18 @@ public:
 	/*
 	** coroutine functions
 	*/
+#if LUA_VERSION_NUM == 501  ||  LUA_VERSION_NUM == 502
 	int YieldK(int nresults, int ctx, lua_CFunction k);
+#else
+	int YieldK(int nresults, lua_KContext ctx, lua_KFunction k);
+#endif
 	int Yield_(int nresults);
 	int Resume(lua_State *from, int narg);
 	int Resume(LuaState *from, int narg);
 	int Status();
+#if LUA_VERSION_NUM >= 503
+	int IsYieldable();
+#endif
 
 	/*
 	** garbage-collection function and options
@@ -203,7 +226,7 @@ public:
 
 	void Len(int index);
 
-    int StrToNum(const char *s, size_t len);
+	int StringToNumber(const char *s);
 
 	lua_Alloc GetAllocF(void **ud);
 	void SetAllocF(lua_Alloc f, void *ud);

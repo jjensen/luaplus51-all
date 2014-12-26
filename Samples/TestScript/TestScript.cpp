@@ -326,7 +326,7 @@ void LuaTableIteratorTest()
 	for ( LuaTableIterator it( obj ); it; it.Next() )
 	{
 		const char* key = it.GetKey().GetString();
-		int num = it.GetValue().GetInteger();
+		lua_Integer num = it.GetValue().GetInteger();
 	}
 }
 
@@ -683,7 +683,7 @@ void DumpTest()
 }
 
 
-#if LUAPLUS_EXTENSIONS
+#if LUAPLUS_EXTENSIONS  &&  LUA_VERSION_NUM <= 501
 
 void TestANSIFile()
 {
@@ -2198,7 +2198,7 @@ int __cdecl main(int argc, char* argv[])
     TestStdString();
 	VectorMonsterMetatableTest();
 
-#if LUAPLUS_EXTENSIONS
+#if LUAPLUS_EXTENSIONS  &&  LUA_VERSION_NUM <= 501
 	TestANSIFile();
 	TestUnicodeFile();
     ReadUnicodeFile();

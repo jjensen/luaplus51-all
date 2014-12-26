@@ -1077,7 +1077,11 @@ TEST(LuaObject_Assign)
 	CHECK(obj.Type() == LUA_TNUMBER);
 	CHECK(obj.IsNumber());
 	CHECK(obj.GetNumber() == 5.5);
+#if LUA_VERSION_NUM >= 503
+	CHECK(obj.GetInteger() == 0);
+#else
 	CHECK(obj.GetInteger() == 5  ||  obj.GetInteger() == 6);
+#endif
 	CHECK(strcmp(obj.TypeName(), "number") == 0);
 
 	obj.Assign(state, "Hello");
