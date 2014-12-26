@@ -1,7 +1,17 @@
 {
 
 local SRCS =
-		lpeg.c
+		lpcap.c
+		lpcap.h
+		lpcode.c
+		lpcode.h
+		lpprint.c
+		lpprint.h
+		lptree.c
+		lptree.h
+		lptypes.h
+		lpvm.c
+		lpvm.h
 		re.lua
 ;
 
