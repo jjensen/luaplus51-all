@@ -140,6 +140,10 @@ typedef struct global_State {
   TString *memerrmsg;  /* memory-error message */
   TString *tmname[TM_N];  /* array with tag-method names */
   struct Table *mt[LUA_NUMTAGS];  /* metatables for basic types */
+#if LUA_FASTREF_SUPPORT
+  TValue l_refs;
+  TValue fastrefNilValue;
+#endif /* LUA_FASTREF_SUPPORT */
 } global_State;
 
 

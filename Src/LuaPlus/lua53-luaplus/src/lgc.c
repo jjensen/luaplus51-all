@@ -325,6 +325,9 @@ static void restartcollection (global_State *g) {
   g->weak = g->allweak = g->ephemeron = NULL;
   markobject(g, g->mainthread);
   markvalue(g, &g->l_registry);
+#if LUA_FASTREF_SUPPORT
+  markvalue(g, &g->l_refs);
+#endif /* LUA_FASTREF_SUPPORT */
   markmt(g);
   markbeingfnz(g);  /* mark any finalizing object left from previous cycle */
 }

@@ -456,6 +456,32 @@ struct lua_Debug {
 
 /* }====================================================================== */
 
+#if LUA_FASTREF_SUPPORT
+
+#define LUA_RIDX_FASTREF_FREELIST	1
+
+#define LUA_FASTREFNIL	(-1999999)
+
+LUA_API int lua_fastref (lua_State *L);
+LUA_API int lua_fastrefindex (lua_State *L, int idx);
+LUA_API void lua_fastunref (lua_State *L, int ref);
+LUA_API void lua_getfastref (lua_State *L, int ref);
+
+#else
+
+#include "lauxlib.h"
+
+#define LUA_FASTREFNIL LUA_REFNIL
+
+#define lua_fastref(L) luaL_ref(L, LUA_REGISTRYINDEX)
+#define lua_fastrefindex(L, idx) (lua_pushvalue(L, idx), luaL_ref(L, LUA_REGISTRYINDEX))
+#define lua_fastunref(L, ref) luaL_unref(L, LUA_REGISTRYINDEX, ref)
+#define lua_getfastref(L, ref) lua_rawgeti(L, LUA_REGISTRYINDEX, ref)
+
+#endif /* LUA_FASTREF_SUPPORT */
+
+/* ====================================================================== */
+
 
 /******************************************************************************
 * Copyright (C) 1994-2014 Lua.org, PUC-Rio.

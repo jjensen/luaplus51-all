@@ -200,6 +200,17 @@ static void f_luaopen (lua_State *L, void *ud) {
   UNUSED(ud);
   stack_init(L, L);  /* init stack */
   init_registry(L, g);
+#if LUA_FASTREF_SUPPORT
+  {
+    TValue n;
+
+    sethvalue(L, &G(L)->l_refs, luaH_new(L));  /* refs */
+    setivalue(&n, 0);
+    luaH_setint(L, hvalue(&G(L)->l_refs), LUA_RIDX_FASTREF_FREELIST, &n);
+
+    setnilvalue(&g->fastrefNilValue);
+  }
+#endif /* LUA_FASTREF_SUPPORT */
   luaS_resize(L, MINSTRTABSIZE);  /* initial size of string table */
   luaT_init(L);
   luaX_init(L);
