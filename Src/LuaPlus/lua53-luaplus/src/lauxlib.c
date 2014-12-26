@@ -745,6 +745,10 @@ LUALIB_API lua_Integer luaL_len (lua_State *L, int idx) {
 }
 
 
+#if LUAPLUS_DUMPOBJECT
+extern void luaplus_dumptable(lua_State* L, int index);
+#endif
+
 LUALIB_API const char *luaL_tolstring (lua_State *L, int idx, size_t *len) {
   if (!luaL_callmeta(L, idx, "__tostring")) {  /* no metafield? */
     switch (lua_type(L, idx)) {
@@ -764,6 +768,11 @@ LUALIB_API const char *luaL_tolstring (lua_State *L, int idx, size_t *len) {
       case LUA_TNIL:
         lua_pushliteral(L, "nil");
         break;
+#if LUAPLUS_DUMPOBJECT
+      case LUA_TTABLE:
+        luaplus_dumptable(L, 1);
+        break;
+#endif
       default:
         lua_pushfstring(L, "%s: %p", luaL_typename(L, idx),
                                             lua_topointer(L, idx));
