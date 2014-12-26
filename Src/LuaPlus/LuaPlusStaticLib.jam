@@ -389,6 +389,7 @@ local LUA53_SRCS =
 		lua53/src/lualib.h
 		lua53/src/lundump.c
 		lua53/src/lundump.h
+		lua53/src/lutf8lib.c
 		lua53/src/lvm.c
 		lua53/src/lvm.h
 		lua53/src/lzio.c
@@ -467,6 +468,7 @@ local LUA53_LUAPLUS_SRCS =
 		lua53-luaplus/src/lualib.h
 		lua53-luaplus/src/lundump.c
 		lua53-luaplus/src/lundump.h
+		lua53-luaplus/src/lutf8lib.c
 		lua53-luaplus/src/lvm.c
 		lua53-luaplus/src/lvm.h
 		lua53-luaplus/src/lzio.c
@@ -475,7 +477,7 @@ local LUA53_LUAPLUS_SRCS =
 
 ActiveTarget lua53-luaplus-static ;
 
-SourceGroup : lua53 : $(LUA53_SRCS) ;
+SourceGroup : lua53 : $(LUA53_LUAPLUS_SRCS) ;
 SourceGroup : LuaPlus : $(LUAPLUS_SRCS) ;
 
 C.IncludeDirectories : lua53-luaplus/src ;
@@ -486,6 +488,6 @@ LuaPlusDefines lua53-luaplus-static ;
 
 C.OutputName : lua53-luaplus-static ;
 
-C.Library : $(LUA53_SRCS) $(LUAPLUS_SRCS) ;
+C.Library : $(LUA53_LUAPLUS_SRCS) $(LUAPLUS_SRCS) ;
 
 }
