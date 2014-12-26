@@ -133,7 +133,75 @@ static lua_CFunction lsys_sym (lua_State *L, void *lib, const char *sym);
 ** =========================================================================
 */
 
+#if LUAPLUS_EXTENSIONS
+#define __USE_GNU
 #include <dlfcn.h>
+#include <sys/param.h>
+#include <unistd.h>
+
+#if LUAPLUS_EXTENSIONS
+static void lp_loadlocalconfig(lua_State *L) {
+  char *buff;
+  char *lb;
+#ifndef NDEBUG
+  const char* luaplusdllName = "lua53_debug.so";
+#else // _DEBUG
+  const char* luaplusdllName = "lua53.so";
+#endif // _DEBUG
+
+  Dl_info info;
+  dladdr(lp_loadlocalconfig, &info);
+  buff = malloc(MAXPATHLEN + 1);
+  strcpy(buff, info.dli_fname);
+  lb = strrchr(buff, '/');
+
+  {
+    *lb = 0;
+    lua_pushstring(L, buff);
+    lua_setglobal(L, "__LUA_BINARY_PATH");
+
+    lua_pushstring(L, LUA_CSUFFIX);
+    lua_setglobal(L, "__LUA_CSUFFIX");
+
+    strcpy(lb, "/lua53.config.lua");
+    if (access(buff, 0) != -1) {
+      int top = lua_gettop(L);
+      int ret = luaL_dofile(L, buff);
+      if (ret != 0)
+        luaL_error(L, "unable to load %s", buff);
+      lua_settop(L, top);
+    }
+  }
+  free(buff);
+}
+#endif
+
+
+#undef setprogdir
+
+static void setprogdir (lua_State *L) {
+  char* buff;
+  char *lb;
+  unsigned int path_len = sizeof(buff)/sizeof(char);
+#ifdef _DEBUG
+  const char* luaplusdllName = "lua53_debug.so";
+#else // _DEBUG
+  const char* luaplusdllName = "lua53.so";
+#endif // _DEBUG
+  Dl_info info;
+  dladdr(setprogdir, &info);
+  buff = malloc(MAXPATHLEN + 1);
+  strcpy(buff, info.dli_fname);
+  lb = strrchr(buff, '/');
+  *lb = '\0';
+  luaL_gsub(L, lua_tostring(L, -1), LUA_EXEC_DIR, buff);
+  lua_remove(L, -2);  /* remove original string */
+  free(buff);
+}
+#else
+#include <dlfcn.h>
+#endif
+
 
 static void lsys_unloadlib (void *lib) {
   dlclose(lib);
@@ -166,6 +234,41 @@ static lua_CFunction lsys_sym (lua_State *L, void *lib, const char *sym) {
 
 #include <windows.h>
 
+#if LUAPLUS_EXTENSIONS
+#include <io.h>
+static void lp_loadlocalconfig(lua_State *L) {
+  char buff[MAX_PATH + 1];
+  char *lb;
+  DWORD nsize = sizeof(buff)/sizeof(char);
+#ifndef NDEBUG
+  const char* luaplusdllName = "lua53_debug.dll";
+#else // _DEBUG
+  const char* luaplusdllName = "lua53.dll";
+#endif // _DEBUG
+
+  DWORD n = GetModuleFileNameA(GetModuleHandle(luaplusdllName), buff, nsize);
+  if (n == 0 || n == nsize || (lb = strrchr(buff, '\\')) == NULL)
+    luaL_error(L, "unable to get ModuleFileName");
+  else {
+    *lb = 0;
+    lua_pushstring(L, buff);
+    lua_setglobal(L, "__LUA_BINARY_PATH");
+
+    lua_pushstring(L, LUA_CSUFFIX);
+    lua_setglobal(L, "__LUA_CSUFFIX");
+
+    strcpy(lb, "\\lua53.config.lua");
+    if (access(buff, 0) != -1) {
+      int top = lua_gettop(L);
+      int ret = luaL_dofile(L, buff);
+      if (ret != 0)
+        luaL_error(L, "unable to load %s", buff);
+      lua_settop(L, top);
+    }
+  }
+}
+#endif
+
 #undef setprogdir
 
 /*
@@ -180,10 +283,33 @@ static void setprogdir (lua_State *L) {
   char buff[MAX_PATH + 1];
   char *lb;
   DWORD nsize = sizeof(buff)/sizeof(char);
+#if LUAPLUS_EXTENSIONS
+#ifndef NDEBUG
+  const char* luaplusdllName = "lua53_debug.dll";
+#else // _DEBUG
+  const char* luaplusdllName = "lua53.dll";
+#endif // _DEBUG
+
+  DWORD n = GetModuleFileNameA(GetModuleHandle(luaplusdllName), buff, nsize);
+  if (n == 0 || n == nsize || (lb = strrchr(buff, '\\')) == NULL)
+    luaL_error(L, "unable to get ModuleFileName");
+  else {
+    const char* envOverride = getenv("LUA53_ROOT_PATH");
+    if (envOverride) {
+      strcpy(buff, envOverride);
+      if ((lb = strrchr(buff, '\\')) == NULL  &&  (lb = strrchr(buff, '/')) == NULL) {
+        luaL_error(L, "LUA53_ROOT_PATH is missing a closing backslash");
+      }
+      if (lb[1] != 0) {
+        lb = buff + strlen(buff);
+      }
+    }
+#else
   DWORD n = GetModuleFileNameA(NULL, buff, nsize);
   if (n == 0 || n == nsize || (lb = strrchr(buff, '\\')) == NULL)
     luaL_error(L, "unable to get ModuleFileName");
   else {
+#endif /* LUAPLUS_EXTENSIONS */
     *lb = '\0';
     luaL_gsub(L, lua_tostring(L, -1), LUA_EXEC_DIR, buff);
     lua_remove(L, -2);  /* remove original string */
@@ -769,6 +895,9 @@ LUAMOD_API int luaopen_package (lua_State *L) {
   lua_pushvalue(L, -2);  /* set 'package' as upvalue for next lib */
   luaL_setfuncs(L, ll_funcs, 1);  /* open lib into global table */
   lua_pop(L, 1);  /* pop global table */
+#if LUAPLUS_EXTENSIONS && (defined(LUA_DL_DLOPEN) || defined(LUA_DL_DLL) || defined(LUA_DL_DYLD))
+  lp_loadlocalconfig(L);
+#endif /* LUAPLUS_EXTENSIONS */
   return 1;  /* return 'package' table */
 }
 
