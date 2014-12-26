@@ -402,6 +402,9 @@ LUA_API void      (lua_setallocf) (lua_State *L, lua_Alloc f, void *ud);
 #define LUA_HOOKLINE	2
 #define LUA_HOOKCOUNT	3
 #define LUA_HOOKTAILCALL 4
+#if LUA_TILDE_DEBUGGER
+#define LUA_HOOKERROR	5
+#endif /* LUA_TILDE_DEBUGGER */
 
 
 /*
@@ -411,6 +414,9 @@ LUA_API void      (lua_setallocf) (lua_State *L, lua_Alloc f, void *ud);
 #define LUA_MASKRET	(1 << LUA_HOOKRET)
 #define LUA_MASKLINE	(1 << LUA_HOOKLINE)
 #define LUA_MASKCOUNT	(1 << LUA_HOOKCOUNT)
+#if LUA_TILDE_DEBUGGER
+#define LUA_MASKERROR	(1 << LUA_HOOKERROR)
+#endif /* LUA_TILDE_DEBUGGER */
 
 typedef struct lua_Debug lua_Debug;  /* activation record */
 
