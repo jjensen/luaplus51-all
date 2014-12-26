@@ -183,7 +183,11 @@ LUAPLUS_INLINE int LuaState::IsCFunction(int index) const {
 
 
 LUAPLUS_INLINE int LuaState::IsInteger(int index) const {
+#if LUA_VERSION_NUM >= 503
 	return lua_isinteger(LuaState_to_lua_State(this), index);
+#else
+	return lua_isnumber(LuaState_to_lua_State(this), index);
+#endif
 }
 
 
@@ -573,9 +577,9 @@ LUAPLUS_INLINE void LuaState::GetI(int index, lua_Integer key) {
 #if LUA_VERSION_NUM >= 503
 	lua_geti(LuaState_to_lua_State(this), index, key);
 #else
-	int index = AbsIndex(index);
+	index = AbsIndex(index);
 	lua_pushinteger(LuaState_to_lua_State(this), key);
-	lua_gettable(LuaState_to_lua_State, index);
+	lua_gettable(LuaState_to_lua_State(this), index);
 #endif
 }
 
@@ -696,10 +700,10 @@ LUAPLUS_INLINE void LuaState::SetI(int index, lua_Integer key) {
 #if LUA_VERSION_NUM >= 503
 	lua_seti(LuaState_to_lua_State(this), index, key);
 #else
-	int index = AbsIndex(index);
+	index = AbsIndex(index);
 	lua_pushinteger(LuaState_to_lua_State(this), key);
 	lua_insert(LuaState_to_lua_State(this), -2);
-	lua_settable(LuaState_to_lua_State, index);
+	lua_settable(LuaState_to_lua_State(this), index);
 #endif
 }
 
