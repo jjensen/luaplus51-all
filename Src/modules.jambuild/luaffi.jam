@@ -1,4 +1,4 @@
-if $(C.PLATFORM) in * win32 win64 macosx32 macosx64 # For now
+if $(C.PLATFORM) in * win32 win64 macosx32 macosx64 linux32 linux64 # For now
 {
 
 local SRCS =
@@ -55,8 +55,10 @@ if $(C.PLATFORM) = win32 {
     DynAsm luaffi : X64 X64WIN : call_x64win.h : call_x86.dasc ;
 } else if $(C.PLATFORM) in macosx64 {
     DynAsm luaffi : X64 : call_x64.h : call_x86.dasc ;
-} else {
+} else if $(C.PLATFORM) in linux32 {
     DynAsm luaffi : X32 : call_x86.h : call_x86.dasc ;
+} else if $(C.PLATFORM) in linux64 {
+    DynAsm luaffi : X64 : call_x64.h : call_x86.dasc ;
 }
 
 }
