@@ -104,7 +104,7 @@ class ZipArchive
 {
 public:
 	enum {  INVALID_FILE_ENTRY = (size_t)-1  };
-    enum {  UNCOMPRESSED = 0, DEFLATED = 8, LZMA = 14  };
+    enum {  UNCOMPRESSED = 0, DEFLATED = 8, LZMA = 14 };
     enum {
 #if ZIPARCHIVE_MD5_SUPPORT
 		SUPPORT_MD5 = 0x00000001,

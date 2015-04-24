@@ -175,8 +175,6 @@ TRIO_SRCS = Misc/$(TRIO_SRCS) ;
 local MISC_SRCS =
 		$(PCH_SRCS)
 		$(AES_SRCS)
-		#$(LZMA_SRCS)
-		#$(LIBLZMA_SRCS)
 		$(MD5_SRCS)
 		$(TRIO_SRCS)
 		$(ZLIB_SRCS)
@@ -191,35 +189,40 @@ SourceGroup ziparchive : zlib : $(ZLIB_SRCS) ;
 
 C.IncludeDirectories ziparchive : ../zlib ;
 
-C.IncludeDirectories ziparchive :
-        Misc/liblzma/liblzma/api
-;
-
-C.ObjectIncludeDirectories ziparchive : $(LIBLZMA_SRCS) : 
-        Misc/liblzma/liblzma/common
-;
-
-if $(NT) {
-	C.ObjectIncludeDirectories ziparchive : $(LIBLZMA_SRCS) :
-			Misc/liblzma/windows
-	;
-}
-
-C.ObjectIncludeDirectories ziparchive : $(LIBLZMA_SRCS) : 
-        Misc/liblzma/common
-        Misc/liblzma/liblzma/check
-        Misc/liblzma/liblzma/delta
-        Misc/liblzma/liblzma/lzma
-        Misc/liblzma/liblzma/lz
-        Misc/liblzma/liblzma/rangecoder
-        Misc/liblzma/liblzma/simple
-;
-
-C.Defines ziparchive : LZMA_API_STATIC ;
-C.ObjectDefines ziparchive : $(LIBLZMA_SRCS) : HAVE_CONFIG_H ;
-
 if $(NT)
 {
+	MISC_SRCS +=
+			$(LZMA_SRCS)
+			$(LIBLZMA_SRCS)
+	;
+
+	C.IncludeDirectories ziparchive :
+			Misc/liblzma/liblzma/api
+	;
+
+	C.ObjectIncludeDirectories ziparchive : $(LIBLZMA_SRCS) :
+		Misc/liblzma/liblzma/common
+		;
+
+	if $(NT) {
+		C.ObjectIncludeDirectories ziparchive : $(LIBLZMA_SRCS) :
+				Misc/liblzma/windows
+		;
+	}
+
+	C.ObjectIncludeDirectories ziparchive : $(LIBLZMA_SRCS) :
+			Misc/liblzma/common
+			Misc/liblzma/liblzma/check
+			Misc/liblzma/liblzma/delta
+			Misc/liblzma/liblzma/lzma
+			Misc/liblzma/liblzma/lz
+			Misc/liblzma/liblzma/rangecoder
+			Misc/liblzma/liblzma/simple
+	;
+
+	C.Defines ziparchive : LZMA_API_STATIC ;
+	C.ObjectDefines ziparchive : $(LIBLZMA_SRCS) : HAVE_CONFIG_H ;
+
 	C.LinkPrebuiltLibraries ziparchive : user32 winmm ;
 	if $(COMPILER) = mingw {
 		C.LinkPrebuiltLibraries ziparchive : stdc++ ;
