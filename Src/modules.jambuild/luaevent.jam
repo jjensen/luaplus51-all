@@ -1,6 +1,13 @@
 if $(MSVCNT)
 {
 
+IncludeModule c/openssl ;
+
+if ! [ C.UseOpenSSL : test ] {
+	Echo * Not building luaevent, because OpenSSL is not found. ;
+	return ;
+}
+
 local SRCS =
         src/buffer_event.c
         src/event_buffer.c
