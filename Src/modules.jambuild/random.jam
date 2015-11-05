@@ -1,0 +1,11 @@
+{
+
+local SRCS =
+        lrandom.c
+        random.c
+;
+
+Lua.CModule random : : $(SRCS) ;
+
+}
+
