@@ -326,7 +326,7 @@ static int ospath_chmod(lua_State *L)
   if (-1 == _chmod(pathname, pmode))
     return push_error(L);
 #else
-  int inmode = luaL_checkint(L, 2);
+  int inmode = luaL_checkinteger(L, 2);
   int mode = (((inmode / 100) % 10) * 64) + (((inmode / 10) % 10) * 8) +
 	(inmode % 10);
   if (-1 == chmod(pathname, mode))
