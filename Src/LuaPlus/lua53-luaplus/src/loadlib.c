@@ -135,6 +135,7 @@ static lua_CFunction lsys_sym (lua_State *L, void *lib, const char *sym);
 
 #if LUAPLUS_EXTENSIONS
 #define __USE_GNU
+#define _DARWIN_C_SOURCE
 #include <dlfcn.h>
 #include <sys/param.h>
 #include <unistd.h>
