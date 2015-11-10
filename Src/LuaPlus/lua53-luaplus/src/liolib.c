@@ -1,5 +1,5 @@
 /*
-** $Id: liolib.c,v 2.141 2014/11/21 12:17:33 roberto Exp $
+** $Id: liolib.c,v 2.144 2015/04/03 18:41:57 roberto Exp $
 ** Standard I/O (and system) library
 ** See Copyright Notice in lua.h
 */
@@ -410,12 +410,6 @@ static int readdigits (RN *rn, int hex) {
 }
 
 
-/* access to locale "radix character" (decimal point) */
-#if !defined(l_getlocaledecpoint)
-#define l_getlocaledecpoint()     (localeconv()->decimal_point[0])
-#endif
-
-
 /*
 ** Read a number: first reads a valid prefix of a numeral into a buffer.
 ** Then it calls 'lua_stringtonumber' to check whether the format is
@@ -425,9 +419,10 @@ static int read_number (lua_State *L, FILE *f) {
   RN rn;
   int count = 0;
   int hex = 0;
-  char decp[2] = ".";
+  char decp[2];
   rn.f = f; rn.n = 0;
-  decp[0] = l_getlocaledecpoint();  /* get decimal point from locale */
+  decp[0] = lua_getlocaledecpoint();  /* get decimal point from locale */
+  decp[1] = '\0';
   l_lockfile(rn.f);
   do { rn.c = l_getc(rn.f); } while (isspace(rn.c));  /* skip spaces */
   test2(&rn, "-+");  /* optional signal */
@@ -457,16 +452,16 @@ static int read_number (lua_State *L, FILE *f) {
 static int test_eof (lua_State *L, FILE *f) {
   int c = getc(f);
   ungetc(c, f);  /* no-op when c == EOF */
-  lua_pushlstring(L, NULL, 0);
+  lua_pushliteral(L, "");
   return (c != EOF);
 }
 
 
 static int read_line (lua_State *L, FILE *f, int chop) {
   luaL_Buffer b;
-  int c;
+  int c = '\0';
   luaL_buffinit(L, &b);
-  for (;;) {
+  while (c != EOF && c != '\n') {  /* repeat until end of line */
     char *buff = luaL_prepbuffer(&b);  /* pre-allocate buffer */
     int i = 0;
     l_lockfile(f);  /* no memory errors can happen inside the lock */
@@ -474,8 +469,6 @@ static int read_line (lua_State *L, FILE *f, int chop) {
       buff[i++] = c;
     l_unlockfile(f);
     luaL_addsize(&b, i);
-    if (i < LUAL_BUFFERSIZE)
-      break;
   }
   if (!chop && c == '\n')  /* want a newline and have one? */
     luaL_addchar(&b, c);  /* add ending newline to result */
