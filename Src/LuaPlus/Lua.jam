@@ -2,7 +2,7 @@ SubDir LUAPLUS Src LuaPlus ;
 
 {
 
-if $(LUA_VERSION) in lua51-luaplus lua52-luaplus {
+if $(LUA_VERSION) in lua51-luaplus lua52-luaplus lua53-luaplus {
     if $(NT) {
         local TILDE_SRCS =
             ../tilde/HostConfig.cpp
