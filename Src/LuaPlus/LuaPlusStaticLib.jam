@@ -330,7 +330,7 @@ LuaPlusDefines lua52-luaplus-static ;
 
 C.OutputName : lua52-luaplus-static ;
 
-C.Library : $(LUA52_SRCS) $(LUAPLUS_SRCS) ;
+C.Library : $(LUA52_LUAPLUS_SRCS) $(LUAPLUS_SRCS) ;
 
 ##################################################################
 local LUA53_SRCS =
