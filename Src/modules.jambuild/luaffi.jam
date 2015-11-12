@@ -53,6 +53,8 @@ if $(C.PLATFORM) = win32 {
     DynAsm luaffi : X32WIN : call_x86.h : call_x86.dasc ;
 } else if $(C.PLATFORM) = win64 {
     DynAsm luaffi : X64 X64WIN : call_x64win.h : call_x86.dasc ;
+} else if $(C.PLATFORM) in macosx32 {
+    DynAsm luaffi : X32 : call_x86.h : call_x86.dasc ;
 } else if $(C.PLATFORM) in macosx64 {
     DynAsm luaffi : X64 : call_x64.h : call_x86.dasc ;
 } else if $(C.PLATFORM) in linux32 {
