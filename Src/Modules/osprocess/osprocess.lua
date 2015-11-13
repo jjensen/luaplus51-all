@@ -26,11 +26,16 @@ end
 -- ex.lines
 function M.lines(args, binary)
 	local proc, input = M.popen(args, not binary)
-	return function()
-		local line = input:read("*l")
-		if line then return line end
-		input:close()
-		args.exitcode = proc:wait()
+	if proc then
+		return function()
+			local line = input:read("*l")
+			if line then return line end
+			input:close()
+			args.exitcode = proc:wait()
+		end
+	else
+		return function()
+		end
 	end
 end
 
