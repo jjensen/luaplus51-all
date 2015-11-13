@@ -1,3 +1,5 @@
+#if MISSING_POSIX_SPAWN
+
 /*
  * "ex" API implementation
  * http://lua-users.org/wiki/ExtensionProposal
@@ -84,3 +86,5 @@ int posix_spawnp(
     /*NOTREACHED*/
   }
 }
+
+#endif // MISSING_POSIX_SPAWN

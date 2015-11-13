@@ -1,3 +1,5 @@
+#if MISSING_POSIX_SPAWN
+
 /*
  * "ex" API implementation
  * http://lua-users.org/wiki/ExtensionProposal
@@ -96,3 +98,5 @@ int posix_spawnp(
   const posix_spawnattr_t *restrict,
   char *const argv[restrict],
   char *const envp[restrict]);
+
+#endif // MISSING_POSIX_SPAWN
