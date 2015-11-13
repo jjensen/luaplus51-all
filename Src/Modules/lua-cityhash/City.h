@@ -45,7 +45,9 @@
 
 #include "Platform.h"
 #include <stdlib.h>  // for size_t.
-//#include <stdint.h>
+#if !_MSC_VER || _MSC_VER >= 1400
+#include <stdint.h>
+#endif
 #include <utility>
 
 typedef uint8_t uint8;
