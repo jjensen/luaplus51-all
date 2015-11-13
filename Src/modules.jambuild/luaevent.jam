@@ -78,20 +78,11 @@ C.Defines : HAVE_CONFIG_H ;
 C.IncludeDirectories : include ;
 C.IncludeDirectories : libevent libevent/compat libevent/include ;
 C.IncludeDirectories : libevent/WIN32-Code ;
+C.OpenSSL : link ;
 
 if $(MSVCNT)  &&  $(PLATFORM) in win32 win64 {
 	C.Defines : WIN32 ;
-	if $(PLATFORM) = win32 {
-		C.IncludeDirectories : c:/OpenSSL-Win32/include c:/OpenSSL-Win32/include/openssl ;
-		C.LinkDirectories : c:/OpenSSL-Win32/lib/VC/static ;
-	} else {
-		C.IncludeDirectories : c:/OpenSSL-Win64/include c:/OpenSSL-Win64/include/openssl ;
-		C.LinkDirectories : c:/OpenSSL-Win64/lib/VC/static ;
-	}
-
-	#C.LinkPrebuiltLibraries : libeay32 ssleay32 ;
-	C.LinkPrebuiltLibraries : libeay32MT ssleay32MT advapi32 gdi32 user32 ;
-	C.LinkPrebuiltLibraries : shell32 ws2_32 ;
+	C.LinkPrebuiltLibraries : shell32 ;
 }
 
 CopyFile luaevent : $(LUA_LDIR)/luaevent.lua : $(SUBDIR)/lua/luaevent.lua ;
