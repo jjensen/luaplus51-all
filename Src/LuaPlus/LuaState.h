@@ -226,7 +226,7 @@ public:
 
 	void Len(int index);
 
-	int StringToNumber(const char *s);
+	size_t StringToNumber(const char *s);
 
 	lua_Alloc GetAllocF(void **ud);
 	void SetAllocF(lua_Alloc f, void *ud);

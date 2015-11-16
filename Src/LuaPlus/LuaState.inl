@@ -1026,7 +1026,7 @@ LUAPLUS_INLINE void LuaState::Len(int index)
 }
 
 
-LUAPLUS_INLINE int LuaState::StringToNumber(const char *s)
+LUAPLUS_INLINE size_t LuaState::StringToNumber(const char *s)
 {
 #if LUA_VERSION_NUM >= 503
     return lua_stringtonumber(LuaState_to_lua_State(this), s);
