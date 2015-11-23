@@ -1,8 +1,32 @@
-# Cmake build files
-CMakeCache.txt
-CMakeFiles/
-Makefile
-cmake_install.cmake
+# Object files
+*.o
+*.ko
+*.obj
+*.elf
 
-# Built Lua module
-/src/cURL.so
+# Libraries
+*.lib
+*.a
+
+# Shared objects (inc. Windows DLLs)
+*.dll
+*.so
+*.so.*
+*.dylib
+
+# Executables
+*.exe
+*.out
+*.app
+*.i*86
+*.x86_64
+*.hex
+
+#MSVC
+msvc/
+
+#ldoc
+doc/doc/
+
+#lake deps
+*.d

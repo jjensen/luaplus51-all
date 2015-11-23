@@ -58,17 +58,31 @@ if $(NT) {
 }
 
 local SRCS =
-		src/Lua-cURL-callback.c
-		src/Lua-cURL-getinfo.c
-		src/Lua-cURL-multi.c
-		src/Lua-cURL-post.c
-		src/Lua-cURL-setopt.c
-		src/Lua-cURL-share.c
-		src/Lua-cURL-share.h
-		src/Lua-cURL.c
-		src/Lua-cURL.h
-		src/Lua-utility.c
-		src/Lua-utility.h
+		src/l52util.c
+		src/l52util.h
+		src/lceasy.c
+		src/lceasy.h
+		src/lcerror.c
+		src/lcerror.h
+		src/lcerr_easy.h
+		src/lcerr_form.h
+		src/lcerr_multi.h
+		src/lcerr_share.h
+		src/lcflags.h
+		src/lchttppost.c
+		src/lchttppost.h
+		src/lcinfoeasy.h
+		src/lcmulti.c
+		src/lcmulti.h
+		src/lcopteasy.h
+		src/lcoptmulti.h
+		src/lcoptshare.h
+		src/lcshare.c
+		src/lcshare.h
+		src/lcurl.c
+		src/lcurl.h
+		src/lcutils.c
+		src/lcutils.h
 		$(ZLIB_SRCS)
 ;
 
@@ -91,7 +105,8 @@ if $(NT) {
 	C.LinkPrebuiltLibraries : curl ;
 }
 
-Lua.CModule : : $(CURL_LIB_SRCS) $(SRCS) ;
+Lua.CModule : lcurl : $(CURL_LIB_SRCS) $(SRCS) ;
+CopyDirectory cURL : $(LUA_LDIR) : $(SUBDIR)/src/lua : * : 1 ;
 Depends lua-curl : cURL ;
 Depends clean:lua-curl : clean:cURL ;
 

@@ -1,0 +1,45 @@
+language: c
+
+sudo: false
+
+env:
+  global:
+    - LUAROCKS=2.2.2
+  matrix:
+    - LUA=lua5.1
+    - LUA=lua5.2
+    - LUA=lua5.3
+    - LUA=luajit
+
+branches:
+  only:
+    - master
+
+before_install:
+  - source .travis/setenv_lua.sh
+  - pip install --user cpp-coveralls
+  - luarocks install luafilesystem --from=https://rocks.moonscript.org/dev
+  - luarocks install luacov-coveralls
+  - luarocks install lunitx
+  - luarocks install dkjson --deps-mode=none
+
+install:
+  - luarocks make rockspecs/lua-curl-scm-0.rockspec CFLAGS="-O2 -fPIC -ftest-coverage -fprofile-arcs" LIBFLAG="-shared --coverage"
+
+script: 
+  - cd test
+  - lua -e "print(require 'cURL.utils'.find_ca_bundle())"
+  - lunit.sh test_easy.lua
+  - lunit.sh test_safe.lua
+  - lunit.sh test_form.lua
+  - lunit.sh test_pause02.c.lua
+  - lunit.sh test_curl.lua
+
+after_success:
+  - coveralls -b .. -r .. --dump c.report.json
+  - luacov-coveralls -j c.report.json
+
+notifications:
+  email:
+    on_success: change
+    on_failure: always

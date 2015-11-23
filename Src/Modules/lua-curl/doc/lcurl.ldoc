@@ -1,0 +1,511 @@
+---
+-- @module lcurl
+do
+
+--- Create HTTP multipart/formdata object.
+--
+-- @treturn[1] httpform new curl HTTP Post object context
+function form() end
+
+--- Create Easy object
+--
+-- @tparam[opt] table options
+-- @treturn[1] easy new curl easy object
+--
+-- @usage
+-- c = curl.easy{
+--   url = 'http://example.com',
+--   [curl.OPT_VERBOSE] = true,
+-- }
+--
+function easy() end
+
+--- Create Multi object
+--
+-- @tparam[opt] table options
+-- @treturn[1] multi new curl multi object
+--
+-- @usage
+-- m = curl.multi{
+--   socketfunction = handle_socket;
+--   timerfunction  = start_timeout;
+-- }
+--
+function multi() end
+
+--- Create Share object
+--
+-- @tparam[opt] table options
+-- @treturn[1] share new curl share object
+function share() end
+
+--- Returns libcurl version as human readable string
+--
+function version() end
+
+--- Returns libcurl version as table
+--
+-- @tparam[opt] string param specific version info
+-- @treturn[1] table full version into if `param` was not specify
+-- @return[2] specific info parameter
+--
+-- @usage
+-- proto = curl.version_info('protocols')
+-- if proto.HTTP then ... -- libcurl support http protocol
+function version_info() end
+
+end
+
+--- HTTP multipart/formdata object
+-- @type httpform
+--
+do
+
+--- Add new part to form.
+--
+-- @tparam string name provide the name of this part
+-- @tparam string content actual data to send
+-- @tparam[opt] string type provides the content-type for this part
+-- @tparam[opt] table headers specifies extra headers for the form POST section
+-- @return[1] self
+function add_content() end
+
+--- Add new part to form.
+--
+-- @tparam string name provide the name of this part
+-- @tparam string filename provides the filename field in the content header
+-- @tparam string content actual data to send
+-- @tparam[opt] string type provides the content-type for this part
+-- @tparam[opt] table headers specifies extra headers for the form POST section
+-- @return[1] self
+function add_buffer() end
+
+--- Add new part to form.
+--
+-- @tparam string name provide the name of this part
+-- @tparam string path path to file that contain actual data to send
+-- @tparam[opt] string type provides the content-type for this part
+-- @tparam[opt] string filename provides the filename field in the content header.
+--   By default it is basename of path.
+-- @tparam[opt] table headers specifies extra headers for the form POST section
+-- @return[1] self
+function add_file() end
+
+--- Add new part to form.
+--
+-- @tparam string name provide the name of this part
+-- @tparam[opt] string filename provides the filename field in the content header.
+-- @tparam[opt] string type provides the content-type for this part
+-- @tparam[opt] table headers specifies extra headers for the form POST section
+-- @tparam number size stream size in bytes
+-- @tparam function/object reader
+-- @param[opt] context reader context
+-- @return[1] self
+--
+-- @see easy:setopt_readfunction
+function add_stream() end
+
+--- Serialize multipart/formdata HTTP POST chain.
+--
+-- @return[1] string serialized data
+--
+-- @usage print(post:get())
+--
+function get() end
+
+--- Serialize multipart/formdata HTTP POST chain.
+--
+-- Writer function can return true or number of written bytes.
+-- Also if function does not return anything is considered as success.
+--
+-- @tparam function writer
+-- @param[opt] context writer context
+-- @return[1] self
+--
+-- @usage 
+-- t = {}
+-- post:get(table.insert, t)
+-- print(table.concat(t))
+--
+function get() end
+
+--- Serialize multipart/formdata HTTP POST chain.
+--
+-- This call same as httpform:get(writer.write, writer)
+--
+-- @tparam object writer
+-- @return[1] self
+--
+-- @usage 
+-- f = io.open(...)
+-- post:get(f)
+--
+function get() end
+
+--- Free multipart/formdata.
+--
+function free() end
+
+end
+
+--- Curl error object
+-- @type error
+--
+do
+
+--- Get the error category.
+-- 
+-- @treturn number number of error category (curl.ERROR_XXX constants)
+-- 
+-- @usage
+-- if err:category() == curl.ERROR_EASY then
+-- -- proceed easy error
+-- end
+function category       ()end
+
+--- Get the number value of error.
+-- 
+-- @treturn number number of error (curl.E_XXX constants)
+function no             ()end
+
+--- Get the error name.
+--
+-- @treturn string error name (e.g. "UNSUPPORTED_PROTOCOL", "BAD_OPTION")
+function name          ()end
+
+--- Get the error description.
+-- 
+-- @treturn string error description (e.g. "Login denied")
+function msg           ()end
+
+--- Get the full error description.
+--
+-- @treturn string string that contain name, message and number of error
+function __tostring    ()end
+
+end
+
+--- Easy curl object
+-- @type easy
+--
+do
+
+--- Perform a file transfer
+-- 
+-- @return[1] self
+function perfom() end
+
+--- URL encodes the given string
+--
+-- @tparam string url 
+-- @return[1] encoded url
+function escape() end
+
+--- URL decodes the given string
+--
+-- @tparam string url
+-- @return[1] decoded url
+function unescape() end
+
+--- Re-initializes all options previously set.
+--
+-- @treturn easy self
+function reset() end
+
+--- Pause and unpause a connection.
+--
+-- @tparam number mask set of bits that sets the new state of the connection (one of PAUSE_XXX constant)
+-- @treturn easy self
+function pause() end
+
+--- End easy session
+-- 
+function close() end
+
+--- Set options.
+--
+-- @tparam number|table opt one of `curl.OPT_XXX` constant or options table
+-- @param ... value
+-- @treturn easy self
+--
+-- @usage
+-- c:setopt(curl.OPT_URL, "http://example.com")
+-- c:setopt(curl.OPT_READFUNCTION,
+--    function(t, n) return table.remove(t) end,
+--    {"1111", "2222"}
+-- )
+--c:setopt{
+--   url = 'http://example.com',
+--   [curl.OPT_VERBOSE] = true,
+-- }
+function setopt() end
+
+--- Reset option to default value.
+--
+-- @tparam number opt one of `curl.OPT_XXX` constant or options table
+-- @treturn easy self
+--
+-- @usage
+-- c:unsetopt(curl.OPT_URL)
+-- c:unsetopt(curl.OPT_READFUNCTION)
+function unsetopt() end
+
+--- Get information.
+--
+-- @tparam number info one of `curl.INFO_XXX` constant
+-- @return value
+--
+-- @usage
+-- print(c:getinfo(curl.INFO_EFFECTIVE_URL))
+-- print(c:getinfo(curl.INFO_TOTAL_TIME))
+-- print(c:getinfo(curl.INFO_RESPONSE_CODE))
+function getinfo() end
+
+--- Set writer function.
+--
+-- A callback accepting one or two parameters.
+-- The first is the writer context if any, and the second is a string with the data to be written.
+-- Function must return `true` (any non number true value) or full data length or nothing to continue operation.
+-- Otherwise the transfer will be aborted with an error.
+--
+-- @tparam function writer
+-- @param[opt] context writer context
+-- @return[1] self
+--
+function setopt_writefunction() end
+
+--- Set writer function.
+--
+-- This call same as easy:setopt_writefunction(writer.write, writer)
+--
+-- @tparam object writer
+-- @return[1] self
+--
+function setopt_writefunction() end
+
+--- Set header function.
+--
+-- A callback accepting one or two parameters.
+-- The first is the writer context if any, and the second is a string with the data to be written.
+-- Function must return `true` (any non number true value) or full data length or nothing to continue operation.
+-- Otherwise the transfer will be aborted with an error.
+--
+-- @tparam function writer
+-- @param[opt] context writer context
+-- @return[1] self
+--
+function setopt_headerfunction() end
+
+--- Set header function.
+--
+-- This call same as easy:setopt_headerfunction(writer.header, writer)
+--
+-- @tparam object writer
+-- @return[1] self
+--
+function setopt_headerfunction() end
+
+--- Set reader function.
+--
+-- A callback accepting one or two parameters.
+-- The first is the reader context if any, and the second is the maximum amount of data to be read.
+-- You can ignore second argument and pass as mach data as you need. lcurl can split data.
+-- Function must return data to continue operation. To stop operation it must return empty string or nil or nothing.
+-- Otherwise the transfer will be aborted with an error.
+-- 
+--
+-- @tparam function reader
+-- @param[opt] context reader context
+-- @return[1] self
+--
+-- @usage
+-- local counter = 10
+-- c:setopt_readfunction(function()
+--   if counter > 0 then
+--     counter = counter - 1
+--     return 'a'
+--   end
+-- end)
+function setopt_readfunction() end
+
+--- Set reader function.
+--
+-- This call same as easy:setopt_readfunction(reader.read, reader)
+--
+-- @tparam object reader
+-- @return[1] self
+--
+function setopt_readfunction() end
+
+--- Set progress function.
+--
+-- A callback accepting four or five parameters.
+-- The first is the reader context if any, the second is the total number
+-- of bytes expected to be downloaded in this transfer,
+-- the third is the number of bytes downloaded so far,
+-- the fourth is the total number of bytes expected to be uploaded
+-- in this transfer, and the fifth is the number of bytes uploaded so far.
+-- Function must return `true` or `1` or nothing to continue operation.
+-- Otherwise the transfer will be aborted with an error `ABORTED_BY_CALLBACK`.<br/>
+--
+-- !!! NOTE !!! This is differents form libcurl API. In libcurl returning a non-zero 
+-- value from this callback will cause libcurl to abort the transfer and return.
+-- This done to be consisted with writefunction that should return `true` to continue.
+--
+-- @tparam function progress
+-- @param[opt] context progress context
+-- @return[1] self
+--
+function setopt_progressfunction() end
+
+--- Set progress function.
+--
+-- This call same as easy:setopt_progressfunction(progress.progress, progress)
+--
+-- @tparam object progress
+-- @return[1] self
+--
+function setopt_progressfunction() end
+
+--- Set HTTP multipart/formdata.
+--
+-- Caller does not have to save data.
+--
+-- @tparam httpform data
+-- @return[1] self
+function setopt_httppost() end
+
+--- Set HTTP multipart/formdata.
+--
+-- @tparam string data
+-- @tparam[opt=#data] number length
+-- @return[1] self
+function setopt_postfields() end
+
+--- Set curl share object.
+--
+-- Caller does not have to save data.
+--
+-- @tparam share data
+-- @return[1] self
+function setopt_share() end
+
+end
+
+--- Muli curl object
+-- @type multi
+--
+do
+
+--- Add Easy object.
+--
+-- Caller must ensure that easy object is alive until end of operation.
+--
+-- @treturn multi self
+-- @tparam easy handle
+function add_handle() end
+
+--- Remove Easy object.
+--
+-- @tparam easy handle
+-- @treturn multi self
+function remove_handle() end
+
+--- reads/writes available data from each easy handle.
+--
+-- @treturn number handles number of active easy handles
+function perfom() end
+
+--- Read multi stack informationals.
+--
+-- Note. If curl_multi_remove_handle fail then there no error occure but handle jast stay in multi handle.
+--
+-- @tparam[opt] remove remove easy handle if it done.
+-- @treturn[1] number 0 there no informationals
+-- @treturn[2] easy handle
+-- @treturn[2] boolean true
+-- @treturn[3] easy handle
+-- @treturn[3] nil
+-- @treturn[3] error error code
+function info_read() end
+
+--- Set options.
+--
+-- @tparam number|table opt one of `curl.OPT_MULTI_XXX` constant
+-- @param ... value
+-- @treturn multi self
+--
+-- @usage
+-- c:setopt(curl.OPT_MULTI_MAXCONNECTS, 10)
+-- c:setopt{maxconnects = 10}
+function setopt() end
+
+--- Perform socket action.
+--
+-- @tparam[opt=curl.SOCKET_TIMEOUT] number socket
+-- @tparam[opt=0] number mask
+-- @treturn multi self
+--
+-- @usage
+-- c:socket_action()
+-- c:socket_action(sock_fd, curl.CSELECT_IN)
+-- c:socket_action(sock_fd, curl.CSELECT_OUT)
+function socket_action() end
+
+--- Set timer callback.
+--
+-- @tparam function timer timer callback
+-- @param[opt] context timer context
+-- @treturn multi self
+--
+function setopt_timerfunction() end
+
+--- Set timer callback.
+--
+-- This call same as easy:setopt_writefunction(timer.timer, timer)
+--
+-- @tparam userdata|table timer timer object
+-- @treturn multi self
+--
+function setopt_timerfunction() end
+
+--- Polls on all easy objects in a multi object.
+--
+-- @tparam[opt] number timeout milliseconds timeout. By default it is `multi:timeout()`.
+-- @treturn number number of affected objects
+--
+function wait() end
+
+--- How long to wait for action before proceeding.
+--
+-- @treturn number timeout milliseconds timeout
+--
+function timeout() end
+
+--- End multi session.
+--
+function close() end
+
+end
+
+--- Share curl object
+-- @type share
+--
+do
+
+--- Set options.
+--
+-- @tparam number|table opt one of `curl.OPT_SHARE_XXX` constant
+-- @param ... value
+-- @treturn share self
+--
+-- @usage
+-- c:setopt(curl.OPT_SHARE_SHARE, curl.LOCK_DATA_COOKIE)
+-- c:setopt{share =  curl.LOCK_DATA_COOKIE}
+function setopt() end
+
+--- End share session.
+--
+function close() end
+
+end

@@ -1,3 +1,0 @@
-FFI: optional FFI (LuaJIT) support
-
-multi: dig on threads-related segfault/freezes
