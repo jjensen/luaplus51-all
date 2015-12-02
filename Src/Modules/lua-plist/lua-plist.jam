@@ -1,0 +1,2 @@
+Lua.Module plist : : src/plist.lua ;
+CopyFile plist : $(LUA_LDIR)/plist.lua : $(SUBDIR)/src/plist.lua ;
