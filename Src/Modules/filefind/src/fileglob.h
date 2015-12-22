@@ -21,7 +21,7 @@ typedef void* (*fileglob_Alloc)(void* userData, void* ptr, unsigned int size);
 
 int fileglob_WildMatch(const char* pattern, const char *string, int caseSensitive, int recursive);
 
-#if defined(WIN32)  &&  defined(FILEGLOB_NEED_FILETIME_TO_TIME_T_CONVERSION)
+#if defined(_WIN32)  &&  defined(FILEGLOB_NEED_FILETIME_TO_TIME_T_CONVERSION)
 time_t fileglob_ConvertToTime_t(const FILETIME* fileTime);
 #endif
 
