@@ -146,24 +146,31 @@ typedef struct fileglob {
 
 #if defined(_WIN32)  &&  !defined(MINGW)
 
+BOOL (WINAPI *fnSystemTimeToTzSpecificLocalTime)(LPTIME_ZONE_INFORMATION lpTimeZone, LPSYSTEMTIME lpUniversalTime, LPSYSTEMTIME lpLocalTime);
+
 time_t fileglob_ConvertToTime_t(const FILETIME* fileTime) {
-	FILETIME localTime;
+	SYSTEMTIME universalSystemTime;
 	SYSTEMTIME sysTime;
 	TIME_ZONE_INFORMATION timeZone;
 	struct tm atm;
-	int dst;
 
-	FileTimeToLocalFileTime(fileTime, &localTime);
-	FileTimeToSystemTime(&localTime, &sysTime);
+	FileTimeToSystemTime(fileTime, &universalSystemTime);
+
+	if (!fnSystemTimeToTzSpecificLocalTime) {
+		HMODULE aLib = LoadLibraryA("kernel32.dll");
+		if (aLib == NULL)
+			return 0;
+
+		*(void**)&fnSystemTimeToTzSpecificLocalTime = (void*)GetProcAddress(aLib, "SystemTimeToTzSpecificLocalTime");
+	}
+	fnSystemTimeToTzSpecificLocalTime(NULL, &universalSystemTime, &sysTime);
 
 	// then convert the system time to a time_t (C-runtime local time)
 	if (sysTime.wYear < 1900) {
 		return 0;
 	}
 
-	dst = GetTimeZoneInformation(&timeZone) == TIME_ZONE_ID_STANDARD;
-
-	atm.tm_sec = sysTime.wSecond;
+	atm.tm_sec = sysTime.wSecond & ~1;		// Zip files are only accurate to 2 seconds.
 	atm.tm_min = sysTime.wMinute;
 	atm.tm_hour = sysTime.wHour;
 	atm.tm_mday = sysTime.wDay;
