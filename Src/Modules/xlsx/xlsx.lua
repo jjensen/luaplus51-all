@@ -104,7 +104,7 @@ local __sheetMetatable = {
                             elseif colType == 'b' then
                                 colType = __cellMetatable.BOOLEAN
                                 data = data == '1'
-                            else
+                            elseif columnNode['@'].s then
                                 local cellS = tonumber(columnNode['@'].s)
                                 local numberStyle = self.workbook.styles.cellXfs[cellS - 1].numFmtId
                                 if not numberStyle then
