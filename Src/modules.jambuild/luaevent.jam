@@ -82,7 +82,7 @@ C.OpenSSL : link ;
 
 if $(MSVCNT)  &&  $(PLATFORM) in win32 win64 {
 	C.Defines : WIN32 ;
-	C.LinkPrebuiltLibraries : shell32 ;
+	C.LinkPrebuiltLibraries : advapi32 shell32 ws2_32 ;
 }
 
 CopyFile luaevent : $(LUA_LDIR)/luaevent.lua : $(SUBDIR)/lua/luaevent.lua ;
