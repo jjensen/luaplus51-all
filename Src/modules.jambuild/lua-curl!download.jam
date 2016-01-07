@@ -30,7 +30,7 @@
 	}
 
 	Depends download:curl : $(SUBDIR) ;
-	Download-curl curl : http://curl.haxx.se/download/curl-7.37.0.zip : curl-7.37.0 ;
+	Download-curl curl : http://curl.haxx.se/download/curl-7.46.0.zip : curl-7.46.0 ;
 
 	NotFile download:curl ;
 	Depends download : download:curl ;
