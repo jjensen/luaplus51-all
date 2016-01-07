@@ -107,7 +107,7 @@ function M.copy_directory(srcPath, destPath, options)
     srcPath = M.add_slash(M.make_slash(srcPath))
     destPath = M.add_slash(M.make_slash(destPath))
 
-    copy_directory_helper(srcPath, destPath, options)
+    copy_directory_helper(srcPath, destPath, options or {})
 end
 
 
@@ -135,6 +135,7 @@ function M.remove_empty_directories(path)
 
     local dirs = {}
     local remove = true
+    path = M.add_slash(path)
 
     for handle in filefind.match(path .. "*.*") do
         if handle.is_directory then
@@ -149,7 +150,7 @@ function M.remove_empty_directories(path)
     end
 
     for _, dirName in ipairs(dirs) do
-        if not M.remove_empty_directories(path .. dirName .. '\\') then
+        if not M.remove_empty_directories(path .. dirName) then
             remove = false
         end
     end
