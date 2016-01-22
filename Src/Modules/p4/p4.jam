@@ -24,7 +24,7 @@ local SRCS =
 
 CopyFile p4 : $(LUA_LDIR)/p4.lua : $(SUBDIR)/src/p4.lua ;
 
-local P4API = p4api ;
+local P4API ;
 
 if $(NT) {
 	local bin = $(COMPILER) ;
@@ -34,9 +34,9 @@ if $(NT) {
 		bin = $(bin)/bin.ntx64 ;
 	}
 	if $(CONFIG) in debug release {
-		P4API = p4api/$(bin)/$(CONFIG) ;
+		P4API ?= p4api/$(bin)/$(CONFIG) ;
 	} else if $(CONFIG) = releaseltcg {
-		P4API = p4api/$(bin)release ;
+		P4API ?= p4api/$(bin)release ;
 	}
 	C.DefFile p4 : src/p4lua.def ;
 	C.Defines p4 : OS_NT ;
@@ -54,7 +54,7 @@ if $(OS) = MACOSX {
 C.IncludeDirectories p4 : $(P4API)/include ;
 C.LinkDirectories p4 : $(P4API)/lib ;
 
-if [ Glob $(SUBDIR)/$(P4API)/include/p4 : clientapi.h ] {
+if [ Glob $(P4API)/include/p4 : clientapi.h ] {
 	Lua.CModule p4 : p4 p4_p4api : $(SRCS) ;
 } else {
 	Echo * Not building p4, because the p4api/ directory does not exist. ;
