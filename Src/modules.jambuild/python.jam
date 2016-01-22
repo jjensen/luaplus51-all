@@ -24,8 +24,12 @@ if $(NT) {
 	C.LinkDirectories python : $(PYTHON_ROOT)/libs ;
 
 	if $(CONFIG) != *  &&  [ Glob $(PYTHON_ROOT)/libs : $(libName).lib ] {
-		C.LinkFlags python : /DELAYLOAD:lua51.debug.dll : debug ;
-		C.LinkFlags python : /DELAYLOAD:lua51.dll : release ;
+		switch $(CONFIG) {
+			case debug :
+				C.LinkFlags python : /DELAYLOAD:lua51_debug.dll ;
+			case * :
+				C.LinkFlags python : /DELAYLOAD:lua51.dll ;
+		}
 		C.LinkPrebuiltLibraries python : DelayImp ;
 		
 		C.LinkPrebuiltLibraries python : $(libName) ;
