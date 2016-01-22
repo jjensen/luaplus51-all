@@ -510,9 +510,9 @@ static struct PyModuleDef lua_module = {
 };
 #endif
 
-#if defined(WIN32)
+#if defined(_WIN32)
 #include <windows.h>
-#endif /* WIN32 */
+#endif /* _WIN32 */
 
 PyMODINIT_FUNC PyInit_lua(void)
 {
@@ -532,7 +532,7 @@ PyMODINIT_FUNC PyInit_lua(void)
     Py_INCREF(&LuaObject_Type);
 
     if (!LuaState) {
-#if defined(WIN32)
+#if defined(_WIN32)
 		FILE* file;
 		char filename[_MAX_PATH];
 		char* slashptr;
@@ -572,7 +572,7 @@ PyMODINIT_FUNC PyInit_lua(void)
 				fclose(file);
 			}
 		}
-#endif /* WIN32 */
+#endif /* _WIN32 */
         LuaState = luaL_newstate();
         luaL_openlibs(LuaState);
         luaopen_python(LuaState);
