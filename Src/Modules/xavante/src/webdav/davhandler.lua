@@ -244,7 +244,7 @@ local function addPropstat (outtable, propstat)
 	end
 	table.sort (codes)
 	for _, stat in ipairs (codes) do
-		props = propstat [stat]
+		local props = propstat [stat]
 		if props then
 			table.insert (outtable, [[<D:propstat>]])
 			table.insert (outtable, [[<D:prop>]])

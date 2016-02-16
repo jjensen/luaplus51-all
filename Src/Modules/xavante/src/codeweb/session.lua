@@ -7,7 +7,7 @@
 
 local cookies = require "xavante.cookies"
 
-module (arg and arg[1])
+local session = {}
 
 local _sessions = {}
 local _max_age = 3600	-- one hour
@@ -23,11 +23,11 @@ local function new_sid ()
 	return sid
 end
 
-function set_max_age (mx)
+function session.set_max_age (mx)
 	_max_age = mx
 end
 
-function open (req, res, name)
+function session.open (req, res, name)
 	name = (name or _def_name) .. "_SID"
 	local sid = cookies.get (req, name) or new_sid ()
 	
@@ -40,7 +40,7 @@ function open (req, res, name)
 	return sess.data
 end
 
-function close (req, res, name)
+function session.close (req, res, name)
 	name = (name or _def_name) .. "_SID"
 	local sid = cookies.get (req, name)
 	
@@ -50,3 +50,5 @@ function close (req, res, name)
 	
 	cookies.delete (res, name)
 end
+
+return session

@@ -16,6 +16,8 @@ local socket = require "socket"
 local url = require "socket.url"
 local copas = require "copas"
 
+local unpack = table.unpack or unpack
+
 local _M = {}
 
 local _serversoftware = ""
@@ -101,7 +103,7 @@ function _M.read_method (req)
         req.cmdline, err = req.socket:receive ()
 
         if not req.cmdline then return nil end
-        req.cmd_mth, req.cmd_url, req.cmd_version = (unpack or table.unpack) (_M.strsplit (req.cmdline))
+        req.cmd_mth, req.cmd_url, req.cmd_version = unpack (_M.strsplit (req.cmdline))
         req.cmd_mth = string.upper (req.cmd_mth or 'GET')
 
         -- Account for requests that assume we can handle a proxy.

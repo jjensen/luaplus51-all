@@ -1,11 +1,10 @@
-module (arg and arg[1])
-
+local _M = {}
 
 local timer_mt = { __index = {} }
 local timer = timer_mt.__index
 
 -- create new event list
-function new ()
+function _M.new ()
 	return setmetatable ({jobs={}}, timer_mt)
 end
 
@@ -54,3 +53,5 @@ function timer:tick ()
 		job.func()
 	end
 end
+
+return _M
