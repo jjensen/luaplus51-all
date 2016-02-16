@@ -8,16 +8,28 @@
 -- Authors: Roberto Ierusalimschy and Andre Carregal
 -- Contributors: Thomas Harning Jr., Ignacio Burgueño, Fabio Mascarenhas
 --
--- Copyright 2005 - Kepler Project (www.keplerproject.org)
+-- Copyright 2005 - Kepler Project
 --
 -- $Id: coxpcall.lua,v 1.13 2008/05/19 19:20:02 mascarenhas Exp $
 -------------------------------------------------------------------------------
 
--- Lua 5.2 makes this module a no-op
-if _VERSION == "Lua 5.2" then
-  copcall = pcall
-  coxpcall = xpcall
-  return { pcall = pcall, xpcall = xpcall, running = coroutine.running }
+-------------------------------------------------------------------------------
+-- Checks if (x)pcall function is coroutine safe
+-------------------------------------------------------------------------------
+local function isCoroutineSafe(func)
+    local co = coroutine.create(function()
+        return func(coroutine.yield, function() end)
+    end)
+
+    coroutine.resume(co)
+    return coroutine.resume(co)
+end
+
+-- No need to do anything if pcall and xpcall are already safe.
+if isCoroutineSafe(pcall) and isCoroutineSafe(xpcall) then
+    copcall = pcall
+    coxpcall = xpcall
+    return { pcall = pcall, xpcall = xpcall, running = coroutine.running }
 end
 
 -------------------------------------------------------------------------------

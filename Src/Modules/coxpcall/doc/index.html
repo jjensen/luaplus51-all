@@ -4,7 +4,7 @@
 
 <head>
 	<title>Coxpcall -  Coroutine Safe xpcall and pcall</title>
-	<link rel="stylesheet" href="http://www.keplerproject.org/doc.css" type="text/css"/>
+	<link rel="stylesheet" href="doc.css" type="text/css"/>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 </head>
 
@@ -13,7 +13,7 @@
 <div id="container">
 
 <div id="product">
-	<div id="product_logo"><a href="http://www.keplerproject.org">
+	<div id="product_logo"><a href="http://keplerproject.github.io/coxpcall/">
 		<img alt="coxpcall logo" src="coxpcall.png" width="128" height="128"/></a>
 	</div>
 	<div id="product_name"><big><strong>Coxpcall</strong></big></div>
@@ -30,10 +30,8 @@
 			<li><a href="index.html#over">Overview</a></li>
 			<li><a href="index.html#status">Status</a></li>
 			<li><a href="index.html#download">Download</a></li>
-			<li><a href="index.html#history">History</a></li>              
 			<li><a href="index.html#reference">Reference</a></li>
 			<li><a href="index.html#credits">Credits</a></li>
-			<li><a href="index.html#contact">Contact us</a></li>
 		</ul>
 		</li>
 		<li><a href="http://keplerproject.github.io/coxpcall/">Project</a>
@@ -65,70 +63,48 @@ by <code>copcall</code>, <code>coxpcall</code>, and <code>running</code>.</p>
 
 <h2><a name="status"></a>Status</h2>
 
-<p>Current version is 1.14. It supports Lua 5.1 and Lua 5.2. Lua 5.2 was extended with the Coxpcall 
+<p>It supports Lua 5.1, 5.2 and 5.3. Lua 5.2 was extended with the Coxpcall 
 functionality and hence coxpcall is no longer required. The
-5.2 compatibility by coxpcall means that it maintains backward compatibility while using the build
-in 5.2 implementation.</p>
+5.2+ compatibility by coxpcall means that it maintains backward compatibility
+while using the built-in implementation.</p>
 
 <h2><a name="download"></a>Download</h2>
 
 <p>
-Coxpcall can be downloaded from its
-<a href="https://github.com/keplerproject/coxpcall/releases">GitHub</a> page.
-You can also get Coxpcall using <a href="http://luarocks.org">LuaRocks</a>:
+You can get Coxpcall using <a href="http://luarocks.org">LuaRocks</a>:
 </p>
 
 <pre class="example">
 luarocks install coxpcall
 </pre>
 
-<h2><a name="history"></a>History</h2>
-
-<dl>
-	<dt><strong>Coxpcall 1.15</strong> [xx/xxx/xxxx]</dt>
-	<dd><ul>
-		<li><a href="https://github.com/keplerproject/coxpcall/pull/7">Added <code>running</code> function</a> as <code>coroutine.running</code> replacement</li>
-	</ul></dd>
-
-	<dt><strong>Coxpcall 1.14</strong> [30/Jan/2013]</dt>
-	<dd><ul>
-		<li>Support for Lua 5.2</li>
-		<li>Fixed bug, <a href="https://github.com/keplerproject/coxpcall/pull/1">handling nil parameters</a>, found by Thijs Schreijer</li>
-	</ul></dd>
-
-        <dt><strong>Coxpcall 1.13</strong> [19/May/2008]</dt>
-	<dd><ul>
-		<li>Fixed bug [#5275] (old tracker), found by Gary NG</li>
-	</ul></dd>
-	
-	<dt><strong>Coxpcall 1.12</strong> [09/May/2008]</dt>
-	<dd><ul>
-		<li>Added stack traces</li>
-	</ul></dd>
-	
-	<dt><strong>Coxpcall 1.11</strong> [22/Jan/2008]</dt>
-	<dd><ul>
-		<li>Moving Coxpcall to a standalone project since its now being used by more than only Xavante</li>
-		<li>Refactoring and bug fixes by Thomas Harning Jr., Ignacio Burgue&ntilde;o and
-		F&aacute;bio Mascarenhas</li>
-	</ul></dd>
-	<dt><strong>Coxpcall 1.0</strong> [18/Feb/2005]</dt>
-	<dd>Coxpcall 1.0 until 1.11 was released as part of Xavante</dd>
-</dl>
+<p>
+See also its 
+<a href="https://github.com/keplerproject/coxpcall">GitHub</a> page.
+</p>
 
 <h2><a name="reference"></a>Reference</h2>
 
-<p>Coxpcall offers three functions that reproduce the behaviour of
+<p>Coxpcall module offers three functions that reproduce the behaviour of
 <code>pcall</code>, <code>xpcall</code>, and  <code>coroutine.running</code>:</p>
 
-<dl>
-	<dt><strong><code>coxpcall(f, err)</code></strong></dt>
-	<dd>Offers the same functionality as Lua <code>xpcall(f, err)</code>.</dd>
-	
-	<dt><strong><code>copcall(f, ...)</code></strong></dt>
-	<dd>Offers the same functionality as Lua <code>pcall(f, ...)</code>.</dd>
+<pre class="example">
+local coxpcall = require "coxpcall"
+</pre>
 
-	<dt><strong><code>running([coro])</code></strong></dt>
+<dl>
+	<dt><strong><code>coxpcall.xpcall(f, err)</code></strong></dt>
+	<dd>Offers the same functionality as Lua <code>xpcall(f, err)</code>,
+	but calls the error handler <em>after</em> the error unwinds the stack,
+	so that it's impossible to gather more information about the error.
+	To compensate, if the error is a string, stack trace is appended to it.
+	Also set as global <code>coxpcall</code>.</dd>
+	
+	<dt><strong><code>coxpcall.pcall(f, ...)</code></strong></dt>
+	<dd>Offers the same functionality as Lua <code>pcall(f, ...)</code>.
+	Also set as global <code>copcall</code>.</dd>
+
+	<dt><strong><code>coxpcall.running([coro])</code></strong></dt>
         <dd>Because <code>coxpcall</code> and <code>copcall</code> run the function to protect 
         inside a new coroutine, <code>coroutine.running()</code> will return an unexpected
         coroutine when used inside the protected function. If the coroutine <code>coro</code> was 
@@ -143,20 +119,7 @@ luarocks install coxpcall
 Coxpcall was designed and implemented by Roberto Ierusalimschy and
 Andr&eacute; Carregal with the colaboration of Thomas Harning Jr., Ignacio Burgue&ntilde;o,
 Gary NG and F&aacute;bio Mascarenhas as part of the
-<a href="http://www.keplerproject.org">Kepler Project</a> which holds its copyright.
-</p>
-
-<h2><a name="contact"></a>Contact us</h2>
-
-<p>
-For more information please
-<a href="mailto:info-NO-SPAM-THANKS@keplerproject.org">contact us</a>.
-Comments are welcome!
-</p>
-
-<p>
-You can also reach other Coxpcall developers and users on the Kepler
-Project <a href="https://groups.google.com/forum/#!forum/kepler-project">mailing list</a>.
+<a href="https://github.com/keplerproject">Kepler Project</a> which holds its copyright.
 </p>
 
 </div> <!-- id="content" -->
