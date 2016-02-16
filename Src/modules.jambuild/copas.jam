@@ -1,11 +1,19 @@
 {
 
-local SRCS =
-		src/copas/copas.lua
+local COPAS_SRCS =
+		src/copas/ftp.lua
+		src/copas/http.lua
+		src/copas/limit.lua
+		src/copas/smtp.lua
 ;
 
-Lua.Module copas : $(SRCS) ;
+local SRCS =
+		src/copas.lua
+;
+
+Lua.Module copas : $(SRCS) $(COPAS_SRCS) ;
 
 CopyFiles copas : $(LUA_LDIR) : $(SUBDIR)/$(SRCS) ;
+CopyFiles copas : $(LUA_LDIR)/copas : $(SUBDIR)/$(COPAS_SRCS) ;
 
 }
