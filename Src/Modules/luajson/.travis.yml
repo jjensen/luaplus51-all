@@ -1,0 +1,55 @@
+# Lie about language support for broader support
+language: c
+
+sudo: false
+
+branches:
+    only:
+        - master
+        - next
+        - 1.2.x
+        - 1.1.x
+        - 1.0.x
+
+env:
+    global:
+        - LUAROCKS=2.2.2
+    matrix:
+        - LPEG=1.0.0-1 LUA=luajit2.1
+        - LPEG=1.0.0-1 LUA=luajit2.0
+        - LPEG=1.0.0-1 LUA=luajit
+        - LPEG=1.0.0-1 LUA=lua5.3
+        - LPEG=1.0.0-1 LUA=lua5.2
+        - LPEG=1.0.0-1 LUA=lua5.1
+        - LPEG=0.12.2-1 LUA=luajit2.1
+        - LPEG=0.12.2-1 LUA=luajit2.0
+        - LPEG=0.12.2-1 LUA=lua5.3
+        - LPEG=0.12.2-1 LUA=lua5.2
+        - LPEG=0.12.2-1 LUA=lua5.1
+        - LPEG=0.10.2-1 LUA=luajit
+        - LPEG=0.10.2-1 LUA=lua5.2
+        - LPEG=0.10.2-1 LUA=lua5.1
+        - LPEG=0.9-1 LUA=luajit
+        - LPEG=0.9-1 LUA=lua5.1
+        - LPEG=0.8.1-1 LUA=luajit
+        - LPEG=0.8.1-1 LUA=lua5.1
+        - LPEG=0.7-3 LUA=luajit
+        - LPEG=0.7-3 LUA=lua5.1
+
+branches:
+    only:
+        - master
+
+before_install:
+    - source .travis/setenv_lua.sh
+    - luarocks install lunitx
+    - luarocks install luafilesystem
+    - luarocks install lpeg $LPEG
+
+script:
+    - make LUA_BIN=lua LUNIT_BIN=lunit.sh check
+
+notifications:
+    email:
+        on_success: change
+        on_failure: always

@@ -17,7 +17,7 @@ local table_concat = require("table").concat
 
 local merge = require("json.util").merge
 
-_ENV = nil
+local _ENV = nil
 
 local function get_invalid_character_info(input, index)
 	local parsed = input:sub(1, index)
@@ -33,7 +33,7 @@ local function build_report(msg)
 		local line, line_index, bad_char, last_line = get_invalid_character_info(data, pos)
 		local text = fmt:format(pos, line, line_index, bad_char, last_line)
 		error(text)
-	end)
+	end) * 1
 end
 local function unexpected()
 	local msg = "unexpected character"

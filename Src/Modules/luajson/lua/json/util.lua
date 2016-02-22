@@ -9,7 +9,7 @@ local pairs = pairs
 local getmetatable, setmetatable = getmetatable, setmetatable
 local select = select
 
-_ENV = nil
+local _ENV = nil
 
 local function foreach(tab, func)
 	for k, v in pairs(tab) do
@@ -59,6 +59,14 @@ local function inner_merge(t, remaining, from, ...)
 	return inner_merge(t, remaining - 1, ...)
 end
 
+--[[*
+    Shallow-merges tables in order onto the first table.
+
+    @param t table to merge entries onto
+    @param ... sequence of 0 or more tables to merge onto 't'
+
+    @returns table 't' from input
+]]
 local function merge(t, ...)
 	return inner_merge(t, select('#', ...), ...)
 end
@@ -82,7 +90,8 @@ local ArrayMT = {}
 ]]
 local function IsArray(value)
 	if type(value) ~= 'table' then return false end
-	local ret = getmetatable(value) == ArrayMT
+	local meta = getmetatable(value)
+	local ret = meta == ArrayMT or (meta ~= nil and meta.__is_luajson_array)
 	if not ret then
 		if #value == 0 then return false end
 	else

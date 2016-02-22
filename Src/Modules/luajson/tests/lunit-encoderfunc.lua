@@ -2,10 +2,15 @@ local json = require("json")
 local lunit = require("lunit")
 local math = require("math")
 local testutil = require("testutil")
+local unpack = require("table").unpack or unpack
 
 local setmetatable = setmetatable
 
-module("lunit-encoderfunc", lunit.testcase, package.seeall)
+if not module then
+    _ENV = lunit.module("lunit-encoderfunc", 'seeall')
+else
+    module("lunit-encoderfunc", lunit.testcase, package.seeall)
+end
 
 local function build_call(name, parameters)
 	return json.util.buildCall(name, unpack(parameters, parameters.n))

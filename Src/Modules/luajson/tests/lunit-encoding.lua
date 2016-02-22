@@ -1,7 +1,11 @@
 local json = require("json")
 local lunit = require("lunit")
 
-module("lunit-encoding", lunit.testcase, package.seeall)
+if not module then
+    _ENV = lunit.module("lunit-encoding", 'seeall')
+else
+    module("lunit-encoding", lunit.testcase, package.seeall)
+end
 
 function test_cloned_array_sibling()
 	local obj = {}
@@ -69,4 +73,9 @@ function test_custom_encode()
 	assert_nil(sawX)
 	encoder(obj)
 	assert_true(sawX)
+end
+
+function test_custom_array()
+    assert_equal("[]", json.encode(setmetatable({}, {__is_luajson_array = true})))
+    assert_equal("[]", json.encode(json.util.InitArray({})))
 end

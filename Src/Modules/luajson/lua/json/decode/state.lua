@@ -8,9 +8,9 @@ local jsonutil = require("json.util")
 local assert = assert
 local type = type
 local next = next
-local unpack = unpack
+local unpack = require("table").unpack or unpack
 
-_ENV = nil
+local _ENV = nil
 
 local state_ops = {}
 local state_mt = {

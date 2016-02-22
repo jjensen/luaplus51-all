@@ -8,7 +8,14 @@ local encode = json.encode
 -- DECODE NOT 'local' due to requirement for testutil to access it
 decode = json.decode.getDecoder(false)
 
-module("lunit-numbers", lunit.testcase, package.seeall)
+local TEST_ENV
+if not module then
+    _ENV = lunit.module("lunit-numbers", 'seeall')
+    TEST_ENV = _ENV
+else
+    module("lunit-numbers", lunit.testcase, package.seeall)
+    TEST_ENV = _M
+end
 
 function setup()
 	-- Ensure that the decoder is reset
@@ -39,10 +46,11 @@ local numbers = {
 	0, 1, -1, math.pi, -math.pi
 }
 math.randomseed(0xDEADBEEF)
+local pow = math.pow or load("return function(a, b) return a ^ b end")()
 -- Add sequence of numbers at low/high end of value-set
 for i = -300,300,60 do
-	numbers[#numbers + 1] = math.random() * math.pow(10, i)
-	numbers[#numbers + 1] = -math.random() * math.pow(10, i)
+	numbers[#numbers + 1] = math.random() * pow(10, i)
+	numbers[#numbers + 1] = -math.random() * pow(10, i)
 end
 
 local function get_number_tester(f)
@@ -139,13 +147,13 @@ local function buildFailedStrictDecoder(f)
 	return testutil.buildFailedPatchedDecoder(f, strictDecoder)
 end
 -- SETUP CHECKS FOR SEQUENCE OF DECODERS
-for k, v in pairs(_M) do
+for k, v in pairs(TEST_ENV) do
 	if k:match("^test_") and not k:match("_gen$") and not k:match("_only$") then
 		if k:match("_nostrict") then
-			_M[k .. "_strict_gen"] = buildFailedStrictDecoder(v)
+			TEST_ENV[k .. "_strict_gen"] = buildFailedStrictDecoder(v)
 		else
-			_M[k .. "_strict_gen"] = buildStrictDecoder(v)
+			TEST_ENV[k .. "_strict_gen"] = buildStrictDecoder(v)
 		end
-		_M[k .. "_hex_gen"] = testutil.buildPatchedDecoder(v, hexDecoder)
+		TEST_ENV[k .. "_hex_gen"] = testutil.buildPatchedDecoder(v, hexDecoder)
 	end
 end
