@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
     <title>Copas - Coroutine Oriented Portable Asynchronous Services for Lua</title>
-    <link rel="stylesheet" href="http://www.keplerproject.org/doc.css" type="text/css"/>
+    <link rel="stylesheet" href="doc.css" type="text/css"/>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 </head>
 <body>
@@ -105,7 +105,7 @@ are used to register servers and to execute the main loop of Copas:</p>
     <dt><strong><code>copas.finished()</code></strong></dt>
     <dd>Checks whether anything remains to be done.<br />
         Returns <code>false</code> when the sockets lists for reading and writing
-        are empty and there is no other (sleeping) task to execute.
+        are empty and there is not another (sleeping) task to execute.
     </dd>
 
     <dt><strong><code>copas.loop([timeout])</code></strong></dt>

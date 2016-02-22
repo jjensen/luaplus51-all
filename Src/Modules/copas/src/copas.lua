@@ -8,7 +8,7 @@
 -- Contributors: Diego Nehab, Mike Pall, David Burgess, Leonardo Godinho,
 --               Thomas Harning Jr., and Gary NG
 --
--- Copyright 2005-2015 - Kepler Project (www.keplerproject.org)
+-- Copyright 2005-2016 - Kepler Project (www.keplerproject.org)
 --
 -- $Id: copas.lua,v 1.37 2009/04/07 22:09:52 carregal Exp $
 -------------------------------------------------------------------------------
@@ -27,10 +27,11 @@ local UDP_DATAGRAM_MAX = 8192  -- TODO: dynamically get this value from LuaSocke
 local pcall = pcall
 if _VERSION=="Lua 5.1" then     -- obsolete: only for Lua 5.1 compatibility
   pcall = require("coxpcall").pcall
+end
   
-  -- Redefines LuaSocket functions with coroutine safe versions
-  -- (this allows the use of socket.http from within copas)
-  local function statusHandler(status, ...)
+-- Redefines LuaSocket functions with coroutine safe versions
+-- (this allows the use of socket.http from within copas)
+local function statusHandler(status, ...)
   if status then return ... end
   local err = (...)
   if type(err) == "table" then
@@ -38,34 +39,31 @@ if _VERSION=="Lua 5.1" then     -- obsolete: only for Lua 5.1 compatibility
   else
     error(err)
   end
-  end
+end
 
-  function socket.protect(func)
-  return function (...)
-             return statusHandler(pcall(func, ...))
+function socket.protect(func)
+return function (...)
+           return statusHandler(pcall(func, ...))
+       end
+end
+
+function socket.newtry(finalizer)
+return function (...)
+         local status = (...)
+         if not status then
+             pcall(finalizer, select(2, ...))
+           error({ (select(2, ...)) }, 0)
          end
-  end
-
-  function socket.newtry(finalizer)
-  return function (...)
-           local status = (...)
-           if not status then
-               pcall(finalizer, select(2, ...))
-             error({ (select(2, ...)) }, 0)
-           end
-           return ...
-         end
-  end
-
-  -- end of LuaSocket redefinitions
+         return ...
+       end
 end
 
 local copas = {}
 
 -- Meta information is public even if beginning with an "_"
-copas._COPYRIGHT   = "Copyright (C) 2005-2015 Kepler Project"
+copas._COPYRIGHT   = "Copyright (C) 2005-2016 Kepler Project"
 copas._DESCRIPTION = "Coroutine Oriented Portable Asynchronous Services"
-copas._VERSION     = "Copas 2.0.0"
+copas._VERSION     = "Copas 2.0.1"
 
 -- Close the socket associated with the current connection after the handler finishes
 copas.autoclose = true
@@ -410,7 +408,7 @@ local _skt_mt_tcp = {
                              return copas.flush(self.socket)
                            end,
 
-                   settimeout = function (self,time)
+                   settimeout = function (self, time)
                                   self.timeout=time
                                   return true
                                 end,
@@ -441,12 +439,12 @@ local _skt_mt_tcp = {
 
                    accept = function(self, ...) return self.socket:accept(...) end,
 
-                   setoption = function(self, ...) return self.setoption:accept(...) end,
+                   setoption = function(self, ...) return self.socket:setoption(...) end,
                    
                    -- TODO: is this DNS related? hence blocking?
                    getpeername = function(self, ...) return self.socket:getpeername(...) end,
 
-                   shutdown = function(self, ...) return self.shutdown:accept(...) end,
+                   shutdown = function(self, ...) return self.socket:shutdown(...) end,
 
                    dohandshake = function(self, sslt)
                      self.ssl_params = sslt or self.ssl_params
