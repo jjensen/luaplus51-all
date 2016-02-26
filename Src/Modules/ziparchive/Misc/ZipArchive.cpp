@@ -1256,7 +1256,7 @@ bool ZipArchive::FileCreateInternal(const char* fileName, ZipEntryFileHandle& fi
 			m_fileEntryMaxCount += 100;
 	        m_fileEntryOffsets = new size_t[m_fileEntryMaxCount + 1];
 			if (origOffsets) {
-	            memcpy(m_fileEntryOffsets, origOffsets, m_fileEntryCount * sizeof(unsigned int));
+	            memcpy(m_fileEntryOffsets, origOffsets, m_fileEntryCount * sizeof(size_t));
 				delete[] origOffsets;
 			}
 		}
