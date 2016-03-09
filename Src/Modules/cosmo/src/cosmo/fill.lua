@@ -1,7 +1,7 @@
 
 local grammar = require "cosmo.grammar"
 
-if _VERSION == "Lua 5.2" then
+if _VERSION ~= "Lua 5.2" then
   _ENV = setmetatable({}, { __index = _G })
 else
   module(..., package.seeall)
