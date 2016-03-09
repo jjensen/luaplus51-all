@@ -1,5 +1,5 @@
 local cosmo = require "cosmo"
-require "markdown"
+local markdown = require "markdown"
 
 local pages = {
   { name = "Home", file = "index", sections = {} },
@@ -100,6 +100,6 @@ local function gen_page(project, pages, p)
 end
 
 for _, p in ipairs(pages) do
-  project.content = markdown(readfile(p.file .. ".md"))
+  project.content = markdown.markdown(readfile(p.file .. ".md"))
   writefile(p.file .. ".html", gen_page(project, pages, p))
 end

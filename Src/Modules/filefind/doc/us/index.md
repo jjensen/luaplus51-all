@@ -136,10 +136,6 @@ Returns the time_t.
     <td><code>**/</code></td>
     <td>Search directories recursively.</td>
   </tr>
-  <tr>
-    <td><code>+**</code></td>
-    <td>Search files and directories recursively.</td>
-  </tr>
 </table>
 
 <p>Some examples follow:</p>
@@ -257,6 +253,10 @@ Returns the time_t.
   <tr>
     <td width="150"><b>Flags and Other Expansions</b></td>
     <td width="450"><b>Description</b></td>
+  </tr>
+  <tr>
+    <td><code>@*</code></td>
+    <td>Search files and directories recursively.</td>
   </tr>
   <tr>
     <td><code>@-pattern</code></td>

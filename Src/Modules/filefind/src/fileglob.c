@@ -947,14 +947,6 @@ void fileglob_MatchPattern(fileglob* self, const char* inPattern, BUFFER* destBu
 		}
 
 		///////////////////////////////////////////////////////////////////////
-		// Check for +
-		else if (ch == '+') {
-			self->filesAndFolders = 1;
-			if (srcPtr - 1 == lastSlashPtr)
-				++lastSlashPtr;
-		}
-
-		///////////////////////////////////////////////////////////////////////
 		// Everything else.
 		else {
 			buffer_addchar(destBuff, *srcPtr);
@@ -976,6 +968,9 @@ void fileglob_MatchPattern(fileglob* self, const char* inPattern, BUFFER* destBu
 		srcPtr++;
 
 		ch = *srcPtr++;
+
+		///////////////////////////////////////////////////////////////////////
+		// Check for @- or @=
 		if (ch == '-'  ||  ch == '=') {
 			BUFFER buff;
 			buffer_initwithalloc(&buff, self->allocFunction, self->userData);
@@ -990,8 +985,23 @@ void fileglob_MatchPattern(fileglob* self, const char* inPattern, BUFFER* destBu
 			else if (ch == '=')
 				fileglob_AddExclusivePattern(self, buffer_ptr(&buff));
 			buffer_free(&buff);
-		} else
-			break;		// Don't know what it is.
+
+		///////////////////////////////////////////////////////////////////////
+		// Check for @*
+		} else if (ch == '*') {
+			self->filesAndFolders = 1;
+			while (*srcPtr != MODIFIER_CHARACTER  &&  *srcPtr != '\0') {
+				++srcPtr;
+			}
+
+		///////////////////////////////////////////////////////////////////////
+		// Anything else is ignored.
+		} else {
+			// Don't know what it is.
+			while (*srcPtr != MODIFIER_CHARACTER  &&  *srcPtr != '\0') {
+				++srcPtr;
+			}
+		}
 	}
 }
 
