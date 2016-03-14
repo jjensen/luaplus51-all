@@ -6,7 +6,7 @@
 			cd "$(SOURCE_DIR:P)"
 			del $(URL:BS)
 			rem curl -s -O $(URL)
-			wget $(URL)
+			wget --no-check-certificate $(URL)
 			unzip $(URL:BS)
 			del $(URL:BS)
 		}
@@ -30,7 +30,7 @@
 	}
 
 	Depends download:curl : $(SUBDIR) ;
-	Download-curl curl : http://curl.haxx.se/download/curl-7.46.0.zip : curl-7.46.0 ;
+	Download-curl curl : https://curl.haxx.se/download/curl-7.47.1.zip : curl-7.47.1 ;
 
 	NotFile download:curl ;
 	Depends download : download:curl ;

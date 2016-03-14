@@ -1,6 +1,6 @@
 {
 
-local CURL_ROOT = $(SUBDIR)/src/curl-7.46.0 ;
+local CURL_ROOT = $(SUBDIR)/src/curl-7.47.1 ;
 
 local foundCurl ;
 if $(NT) {
