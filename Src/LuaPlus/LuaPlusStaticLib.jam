@@ -484,6 +484,10 @@ C.IncludeDirectories : lua53-luaplus/src ;
 
 C.Defines : LUA_OPNAMES ;
 
+if $(C.PLATFORM) = android {
+	C.Defines lua53-luaplus-static : lua_getlocaledecpoint()='.' LUA_ANSI ;
+}
+
 LuaPlusDefines lua53-luaplus-static ;
 
 C.OutputName : lua53-luaplus-static ;
