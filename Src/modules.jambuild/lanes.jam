@@ -17,7 +17,7 @@ local SRCS =
 
 CopyFiles lanes : $(LUA_LDIR) : $(SUBDIR)/src/lanes.lua ;
 
-if $(PLATFORM) = linux32
+if $(PLATFORM) in linux32 linux64
 {
 	C.LinkPrebuiltLibraries lanes : pthread ;
 }
