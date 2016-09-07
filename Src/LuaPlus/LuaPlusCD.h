@@ -155,6 +155,15 @@ namespace LPCD {
 	template<> struct Type<double&> : public Type<double> {};
 	template<> struct Type<const double&> : public Type<double> {};
 
+	// int types
+	template<> struct Type<lua_Integer> {
+		static inline void Push(lua_State* L, lua_Integer value)						{  lua_pushinteger(L, value);  }
+		static inline bool Match(lua_State* L, int idx)									{  return lua_type(L, idx) == LUA_TNUMBER;  }
+		static inline int Get(lua_State* L, int idx)									{  return static_cast<int>(lua_tonumber(L, idx));  }
+	};
+	template<> struct Type<lua_Integer&> : public Type<lua_Integer> {};
+	template<> struct Type<const lua_Integer&> : public Type<lua_Integer> {};
+
 	// character pointer types
 	template<> struct Type<char*> {
 		static inline void Push(lua_State* L, const char* value)						{  lua_pushstring(L, value);  }

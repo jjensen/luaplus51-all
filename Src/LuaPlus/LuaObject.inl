@@ -781,17 +781,17 @@ inline LuaObject& LuaObject::SetBoolean(LuaObject& key, bool value) {
 }
 
 
-inline LuaObject& LuaObject::SetInteger(const char* key, int value) {
+inline LuaObject& LuaObject::SetInteger(const char* key, lua_Integer value) {
 	return Set(key, value);
 }
 
 
-inline LuaObject& LuaObject::SetInteger(int key, int value) {
+inline LuaObject& LuaObject::SetInteger(int key, lua_Integer value) {
 	return Set(key, value);
 }
 
 
-inline LuaObject& LuaObject::SetInteger(LuaObject& key, int value) {
+inline LuaObject& LuaObject::SetInteger(LuaObject& key, lua_Integer value) {
 	return Set(key, value);
 }
 
@@ -900,7 +900,7 @@ inline LuaObject& LuaObject::RawSetBoolean(LuaObject& key, bool value) {
 }
 
 
-inline LuaObject& LuaObject::RawSetInteger(const char* key, int value) {
+inline LuaObject& LuaObject::RawSetInteger(const char* key, lua_Integer value) {
 	luaplus_assert(L);
 	LUA_FASTREF_PUSH();					// (table)
 	lua_pushstring(L, key);
@@ -910,7 +910,7 @@ inline LuaObject& LuaObject::RawSetInteger(const char* key, int value) {
 }
 
 
-inline LuaObject& LuaObject::RawSetInteger(int key, int value) {
+inline LuaObject& LuaObject::RawSetInteger(int key, lua_Integer value) {
 	luaplus_assert(L);
 	LUA_FASTREF_PUSH();					// (table)
 	lua_pushinteger(L, value);
@@ -919,7 +919,7 @@ inline LuaObject& LuaObject::RawSetInteger(int key, int value) {
 }
 
 
-inline LuaObject& LuaObject::RawSetInteger(LuaObject& key, int value) {
+inline LuaObject& LuaObject::RawSetInteger(LuaObject& key, lua_Integer value) {
 	luaplus_assert(L);
 	LUA_FASTREF_PUSH();					// (table)
 	lua_getfastref(L, key.ref);
@@ -1108,7 +1108,7 @@ inline LuaObject& LuaObject::AssignBoolean(LuaState* state, bool value) {
 }
 
 
-inline LuaObject& LuaObject::AssignInteger(LuaState* state, int value) {
+inline LuaObject& LuaObject::AssignInteger(LuaState* state, lua_Integer value) {
 	return Assign(state, value);
 }
 

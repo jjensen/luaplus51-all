@@ -144,9 +144,9 @@ public:
 	LuaObject& SetBoolean(const char* key, bool value);
 	LuaObject& SetBoolean(int key, bool value);
 	LuaObject& SetBoolean(LuaObject& key, bool value);
-	LuaObject& SetInteger(const char* key, int value);
-	LuaObject& SetInteger(int key, int value);
-	LuaObject& SetInteger(LuaObject& key, int value);
+	LuaObject& SetInteger(const char* key, lua_Integer value);
+	LuaObject& SetInteger(int key, lua_Integer value);
+	LuaObject& SetInteger(LuaObject& key, lua_Integer value);
 	LuaObject& SetNumber(const char* key, lua_Number value);
 	LuaObject& SetNumber(int key, lua_Number value);
 	LuaObject& SetNumber(LuaObject& key, lua_Number value);
@@ -166,9 +166,9 @@ public:
 	LuaObject& RawSetBoolean(const char* key, bool value);
 	LuaObject& RawSetBoolean(int key, bool value);
 	LuaObject& RawSetBoolean(LuaObject& key, bool value);
-	LuaObject& RawSetInteger(const char* key, int value);
-	LuaObject& RawSetInteger(int key, int value);
-	LuaObject& RawSetInteger(LuaObject& key, int value);
+	LuaObject& RawSetInteger(const char* key, lua_Integer value);
+	LuaObject& RawSetInteger(int key, lua_Integer value);
+	LuaObject& RawSetInteger(LuaObject& key, lua_Integer value);
 	LuaObject& RawSetNumber(const char* key, lua_Number value);
 	LuaObject& RawSetNumber(int key, lua_Number value);
 	LuaObject& RawSetNumber(LuaObject& key, lua_Number value);
@@ -186,7 +186,7 @@ public:
 	LuaObject& RawSetObject(LuaObject& key, LuaObject& value);
 
 	LuaObject& AssignBoolean(LuaState* state, bool value);
-	LuaObject& AssignInteger(LuaState* state, int value);
+	LuaObject& AssignInteger(LuaState* state, lua_Integer value);
 	LuaObject& AssignNumber(LuaState* state, lua_Number value);
 	LuaObject& AssignString(LuaState* state, const char* value, int len = -1);
 
