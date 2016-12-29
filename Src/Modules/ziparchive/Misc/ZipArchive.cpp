@@ -2248,10 +2248,12 @@ uint64_t ZipArchive::FileWrite(ZipEntryFileHandle& fileHandle, const void* buffe
     ZipEntryInfo* fileEntry = GetFileEntry(fileHandle.detail->fileEntryIndex);
 
 	fileEntry->m_crc = crc32(fileEntry->m_crc, (uint8_t*)buffer, (uInt)count);
+#if ZIPARCHIVE_MD5_SUPPORT
 	if (m_flags & SUPPORT_MD5)
 	{
 		MD5Update(&fileHandle.detail->md5writecontext, (unsigned char*)buffer, (unsigned int)count);
 	}
+#endif // ZIPARCHIVE_MD5_SUPPORT
 
 	if (fileEntry->m_compressionMethod == UNCOMPRESSED)
 	{
@@ -3366,7 +3368,13 @@ bool ZipArchive::ProcessFileList(ZipArchive::FileOrderList& fileOrderList, Proce
 					|| memcmp(fileOrderInfo.md5, emptyMD5, sizeof(emptyMD5)) == 0
 #endif // ZIPARCHIVE_MD5_SUPPORT
 				) {
-				ZipArchive* openArchive = fileOrderInfo.sourceArchive ? fileOrderInfo.sourceArchive : PFL_OpenArchive(archiveFileName, openArchives, SUPPORT_MD5);
+                ZipArchive* openArchive = fileOrderInfo.sourceArchive ? fileOrderInfo.sourceArchive : PFL_OpenArchive(archiveFileName, openArchives
+#if ZIPARCHIVE_MD5_SUPPORT
+                    , SUPPORT_MD5
+#else
+                    , 0
+#endif // ZIPARCHIVE_MD5_SUPPORT
+                    );
 				openArchiveFileEntry = openArchive->FindFileEntry(entryName);
 			}
 
@@ -3818,7 +3826,13 @@ bool ZipArchive::ProcessFileList(ZipArchive::FileOrderList& fileOrderList, Proce
 				archiveFileName = info.srcPath.Sub(0, pipePos);
 				entryName = info.srcPath.Sub(pipePos + 1);
 			}
-			ZipArchive* sourceArchive = info.sourceArchive ? info.sourceArchive : PFL_OpenArchive(archiveFileName, openArchives, SUPPORT_MD5);
+			ZipArchive* sourceArchive = info.sourceArchive ? info.sourceArchive : PFL_OpenArchive(archiveFileName, openArchives
+#if ZIPARCHIVE_MD5_SUPPORT
+                , SUPPORT_MD5
+#else
+                , 0
+#endif // ZIPARCHIVE_MD5_SUPPORT
+                );
 			if (sourceArchive) {
 				size_t sourceFileEntryIndex = sourceArchive->FindFileEntryIndex(entryName);
 				if (sourceFileEntryIndex == INVALID_FILE_ENTRY)
@@ -3920,7 +3934,11 @@ bool ZipArchive::ProcessFileList(ZipArchive::FileOrderList& fileOrderList, Proce
 								// It appears so.  Try and open it.  Compressed network cache entries are
 								// stored as single file entry zips.
 								ZipArchive cacheArchive;
-								if (cacheArchive.Open(cacheFileName, true, SUPPORT_MD5)) {
+								if (cacheArchive.Open(cacheFileName, true
+#if ZIPARCHIVE_MD5_SUPPORT
+									, SUPPORT_MD5
+#endif // ZIPARCHIVE_MD5_SUPPORT
+                                    )) {
 									// The zip archive opened successfully.  Now try the file entry itself.
 									ZipEntryFileHandle cacheFileHandle;
 									if (cacheArchive.FileOpenIndex(0, cacheFileHandle)) {
@@ -3982,7 +4000,11 @@ bool ZipArchive::ProcessFileList(ZipArchive::FileOrderList& fileOrderList, Proce
 
 								// Create a single file zip archive at the network cache location.
 								ZipArchive cacheArchive;
-								if (cacheArchive.Create(cacheFileName, SUPPORT_MD5)) {
+								if (cacheArchive.Create(cacheFileName
+#if ZIPARCHIVE_MD5_SUPPORT
+									, SUPPORT_MD5
+#endif // ZIPARCHIVE_MD5_SUPPORT
+									)) {
 									// Open the zip entry we just compressed.
 									ZipEntryFileHandle srcFileHandle;
 									if (activeArchive->FileOpen(info.entryName, srcFileHandle)) {
@@ -4081,7 +4103,11 @@ bool ZipArchive::ProcessFileList(ZipArchive::FileOrderList& fileOrderList, Proce
 				// It appears so.  Try and open it.  Compressed network cache entries are
 				// stored as single file entry zips.
 				ZipArchive cacheArchive;
-				if (cacheArchive.Open(cacheFileName, true, SUPPORT_MD5)) {
+				if (cacheArchive.Open(cacheFileName, true
+#if ZIPARCHIVE_MD5_SUPPORT
+					, SUPPORT_MD5
+#endif // ZIPARCHIVE_MD5_SUPPORT
+					)) {
 					// The zip archive opened successfully.  Now try the file entry itself.
 					ZipEntryFileHandle cacheFileHandle;
 					if (cacheArchive.FileOpenIndex(0, cacheFileHandle)) {
@@ -4157,7 +4183,11 @@ bool ZipArchive::ProcessFileList(ZipArchive::FileOrderList& fileOrderList, Proce
 
 			// Create a single file zip archive at the network cache location.
 			ZipArchive cacheArchive;
-			if (cacheArchive.Create(cacheFileName, SUPPORT_MD5)) {
+			if (cacheArchive.Create(cacheFileName
+#if ZIPARCHIVE_MD5_SUPPORT
+				, SUPPORT_MD5
+#endif // ZIPARCHIVE_MD5_SUPPORT
+				)) {
 				// Open the zip entry we just compressed.
 				ZipEntryFileHandle srcFileHandle;
 				if (activeArchive->FileOpen(info.entryName, srcFileHandle)) {
