@@ -5,6 +5,8 @@
 
 static cfunction compile(Dst_DECL, lua_State* L, cfunction func, int ref);
 
+void lua_removef(lua_State *L, int index) { lua_remove(L, index); }
+
 static void* reserve_code(struct jit* jit, lua_State* L, size_t sz);
 static void commit_code(struct jit* jit, void* p, size_t sz);
 
@@ -176,9 +178,9 @@ static void* reserve_code(struct jit* jit, lua_State* L, size_t sz)
         ADDFUNC(jit->lua_dll, lua_pushnil);
         ADDFUNC(jit->lua_dll, lua_callk);
         ADDFUNC(jit->lua_dll, lua_settop);
-#if LUA_VERSION_NUM <= 502
-        ADDFUNC(jit->lua_dll, lua_remove);
-#endif
+        lua_pushliteral(L, "lua_remove");
+        lua_pushcfunction(L, (lua_CFunction) lua_removef);
+        lua_rawset(L, -3);
 #undef ADDFUNC
 
         for (i = 0; extnames[i] != NULL; i++) {
