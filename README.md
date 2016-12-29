@@ -62,3 +62,91 @@ d:\luaplus\build201x>jam c.toolchain=win64/release
 rem Builds to d:\luaplus\build201x\bin.lua5x-luaplus.vs20xx.win64
 d:\luaplus\build201x>jam c.toolchain=win64/debug
 </pre>
+
+
+
+
+# Building LuaPlus for Mac
+
+## Prerequisites
+
+* FILL ME IN.
+
+## Build LuaPlus
+
+* If you haven't already, clone LuaPlus from GitHub with:
+
+<pre>
+[~]git clone https://github.com/jjensen/luaplus51-all.git luaplus
+</pre>
+
+* To create a workspace and bootstrap the build environment, run `~/luaplus/CreateJamXcodeWorkspace.sh`.
+
+* Choose the version of Lua to build within the workspace.  Note that the **-luaplus** versions build additional LuaPlus-specific features into the Lua environment; these are the preferred environments for LuaPlus.
+
+* If you want lua-curl support, run the following:
+
+<pre>
+FILL ME IN
+</pre>
+
+* If you want the PCRE module to build, run the following:
+
+<pre>
+FILL ME IN
+</pre>
+
+If you want to build from an IDE:
+
+* Open `~/luaplus/.build/_workspace_/xcode/LuaPlus.xcworkspace`.
+* Change the active scheme to `!BuildWorkspace-macosx64-release`.
+* Build.
+
+If you want to build from the command-line, use:
+
+<pre>
+# Builds to ~/luaplus/.build/bin.lua5x-luaplus.clang.macosx64
+[~/luaplus/.build]./jam c.toolchain=macosx64/release
+</pre>
+
+
+
+
+
+# Building LuaPlus for Linux
+
+## Prerequisites
+
+* FILL ME IN.
+
+## Build LuaPlus
+
+* If you haven't already, clone LuaPlus from GitHub with:
+
+<pre>
+[~]git clone https://github.com/jjensen/luaplus51-all.git luaplus
+</pre>
+
+* To create a workspace and bootstrap the build environment, run `~/luaplus/CreateJamLinuxWorkspace.sh`.
+
+* Choose the version of Lua to build within the workspace.  Note that the **-luaplus** versions build additional LuaPlus-specific features into the Lua environment; these are the preferred environments for LuaPlus.
+
+* If you want lua-curl support, run the following:
+
+<pre>
+FILL ME IN
+</pre>
+
+* If you want the PCRE module to build, run the following:
+
+<pre>
+FILL ME IN
+</pre>
+
+To build from the command-line, use:
+
+<pre>
+# Builds to ~/luaplus/.build/bin.lua5x-luaplus.gcc.linux64
+[~/luaplus/.build]./jam c.toolchain=linux64/release
+</pre>
+
