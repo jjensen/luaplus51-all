@@ -104,7 +104,7 @@ local function ExportDict(entry, out, spaces)
             else
                 out[#out + 1] = spaces .. '<false />\n'
             end
-        elseif type(subEntry.value) == 'table' then
+        elseif type(subEntry.value) == 'table'  and  not getmetatable(subEntry.value) then
             out[#out + 1] = spaces .. '<array>\n'
             local subValue = subEntry.value[1]
             if subValue then
@@ -126,6 +126,8 @@ local function ExportDict(entry, out, spaces)
                 end
             end
             out[#out + 1] = spaces .. '</array>\n'
+        elseif type(subEntry.value) == 'table'  and  getmetatable(subEntry.value) == plistDictMetatable then
+            ExportDict(subEntry.value, out, spaces)
         end
     end
     out[#out + 1] = origSpaces .. '</dict>\n'
