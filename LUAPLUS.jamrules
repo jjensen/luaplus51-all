@@ -2,12 +2,15 @@ if ! $(LUA_VERSION) {
     local dirs = [ Glob $(LUAPLUS)/Src/LuaPlus : */ : 1 ] ;
     dirs = $(dirs:P) ;
     dirs = $(dirs:B) ;
-    Echo LUA_VERSION needs to be passed in from the command-line. ;
-    Echo ;
-    Echo "    jam LUA_VERSION=lua51-luaplus" ;
-    Echo ;
-    Echo "Available versions:" $(dirs) ;
-    Exit ;
+    if $(dirs[2]) {
+        Echo LUA_VERSION needs to be passed in from the command-line. ;
+        Echo ;
+        Echo "    jam LUA_VERSION=lua51-luaplus" ;
+        Echo ;
+        Echo "Available versions:" $(dirs) ;
+        Exit ;
+    }
+    LUA_VERSION = $(dirs[1]) ;
 }
 
 LUA_VERSION ?= lua51-luaplus ;
