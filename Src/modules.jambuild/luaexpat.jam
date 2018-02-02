@@ -3,26 +3,31 @@
 local SRCS =
 		src/lxplib.c
 		src/lxplib.h
-		../expat/lib/xmlparse.c
-		../expat/lib/xmlrole.c
-		../expat/lib/xmltok.c
-		../expat/lib/ascii.h
-		../expat/lib/asciitab.h
-		../expat/lib/expat.h
-		../expat/lib/expat_external.h
-		../expat/lib/iasciitab.h
-		../expat/lib/internal.h
-		../expat/lib/latin1tab.h
-		../expat/lib/nametab.h
-		../expat/lib/utf8tab.h
-		../expat/lib/xmlrole.h
-		../expat/lib/xmltok.h
-		../expat/lib/xmltok_impl.h
+		../libexpat/expat/lib/ascii.h
+		../libexpat/expat/lib/asciitab.h
+		../libexpat/expat/lib/expat.h
+		../libexpat/expat/lib/expat_external.h
+		../libexpat/expat/lib/iasciitab.h
+		../libexpat/expat/lib/internal.h
+		../libexpat/expat/lib/latin1tab.h
+		../libexpat/expat/lib/loadlibrary.c
+		../libexpat/expat/lib/nametab.h
+		../libexpat/expat/lib/siphash.h
+		../libexpat/expat/lib/utf8tab.h
+		../libexpat/expat/lib/winconfig.h
+		../libexpat/expat/lib/xmlparse.c
+		../libexpat/expat/lib/xmlrole.c
+		../libexpat/expat/lib/xmlrole.h
+		../libexpat/expat/lib/xmltok.c
+		../libexpat/expat/lib/xmltok.h
+		../libexpat/expat/lib/xmltok_impl.c
+		../libexpat/expat/lib/xmltok_impl.h
+		../libexpat/expat/lib/xmltok_ns.c
 ;
 
 CopyFile luaexpat : $(LUA_LDIR)/lxp/lom.lua : $(SUBDIR)/src/lxp/lom.lua ;
 
-C.IncludeDirectories luaexpat : ../expat/lib ;
+C.IncludeDirectories luaexpat : ../libexpat/expat/lib ;
 C.Defines luaexpat : XML_STATIC HAVE_MEMMOVE ;
 if $(MSVCNT)
 {
