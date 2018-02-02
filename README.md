@@ -7,7 +7,7 @@
 
 For Visual Studio:
 
-* From [https://www.npcglib.org/~stathis/blog/precompiled-openssl/](https://www.npcglib.org/~stathis/blog/precompiled-openssl/), download **openssl-1.0.2f-vs20xx.7z** (where the 'xx' is replaced with your version of Visual Studio). Extract it to `c:\openssl-1.0.2f-vs20xx`, so that `c:\openssl-1.0.2f-vs20xx\include` exists.
+* From [https://www.npcglib.org/~stathis/blog/precompiled-openssl/](https://www.npcglib.org/~stathis/blog/precompiled-openssl/), download **openssl-1.1.0f-vs20xx.7z** (where the 'xx' is replaced with your version of Visual Studio). Extract it to `c:\openssl-1.1.0f-vs20xx`, so that `c:\openssl-1.1.0f-vs20xx\include` exists.
 
 (deprecated) For earlier versions of Visual Studio:
 
@@ -27,6 +27,7 @@ d:\>git clone https://github.com/jjensen/luaplus51-all.git luaplus
 	* `CreateVS2012Workspace.bat` - Create a Visual Studio 2012-capable workspace.
 	* `CreateVS2013Workspace.bat` - Create a Visual Studio 2013-capable workspace.
 	* `CreateVS2015Workspace.bat` - Create a Visual Studio 2015-capable workspace.
+	* `CreateVS2017Workspace.bat` - Create a Visual Studio 2017-capable workspace.
 
 * Choose the version of Lua to build within the workspace.  Note that the **-luaplus** versions build additional LuaPlus-specific features into the Lua environment; these are the preferred environments for LuaPlus.
 
