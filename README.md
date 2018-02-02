@@ -2,7 +2,7 @@
 
 ## Prerequisites
 
-* Download _Wget_. One location to grab it from is [http://users.ugent.be/~bpuype/wget/](http://users.ugent.be/~bpuype/wget/). Put `wget.exe` in your `PATH`.
+* Download _Wget_. One location to grab it from is [https://eternallybored.org/misc/wget/](https://eternallybored.org/misc/wget/). Put `wget.exe` in your `PATH`.
 * Download _unzip_ from [http://www.info-zip.org/UnZip.html](http://www.info-zip.org/UnZip.html). Put `unzip.exe` in your `PATH`.
 
 For Visual Studio:
