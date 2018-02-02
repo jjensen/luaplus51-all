@@ -1,9 +1,9 @@
 /*--------------------------------------------------------------------------
- * LuaSec 0.5
+ * LuaSec 0.7alpha
  *
- * Copyright (C) 2014 Kim Alvefur, Paul Aurich, Tobias Markmann, 
- *                    Matthew Wild.
- * Copyright (C) 2006-2014 Bruno Silvestre.
+ * Copyright (C) 2014-2017 Kim Alvefur, Paul Aurich, Tobias Markmann, 
+ *                         Matthew Wild.
+ * Copyright (C) 2006-2017 Bruno Silvestre.
  *
  *--------------------------------------------------------------------------*/
 
@@ -30,6 +30,14 @@
 #include "x509.h"
 #include "context.h"
 #include "ssl.h"
+
+
+#if defined(LIBRESSL_VERSION_NUMBER) || OPENSSL_VERSION_NUMBER<0x10100000L
+#define SSL_is_server(s) (s->server)
+#define SSL_up_ref(ssl)  CRYPTO_add(&(ssl)->references, 1, CRYPTO_LOCK_SSL)
+#define X509_up_ref(c)   CRYPTO_add(&c->references, 1, CRYPTO_LOCK_X509)
+#endif
+
 
 /**
  * Underline socket error.
@@ -191,9 +199,9 @@ static int ssl_recv(void *ctx, char *data, size_t count, size_t *got,
 {
   int err;
   p_ssl ssl = (p_ssl)ctx;
+  *got = 0;
   if (ssl->state != LSEC_STATE_CONNECTED)
     return IO_CLOSED;
-  *got = 0;
   for ( ; ; ) {
     ERR_clear_error();
     err = SSL_read(ssl->ssl, data, (int)count);
@@ -203,7 +211,6 @@ static int ssl_recv(void *ctx, char *data, size_t count, size_t *got,
       *got = err;
       return IO_DONE;
     case SSL_ERROR_ZERO_RETURN:
-      *got = err;
       return IO_CLOSED;
     case SSL_ERROR_WANT_READ:
       err = socket_waitfd(&ssl->sock, WAITFD_R, tm);
@@ -230,32 +237,66 @@ static int ssl_recv(void *ctx, char *data, size_t count, size_t *got,
   return IO_UNKNOWN;
 }
 
+static SSL_CTX* luaossl_testcontext(lua_State *L, int arg) {
+  SSL_CTX **ctx = luaL_testudata(L, arg, "SSL_CTX*");
+  if (ctx)
+    return *ctx;
+  return NULL;
+}
+
+static SSL* luaossl_testssl(lua_State *L, int arg) {
+  SSL **ssl = luaL_testudata(L, arg, "SSL*");
+  if (ssl)
+    return *ssl;
+  return NULL;
+}
+
 /**
  * Create a new TLS/SSL object and mark it as new.
  */
 static int meth_create(lua_State *L)
 {
   p_ssl ssl;
-  int mode = lsec_getmode(L, 1);
-  SSL_CTX *ctx = lsec_checkcontext(L, 1);
+  int mode;
+  SSL_CTX *ctx;
 
-  if (mode == LSEC_MODE_INVALID) {
-    lua_pushnil(L);
-    lua_pushstring(L, "invalid mode");
-    return 2;
-  }
+  lua_settop(L, 1);
+
   ssl = (p_ssl)lua_newuserdata(L, sizeof(t_ssl));
   if (!ssl) {
     lua_pushnil(L);
     lua_pushstring(L, "error creating SSL object");
     return 2;
   }
-  ssl->ssl = SSL_new(ctx);
-  if (!ssl->ssl) {
-    lua_pushnil(L);
-    lua_pushfstring(L, "error creating SSL object (%s)",
-      ERR_reason_error_string(ERR_get_error()));
-    return 2;
+
+  if ((ctx = lsec_testcontext(L, 1))) {
+    mode = lsec_getmode(L, 1);
+    if (mode == LSEC_MODE_INVALID) {
+      lua_pushnil(L);
+      lua_pushstring(L, "invalid mode");
+      return 2;
+    }
+    ssl->ssl = SSL_new(ctx);
+    if (!ssl->ssl) {
+      lua_pushnil(L);
+      lua_pushfstring(L, "error creating SSL object (%s)",
+        ERR_reason_error_string(ERR_get_error()));
+      return 2;
+    }
+  } else if ((ctx = luaossl_testcontext(L, 1))) {
+    ssl->ssl = SSL_new(ctx);
+    if (!ssl->ssl) {
+      lua_pushnil(L);
+      lua_pushfstring(L, "error creating SSL object (%s)",
+        ERR_reason_error_string(ERR_get_error()));
+      return 2;
+    }
+    mode = SSL_is_server(ssl->ssl) ? LSEC_MODE_SERVER : LSEC_MODE_CLIENT;
+  } else if ((ssl->ssl = luaossl_testssl(L, 1))) {
+    SSL_up_ref(ssl->ssl);
+    mode = SSL_is_server(ssl->ssl) ? LSEC_MODE_SERVER : LSEC_MODE_CLIENT;
+  } else {
+    return luaL_argerror(L, 1, "invalid context");
   }
   ssl->state = LSEC_STATE_NEW;
   SSL_set_fd(ssl->ssl, (int)SOCKET_INVALID);
@@ -330,7 +371,7 @@ static int meth_setfd(lua_State *L)
   p_ssl ssl = (p_ssl)luaL_checkudata(L, 1, "SSL:Connection");
   if (ssl->state != LSEC_STATE_NEW)
     luaL_argerror(L, 1, "invalid SSL object state");
-  ssl->sock = luaL_checkinteger(L, 2);
+  ssl->sock = (t_socket)luaL_checkinteger(L, 2);
   socket_setnonblocking(&ssl->sock);
   SSL_set_fd(ssl->ssl, (int)ssl->sock);
   return 0;
@@ -400,13 +441,17 @@ static int meth_want(lua_State *L)
   }
   return 1;
 }
-  
+
 /**
  * Return the compression method used.
  */
 static int meth_compression(lua_State *L)
 {
+#ifdef OPENSSL_NO_COMP
+  const void *comp;
+#else
   const COMP_METHOD *comp;
+#endif
   p_ssl ssl = (p_ssl)luaL_checkudata(L, 1, "SSL:Connection");
   if (ssl->state != LSEC_STATE_CONNECTED) {
     lua_pushnil(L);
@@ -436,7 +481,7 @@ static int meth_getpeercertificate(lua_State *L)
     return 2;
   }
   /* Default to the first cert */ 
-  n = luaL_optinteger(L, 2, 1);                           
+  n = (int)luaL_optinteger(L, 2, 1);                           
   /* This function is 1-based, but OpenSSL is 0-based */
   --n;
   if (n < 0) {
@@ -455,7 +500,7 @@ static int meth_getpeercertificate(lua_State *L)
   /* In a server-context, the stack doesn't contain the peer cert,
    * so adjust accordingly.
    */
-  if (ssl->ssl->server)
+  if (SSL_is_server(ssl->ssl))
     --n;
   certs = SSL_get_peer_cert_chain(ssl->ssl);
   if (n >= sk_X509_num(certs)) {
@@ -465,7 +510,7 @@ static int meth_getpeercertificate(lua_State *L)
   cert = sk_X509_value(certs, n);
   /* Increment the reference counting of the object. */
   /* See SSL_get_peer_certificate() source code.     */
-  CRYPTO_add(&cert->references, 1, CRYPTO_LOCK_X509);
+  X509_up_ref(cert);
   lsec_pushx509(L, cert);
   return 1;
 }
@@ -487,7 +532,7 @@ static int meth_getpeerchain(lua_State *L)
     return 2;
   }
   lua_newtable(L);
-  if (ssl->ssl->server) {
+  if (SSL_is_server(ssl->ssl)) {
     lsec_pushx509(L, SSL_get_peer_certificate(ssl->ssl));
     lua_rawseti(L, -2, idx++);
   }
@@ -497,7 +542,7 @@ static int meth_getpeerchain(lua_State *L)
     cert = sk_X509_value(certs, i);
     /* Increment the reference counting of the object. */
     /* See SSL_get_peer_certificate() source code.     */
-    CRYPTO_add(&cert->references, 1, CRYPTO_LOCK_X509);
+    X509_up_ref(cert);
     lsec_pushx509(L, cert);
     lua_rawseti(L, -2, idx++);
   }
@@ -751,7 +796,7 @@ static int meth_getsniname(lua_State *L)
 
 static int meth_copyright(lua_State *L)
 {
-  lua_pushstring(L, "LuaSec 0.5 - Copyright (C) 2006-2011 Bruno Silvestre"
+  lua_pushstring(L, "LuaSec 0.7alpha - Copyright (C) 2006-2017 Bruno Silvestre, UFG"
 #if defined(WITH_LUASOCKET)
                     "\nLuaSocket 3.0-RC1 - Copyright (C) 2004-2013 Diego Nehab"
 #endif
@@ -810,7 +855,6 @@ static luaL_Reg funcs[] = {
 /**
  * Initialize modules.
  */
-#if (LUA_VERSION_NUM == 501)
 LSEC_API int luaopen_ssl_core(lua_State *L)
 {
   /* Initialize SSL */
@@ -830,45 +874,29 @@ LSEC_API int luaopen_ssl_core(lua_State *L)
 
   /* Register the functions and tables */
   luaL_newmetatable(L, "SSL:Connection");
-  luaL_register(L, NULL, meta);
+  setfuncs(L, meta);
 
-  lua_newtable(L);
-  luaL_register(L, NULL, methods);
+  luaL_newlib(L, methods);
   lua_setfield(L, -2, "__index");
 
-  luaL_register(L, "ssl.core", funcs);
+  luaL_newlib(L, funcs);
+
+  lua_pushstring(L, "SOCKET_INVALID");
+  lua_pushnumber(L, SOCKET_INVALID);
+  lua_rawset(L, -3);
 
   return 1;
 }
-#else
-LSEC_API int luaopen_ssl_core(lua_State *L)
-{
-  /* Initialize SSL */
-  if (!SSL_library_init()) {
-    lua_pushstring(L, "unable to initialize SSL library");
-    lua_error(L);
-  }
-  OpenSSL_add_all_algorithms();
-  SSL_load_error_strings();
 
-#if defined(WITH_LUASOCKET)
-  /* Initialize internal library */
-  socket_open();
-#endif
+//------------------------------------------------------------------------------
 
-  luaL_newmetatable(L, "SSL:SNI:Registry");
+#if defined(_MSC_VER)
 
-  /* Register the functions and tables */
-  luaL_newmetatable(L, "SSL:Connection");
-  luaL_setfuncs(L, meta, 0);
-
-  lua_newtable(L);
-  luaL_setfuncs(L, methods, 0);
-  lua_setfield(L, -2, "__index");
-
-  lua_newtable(L);
-  luaL_setfuncs(L, funcs, 0);
-
-  return 1;
+/* Empty implementation to allow building with LuaRocks and MS compilers */
+LSEC_API int luaopen_ssl(lua_State *L) {
+  lua_pushstring(L, "you should not call this function");
+  lua_error(L);
+  return 0;
 }
+
 #endif

@@ -1,20 +1,16 @@
 ------------------------------------------------------------------------------
--- LuaSec 0.5
--- Copyright (C) 2006-2014 Bruno Silvestre
+-- LuaSec 0.7alpha
+--
+-- Copyright (C) 2006-2017 Bruno Silvestre
 --
 ------------------------------------------------------------------------------
-
-local _M = {}
 
 local core    = require("ssl.core")
 local context = require("ssl.context")
 local x509    = require("ssl.x509")
+local config  = require("ssl.config")
 
-_VERSION   = "0.5"
-_COPYRIGHT = core.copyright()
-
--- Export
-loadcertificate = x509.load
+local unpack  = table.unpack or unpack
 
 -- We must prevent the contexts to be collected before the connections,
 -- otherwise the C registry will be cleared.
@@ -26,7 +22,7 @@ local registry = setmetatable({}, {__mode="k"})
 local function optexec(func, param, ctx)
   if param then
     if type(param) == "table" then
-      return func(ctx, (unpack or table.unpack)(param))
+      return func(ctx, unpack(param))
     else
       return func(ctx, param)
     end
@@ -37,7 +33,7 @@ end
 --
 --
 --
-function _M.newcontext(cfg)
+local function newcontext(cfg)
    local succ, msg, ctx
    -- Create the context
    ctx, msg = context.create(cfg.protocol)
@@ -98,11 +94,19 @@ function _M.newcontext(cfg)
       end
       context.setdhparam(ctx, cfg.dhparam)
    end
-   -- Set elliptic curve
-   if cfg.curve then
-      succ, msg = context.setcurve(ctx, cfg.curve)
-      if not succ then return nil, msg end
+   
+   -- Set elliptic curves
+   if (not config.algorithms.ec) and (cfg.curve or cfg.curveslist) then
+     return false, "elliptic curves not supported"
    end
+   if config.capabilities.curves_list and cfg.curveslist then
+     succ, msg = context.setcurveslist(ctx, cfg.curveslist)
+     if not succ then return nil, msg end
+   elseif cfg.curve then
+     succ, msg = context.setcurve(ctx, cfg.curve)
+     if not succ then return nil, msg end
+   end
+
    -- Set extra verification options
    if cfg.verifyext and ctx.setverifyext then
       succ, msg = optexec(ctx.setverifyext, cfg.verifyext, ctx)
@@ -115,10 +119,10 @@ end
 --
 --
 --
-function _M.wrap(sock, cfg)
+local function wrap(sock, cfg)
    local ctx, msg
    if type(cfg) == "table" then
-      ctx, msg = _M.newcontext(cfg)
+      ctx, msg = newcontext(cfg)
       if not ctx then return nil, msg end
    else
       ctx = cfg
@@ -126,7 +130,7 @@ function _M.wrap(sock, cfg)
    local s, msg = core.create(ctx)
    if s then
       core.setfd(s, sock:getfd())
-      sock:setfd(-1)
+      sock:setfd(core.SOCKET_INVALID)
       registry[s] = ctx
       return s
    end
@@ -169,5 +173,17 @@ end
 -- Set method for SSL connections.
 --
 core.setmethod("info", info)
+
+--------------------------------------------------------------------------------
+-- Export module
+--
+
+local _M = {
+  _VERSION        = "0.7",
+  _COPYRIGHT      = core.copyright(),
+  loadcertificate = x509.load,
+  newcontext      = newcontext,
+  wrap            = wrap,
+}
 
 return _M

@@ -23,9 +23,11 @@ if $(MSVCNT) {
 }
 
 local SRCS =
+		src/compat.h
 		src/config.h
 		src/context.c
 		src/context.h
+		src/ec.c
 		src/ec.h
 		src/https.lua
 		src/options.h
