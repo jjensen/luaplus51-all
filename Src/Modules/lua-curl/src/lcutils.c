@@ -304,3 +304,86 @@ int lcurl_utils_apply_options(lua_State *L, int opt, int obj, int do_close,
   assert(lua_gettop(L) == top);
   return 0;
 }
+
+void lcurl_stack_dump (lua_State *L){
+  int i = 1, top = lua_gettop(L);
+
+  fprintf(stderr, " ----------------  Stack Dump ----------------\n" );
+  while( i <= top ) {
+    int t = lua_type(L, i);
+    switch (t) {
+      case LUA_TSTRING:
+        fprintf(stderr, "%d(%d):`%s'\n", i, i - top - 1, lua_tostring(L, i));
+        break;
+      case LUA_TBOOLEAN:
+        fprintf(stderr, "%d(%d): %s\n",  i, i - top - 1,lua_toboolean(L, i) ? "true" : "false");
+        break;
+      case LUA_TNUMBER:
+        fprintf(stderr, "%d(%d): %g\n",  i, i - top - 1, lua_tonumber(L, i));
+        break;
+      default:
+        lua_getglobal(L, "tostring");
+        lua_pushvalue(L, i);
+        lua_call(L, 1, 1);
+        fprintf(stderr, "%d(%d): %s(%s)\n", i, i - top - 1, lua_typename(L, t), lua_tostring(L, -1));
+        lua_pop(L, 1);
+        break;
+    }
+    i++;
+  }
+  fprintf(stderr, " ------------ Stack Dump Finished ------------\n" );
+}
+
+curl_socket_t lcurl_opt_os_socket(lua_State *L, int idx, curl_socket_t def) {
+  if (lua_islightuserdata(L, idx))
+    return (curl_socket_t)lua_touserdata(L, idx);
+
+  return (curl_socket_t)lutil_optint64(L, idx, def);
+}
+
+void lcurl_push_os_socket(lua_State *L, curl_socket_t fd) {
+#if !defined(_WIN32)
+  lutil_pushint64(L, fd);
+#else /*_WIN32*/
+  /* Assumes that compiler can optimize constant conditions. MSVC do this. */
+
+  /*On Lua 5.3 lua_Integer type can be represented exactly*/
+#if LUA_VERSION_NUM >= 503
+  if (sizeof(curl_socket_t) <= sizeof(lua_Integer)) {
+    lua_pushinteger(L, (lua_Integer)fd);
+    return;
+  }
+#endif
+
+#if defined(LUA_NUMBER_DOUBLE) || defined(LUA_NUMBER_FLOAT)
+  /*! @todo test DBL_MANT_DIG, FLT_MANT_DIG */
+
+  if (sizeof(lua_Number) == 8) { /*we have 53 bits for integer*/
+    if ((sizeof(curl_socket_t) <= 6)) {
+      lua_pushnumber(L, (lua_Number)fd);
+      return;
+    }
+
+    if(((UINT_PTR)fd & 0x1FFFFFFFFFFFFF) == (UINT_PTR)fd)
+      lua_pushnumber(L, (lua_Number)fd);
+    else
+      lua_pushlightuserdata(L, (void*)fd);
+
+    return;
+  }
+
+  if (sizeof(lua_Number) == 4) { /*we have 24 bits for integer*/
+    if (((UINT_PTR)fd & 0xFFFFFF) == (UINT_PTR)fd)
+      lua_pushnumber(L, (lua_Number)fd);
+    else
+      lua_pushlightuserdata(L, (void*)fd);
+    return;
+  }
+#endif
+
+  lutil_pushint64(L, fd);
+  if (lcurl_opt_os_socket(L, -1, 0) != fd)
+    lua_pushlightuserdata(L, (void*)fd);
+
+#endif /*_WIN32*/
+}

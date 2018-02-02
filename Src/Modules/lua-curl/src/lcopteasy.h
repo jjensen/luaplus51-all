@@ -4,7 +4,7 @@
 #undef TCP_KEEPALIVE
 
 /* Before version 7.17.0, strings were not copied.
-   Instead the user was forced keep them available 
+   Instead the user was forced keep them available
    until libcurl no longer needed them.
 */
 
@@ -28,6 +28,11 @@
 
 #ifndef LCURL_DEFAULT_VALUE
 #  define LCURL_DEFAULT_VALUE 0
+#endif
+
+#ifdef TCP_FASTOPEN
+#  define LCURL__TCP_FASTOPEN TCP_FASTOPEN
+#  undef TCP_FASTOPEN
 #endif
 
 OPT_ENTRY( verbose,                VERBOSE,                  LNG, 0,                  LCURL_DEFAULT_VALUE )
@@ -83,7 +88,7 @@ OPT_ENTRY( httpauth,               HTTPAUTH,                 LNG, 0,            
 #if LCURL_CURL_VER_GE(7,21,4)
 OPT_ENTRY( tlsauth_username,       TLSAUTH_USERNAME,         STR, LCURL_STORE_STRING, LCURL_DEFAULT_VALUE )
 OPT_ENTRY( tlsauth_password,       TLSAUTH_PASSWORD,         STR, LCURL_STORE_STRING, LCURL_DEFAULT_VALUE )
-OPT_ENTRY( tlsauth_type,           TLSAUTH_TYPE,             LNG, 0,                  CURL_TLSAUTH_NONE   )
+OPT_ENTRY( tlsauth_type,           TLSAUTH_TYPE,             STR, 0,                  "" )
 #endif
 OPT_ENTRY( proxyauth,              PROXYAUTH,                LNG, 0,                  CURLAUTH_BASIC )
 #if LCURL_CURL_VER_GE(7,31,0)
@@ -232,13 +237,26 @@ OPT_ENTRY( ssl_cipher_list,         SSL_CIPHER_LIST,         STR, LCURL_STORE_ST
 OPT_ENTRY( ssl_enable_alpn,         SSL_ENABLE_ALPN,         LNG, 0,                  1 )
 OPT_ENTRY( ssl_enable_npn,          SSL_ENABLE_NPN,          LNG, 0,                  1 )
 #endif
-#if LCURL_CURL_VER_GE(7,25,0)                                
+#if LCURL_CURL_VER_GE(7,25,0)
 OPT_ENTRY( ssl_options,             SSL_OPTIONS,             LNG, 0,                  LCURL_DEFAULT_VALUE )
 #endif
 OPT_ENTRY( ssl_sessionid_cache,     SSL_SESSIONID_CACHE,     LNG, 0,                  1 )
 OPT_ENTRY( ssl_verifyhost,          SSL_VERIFYHOST,          LNG, 0,                  2 )
 OPT_ENTRY( ssl_verifypeer,          SSL_VERIFYPEER,          LNG, 0,                  1 )
+OPT_ENTRY( keypasswd,               KEYPASSWD,               STR, LCURL_STORE_STRING, LCURL_DEFAULT_VALUE )
 
+#if LCURL_CURL_VER_GE(7,20,0)
+OPT_ENTRY( rtsp_client_cseq,        RTSP_CLIENT_CSEQ,        LNG, 0,                  LCURL_DEFAULT_VALUE )
+OPT_ENTRY( rtsp_request,            RTSP_REQUEST,            LNG, 0,                  LCURL_DEFAULT_VALUE )
+OPT_ENTRY( rtsp_server_cseq,        RTSP_SERVER_CSEQ,        LNG, 0,                  LCURL_DEFAULT_VALUE )
+OPT_ENTRY( rtsp_session_id,         RTSP_SESSION_ID,         STR, LCURL_STORE_STRING, LCURL_DEFAULT_VALUE )
+OPT_ENTRY( rtsp_stream_uri,         RTSP_STREAM_URI,         STR, LCURL_STORE_STRING, LCURL_DEFAULT_VALUE )
+OPT_ENTRY( rtsp_transport,          RTSP_TRANSPORT,          STR, LCURL_STORE_STRING, LCURL_DEFAULT_VALUE )
+#endif
+
+#if LCURL_CURL_VER_GE(7,22,0)
+OPT_ENTRY( gssapi_delegation,       GSSAPI_DELEGATION,        LNG, 0,                  CURLGSSAPI_DELEGATION_NONE )
+#endif 
 
 FLG_ENTRY( SSLVERSION_DEFAULT )
 FLG_ENTRY( SSLVERSION_TLSv1   )
@@ -248,6 +266,18 @@ FLG_ENTRY( SSLVERSION_SSLv3   )
 FLG_ENTRY( SSLVERSION_TLSv1_0 )
 FLG_ENTRY( SSLVERSION_TLSv1_1 )
 FLG_ENTRY( SSLVERSION_TLSv1_2 )
+#endif
+#if LCURL_CURL_VER_GE(7,52,0)
+FLG_ENTRY( SSLVERSION_TLSv1_3 )
+#endif
+
+#if LCURL_CURL_VER_GE(7,54,0)
+FLG_ENTRY( SSLVERSION_MAX_NONE    )
+FLG_ENTRY( SSLVERSION_MAX_DEFAULT )
+FLG_ENTRY( SSLVERSION_MAX_TLSv1_0 )
+FLG_ENTRY( SSLVERSION_MAX_TLSv1_1 )
+FLG_ENTRY( SSLVERSION_MAX_TLSv1_2 )
+FLG_ENTRY( SSLVERSION_MAX_TLSv1_3 )
 #endif
 
 #if LCURL_CURL_VER_GE(7,21,4)
@@ -259,6 +289,15 @@ FLG_ENTRY( HTTP_VERSION_1_0   )
 FLG_ENTRY( HTTP_VERSION_1_1   )
 #if LCURL_CURL_VER_GE(7,33,0)
 FLG_ENTRY( HTTP_VERSION_2_0   )
+#endif
+#if LCURL_CURL_VER_GE(7,43,0)
+FLG_ENTRY( HTTP_VERSION_2     )
+#endif
+#if LCURL_CURL_VER_GE(7,47,0)
+FLG_ENTRY( HTTP_VERSION_2TLS  )
+#endif
+#if LCURL_CURL_VER_GE(7,49,0)
+FLG_ENTRY( HTTP_VERSION_2_PRIOR_KNOWLEDGE )
 #endif
 
 FLG_ENTRY( READFUNC_PAUSE     ) /*7.18.0*/
@@ -275,6 +314,98 @@ FLG_ENTRY( CSELECT_ERR        ) /*7.16.3*/
 FLG_ENTRY( CSELECT_IN         ) /*7.16.3*/
 FLG_ENTRY( CSELECT_OUT        ) /*7.16.3*/
 
+FLG_ENTRY( IPRESOLVE_WHATEVER ) /*7.10.8*/
+FLG_ENTRY( IPRESOLVE_V4       ) /*7.10.8*/
+FLG_ENTRY( IPRESOLVE_V6       ) /*7.10.8*/
+
+#if LCURL_CURL_VER_GE(7,20,0)
+FLG_ENTRY( RTSPREQ_OPTIONS       )
+FLG_ENTRY( RTSPREQ_DESCRIBE      )
+FLG_ENTRY( RTSPREQ_ANNOUNCE      )
+FLG_ENTRY( RTSPREQ_SETUP         )
+FLG_ENTRY( RTSPREQ_PLAY          )
+FLG_ENTRY( RTSPREQ_PAUSE         )
+FLG_ENTRY( RTSPREQ_TEARDOWN      )
+FLG_ENTRY( RTSPREQ_GET_PARAMETER )
+FLG_ENTRY( RTSPREQ_SET_PARAMETER )
+FLG_ENTRY( RTSPREQ_RECORD        )
+FLG_ENTRY( RTSPREQ_RECEIVE       )
+#endif
+
+#if LCURL_CURL_VER_GE(7,39,0)
+OPT_ENTRY( pinnedpublickey,    PINNEDPUBLICKEY,    STR, 0,                  LCURL_DEFAULT_VALUE )
+#endif
+#if LCURL_CURL_VER_GE(7,40,0)
+OPT_ENTRY( unix_socket_path,   UNIX_SOCKET_PATH,   STR, 0,                  LCURL_DEFAULT_VALUE )
+#endif
+#if LCURL_CURL_VER_GE(7,41,0)
+OPT_ENTRY( ssl_verifystatus,   SSL_VERIFYSTATUS,   LNG, 0,                  LCURL_DEFAULT_VALUE )
+#endif
+#if LCURL_CURL_VER_GE(7,42,0)
+OPT_ENTRY( ssl_falsestart,     SSL_FALSESTART,     LNG, 0,                  LCURL_DEFAULT_VALUE )
+OPT_ENTRY( path_as_is,         PATH_AS_IS,         LNG, 0,                  LCURL_DEFAULT_VALUE )
+#endif
+#if LCURL_CURL_VER_GE(7,43,0)
+OPT_ENTRY( proxy_service_name, PROXY_SERVICE_NAME, STR, 0,                  LCURL_DEFAULT_VALUE )
+OPT_ENTRY( service_name,       SERVICE_NAME,       STR, 0,                  LCURL_DEFAULT_VALUE )
+OPT_ENTRY( pipewait,           PIPEWAIT,           LNG, 0,                  LCURL_DEFAULT_VALUE )
+#endif
+#if LCURL_CURL_VER_GE(7,45,0)
+OPT_ENTRY( default_protocol,   DEFAULT_PROTOCOL,   STR, 0,                  LCURL_DEFAULT_VALUE )
+#endif
+#if LCURL_CURL_VER_GE(7,46,0)
+OPT_ENTRY( stream_weight,      STREAM_WEIGHT,      LNG, 0,                  LCURL_DEFAULT_VALUE )
+#endif
+#if LCURL_CURL_VER_GE(7,48,0)
+OPT_ENTRY( tftp_no_options,    TFTP_NO_OPTIONS,    LNG, 0,                  LCURL_DEFAULT_VALUE )
+#endif
+#if LCURL_CURL_VER_GE(7,49,0)
+OPT_ENTRY( tcp_fastopen,       TCP_FASTOPEN,       LNG, 0,                  LCURL_DEFAULT_VALUE )
+OPT_ENTRY( connect_to,         CONNECT_TO,         LST, 0,                  LCURL_DEFAULT_VALUE )
+#endif
+#if LCURL_CURL_VER_GE(7,51,0)
+OPT_ENTRY( keep_sending_on_error, KEEP_SENDING_ON_ERROR, LNG, 0,            LCURL_DEFAULT_VALUE )
+#endif
+
+#if LCURL_CURL_VER_GE(7,52,0)
+OPT_ENTRY( proxy_cainfo,           PROXY_CAINFO,           STR, 0, LCURL_DEFAULT_VALUE)
+OPT_ENTRY( proxy_capath,           PROXY_CAPATH,           STR, 0, LCURL_DEFAULT_VALUE)
+OPT_ENTRY( proxy_ssl_verifypeer,   PROXY_SSL_VERIFYPEER,   LNG, 0, 1)
+OPT_ENTRY( proxy_ssl_verifyhost,   PROXY_SSL_VERIFYHOST,   LNG, 0, 2)
+OPT_ENTRY( proxy_sslversion,       PROXY_SSLVERSION,       LNG, 0, CURL_SSLVERSION_DEFAULT)
+OPT_ENTRY( proxy_tlsauth_username, PROXY_TLSAUTH_USERNAME, STR, 0, LCURL_DEFAULT_VALUE)
+OPT_ENTRY( proxy_tlsauth_password, PROXY_TLSAUTH_PASSWORD, STR, 0, LCURL_DEFAULT_VALUE)
+OPT_ENTRY( proxy_tlsauth_type,     PROXY_TLSAUTH_TYPE,     STR, 0, "")
+OPT_ENTRY( proxy_sslcert,          PROXY_SSLCERT,          STR, 0, LCURL_DEFAULT_VALUE)
+OPT_ENTRY( proxy_sslcerttype,      PROXY_SSLCERTTYPE,      STR, 0, "PEM")
+OPT_ENTRY( proxy_sslkey,           PROXY_SSLKEY,           STR, 0, LCURL_DEFAULT_VALUE)
+OPT_ENTRY( proxy_sslkeytype,       PROXY_SSLKEYTYPE,       STR, 0, "PEM") /* default value not defined. Use same as for `SSLKEYTYPE` */
+OPT_ENTRY( proxy_keypasswd,        PROXY_KEYPASSWD,        STR, 0, LCURL_DEFAULT_VALUE)
+OPT_ENTRY( proxy_ssl_cipher_list,  PROXY_SSL_CIPHER_LIST,  STR, 0, LCURL_DEFAULT_VALUE)
+OPT_ENTRY( proxy_crlfile,          PROXY_CRLFILE,          STR, 0, LCURL_DEFAULT_VALUE)
+OPT_ENTRY( proxy_ssl_options,      PROXY_SSL_OPTIONS,      LNG, 0, LCURL_DEFAULT_VALUE)
+OPT_ENTRY( pre_proxy,              PRE_PROXY,              STR, 0, LCURL_DEFAULT_VALUE)
+OPT_ENTRY( proxy_pinnedpublickey,  PROXY_PINNEDPUBLICKEY,  STR, 0, LCURL_DEFAULT_VALUE)
+#endif
+
+#if LCURL_CURL_VER_GE(7,53,0)
+OPT_ENTRY( abstract_unix_socket,   ABSTRACT_UNIX_SOCKET,  STR, 0, LCURL_DEFAULT_VALUE)
+#endif
+
+#if LCURL_CURL_VER_GE(7,54,0)
+OPT_ENTRY( suppress_connect_headers, SUPPRESS_CONNECT_HEADERS, LNG, 0, LCURL_DEFAULT_VALUE)
+#endif
+
+#if LCURL_CURL_VER_GE(7,55,0)
+OPT_ENTRY( request_target,           REQUEST_TARGET,           STR, 0, LCURL_DEFAULT_VALUE)
+OPT_ENTRY( socks5_auth,              SOCKS5_AUTH,              LNG, 0, LCURL_DEFAULT_VALUE)
+#endif
+
+#ifdef LCURL__TCP_FASTOPEN
+#  define TCP_FASTOPEN LCURL__TCP_FASTOPEN
+#  undef LCURL__TCP_FASTOPEN
+#endif
+
 #ifdef OPT_ENTRY_IS_NULL
 #  undef OPT_ENTRY
 #endif
@@ -282,4 +413,3 @@ FLG_ENTRY( CSELECT_OUT        ) /*7.16.3*/
 #ifdef FLG_ENTRY_IS_NULL
 #  undef FLG_ENTRY
 #endif
-

@@ -13,6 +13,7 @@
 
 #include "lcurl.h"
 #include "lcutils.h"
+#include "lchttppost.h"
 
 #define LCURL_LST_INDEX(N) LCURL_##N##_LIST,
 #define LCURL_STR_INDEX(N)
@@ -32,10 +33,25 @@ enum {
 #undef LCURL_LNG_INDEX
 #undef OPT_ENTRY
 
+#define LCURL_EASY_MAGIC 0xEA
+
+#if LCURL_CC_SUPPORT_FORWARD_TYPEDEF
+typedef struct lcurl_multi_tag lcurl_multi_t;
+#else
+struct lcurl_multi_tag;
+#define lcurl_multi_t struct lcurl_multi_tag
+#endif
+
 typedef struct lcurl_easy_tag{
+  unsigned char magic;
+
   lua_State *L;
   lcurl_callback_t rd;
   lcurl_read_buffer_t rbuffer;
+
+  lcurl_hpost_t *post;
+
+  lcurl_multi_t *multi;
 
   CURL *curl;
   int storage;
@@ -44,6 +60,11 @@ typedef struct lcurl_easy_tag{
   lcurl_callback_t wr;
   lcurl_callback_t hd;
   lcurl_callback_t pr;
+  lcurl_callback_t seek;
+  lcurl_callback_t debug;
+  lcurl_callback_t match;
+  lcurl_callback_t chunk_bgn;
+  lcurl_callback_t chunk_end;
 }lcurl_easy_t;
 
 int lcurl_easy_create(lua_State *L, int error_mode);
@@ -53,5 +74,11 @@ lcurl_easy_t *lcurl_geteasy_at(lua_State *L, int i);
 #define lcurl_geteasy(L) lcurl_geteasy_at((L),1)
 
 void lcurl_easy_initlib(lua_State *L, int nup);
+
+void lcurl__easy_assign_lua(lua_State *L, lcurl_easy_t *p, lua_State *value, int assign_multi);
+
+#if !LCURL_CC_SUPPORT_FORWARD_TYPEDEF
+#undef lcurl_multi_t
+#endif
 
 #endif

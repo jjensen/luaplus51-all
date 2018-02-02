@@ -16,6 +16,34 @@
 #define LCURL_HTTPPOST_NAME LCURL_PREFIX" HTTPPost"
 static const char *LCURL_HTTPPOST = LCURL_HTTPPOST_NAME;
 
+
+#if LUA_VERSION_NUM >= 503 /* Lua 5.3 */
+
+/*! @fixme detect real types (e.g. float/int32_t) */
+
+#  define LCURL_USE_INTEGER
+
+#endif
+
+#ifdef LCURL_USE_INTEGER
+#  ifdef LUA_32BITS
+#    define LCURL_INT_SIZE_16
+#    define LCURL_INT_SIZE_32
+#  else
+#    define LCURL_INT_SIZE_16
+#    define LCURL_INT_SIZE_32
+#    define LCURL_INT_SIZE_64
+#  endif
+#endif
+
+#if LCURL_CURL_VER_GE(7,46,0)
+# define LCURL_FORM_CONTENTLEN CURLFORM_CONTENTLEN
+# define LCURL_LEN_TYPE curl_off_t
+#else
+# define LCURL_FORM_CONTENTLEN CURLFORM_CONTENTSLENGTH
+# define LCURL_LEN_TYPE long
+#endif
+
 //{ stream
 
 static lcurl_hpost_stream_t *lcurl_hpost_stream_add(lua_State *L, lcurl_hpost_t *p){
@@ -23,7 +51,8 @@ static lcurl_hpost_stream_t *lcurl_hpost_stream_add(lua_State *L, lcurl_hpost_t 
   lcurl_hpost_stream_t *stream = malloc(sizeof(lcurl_hpost_stream_t));
   if(!stream) return NULL;
 
-  stream->L = L;
+  stream->magic = LCURL_HPOST_STREAM_MAGIC;
+  stream->L = &p->L;
   stream->rbuffer.ref = LUA_NOREF;
   stream->rd.cb_ref = stream->rd.ud_ref = LUA_NOREF;
   stream->next = NULL;
@@ -83,8 +112,14 @@ int lcurl_hpost_create(lua_State *L, int error_mode){
 
 lcurl_hpost_t *lcurl_gethpost_at(lua_State *L, int i){
   lcurl_hpost_t *p = (lcurl_hpost_t *)lutil_checkudatap (L, i, LCURL_HTTPPOST);
-  luaL_argcheck (L, p != NULL, 1, LCURL_PREFIX"HTTPPost object expected");
+  luaL_argcheck (L, p != NULL, 1, LCURL_HTTPPOST_NAME" object expected");
   return p;
+}
+
+static int lcurl_hpost_to_s(lua_State *L){
+  lcurl_hpost_t *p = (lcurl_hpost_t *)lutil_checkudatap (L, 1, LCURL_HTTPPOST);
+  lua_pushfstring(L, LCURL_HTTPPOST_NAME" (%p)", (void*)p);
+  return 1;
 }
 
 static int lcurl_hpost_add_content(lua_State *L){
@@ -103,8 +138,8 @@ static int lcurl_hpost_add_content(lua_State *L){
   forms[i].option = CURLFORM_END;
 
   code = curl_formadd(&p->post, &p->last,
-    CURLFORM_PTRNAME,       name, CURLFORM_NAMELENGTH,     name_len,
-    CURLFORM_PTRCONTENTS,   cont, CURLFORM_CONTENTSLENGTH, cont_len,
+    CURLFORM_PTRNAME,       name, CURLFORM_NAMELENGTH,   (long)name_len,
+    CURLFORM_PTRCONTENTS,   cont, LCURL_FORM_CONTENTLEN, (LCURL_LEN_TYPE)cont_len,
     CURLFORM_ARRAY,         forms,
   CURLFORM_END);
 
@@ -138,7 +173,7 @@ static int lcurl_hpost_add_buffer(lua_State *L){
   forms[i].option = CURLFORM_END;
 
   code = curl_formadd(&p->post, &p->last, 
-    CURLFORM_PTRNAME,   name, CURLFORM_NAMELENGTH,   name_len,
+    CURLFORM_PTRNAME,   name, CURLFORM_NAMELENGTH,   (long)name_len,
     CURLFORM_BUFFER,    buff,
     CURLFORM_BUFFERPTR, cont, CURLFORM_BUFFERLENGTH, cont_len,
     CURLFORM_ARRAY,     forms,
@@ -201,7 +236,7 @@ static int lcurl_hpost_add_file(lua_State *L){
   forms[i].option = CURLFORM_END;
 
   code = curl_formadd(&p->post, &p->last, 
-    CURLFORM_PTRNAME,   name, CURLFORM_NAMELENGTH,   name_len,
+    CURLFORM_PTRNAME,   name, CURLFORM_NAMELENGTH,   (long)name_len,
     CURLFORM_FILE,      path,
     CURLFORM_ARRAY,     forms,
     CURLFORM_END);
@@ -233,7 +268,6 @@ static int lcurl_hpost_add_stream(lua_State *L){
   int n = 0, i = 3;
   struct curl_forms forms[4];
 
-
   while(1){ // [filename, [type,]] [headers,]
     if(lua_isnone(L, i)){
       lua_pushliteral(L, "stream size required");
@@ -264,7 +298,12 @@ static int lcurl_hpost_add_stream(lua_State *L){
     }
     ++i;
   }
+
+#if defined(LCURL_INT_SIZE_64) && LCURL_CURL_VER_GE(7,46,0)
+  len = luaL_checkinteger(L, i);
+#else
   len = luaL_checklong(L, i);
+#endif
 
   lcurl_set_callback(L, &rd, i + 1, "read");
 
@@ -289,8 +328,8 @@ static int lcurl_hpost_add_stream(lua_State *L){
   stream->rd = rd;
 
   code = curl_formadd(&p->post, &p->last, 
-    CURLFORM_PTRNAME,   name,   CURLFORM_NAMELENGTH,     name_len,
-    CURLFORM_STREAM,    stream, CURLFORM_CONTENTSLENGTH, len,
+    CURLFORM_PTRNAME,   name,   CURLFORM_NAMELENGTH,   (long)name_len,
+    CURLFORM_STREAM,    stream, LCURL_FORM_CONTENTLEN, (LCURL_LEN_TYPE)len,
     CURLFORM_ARRAY,     forms,
     CURLFORM_END
   );
@@ -382,7 +421,7 @@ static int lcurl_hpost_add_files(lua_State *L){
   }
 
   code = curl_formadd(&p->post, &p->last, 
-    CURLFORM_PTRNAME, name, CURLFORM_NAMELENGTH,   name_len,
+    CURLFORM_PTRNAME, name, CURLFORM_NAMELENGTH,   (long)name_len,
     CURLFORM_ARRAY,   forms,
     CURLFORM_END);
 
@@ -530,6 +569,7 @@ static const struct luaL_Reg lcurl_hpost_methods[] = {
   {"get",                  lcurl_hpost_get                       },
   {"free",                 lcurl_hpost_free                      },
   {"__gc",                 lcurl_hpost_free                      },
+  {"__tostring",           lcurl_hpost_to_s                      },
 
   {NULL,NULL}
 };

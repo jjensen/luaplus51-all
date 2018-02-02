@@ -4,7 +4,7 @@
 [![Coverage Status](https://coveralls.io/repos/Lua-cURL/Lua-cURLv3/badge.png?branch=master)](https://coveralls.io/r/Lua-cURL/Lua-cURLv3?branch=master)
 [![Licence](http://img.shields.io/badge/Licence-MIT-brightgreen.svg)](LICENSE)
 
-##Status
+## Status
 
 This module include three layer
 
@@ -45,7 +45,7 @@ luarocks install Lua-cURL
 
 Install current master:
 ```
-luarocks install Lua-cURL --server=https://rocks.moonscript.org/dev
+luarocks install Lua-cURL --server=https://luarocks.org/dev
 ```
 
 ## List of incompatibility with original [Lua-cURLv2](https://github.com/Lua-cURL/Lua-cURLv2)
@@ -59,13 +59,14 @@ luarocks install Lua-cURL --server=https://rocks.moonscript.org/dev
 
 ```Lua
 -- HTTP Get
-curl.easy()
-  :setopt_url('http://httpbin.org/get')
-  :setopt_httpheader{
-    "X-Test-Header1: Header-Data1",
-    "X-Test-Header2: Header-Data2",
+curl.easy{
+    url = 'http://httpbin.org/get',
+    httpheader = {
+      "X-Test-Header1: Header-Data1",
+      "X-Test-Header2: Header-Data2",
+    },
+    writefunction = io.stderr -- use io.stderr:write()
   }
-  :setopt_writefunction(io.stderr) -- use io.stderr:write()
   :perform()
 :close()
 ```

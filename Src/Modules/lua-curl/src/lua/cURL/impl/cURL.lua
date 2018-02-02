@@ -1,12 +1,24 @@
 --
---  Author: Alexey Melnichuk <mimir@newmail.ru>
+--  Author: Alexey Melnichuk <alexeymelnichuck@gmail.com>
 --
---  Copyright (C) 2014 Alexey Melnichuk <mimir@newmail.ru>
+--  Copyright (C) 2014-2017 Alexey Melnichuk <alexeymelnichuck@gmail.com>
 --
 --  Licensed according to the included 'LICENSE' document
 --
 --  This file is part of Lua-cURL library.
 --
+
+local module_info = {
+  _NAME      = "Lua-cURL";
+  _VERSION   = "0.3.8-dev";
+  _LICENSE   = "MIT";
+  _COPYRIGHT = "Copyright (c) 2014-2017 Alexey Melnichuk";
+}
+
+local function hash_id(str)
+  local id = string.match(str, "%((.-)%)") or string.match(str, ': (%x+)$')
+  return id
+end
 
 local function clone(t, o)
   o = o or {}
@@ -115,7 +127,6 @@ local function make_iterator(self, perform)
     end
   end
 end
-
 
 -- name = <string>/<stream>/<file>/<buffer>/<content>
 --
@@ -354,6 +365,7 @@ Easy.setopt_proxytype = wrap_setopt_flags("proxytype", {
   ["SOCKS5"          ] = curl.PROXY_SOCKS5;
   ["SOCKS4A"         ] = curl.PROXY_SOCKS4A;
   ["SOCKS5_HOSTNAME" ] = curl.PROXY_SOCKS5_HOSTNAME;
+  ["HTTPS"           ] = curl.PROXY_HTTPS;
 })
 
 Easy.setopt_httpauth  = wrap_setopt_flags("httpauth", {
@@ -364,6 +376,7 @@ Easy.setopt_httpauth  = wrap_setopt_flags("httpauth", {
   ["NEGOTIATE"       ] = curl.AUTH_NEGOTIATE;
   ["NTLM"            ] = curl.AUTH_NTLM;
   ["DIGEST_IE"       ] = curl.AUTH_DIGEST_IE;
+  ["GSSAPI"          ] = curl.AUTH_GSSAPI;
   ["NTLM_WB"         ] = curl.AUTH_NTLM_WB;
   ["ONLY"            ] = curl.AUTH_ONLY;
   ["ANY"             ] = curl.AUTH_ANY;
@@ -478,6 +491,11 @@ function Form:add(data)
   return form_add(self, data)
 end
 
+function Form:__tostring()
+  local id = hash_id(tostring(self._handle))
+  return string.format("%s %s (%s)", module_info._NAME, 'Form', id)
+end
+
 end
 -------------------------------------------
 
@@ -504,26 +522,68 @@ function Easy:setopt_httppost(form)
   return setopt_httppost(self, form:handle())
 end
 
+if curl.OPT_STREAM_DEPENDS then
+
+local setopt_stream_depends = wrap_function("setopt_stream_depends")
+function Easy:setopt_stream_depends(easy)
+  return setopt_stream_depends(self, easy:handle())
+end
+
+local setopt_stream_depends_e = wrap_function("setopt_stream_depends_e")
+function Easy:setopt_stream_depends_e(easy)
+  return setopt_stream_depends_e(self, easy:handle())
+end
+
+end
+
 local setopt = wrap_function("setopt")
+local custom_setopt = {
+  [curl.OPT_HTTPPOST         or true] = 'setopt_httppost';
+  [curl.OPT_STREAM_DEPENDS   or true] = 'setopt_stream_depends';
+  [curl.OPT_STREAM_DEPENDS_E or true] = 'setopt_stream_depends_e';
+}
+custom_setopt[true] = nil
+
 function Easy:setopt(k, v)
   if type(k) == 'table' then
     local t = k
 
+    local t2
     local hpost = t.httppost or t[curl.OPT_HTTPPOST]
     if hpost and hpost._handle then
-      t = clone(t)
+      t = t2 or clone(t); t2 = t;
       if t.httppost           then t.httppost           = hpost:handle() end
       if t[curl.OPT_HTTPPOST] then t[curl.OPT_HTTPPOST] = hpost:handle() end
+    end
+
+    local easy = t.stream_depends or t[curl.OPT_STREAM_DEPENDS]
+    if easy and easy._handle then
+      t = t2 or clone(t); t2 = t;
+      if t.stream_depends           then t.stream_depends           = easy:handle() end
+      if t[curl.OPT_STREAM_DEPENDS] then t[curl.OPT_STREAM_DEPENDS] = easy:handle() end
+    end
+
+    local easy = t.stream_depends_e or t[curl.OPT_STREAM_DEPENDS_E]
+    if easy and easy._handle then
+      t = t2 or clone(t); t2 = t;
+      if t.stream_depends_e           then t.stream_depends_e           = easy:handle() end
+      if t[curl.OPT_STREAM_DEPENDS_E] then t[curl.OPT_STREAM_DEPENDS_E] = easy:handle() end
     end
 
     return setopt(self, t)
   end
 
-  if k == curl.OPT_HTTPPOST then
-    return self:setopt_httppost(v)
+  local setname = custom_setopt[k]
+  if setname then
+    return self[setname](self, v)
   end
 
   return setopt(self, k, v)
+end
+
+function Easy:__tostring()
+  local id = hash_id(tostring(self._handle))
+  return string.format("%s %s (%s)", module_info._NAME, 'Easy', id)
 end
 
 end
@@ -549,7 +609,9 @@ function Multi:add_handle(e)
   assert(self._easy.n >= 0)
 
   local h = e:handle()
-  if self._easy[h] then return self end
+  if self._easy[h] then
+    return nil, curl.error(curl.ERROR_MULTI, curl.E_MULTI_ADDED_ALREADY or curl.E_MULTI_BAD_EASY_HANDLE)
+  end
 
   local ok, err = add_handle(self, h)
   if not ok then return nil, err end
@@ -615,7 +677,7 @@ local setopt_socketfunction = wrap_function("setopt_socketfunction")
 function Multi:setopt_socketfunction(...)
   local cb = wrap_callback(...)
 
-  return setopt_socketfunction(wrap_socketfunction(self, cb))
+  return setopt_socketfunction(self, wrap_socketfunction(self, cb))
 end
 
 local setopt = wrap_function("setopt")
@@ -635,10 +697,15 @@ function Multi:setopt(k, v)
   end
 
   if k == curl.OPT_SOCKETFUNCTION then
-    return self:setopt_httppost(wrap_socketfunction(v))
+    return self:setopt_socketfunction(v)
   end
 
   return setopt(self, k, v)
+end
+
+function Multi:__tostring()
+  local id = hash_id(tostring(self._handle))
+  return string.format("%s %s (%s)", module_info._NAME, 'Multi', id)
 end
 
 end
@@ -655,7 +722,7 @@ function cURL.multi(...) return Multi:new(...) end
 end
 
 return function(curl)
-  local cURL = {}
+  local cURL = clone(module_info)
 
   Load_cURLv3(cURL, curl)
 

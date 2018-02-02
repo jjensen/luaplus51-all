@@ -20,6 +20,102 @@ local fname      = "./test.download"
 
 local ENABLE = true
 
+local _ENV = TEST_CASE'version'        if ENABLE then
+
+function test()
+  assert_match("^%d+%.%d+%.%d+%-?", curl._VERSION)
+  assert_equal("Lua-cURL",          curl._NAME   )
+end
+
+end
+
+local _ENV = TEST_CASE'easy' if ENABLE then
+
+local e1, e2
+function teardown()
+  if e1 then e1:close() end
+  if e2 then e2:close() end
+  e1, e2 = nil
+end
+
+if curl.OPT_STREAM_DEPENDS then
+
+function test_easy_setopt_stream_depends_1()
+  e1 = assert(scurl.easy())
+  e2 = assert(scurl.easy())
+  assert_pass(function()
+    e1:setopt_stream_depends(e2)
+  end)
+end
+
+function test_easy_setopt_stream_depends_2()
+  e1 = assert(scurl.easy())
+  e2 = assert(scurl.easy())
+  assert_pass(function()
+    e1:setopt(curl.OPT_STREAM_DEPENDS, e2)
+  end)
+end
+
+function test_easy_setopt_stream_depends_3()
+  e1 = assert(scurl.easy())
+  e2 = assert(scurl.easy())
+  assert_pass(function()
+    e1:setopt{[curl.OPT_STREAM_DEPENDS] = e2}
+  end)
+end
+
+function test_easy_setopt_stream_depends_4()
+  e1 = assert(scurl.easy())
+  e2 = assert(scurl.easy())
+  assert_pass(function()
+    e1:setopt{stream_depends = e2}
+  end)
+end
+
+function test_easy_setopt_stream_depends_e_1()
+  e1 = assert(scurl.easy())
+  e2 = assert(scurl.easy())
+  assert_pass(function()
+    e1:setopt_stream_depends_e(e2)
+  end)
+end
+
+function test_easy_setopt_stream_depends_e_2()
+  e1 = assert(scurl.easy())
+  e2 = assert(scurl.easy())
+  assert_pass(function()
+    e1:setopt(curl.OPT_STREAM_DEPENDS_E, e2)
+  end)
+end
+
+function test_easy_setopt_stream_depends_e_3()
+  e1 = assert(scurl.easy())
+  e2 = assert(scurl.easy())
+  assert_pass(function()
+    e1:setopt{[curl.OPT_STREAM_DEPENDS_E] = e2}
+  end)
+end
+
+function test_easy_setopt_stream_depends_e_4()
+  e1 = assert(scurl.easy())
+  e2 = assert(scurl.easy())
+  assert_pass(function()
+    e1:setopt{stream_depends_e = e2}
+  end)
+end
+
+end
+
+function test_easy_setopt_share()
+  e1 = assert(scurl.easy())
+  e2 = assert(scurl.share())
+  assert_pass(function()
+    e1:setopt_share(e2)
+  end)
+end
+
+end
+
 local _ENV = TEST_CASE'multi_iterator' if ENABLE then
 
 local url = "http://httpbin.org/get"
@@ -63,7 +159,7 @@ function test_add_handle()
     end
   end
 
-  m = assert_equal(m, m:add_handle(next_easy()))
+  assert_equal(m, m:add_handle(next_easy()))
 
   for data, type, easy in m:iperform() do
 

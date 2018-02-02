@@ -27,6 +27,7 @@ OPT_ENTRY( proxyauth_avail,         PROXYAUTH_AVAIL,         LNG, 0)
 OPT_ENTRY( os_errno,                OS_ERRNO,                LNG, 0)
 OPT_ENTRY( num_connects,            NUM_CONNECTS,            LNG, 0)
 OPT_ENTRY( primary_ip,              PRIMARY_IP,              STR, 0)
+OPT_ENTRY( certinfo,                CERTINFO,                CERTINFO, 0)
 #if LCURL_CURL_VER_GE(7,21,0)
 OPT_ENTRY( primary_port,            PRIMARY_PORT,            LNG, 0)
 OPT_ENTRY( local_ip,                LOCAL_IP,                STR, 0)
@@ -43,6 +44,25 @@ OPT_ENTRY( rtsp_server_cseq,        RTSP_SERVER_CSEQ,        LNG, 0)
 OPT_ENTRY( rtsp_cseq_recv,          RTSP_CSEQ_RECV,          LNG, 0)
 #endif
 
+#if LCURL_CURL_VER_GE(7,50,1)
+OPT_ENTRY( http_version,            HTTP_VERSION,            LNG, 0)
+#endif
+
+#if LCURL_CURL_VER_GE(7,52,0)
+OPT_ENTRY( proxy_ssl_verifyresult,  PROXY_SSL_VERIFYRESULT,  LNG, 0)
+OPT_ENTRY( protocol,                PROTOCOL,                LNG, 0)
+OPT_ENTRY( scheme,                  SCHEME,                  STR, 0)
+#endif
+
+#if LCURL_CURL_VER_GE(7,55,0)
+OPT_ENTRY( content_length_download_t, CONTENT_LENGTH_DOWNLOAD_T, OFF, 0)
+OPT_ENTRY( content_length_upload_t,   CONTENT_LENGTH_UPLOAD_T,   OFF, 0)
+OPT_ENTRY( size_download_t,           SIZE_DOWNLOAD_T,           OFF, 0)
+OPT_ENTRY( size_upload_t,             SIZE_UPLOAD_T,             OFF, 0)
+OPT_ENTRY( speed_download_t,          SPEED_DOWNLOAD_T,          OFF, 0)
+OPT_ENTRY( speed_upload_t,            SPEED_UPLOAD_T,            OFF, 0)
+#endif
+
 // OPT_ENTRY( PRIVATE,                 void     ) 
-// OPT_ENTRY( CERTINFO,                struct curl_certinfo *
+// OPT_ENTRY( TLS_SSL_PTR,             struct curl_tlssessioninfo **
 // OPT_ENTRY( TLS_SESSION,             struct curl_tlssessioninfo *

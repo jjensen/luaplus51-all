@@ -8,16 +8,19 @@ end
 
 lunit = require "lunit"
 
-local ok, curl = pcall(require, "lcurl")
+local ok, curl = pcall(require, "cURL")
 local version if ok then
   version = curl.version()
 else
-  version = "<UNKNOWN>"
+  io.stderr:write('can not load cURL:' .. curl)
+  os.exit(-1)
 end
 
 print("------------------------------------")
-print("Lua  version: " .. (_G.jit and _G.jit.version or _G._VERSION))
-print("cURL version: " .. version)
+print("Module    name: " .. curl._NAME);
+print("Module version: " .. curl._VERSION);
+print("Lua    version: " .. (_G.jit and _G.jit.version or _G._VERSION))
+print("cURL   version: " .. version)
 print("------------------------------------")
 print("")
 

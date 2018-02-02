@@ -18,6 +18,9 @@ FLG_ENTRY(AUTH_ONLY                       )
 #endif
 FLG_ENTRY(AUTH_ANY                        )
 FLG_ENTRY(AUTH_ANYSAFE                    )
+#if LCURL_CURL_VER_GE(7,55,0)
+FLG_ENTRY(AUTH_GSSAPI                     )
+#endif
 
 #ifdef CURLSSH_AUTH_ANY
 FLG_ENTRY(SSH_AUTH_ANY                    )
@@ -59,8 +62,13 @@ FLG_ENTRY(USESSL_NONE                     )
 FLG_ENTRY(USESSL_TRY                      )
 FLG_ENTRY(USESSL_CONTROL                  )
 FLG_ENTRY(USESSL_ALL                      )
+
+/* Definition of bits for the CURLOPT_SSL_OPTIONS argument: */
 #ifdef CURLSSLOPT_ALLOW_BEAST
 FLG_ENTRY(SSLOPT_ALLOW_BEAST              )
+#endif
+#ifdef CURLSSLOPT_NO_REVOKE
+FLG_ENTRY(SSLOPT_NO_REVOKE                )
 #endif
 
 /* parameter for the CURLOPT_FTP_SSL_CCC option */
@@ -146,6 +154,12 @@ FLG_ENTRY(PROTO_RTMPTS                    )
 #ifdef CURLPROTO_GOPHER
 FLG_ENTRY(PROTO_GOPHER                    )
 #endif
+#ifdef CURLPROTO_SMB
+FLG_ENTRY(PROTO_SMB                       )
+#endif
+#ifdef CURLPROTO_SMBS
+FLG_ENTRY(PROTO_SMBS                      )
+#endif
 FLG_ENTRY(PROTO_ALL                       )
 
 FLG_ENTRY(PROXY_HTTP                      ) /* added in 7.10.0 */
@@ -154,6 +168,9 @@ FLG_ENTRY(PROXY_SOCKS4                    ) /* added in 7.15.2 */
 FLG_ENTRY(PROXY_SOCKS5                    ) /* added in 7.10.0 */
 FLG_ENTRY(PROXY_SOCKS4A                   ) /* added in 7.18.0 */
 FLG_ENTRY(PROXY_SOCKS5_HOSTNAME           ) /* added in 7.18.0 */
+#if LCURL_CURL_VER_GE(7,52,0)
+FLG_ENTRY(PROXY_HTTPS                     )
+#endif
 
 FLG_ENTRY(PAUSE_ALL                       ) /* added in 7.18.0 */
 FLG_ENTRY(PAUSE_CONT                      ) /* added in 7.18.0 */
