@@ -7,7 +7,7 @@
 
 For Visual Studio:
 
-* From [http://www.npcglib.org/~stathis/blog/precompiled-openssl/](http://www.npcglib.org/~stathis/blog/precompiled-openssl/), download **openssl-1.0.2f-vs20xx.7z** (where the 'xx' is replaced with your version of Visual Studio). Extract it to `c:\openssl-1.0.2f-vs20xx`, so that `c:\openssl-1.0.2f-vs20xx\include` exists.
+* From [https://www.npcglib.org/~stathis/blog/precompiled-openssl/](https://www.npcglib.org/~stathis/blog/precompiled-openssl/), download **openssl-1.0.2f-vs20xx.7z** (where the 'xx' is replaced with your version of Visual Studio). Extract it to `c:\openssl-1.0.2f-vs20xx`, so that `c:\openssl-1.0.2f-vs20xx\include` exists.
 
 (deprecated) For earlier versions of Visual Studio:
 
