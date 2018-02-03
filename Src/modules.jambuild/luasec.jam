@@ -24,6 +24,7 @@ if $(MSVCNT) {
 
 local SRCS =
 		src/compat.h
+		src/config.c
 		src/config.h
 		src/context.c
 		src/context.h
@@ -46,10 +47,10 @@ CopyFile luasec : $(LUA_LDIR)/ssl.lua : $(SUBDIR)/src/ssl.lua ;
 C.IncludeDirectories luasec : src ;
 
 if $(MSVCNT)  &&  $(PLATFORM) in win32 win64 {
-	C.Defines luasec : WIN32 "LUASEC_API=__declspec(dllexport)" ;
+	C.Defines luasec : WIN32 "LSEC_API=__declspec(dllexport)" ;
 	C.LinkPrebuiltLibraries luasec : wsock32 ;
 } else {
-	C.Defines luasec : LUASEC_API ;
+	C.Defines luasec : LSEC_API ;
 }
 
 C.OpenSSL luasec : link ;
