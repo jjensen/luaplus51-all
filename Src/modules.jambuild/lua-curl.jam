@@ -6,9 +6,12 @@ local foundCurl ;
 if $(NT) {
 	foundCurl = [ Glob $(CURL_ROOT)/include/curl : curl.h ] ;
 } else {
-	local results = [ Split [ Shell "echo | gcc -E -Wp,-v -" ] : $(NEWLINE) ] ;
-	results = [ Match "^ (.*)" : $(results) ] ;
-	foundCurl = [ Glob $(results)/curl : curl.h ] ;
+	foundCurl = [ Glob /usr/include/curl : curl.h ] ;
+	if ! $(foundCurl) {
+		local results = [ Split [ Shell "echo | gcc -E -Wp,-v -" ] : $(NEWLINE) ] ;
+		results = [ Match "^ (.*)" : $(results) ] ;
+		foundCurl = [ Glob $(results)/curl : curl.h ] ;
+	}
 }
 
 if ! $(foundCurl) {
