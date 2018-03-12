@@ -118,7 +118,11 @@ If you want to build from the command-line, use:
 
 ## Prerequisites
 
-* FILL ME IN.
+As an example, a fresh install of Ubuntu 17.10 will require the following packages.
+
+<pre>
+sudo apt install git build-essential libreadline-dev uuid-dev libssl-dev libcurl4-openssl-dev
+</pre>
 
 ## Build LuaPlus
 
@@ -132,10 +136,10 @@ If you want to build from the command-line, use:
 
 * Choose the version of Lua to build within the workspace.  Note that the **-luaplus** versions build additional LuaPlus-specific features into the Lua environment; these are the preferred environments for LuaPlus.
 
-* If you want lua-curl support, run the following:
+* If you want lua-curl support, run the following for Ubuntu (or the equivalent for your Linux):
 
 <pre>
-FILL ME IN
+sudo apt install libcurl4-openssl-dev
 </pre>
 
 * If you want the PCRE module to build, run the following:
@@ -148,6 +152,10 @@ To build from the command-line, use:
 
 <pre>
 # Builds to ~/luaplus/.build/bin.lua5x-luaplus.gcc.linux64
+[~/luaplus/.build]./jam
+
+# or this:
+
 [~/luaplus/.build]./jam c.toolchain=linux64/release
 </pre>
 
