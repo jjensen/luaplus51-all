@@ -33,6 +33,10 @@ if $(MSVCNT)
 {
 	C.Defines luaexpat : COMPILED_FROM_DSP ;
 }
+else
+{
+	C.Defines luaexpat : HAVE_GETRANDOM ;
+}
 
 Lua.CModule luaexpat : lxp : $(SRCS) ;
 

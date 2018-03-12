@@ -63,6 +63,8 @@ C.IncludeDirectories ezdav : src/ezdavlib ;
 if $(NT) {
 	C.Defines ezdav : _WIN32 ;
 	C.LinkPrebuiltLibraries ezdav : wsock32 ;
+} else {
+	C.Defines ezdav : HAVE_GETRANDOM ;
 }
 
 Lua.CModule ezdav : : $(EXPAT_SRCS) $(EZDAVLIB_SRCS) $(SRCS) ;
