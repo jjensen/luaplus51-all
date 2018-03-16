@@ -36,7 +36,7 @@
 
 #define LUA_PATHVARVERSION		LUA_PATH_VAR LUA_PATHSUFFIX
 #define LUA_CPATHVARVERSION		LUA_CPATH_VAR LUA_PATHSUFFIX
-
+*/
 /*
 ** LUA_PATH_SEP is the character that separates templates in a path.
 ** LUA_PATH_MARK is the string that marks the substitution points in a
