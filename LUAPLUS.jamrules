@@ -20,7 +20,10 @@ LUA_VERSION ?= lua51-luaplus ;
 # Set these if the user didn't use jam --workspace.
 C.CompileOptions outputastree ;
 
-ALL_LOCATE_TARGET ?= $(LUAPLUS)/.build/obj.$(LUA_VERSION).$(C.COMPILER).$(PLATFORM).$(CONFIG) ;
+if [ Glob $(CWD) : LUAPLUS.jamrules ] {
+    ALL_LOCATE_TARGET ?= $(LUAPLUS)/.build/obj.$(LUA_VERSION).$(C.COMPILER).$(PLATFORM).$(CONFIG) ;
+}
+
 LUAPLUS_OUTPUT_DIRECTORY ?= $(LUAPLUS)/.build/bin.$(LUA_VERSION).$(C.COMPILER).$(PLATFORM) ;
 
 DEPCACHE.standard ?= $(ALL_LOCATE_TARGET)/.depcache ;
