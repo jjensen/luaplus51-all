@@ -1,0 +1,17 @@
+{
+
+SubDir LUAPLUS Samples Simple ;
+
+SubInclude LUAPLUS Src LuaPlus : LuaPlusStaticLib ;
+
+local SRCS =
+		Simple.cpp
+;
+
+C.IncludeDirectories Simple : $(LUAPLUS_INCLUDE_DIRECTORIES) ;
+C.LinkLibraries Simple : $(LUA_VERSION)-static ;
+
+C.OutputPath Simple : $(ALL_LOCATE_TARGET)/image ;
+C.Application Simple : $(SRCS) ;
+
+}
