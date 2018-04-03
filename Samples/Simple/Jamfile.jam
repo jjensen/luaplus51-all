@@ -2,14 +2,17 @@
 
 SubDir LUAPLUS Samples Simple ;
 
-SubInclude LUAPLUS Src LuaPlus : LuaPlusStaticLib ;
-
 local SRCS =
 		Simple.cpp
 ;
 
-C.IncludeDirectories Simple : $(LUAPLUS_INCLUDE_DIRECTORIES) ;
-C.LinkLibraries Simple : $(LUA_VERSION)-static ;
+#LUAPLUS_OUTPUT_DIRECTORY = $(ALL_LOCATE_TARGET)/image ;
+#Lua.Use Simple : prebuilt shared defaultdirectory ;
+#Lua.Use Simple : prebuilt shared : $(LUAPLUS_OUTPUT_DIRECTORY) ;
+#Lua.Use Simple : prebuilt static defaultdirectory ;
+#Lua.Use Simple : prebuilt static : $(LUAPLUS_OUTPUT_DIRECTORY) ;
+Lua.Use Simple : build static ;
+#Lua.Use Simple : build shared ;
 
 C.OutputPath Simple : $(ALL_LOCATE_TARGET)/image ;
 C.Application Simple : $(SRCS) ;
