@@ -97,7 +97,7 @@ C.IncludeDirectories : lua51/src ;
 
 C.Defines : LUA_OPNAMES ;
 
-LuaPlusDefines lua51-static ;
+LuaPlusFixUpTarget lua51-static ;
 
 C.OutputName : lua51-static ;
 
@@ -169,7 +169,7 @@ C.IncludeDirectories : lua51-luaplus/src ;
 
 C.Defines : LUA_OPNAMES ;
 
-LuaPlusDefines lua51-luaplus-static ;
+LuaPlusFixUpTarget lua51-luaplus-static ;
 
 C.OutputName : lua51-luaplus-static ;
 
@@ -248,7 +248,7 @@ C.IncludeDirectories : lua52/src ;
 
 C.Defines : LUA_OPNAMES ;
 
-LuaPlusDefines lua52-static ;
+LuaPlusFixUpTarget lua52-static ;
 
 C.OutputName : lua52-static ;
 
@@ -326,7 +326,7 @@ C.IncludeDirectories : lua52-luaplus/src ;
 
 C.Defines : LUA_OPNAMES ;
 
-LuaPlusDefines lua52-luaplus-static ;
+LuaPlusFixUpTarget lua52-luaplus-static ;
 
 C.OutputName : lua52-luaplus-static ;
 
@@ -405,7 +405,7 @@ C.IncludeDirectories : lua53/src ;
 
 C.Defines : LUA_OPNAMES ;
 
-LuaPlusDefines lua53-static ;
+LuaPlusFixUpTarget lua53-static ;
 
 C.OutputName : lua53-static ;
 
@@ -488,7 +488,7 @@ if $(C.PLATFORM) = android {
 	C.Defines lua53-luaplus-static : lua_getlocaledecpoint()='.' LUA_ANSI ;
 }
 
-LuaPlusDefines lua53-luaplus-static ;
+LuaPlusFixUpTarget lua53-luaplus-static ;
 
 C.OutputName : lua53-luaplus-static ;
 
