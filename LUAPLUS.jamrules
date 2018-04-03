@@ -53,8 +53,13 @@ rule LuaPlusFixUpTarget TARGET
 	} else {
 		C.OutputPostfix $(TARGET) : ;
 	}
+
+	# If C.OutputPath * was used, then use its location.
+	#local outputPath = $(LOCATE:Z=$(C.ACTIVE_TOOLCHAIN_*)) ;
+	#C.OutputPath $(TARGET) : $(outputPath:E=$(LUAPLUS_OUTPUT_DIRECTORY)) ;
 	C.OutputPath $(TARGET) : $(LUAPLUS_OUTPUT_DIRECTORY) ;
 }
+
 ###############################################################################
 
 if $(OS) = NT {
@@ -185,6 +190,58 @@ rule Lua.Module TARGET : OUTPUT_NAME : SOURCES {
 	Workspace LuaPlus : $(TARGET) ;
 }
 
+
+rule Lua.Use TARGET : OPTIONS : OUTPUT_DIRECTORY {
+	if build in $(OPTIONS) {
+		if shared in $(OPTIONS) {
+			SubInclude LUAPLUS Src LuaPlus : LuaPlusSharedLib ;
+		} else {
+			SubInclude LUAPLUS Src LuaPlus : LuaPlusStaticLib ;
+		}
+	}
+
+	TARGET = [ ActiveTarget $(TARGET) ] ;
+
+	LuaPlusDefines $(TARGET) ;
+
+	if shared in $(OPTIONS) {
+		C.Defines $(TARGET) : LUA_BUILD_AS_DLL ;
+	}
+
+	C.IncludeDirectories $(TARGET) : $(LUAPLUS_INCLUDE_DIRECTORIES) ;
+
+	if prebuilt in $(OPTIONS) {
+		if defaultdirectory in $(OPTIONS) {
+			OUTPUT_DIRECTORY ?= $(LUAPLUS_OUTPUT_DIRECTORY) ;
+		}
+		C.LinkDirectories $(TARGET) : $(OUTPUT_DIRECTORY) ;
+		if shared in $(OPTIONS) {
+			# Get rid of the -luaplus in the LUA_VERSION, because the name
+			# on disk will just be lua53, not lua53-luaplus.
+			local strippedName = [ Subst $(LUA_VERSION) : -luaplus : "" ] ;
+			if $(C.CONFIG) = debug {
+				strippedName = $(strippedName)_debug ;
+			}
+			C.LinkPrebuiltLibraries $(TARGET) : $(strippedName) ;
+		} else {
+			if $(C.CONFIG) = debug {
+				C.LinkPrebuiltLibraries $(TARGET) : $(LUA_VERSION)-static.debug ;
+			} else {
+				C.LinkPrebuiltLibraries $(TARGET) : $(LUA_VERSION)-static ;
+			}
+		}
+	} else if build in $(OPTIONS) {
+		if defaultdirectory in $(OPTIONS) {
+			OUTPUT_DIRECTORY ?= $(LUAPLUS_OUTPUT_DIRECTORY) ;
+		}
+		C.LinkDirectories $(TARGET) : $(OUTPUT_DIRECTORY) ;
+		if shared in $(OPTIONS) {
+			C.LinkLibraries $(TARGET) : $(LUA_VERSION) ;
+		} else {
+			C.LinkLibraries $(TARGET) : $(LUA_VERSION)-static ;
+		}
+	}
+}
 
 if ! $(TARGETINFO_LOCATE)
 {
