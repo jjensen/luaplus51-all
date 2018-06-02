@@ -21,6 +21,10 @@ if ! $(foundUuid) {
 		C.LinkPrebuiltLibraries uuid : rpcrt4 ;
 	} else if $(OS) = LINUX {
 		C.LinkPrebuiltLibraries uuid : uuid ;
+	} else if $(OS) = FREEBSD {
+		C.IncludeDirectories uuid : /usr/local/include ;
+		C.LinkDirectories uuid : /usr/local/lib ;
+		C.LinkPrebuiltLibraries uuid : uuid ;
 	}
 
 	Lua.CModule uuid : : $(SRCS) ;

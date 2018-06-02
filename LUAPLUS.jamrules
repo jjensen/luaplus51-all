@@ -39,7 +39,7 @@ NotFile download ;
 
 rule LuaPlusDefines TARGET
 {
-	if $(OS) = LINUX
+	if $(OS) in LINUX FREEBSD
 	{
 		C.Defines $(TARGET) : LUA_USE_LINUX ;
 	}
@@ -95,7 +95,7 @@ rule LuaPlus.CModule TARGET : OUTPUT_NAME : SOURCES : MODULES_SUBDIR {
 	LuaPlusDefines $(TARGET) ;
 	C.IncludeDirectories $(TARGET) : $(LUAPLUS_INCLUDE_DIRECTORIES) ;
 
-	if $(OS) != MACOSX  &&  $(OS) != LINUX {
+	if ! $(OS) in MACOSX LINUX FREEBSD {
 		C.LinkLibraries $(TARGET) : $(LUA_VERSION) ;
 	}
 
@@ -138,7 +138,7 @@ rule Lua.CModule TARGET : OUTPUT_NAME : SOURCES : MODULES_SUBDIR {
 	LuaPlusDefines $(TARGET) ;
 	C.IncludeDirectories $(TARGET) : $(LUAPLUS_INCLUDE_DIRECTORIES) ;
 
-	if $(OS) != MACOSX  &&  $(OS) != LINUX {
+	if ! $(OS) in MACOSX LINUX FREEBSD {
 		C.LinkLibraries $(TARGET) : $(LUA_VERSION) ;
 	}
 

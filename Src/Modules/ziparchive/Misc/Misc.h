@@ -13,7 +13,7 @@
 #elif defined(macintosh)  ||  defined(__APPLE__)
 #define PLATFORM_MAC
 #define MISC_CDECL
-#elif defined(linux)
+#elif defined(linux)  ||  defined(__FreeBSD__)
 #define PLATFORM_LINUX
 #define MISC_CDECL
 #endif

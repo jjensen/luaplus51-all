@@ -24,7 +24,9 @@ rule LuaSharedLibrary TARGET : LUA_SOURCES : OUTPUT_NAME {
         }
 		C.OutputName : $(OUTPUT_NAME) ;
 	} else if $(UNIX) {
-		C.LinkPrebuiltLibraries : dl ;
+		if ! $(OS) in FREEBSD {
+			C.LinkPrebuiltLibraries : dl ;
+		}
 		if ! $(OS) in MACOS MACOSX {
 			C.LinkFlags : -Wl,-soname,lib$(OUTPUT_NAME).so ;
 		}
