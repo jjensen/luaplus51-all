@@ -68,7 +68,7 @@ namespace LuaHelper
 		\return Returns the value found or the defaultValue.
 	**/
 	template< typename KeyT >
-	static int GetInteger( const LuaStackObject& obj, KeyT key, bool require = true, int defaultValue = -1 ) {
+	static lua_Integer GetInteger( const LuaStackObject& obj, KeyT key, bool require = true, lua_Integer defaultValue = -1 ) {
 		LuaAutoObject intObj = obj[ key ];
 		if ( !intObj.IsInteger() ) {
 			if ( require ) {

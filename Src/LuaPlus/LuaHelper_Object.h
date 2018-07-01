@@ -58,8 +58,8 @@ namespace LuaHelper
 			of the right type.
 		\return Returns the value found or the defaultValue.
 	**/
-	inline lua_Integer GetInteger( const LuaObject& obj, int key, bool require = true, int defaultValue = -1 );
-	inline lua_Integer GetInteger( const LuaObject& obj, const char* key, bool require = true, int defaultValue = -1 );
+	inline lua_Integer GetInteger( const LuaObject& obj, int key, bool require = true, lua_Integer defaultValue = -1 );
+	inline lua_Integer GetInteger( const LuaObject& obj, const char* key, bool require = true, lua_Integer defaultValue = -1 );
 
 
 	/**
@@ -164,7 +164,7 @@ inline bool GetBoolean( const LuaObject& obj, const char* key, bool require, boo
 }
 
 
-inline lua_Integer GetInteger( const LuaObject& obj, int key, bool require, int defaultValue ) {
+inline lua_Integer GetInteger( const LuaObject& obj, int key, bool require, lua_Integer defaultValue ) {
 	LuaObject intObj = obj[ key ];
 	if ( !intObj.IsInteger() ) {
 		if ( require ) {
@@ -176,7 +176,7 @@ inline lua_Integer GetInteger( const LuaObject& obj, int key, bool require, int 
 }
 
 
-inline lua_Integer GetInteger( const LuaObject& obj, const char* key, bool require, int defaultValue ) {
+inline lua_Integer GetInteger( const LuaObject& obj, const char* key, bool require, lua_Integer defaultValue ) {
 	LuaObject intObj = obj[ key ];
 	if ( !intObj.IsInteger() ) {
 		if ( require ) {
