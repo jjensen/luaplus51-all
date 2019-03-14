@@ -1,0 +1,35 @@
+version: 0.5.0.{build}
+
+shallow_clone: true
+
+environment:
+  matrix:
+  - LUA_VER: 5.1
+    CPU_ARCH: x64
+  - LUA_VER: 5.2
+    CPU_ARCH: x86
+  - LUA_VER: 5.3
+    CPU_ARCH: x64
+  - LUA_VER: luajit-2.0
+    CPU_ARCH: x86
+  - LUA_VER: luajit-2.1
+    CPU_ARCH: x64
+
+install:
+  - appveyor DownloadFile https://dl.bintray.com/xpol/luavm/LuaVM-0.5.4-vs2017-%CPU_ARCH%.exe -FileName LuaVM-setup.exe
+  - LuaVM-setup.exe /verysilent
+  - set PATH=%LocalAppData%\LuaVM;%PATH%
+
+before_build:
+  - luavm use %LUA_VER%
+  - luarocks install luafilesystem
+
+build_script:
+  - luarocks make
+
+before_test:
+  - luarocks install busted
+  - luarocks install luautf8
+
+test_script:
+  - busted

@@ -1,0 +1,51 @@
+language: cpp
+os: osx
+
+sudo: false
+
+addons:
+  apt:
+    sources:
+      - george-edison55-precise-backports # cmake 3.2.3 / doxygen 1.8.3
+    packages:
+      - cmake
+      - cmake-data
+env:
+  global:
+    - LUAROCKS=2.4.1
+  matrix:
+    - LUA=5.1.5
+    - LUA=5.2.4
+    - LUA=5.3.5
+    - LUA=luajit-2.0.5
+    - LUA=luajit-2.1.0-beta3
+
+branches:
+  only:
+    - master
+
+before_install:
+  - git clone --depth 1 https://github.com/cehoffman/luaenv.git ~/.luaenv
+  - git clone --depth 1 https://github.com/cehoffman/lua-build.git ~/.luaenv/plugins/lua-build
+  - git clone --depth 1 https://github.com/xpol/luaenv-luarocks.git ~/.luaenv/plugins/luaenv-luarocks
+  - export PATH="$HOME/.luaenv/bin:$PATH"
+  - eval "$(luaenv init -)"
+  - luaenv install $LUA
+  - luaenv global $LUA
+  - luaenv luarocks $LUAROCKS
+  - luarocks install luafilesystem
+  - luarocks install luautf8
+  - luarocks install busted
+  - luaenv rehash
+
+install:
+  - luarocks make
+
+# Run tests
+script:
+  - busted
+
+notifications:
+  email:
+    on_success: change
+    on_failure: always

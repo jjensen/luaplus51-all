@@ -1,0 +1,20 @@
+{
+
+local SRCS =
+        rapidjson/include/rapidjson/**
+        src/Document.cpp
+        src/file.hpp
+        src/luax.hpp
+        src/rapidjson.cpp
+        src/Schema.cpp
+        src/Userdata.hpp
+        src/values.cpp
+        src/values.hpp
+;
+
+C.IncludeDirectories lua-rapidjson : rapidjson/include ;
+
+Lua.CModule lua-rapidjson : rapidjson : $(SRCS) ;
+
+}
+
