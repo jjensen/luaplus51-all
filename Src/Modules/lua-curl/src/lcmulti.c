@@ -1,11 +1,11 @@
 /******************************************************************************
-* Author: Alexey Melnichuk <mimir@newmail.ru>
+* Author: Alexey Melnichuk <alexeymelnichuck@gmail.com>
 *
-* Copyright (C) 2014 Alexey Melnichuk <mimir@newmail.ru>
+* Copyright (C) 2014-2018 Alexey Melnichuk <alexeymelnichuck@gmail.com>
 *
 * Licensed according to the included 'LICENSE' document
 *
-* This file is part of lua-lcurl library.
+* This file is part of Lua-cURL library.
 ******************************************************************************/
 
 #if defined(_WINDOWS) || defined(_WIN32)
@@ -424,16 +424,22 @@ static int lcurl_opt_set_string_array_(lua_State *L, int opt){
   lcurl_multi_t *p = lcurl_getmulti(L);
   CURLMcode code;
   int n;
-  luaL_argcheck(L, lua_type(L, 2) == LUA_TTABLE, 2, "array expected");
-  n = lua_rawlen(L, 2);
+
+  if (lutil_is_null(L, 2)) {
+    n = 0;
+  }
+  else {
+    luaL_argcheck(L, lua_type(L, 2) == LUA_TTABLE, 2, "array expected");
+    n = lua_rawlen(L, 2);
+  }
+
   if(n == 0){
-    char *val[] = {NULL};
-    code = curl_multi_setopt(p->curl, opt, val);
+    code = curl_multi_setopt(p->curl, opt, 0);
   }
   else{
     int i;
-    char const* *val = malloc(sizeof(char*) * (n + 1));
-    if(!*val){
+    char const**val = malloc(sizeof(char*) * (n + 1));
+    if(!val){
       return lcurl_fail_ex(L, p->err_mode, LCURL_ERROR_MULTI, CURLM_OUT_OF_MEMORY);
     }
     for(i = 1; i <= n; ++i){

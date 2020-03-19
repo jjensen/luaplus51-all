@@ -1,9 +1,9 @@
 package = "Lua-cURL"
-version = "scm-0"
+version = "0.3.10-1"
 
 source = {
-  url = "https://github.com/Lua-cURL/Lua-cURLv3/archive/master.zip",
-  dir = "Lua-cURLv3-master",
+  url = "https://github.com/Lua-cURL/Lua-cURLv3/archive/v0.3.10.zip",
+  dir = "Lua-cURLv3-0.3.10",
 }
 
 description = {
@@ -61,8 +61,8 @@ build = {
 
     lcurl = {
       sources = {
-        "src/l52util.c",    "src/lceasy.c",  "src/lcerror.c",
-        "src/lchttppost.c", "src/lcurl.c",   "src/lcutils.c",
+        "src/l52util.c",    "src/lceasy.c", "src/lcerror.c",
+        "src/lchttppost.c", "src/lcurl.c",  "src/lcutils.c",
         "src/lcmulti.c",    "src/lcshare.c", "src/lcmime.c",
         "src/lcurlapi.c",
       },

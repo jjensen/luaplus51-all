@@ -1,11 +1,11 @@
 /******************************************************************************
-* Author: Alexey Melnichuk <mimir@newmail.ru>
+* Author: Alexey Melnichuk <alexeymelnichuck@gmail.com>
 *
-* Copyright (C) 2014 Alexey Melnichuk <mimir@newmail.ru>
+* Copyright (C) 2014-2018 Alexey Melnichuk <alexeymelnichuck@gmail.com>
 *
 * Licensed according to the included 'LICENSE' document
 *
-* This file is part of lua-lcurl library.
+* This file is part of Lua-cURL library.
 ******************************************************************************/
 
 #ifndef _LCUTILS_H_
@@ -25,11 +25,19 @@
 #  define LCURL_CC_SUPPORT_FORWARD_TYPEDEF 0
 #endif
 
+#ifdef __GNUC__
+  #define LCURL_UNUSED_TYPEDEF __attribute__ ((unused))
+#else
+  #define LCURL_UNUSED_TYPEDEF
+#endif
+
+#define LCURL_UNUSED_VAR LCURL_UNUSED_TYPEDEF
+
 #define LCURL_MAKE_VERSION(MIN, MAJ, PAT) ((MIN<<16) + (MAJ<<8) + PAT)
 #define LCURL_CURL_VER_GE(MIN, MAJ, PAT) (LIBCURL_VERSION_NUM >= LCURL_MAKE_VERSION(MIN, MAJ, PAT))
 
 #define LCURL_CONCAT_STATIC_ASSERT_IMPL_(x, y) LCURL_CONCAT1_STATIC_ASSERT_IMPL_ (x, y)
-#define LCURL_CONCAT1_STATIC_ASSERT_IMPL_(x, y) x##y
+#define LCURL_CONCAT1_STATIC_ASSERT_IMPL_(x, y) LCURL_UNUSED_TYPEDEF x##y
 #define LCURL_STATIC_ASSERT(expr) typedef char LCURL_CONCAT_STATIC_ASSERT_IMPL_(static_assert_failed_at_line_, __LINE__) [(expr) ? 1 : -1]
 
 #define LCURL_ASSERT_SAME_SIZE(a, b) LCURL_STATIC_ASSERT( sizeof(a) == sizeof(b) )
@@ -54,6 +62,8 @@ typedef struct lcurl_read_buffer_tag{
 int lcurl_storage_init(lua_State *L);
 
 void lcurl_storage_preserve_value(lua_State *L, int storage, int i);
+
+void lcurl_storage_remove_value(lua_State *L, int storage, int i);
 
 int lcurl_storage_preserve_slist(lua_State *L, int storage, struct curl_slist * list);
 

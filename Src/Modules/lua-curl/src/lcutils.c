@@ -1,11 +1,11 @@
 /******************************************************************************
-* Author: Alexey Melnichuk <mimir@newmail.ru>
+* Author: Alexey Melnichuk <alexeymelnichuck@gmail.com>
 *
-* Copyright (C) 2014 Alexey Melnichuk <mimir@newmail.ru>
+* Copyright (C) 2014-2018 Alexey Melnichuk <alexeymelnichuck@gmail.com>
 *
 * Licensed according to the included 'LICENSE' document
 *
-* This file is part of lua-lcurl library.
+* This file is part of Lua-cURL library.
 ******************************************************************************/
 
 #include "lcurl.h"
@@ -21,10 +21,18 @@ int lcurl_storage_init(lua_State *L){
 }
 
 void lcurl_storage_preserve_value(lua_State *L, int storage, int i){
-  assert(i > 0);
+  assert(i > 0 && i <= lua_gettop(L));
   luaL_checkany(L, i);
   lua_rawgeti(L, LCURL_LUA_REGISTRY, storage);
   lua_pushvalue(L, i); lua_pushboolean(L, 1); lua_rawset(L, -3);
+  lua_pop(L, 1);
+}
+
+void lcurl_storage_remove_value(lua_State *L, int storage, int i){
+  assert(i > 0 && i <= lua_gettop(L));
+  luaL_checkany(L, i);
+  lua_rawgeti(L, LCURL_LUA_REGISTRY, storage);
+  lua_pushvalue(L, i); lua_pushnil(L); lua_rawset(L, -3);
   lua_pop(L, 1);
 }
 
@@ -163,8 +171,6 @@ int lcurl_set_callback(lua_State *L, lcurl_callback_t *c, int i, const char *met
   luaL_argcheck(L, !lua_isnoneornil(L, i), i, "no function present");
   luaL_argcheck(L, (top < (i + 2)), i + 2, "no arguments expected");
 
-  // if(top > (i + 1)) lua_settop(L, i + 1); // this for force ignore other arguments
-
   assert((top == i)||(top == (i + 1)));
 
   if(c->ud_ref != LUA_NOREF){
@@ -175,6 +181,19 @@ int lcurl_set_callback(lua_State *L, lcurl_callback_t *c, int i, const char *met
   if(c->cb_ref != LUA_NOREF){
     luaL_unref(L, LCURL_LUA_REGISTRY, c->cb_ref);
     c->cb_ref = LUA_NOREF;
+  }
+
+  if(lutil_is_null(L, i)){
+    if(top == (i + 1)){
+      // Do we can just ignore this?
+      luaL_argcheck(L, 
+        lua_isnoneornil(L, i + 1) || lutil_is_null(L, i + 1)
+        ,i + 1, "no context allowed when set callback to null"
+      );
+    }
+    lua_pop(L, top - i + 1);
+
+    return 1;
   }
 
   if(lua_gettop(L) == (i + 1)){// function + context
@@ -256,7 +275,7 @@ int lcurl_utils_apply_options(lua_State *L, int opt, int obj, int do_close,
   while(lua_next(L, opt) != 0){
     int n;
     assert(lua_gettop(L) == (top + 2));
-    
+
     if(lua_type(L, -2) == LUA_TNUMBER){ /* [curl.OPT_URL] = "http://localhost" */
       lua_pushvalue(L, -2);
       lua_insert(L, -2);            /*Stack : opt, obj, k, k, v */

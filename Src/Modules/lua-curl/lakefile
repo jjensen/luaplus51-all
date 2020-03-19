@@ -32,8 +32,10 @@ target('test', install, function()
   run_test('test_form.lua')
   run_test('test_pause02.c.lua')
   run_test('test_curl.lua')
+  run_test('test_mime.lua')
   run_test('test_multi_callback.lua')
   run_test('test_multi_nested_callback.lua')
+  run_test('test_urlapi.lua')
 
   if not test_summary() then
     quit("test fail")

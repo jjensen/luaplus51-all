@@ -1,11 +1,11 @@
 /******************************************************************************
-* Author: Alexey Melnichuk <mimir@newmail.ru>
+* Author: Alexey Melnichuk <alexeymelnichuck@gmail.com>
 *
-* Copyright (C) 2014 Alexey Melnichuk <mimir@newmail.ru>
+* Copyright (C) 2014-2018 Alexey Melnichuk <alexeymelnichuck@gmail.com>
 *
 * Licensed according to the included 'LICENSE' document
 *
-* This file is part of lua-lcurl library.
+* This file is part of Lua-cURL library.
 ******************************************************************************/
 
 #include "l52util.h"
@@ -155,4 +155,12 @@ int64_t lutil_optint64(lua_State *L, int idx, int64_t v){
 
 void lutil_pushnvalues(lua_State *L, int n){
   for(;n;--n) lua_pushvalue(L, -n);
+}
+
+int lutil_is_null(lua_State *L, int i){
+  return lua_islightuserdata(L, i) && 0 == lua_touserdata(L, i);
+}
+
+void lutil_push_null(lua_State *L){
+  lua_pushlightuserdata(L, (void*)0);
 }

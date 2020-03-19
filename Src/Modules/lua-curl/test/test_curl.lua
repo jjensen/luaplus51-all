@@ -18,6 +18,16 @@ local scurl      = require "cURL.safe"
 local json       = require "dkjson"
 local fname      = "./test.download"
 
+local utils = require "utils"
+
+local weak_ptr, gc_collect, is_curl_ge, is_curl_eq, read_file, stream, Stream, dump_request =
+  utils.import('weak_ptr', 'gc_collect', 'is_curl_ge', 'is_curl_eq', 'read_file', 'stream', 'Stream', 'dump_request')
+
+-- Bug. libcurl 7.56.0 does not add `Content-Type: text/plain`
+local text_plain = is_curl_eq(7,56,0) and 'test/plain' or 'text/plain'
+
+local GET_URL = "http://127.0.0.1:7090/get"
+
 local ENABLE = true
 
 local _ENV = TEST_CASE'version'        if ENABLE then
@@ -29,7 +39,7 @@ end
 
 end
 
-local _ENV = TEST_CASE'easy' if ENABLE then
+local _ENV = TEST_CASE'easy'           if ENABLE then
 
 local e1, e2
 function teardown()
@@ -118,7 +128,7 @@ end
 
 local _ENV = TEST_CASE'multi_iterator' if ENABLE then
 
-local url = "http://httpbin.org/get"
+local url = GET_URL
 
 local c, t, m
 
@@ -138,8 +148,7 @@ function teardown()
 end
 
 function test_add_handle()
-
-  local base_url = 'http://httpbin.org/get?key='
+  local base_url = url .. '?key='
   local urls = {
     base_url .. "1",
     base_url .. "2",
@@ -170,7 +179,11 @@ function test_add_handle()
       c = nil
 
       if i == 3 then
-        assert_equal(curl.error(curl.ERROR_EASY, curl.E_UNSUPPORTED_PROTOCOL), data)
+        if is_curl_ge(7, 62,0) then
+          assert_equal(curl.error(curl.ERROR_EASY, curl.E_URL_MALFORMAT), data)
+        else
+          assert_equal(curl.error(curl.ERROR_EASY, curl.E_UNSUPPORTED_PROTOCOL), data)
+        end
       else
         local data = json_data()
         assert_table(data.args)
@@ -190,7 +203,9 @@ function test_add_handle()
 end
 
 function test_info_read()
-  local url = 'http://httpbin.org/get?key=1'
+
+  local url = GET_URL .. '?key=1'
+
   c = assert(curl.easy{url=url, writefunction=function() end})
   assert_equal(m, m:add_handle(c))
 
@@ -201,6 +216,38 @@ function test_info_read()
 
   local h, ok, err = m:info_read()
   assert_equal(0, h)
+end
+
+end
+
+local _ENV = TEST_CASE'multi memory leak' if ENABLE then
+
+local m
+
+function teardown()
+  if m then m:close() end
+  m = nil
+end
+
+function test_basic()
+  local ptr do 
+    local multi = assert(scurl.multi())
+    ptr = weak_ptr(multi)
+  end
+  gc_collect()
+
+  assert_nil(ptr.value)
+end
+
+function test_socket_action()
+  local ptr do 
+    local multi = assert(scurl.multi())
+    multi:setopt_socketfunction(function() end)
+    ptr = weak_ptr(multi)
+  end
+  gc_collect()
+
+  assert_nil(ptr.value)
 end
 
 end
@@ -222,11 +269,11 @@ function test_content_01()
 end
 
 function test_content_02()
-  post = assert(scurl.form{name02 = {'value02', type = "text/plain"}})
+  post = assert(scurl.form{name02 = {'value02', type = text_plain}})
   local data = assert_string(post:get())
   assert_match("\r\n\r\nvalue02\r\n", data)
   assert_match('name="name02"', data)
-  assert_match('Content%-Type: text/plain\r\n', data)
+  assert_match('Content%-Type: ' .. text_plain .. '\r\n', data)
 end
 
 function test_content_03()
@@ -238,12 +285,12 @@ function test_content_03()
 end
 
 function test_content_04()
-  post = assert(scurl.form{name04 = {'value04', type = "text/plain", headers = {"Content-Encoding: gzip"}}})
+  post = assert(scurl.form{name04 = {'value04', type = text_plain, headers = {"Content-Encoding: gzip"}}})
   local data = assert_string(post:get())
   assert_match("\r\n\r\nvalue04\r\n", data)
   assert_match('name="name04"', data)
   assert_match('Content%-Encoding: gzip\r\n', data)
-  assert_match('Content%-Type: text/plain\r\n', data)
+  assert_match('Content%-Type: ' .. text_plain .. '\r\n', data)
 end
 
 function test_buffer_01()
@@ -263,14 +310,14 @@ function test_buffer_02()
   post = assert(scurl.form{name02 = {
     name = 'file02',
     data = 'value02',
-    type = "text/plain",
+    type = text_plain,
   }})
 
   local data = assert_string(post:get())
   assert_match("\r\n\r\nvalue02\r\n", data)
   assert_match('name="name02"', data)
   assert_match('filename="file02"', data)
-  assert_match('Content%-Type: text/plain\r\n', data)
+  assert_match('Content%-Type: ' .. text_plain .. '\r\n', data)
   assert_not_match('Content%-Type: application/octet%-stream\r\n', data)
 end
 
@@ -292,7 +339,7 @@ function test_buffer_04()
   post = assert(scurl.form{name04 = {
     name = 'file04',
     data = 'value04',
-    type = "text/plain",
+    type = text_plain,
     headers = {"Content-Encoding: gzip"},
   }})
 
@@ -300,7 +347,7 @@ function test_buffer_04()
   assert_match("\r\n\r\nvalue04\r\n", data)
   assert_match('name="name04"', data)
   assert_match('filename="file04"', data)
-  assert_match('Content%-Type: text/plain\r\n', data)
+  assert_match('Content%-Type: ' .. text_plain .. '\r\n', data)
   assert_not_match('Content%-Type: application/octet%-stream\r\n', data)
   assert_match('Content%-Encoding: gzip\r\n', data)
 end
@@ -331,13 +378,13 @@ function test_stream_03()
     name   = 'file03',
     stream = function() end,
     length = 128,
-    type   = 'text/plain',
+    type   = text_plain,
   }})
 
   local data = assert_string(post:get())
   assert_match('name="name03"', data)
   assert_match('filename="file03"', data)
-  assert_match('Content%-Type: text/plain\r\n', data)
+  assert_match('Content%-Type: ' .. text_plain .. '\r\n', data)
 end
 
 function test_stream_04()
@@ -345,13 +392,13 @@ function test_stream_04()
     name   = 'file04',
     stream = function() end,
     length = 128,
-    type   = 'text/plain',
+    type   = text_plain,
     headers = {"Content-Encoding: gzip"},
   }})
   local data = assert_string(post:get())
   assert_match('name="name04"', data)
   assert_match('filename="file04"', data)
-  assert_match('Content%-Type: text/plain\r\n', data)
+  assert_match('Content%-Type: ' .. text_plain .. '\r\n', data)
   assert_match('Content%-Encoding: gzip\r\n', data)
 end
 

@@ -1,11 +1,11 @@
 /******************************************************************************
-* Author: Alexey Melnichuk <mimir@newmail.ru>
+* Author: Alexey Melnichuk <alexeymelnichuck@gmail.com>
 *
-* Copyright (C) 2014 Alexey Melnichuk <mimir@newmail.ru>
+* Copyright (C) 2014-2018 Alexey Melnichuk <alexeymelnichuck@gmail.com>
 *
 * Licensed according to the included 'LICENSE' document
 *
-* This file is part of lua-lcurl library.
+* This file is part of Lua-cURL library.
 ******************************************************************************/
 
 #include "lcurl.h"
@@ -15,6 +15,8 @@
 #include "lchttppost.h"
 #include "lcshare.h"
 #include "lcmulti.h"
+#include "lcmime.h"
+#include "lcurlapi.h"
 #include <memory.h>
 
 static const char *LCURL_ERROR_TAG = "LCURL_ERROR_TAG";
@@ -29,7 +31,7 @@ static const char *LCURL_EASY = LCURL_EASY_NAME;
 #endif
 
 /* Before call curl_XXX function which can call any callback
- * need set Curren Lua thread pointer in easy/multi contexts.
+ * need set Current Lua thread pointer in easy/multi contexts.
  * But it also possible that we already in callback call.
  * E.g. `curl_easy_pause` function may be called from write callback.
  * and it even may be called in different thread.
@@ -41,7 +43,7 @@ static const char *LCURL_EASY = LCURL_EASY_NAME;
  * ```
  * So we have to restore previews Lua state in callback contexts.
  * But if previews Lua state is NULL then we can just do not set it back.
- * But set it to NULL make esier debug code.
+ * But set it to NULL make easier to debug code.
  */
 void lcurl__easy_assign_lua(lua_State *L, lcurl_easy_t *p, lua_State *value, int assign_multi){
   if(p->multi && assign_multi){
@@ -52,6 +54,11 @@ void lcurl__easy_assign_lua(lua_State *L, lcurl_easy_t *p, lua_State *value, int
     if(p->post){
       p->post->L = value;
     }
+#if LCURL_CURL_VER_GE(7,56,0)
+    if(p->mime){
+      lcurl_mime_set_lua(L, p->mime, value);
+    }
+#endif
   }
 }
 
@@ -74,6 +81,12 @@ int lcurl_easy_create(lua_State *L, int error_mode){
   p->L                = NULL;
   p->post             = NULL;
   p->multi            = NULL;
+#if LCURL_CURL_VER_GE(7,56,0)
+  p->mime             = NULL;
+#endif
+#if LCURL_CURL_VER_GE(7,63,0)
+  p->url              = NULL;
+#endif
   p->storage          = lcurl_storage_init(L);
   p->wr.cb_ref        = p->wr.ud_ref    = LUA_NOREF;
   p->rd.cb_ref        = p->rd.ud_ref    = LUA_NOREF;
@@ -84,6 +97,9 @@ int lcurl_easy_create(lua_State *L, int error_mode){
   p->match.cb_ref     = p->match.ud_ref = LUA_NOREF;
   p->chunk_bgn.cb_ref = p->chunk_bgn.ud_ref = LUA_NOREF;
   p->chunk_end.cb_ref = p->chunk_end.ud_ref = LUA_NOREF;
+#if LCURL_CURL_VER_GE(7,64,0)
+  p->trailer.cb_ref   = p->trailer.ud_ref   = LUA_NOREF;
+#endif
   p->rbuffer.ref      = LUA_NOREF;
   for(i = 0; i < LCURL_LIST_COUNT; ++i){
     p->lists[i] = LUA_NOREF;
@@ -115,7 +131,7 @@ static int lcurl_easy_cleanup(lua_State *L){
   int i;
 
   if(p->multi){
-    CURLMcode code = lcurl__multi_remove_handle(L, p->multi, p);
+    LCURL_UNUSED_VAR CURLMcode code = lcurl__multi_remove_handle(L, p->multi, p);
 
     //! @todo what I can do if I can not remove it???
   }
@@ -125,6 +141,8 @@ static int lcurl_easy_cleanup(lua_State *L){
 
     // In my tests when I cleanup some easy handle. 
     // timerfunction called only for single multi handle.
+    // Also may be this function may call `close` callback
+    // for `curl_mimepart` structure.
     curL = p->L; lcurl__easy_assign_lua(L, p, L, 1);
     curl_easy_cleanup(p->curl);
 #ifndef LCURL_RESET_NULL_LUA
@@ -134,6 +152,15 @@ static int lcurl_easy_cleanup(lua_State *L){
 
     p->curl = NULL;
   }
+
+  p->post = NULL;
+#if LCURL_CURL_VER_GE(7,56,0)
+  p->mime = NULL;
+#endif
+
+#if LCURL_CURL_VER_GE(7,63,0)
+  p->url = NULL;
+#endif
 
   if(p->storage != LUA_NOREF){
     p->storage = lcurl_storage_free(L, p->storage);
@@ -155,10 +182,14 @@ static int lcurl_easy_cleanup(lua_State *L){
   luaL_unref(L, LCURL_LUA_REGISTRY, p->chunk_bgn.ud_ref);
   luaL_unref(L, LCURL_LUA_REGISTRY, p->chunk_end.cb_ref);
   luaL_unref(L, LCURL_LUA_REGISTRY, p->chunk_end.ud_ref);
+#if LCURL_CURL_VER_GE(7,64,0)
+  luaL_unref(L, LCURL_LUA_REGISTRY, p->trailer.cb_ref);
+  luaL_unref(L, LCURL_LUA_REGISTRY, p->trailer.ud_ref);
+#endif
   luaL_unref(L, LCURL_LUA_REGISTRY, p->hd.cb_ref);
   luaL_unref(L, LCURL_LUA_REGISTRY, p->hd.ud_ref);
   luaL_unref(L, LCURL_LUA_REGISTRY, p->rbuffer.ref);
-  
+
   p->wr.cb_ref        = p->wr.ud_ref        = LUA_NOREF;
   p->rd.cb_ref        = p->rd.ud_ref        = LUA_NOREF;
   p->hd.cb_ref        = p->hd.ud_ref        = LUA_NOREF;
@@ -168,6 +199,9 @@ static int lcurl_easy_cleanup(lua_State *L){
   p->match.cb_ref     = p->match.ud_ref     = LUA_NOREF;
   p->chunk_bgn.cb_ref = p->chunk_bgn.ud_ref = LUA_NOREF;
   p->chunk_end.cb_ref = p->chunk_end.ud_ref = LUA_NOREF;
+#if LCURL_CURL_VER_GE(7,64,0)
+  p->trailer.cb_ref   = p->trailer.ud_ref   = LUA_NOREF;
+#endif
   p->rbuffer.ref  = LUA_NOREF;
 
   for(i = 0; i < LCURL_LIST_COUNT; ++i){
@@ -266,6 +300,29 @@ static int lcurl_easy_reset(lua_State *L){
   return 1;
 }
 
+#if LCURL_CURL_VER_GE(7,56,0)
+
+static int lcurl_easy_mime(lua_State *L){
+  lcurl_easy_t *p = lcurl_geteasy(L);
+  return lcurl_mime_create(L, p->err_mode);
+}
+
+#endif
+
+#if LCURL_CURL_VER_GE(7,62,0)
+
+static int lcurl_easy_upkeep(lua_State *L){
+  lcurl_easy_t *p = lcurl_geteasy(L);
+  CURLcode code = curl_easy_upkeep(p->curl);
+  if(code == CURLE_OK){
+    lua_settop(L, 1);
+    return 1;
+  }
+  return lcurl_fail_ex(L, p->err_mode, LCURL_ERROR_EASY, code);
+}
+
+#endif
+
 //{ OPTIONS
 
 //{ set
@@ -277,10 +334,12 @@ static int lcurl_opt_set_long_(lua_State *L, int opt){
   if(lua_isboolean(L, 2)){
     val = lua_toboolean(L, 2);
     if( val
-      && (opt == CURLOPT_SSL_VERIFYHOST)
+      && (
+        (opt == CURLOPT_SSL_VERIFYHOST)
 #if LCURL_CURL_VER_GE(7,52,0)
-      && (opt == CURLOPT_PROXY_SSL_VERIFYHOST)
+        || (opt == CURLOPT_PROXY_SSL_VERIFYHOST)
 #endif
+      )
     ){
       val = 2;
     }
@@ -298,18 +357,43 @@ static int lcurl_opt_set_long_(lua_State *L, int opt){
   return 1;
 }
 
+#if LCURL_CURL_VER_GE(7,59,0)
+
+static int lcurl_opt_set_off_(lua_State *L, int opt){
+  lcurl_easy_t *p = lcurl_geteasy(L);
+  curl_off_t val; CURLcode code;
+
+  luaL_argcheck(L, lua_type(L, 2) == LUA_TNUMBER, 2, "number expected");
+  val = lutil_checkint64(L, 2);
+
+  code = curl_easy_setopt(p->curl, opt, val);
+  if(code != CURLE_OK){
+    return lcurl_fail_ex(L, p->err_mode, LCURL_ERROR_EASY, code);
+  }
+  lua_settop(L, 1);
+  return 1;
+}
+
+#endif
+
 static int lcurl_opt_set_string_(lua_State *L, int opt, int store){
   lcurl_easy_t *p = lcurl_geteasy(L);
-  CURLcode code;
+  CURLcode code; const char *value;
 
-  luaL_argcheck(L, lua_type(L, 2) == LUA_TSTRING, 2, "string expected");
+  luaL_argcheck(L, lua_type(L, 2) == LUA_TSTRING || lutil_is_null(L, 2), 2, "string expected");
 
-  code = curl_easy_setopt(p->curl, opt, lua_tostring(L, 2));
+  value = lua_tostring(L, 2);
+  code = curl_easy_setopt(p->curl, opt, value);
   if(code != CURLE_OK){
     return lcurl_fail_ex(L, p->err_mode, LCURL_ERROR_EASY, code);
   }
 
-  if(store)lcurl_storage_preserve_iv(L, p->storage, opt, 2);
+  if(store){
+    if(value)
+      lcurl_storage_preserve_iv(L, p->storage, opt, 2);
+    else
+      lcurl_storage_remove_i(L, p->storage, opt);
+  }
 
   lua_settop(L, 1);
   return 1;
@@ -321,7 +405,7 @@ static int lcurl_opt_set_slist_(lua_State *L, int opt, int list_no){
   CURLcode code;
   int ref = p->lists[list_no];
 
-  luaL_argcheck(L, list, 2, "array expected");
+  luaL_argcheck(L, list || lua_istable(L, 2) || lutil_is_null(L, 2), 2, "array expected");
 
   if(ref != LUA_NOREF){
     struct curl_slist *tmp = lcurl_storage_remove_slist(L, p->storage, ref);
@@ -336,7 +420,10 @@ static int lcurl_opt_set_slist_(lua_State *L, int opt, int list_no){
     return lcurl_fail_ex(L, p->err_mode, LCURL_ERROR_EASY, code);
   }
 
-  p->lists[list_no] = lcurl_storage_preserve_slist(L, p->storage, list);
+  if (list) {
+    p->lists[list_no] = lcurl_storage_preserve_slist(L, p->storage, list);
+  }
+
   lua_settop(L, 1);
   return 1;
 }
@@ -351,6 +438,10 @@ static int lcurl_opt_set_slist_(lua_State *L, int opt, int list_no){
 
 #define LCURL_LNG_OPT(N, S) static int lcurl_easy_set_##N(lua_State *L){\
   return lcurl_opt_set_long_(L, CURLOPT_##N);\
+}
+
+#define LCURL_OFF_OPT(N, S) static int lcurl_easy_set_##N(lua_State *L){\
+  return lcurl_opt_set_off_(L, CURLOPT_##N);\
 }
 
 #define OPT_ENTRY(L, N, T, S, D) LCURL_##T##_OPT(N, S)
@@ -384,6 +475,7 @@ static int lcurl_easy_set_POSTFIELDS(lua_State *L){
 #undef LCURL_STR_OPT
 #undef LCURL_LST_OPT
 #undef LCURL_LNG_OPT
+#undef LCURL_OFF_OPT
 
 static size_t lcurl_hpost_read_callback(char *buffer, size_t size, size_t nitems, void *arg);
 
@@ -447,6 +539,46 @@ static int lcurl_easy_set_STREAM_DEPENDS_E(lua_State *L){
 
 #endif
 
+#if LCURL_CURL_VER_GE(7,56,0)
+
+static int lcurl_easy_set_MIMEPOST(lua_State *L){
+  lcurl_easy_t *p = lcurl_geteasy(L);
+  lcurl_mime_t *mime = lcurl_getmime_at(L, 2);
+  CURLcode code = curl_easy_setopt(p->curl, CURLOPT_MIMEPOST, mime->mime);
+  if(code != CURLE_OK){
+    return lcurl_fail_ex(L, p->err_mode, LCURL_ERROR_EASY, code);
+  }
+
+  lcurl_storage_preserve_iv(L, p->storage, CURLOPT_MIMEPOST, 2);
+
+  p->mime = mime;
+
+  lua_settop(L, 1);
+  return 1;
+}
+
+#endif
+
+#if LCURL_CURL_VER_GE(7,63,0)
+
+static int lcurl_easy_set_CURLU(lua_State *L) {
+  lcurl_easy_t *p = lcurl_geteasy(L);
+  lcurl_url_t *url = lcurl_geturl_at(L, 2);
+  CURLcode code = curl_easy_setopt(p->curl, CURLOPT_CURLU, url->url);
+  if (code != CURLE_OK) {
+    return lcurl_fail_ex(L, p->err_mode, LCURL_ERROR_EASY, code);
+  }
+
+  lcurl_storage_preserve_iv(L, p->storage, CURLOPT_CURLU, 2);
+
+  p->url = url;
+
+  lua_settop(L, 1);
+  return 1;
+}
+
+#endif
+
 //}
 
 //{ unset
@@ -462,6 +594,22 @@ static int lcurl_opt_unset_long_(lua_State *L, int opt, long val){
   lua_settop(L, 1);
   return 1;
 }
+
+#if LCURL_CURL_VER_GE(7,59,0)
+
+static int lcurl_opt_unset_off_(lua_State *L, int opt, curl_off_t val){
+  lcurl_easy_t *p = lcurl_geteasy(L);
+  CURLcode code;
+
+  code = curl_easy_setopt(p->curl, opt, val);
+  if(code != CURLE_OK){
+    return lcurl_fail_ex(L, p->err_mode, LCURL_ERROR_EASY, code);
+  }
+  lua_settop(L, 1);
+  return 1;
+}
+
+#endif
 
 static int lcurl_opt_unset_string_(lua_State *L, int opt, const char *val){
   lcurl_easy_t *p = lcurl_geteasy(L);
@@ -511,6 +659,10 @@ static int lcurl_opt_unset_slist_(lua_State *L, int opt, int list_no){
   return lcurl_opt_unset_long_(L, CURLOPT_##N, (D));\
 }
 
+#define LCURL_OFF_OPT(N, S, D) static int lcurl_easy_unset_##N(lua_State *L){\
+  return lcurl_opt_unset_off_(L, CURLOPT_##N, (D));\
+}
+
 #define OPT_ENTRY(L, N, T, S, D) LCURL_##T##_OPT(N, S, D)
 
 #include "lcopteasy.h"
@@ -520,6 +672,7 @@ static int lcurl_opt_unset_slist_(lua_State *L, int opt, int list_no){
 #undef LCURL_STR_OPT
 #undef LCURL_LST_OPT
 #undef LCURL_LNG_OPT
+#undef LCURL_OFF_OPT
 
 static int lcurl_easy_unset_HTTPPOST(lua_State *L){
   lcurl_easy_t *p = lcurl_geteasy(L);
@@ -775,6 +928,65 @@ static int lcurl_easy_unset_STREAM_DEPENDS_E(lua_State *L){
 
 #endif
 
+#if LCURL_CURL_VER_GE(7,56,0)
+
+static int lcurl_easy_unset_MIMEPOST(lua_State *L){
+  lcurl_easy_t *p = lcurl_geteasy(L);
+  CURLcode code = curl_easy_setopt(p->curl, CURLOPT_MIMEPOST, NULL);
+  if(code != CURLE_OK){
+    return lcurl_fail_ex(L, p->err_mode, LCURL_ERROR_EASY, code);
+  }
+
+  lcurl_storage_remove_i(L, p->storage, CURLOPT_MIMEPOST);
+
+  p->mime = NULL;
+
+  lua_settop(L, 1);
+  return 1;
+}
+
+#endif
+
+#if LCURL_CURL_VER_GE(7,63,0)
+
+static int lcurl_easy_unset_CURLU(lua_State *L) {
+  lcurl_easy_t *p = lcurl_geteasy(L);
+  CURLcode code = curl_easy_setopt(p->curl, CURLOPT_CURLU, NULL);
+  if (code != CURLE_OK) {
+    return lcurl_fail_ex(L, p->err_mode, LCURL_ERROR_EASY, code);
+  }
+
+  lcurl_storage_remove_i(L, p->storage, CURLOPT_CURLU);
+
+  p->url = NULL;
+
+  lua_settop(L, 1);
+  return 1;
+}
+
+#endif
+
+#if LCURL_CURL_VER_GE(7,64,0)
+
+static int lcurl_easy_unset_TRAILERFUNCTION(lua_State *L){
+  lcurl_easy_t *p = lcurl_geteasy(L);
+
+  CURLcode code = curl_easy_setopt(p->curl, CURLOPT_TRAILERFUNCTION, NULL);
+  if(code != CURLE_OK){
+    return lcurl_fail_ex(L, p->err_mode, LCURL_ERROR_EASY, code);
+  }
+  curl_easy_setopt(p->curl, CURLOPT_TRAILERDATA, NULL);
+
+  luaL_unref(L, LCURL_LUA_REGISTRY, p->trailer.cb_ref);
+  luaL_unref(L, LCURL_LUA_REGISTRY, p->trailer.ud_ref);
+  p->trailer.cb_ref = p->trailer.ud_ref = LUA_NOREF;
+
+  lua_settop(L, 1);
+  return 1;
+}
+
+#endif
+
 //}
 
 //}
@@ -1004,7 +1216,7 @@ static int lcurl_easy_set_WRITEFUNCTION(lua_State *L){
 
 //{ Reader
 
-static size_t lcurl_read_callback(lua_State *L,
+size_t lcurl_read_callback(lua_State *L,
   lcurl_callback_t *rd, lcurl_read_buffer_t *rbuffer,
   char *buffer, size_t size, size_t nitems
 ){
@@ -1440,6 +1652,70 @@ static int lcurl_easy_set_CHUNK_END_FUNCTION(lua_State *L){
 
 //}
 
+//{ Trailer
+
+#if LCURL_CURL_VER_GE(7,64,0)
+
+static int lcurl_trailer_callback(struct curl_slist **list, void *arg) {
+  lcurl_easy_t *p = arg;
+  lua_State *L = p->L;
+  int top = lua_gettop(L);
+  int n = lcurl_util_push_cb(L, &p->trailer);
+
+  if (lua_pcall(L, n - 1, LUA_MULTRET, 0)) {
+    assert(lua_gettop(L) >= top);
+    lua_pushlightuserdata(L, (void*)LCURL_ERROR_TAG);
+    lua_insert(L, top + 1);
+    return CURL_TRAILERFUNC_ABORT;
+  }
+
+  n = lua_gettop(L);
+
+  if (n == top) {
+    return CURL_TRAILERFUNC_OK;
+  }
+
+  /* libcurl will free the list */
+  *list = lcurl_util_to_slist(L, top + 1);
+  if (*list) {
+    lua_settop(L, top);
+    return CURL_TRAILERFUNC_OK;
+  }
+
+  // empty array or NULL
+  if (lua_istable(L, top + 1) || lutil_is_null(L, top + 1)) {
+    lua_settop(L, top);
+    return CURL_TRAILERFUNC_OK;
+  }
+
+  // true
+  if((lua_type(L, top + 1) == LUA_TBOOLEAN) && (lua_toboolean(L, top + 1))){
+    lua_settop(L, top);
+    return CURL_TRAILERFUNC_OK;
+  }
+
+  // single nil
+  if((n == (top + 1)) && lua_isnil(L, top + 1)){
+    lua_settop(L, top);
+    return CURL_TRAILERFUNC_OK;
+  }
+  
+  lua_settop(L, top);
+  return CURL_TRAILERFUNC_ABORT;
+}
+
+static int lcurl_easy_set_TRAILERFUNCTION (lua_State *L){
+  lcurl_easy_t *p = lcurl_geteasy(L);
+  return lcurl_easy_set_callback(L, p, &p->trailer,
+    CURLOPT_TRAILERFUNCTION, CURLOPT_TRAILERDATA,
+    "trailer", lcurl_trailer_callback
+  );
+}
+
+#endif
+
+//}
+
 //}
 
 static int lcurl_easy_setopt(lua_State *L){
@@ -1478,6 +1754,9 @@ static int lcurl_easy_setopt(lua_State *L){
     OPT_ENTRY(stream_depends,    STREAM_DEPENDS,   TTT, 0, 0)
     OPT_ENTRY(stream_depends_e,  STREAM_DEPENDS_E, TTT, 0, 0)
 #endif
+#if LCURL_CURL_VER_GE(7,56,0)
+    OPT_ENTRY(mimepost,          MIMEPOST,         TTT, 0, 0)
+#endif
   }
 #undef OPT_ENTRY
 
@@ -1511,6 +1790,9 @@ static int lcurl_easy_unsetopt(lua_State *L){
 #if LCURL_CURL_VER_GE(7,46,0)
     OPT_ENTRY(stream_depends,    STREAM_DEPENDS,   TTT, 0, 0)
     OPT_ENTRY(stream_depends_e,  STREAM_DEPENDS_E, TTT, 0, 0)
+#endif
+#if LCURL_CURL_VER_GE(7,56,0)
+    OPT_ENTRY(mimepost,          MIMEPOST,         TTT, 0, 0)
 #endif
   }
 #undef OPT_ENTRY
@@ -1582,13 +1864,22 @@ static const struct luaL_Reg lcurl_easy_methods[] = {
   OPT_ENTRY(seekfunction,      SEEKFUNCTION,     TTT, 0, 0)
   OPT_ENTRY(debugfunction,     DEBUGFUNCTION,    TTT, 0, 0)
 #if LCURL_CURL_VER_GE(7,21,0)
-  OPT_ENTRY(fnmatch_function,  FNMATCH_FUNCTION, TTT, 0, 0)
+  OPT_ENTRY(fnmatch_function,   FNMATCH_FUNCTION,   TTT, 0, 0)
   OPT_ENTRY(chunk_bgn_function, CHUNK_BGN_FUNCTION, TTT, 0, 0)
   OPT_ENTRY(chunk_end_function, CHUNK_END_FUNCTION, TTT, 0, 0)
 #endif
 #if LCURL_CURL_VER_GE(7,46,0)
   OPT_ENTRY(stream_depends,    STREAM_DEPENDS,   TTT, 0, 0)
   OPT_ENTRY(stream_depends_e,  STREAM_DEPENDS_E, TTT, 0, 0)
+#endif
+#if LCURL_CURL_VER_GE(7,56,0)
+  OPT_ENTRY(mimepost,          MIMEPOST,         TTT, 0, 0)
+#endif
+#if LCURL_CURL_VER_GE(7,63,0)
+  OPT_ENTRY(curlu,             CURLU,            TTT, 0, 0)
+#endif
+#if LCURL_CURL_VER_GE(7,64,0)
+  OPT_ENTRY(trailerfunction,   TRAILERFUNCTION,  TTT, 0, 0)
 #endif
 #undef OPT_ENTRY
 
@@ -1604,7 +1895,7 @@ static const struct luaL_Reg lcurl_easy_methods[] = {
   OPT_ENTRY(seekfunction,      SEEKFUNCTION,     TTT, 0, 0)
   OPT_ENTRY(debugfunction,     DEBUGFUNCTION,    TTT, 0, 0)
 #if LCURL_CURL_VER_GE(7,21,0)
-  OPT_ENTRY(fnmatch_function,  FNMATCH_FUNCTION, TTT, 0, 0)
+  OPT_ENTRY(fnmatch_function,   FNMATCH_FUNCTION,   TTT, 0, 0)
   OPT_ENTRY(chunk_bgn_function, CHUNK_BGN_FUNCTION, TTT, 0, 0)
   OPT_ENTRY(chunk_end_function, CHUNK_END_FUNCTION, TTT, 0, 0)
 #endif
@@ -1612,11 +1903,24 @@ static const struct luaL_Reg lcurl_easy_methods[] = {
   OPT_ENTRY(stream_depends,    STREAM_DEPENDS,   TTT, 0, 0)
   OPT_ENTRY(stream_depends_e,  STREAM_DEPENDS_E, TTT, 0, 0)
 #endif
+#if LCURL_CURL_VER_GE(7,56,0)
+  OPT_ENTRY(mimepost,          MIMEPOST,         TTT, 0, 0)
+#endif
+#if LCURL_CURL_VER_GE(7,63,0)
+  OPT_ENTRY(curlu,             CURLU,            TTT, 0, 0)
+#endif
+#if LCURL_CURL_VER_GE(7,64,0)
+  OPT_ENTRY(trailerfunction,   TRAILERFUNCTION,  TTT, 0, 0)
+#endif
 #undef OPT_ENTRY
 
 #define OPT_ENTRY(L, N, T, S) { "getinfo_"#L, lcurl_easy_get_##N },
   #include "lcinfoeasy.h"
 #undef OPT_ENTRY
+
+#if LCURL_CURL_VER_GE(7,56,0)
+  { "mime",       lcurl_easy_mime           },
+#endif
 
   { "pause",      lcurl_easy_pause          },
   { "reset",      lcurl_easy_reset          },
@@ -1626,6 +1930,9 @@ static const struct luaL_Reg lcurl_easy_methods[] = {
   { "escape",     lcurl_easy_escape         },
   { "unescape",   lcurl_easy_unescape       },
   { "perform",    lcurl_easy_perform        },
+#if LCURL_CURL_VER_GE(7,62,0)
+  { "upkeep",     lcurl_easy_upkeep         },
+#endif
   { "close",      lcurl_easy_cleanup        },
   { "__gc",       lcurl_easy_cleanup        },
   { "__tostring", lcurl_easy_to_s           },
@@ -1658,6 +1965,15 @@ static const lcurl_const_t lcurl_easy_opt[] = {
 #if LCURL_CURL_VER_GE(7,46,0)
   OPT_ENTRY(stream_depends,    STREAM_DEPENDS,   TTT, 0, 0)
   OPT_ENTRY(stream_depends_e,  STREAM_DEPENDS_E, TTT, 0, 0)
+#endif
+#if LCURL_CURL_VER_GE(7,56,0)
+  OPT_ENTRY(mimepost,          MIMEPOST,         TTT, 0, 0)
+#endif
+#if LCURL_CURL_VER_GE(7,63,0)
+  OPT_ENTRY(curlu,             CURLU,            TTT, 0, 0)
+#endif
+#if LCURL_CURL_VER_GE(7,64,0)
+  OPT_ENTRY(trailerfunction,   TRAILERFUNCTION,  TTT, 0, 0)
 #endif
 #undef OPT_ENTRY
 #undef FLG_ENTRY

@@ -71,7 +71,11 @@ ERR_ENTRY ( RECV_ERROR               )
 ERR_ENTRY ( OBSOLETE57               )
 ERR_ENTRY ( SSL_CERTPROBLEM          )
 ERR_ENTRY ( SSL_CIPHER               )
+#if LCURL_CURL_VER_GE(7,62,0)
+ERR_ENTRY ( OBSOLETE51               )
+#else
 ERR_ENTRY ( SSL_CACERT               )
+#endif
 ERR_ENTRY ( BAD_CONTENT_ENCODING     )
 ERR_ENTRY ( LDAP_INVALID_URL         )
 ERR_ENTRY ( FILESIZE_EXCEEDED        )
@@ -124,4 +128,7 @@ ERR_ENTRY ( SSL_INVALIDCERTSTATUS    )
 #endif
 #if LCURL_CURL_VER_GE(7,49,0)
 ERR_ENTRY ( HTTP2_STREAM             )
+#endif
+#if LCURL_CURL_VER_GE(7,59,0)
+ERR_ENTRY ( RECURSIVE_API_CALL       )
 #endif

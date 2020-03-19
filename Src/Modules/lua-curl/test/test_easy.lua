@@ -17,8 +17,13 @@ local scurl      = require "lcurl.safe"
 local json       = require "dkjson"
 local path       = require "path"
 local upath      = require "path".new('/')
-local url        = "http://example.com"
+local utils      = require "utils"
 local fname      = "./test.download"
+
+-- local GET_URL  = "http://example.com"
+-- local POST_URL = "http://httpbin.org/post"
+local GET_URL  = "http://127.0.0.1:7090/get"
+local POST_URL = "http://127.0.0.1:7090/post"
 
 -- print("------------------------------------")
 -- print("Lua  version: " .. (_G.jit and _G.jit.version or _G._VERSION))
@@ -26,66 +31,10 @@ local fname      = "./test.download"
 -- print("------------------------------------")
 -- print("")
 
-local function weak_ptr(val)
-  return setmetatable({value = val},{__mode = 'v'})
-end
+local weak_ptr, gc_collect, is_curl_ge, read_file, stream, Stream, dump_request =
+  utils.import('weak_ptr', 'gc_collect', 'is_curl_ge', 'read_file', 'stream', 'Stream', 'dump_request')
 
-local function gc_collect()
-  collectgarbage("collect")
-  collectgarbage("collect")
-end
-
-local function cver(min, maj, pat)
-  return min * 2^16 + maj * 2^8 + pat
-end
-
-local function is_curl_ge(min, maj, pat)
-  assert(0x070908 == cver(7,9,8))
-  return curl.version_info('version_num') >= cver(min, maj, pat)
-end
-
-local function read_file(n)
-  local f, e = io.open(n, "r")
-  if not f then return nil, e end
-  local d, e = f:read("*all")
-  f:close()
-  return d, e
-end
-
-local function get_bin_by(str,n)
-  local pos = 1 - n
-  return function()
-    pos = pos + n
-    return (str:sub(pos,pos+n-1))
-  end
-end
-
-local function strem(ch, n, m)
-  return n, get_bin_by( (ch):rep(n), m)
-end
-
-local function Stream(ch, n, m)
-  local size, reader
-
-  local _stream = {}
-
-  function _stream:read(...)
-    _stream.called_ctx = self
-    _stream.called_co  = coroutine.running()
-    return reader(...)
-  end
-
-  function _stream:size()
-    return size
-  end
-
-  function _stream:reset()
-    size, reader = strem(ch, n, m)
-    return self
-  end
-
-  return _stream:reset()
-end
+local null = curl.null
 
 local ENABLE = true
 
@@ -150,7 +99,7 @@ end
 function test_write_to_file()
   f = assert(io.open(fname, "w+b"))
   c = assert(curl.easy{
-    url = url;
+    url = GET_URL;
     writefunction = f;
   })
 
@@ -159,7 +108,7 @@ end
 
 function test_write_abort_01()
   c = assert(scurl.easy{
-    url = url;
+    url = GET_URL;
     writefunction = function(str) return #str - 1 end;
   })
 
@@ -169,7 +118,7 @@ end
 
 function test_write_abort_02()
   c = assert(scurl.easy{
-    url = url;
+    url = GET_URL;
     writefunction = function(str) return false end;
   })
 
@@ -179,7 +128,7 @@ end
 
 function test_write_abort_03()
   c = assert(scurl.easy{
-    url = url;
+    url = GET_URL;
     writefunction = function(str) return nil, "WRITEERROR" end;
   })
 
@@ -189,7 +138,7 @@ end
 
 function test_write_abort_04()
   c = assert(scurl.easy{
-    url = url;
+    url = GET_URL;
     writefunction = function(str) return nil end;
   })
 
@@ -203,14 +152,21 @@ function test_reset_write_callback()
   assert_equal(c, c:setopt_writefunction(f))
   assert_equal(c, c:setopt_writefunction(f.write, f))
   assert_equal(c, c:setopt_writefunction(print))
+  assert_equal(c, c:setopt_writefunction(print, null))
+  assert_equal(c, c:setopt_writefunction(null))
+  assert_equal(c, c:setopt_writefunction(null, nil))
+  assert_equal(c, c:setopt_writefunction(null, null))
   assert_error(function()c:setopt_writefunction()end)
   assert_error(function()c:setopt_writefunction(nil)end)
   assert_error(function()c:setopt_writefunction(nil, f)end)
+  assert_error(function()c:setopt_writefunction(null, {})end)
+  assert_error(function()c:setopt_writefunction(print, {}, nil)end)
+  assert_error(function()c:setopt_writefunction(print, {}, null)end)
 end
 
 function test_write_pass_01()
   c = assert(curl.easy{
-    url = url;
+    url = GET_URL;
     writefunction = function(s) return #s end
   })
 
@@ -219,7 +175,7 @@ end
 
 function test_write_pass_02()
   c = assert(curl.easy{
-    url = url;
+    url = GET_URL;
     writefunction = function() return  end
   })
 
@@ -228,7 +184,7 @@ end
 
 function test_write_pass_03()
   c = assert(curl.easy{
-    url = url;
+    url = GET_URL;
     writefunction = function() return true end
   })
 
@@ -241,7 +197,7 @@ function test_write_coro()
 
   co1 = coroutine.create(function()
     c = assert(curl.easy{
-      url = url;
+      url = GET_URL;
       writefunction = function()
         called = coroutine.running()
         return true
@@ -258,6 +214,38 @@ function test_write_coro()
   coroutine.resume(co2)
 
   assert_equal(co2, called)
+end
+
+function test_write_pass_null_context()
+  c = assert(curl.easy{
+    url = GET_URL;
+  })
+
+  local context
+  assert_equal(c, c:setopt_writefunction(function(ctx)
+    context = ctx
+    return true
+  end, null))
+
+  assert_equal(c, c:perform())
+  assert_equal(null, context)
+end
+
+function test_write_pass_nil_context()
+  c = assert(curl.easy{
+    url = GET_URL;
+  })
+
+  local context, called
+  assert_equal(c, c:setopt_writefunction(function(ctx)
+    context = ctx
+    called = true
+    return true
+  end, nil))
+
+  assert_equal(c, c:perform())
+  assert_true(called)
+  assert_nil(context)
 end
 
 end
@@ -277,7 +265,7 @@ end
 
 function test_abort_01()
   c  = assert(scurl.easy{
-    url              = url,
+    url              = GET_URL,
     writefunction    = pass,
     noprogress       = false,
     progressfunction = function() return false end
@@ -289,7 +277,7 @@ end
 
 function test_abort_02()
   c  = assert(scurl.easy{
-    url              = url,
+    url              = GET_URL,
     writefunction    = pass,
     noprogress       = false,
     progressfunction = function() return 0 end
@@ -301,7 +289,7 @@ end
 
 function test_abort_03()
   c  = assert(scurl.easy{
-    url              = url,
+    url              = GET_URL,
     writefunction    = pass,
     noprogress       = false,
     progressfunction = function() return nil end
@@ -313,7 +301,7 @@ end
 
 function test_abort_04()
   c  = assert(scurl.easy{
-    url              = url,
+    url              = GET_URL,
     writefunction    = pass,
     noprogress       = false,
     progressfunction = function() return nil, "PROGRESSERROR" end
@@ -325,7 +313,7 @@ end
 
 function test_abort_05()
   c  = assert(scurl.easy{
-    url              = url,
+    url              = GET_URL,
     writefunction    = pass,
     noprogress       = false,
     progressfunction = function() error( "PROGRESSERROR" )end
@@ -338,7 +326,7 @@ end
 
 function test_pass_01()
   c  = assert(scurl.easy{
-    url              = url,
+    url              = GET_URL,
     writefunction    = pass,
     noprogress       = false,
     progressfunction = function() end
@@ -349,7 +337,7 @@ end
 
 function test_pass_02()
   c  = assert(scurl.easy{
-    url              = url,
+    url              = GET_URL,
     writefunction    = pass,
     noprogress       = false,
     progressfunction = function() return true end
@@ -360,7 +348,7 @@ end
 
 function test_pass_03()
   c  = assert(scurl.easy{
-    url              = url,
+    url              = GET_URL,
     writefunction    = pass,
     noprogress       = false,
     progressfunction = function() return 1 end
@@ -383,7 +371,7 @@ end
 
 function test_header_abort_01()
   c = assert(scurl.easy{
-    url = url;
+    url = GET_URL;
     writefunction = dummy,
     headerfunction = function(str) return #str - 1 end;
   })
@@ -394,7 +382,7 @@ end
 
 function test_header_abort_02()
   c = assert(scurl.easy{
-    url = url;
+    url = GET_URL;
     writefunction = dummy,
     headerfunction = function(str) return false end;
   })
@@ -405,7 +393,7 @@ end
 
 function test_header_abort_03()
   c = assert(scurl.easy{
-    url = url;
+    url = GET_URL;
     writefunction = dummy,
     headerfunction = function(str) return nil, "WRITEERROR" end;
   })
@@ -416,7 +404,7 @@ end
 
 function test_header_abort_04()
   c = assert(scurl.easy{
-    url = url;
+    url = GET_URL;
     writefunction = dummy,
     headerfunction = function(str) return nil end;
   })
@@ -431,14 +419,19 @@ function test_reset_header_callback()
   assert_equal(c, c:setopt_headerfunction(f))
   assert_equal(c, c:setopt_headerfunction(f.header, f))
   assert_equal(c, c:setopt_headerfunction(print))
+  assert_equal(c, c:setopt_headerfunction(null))
+  assert_equal(c, c:setopt_headerfunction(null, nil))
+  assert_equal(c, c:setopt_headerfunction(null, null))
   assert_error(function()c:setopt_headerfunction()end)
   assert_error(function()c:setopt_headerfunction(nil)end)
   assert_error(function()c:setopt_headerfunction(nil, f)end)
+  assert_error(function()c:setopt_headerfunction(null, {})end)
+  assert_error(function()c:setopt_headerfunction(print, {}, nil)end)
 end
 
 function test_header_pass_01()
   c = assert(curl.easy{
-    url = url;
+    url = GET_URL;
     writefunction = dummy,
     headerfunction = function(s) return #s end
   })
@@ -448,7 +441,7 @@ end
 
 function test_header_pass_02()
   c = assert(curl.easy{
-    url = url;
+    url = GET_URL;
     writefunction = dummy,
     headerfunction = function() return  end
   })
@@ -458,7 +451,7 @@ end
 
 function test_header_pass_03()
   c = assert(curl.easy{
-    url = url;
+    url = GET_URL;
     writefunction = dummy,
     headerfunction = function() return true end
   })
@@ -473,7 +466,7 @@ local _ENV = TEST_CASE'read_stream_callback' if ENABLE and is_curl_ge(7,30,0) th
 
 -- tested on WinXP(x32)/Win8(x64) libcurl/7.37.1 / libcurl/7.30.0
 
-local url = "http://httpbin.org/post"
+local url = POST_URL
 
 local m, c, f, t
 
@@ -499,7 +492,7 @@ function teardown()
 end
 
 function test()
-  assert_equal(f, f:add_stream('SSSSS', strem('X', 128, 13)))
+  assert_equal(f, f:add_stream('SSSSS', stream('X', 128, 13)))
   assert_equal(c, c:setopt_httppost(f))
 
   -- should be called only stream callback
@@ -922,10 +915,10 @@ end
 function test()
 
   do local fields = {}
-    for i = 1, 100 do fields[#fields + 1] = "key" .. i .. "=value"..i end
+    for i = 1, 100 do fields[#fields + 1] = string.format('key%d=value%d', i, i) end
     fields = table.concat(fields, '&')
     c = assert(curl.easy{
-      url           = "http://httpbin.org/post",
+      url           = POST_URL,
       postfields    = fields,
       writefunction = function()end,
     })
@@ -941,10 +934,10 @@ function test_unset()
   local pfields
 
   do local fields = {}
-    for i = 1, 100 do fields[#fields + 1] = "key" .. i .. "=value"..i end
+    for i = 1, 100 do fields[#fields + 1] = string.format('key%d=value%d', i, i) end
     fields = table.concat(fields, '&')
     c = assert(curl.easy{
-      url           = "http://httpbin.org/post",
+      url           = POST_URL,
       postfields    = fields,
       writefunction = function()end,
     })
@@ -1075,6 +1068,204 @@ function test_debug()     test_cb('debugfunction')      end
 function test_fnmatch()   test_cb('fnmatch_function')   end
 function test_chunk_bgn() test_cb('chunk_bgn_function') end
 function test_chunk_end() test_cb('chunk_end_function') end
+
+end
+
+local _ENV = TEST_CASE'set_slist'            if ENABLE then
+
+local c
+
+function teardown()
+  if c then c:close() end
+  c = nil
+end
+
+function test_set()
+  c = curl.easy()
+  c:setopt_httpheader({'X-Custom: value'})
+  local body, headers = assert_string(dump_request(c))
+  assert_match("X%-Custom:%s*value\r\n", headers)
+end
+
+function test_unset()
+  c = curl.easy()
+  c:setopt_httpheader({'X-Custom: value'})
+  c:unsetopt_httpheader()
+  local body, headers = assert_string(dump_request(c))
+  assert_not_match("X%-Custom:%s*value\r\n", headers)
+end
+
+function test_set_empty_array()
+  c = curl.easy()
+  c:setopt_httpheader({'X-Custom: value'})
+  c:setopt_httpheader({})
+  local body, headers = assert_string(dump_request(c))
+  assert_not_match("X%-Custom:%s*value\r\n", headers)
+end
+
+end
+
+local _ENV = TEST_CASE'set_null'             if ENABLE then
+
+local c, m
+
+function teardown()
+  if c then c:close() end
+  if m then m:close() end
+  m, c = nil
+end
+
+function test_string()
+  c = curl.easy()
+  c:setopt_accept_encoding('gzip')
+  local body, headers = assert_string(dump_request(c))
+  assert_match("Accept%-Encoding:%s*gzip", headers)
+
+  c:setopt_accept_encoding(null)
+  body, headers = assert_string(dump_request(c))
+  assert_not_match("Accept%-Encoding:%s*gzip", headers)
+end
+
+function test_string_via_table()
+  c = curl.easy()
+  c:setopt_accept_encoding('gzip')
+  local body, headers = assert_string(dump_request(c))
+  assert_match("Accept%-Encoding:%s*gzip", headers)
+
+  c:setopt{ accept_encoding = null }
+  body, headers = assert_string(dump_request(c))
+  assert_not_match("Accept%-Encoding:%s*gzip", headers)
+end
+
+function test_slist()
+  c = curl.easy()
+  c:setopt_httpheader({'X-Custom: value'})
+  c:setopt_httpheader(null)
+  local body, headers = assert_string(dump_request(c))
+  assert_not_match("X%-Custom:%s*value\r\n", headers)
+end
+
+function test_slist_via_table()
+  c = curl.easy()
+  c:setopt_httpheader({'X-Custom: value'})
+  c:setopt{httpheader = null}
+  local body, headers = assert_string(dump_request(c))
+  assert_not_match("X%-Custom:%s*value\r\n", headers)
+end
+
+function test_multi_set_array()
+  m = curl.multi()
+  m:setopt_pipelining_site_bl{
+    '127.0.0.1'
+  }
+  assert_equal(m, m:setopt_pipelining_site_bl(null))
+end
+
+end
+
+local _ENV = TEST_CASE'trailer_callback'     if ENABLE and is_curl_ge(7,64,0) then
+
+local url = POST_URL
+
+local m, c, t
+
+local function json_data()
+  return json.decode(table.concat(t))
+end
+
+local treader = function(t)
+  local i = 0
+  return function()
+    i = i + 1
+    return t[i]
+  end
+end
+
+function setup()
+  t = {}
+  c = assert(scurl.easy{
+    url           = url,
+    post          = true,
+    httpheader    = {"Transfer-Encoding: chunked"},
+    readfunction  = treader {'a=1&', 'b=2&'},
+    timeout       = 60,
+  })
+  assert_equal(c, c:setopt_writefunction(table.insert, t))
+end
+
+function teardown()
+  if c then c:close() end
+  if m then m:close() end
+  t, c, m = nil
+end
+
+local empty_responses = {
+  {'no_response',   function()                  end},
+  {'nil_response',  function() return nil       end},
+  {'null_response', function() return curl.null end},
+  {'true_response', function() return true      end},
+  {'empty_array',   function() return {}        end},
+}
+
+local abort_responses = {
+  {'false_response',          function() return false end},
+  {'nil_with_error_response', function() return nil, 'error message' end},
+  {'numeric_response_0',      function() return 0 end},
+  {'numeric_response_1',      function() return 1 end},
+}
+
+for _, response in ipairs(empty_responses) do
+  _ENV[ 'test_' .. response[1] ] = function()
+    local trailer_called = 0
+    assert_equal(c, c:setopt_trailerfunction(function()
+      trailer_called = trailer_called + 1
+      return response[2]()
+    end))
+
+    assert_equal(c, c:perform())
+
+    assert_equal(1, trailer_called)
+
+    assert_equal(200, c:getinfo_response_code())
+    local data = assert_table(json_data())
+
+    assert_equal('1', data.form.a)
+    assert_equal('2', data.form.b)
+  end
+end
+
+for _, response in ipairs(abort_responses) do
+  _ENV[ 'test_' .. response[1] ] = function()
+    local trailer_called = 0
+    assert_equal(c, c:setopt_trailerfunction(function()
+      trailer_called = trailer_called + 1
+      return response[2]()
+    end))
+
+    local ok, err = assert_nil(c:perform())
+    assert_equal(1, trailer_called)
+    assert_equal(curl.error(curl.ERROR_EASY, curl.E_ABORTED_BY_CALLBACK), err)
+  end
+end
+
+function test_send_header()
+  local trailer_called = 0
+  assert_equal(c, c:setopt_trailerfunction(function()
+    trailer_called = trailer_called + 1
+    return {'x-trailer-header: value'}
+  end))
+
+  assert_equal(c, c:perform())
+
+  assert_equal(1, trailer_called)
+
+  assert_equal(200, c:getinfo_response_code())
+  local data = assert_table(json_data())
+
+  assert_equal('1', data.form.a)
+  assert_equal('2', data.form.b)
+  assert_equal('value', data.headers['x-trailer-header'])
+end
 
 end
 
