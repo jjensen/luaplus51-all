@@ -1,6 +1,6 @@
 {
 
-local CURL_ROOT = $(SUBDIR)/src/curl-7.58.0 ;
+local CURL_ROOT = $(SUBDIR)/src/curl-7.69.1 ;
 
 local foundCurl ;
 if $(NT) {
@@ -29,11 +29,20 @@ local ZLIB_SRCS ;
 
 if $(NT) {
 	CURL_LIB_SRCS =
-			*.c
+			*.c@-**/curl_sasl.c@-**/imap.c@-**/pop3.c@-**/smtp.c
 			*.h
-			vtls/*.c
+			vauth/*.c
+			vauth/*.h
+			vtls/*.c@-**/cleartext.c
 			vtls/*.h
 	;
+
+Echo CURL_ROOT - $(CURL_ROOT) ;
+C.ExcludeFromBuild :
+		$(CURL_ROOT)/lib/curl_sasl.c
+		$(CURL_ROOT)/lib/http_ntlm.c
+		$(CURL_ROOT)/lib/vtls/cleartext.c
+;
 
 	CURL_LIB_SRCS = $(CURL_ROOT)/lib/$(CURL_LIB_SRCS) ;
 
@@ -73,19 +82,25 @@ local SRCS =
 		src/lcerr_form.h
 		src/lcerr_multi.h
 		src/lcerr_share.h
+		src/lcerr_url.h
 		src/lcflags.h
 		src/lchttppost.c
 		src/lchttppost.h
 		src/lcinfoeasy.h
+		src/lcmime.c
+		src/lcmime.h
 		src/lcmulti.c
 		src/lcmulti.h
 		src/lcopteasy.h
 		src/lcoptmulti.h
 		src/lcoptshare.h
+		src/lcopturl.h
 		src/lcshare.c
 		src/lcshare.h
 		src/lcurl.c
 		src/lcurl.h
+		src/lcurlapi.c
+		src/lcurlapi.h
 		src/lcutils.c
 		src/lcutils.h
 		$(ZLIB_SRCS)
@@ -97,7 +112,7 @@ SourceGroup : libcurl : $(CURL_LIB_SRCS) ;
 SourceGroup : zlib : $(ZLIB_SRCS) ;
 
 C.OpenSSL : link ;
-C.Defines : BUILDING_LIBCURL CURL_STATICLIB ;
+C.Defines : BUILDING_LIBCURL CURL_STATICLIB CURL_DISABLE_IMAP CURL_DISABLE_POP3 CURL_DISABLE_SMTP ;
 #C.Defines : HAVE_ZLIB_H HAVE_ZLIB HAVE_LIBZ ;
 
 if $(NT) {
