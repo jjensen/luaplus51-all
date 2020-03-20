@@ -5,14 +5,13 @@ local socket = require("socket")
 local ssl    = require("ssl")
 
 local params = {
-   mode = "client",
-   protocol = "any",
-   key = "../certs/clientAkey.pem",
-   certificate = "../certs/clientA.pem",
-   cafile = "../certs/rootA.pem",
-   verify = {"peer", "fail_if_no_peer_cert"},
-   options = "all",
-   ciphers = "EDH+AESGCM"
+   mode        = "client",
+   protocol    = "tlsv1_2",
+   key         = "certs/clientECDSAkey.pem",
+   certificate = "certs/clientECDSA.pem",
+   verify      = "none",
+   options     = "all",
+   ciphers     = "ALL:!aRSA"
 }
 
 local peer = socket.tcp()
@@ -22,6 +21,9 @@ peer:connect("127.0.0.1", 8888)
 peer = assert( ssl.wrap(peer, params) )
 assert(peer:dohandshake())
 --]]
+
+local i = peer:info()
+for k, v in pairs(i) do print(k, v) end
 
 print(peer:receive("*l"))
 peer:close()

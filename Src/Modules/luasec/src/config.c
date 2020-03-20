@@ -1,7 +1,7 @@
 /*--------------------------------------------------------------------------
- * LuaSec 0.7alpha
+ * LuaSec 0.9
  *
- * Copyright (C) 2006-2017 Bruno Silvestre.
+ * Copyright (C) 2006-2019 Bruno Silvestre.
  *
  *--------------------------------------------------------------------------*/
 
@@ -14,14 +14,14 @@
  */
 LSEC_API int luaopen_ssl_config(lua_State *L)
 {
-  ssl_option_t *opt;
+  lsec_ssl_option_t *opt;
 
   lua_newtable(L);
 
   // Options
   lua_pushstring(L, "options");
   lua_newtable(L);
-  for (opt = ssl_options; opt->name; opt++) {
+  for (opt = lsec_get_ssl_options(); opt->name; opt++) {
     lua_pushstring(L, opt->name);
     lua_pushboolean(L, 1);
     lua_rawset(L, -3);
@@ -32,22 +32,21 @@ LSEC_API int luaopen_ssl_config(lua_State *L)
   lua_pushstring(L, "protocols");
   lua_newtable(L);
 
-#ifndef OPENSSL_NO_SSL3
-  lua_pushstring(L, "sslv3");
-  lua_pushboolean(L, 1);
-  lua_rawset(L, -3);
-#endif
   lua_pushstring(L, "tlsv1");
   lua_pushboolean(L, 1);
   lua_rawset(L, -3);
-#if (OPENSSL_VERSION_NUMBER >= 0x1000100fL)
   lua_pushstring(L, "tlsv1_1");
   lua_pushboolean(L, 1);
   lua_rawset(L, -3);
   lua_pushstring(L, "tlsv1_2");
   lua_pushboolean(L, 1);
   lua_rawset(L, -3);
+#ifdef TLS1_3_VERSION
+  lua_pushstring(L, "tlsv1_3");
+  lua_pushboolean(L, 1);
+  lua_rawset(L, -3);
 #endif
+
   lua_rawset(L, -3);
 
   // Algorithms
@@ -70,17 +69,25 @@ LSEC_API int luaopen_ssl_config(lua_State *L)
   lua_pushstring(L, "capabilities");
   lua_newtable(L);
 
+  // ALPN
+  lua_pushstring(L, "alpn");
+  lua_pushboolean(L, 1);
+  lua_rawset(L, -3);
+
+#ifdef LSEC_ENABLE_DANE
+  // DANE
+  lua_pushstring(L, "dane");
+  lua_pushboolean(L, 1);
+  lua_rawset(L, -3);
+#endif
+
 #ifndef OPENSSL_NO_EC
-#if defined(SSL_CTRL_SET_ECDH_AUTO) || defined(SSL_CTRL_SET_CURVES_LIST) || defined(SSL_CTX_set1_curves_list)
   lua_pushstring(L, "curves_list");
   lua_pushboolean(L, 1);
   lua_rawset(L, -3);
-#ifdef SSL_CTRL_SET_ECDH_AUTO
   lua_pushstring(L, "ecdh_auto");
   lua_pushboolean(L, 1);
   lua_rawset(L, -3);
-#endif
-#endif
 #endif
   lua_rawset(L, -3);
 

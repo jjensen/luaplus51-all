@@ -2,7 +2,7 @@
 
 #include "ec.h"
 
-#ifndef OPENSSL_NO_ECDH
+#ifndef OPENSSL_NO_EC
 
 EC_KEY *lsec_find_ec_key(lua_State *L, const char *str)
 {
@@ -56,24 +56,23 @@ void lsec_load_curves(lua_State *L)
         lua_pushnumber(L, curves[i].nid);
         lua_rawset(L, -3);
         break;
-#ifdef NID_X25519
-     case NID_X25519:
-        lua_pushstring(L, "X25519");
-        lua_pushnumber(L, curves[i].nid);
-        lua_rawset(L, -3);
-        break;
-#endif
-#ifdef NID_X448
-     case NID_X448:
-        lua_pushstring(L, "X448");
-        lua_pushnumber(L, curves[i].nid);
-        lua_rawset(L, -3);
-        break;
-#endif
       }
     }
     free(curves);
   }
+
+  /* These are special so are manually added here */
+#ifdef NID_X25519
+  lua_pushstring(L, "X25519");
+  lua_pushnumber(L, NID_X25519);
+  lua_rawset(L, -3);
+#endif
+
+#ifdef NID_X448
+  lua_pushstring(L, "X448");
+  lua_pushnumber(L, NID_X448);
+  lua_rawset(L, -3);
+#endif
 
   lua_rawset(L,  LUA_REGISTRYINDEX);
 }
