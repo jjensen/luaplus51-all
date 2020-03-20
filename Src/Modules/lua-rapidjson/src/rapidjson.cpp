@@ -31,6 +31,7 @@
 #include "values.hpp"
 #include "luax.hpp"
 #include "file.hpp"
+#include "StringStream.hpp"
 
 using namespace rapidjson;
 
@@ -87,31 +88,24 @@ static int json_array(lua_State* L)
 	return makeTableType(L, 1, "json.array", "array");
 }
 
-
-template<typename Stream>
-int decode(lua_State* L, Stream* s)
-{
-	int top = lua_gettop(L);
-	values::ToLuaHandler handler(L);
-	Reader reader;
-	ParseResult r = reader.Parse(*s, handler);
-
-	if (!r) {
-		lua_settop(L, top);
-		lua_pushnil(L);
-		lua_pushfstring(L, "%s (%d)", GetParseError_En(r.Code()), r.Offset());
-		return 2;
-	}
-
-	return 1;
-}
-
 static int json_decode(lua_State* L)
 {
 	size_t len = 0;
-	const char* contents = luaL_checklstring(L, 1, &len);
-	StringStream s(contents);
-	return decode(L, &s);
+	const char*  contents = nullptr;
+	switch(lua_type(L, 1)) {
+	case LUA_TSTRING:
+		contents = luaL_checklstring(L, 1, &len);
+		break;
+	case LUA_TLIGHTUSERDATA:
+		contents = reinterpret_cast<const char*>(lua_touserdata(L, 1));
+		len = luaL_checkinteger(L, 2);
+		break;
+	default:
+		return luaL_argerror(L, 1, "required string or lightuserdata (points to a memory of a string)");
+	}
+
+	rapidjson::extend::StringStream s(contents, len);
+	return values::pushDecoded(L, s);
 }
 
 
@@ -127,7 +121,7 @@ static int json_load(lua_State* L)
 	FileReadStream fs(fp, buffer, sizeof(buffer));
 	AutoUTFInputStream<unsigned, FileReadStream> eis(fs);
 
-	int n = decode(L, &eis);
+	int n = values::pushDecoded(L, eis);
 
 	fclose(fp);
 	return n;
@@ -151,6 +145,8 @@ class Encoder {
 	bool sort_keys;
 	bool empty_table_as_array;
 	int max_depth;
+	int indent_char;
+	int indent_char_count;
 	static const int MAX_DEPTH_DEFAULT = 128;
 public:
 	Encoder(lua_State*L, int opt) : pretty(false), sort_keys(false), empty_table_as_array(false), max_depth(MAX_DEPTH_DEFAULT)
@@ -163,6 +159,20 @@ public:
 		sort_keys = luax::optboolfield(L, opt, "sort_keys", false);
 		empty_table_as_array = luax::optboolfield(L, opt, "empty_table_as_array", false);
 		max_depth = luax::optintfield(L, opt, "max_depth", MAX_DEPTH_DEFAULT);
+
+		indent_char = ' ';
+		lua_getfield(L, opt, "indent_char");
+		if (lua_isstring(L, -1))
+		{
+			const char* indent_char_string = lua_tostring(L, -1);
+			if (indent_char_string)
+			{
+				indent_char = indent_char_string[0];
+			}
+		}
+		lua_pop(L, 1);
+
+		indent_char_count = luax::optintfield(L, opt, "indent_char_count", 4);
 	}
 
 private:
@@ -328,6 +338,7 @@ public:
 		if (pretty)
 		{
 			PrettyWriter<Stream> writer(*s);
+			writer.SetIndent(indent_char, indent_char_count);
 			encodeValue(L, &writer, idx);
 		}
 		else

@@ -1,5 +1,5 @@
 package = "rapidjson"
-version = "0.5.2-1"
+version = "0.6.1-1"
 local v = version:gsub("%-%d", "")
 source = {
   url = "git://github.com/xpol/lua-rapidjson",
@@ -8,8 +8,8 @@ source = {
 description = {
   summary = "Json module based on the very fast RapidJSON.",
   detailed = "A json module for Lua 5.1/5.2/5.3 and LuaJIT based on the very fast RapidJSON.",
-   homepage = "https://github.com/xpol/lua-rapidjson",
-   license = "MIT"
+  homepage = "https://github.com/xpol/lua-rapidjson",
+  license = "MIT"
 }
 dependencies = {
    "lua >= 5.1"

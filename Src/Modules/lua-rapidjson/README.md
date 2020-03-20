@@ -1,7 +1,7 @@
 # RapidJSON bindings for Lua
 
 [![License](http://img.shields.io/badge/License-MIT-brightgreen.svg)](LICENSE)
-[![TrivisStatus][]][Trivis] [![AppVeyorStatus][]][AppVeyor]
+[![Badge][]][Actions]
 
 
 A json module for LuaJIT 2.0/2.1 and Lua 5.1/5.2/5.3,
@@ -9,6 +9,15 @@ based on the very fast [RapidJSON][] C++ library.
 
 See project [homepage][] for more informations,
 bug report and feature request.
+
+## Dependencies
+
+* lua development environment
+    * `lua-devel` (linux) 
+    * or [luavm](https://github.com/xpol/luavm)(windows)
+    * or `brew install lua luarocks` 
+    * or any equivalent on your system
+* `cmake` >= `3.1.0`, cmake 2.8 may work but not well tested.
 
 ## Usage
 
@@ -27,6 +36,20 @@ rapidjson.decode()
 rapidjson.load()
 rapidjson.dump()
 ```
+
+### Usage without luarocks
+
+1. Use `cmake -H. -Bbuild -G<generator-name>` go generate project.
+
+    *If you use a non standard lua install location, add environment variable `LUA_DIR` to the directory contains `include` and `lib` for you lua installtion. eg.*
+
+        LUA_DIR=/usr/local/openresty/luajit cmake -H. -Bbuild -G<generator-name>
+
+2. `cmake --build build --config Release` to build the `rapidjosn.so` or `rapidjosn.dll` library.
+
+3. Then link that library to you project or copy to desired place.
+
+> Tips: use `cmake --help` to see a list of generator-name available.
 
 ## Value Type Mappings
 
@@ -68,6 +91,15 @@ See [API reference](API.md).
 4. `luarocks upload rapidjson-*.*.*-1.rockspec`
 
 ## Changelog
+
+### 0.6.1
+
+* Try support cmake 2.8 with GCC (but still requires c++ compiler support c++11 or at least c++0x).
+
+### 0.6.0
+
+* Add support for decode C buffer + length.
+* Export C++ API `pushDecoded`.
 
 ### 0.5.2
 
@@ -136,7 +168,5 @@ See [API reference](API.md).
 
 [RapidJSON]: https://github.com/miloyip/rapidjson
 [homepage]: https://github.com/xpol/lua-rapidjson
-[Trivis]: https://travis-ci.org/xpol/lua-rapidjson "Travis page"
-[TrivisStatus]: https://travis-ci.org/xpol/lua-rapidjson.svg
-[AppVeyor]: https://ci.appveyor.com/project/xpol/lua-rapidjson/branch/master "AppVeyor page"
-[AppVeyorStatus]: https://ci.appveyor.com/api/projects/status/oa3s51dkatevg81o/branch/master?svg=true
+[Badge]: https://github.com/xpol/lua-rapidjson/workflows/CI/badge.svg
+[Actions]: https://github.com/xpol/lua-rapidjson/actions?workflow=CI

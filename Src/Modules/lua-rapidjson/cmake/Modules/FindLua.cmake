@@ -48,12 +48,15 @@
 # (To distribute this file outside of CMake, substitute the full
 #  License text for the above reference.)
 
-find_program(LUA_EXECUTABLE NAMES lua luajit lua51 lua52 lua53 luajit21 luajit20 DOC "lua executable")
+find_program(LUA_EXECUTABLE NAMES lua luajit lua51 lua5.1 lua52 lua5.2 lua53 lua5.3 luajit21 luajit20 DOC "lua executable")
 if (APPLE AND LUA_EXECUTABLE MATCHES "\\.luaenv/shims")
   execute_process(COMMAND luaenv which lua RESULT_VARIABLE STATUS OUTPUT_VARIABLE LUA_EXECUTABLE ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
 endif()
-get_filename_component(LUAENV_ROOT ${LUA_EXECUTABLE} DIRECTORY)
-get_filename_component(LUAENV_ROOT ${LUAENV_ROOT} DIRECTORY)
+
+if (LUA_EXECUTABLE)
+  get_filename_component(LUAENV_ROOT ${LUA_EXECUTABLE} DIRECTORY)
+  get_filename_component(LUAENV_ROOT ${LUAENV_ROOT} DIRECTORY)
+endif()
 
 find_path(LUA_INCLUDE_DIR lua.h
   HINTS
@@ -65,13 +68,13 @@ find_path(LUA_INCLUDE_DIR lua.h
     include/luajit-2.1 include/luajit-2.0
     include/lua include
   PATHS
-  ${LUAENV_ROOT}
-  ~/Library/Frameworks
-  /Library/Frameworks
-  /sw # Fink
-  /opt/local # DarwinPorts
-  /opt/csw # Blastwave
-  /opt
+    ${LUAENV_ROOT}
+    ~/Library/Frameworks
+    /Library/Frameworks
+    /sw # Fink
+    /opt/local # DarwinPorts
+    /opt/csw # Blastwave
+    /opt
 )
 
 find_library(LUA_LIBRARY
@@ -80,13 +83,13 @@ find_library(LUA_LIBRARY
     ENV LUA_DIR
   PATH_SUFFIXES lib
   PATHS
-  ${LUAENV_ROOT}
-  ~/Library/Frameworks
-  /Library/Frameworks
-  /sw
-  /opt/local
-  /opt/csw
-  /opt
+    ${LUAENV_ROOT}
+    ~/Library/Frameworks
+    /Library/Frameworks
+    /sw
+    /opt/local
+    /opt/csw
+    /opt
 )
 
 if (LUA_LIBRARY)
