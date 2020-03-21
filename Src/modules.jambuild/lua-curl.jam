@@ -37,7 +37,6 @@ if $(NT) {
 			vtls/*.h
 	;
 
-Echo CURL_ROOT - $(CURL_ROOT) ;
 C.ExcludeFromBuild :
 		$(CURL_ROOT)/lib/curl_sasl.c
 		$(CURL_ROOT)/lib/http_ntlm.c
