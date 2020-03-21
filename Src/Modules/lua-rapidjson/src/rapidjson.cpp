@@ -140,6 +140,8 @@ struct Key
 
 
 
+static const int MAX_DEPTH_DEFAULT = 128;
+
 class Encoder {
 	bool pretty;
 	bool sort_keys;
@@ -147,9 +149,9 @@ class Encoder {
 	int max_depth;
 	int indent_char;
 	int indent_char_count;
-	static const int MAX_DEPTH_DEFAULT = 128;
+	int max_decimal_places;
 public:
-	Encoder(lua_State*L, int opt) : pretty(false), sort_keys(false), empty_table_as_array(false), max_depth(MAX_DEPTH_DEFAULT)
+	Encoder(lua_State*L, int opt) : pretty(false), sort_keys(false), empty_table_as_array(false), max_depth(MAX_DEPTH_DEFAULT), indent_char(' '), indent_char_count(4), max_decimal_places(-1)
 	{
 		if (lua_isnoneornil(L, opt))
 			return;
@@ -173,6 +175,12 @@ public:
 		lua_pop(L, 1);
 
 		indent_char_count = luax::optintfield(L, opt, "indent_char_count", 4);
+		max_decimal_places = luax::optintfield(L, opt, "max_decimal_places", -1);
+	}
+
+	Encoder(lua_State*L, bool pretty = false, bool sort_keys = false, bool empty_table_as_array = false, int max_depth = MAX_DEPTH_DEFAULT, int indent_char = ' ', int indent_char_count = 4, int max_decimal_places = -1)
+		: pretty(pretty), sort_keys(sort_keys), empty_table_as_array(empty_table_as_array), max_depth(max_depth), indent_char(indent_char), indent_char_count(indent_char_count), max_decimal_places(max_decimal_places)
+	{
 	}
 
 private:
@@ -339,11 +347,19 @@ public:
 		{
 			PrettyWriter<Stream> writer(*s);
 			writer.SetIndent(indent_char, indent_char_count);
+			if (max_decimal_places >= 0)
+			{
+				writer.SetMaxDecimalPlaces(max_decimal_places);
+			}
 			encodeValue(L, &writer, idx);
 		}
 		else
 		{
 			Writer<Stream> writer(*s);
+			if (max_decimal_places >= 0)
+			{
+				writer.SetMaxDecimalPlaces(max_decimal_places);
+			}
 			encodeValue(L, &writer, idx);
 		}
 	}
