@@ -143,6 +143,86 @@ test(ospath.make_backslash('\\\\abc'), '\\\\abc')
 test(ospath.make_backslash('//abc'), '\\\\abc')
 test(ospath.make_backslash('c:/abc/def/'), 'c:\\abc\\def\\')
 
+do
+    -- Windows-style with forward slashes
+    local path1 = "c:/Users/JamPlus"
+    local path2 = "c:/Users/JamPlus/Deep/Deeper"
+    local path3 = "c:/Users/JamPlus/AppData/Roaming"
+
+    local startPath = "c:/Users/JamPlus/AppData/Local"
+    test(ospath.make_relative(path1, startPath), '../..')
+    test(ospath.make_relative(path2, startPath), '../../Deep/Deeper')
+    test(ospath.make_relative(path3, startPath), '../Roaming')
+    test(ospath.make_relative(startPath, startPath), '.')
+
+    startPath = "c:/"
+    test(ospath.make_relative(path1, startPath), 'Users/JamPlus')
+    test(ospath.make_relative(path2, startPath), 'Users/JamPlus/Deep/Deeper')
+    test(ospath.make_relative(path3, startPath), 'Users/JamPlus/AppData/Roaming')
+    test(ospath.make_relative(startPath, startPath), '.')
+
+    -- Windows-style
+    path1 = "c:\\Users\\JamPlus"
+    path2 = "c:\\Users\\JamPlus\\Deep\\Deeper"
+    path3 = "c:\\Users\\JamPlus\\AppData\\Roaming"
+
+    startPath = "c:\\Users\\JamPlus\\AppData\\Local"
+    test(ospath.make_relative(path1, startPath), '../..')
+    test(ospath.make_relative(path2, startPath), '../../Deep/Deeper')
+    test(ospath.make_relative(path3, startPath), '../Roaming')
+    test(ospath.make_relative(startPath, startPath), '.')
+
+    startPath = "c:\\"
+    test(ospath.make_relative(path1, startPath), 'Users/JamPlus')
+    test(ospath.make_relative(path2, startPath), 'Users/JamPlus/Deep/Deeper')
+    test(ospath.make_relative(path3, startPath), 'Users/JamPlus/AppData/Roaming')
+    test(ospath.make_relative(startPath, startPath), '.')
+
+    -- Unix-style
+    path1 = "/Users/JamPlus"
+    path2 = "/Users/JamPlus/Deep/Deeper"
+    path3 = "/Users/JamPlus/AppData/Roaming"
+
+    startPath = "/Users/JamPlus/AppData/Local"
+    test(ospath.make_relative(path1, startPath), '../..')
+    test(ospath.make_relative(path2, startPath), '../../Deep/Deeper')
+    test(ospath.make_relative(path3, startPath), '../Roaming')
+    test(ospath.make_relative(startPath, startPath), '.')
+
+    startPath = "/"
+    test(ospath.make_relative(path1, startPath), 'Users/JamPlus')
+    test(ospath.make_relative(path2, startPath), 'Users/JamPlus/Deep/Deeper')
+    test(ospath.make_relative(path3, startPath), 'Users/JamPlus/AppData/Roaming')
+    test(ospath.make_relative(startPath, startPath), '.')
+
+    -- Relative (not absolute)
+    path1 = "Users/JamPlus"
+    path2 = "Users/JamPlus/Deep/Deeper"
+    path3 = "Users/JamPlus/AppData/Roaming"
+
+    startPath = "Users/JamPlus/AppData/Local"
+    test(ospath.make_relative(path1, startPath), '../..')
+    test(ospath.make_relative(path2, startPath), '../../Deep/Deeper')
+    test(ospath.make_relative(path3, startPath), '../Roaming')
+    test(ospath.make_relative(startPath, startPath), '.')
+
+    startPath = "."
+    test(ospath.make_relative(path1, startPath), 'Users/JamPlus')
+    test(ospath.make_relative(path2, startPath), 'Users/JamPlus/Deep/Deeper')
+    test(ospath.make_relative(path3, startPath), 'Users/JamPlus/AppData/Roaming')
+    test(ospath.make_relative(startPath, startPath), '.')
+
+    -- Relative (not absolute)
+    path1 = "Users/JamPlus"
+    path2 = "Users/JamPlus/Deep/Deeper"
+    path3 = "Users/JamPlus/AppData/Roaming"
+
+    startPath = "Users/JamPlus/AppData/Local"
+    test(ospath.make_relative(path1, startPath), '../..')
+    test(ospath.make_relative(path2, startPath), '../../Deep/Deeper')
+    test(ospath.make_relative(path3, startPath), '../Roaming')
+    test(ospath.make_relative(startPath, startPath), '.')
+end
 
 test(ospath.make_slash(''), '')
 test(ospath.make_slash(' '), ' ')

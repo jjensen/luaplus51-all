@@ -549,11 +549,33 @@ Returns the new path.
 
 
 
+### ospath.make_relative(path, startPath)
+
+Converts `path` into a relative path positioned against `startPath`. If `startPath` is not provided, the current working directory is used.
+
+Returns the new path.
+
+<pre>
+    local path1 = "c:/Users/JamPlus"
+    local path2 = "c:/Users/JamPlus/Deep/Deeper"
+    local path3 = "c:/Users/JamPlus/AppData/Roaming"
+
+    local startPath = "c:/Users/JamPlus/AppData/Local"
+    print(ospath.make_relative(path1, startPath))       -- ../..
+    print(ospath.make_relative(path2, startPath))       -- ../../Deep/Deeper
+    print(ospath.make_relative(path3, startPath))       -- ../Roaming
+    print(ospath.make_relative(startPath, startPath))   -- .
+</pre>
+
+
+
+
+
+
 ### ospath.make_slash(path)
 
 Convert any backslashes in `path` to slashes.
 
-Returns the new ospath.
 Returns the new path.
 
 <pre>

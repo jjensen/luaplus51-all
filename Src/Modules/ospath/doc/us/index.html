@@ -316,7 +316,7 @@
 
 <p>Adds <code>extension</code> to the end of <code>path</code> even if one already exists.</p>
 
-<p>Returns the new ospath.</p>
+<p>Returns the new path.</p>
 
 
 <pre>
@@ -338,7 +338,7 @@
 
 <p>Adds a slash to the end of <code>path</code> if it doesn't already exist.</p>
 
-<p>Returns the new ospath.</p>
+<p>Returns the new path.</p>
 
 
 <pre>
@@ -359,7 +359,7 @@
 
 <p>Appends <code>leftPath</code> and <code>rightPath</code> together, adding a slash between the two path components.  If <code>rightPath</code> is an absolute path, it is not appended to <code>leftPath</code> and is returned directly.</p>
 
-<p>Returns the new ospath.</p>
+<p>Returns the new path.</p>
 
 
 <pre>
@@ -384,7 +384,7 @@
 
 <p>Combines <code>leftPath</code> and <code>rightPath</code>, adding a slash between the two path components and simplifying the path by collapsing <code>.</code> and <code>..</code> directories.  If <code>rightPath</code> is an absolute path, it is not appended to <code>leftPath</code> and is returned directly.</p>
 
-<p>Returns the new ospath.</p>
+<p>Returns the new path.</p>
 
 
 <pre>
@@ -407,7 +407,7 @@
 
 <p>Properly escapes and quotes <code>path</code>, if needed.</p>
 
-<p>Returns the new ospath.</p>
+<p>Returns the new path.</p>
 
 
 <pre>
@@ -619,7 +619,7 @@
 
 <p>Converts <code>path</code> into an absolute path, simplifying the path as necessary.</p>
 
-<p>Returns the new ospath.</p>
+<p>Returns the new path.</p>
 
 
 <pre>
@@ -640,7 +640,7 @@
 
 <p>Convert any forward slashes in <code>path</code> to backslashes.</p>
 
-<p>Returns the new ospath.</p>
+<p>Returns the new path.</p>
 
 
 <pre>
@@ -657,11 +657,36 @@
 
 
 
+<h3>ospath.make_relative(path, startPath)</h3>
+
+<p>Converts <code>path</code> into a relative path positioned against <code>startPath</code>. If <code>startPath</code> is not provided, the current working directory is used.</p>
+
+<p>Returns the new path.</p>
+
+
+<pre>
+    local path1 = "c:/Users/JamPlus"
+    local path2 = "c:/Users/JamPlus/Deep/Deeper"
+    local path3 = "c:/Users/JamPlus/AppData/Roaming"
+
+    local startPath = "c:/Users/JamPlus/AppData/Local"
+    print(ospath.make_relative(path1, startPath))       -- ../..
+    print(ospath.make_relative(path2, startPath))       -- ../../Deep/Deeper
+    print(ospath.make_relative(path3, startPath))       -- ../Roaming
+    print(ospath.make_relative(startPath, startPath))   -- .
+</pre>
+
+
+
+
+
+
+
 <h3>ospath.make_slash(path)</h3>
 
 <p>Convert any backslashes in <code>path</code> to slashes.</p>
 
-<p>Returns the new ospath.</p>
+<p>Returns the new path.</p>
 
 
 <pre>
@@ -727,7 +752,7 @@
 
 <p>Removes the directory component from <code>path</code>.</p>
 
-<p>Returns the new ospath.</p>
+<p>Returns the new path.</p>
 
 
 <pre>
@@ -750,7 +775,7 @@
 
 <p>Removes the extension component from <code>path</code>.</p>
 
-<p>Returns the new ospath.</p>
+<p>Returns the new path.</p>
 
 
 <pre>
@@ -772,7 +797,7 @@
 
 <p>Removes the filename component from <code>path</code>.</p>
 
-<p>Returns the new ospath.</p>
+<p>Returns the new path.</p>
 
 
 <pre>
@@ -795,7 +820,7 @@
 
 <p>Removes the trailing slash from <code>path</code>.</p>
 
-<p>Returns the new ospath.</p>
+<p>Returns the new path.</p>
 
 
 <pre>
@@ -813,7 +838,7 @@
 
 <p>Replaces the extension of <code>path</code> with the new one specified in <code>extension</code>.</p>
 
-<p>Returns the new ospath.</p>
+<p>Returns the new path.</p>
 
 
 <pre>
@@ -837,7 +862,7 @@
 
 <p>Simplifies <code>path</code> by collapsing <code>.</code> and <code>..</code> directories and removing multiple directory slashes.</p>
 
-<p>Returns the new ospath.</p>
+<p>Returns the new path.</p>
 
 
 <pre>
@@ -893,7 +918,7 @@
 
 <p>Trims whitespace from the beginning and end of <code>path</code>.</p>
 
-<p>Returns the new ospath.</p>
+<p>Returns the new path.</p>
 
 
 <pre>
@@ -913,7 +938,7 @@
 
 <p>Unescapes <code>path</code>.</p>
 
-<p>Returns the new ospath.</p>
+<p>Returns the new path.</p>
 
 
 <pre>
