@@ -971,11 +971,19 @@ static int ospath_match(lua_State *L) {
 
 static int ospath_make_absolute(lua_State *L) {
   const char *path = luaL_checkstring(L, 1);
-  const char *cwd = getcwd(NULL, 0);
+  const char *rootPath = luaL_optstring(L, 2, NULL);
+  char *cwd = NULL;
+  if (rootPath == NULL) {
+    cwd = getcwd(NULL, 0);
+    rootPath = cwd;
+  }
   int start = lua_gettop(L);
   (void)path; /* avoid warning about unused parameter */
 
-  lua_pushstring(L, cwd);
+  lua_pushstring(L, rootPath);
+  if (cwd != NULL) {
+    free(cwd);
+  }
   lua_pushvalue(L, 1);
   path_append_helper(L, start, start + 2);
   return path_simplify_helper(L, -1);
