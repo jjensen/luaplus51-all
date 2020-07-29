@@ -808,6 +808,18 @@ static int ospath_find_filename(lua_State *L) {
 }
 
 
+static int ospath_get_directory(lua_State *L) {
+  const char *path = luaL_checkstring(L, 1);
+  const char *pathEnd = path + strlen(path);
+
+  while (pathEnd > path  &&  *(pathEnd - 1) != '\\'  &&  *(pathEnd - 1) != '/'  &&  *(pathEnd - 1) != ':')
+    --pathEnd;
+
+  lua_pushlstring(L, path, pathEnd - path);
+  return 1;
+}
+
+
 static int ospath_get_extension(lua_State *L) {
   const char *path = luaL_checkstring(L, 1);
   const char *pathEnd = path + strlen(path);
@@ -1461,6 +1473,7 @@ int luaopen_ospath_core(lua_State *L) {
     {"exists",            ospath_exists},
     {"find_extension",    ospath_find_extension},
     {"find_filename",     ospath_find_filename},
+    {"get_directory",     ospath_get_directory},
     {"get_extension",     ospath_get_extension},
     {"get_filename",      ospath_get_filename},
     {"is_directory",      ospath_is_directory},

@@ -384,6 +384,20 @@ For the given `path`, return the index of the filename.
 
 
 
+### ospath.get_directory(path)
+
+For the given `path`, return the directory component.
+
+<pre>
+    assert(ospath.get_directory('') == '')
+    assert(ospath.get_directory('c:/directory/filename.ext') == 'c:/directory/')
+    assert(ospath.get_directory('c:/directory/') == 'c:/directory/')
+</pre>
+
+
+
+
+
 ### ospath.get_extension(path)
 
 For the given `path`, return the extension.

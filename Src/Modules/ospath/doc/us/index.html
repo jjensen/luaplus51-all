@@ -472,6 +472,22 @@
 
 
 
+<h3>ospath.get_directory(path)</h3>
+
+<p>For the given <code>path</code>, return the directory component.</p>
+
+
+<pre>
+    assert(ospath.get_directory('') == '')
+    assert(ospath.get_directory('c:/directory/filename.ext') == 'c:/directory/')
+    assert(ospath.get_directory('c:/directory/') == 'c:/directory/')
+</pre>
+
+
+
+
+
+
 <h3>ospath.get_extension(path)</h3>
 
 <p>For the given <code>path</code>, return the extension.</p>

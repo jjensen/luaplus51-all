@@ -81,6 +81,11 @@ test(ospath.find_filename('c:/ospathtests'), 4)
 test(ospath.find_filename('c:ospathtests'), 3)
 
 
+test(ospath.get_directory(''), '')
+test(ospath.get_directory('c:/directory/filename.ext'), 'c:/directory/')
+test(ospath.get_directory('c:/directory/'), 'c:/directory/')
+
+
 test(ospath.get_extension(''), '')
 test(ospath.get_extension('filename'), '')
 test(ospath.get_extension('filename.ext'), '.ext')
