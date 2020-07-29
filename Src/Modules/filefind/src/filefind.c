@@ -494,17 +494,17 @@ static int filefind_tostring(lua_State *L) {
 	lua_pushstring(L, "[filefind object]: filename = \"");
 	lua_pushstring(L, info->fd.cFileName);
 	lua_pushstring(L, "\"");
-	sprintf(buffer, ", creation_time = %u", fileglob_ConvertToTime_t(&info->fd.ftCreationTime));
+	sprintf(buffer, ", creation_time = %ld", (long)fileglob_ConvertToTime_t(&info->fd.ftCreationTime));
 	lua_pushstring(L, buffer);
-	sprintf(buffer, ", access_time = %u", fileglob_ConvertToTime_t(&info->fd.ftLastAccessTime));
+	sprintf(buffer, ", access_time = %ld", (long)fileglob_ConvertToTime_t(&info->fd.ftLastAccessTime));
 	lua_pushstring(L, buffer);
-	sprintf(buffer, ", write_time = %u", fileglob_ConvertToTime_t(&info->fd.ftLastWriteTime));
+	sprintf(buffer, ", write_time = %ld", (long)fileglob_ConvertToTime_t(&info->fd.ftLastWriteTime));
 	lua_pushstring(L, buffer);
-	sprintf(buffer, ", creation_FILETIME = { %u, %u }", info->fd.ftCreationTime.dwLowDateTime, info->fd.ftCreationTime.dwHighDateTime);
+	sprintf(buffer, ", creation_FILETIME = { %u, %u }", (unsigned int)info->fd.ftCreationTime.dwLowDateTime, (unsigned int)info->fd.ftCreationTime.dwHighDateTime);
 	lua_pushstring(L, buffer);
-	sprintf(buffer, ", access_FILETIME = { %u, %u }", info->fd.ftLastAccessTime.dwLowDateTime, info->fd.ftLastAccessTime.dwHighDateTime);
+	sprintf(buffer, ", access_FILETIME = { %u, %u }", (unsigned int)info->fd.ftLastAccessTime.dwLowDateTime, (unsigned int)info->fd.ftLastAccessTime.dwHighDateTime);
 	lua_pushstring(L, buffer);
-	sprintf(buffer, ", write_FILETIME = { %u, %u }", info->fd.ftLastWriteTime.dwLowDateTime, info->fd.ftLastWriteTime.dwHighDateTime);
+	sprintf(buffer, ", write_FILETIME = { %u, %u }", (unsigned int)info->fd.ftLastWriteTime.dwLowDateTime, (unsigned int)info->fd.ftLastWriteTime.dwHighDateTime);
 	lua_pushstring(L, buffer);
 	sprintf(buffer, ", size = %I64d", ((unsigned __int64)info->fd.nFileSizeLow + ((unsigned __int64)info->fd.nFileSizeHigh << 32)));
 	lua_pushstring(L, buffer);
@@ -516,7 +516,7 @@ static int filefind_tostring(lua_State *L) {
 	lua_pushstring(L, buffer);
 
 	filefind_index_number_of_links_helper(L, info);
-	sprintf(buffer, ", number_of_links = %d", lua_tointeger(L, -1));
+	sprintf(buffer, ", number_of_links = %d", (int)lua_tointeger(L, -1));
 	lua_pop(L, 1);
 
 	lua_pushstring(L, buffer);
@@ -669,25 +669,25 @@ static int l_filefind_attributes(lua_State* L) {
 ///////////////////////////////////////////////////////////////////////////////
 #define FILEGLOB_METATABLE "FileGlobMetaTable"
 
-static struct _fileglob* glob_checkmetatable(lua_State *L, int index) {
-	struct _fileglob* glob;
+static fileglob* glob_checkmetatable(lua_State *L, int index) {
+	fileglob* glob;
 	void *ud = luaL_checkudata(L, index, FILEGLOB_METATABLE);
 	luaL_argcheck(L, ud != NULL, index, "fileglob object expected");
-	glob = (struct _fileglob*)*(void**)ud;
+	glob = (fileglob*)*(void**)ud;
 	luaL_argcheck(L, glob != NULL, index, "fileglob object is already closed");
 	return glob;
 }
 
 
 static int glob_next(lua_State *L) {
-	struct _fileglob* glob = glob_checkmetatable(L, 1);
+	fileglob* glob = glob_checkmetatable(L, 1);
 	lua_pushboolean(L, fileglob_Next(glob));
 	return 1;
 }
 
 
 static int glob_close(lua_State *L) {
-	struct _fileglob* glob = glob_checkmetatable(L, 1);
+	fileglob* glob = glob_checkmetatable(L, 1);
 	if (glob) {
 		fileglob_Destroy(glob);
 		*(void **)(lua_touserdata(L, 1)) = NULL;
@@ -719,7 +719,7 @@ static int _glob_push_FILETIME(lua_State* L, fileglob_uint64 filetime) {
 }
 
 
-static int glob_index_filename_helper(lua_State* L, struct _fileglob* glob) {
+static int glob_index_filename_helper(lua_State* L, fileglob* glob) {
 	lua_pushstring(L, fileglob_FileName(glob));
 	return 1;
 }
@@ -730,7 +730,7 @@ static int glob_index_filename(lua_State* L) {
 }
 
 
-static int glob_index_creation_time_helper(lua_State* L, struct _fileglob* glob) {
+static int glob_index_creation_time_helper(lua_State* L, fileglob* glob) {
 	lua_pushnumber(L, (lua_Number)ui64ToDouble(fileglob_CreationTime(glob)));
 	return 1;
 }
@@ -741,7 +741,7 @@ static int glob_index_creation_time(lua_State* L) {
 }
 
 
-static int glob_index_access_time_helper(lua_State* L, struct _fileglob* glob) {
+static int glob_index_access_time_helper(lua_State* L, fileglob* glob) {
 	lua_pushnumber(L, (lua_Number)ui64ToDouble(fileglob_AccessTime(glob)));
 	return 1;
 }
@@ -752,7 +752,7 @@ static int glob_index_access_time(lua_State* L) {
 }
 
 
-static int glob_index_write_time_helper(lua_State* L, struct _fileglob* glob) {
+static int glob_index_write_time_helper(lua_State* L, fileglob* glob) {
 	lua_pushnumber(L, (lua_Number)ui64ToDouble(fileglob_WriteTime(glob)));
 	return 1;
 }
@@ -778,7 +778,7 @@ static int glob_index_write_FILETIME(lua_State* L) {
 }
 
 
-static int glob_index_size_helper(lua_State* L, struct _fileglob* glob) {
+static int glob_index_size_helper(lua_State* L, fileglob* glob) {
 	lua_pushnumber(L, (lua_Number)ui64ToDouble(fileglob_FileSize(glob)));
 	return 1;
 }
@@ -789,7 +789,7 @@ static int glob_index_size(lua_State* L) {
 }
 
 
-static int glob_index_is_directory_helper(lua_State* L, struct _fileglob* glob) {
+static int glob_index_is_directory_helper(lua_State* L, fileglob* glob) {
 	lua_pushboolean(L, fileglob_IsDirectory(glob));
 	return 1;
 }
@@ -800,7 +800,7 @@ static int glob_index_is_directory(lua_State* L) {
 }
 
 
-static int glob_index_is_link_helper(lua_State* L, struct _fileglob* glob) {
+static int glob_index_is_link_helper(lua_State* L, fileglob* glob) {
 	lua_pushboolean(L, fileglob_IsLink(glob));
 	return 1;
 }
@@ -811,7 +811,7 @@ static int glob_index_is_link(lua_State* L) {
 }
 
 
-static int glob_index_is_readonly_helper(lua_State* L, struct _fileglob* glob) {
+static int glob_index_is_readonly_helper(lua_State* L, fileglob* glob) {
 	lua_pushboolean(L, fileglob_IsReadOnly(glob));
 	return 1;
 }
@@ -822,7 +822,7 @@ static int glob_index_is_readonly(lua_State* L) {
 }
 
 
-static int glob_index_number_of_links_helper(lua_State* L, struct _fileglob* glob) {
+static int glob_index_number_of_links_helper(lua_State* L, fileglob* glob) {
 	lua_pushnumber(L, (lua_Number)ui64ToDouble(fileglob_NumberOfLinks(glob)));
 	return 1;
 }
@@ -834,7 +834,7 @@ static int glob_index_number_of_links(lua_State* L) {
 
 
 static int glob_index_table(lua_State* L) {
-	struct _fileglob* glob = glob_checkmetatable(L, 1);
+	fileglob* glob = glob_checkmetatable(L, 1);
 	lua_newtable(L);
 	glob_index_filename_helper(L, glob);
 	lua_setfield(L, -2, "filename");
@@ -884,7 +884,7 @@ static const struct luaL_Reg glob_index_properties[] = {
 
 static int glob_index(lua_State *L) {
 	lua_CFunction function;
-	struct _fileglob* glob = glob_checkmetatable(L, 1);
+	fileglob* glob = glob_checkmetatable(L, 1);
 	const char* key = luaL_checklstring( L, 2, NULL );
 	lua_getfield( L, lua_upvalueindex( 1 ), key );
 	if ( !lua_isnil( L, -1 ) )
@@ -902,7 +902,7 @@ static int glob_index(lua_State *L) {
 
 
 static int glob_tostring(lua_State *L) {
-	struct _fileglob* glob = *(struct _fileglob**)(lua_touserdata(L, 1));
+	fileglob* glob = *(fileglob**)(lua_touserdata(L, 1));
 	fileglob_uint64 filetime;
 	char buffer[100];
 	int top;
@@ -979,7 +979,7 @@ static int l_fileglob_first(lua_State *L) {
 
 
 static int l_fileglob_matchiter(lua_State* L) {
-	struct _fileglob* glob = *(struct _fileglob**)(lua_touserdata(L, lua_upvalueindex(1)));
+	fileglob* glob = *(fileglob**)(lua_touserdata(L, lua_upvalueindex(1)));
 
 	if (!fileglob_Next(glob))
 		return 0;
@@ -1008,7 +1008,7 @@ static int l_filefind_FILETIME_to_unix_time_UTC(lua_State* L) {
         ULARGE_INTEGER largeInteger;
 		const char* fileTimeStr = lua_tostring(L, 1);
 
-        if (sscanf( fileTimeStr, "%I64u", &largeInteger) != 1)
+        if (sscanf( fileTimeStr, "%I64u", (unsigned __int64*)&largeInteger) != 1)
 		{
 			return 0;
 		}

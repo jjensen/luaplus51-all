@@ -16,7 +16,7 @@ extern "C" {
 
 #if !defined(FILEGLOB_BUILD_IMPLEMENTATION)
 typedef struct _fileglob fileglob;
-typedef void* (*fileglob_Alloc)(void* userData, void* ptr, unsigned int size);
+typedef void* (*fileglob_Alloc)(void* userData, void* ptr, size_t ize);
 #endif
 
 int fileglob_WildMatch(const char* pattern, const char *string, int caseSensitive, int recursive);

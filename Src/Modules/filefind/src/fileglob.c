@@ -39,7 +39,7 @@
 #include <time.h>
 #include "buffer.h"
 
-static void* fileglob_DefaultAllocFunction(void* userData, void* ptr, unsigned int size) {
+static void* fileglob_DefaultAllocFunction(void* userData, void* ptr, size_t size) {
 	(void)userData;
 
 	if (size == 0) {
@@ -60,7 +60,7 @@ typedef struct fileglob_StringNode {
 } fileglob_StringNode;
 
 
-typedef void* (*fileglob_Alloc)(void* userData, void* ptr, unsigned int size);
+typedef void* (*fileglob_Alloc)(void* userData, void* ptr, size_t size);
 
 
 enum answer {UNKNOWN = -1, NO, YES};
@@ -495,7 +495,7 @@ void fileglob_AddExclusivePattern(fileglob* self, const char* pattern) {
 	if (pattern[strlen(pattern) - 1] == '/') {
 		for (node = self->exclusiveDirectoryPatternsHead; node; node = node->next) {
 #if defined(_WIN32)
-			if (stricmp(node->buffer, pattern) == 0) {
+			if (_stricmp(node->buffer, pattern) == 0) {
 #else
 			if (strcasecmp(node->buffer, pattern) == 0) {
 #endif
@@ -507,7 +507,7 @@ void fileglob_AddExclusivePattern(fileglob* self, const char* pattern) {
 	} else {
 		for (node = self->exclusiveFilePatternsHead; node; node = node->next) {
 #if defined(_WIN32)
-			if (stricmp(node->buffer, pattern) == 0) {
+			if (_stricmp(node->buffer, pattern) == 0) {
 #else
 			if (strcasecmp(node->buffer, pattern) == 0) {
 #endif
@@ -534,7 +534,7 @@ void fileglob_AddIgnorePattern(fileglob* self, const char* pattern) {
 	if (pattern[strlen(pattern) - 1] == '/') {
 		for (node = self->ignoreDirectoryPatternsHead; node; node = node->next) {
 #if defined(_WIN32)
-			if (stricmp(node->buffer, pattern) == 0) {
+			if (_stricmp(node->buffer, pattern) == 0) {
 #else
 			if (strcasecmp(node->buffer, pattern) == 0) {
 #endif
@@ -546,7 +546,7 @@ void fileglob_AddIgnorePattern(fileglob* self, const char* pattern) {
 	} else {
 		for (node = self->ignoreFilePatternsHead; node; node = node->next) {
 #if defined(_WIN32)
-			if (stricmp(node->buffer, pattern) == 0) {
+			if (_stricmp(node->buffer, pattern) == 0) {
 #else
 			if (strcasecmp(node->buffer, pattern) == 0) {
 #endif
@@ -1044,7 +1044,7 @@ fileglob* fileglob_CreateWithAlloc(const char* inPattern, fileglob_Alloc allocFu
     context = self->startingContext;
     context->buf = self->buf;
     context->path = self->buf;
-    context->pathlen = strlen(self->buf);
+    context->pathlen = (long)strlen(self->buf);
     context->beg = &self->list;
     context->end = &self->list + 1;
 	context->new_beg = NULL;
@@ -1261,7 +1261,7 @@ TopContinue:
 			} else {
                 int ignore = 0;
                 if (self->ignoreDirectoryPatternsHead  ||  self->exclusiveDirectoryPatternsHead) {
-                    char* dirbuf = join_path(self, buf, strlen(buf), context->dirsep, "", 0);
+                    char* dirbuf = join_path(self, buf, (long)strlen(buf), context->dirsep, "", 0);
 
                     ignore = _fileglob_MatchIgnoreDirectoryPattern(self, dirbuf);
 
@@ -1301,7 +1301,7 @@ TopContinue:
 			context = _fileglob_AllocateContextLevel(self);
 			context->buf = buf;
 			context->path = context->buf;
-			context->pathlen = strlen(context->buf);
+			context->pathlen = (long)strlen(context->buf);
 			context->dirsep = 1;
 			context->exist = YES;
 			context->isdir = new_isdir;
@@ -1382,7 +1382,7 @@ NextFile:
                 context = _fileglob_AllocateContextLevel(self);
 				context->buf = buf;
 				context->path = context->buf;
-				context->pathlen = strlen(context->buf);
+				context->pathlen = (long)strlen(context->buf);
 				context->dirsep = 1;
 				context->exist = UNKNOWN;
 				context->isdir = UNKNOWN;
@@ -1623,7 +1623,7 @@ const char* fileglob_Permissions(fileglob* self) {
 			self->permissions[6] = 'r';
 			self->permissions[7] = 'w';
         }
-        if (p = strrchr(self->context->path, '.')) {
+        if ((p = strrchr(self->context->path, '.')) != NULL) {
             if ( !_stricmp(p, ".exe") ||
                 !_stricmp(p, ".cmd") ||
                 !_stricmp(p, ".bat") ||
@@ -1670,7 +1670,7 @@ fileglob_uint64 fileglob_NumberOfLinks(fileglob* self) {
 
 		const char* fullPath = fileglob_FileName(self);
 
-		handle = CreateFile(fullPath, 0, 0, NULL, OPEN_EXISTING, 0, NULL);
+		handle = CreateFileA(fullPath, 0, 0, NULL, OPEN_EXISTING, 0, NULL);
 		if (handle == INVALID_HANDLE_VALUE) {
 			return 0;
 		}
