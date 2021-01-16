@@ -5,6 +5,7 @@
 */
 
 #include <stddef.h>
+#include <stdio.h>
 
 #define ldump_c
 #define LUA_CORE
@@ -247,7 +248,6 @@ int luaU_dump (lua_State* L, const Proto* f, lua_Writer w, void* data, int strip
  D.data=data;
  D.strip=strip;
  D.status=0;
- printf("%c", endian);
 #if LUA_ENDIAN_SUPPORT
  D.swap=doendian(endian);
  D.endian=endian;
