@@ -5,7 +5,6 @@
 */
 
 #include <stddef.h>
-#include <stdio.h>
 
 #define ldump_c
 #define LUA_CORE
