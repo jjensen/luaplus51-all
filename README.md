@@ -17,7 +17,14 @@ For Visual Studio:
 d:\>git clone https://github.com/jjensen/luaplus51-all.git luaplus
 </pre>
 
-* To create a workspace and bootstrap the build environment, run one of the following batch files.
+* Bootstrap the JamPlus build tool by launching `x64 Native Tools Command Prompt` for whichever version of Visual Studio you are using and running:
+
+	* `BootstrapJamPlus-win64.bat`
+
+* Close the `x64 Native Tools Command Prompt`.
+
+* To create a workspace, run one of the following batch files.
+
 	* `CreateVS2019Workspace.bat` - Create a Visual Studio 2019-capable workspace.
 	* `CreateVS2017Workspace.bat` - Create a Visual Studio 2017-capable workspace.
 
@@ -73,7 +80,11 @@ d:\luaplus\build201x>jam c.toolchain=win64/debug
 [~]git clone https://github.com/jjensen/luaplus51-all.git luaplus
 </pre>
 
-* To create a workspace and bootstrap the build environment, run `~/luaplus/CreateJamXcodeWorkspace.sh`.
+* Bootstrap the JamPlus build tool by running:
+
+	* `BootstrapJamPlus-macosx64`
+
+* To create an Xcode workspace, run `~/luaplus/CreateJamXcodeWorkspace.sh`.
 
 * Choose the version of Lua to build within the workspace.  Note that the **-luaplus** versions build additional LuaPlus-specific features into the Lua environment; these are the preferred environments for LuaPlus.
 
@@ -124,7 +135,11 @@ sudo apt install git build-essential libreadline-dev uuid-dev libssl-dev libcurl
 [~]git clone https://github.com/jjensen/luaplus51-all.git luaplus
 </pre>
 
-* To create a workspace and bootstrap the build environment, run `~/luaplus/CreateJamLinuxWorkspace.sh`.
+* Bootstrap the JamPlus build tool by running:
+
+	* `BootstrapJamPlus-linux64`
+
+* To create a build environment, run `~/luaplus/CreateJamLinuxWorkspace.sh`.
 
 * Choose the version of Lua to build within the workspace.  Note that the **-luaplus** versions build additional LuaPlus-specific features into the Lua environment; these are the preferred environments for LuaPlus.
 
