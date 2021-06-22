@@ -94,6 +94,11 @@ static int doargs(int argc, char* argv[])
    if (output==NULL || *output==0) usage(LUA_QL("-o") " needs argument");
    if (IS("-")) output=NULL;
   }
+  else if (IS("-e"))			/* endian */
+  {
+   endian=argv[++i][0];
+   if (endian != '=' && endian != '<' && endian != '>') usage("`-e' is not of the correct type");
+  }
   else if (IS("-p"))			/* parse only */
    dumping=0;
   else if (IS("-s"))			/* strip debug information */
@@ -177,7 +182,7 @@ static int pmain(lua_State* L)
   FILE* D= (output==NULL) ? stdout : fopen(output,"wb");
   if (D==NULL) cannot("open");
   lua_lock(L);
-  luaU_dump(L,f,writer,D,stripping,'=');
+  luaU_dump(L,f,writer,D,stripping,endian);
   lua_unlock(L);
   if (ferror(D)) cannot("write");
   if (fclose(D)) cannot("close");
