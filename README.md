@@ -50,17 +50,17 @@ If you want to build from an IDE:
 If you want to build from the command-line, use:
 
 <pre>
-rem Builds to d:\luaplus\build201x\bin.lua5x-luaplus.vs20xx.win32
-d:\luaplus\build201x>jam c.toolchain=win32/release
-
-rem Builds to d:\luaplus\build201x\bin.lua5x-luaplus.vs20xx.win32
-d:\luaplus\build201x>jam c.toolchain=win32/debug
-
 rem Builds to d:\luaplus\build201x\bin.lua5x-luaplus.vs20xx.win64
 d:\luaplus\build201x>jam c.toolchain=win64/release
 
 rem Builds to d:\luaplus\build201x\bin.lua5x-luaplus.vs20xx.win64
 d:\luaplus\build201x>jam c.toolchain=win64/debug
+
+rem Builds to d:\luaplus\build201x\bin.lua5x-luaplus.vs20xx.win32
+d:\luaplus\build201x>jam c.toolchain=win32/release
+
+rem Builds to d:\luaplus\build201x\bin.lua5x-luaplus.vs20xx.win32
+d:\luaplus\build201x>jam c.toolchain=win32/debug
 </pre>
 
 
