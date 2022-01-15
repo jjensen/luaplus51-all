@@ -13,7 +13,6 @@
 #include <stddef.h>
 
 
-#include "luaconf.h"
 
 
 #define LUA_VERSION	"Lua 5.1"
@@ -29,6 +28,7 @@
 /* option for multiple returns in `lua_pcall' and `lua_call' */
 #define LUA_MULTRET	(-1)
 
+#include "luaconf.h"
 
 /*
 ** pseudo-indices
